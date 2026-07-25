@@ -181,16 +181,31 @@ export default function PosPage() {
     setLoading(false);
   }, []);
 
+  const [manualConsumableDraft, setManualConsumableDraft] = useState({ name: "", qty: 1, unit: "ml" });
+
   const openConsumableModal = (itemIndex) => {
     setConsumableItemIndex(itemIndex);
     setConsumableItems(form.items[itemIndex]?.consumableItems || []);
     setConsumableSearch("");
+    setManualConsumableDraft({ name: "", qty: 1, unit: "ml" });
     setShowConsumableModal(true);
   };
 
   const addConsumableProduct = (product) => {
     setConsumableItems(prev => [...prev, { productId: product.id, name: product.name, qty: 1, unit: product.unit || "pcs" }]);
     setConsumableSearch("");
+  };
+
+  const addManualConsumableItem = (customData = null) => {
+    const itemToAdd = customData || manualConsumableDraft;
+    setConsumableItems(prev => [...prev, {
+      productId: null,
+      name: itemToAdd.name || "",
+      qty: Number(itemToAdd.qty) || 1,
+      unit: itemToAdd.unit || "ml",
+      isManual: true
+    }]);
+    setManualConsumableDraft({ name: "", qty: 1, unit: "ml" });
   };
 
   const updateConsumableItem = (ciIndex, patch) => {
@@ -3178,77 +3193,145 @@ export default function PosPage() {
               <button type="button" onClick={() => setShowConsumableModal(false)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#64748b' }}>✕</button>
             </div>
 
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', position: 'relative', zIndex: 1000 }}>
-              <input
-                type="text"
-                placeholder="Search products by name..."
-                value={consumableSearch}
-                onChange={(e) => setConsumableSearch(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
-              />
-              {consumableSearch && (
-                <div style={{ position: 'absolute', top: '100%', left: 24, right: 24, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: 200, overflowY: 'auto', zIndex: 1010 }}>
-                  {(context.products || [])
-                    .filter(p => p.productType === "CONSUMABLE")
-                    .filter(p => (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase()))
-                    .slice(0, 10)
-                    .map(p => (
-                      <div
-                        key={p.id}
-                        onClick={() => addConsumableProduct(p)}
-                        style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: 13, color: '#334155' }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
-                      >
-                        {p.name}
-                      </div>
-                    ))}
-                  {context.products.filter(p => (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase())).length === 0 && (
-                    <div style={{ padding: '12px 14px', color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>No products found</div>
-                  )}
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', position: 'relative', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Search From Inventory</label>
+                <input
+                  type="text"
+                  placeholder="Search products by name..."
+                  value={consumableSearch}
+                  onChange={(e) => setConsumableSearch(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                />
+                {consumableSearch && (
+                  <div style={{ position: 'absolute', top: '70px', left: 24, right: 24, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: 200, overflowY: 'auto', zIndex: 1010 }}>
+                    {(context.products || [])
+                      .filter(p => (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase()))
+                      .slice(0, 10)
+                      .map(p => (
+                        <div
+                          key={p.id}
+                          onClick={() => addConsumableProduct(p)}
+                          style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: 13, color: '#334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+                        >
+                          <span>{p.name}</span>
+                          <span style={{ fontSize: 11, color: '#64748b' }}>{p.productType || "PRODUCT"}</span>
+                        </div>
+                      ))}
+                    {(context.products || []).filter(p => (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase())).length === 0 && (
+                      <div style={{ padding: '12px 14px', color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>No products found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 3 Fields for Manual Addition */}
+              <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6, display: 'block' }}>Add Custom Consumable Manually (3 Fields)</label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Consumable Name"
+                    value={manualConsumableDraft.name}
+                    onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, name: e.target.value }))}
+                    style={{ flex: 2, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff' }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Qty"
+                    min="0.01"
+                    step="0.01"
+                    value={manualConsumableDraft.qty}
+                    onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, qty: e.target.value }))}
+                    style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Unit (ml)"
+                    value={manualConsumableDraft.unit}
+                    onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, unit: e.target.value }))}
+                    style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addManualConsumableItem()}
+                    style={{ padding: '8px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    + Add
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
-              {consumableItems.map((ci, ciIndex) => (
-                <div key={ciIndex} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: 13, color: '#64748b', minWidth: 20 }}>{ciIndex + 1}</span>
-                  <div style={{ flex: 2, position: 'relative' }}>
+              {consumableItems.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: 14 }}>
+                  No consumables added yet. Search from inventory or add manually above.
+                </div>
+              ) : (
+                consumableItems.map((ci, ciIndex) => (
+                  <div key={ciIndex} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10, padding: '10px 12px', background: ci.productId ? '#f8fafc' : '#f0fdf4', borderRadius: 8, border: ci.productId ? '1px solid #e2e8f0' : '1px solid #bbf7d0' }}>
+                    <span style={{ fontSize: 13, color: '#64748b', minWidth: 20 }}>{ciIndex + 1}</span>
+                    <div style={{ flex: 2, position: 'relative' }}>
+                      <input
+                        type="text"
+                        placeholder="Item Name (e.g. Shampoo)"
+                        value={ci.name || ""}
+                        readOnly={Boolean(ci.productId)}
+                        onChange={(e) => updateConsumableItem(ciIndex, { name: e.target.value })}
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, boxSizing: 'border-box', background: ci.productId ? '#f8fafc' : '#fff' }}
+                      />
+                    </div>
+                    <div style={{ flex: 0, position: 'relative' }}>
+                      <input
+                        type="number"
+                        placeholder="qty"
+                        min="0.01"
+                        step="0.01"
+                        value={ci.qty}
+                        onChange={(e) => updateConsumableItem(ciIndex, { qty: Number(e.target.value) || 1 })}
+                        style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }}
+                      />
+                    </div>
                     <input
                       type="text"
-                      placeholder="Search By Name"
-                      value={ci.name || ""}
-                      readOnly
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, boxSizing: 'border-box', background: '#fff' }}
+                      placeholder="unit"
+                      value={ci.unit || ""}
+                      onChange={(e) => updateConsumableItem(ciIndex, { unit: e.target.value })}
+                      style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13 }}
                     />
+                    <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>🗑</button>
                   </div>
-                  <div style={{ flex: 0, position: 'relative' }}>
-                    <input
-                      type="number"
-                      placeholder="qty"
-                      min="0.01"
-                      step="0.01"
-                      value={ci.qty}
-                      onChange={(e) => updateConsumableItem(ciIndex, { qty: Number(e.target.value) || 1 })}
-                      style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="unit"
-                    value={ci.unit || ""}
-                    onChange={(e) => updateConsumableItem(ciIndex, { unit: e.target.value })}
-                    style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13 }}
-                  />
-                  <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>🗑</button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
-            <div style={{ padding: '14px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-              <button type="button" onClick={() => setShowConsumableModal(false)} style={{ padding: '10px 24px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontWeight: 600, cursor: 'pointer', color: '#475569' }}>Close</button>
-              <button type="button" onClick={saveConsumableItems} style={{ padding: '10px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save</button>
+            <div style={{ padding: '14px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => addManualConsumableItem()}
+                style={{
+                  padding: '10px 18px',
+                  background: '#eff6ff',
+                  border: '1.5px dashed #2563eb',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  color: '#1d4ed8',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 13
+                }}
+              >
+                ➕ Add Manual Consumable
+              </button>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button type="button" onClick={() => setShowConsumableModal(false)} style={{ padding: '10px 24px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontWeight: 600, cursor: 'pointer', color: '#475569' }}>Close</button>
+                <button type="button" onClick={saveConsumableItems} style={{ padding: '10px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save</button>
+              </div>
             </div>
           </div>
         </div>
