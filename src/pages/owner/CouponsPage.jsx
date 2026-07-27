@@ -316,7 +316,7 @@ export default function CouponsPage() {
                   >
                     <div>
                       <div style={{ fontWeight: 800, color: isSelected ? "#1e40af" : "#0f172a", fontSize: "1rem" }}>
-                        {row.discountType === "PERCENT" ? `FLAT ${Number(row.discountValue)}% OFF` : `FLAT ${Number(row.discountValue)} Rs OFF`}
+                        {row.discountType === "PERCENT" ? `FLAT ${Number(row.discountValue)}% OFF` : row.discountType === "CAMPAIGN" ? `CAMPAIGN ${Number(row.discountValue)}% OFF` : `FLAT ${Number(row.discountValue)} Rs OFF`}
                       </div>
                       <div style={{ color: isSelected ? "#3b82f6" : "#64748b", fontSize: "0.85rem", marginTop: 6, fontWeight: 600, letterSpacing: 0.5, textTransform: "uppercase" }}>
                         {row.code}
@@ -426,6 +426,12 @@ export default function CouponsPage() {
                       onClick={() => setCouponForm({ ...couponForm, discountType: "PERCENT" })}
                     >
                       % Percent
+                    </div>
+                    <div 
+                      className={`cpn-radio-option ${couponForm.discountType === "CAMPAIGN" ? "active" : ""}`}
+                      onClick={() => setCouponForm({ ...couponForm, discountType: "CAMPAIGN" })}
+                    >
+                      📣 Campaign
                     </div>
                   </div>
                 </div>

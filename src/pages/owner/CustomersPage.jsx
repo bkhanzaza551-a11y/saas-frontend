@@ -117,6 +117,11 @@ export default function CustomersPage() {
   const [customerGiftCards, setCustomerGiftCards] = useState([]);
   const [customerAdvances, setCustomerAdvances] = useState([]);
   const [customerAffiliateWallet, setCustomerAffiliateWallet] = useState(null);
+  const [customerWallet, setCustomerWallet] = useState(null);
+  const [walletTransactions, setWalletTransactions] = useState([]);
+  const [walletDepositAmount, setWalletDepositAmount] = useState("");
+  const [walletDeductAmount, setWalletDeductAmount] = useState("");
+  const [walletNote, setWalletNote] = useState("");
   const [showMakePartnerModal, setShowMakePartnerModal] = useState(false);
   const [partnerForm, setPartnerForm] = useState({ discountValue: 10, partnerCreditValue: 5, title: "" });
   const [partnerLoading, setPartnerLoading] = useState(false);
@@ -489,6 +494,13 @@ export default function CustomersPage() {
       api.get(`/owner/referrals/wallets/${selectedCustomer.id}`)
         .then(res => setCustomerAffiliateWallet(res.data || null))
         .catch(() => setCustomerAffiliateWallet(null));
+    }
+    if (detailTab === "wallet") {
+      setCustomerWallet(null);
+      setWalletTransactions([]);
+      api.get(`/owner/wallets/${selectedCustomer.id}`)
+        .then(res => { setCustomerWallet(res.data?.wallet || null); setWalletTransactions(res.data?.transactions || []); })
+        .catch(() => { setCustomerWallet(null); setWalletTransactions([]); });
     }
   }, [detailTab, selectedCustomer, membershipPlans.length, packagePlans.length]);
 
@@ -1675,6 +1687,7 @@ export default function CustomersPage() {
                     { key: "membership", icon: CreditCard, label: "Membership" },
                     { key: "giftcard", icon: Gift, label: "Gift Card" },
                     { key: "advance", icon: Wallet, label: "Advance" },
+                    { key: "wallet", icon: Wallet, label: "Wallet" },
                     { key: "duebalance", icon: AlertCircle, label: "Due Balances" },
                     { key: "packages", icon: Package, label: "Packages" },
                     { key: "family", icon: Users, label: "Family Members" },
@@ -1701,6 +1714,7 @@ export default function CustomersPage() {
                       { key: "membership", label: "Membership" },
                       { key: "giftcard", label: "Gift Card" },
                       { key: "advance", label: "Advance" },
+                      { key: "wallet", label: "Wallet" },
                       { key: "duebalance", label: "Due Balances" },
                       { key: "packages", label: "Packages" },
                       { key: "family", label: "Family Members" },
@@ -2115,6 +2129,79 @@ export default function CustomersPage() {
                               <CheckCircle size={16} /> Save Changes
                             </button>
                           </div>
+                        </div>
+                      )}
+
+                      {/* Wallet Tab */}
+                      {detailTab === "wallet" && (
+                        <div style={{ padding: "20px", maxWidth: 600 }}>
+                          <div className="cust-detail-section-title">Customer Wallet</div>
+                          <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", marginBottom: 20 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Current Balance</div>
+                                <div style={{ fontSize: 28, fontWeight: 800, color: customerWallet && Number(customerWallet.balance) > 0 ? "#10b981" : "#0f172a", marginTop: 4 }}>
+                                  {customerWallet ? Number(customerWallet.balance).toFixed(2) : "0.00"}
+                                </div>
+                              </div>
+                              <div style={{ textAlign: "right" }}>
+                                <div style={{ fontSize: 11, color: "#64748b" }}>Total Deposited: {customerWallet ? Number(customerWallet.totalDeposited).toFixed(2) : "0.00"}</div>
+                                <div style={{ fontSize: 11, color: "#64748b" }}>Total Used: {customerWallet ? Number(customerWallet.totalUsed).toFixed(2) : "0.00"}</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+                            <div style={{ background: "#f0fdf4", borderRadius: 12, padding: 16, border: "1px solid #bbf7d0" }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#166534", marginBottom: 10 }}>Deposit Money</div>
+                              <input type="number" min="0" placeholder="Amount" value={walletDepositAmount} onChange={e => setWalletDepositAmount(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #86efac", fontSize: 14, marginBottom: 8, boxSizing: "border-box" }} />
+                              <input type="text" placeholder="Note (optional)" value={walletNote} onChange={e => setWalletNote(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #86efac", fontSize: 13, marginBottom: 8, boxSizing: "border-box" }} />
+                              <button onClick={async () => {
+                                if (!walletDepositAmount || Number(walletDepositAmount) <= 0) return;
+                                try {
+                                  await api.post(`/owner/wallets/${selectedCustomer.id}/deposit`, { amount: Number(walletDepositAmount), note: walletNote || null });
+                                  setWalletDepositAmount(""); setWalletNote("");
+                                  const res = await api.get(`/owner/wallets/${selectedCustomer.id}`);
+                                  setCustomerWallet(res.data?.wallet || null); setWalletTransactions(res.data?.transactions || []);
+                                } catch (err) { alert(err.response?.data?.message || "Failed to deposit"); }
+                              }} style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#16a34a", color: "white", border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Deposit</button>
+                            </div>
+                            <div style={{ background: "#fef2f2", borderRadius: 12, padding: 16, border: "1px solid #fecaca" }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#991b1b", marginBottom: 10 }}>Deduct Money</div>
+                              <input type="number" min="0" placeholder="Amount" value={walletDeductAmount} onChange={e => setWalletDeductAmount(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 14, marginBottom: 8, boxSizing: "border-box" }} />
+                              <input type="text" placeholder="Note (optional)" value={walletNote} onChange={e => setWalletNote(e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 13, marginBottom: 8, boxSizing: "border-box" }} />
+                              <button onClick={async () => {
+                                if (!walletDeductAmount || Number(walletDeductAmount) <= 0) return;
+                                try {
+                                  await api.post(`/owner/wallets/${selectedCustomer.id}/deduct`, { amount: Number(walletDeductAmount), note: walletNote || null });
+                                  setWalletDeductAmount(""); setWalletNote("");
+                                  const res = await api.get(`/owner/wallets/${selectedCustomer.id}`);
+                                  setCustomerWallet(res.data?.wallet || null); setWalletTransactions(res.data?.transactions || []);
+                                } catch (err) { alert(err.response?.data?.message || "Failed to deduct"); }
+                              }} style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#dc2626", color: "white", border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Deduct</button>
+                            </div>
+                          </div>
+
+                          <div className="cust-detail-section-title">Transaction History</div>
+                          {walletTransactions.length === 0 ? (
+                            <div style={{ textAlign: "center", color: "#94a3b8", padding: "30px 10px", fontSize: 13 }}>No wallet transactions yet.</div>
+                          ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              {walletTransactions.map(t => (
+                                <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "white", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                                  <div>
+                                    <div style={{ fontSize: 13, fontWeight: 600, color: t.type === "DEPOSIT" ? "#16a34a" : "#dc2626" }}>{t.type === "DEPOSIT" ? "Deposit" : "Deduction"}</div>
+                                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{t.note || "—"}</div>
+                                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>{new Date(t.createdAt).toLocaleString()}</div>
+                                  </div>
+                                  <div style={{ textAlign: "right" }}>
+                                    <div style={{ fontSize: 14, fontWeight: 700, color: t.type === "DEPOSIT" ? "#16a34a" : "#dc2626" }}>{t.type === "DEPOSIT" ? "+" : "-"}{Number(t.amount).toFixed(2)}</div>
+                                    <div style={{ fontSize: 10, color: "#94a3b8" }}>Bal: {Number(t.balanceAfter).toFixed(2)}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
 
