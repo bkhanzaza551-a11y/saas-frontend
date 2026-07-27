@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { MODULE_GROUPS as SHARED_MODULE_GROUPS, PERMISSION_ACTIONS as ACTIONS } from "./staffAccessConfig";
+import { MODULE_GROUPS as SHARED_MODULE_GROUPS, PERMISSION_ACTIONS } from "./staffAccessConfig";
 
 /* ─── config ─────────────────────────────────────── */
+const ACTIONS = PERMISSION_ACTIONS.filter((a) => a !== "delete");
 const GROUP_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4", "#64748b", "#10b981"];
 const MODULE_GROUPS = SHARED_MODULE_GROUPS.map((group, index) => ({
   group: group.title,
