@@ -11,7 +11,7 @@ import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, Arr
 import "./InventoryPage.css";
 
 const emptyCategory = { name: "", description: "", imageUrl: "", sortOrder: 0, isPublicVisible: true };
-const emptyProduct = { branchId: "", categoryId: "", name: "", productType: "RETAIL", costPrice: 0, sellingPrice: 0, currentStock: 0, minStock: 0, sku: "", barcode: "", imageUrl: "" };
+const emptyProduct = { branchId: "", categoryId: "", name: "", productType: "RETAIL", costPrice: 0, sellingPrice: 0, currentStock: 0, minStock: 0, sku: "", barcode: "", imageUrl: "", unit: "", unitConversion: "", favourite: false };
 const emptyMovement = { productId: "", branchId: "", movementType: "STOCK_IN", quantity: 1, note: "" };
 const emptyVendor = { branchId: "", name: "", phone: "", email: "", address: "", notes: "" };
 const createEmptyPoItem = () => ({ productId: "", quantityOrdered: 1, unitCost: 0 });
@@ -421,7 +421,7 @@ export default function InventoryPage() {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/owner/inventory/products", { ...productForm, costPrice: Number(productForm.costPrice), sellingPrice: Number(productForm.sellingPrice), currentStock: Number(productForm.currentStock), minStock: Number(productForm.minStock) });
+      await api.post("/owner/inventory/products", { ...productForm, costPrice: Number(productForm.costPrice), sellingPrice: Number(productForm.sellingPrice), currentStock: Number(productForm.currentStock), minStock: Number(productForm.minStock), unit: productForm.unit || null, unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null, favourite: Boolean(productForm.favourite) });
       setIsProductModalOpen(false);
       setProductForm(emptyProduct);
       loadAll();
@@ -1516,6 +1516,50 @@ export default function InventoryPage() {
                     <option value="">No Category</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="sp-group">
+                    <label className="sp-label">Unit</label>
+                    <select className="sp-input" value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})}>
+                      <option value="">None</option>
+                      {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                  </div>
+                  <div className="sp-group">
+                    <label className="sp-label">Unit Conversion</label>
+                    <input type="number" className="sp-input" value={productForm.unitConversion} onChange={e => setProductForm({...productForm, unitConversion: e.target.value})} placeholder="e.g. 12 (1 box = 12 pcs)" min="0" />
+                  </div>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={productForm.favourite} onChange={e => setProductForm({...productForm, favourite: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#ec4899" }} />
+                    Mark as Favourite
+                  </label>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Product Image</label>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                    {productForm.imageUrl && <img src={productForm.imageUrl} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover", border: "1px solid #e2e8f0" }} />}
+                    <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#475569", cursor: "pointer" }}>
+                      Choose Image
+                      <input type="file" accept="image/*" hidden onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 2 * 1024 * 1024) { setStatus({ error: "Image exceeds 2MB limit.", success: "" }); return; }
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const img = new Image();
+                          img.onload = () => {
+                            if (img.width < 500 || img.height < 500) { setStatus({ error: `Image must be at least 500x500 pixels (current: ${img.width}x${img.height}).`, success: "" }); return; }
+                            setProductForm(prev => ({ ...prev, imageUrl: ev.target.result }));
+                          };
+                          img.src = ev.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                      }} />
+                    </label>
+                    {productForm.imageUrl && <button type="button" onClick={() => setProductForm(prev => ({ ...prev, imageUrl: "" }))} style={{ padding: "6px 10px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Remove</button>}
+                  </div>
                 </div>
               </div>
               <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>

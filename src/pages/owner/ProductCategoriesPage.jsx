@@ -12,6 +12,7 @@ const defaultProductForm = {
   categoryId: "",
   branchId: "",
   featured: false,
+  favourite: false,
   isActive: true,
   targetGroup: "BOTH",
   hideFromCatalogue: false,
@@ -32,7 +33,9 @@ const defaultProductForm = {
   weight: "",
   length: "",
   width: "",
-  height: ""
+  height: "",
+  unit: "",
+  unitConversion: ""
 };
 
 export default function ProductCategoriesPage() {
@@ -147,7 +150,10 @@ export default function ProductCategoriesPage() {
       weight: p.weight ?? "",
       length: p.length ?? "",
       width: p.width ?? "",
-      height: p.height ?? ""
+      height: p.height ?? "",
+      unit: p.unit ?? "",
+      unitConversion: p.unitConversion ?? "",
+      favourite: Boolean(p.favourite)
     });
     setShowProductModal(true);
   };
@@ -177,7 +183,10 @@ export default function ProductCategoriesPage() {
         weight: productForm.weight !== "" ? Number(productForm.weight) : null,
         length: productForm.length !== "" ? Number(productForm.length) : null,
         width: productForm.width !== "" ? Number(productForm.width) : null,
-        height: productForm.height !== "" ? Number(productForm.height) : null
+        height: productForm.height !== "" ? Number(productForm.height) : null,
+        unit: productForm.unit || null,
+        unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null,
+        favourite: Boolean(productForm.favourite)
       };
       if (editingProduct) {
         await api.patch(`/owner/inventory/products/${editingProduct.id}`, payload);
@@ -409,7 +418,7 @@ export default function ProductCategoriesPage() {
             <form onSubmit={handleSaveProduct} style={{ display: "flex", flexDirection: "column", overflow: "hidden", flex: 1 }}>
               <div className="hub-modal-body" style={{ overflowY: "auto", flex: 1, padding: "24px 28px" }}>
                 {/* Name, Featured, Active */}
-                <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
                   <div className="hub-form-group" style={{ position: "relative" }}>
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Name *</label>
                     <input
@@ -470,6 +479,12 @@ export default function ProductCategoriesPage() {
                     <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
                       <input type="checkbox" checked={productForm.isActive} onChange={e => setProductForm({...productForm, isActive: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
                       Active
+                    </label>
+                  </div>
+                  <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
+                      <input type="checkbox" checked={productForm.favourite} onChange={e => setProductForm({...productForm, favourite: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#ec4899" }} />
+                      Favourite
                     </label>
                   </div>
                 </div>
@@ -545,7 +560,19 @@ export default function ProductCategoriesPage() {
                 {/* Size & Dimensions */}
                 <div style={{ marginBottom: 24, padding: "16px 20px", border: "1px solid #f1f5f9", borderRadius: 12, background: "#f8fafc" }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", display: "block", marginBottom: 16 }}>Size & Dimensions</span>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr", gap: 16 }}>
+                    <div className="hub-form-group">
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Unit</label>
+                      <select className="hub-input" value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff" }}>
+                        <option value="">None</option>
+                        {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
+                      </select>
+                    </div>
+                    <div className="hub-form-group">
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Unit Conversion</label>
+                      <input type="number" className="hub-input" value={productForm.unitConversion} onChange={e => setProductForm({...productForm, unitConversion: e.target.value})} placeholder="e.g. 12" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                      <span style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, display: "block" }}>1 box = X pcs</span>
+                    </div>
                     <div className="hub-form-group">
                       <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Weight (g)</label>
                       <input type="number" className="hub-input" value={productForm.weight} onChange={e => setProductForm({...productForm, weight: e.target.value})} placeholder="0" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
@@ -653,7 +680,15 @@ export default function ProductCategoriesPage() {
                           }
                           const reader = new FileReader();
                           reader.onload = (ev) => {
-                            setProductForm(prev => ({...prev, displayImages: [...(prev.displayImages || []), ev.target.result]}));
+                            const img = new Image();
+                            img.onload = () => {
+                              if (img.width < 500 || img.height < 500) {
+                                setStatus({ error: `"${file.name}" must be at least 500x500 pixels (current: ${img.width}x${img.height}).`, success: "" });
+                                return;
+                              }
+                              setProductForm(prev => ({...prev, displayImages: [...(prev.displayImages || []), ev.target.result]}));
+                            };
+                            img.src = ev.target.result;
                           };
                           reader.readAsDataURL(file);
                         });
