@@ -17,6 +17,7 @@ const emptyVendor = { branchId: "", name: "", phone: "", email: "", address: "",
 const createEmptyPoItem = () => ({ productId: "", quantityOrdered: 1, unitCost: 0 });
 
 const getInventoryTabFromPath = (path) => {
+  if (path.includes("/low-stock")) return "Low Stock";
   if (path.includes("/approval")) return "Approval";
   if (path.includes("/reconciliation")) return "Stock Reconciliation";
   if (path.includes("/purchases/vendors")) return "Vendor Management";
@@ -564,6 +565,7 @@ export default function InventoryPage() {
 
   const tabs = [
     { name: "Dashboard", icon: <Activity size={18} /> },
+    { name: "Low Stock", icon: <AlertTriangle size={18} /> },
     { name: "Purchase Order", icon: <ShoppingCart size={18} /> },
     { name: "Approval", icon: <CheckCircle size={18} /> },
     { name: "Stock Reconciliation", icon: <RefreshCw size={18} /> },
@@ -587,6 +589,7 @@ export default function InventoryPage() {
                 onClick={() => {
                   setActiveTab(tab.name);
                   if (tab.name === "Dashboard") navigate("/admin/inventory");
+                  if (tab.name === "Low Stock") navigate("/admin/inventory/low-stock");
                   if (tab.name === "Purchase Order") navigate("/admin/purchases/orders");
                   if (tab.name === "Approval") navigate("/admin/inventory/approval");
                   if (tab.name === "Stock Reconciliation") navigate("/admin/inventory/reconciliation");
@@ -658,7 +661,7 @@ export default function InventoryPage() {
                 </div>
                 <XCircle size={40} opacity={0.3} />
               </div>
-              <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 12, padding: "20px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "none" }}>
+              <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 12, padding: "20px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "none", cursor: "pointer" }} onClick={() => { setActiveTab("Low Stock"); navigate("/admin/inventory/low-stock"); }}>
                 <div>
                   <div style={{ fontSize: "0.9rem", opacity: 0.9, fontWeight: 500 }}>Min Stock Items</div>
                   <div style={{ fontSize: "2rem", fontWeight: 700, marginTop: 4 }}>{lowStock.length}</div>
@@ -769,6 +772,45 @@ export default function InventoryPage() {
         )}
 
         {/* Dynamic Tab Implementations */}
+
+        {activeTab === "Low Stock" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, fontSize: "1.6rem", color: "#0f172a", fontWeight: "700" }}>Low Stock Products</h2>
+              <span style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 500 }}>{lowStock.length} item{lowStock.length !== 1 ? "s" : ""} below minimum</span>
+            </div>
+            {lowStock.length === 0 ? (
+              <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, padding: "32px", textAlign: "center" }}>
+                <CheckCircle size={32} color="#059669" style={{ marginBottom: 12 }} />
+                <div style={{ color: "#065f46", fontWeight: 700, fontSize: "1.1rem" }}>All products are sufficiently stocked</div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {lowStock.map((item) => (
+                  <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", border: "1px solid #fee2e2", borderRadius: 12, padding: "16px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div style={{ background: "#fef2f2", borderRadius: 10, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <AlertTriangle size={18} color="#dc2626" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0f172a" }}>{item.name}</div>
+                        <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Min: {item.minStock} {item.unit || ""} {item.category ? `| ${item.category.name}` : ""}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ background: "#fef2f2", color: "#dc2626", fontWeight: 700, fontSize: "0.85rem", padding: "6px 14px", borderRadius: 8, border: "1px solid #fecaca" }}>
+                        {item.currentStock} left
+                      </span>
+                      <span style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 700, fontSize: "0.85rem", padding: "6px 14px", borderRadius: 8, border: "1px solid #bbf7d0" }}>
+                        Need {Number(item.minStock) - Number(item.currentStock)} more
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {activeTab !== "Dashboard" && activeTab === "Purchase Order" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>

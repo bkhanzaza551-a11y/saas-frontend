@@ -166,7 +166,7 @@ export default function OwnerDashboard() {
             {/* Inventory Alerts */}
             {data.lowStockAlertCount > 0 ? (
               <div style={{ border: "1px solid #fecaca", borderRadius: 16, overflow: "hidden" }}>
-                <div style={{ background: "#fef2f2", padding: "16px 20px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #fecaca", cursor: "pointer" }} onClick={() => navigate("/admin/inventory")}>
+                <div style={{ background: "#fef2f2", padding: "16px 20px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #fecaca", cursor: "pointer" }} onClick={() => navigate("/admin/inventory/low-stock")}>
                   <AlertTriangle size={20} color="#dc2626" />
                   <div>
                     <div style={{ color: "#991b1b", fontWeight: 700, fontSize: "1rem" }}>Low Stock Warning</div>
@@ -175,7 +175,7 @@ export default function OwnerDashboard() {
                 </div>
                 <div style={{ background: "#fff" }}>
                   {currentStockItems.map((product, idx) => (
-                    <div key={product.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: idx !== currentStockItems.length - 1 ? "1px solid #f1f5f9" : "none", cursor: "pointer", transition: "background 0.2s" }} onClick={() => navigate("/admin/inventory")} onMouseEnter={e => e.currentTarget.style.background="#f8fafc"} onMouseLeave={e => e.currentTarget.style.background="#fff"}>
+                    <div key={product.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: idx !== currentStockItems.length - 1 ? "1px solid #f1f5f9" : "none", cursor: "pointer", transition: "background 0.2s" }} onClick={() => navigate("/admin/inventory/low-stock")} onMouseEnter={e => e.currentTarget.style.background="#f8fafc"} onMouseLeave={e => e.currentTarget.style.background="#fff"}>
                       <div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0f172a" }}>{product.name}</div>
                         <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 4 }}>Min: {product.minStock} {product.unit}</div>

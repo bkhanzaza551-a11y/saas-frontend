@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
 import {
@@ -1522,7 +1523,13 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
 }
 
 export default function ReportsHubPage() {
-  const { selectedBranchId } = useBranch();
+  const { auth } = useAuth();
+  const { selectedBranchId, branches } = useBranch();
+  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
+  const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
+  const canSelectBranch = isSuperAdmin || isOwner;
+  const [reportBranchId, setReportBranchId] = useState("");
+  const effectiveBranchId = canSelectBranch ? reportBranchId : selectedBranchId;
   const [activeReport, setActiveReport] = useState("sales_summary");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ start: "", end: "" });
@@ -1563,7 +1570,7 @@ export default function ReportsHubPage() {
     const params = {};
     if (filters.start) params.start = filters.start;
     if (filters.end) params.end = filters.end;
-    if (selectedBranchId) params.branchId = selectedBranchId;
+    if (effectiveBranchId) params.branchId = effectiveBranchId;
     filterConfig.forEach((f) => {
       const v = reportFilters[f.key];
       if (v && v !== "all") params[f.key] = v;
@@ -1586,7 +1593,7 @@ export default function ReportsHubPage() {
         setDashboardData(null);
       })
       .finally(() => setLoading(false));
-  }, [activeReport, filters.end, filters.start, filterConfig, reportFilters, selectedBranchId]);
+  }, [activeReport, filters.end, filters.start, filterConfig, reportFilters, effectiveBranchId]);
 
   const filteredReports = ALL_REPORTS.filter((report) => !search || report.label.toLowerCase().includes(search.toLowerCase()));
 
@@ -1787,6 +1794,17 @@ export default function ReportsHubPage() {
                 </div>
               );
             })}
+
+            {canSelectBranch && (
+              <select
+                value={reportBranchId}
+                onChange={(e) => setReportBranchId(e.target.value)}
+                style={{ padding: "4px 10px", border: "1px solid #e2e8f0", borderRadius: "5px", fontSize: "0.72rem", minWidth: 130, fontWeight: 600, color: "#334155", background: "white" }}
+              >
+                <option value="">All Branches</option>
+                {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            )}
 
             <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#f1f5f9", borderRadius: 8, padding: "3px 6px" }}>
               {QUICK_RANGES.map((qr) => (
