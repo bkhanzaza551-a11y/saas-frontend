@@ -3595,33 +3595,29 @@ pre {
 }
 
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  .invoice-paper, .invoice-paper * {
-    visibility: visible;
-  }
+  body * { visibility: hidden; }
+  .invoice-paper, .invoice-paper * { visibility: visible; }
   .invoice-paper {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-    box-shadow: none;
-    border: none;
-    border-radius: 0;
+    position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px;
+    box-shadow: none; border: none; border-radius: 0;
   }
-  .pos-receipt-overlay {
-    background: #fff !important;
-    backdrop-filter: none !important;
-    position: static !important;
-    padding: 0 !important;
-    display: block !important;
-  }
-  .no-print {
-    display: none !important;
-  }
+  .pos-receipt-overlay { background: #fff !important; backdrop-filter: none !important; position: static !important; padding: 0 !important; display: block !important; }
+  .no-print { display: none !important; }
+}
+/* Thermal 80mm print */
+@media print and (max-width: 84mm) {
+  @page { margin: 2mm; size: 80mm auto; }
+  .invoice-paper { width: 80mm !important; max-width: 80mm !important; padding: 4px 6px !important; font-size: 11px !important; }
+}
+/* Thermal 58mm print */
+@media print and (max-width: 62mm) {
+  @page { margin: 2mm; size: 58mm auto; }
+  .invoice-paper { width: 58mm !important; max-width: 58mm !important; padding: 3px 5px !important; font-size: 10px !important; }
+}
+/* A4 print */
+@media print and (min-width: 200mm) {
+  @page { margin: 10mm; size: A4; }
+}
 }
 
 /* ════════════════════════════════════════════
@@ -3733,4 +3729,56 @@ pre {
     border-radius: 0 !important;
   }
 }
+
+/* ════════════════════════════════════════════
+   CONSISTENT BUTTON STYLES
+════════════════════════════════════════════ */
+.btn-primary { background: #0f172a; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-primary:hover { background: #1e293b; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-secondary { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }
+
+.btn-danger { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-danger:hover { background: #b91c1c; }
+
+.btn-success { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-success:hover { background: #15803d; }
+
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+.btn-xs { padding: 4px 8px; font-size: 11px; border-radius: 4px; }
+
+.btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; cursor: pointer; transition: all 0.15s; }
+.btn-icon:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.btn-icon-danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.btn-icon-danger:hover { background: #fee2e2; }
+
+/* ════════════════════════════════════════════
+   MOBILE RESPONSIVE IMPROVEMENTS
+════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .page-shell { padding: 12px !important; }
+  .hero-card { padding: 16px !important; }
+  .hero-card h1 { font-size: 1.2rem !important; }
+  .cpn-card { padding: 16px !important; }
+  .responsive-page-layout { flex-direction: column !important; }
+  .responsive-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid #e2e8f0; max-height: 40vh; }
+  .responsive-header { flex-direction: column !important; gap: 12px !important; padding: 16px !important; }
+  .responsive-header-actions { width: 100% !important; }
+  .responsive-search-input { width: 100% !important; }
+  .responsive-product-grid { grid-template-columns: 1fr !important; }
+  .coupons-layout { flex-direction: column !important; }
+  .coupons-left-col { width: 100% !important; min-width: 0 !important; }
+  .coupons-form-grid-1, .coupons-form-grid-2 { grid-template-columns: 1fr !important; }
+  .sp-body { padding: 16px !important; }
+  .cust-detail-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid #e2e8f0; max-height: 35vh; }
+}
+
+@media (max-width: 480px) {
+  .hero-card h1 { font-size: 1rem !important; }
+  .cpn-radio-group { flex-direction: column !important; }
+  .cpn-radio-option { padding: 10px !important; }
+}
+
 
