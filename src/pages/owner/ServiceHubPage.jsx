@@ -630,45 +630,85 @@ export default function ServiceHubPage() {
 
               {/* Consumables */}
               <div style={{ padding: "12px 0", borderTop: "1px solid #f1f5f9" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontSize: 14, fontWeight: 500, color: "#0f172a" }}>Consumables</span>
-                  <button type="button" onClick={() => setSrvForm({...srvForm, consumables: [...srvForm.consumables, { productId: '', reqdQty: 0, productName: '' }]})} style={{ background: "#2563eb", color: "white", border: "none", borderRadius: "50%", width: 28, height: 28, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: "#0f172a" }}>Consumables</span>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1 }}>Default qty unless a variation (Short/Medium/Long) is selected</div>
+                  </div>
+                  <button type="button" onClick={() => setSrvForm({...srvForm, consumables: [...srvForm.consumables, { productId: '', reqdQty: 0, productName: '', variation: '' }]})} style={{ background: "#2563eb", color: "white", border: "none", borderRadius: "50%", width: 28, height: 28, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                 </div>
-                {srvForm.consumables.map((item, idx) => (
-                  <div key={idx} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "end" }}>
-                    <div style={{ flex: 2, minWidth: 0 }}>
-                      {idx === 0 && <label style={{ fontSize: 12, color: "#64748b", marginBottom: 4, display: "block" }}>Item</label>}
-                      <select className="hub-input" value={item.productId} onChange={e => {
-                        const newItems = [...srvForm.consumables];
-                        const prod = products.find(p => p.id === e.target.value);
-                        newItems[idx] = {...newItems[idx], productId: e.target.value, productName: prod?.name || ''};
-                        setSrvForm({...srvForm, consumables: newItems});
-                      }} style={{ width: "100%" }}>
-                        <option value="">Select product</option>
-                        {products.filter(p => p.isActive && p.productType === "CONSUMABLE").map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
-                    </div>
-                    <div style={{ flex: 3, minWidth: 0 }}>
-                      {idx === 0 && <label style={{ fontSize: 12, color: "#64748b", marginBottom: 4, display: "block" }}>Reqd Qty</label>}
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <input type="number" min="0" className="hub-input" value={item.reqdQty} onChange={e => {
-                          const newItems = [...srvForm.consumables];
-                          newItems[idx] = {...newItems[idx], reqdQty: e.target.value};
-                          setSrvForm({...srvForm, consumables: newItems});
-                        }} style={{ flex: 1, minWidth: 0 }} />
-                        {item.productId && (
-                          <span style={{ fontSize: 12, color: "#64748b", flexShrink: 0, whiteSpace: "nowrap", display: "inline-block", minWidth: 24 }}>
-                            {products.find(p => p.id === item.productId)?.unit || 'pcs'}
-                          </span>
+                {(() => {
+                  const consumables = srvForm.consumables || [];
+                  const grouped = {};
+                  consumables.forEach((c, idx) => {
+                    const key = c.productId || `_empty_${idx}`;
+                    if (!grouped[key]) grouped[key] = { product: c, variants: [], productIdx: idx };
+                    if (c.variation) grouped[key].variants.push({ ...c, _idx: idx });
+                    else grouped[key].product = { ...c, _idx: idx };
+                  });
+                  return Object.values(grouped).map((group) => {
+                    const prod = group.product;
+                    const prodIdx = group.product._idx;
+                    return (
+                      <div key={prodIdx} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 12px", marginBottom: 8 }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                          <div style={{ flex: 2, minWidth: 0 }}>
+                            <select className="hub-input" value={prod.productId} onChange={e => {
+                              const ni = [...consumables];
+                              const pr = products.find(p => p.id === e.target.value);
+                              ni[prodIdx] = {...ni[prodIdx], productId: e.target.value, productName: pr?.name || ''};
+                              group.variants.forEach(v => { ni[v._idx] = {...ni[v._idx], productId: e.target.value, productName: pr?.name || ''}; });
+                              setSrvForm({...srvForm, consumables: ni});
+                            }} style={{ width: "100%" }}>
+                              <option value="">Select product</option>
+                              {products.filter(p => p.isActive && p.productType === "CONSUMABLE").map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </select>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 70 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                              <input type="number" min="0" className="hub-input" value={prod.reqdQty} onChange={e => { const ni = [...consumables]; ni[prodIdx] = {...ni[prodIdx], reqdQty: e.target.value}; setSrvForm({...srvForm, consumables: ni}); }} style={{ flex: 1, minWidth: 0 }} />
+                              <span style={{ fontSize: 11, color: "#64748b", flexShrink: 0 }}>{products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
+                            </div>
+                          </div>
+                          <button type="button" onClick={() => {
+                            const toRemove = [prodIdx, ...group.variants.map(v => v._idx)].sort((a,b) => b - a);
+                            const ni = [...consumables];
+                            toRemove.forEach(i => ni.splice(i, 1));
+                            setSrvForm({...srvForm, consumables: ni});
+                          }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 20, padding: "4px 8px", lineHeight: 1 }}>✕</button>
+                        </div>
+                        <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
+                          {["short", "medium", "long"].map(v => {
+                            const existing = group.variants.find(x => x.variation === v);
+                            const isActive = !!existing;
+                            return (
+                              <button key={v} type="button" onClick={() => {
+                                const ni = [...consumables];
+                                if (isActive) ni.splice(existing._idx, 1);
+                                else ni.push({ productId: prod.productId, productName: prod.productName || "", reqdQty: 0, variation: v });
+                                setSrvForm({...srvForm, consumables: ni});
+                              }} style={{ padding: "2px 8px", borderRadius: 5, border: isActive ? "1.5px solid #2563eb" : "1px solid #e2e8f0", background: isActive ? "#eff6ff" : "#fff", color: isActive ? "#2563eb" : "#64748b", fontSize: 10, fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>
+                                {v} {isActive ? "✓" : "+"}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {group.variants.length > 0 && (
+                          <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                            {group.variants.sort((a,b) => ["short","medium","long"].indexOf(a.variation) - ["short","medium","long"].indexOf(b.variation)).map((v) => (
+                              <div key={v._idx} style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 6, padding: "3px 6px" }}>
+                                <span style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textTransform: "capitalize", minWidth: 42 }}>{v.variation}</span>
+                                <input type="number" min="0" value={v.reqdQty} onChange={e => { const ni = [...consumables]; ni[v._idx] = {...ni[v._idx], reqdQty: e.target.value}; setSrvForm({...srvForm, consumables: ni}); }} style={{ border: "none", outline: "none", padding: "2px 4px", fontSize: 11, width: 50, background: "transparent", textAlign: "center" }} />
+                                <span style={{ fontSize: 9, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
-                    </div>
-                    <button type="button" onClick={() => {
-                      const newItems = srvForm.consumables.filter((_, i) => i !== idx);
-                      setSrvForm({...srvForm, consumables: newItems});
-                    }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 20, padding: "4px 8px", lineHeight: 1, marginBottom: 2 }}>✕</button>
-                  </div>
-                ))}
+                    );
+                  });
+                })()}
+                {!srvForm.consumables.length && <p style={{ margin: 0, fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>No consumables added</p>}
               </div>
 
               {/* Taxes */}
