@@ -1188,7 +1188,7 @@ export default function PosDashboardPage() {
                       />
                     </div>
                     <div className="payment-box">
-                      <span>Offline Collected</span>
+                      <span>Cash</span>
                       <input
                         type="number"
                         min={paidOffline}
