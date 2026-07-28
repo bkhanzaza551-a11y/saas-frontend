@@ -17,6 +17,11 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
 
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [followUpFeedback, setFollowUpFeedback] = useState(null);
+  const [followUpNote, setFollowUpNote] = useState("");
+  const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
+
   const mode = location.pathname.endsWith("/feedback/reports")
     ? "reports"
     : location.pathname.endsWith("/feedback/settings")
@@ -81,6 +86,26 @@ export default function FeedbackPage() {
       setStatus({ error: formatApiError(error, "Could not delete feedback"), success: "" });
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  const handleFollowUpSubmit = async () => {
+    if (!followUpFeedback || !followUpNote.trim()) return;
+    try {
+      setFollowUpSubmitting(true);
+      await api.post(`/owner/feedback/${followUpFeedback.id}/follow-up`, {
+        note: followUpNote.trim()
+      });
+      setShowFollowUpModal(false);
+      setFollowUpFeedback(null);
+      setFollowUpNote("");
+      setStatus({ error: "", success: "Follow-up recorded and email sent." });
+      setTimeout(() => setStatus({ error: "", success: "" }), 3000);
+      await load();
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Failed to send follow-up"), success: "" });
+    } finally {
+      setFollowUpSubmitting(false);
     }
   };
 
@@ -159,6 +184,13 @@ export default function FeedbackPage() {
                     <button type="button" className="secondary-button" style={{ background: "#dc2626", color: "#fff", border: "none" }} disabled={isBusy} onClick={() => deleteFeedback(row.id)}>
                       {isBusy ? "..." : "Delete"}
                     </button>
+                    <button type="button" className="secondary-button" style={{ background: "#f59e0b", color: "#fff", border: "none" }} disabled={isBusy} onClick={() => {
+                      setFollowUpFeedback(row);
+                      setFollowUpNote("");
+                      setShowFollowUpModal(true);
+                    }}>
+                      {isBusy ? "..." : "Follow Up"}
+                    </button>
                   </div>
                 </div>
               );
@@ -185,6 +217,37 @@ export default function FeedbackPage() {
           <p className="muted">WhatsApp: {report.settings?.whatsappNumber || "-"}</p>
           <p className="muted">Booking Notes: {report.settings?.bookingNotes || "-"}</p>
           <p className="muted">Cancellation Policy: {report.settings?.cancellationPolicy || "-"}</p>
+        </div>
+      )}
+
+      {/* ── FOLLOW-UP MODAL ── */}
+      {showFollowUpModal && followUpFeedback && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setShowFollowUpModal(false)}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 450, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9" }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>Send Follow-Up Email</h2>
+              <button onClick={() => setShowFollowUpModal(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#64748b" }}>✕</button>
+            </div>
+            <div style={{ padding: "0 24px 20px", flex: 1 }}>
+              <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 12 }}>
+                Customer: <strong>{followUpFeedback.customer?.name || "N/A"}</strong> | Email: <strong>{followUpFeedback.customer?.email || "No email"}</strong>
+              </p>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6, textTransform: "uppercase" }}>Follow-Up Note *</label>
+              <textarea
+                rows={4}
+                placeholder="Enter follow-up message to send as email..."
+                value={followUpNote}
+                onChange={(e) => setFollowUpNote(e.target.value)}
+                style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 6, boxSizing: "border-box", fontSize: "0.9rem", resize: "vertical" }}
+              />
+            </div>
+            <div style={{ padding: "16px 24px", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "flex-end", gap: 12, background: "#f8fafc" }}>
+              <button type="button" onClick={() => setShowFollowUpModal(false)} style={{ padding: "10px 24px", borderRadius: 6, border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+              <button type="button" disabled={!followUpNote.trim() || followUpSubmitting} onClick={handleFollowUpSubmit} style={{ padding: "10px 24px", borderRadius: 6, border: "none", background: "#f59e0b", color: "#fff", fontWeight: 600, cursor: followUpNote.trim() ? "pointer" : "not-allowed", opacity: followUpNote.trim() ? 1 : 0.5 }}>
+                {followUpSubmitting ? "Sending..." : "Send Follow-Up"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

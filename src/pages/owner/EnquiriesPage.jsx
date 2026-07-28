@@ -88,6 +88,12 @@ export default function EnquiriesPage() {
   const [actionNotes, setActionNotes] = useState("");
   const [newStatus, setNewStatus] = useState("");
 
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [followUpEnquiry, setFollowUpEnquiry] = useState(null);
+  const [followUpNote, setFollowUpNote] = useState("");
+  const [followUpDueAt, setFollowUpDueAt] = useState("");
+  const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
+
   const mode = location.pathname.includes("/follow-ups")
     ? "followUps"
     : location.pathname.includes("/reports")
@@ -211,6 +217,28 @@ export default function EnquiriesPage() {
       await load();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Failed to update status"), success: "" });
+    }
+  };
+
+  const handleFollowUpSubmit = async () => {
+    if (!followUpEnquiry || !followUpNote.trim()) return;
+    try {
+      setFollowUpSubmitting(true);
+      await api.post(`/owner/enquiries/${followUpEnquiry.id}/follow-up`, {
+        note: followUpNote.trim(),
+        dueAt: followUpDueAt || null
+      });
+      setShowFollowUpModal(false);
+      setFollowUpEnquiry(null);
+      setFollowUpNote("");
+      setFollowUpDueAt("");
+      setStatus({ error: "", success: "Follow-up recorded and email sent." });
+      setTimeout(() => setStatus({ error: "", success: "" }), 3000);
+      await load();
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Failed to send follow-up"), success: "" });
+    } finally {
+      setFollowUpSubmitting(false);
     }
   };
 
@@ -430,6 +458,19 @@ export default function EnquiriesPage() {
                               title="Update Status / Action"
                             >
                               <Edit3 size={13} /> Status
+                            </button>
+                            <button 
+                              className="eq-btn eq-btn-secondary" 
+                              style={{ padding: "4px 8px", fontSize: "12px", background: "#f59e0b", color: "#fff", border: "none" }}
+                              onClick={() => {
+                                setFollowUpEnquiry(row);
+                                setFollowUpNote("");
+                                setFollowUpDueAt("");
+                                setShowFollowUpModal(true);
+                              }}
+                              title="Send Follow-Up Email"
+                            >
+                              <Mail size={13} /> Follow Up
                             </button>
                             {row.status !== "CONVERTED" && (
                               <button 
@@ -665,6 +706,49 @@ export default function EnquiriesPage() {
                 <button type="submit" className="eq-btn eq-btn-primary">Update Status</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── FOLLOW-UP MODAL ── */}
+      {showFollowUpModal && followUpEnquiry && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: "450px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", borderBottom: "1px solid #f1f5f9", paddingBottom: "14px" }}>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#1e293b" }}>Send Follow-Up Email</h2>
+              <button onClick={() => setShowFollowUpModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}><X size={20} /></button>
+            </div>
+            <div style={{ display: "grid", gap: "16px", marginBottom: "20px" }}>
+              <div>
+                <label className="eq-label">Enquiry</label>
+                <input type="text" className="eq-input" disabled value={`${followUpEnquiry.name} (${followUpEnquiry.email || "No email"})`} />
+              </div>
+              <div>
+                <label className="eq-label">Follow-Up Note *</label>
+                <textarea 
+                  className="eq-input"
+                  rows={3}
+                  placeholder="Enter follow-up message to send as email..."
+                  value={followUpNote}
+                  onChange={(e) => setFollowUpNote(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="eq-label">Due Date (optional)</label>
+                <input 
+                  type="datetime-local"
+                  className="eq-input"
+                  value={followUpDueAt}
+                  onChange={(e) => setFollowUpDueAt(e.target.value)}
+                />
+              </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", borderTop: "1px solid #f1f5f9", paddingTop: "14px" }}>
+              <button type="button" className="eq-btn eq-btn-secondary" onClick={() => setShowFollowUpModal(false)}>Cancel</button>
+              <button type="button" className="eq-btn eq-btn-primary" disabled={!followUpNote.trim() || followUpSubmitting} onClick={handleFollowUpSubmit}>
+                {followUpSubmitting ? "Sending..." : "Send Follow-Up"}
+              </button>
+            </div>
           </div>
         </div>
       )}
