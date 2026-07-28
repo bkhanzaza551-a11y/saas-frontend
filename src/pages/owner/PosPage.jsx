@@ -144,6 +144,7 @@ export default function PosPage() {
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipDraft, setTipDraft] = useState({ staffId: "", amount: "", paymentMode: "CASH" });
   const [tipEntries, setTipEntries] = useState([]);
+  const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
 
   const [couponValidating, setCouponValidating] = useState(false);
   const [couponValidation, setCouponValidation] = useState(null);
@@ -1067,6 +1068,7 @@ export default function PosPage() {
         sendFeedbackMessage: true,
         sendInvoiceMessage: true
       }));
+      setPaymentManuallyEdited({ online: false, cash: false });
 
       setGiftCardDiscount(0);
 
@@ -1205,6 +1207,7 @@ export default function PosPage() {
         packageRedemptions: [],
         payments: [emptyPayment]
       }));
+      setPaymentManuallyEdited({ online: false, cash: false });
       setGiftCardDiscount(0);
 
       setShowMemModal(false);
@@ -1304,6 +1307,7 @@ export default function PosPage() {
         packageRedemptions: [],
         payments: [emptyPayment]
       }));
+      setPaymentManuallyEdited({ online: false, cash: false });
       setGiftCardDiscount(0);
 
       setShowGcModal(false);
@@ -1517,6 +1521,7 @@ export default function PosPage() {
         sendFeedbackMessage: true,
         sendInvoiceMessage: true
       }));
+      setPaymentManuallyEdited({ online: false, cash: false });
       setGiftCardDiscount(0);
       await loadContext("", form.branchId);
     } catch (error) {
@@ -2171,6 +2176,7 @@ export default function PosPage() {
                 <div className="pos-payment-input">
                   <label><svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> Online</label>
                   <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "ONLINE")?.amount || ""} onFocus={() => {
+                    if (paymentManuallyEdited.cash) return;
                     setForm((current) => {
                       const preservedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE", "WALLET"].includes(p.mode));
                       const preservedPaid = preservedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
@@ -2187,6 +2193,7 @@ export default function PosPage() {
                     const preservedPaid = (form.payments || []).filter(p => !["ONLINE", "BALANCE", "WALLET"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
                     const maxOnline = Math.max(0, totals.total - preservedPaid);
                     const amount = Math.min(Number(e.target.value) || 0, maxOnline);
+                    setPaymentManuallyEdited(prev => ({ ...prev, online: true }));
                     setForm((current) => {
                       const newPayments = (current.payments || []).filter(p => p.mode !== "ONLINE");
                       newPayments.push({ mode: "ONLINE", amount, note: "" });
@@ -2205,6 +2212,7 @@ export default function PosPage() {
                 <div className="pos-payment-input">
                   <label><svg width="16" height="16" style={{ color: "#64748b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Cash</label>
                   <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "CASH")?.amount || ""} onFocus={() => {
+                    if (paymentManuallyEdited.online) return;
                     setForm((current) => {
                       const preservedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE", "WALLET"].includes(p.mode));
                       const preservedPaid = preservedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
@@ -2221,6 +2229,7 @@ export default function PosPage() {
                     const preservedPaid = (form.payments || []).filter(p => !["CASH", "BALANCE", "WALLET"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
                     const maxCash = Math.max(0, totals.total - preservedPaid);
                     const amount = Math.min(Number(e.target.value) || 0, maxCash);
+                    setPaymentManuallyEdited(prev => ({ ...prev, cash: true }));
                     setForm((current) => {
                       const newPayments = (current.payments || []).filter(p => p.mode !== "CASH");
                       newPayments.push({ mode: "CASH", amount, note: "" });
