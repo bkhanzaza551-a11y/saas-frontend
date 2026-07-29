@@ -196,6 +196,7 @@ export default function PosDashboardPage() {
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipDraft, setTipDraft] = useState({ staffId: "", amount: "", paymentMode: "CASH" });
   const [tipEntries, setTipEntries] = useState([]);
+  const [compModal, setCompModal] = useState({ open: false, index: null, serviceName: "", remark: "" });
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -292,6 +293,7 @@ export default function PosDashboardPage() {
         taxPct: Number(item.taxPct || 0),
         tipAmount: Number(item.tipAmount || 0),
         complimentary: Number(item.unitPrice || 0) === 0,
+        complimentaryRemark: item.complimentaryRemark || "",
         serviceReminder: item.serviceReminder || null,
         consumables: Array.isArray(item.consumables) ? item.consumables : []
       })),
@@ -500,7 +502,8 @@ export default function PosDashboardPage() {
           originalUnitPrice: Number(service.price || 0),
           taxPct: Number(service.taxRate || 0),
           tipAmount: 0,
-          complimentary: false
+          complimentary: false,
+          complimentaryRemark: ""
         }
       ]
     }));
@@ -534,6 +537,7 @@ export default function PosDashboardPage() {
         const discountAmt = toAmount(nextItem.discountAmt, 0);
         nextItem.unitPrice = Number(Math.max(0, basePrice - ((basePrice * discountPct) / 100) - discountAmt).toFixed(2));
         nextItem.complimentary = false;
+        nextItem.complimentaryRemark = "";
       } else {
         nextItem.originalUnitPrice = basePrice;
         nextItem.unitPrice = 0;
@@ -689,7 +693,7 @@ export default function PosDashboardPage() {
         });
       }
       if (item.complimentary) {
-        lines.push(`Complimentary | ${itemName}`);
+        lines.push(`Complimentary | ${itemName}${item.complimentaryRemark ? ` | ${item.complimentaryRemark}` : ""}`);
       }
     });
     if (!lines.length) return "";
@@ -771,6 +775,7 @@ export default function PosDashboardPage() {
           discountAmt: Number(item.discountAmt || 0),
           tipAmount: Number(item.tipAmount || 0),
           complimentary: item.complimentary,
+          complimentaryRemark: item.complimentaryRemark || null,
           appliedBenefitType: item.appliedBenefitType,
           appliedBenefitValue: item.appliedBenefitValue,
           packageSessionsUsed: item.packageSessionsUsed,
@@ -1162,7 +1167,13 @@ export default function PosDashboardPage() {
                           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                             <button type="button" title="Split Service" onClick={() => setStatus({ error: "", success: "Split service workflow is reserved for the next pass." })} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--accent, #3b82f6)" }} disabled={!isEditing}><ScissorsLineDashed size={16} /></button>
                             <button type="button" title="Service Reminder" onClick={() => openReminderModal(index)} style={{ background: "transparent", border: "none", cursor: "pointer", color: item.serviceReminder?.date ? "#16a34a" : "#111827" }} disabled={!isEditing}><Clock3 size={16} /></button>
-                            <button type="button" title="Complimentary" onClick={() => toggleComplimentary(index)} style={{ background: "transparent", border: "none", cursor: "pointer", color: item.complimentary ? "#16a34a" : "#3b82f6" }} disabled={!isEditing}><Gift size={16} /></button>
+                            <button type="button" title="Complimentary" onClick={() => {
+                              if (item.complimentary) {
+                                toggleComplimentary(index);
+                              } else {
+                                setCompModal({ open: true, index, serviceName: item.serviceName || "", remark: "" });
+                              }
+                            }} style={{ background: "transparent", border: "none", cursor: "pointer", color: item.complimentary ? "#16a34a" : "#3b82f6" }} disabled={!isEditing}><Gift size={16} /></button>
                             <button type="button" title="Add Consumable Items For Service" onClick={() => openConsumableModal(index)} style={{ background: "transparent", border: "none", cursor: "pointer", color: item.consumables?.length ? "#16a34a" : "#3b82f6" }} disabled={!isEditing}><TicketPercent size={16} /></button>
                             {isEditing ? <button type="button" title="Remove Item" onClick={() => removeItem(index)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#ef4444" }}><Trash2 size={16} /></button> : null}
                           </div>
@@ -1869,6 +1880,44 @@ export default function PosDashboardPage() {
                   <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>₹{Number(v.price || 0).toFixed(0)}</div>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complimentary Remark Modal */}
+      {compModal.open && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 480px)", padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <strong style={{ fontSize: 20, color: "#0f172a" }}>Complimentary Remark</strong>
+              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+            </div>
+            <p style={{ color: "#475569", fontSize: 14, marginBottom: 16 }}>Enter remark for <strong>{compModal.serviceName}</strong> as complimentary (Mandatory)</p>
+            <input
+              type="text"
+              value={compModal.remark}
+              onChange={e => setCompModal(m => ({ ...m, remark: e.target.value }))}
+              placeholder="Reason for complimentary..."
+              autoFocus
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, marginBottom: 20 }}
+              onKeyDown={e => {
+                if (e.key === "Enter" && compModal.remark.trim()) {
+                  const items = [...form.items];
+                  items[compModal.index] = { ...items[compModal.index], complimentary: true, complimentaryRemark: compModal.remark.trim(), unitPrice: 0, discountPct: 100 };
+                  setForm(f => ({ ...f, items }));
+                  setCompModal({ open: false, index: null, serviceName: "", remark: "" });
+                }
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569" }}>Close</button>
+              <button type="button" disabled={!compModal.remark.trim()} onClick={() => {
+                const items = [...form.items];
+                items[compModal.index] = { ...items[compModal.index], complimentary: true, complimentaryRemark: compModal.remark.trim(), unitPrice: 0, discountPct: 100 };
+                setForm(f => ({ ...f, items }));
+                setCompModal({ open: false, index: null, serviceName: "", remark: "" });
+              }} style={{ padding: "10px 24px", background: compModal.remark.trim() ? "#2563eb" : "#cbd5e1", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: compModal.remark.trim() ? "pointer" : "not-allowed" }}>Confirm</button>
             </div>
           </div>
         </div>

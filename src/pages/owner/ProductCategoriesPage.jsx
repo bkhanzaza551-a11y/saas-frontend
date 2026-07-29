@@ -624,7 +624,7 @@ export default function ProductCategoriesPage() {
                       <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Unit</label>
                       <select className="hub-input" value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff" }}>
                         <option value="">None</option>
-                        {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
+                        {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
                       </select>
                     </div>
                     <div className="hub-form-group">

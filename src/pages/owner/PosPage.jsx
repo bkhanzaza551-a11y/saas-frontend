@@ -12,7 +12,7 @@ import PageLoader from "../../components/PageLoader";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import './PosPage.css';
 
-const emptyServiceItem = { itemType: "SERVICE", serviceId: "", staffUserId: "", qty: 1, taxPct: 0, consumableItems: [] };
+const emptyServiceItem = { itemType: "SERVICE", serviceId: "", staffUserId: "", qty: 1, taxPct: 0, consumableItems: [], complimentaryRemark: "" };
 const emptyProductItem = { itemType: "PRODUCT", productId: "", qty: 1, taxPct: 0, batchNumber: "", variationName: "" };
 const emptyMembershipItem = { itemType: "MEMBERSHIP", membershipPlanId: "", staffUserId: "", qty: 1, taxPct: 0 };
 const emptyPackageItem = { itemType: "PACKAGE", packageId: "", staffUserId: "", qty: 1, taxPct: 0 };
@@ -146,6 +146,7 @@ export default function PosPage() {
   const [tipEntries, setTipEntries] = useState([]);
   const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
   const [variationModal, setVariationModal] = useState({ open: false, product: null });
+  const [compModal, setCompModal] = useState({ open: false, index: null, serviceName: "", remark: "" });
 
   const [couponValidating, setCouponValidating] = useState(false);
   const [couponValidation, setCouponValidation] = useState(null);
@@ -1996,8 +1997,11 @@ export default function PosPage() {
                           )}
                           {(item.itemType === "SERVICE" || item.itemType === "PRODUCT") && (
                             <button type="button" title="Mark as Complimentary" onClick={() => {
-                              const isGift = !item.isGift;
-                              updateItem(index, isGift ? { isGift, discountPct: 100, discountAmt: 0 } : { isGift, discountPct: 0 });
+                              if (item.isGift) {
+                                updateItem(index, { isGift: false, discountPct: 0, complimentaryRemark: "" });
+                              } else {
+                                setCompModal({ open: true, index, serviceName: baseObj.name, remark: "" });
+                              }
                             }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: item.isGift ? '#3b82f6' : '#94a3b8' }}>
                               <Gift size={20} />
                             </button>
@@ -3718,6 +3722,40 @@ export default function PosPage() {
                   <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{currencySymbol}{Number(v.price || 0).toFixed(0)}</div>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complimentary Remark Modal */}
+      {compModal.open && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 480px)", padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <strong style={{ fontSize: 20, color: "#0f172a" }}>Complimentary Remark</strong>
+              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+            </div>
+            <p style={{ color: "#475569", fontSize: 14, marginBottom: 16 }}>Enter remark for <strong>{compModal.serviceName}</strong> as complimentary (Mandatory)</p>
+            <input
+              type="text"
+              value={compModal.remark}
+              onChange={e => setCompModal(m => ({ ...m, remark: e.target.value }))}
+              placeholder="Reason for complimentary..."
+              autoFocus
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, marginBottom: 20 }}
+              onKeyDown={e => {
+                if (e.key === "Enter" && compModal.remark.trim()) {
+                  updateItem(compModal.index, { isGift: true, discountPct: 100, discountAmt: 0, complimentaryRemark: compModal.remark.trim() });
+                  setCompModal({ open: false, index: null, serviceName: "", remark: "" });
+                }
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569" }}>Close</button>
+              <button type="button" disabled={!compModal.remark.trim()} onClick={() => {
+                updateItem(compModal.index, { isGift: true, discountPct: 100, discountAmt: 0, complimentaryRemark: compModal.remark.trim() });
+                setCompModal({ open: false, index: null, serviceName: "", remark: "" });
+              }} style={{ padding: "10px 24px", background: compModal.remark.trim() ? "#2563eb" : "#cbd5e1", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: compModal.remark.trim() ? "pointer" : "not-allowed" }}>Confirm</button>
             </div>
           </div>
         </div>
