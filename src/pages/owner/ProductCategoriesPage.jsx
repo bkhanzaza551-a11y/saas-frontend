@@ -338,6 +338,7 @@ export default function ProductCategoriesPage() {
                       <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", lineHeight: 1.3 }}>
                         {p.name}
                         {p.featured && <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: 4, fontWeight: 700, display: "inline-flex", alignItems: "center", height: 18 }}>★ Featured</span>}
+                        {Array.isArray(p.variations) && p.variations.length > 0 && <span style={{ fontSize: 10, background: "#dbeafe", color: "#1d4ed8", padding: "2px 6px", borderRadius: 4, fontWeight: 700, display: "inline-flex", alignItems: "center", height: 18 }}>Customisable</span>}
                       </div>
                       <div style={{ fontSize: 12, color: "#64748b", fontWeight: 500 }}>SKU: {p.sku || "N/A"}</div>
                     </div>
@@ -605,27 +606,44 @@ export default function ProductCategoriesPage() {
                 <div style={{ marginBottom: 24, padding: "20px", border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <span style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>Variations</span>
-                    <button type="button" onClick={() => setProductForm({...productForm, variations: [...productForm.variations, { name: "", sku: "", price: 0, stock: 0 }]})} style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#dbeafe"} onMouseLeave={e=>e.currentTarget.style.background="#eff6ff"}>+ Add Variation</button>
+                    <button type="button" onClick={() => setProductForm({...productForm, variations: [...productForm.variations, { name: "", price: 0, salePrice: 0, nonDiscountable: false, storeSku: "", retail: true }]})} style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#dbeafe"} onMouseLeave={e=>e.currentTarget.style.background="#eff6ff"}>Add Variations</button>
                   </div>
                   {productForm.variations.map((v, idx) => (
-                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr auto", gap: 12, marginBottom: 12, alignItems: "end", background: "#f8fafc", padding: 12, borderRadius: 8, border: "1px solid #f1f5f9" }}>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Name</label>
-                        <input type="text" className="hub-input" value={v.name} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], name: e.target.value}; setProductForm({...productForm, variations: next}); }} placeholder="e.g. 500ml" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1" }} />
+                    <div key={idx} style={{ marginBottom: 16, background: "#f8fafc", padding: 16, borderRadius: 10, border: "1px solid #f1f5f9" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Variation: {idx + 1}</span>
+                        <button type="button" onClick={() => setProductForm({...productForm, variations: productForm.variations.filter((_, i) => i !== idx)})} style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Remove Variation"><X size={14} /></button>
                       </div>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>SKU</label>
-                        <input type="text" className="hub-input" value={v.sku} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], sku: e.target.value}; setProductForm({...productForm, variations: next}); }} placeholder="SKU" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1" }} />
+                      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr auto 1fr auto", gap: 10, alignItems: "end" }}>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Name</label>
+                          <input type="text" value={v.name} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], name: e.target.value}; setProductForm({...productForm, variations: next}); }} placeholder="e.g. 10 gm" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Price</label>
+                          <input type="number" value={v.price || ""} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], price: parseFloat(e.target.value) || 0}; setProductForm({...productForm, variations: next}); }} placeholder="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Sale Price</label>
+                          <input type="number" value={v.salePrice || ""} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], salePrice: parseFloat(e.target.value) || 0}; setProductForm({...productForm, variations: next}); }} placeholder="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                          <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", textAlign: "center", lineHeight: 1.2 }}>Non<br/>Discountable</label>
+                          <button type="button" onClick={() => { const next = [...productForm.variations]; next[idx] = {...next[idx], nonDiscountable: !v.nonDiscountable}; setProductForm({...productForm, variations: next}); }} style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: v.nonDiscountable ? "#3b82f6" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+                            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: v.nonDiscountable ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                          </button>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Store ...</label>
+                          <input type="text" value={v.storeSku || ""} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], storeSku: e.target.value}; setProductForm({...productForm, variations: next}); }} placeholder="SKU" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                          <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", textAlign: "center" }}>Retail</label>
+                          <button type="button" onClick={() => { const next = [...productForm.variations]; next[idx] = {...next[idx], retail: !v.retail}; setProductForm({...productForm, variations: next}); }} style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: v.retail ? "#3b82f6" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+                            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: v.retail ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Price</label>
-                        <input type="number" className="hub-input" value={v.price} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], price: parseFloat(e.target.value) || 0}; setProductForm({...productForm, variations: next}); }} placeholder="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1" }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Stock</label>
-                        <input type="number" className="hub-input" value={v.stock} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], stock: parseInt(e.target.value) || 0}; setProductForm({...productForm, variations: next}); }} placeholder="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1" }} />
-                      </div>
-                      <button type="button" onClick={() => setProductForm({...productForm, variations: productForm.variations.filter((_, i) => i !== idx)})} style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#fecaca"} onMouseLeave={e=>e.currentTarget.style.background="#fee2e2"} title="Remove Variation"><X size={16} /></button>
                     </div>
                   ))}
                   {productForm.variations.length === 0 && <div style={{ color: "#94a3b8", fontSize: 13, fontStyle: "italic" }}>No variations added.</div>}

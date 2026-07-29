@@ -145,6 +145,7 @@ export default function PosPage() {
   const [tipDraft, setTipDraft] = useState({ staffId: "", amount: "", paymentMode: "CASH" });
   const [tipEntries, setTipEntries] = useState([]);
   const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
+  const [variationModal, setVariationModal] = useState({ open: false, product: null });
 
   const [couponValidating, setCouponValidating] = useState(false);
   const [couponValidation, setCouponValidation] = useState(null);
@@ -854,6 +855,10 @@ export default function PosPage() {
   };
 
   const addQuickProduct = (product) => {
+    if (Array.isArray(product.variations) && product.variations.length > 0) {
+      setVariationModal({ open: true, product });
+      return;
+    }
     setForm(c => {
       const activeItems = c.items.filter((item) => item.serviceId || item.productId || item.membershipPlanId || item.packageId || item.giftCardId || item.itemType === "GIFT_CARD");
       const next = { ...c };
@@ -865,6 +870,26 @@ export default function PosPage() {
         discountPct: 0,
         discountAmt: 0,
         taxPct: product.taxPct || product.taxRate || 0
+      }];
+      return next;
+    });
+  };
+
+  const addProductWithVariation = (product, variation) => {
+    setVariationModal({ open: false, product: null });
+    setForm(c => {
+      const activeItems = c.items.filter((item) => item.serviceId || item.productId || item.membershipPlanId || item.packageId || item.giftCardId || item.itemType === "GIFT_CARD");
+      const next = { ...c };
+      next.items = [...activeItems, {
+        ...emptyProductItem,
+        productId: product.id,
+        productName: `${product.name} (${variation.name})`,
+        unitPrice: toAmount(variation.price || product.sellingPrice),
+        originalUnitPrice: toAmount(variation.price || product.sellingPrice),
+        discountPct: 0,
+        discountAmt: 0,
+        taxPct: product.taxPct || product.taxRate || 0,
+        variationName: variation.name || ""
       }];
       return next;
     });
@@ -1663,9 +1688,10 @@ export default function PosPage() {
                  <div key={group.title}>
                    <div className="pos-group-header">{group.title}</div>
                    <div className="pos-item-grid">
-                      {group.items.map(product => (
+                       {group.items.map(product => (
                         <button type="button" key={product.id} className="pos-item-card" onClick={() => addQuickProduct(product)}>
                           {product.featured && <div style={{ position: "absolute", top: 4, right: 4, fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>★</div>}
+                          {Array.isArray(product.variations) && product.variations.length > 0 && <div style={{ position: "absolute", top: 4, left: 4, fontSize: 9, background: "#dbeafe", color: "#1d4ed8", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>Customisable</div>}
                           <div className="pos-item-card-name">{product.name}</div>
                           <div className="pos-item-card-prices">
                             <span className="pos-item-card-price-new">{Number(product.sellingPrice || 0).toFixed(0)}</span>
@@ -3666,6 +3692,32 @@ export default function PosPage() {
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
               <button type="button" onClick={() => setShowMembershipItemsModal(false)} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569" }}>Cancel</button>
               <button type="button" onClick={confirmMembershipItemsApply} style={{ padding: "10px 24px", background: "var(--button-bg-solid, #2563eb)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" }}>Confirm & Apply</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── VARIATION SELECTOR MODAL ── */}
+      {variationModal.open && variationModal.product && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setVariationModal({ open: false, product: null })}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9" }}>
+              <div>
+                <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>{variationModal.product.name}</h2>
+                <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "4px 0 0" }}>Select a variation</p>
+              </div>
+              <button onClick={() => setVariationModal({ open: false, product: null })} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#64748b" }}>✕</button>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
+              {(variationModal.product.variations || []).map((v, idx) => (
+                <button key={idx} type="button" onClick={() => addProductWithVariation(variationModal.product, v)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", marginBottom: 10, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#93c5fd"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#e2e8f0"; }}>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{v.name}</div>
+                    {v.storeSku && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>SKU: {v.storeSku}</div>}
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{currencySymbol}{Number(v.price || 0).toFixed(0)}</div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
