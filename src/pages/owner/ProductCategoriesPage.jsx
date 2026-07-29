@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { X, Trash2, Edit2, Search, Plus, Package } from "lucide-react";
+import { X, Trash2, Edit2, Search, Plus, Package, ClipboardList } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -21,6 +21,8 @@ const defaultProductForm = {
   salePrice: 0,
   currentStock: 0,
   nonDiscountable: false,
+  onFloor: 0,
+  netWeight: "",
   sku: "",
   productType: "RETAIL",
   description: "",
@@ -57,6 +59,10 @@ export default function ProductCategoriesPage() {
   const [nameSuggestions, setNameSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const nameRef = useRef(null);
+  const [stockModal, setStockModal] = useState({ open: false, product: null });
+  const [stockForm, setStockForm] = useState({ currentStock: 0, minStock: 0, onFloor: 0, netWeight: "", unit: "", productType: "RETAIL" });
+  const [stockSaving, setStockSaving] = useState(false);
+  const [stockError, setStockError] = useState("");
 
   const loadData = useCallback(async () => {
     try {
@@ -138,6 +144,8 @@ export default function ProductCategoriesPage() {
       salePrice: Number(p.salePrice) || 0,
       currentStock: Number(p.currentStock) || 0,
       nonDiscountable: Boolean(p.nonDiscountable),
+      onFloor: Number(p.onFloor) || 0,
+      netWeight: p.netWeight != null ? Number(p.netWeight) : "",
       sku: p.sku || "",
       productType: p.productType || "RETAIL",
       description: p.description || "",
@@ -169,6 +177,8 @@ export default function ProductCategoriesPage() {
         sellingPrice: Number(productForm.sellingPrice),
         salePrice: productForm.salePrice ? Number(productForm.salePrice) : null,
         currentStock: Number(productForm.currentStock),
+        onFloor: Number(productForm.onFloor) || 0,
+        netWeight: productForm.netWeight !== "" ? Number(productForm.netWeight) : null,
         featured: Boolean(productForm.featured),
         targetGroup: productForm.targetGroup || "BOTH",
         hideFromCatalogue: Boolean(productForm.hideFromCatalogue),
@@ -209,6 +219,49 @@ export default function ProductCategoriesPage() {
 
   const handlePriceBlur = (field) => {
     if (productForm[field] === "") setProductForm(prev => ({ ...prev, [field]: 0 }));
+  };
+
+  const openStockModal = (p) => {
+    setStockModal({ open: true, product: p });
+    setStockForm({
+      currentStock: Number(p.currentStock) || 0,
+      minStock: Number(p.minStock) || 0,
+      onFloor: Number(p.onFloor) || 0,
+      netWeight: p.netWeight != null ? Number(p.netWeight) : "",
+      unit: p.unit || "",
+      productType: p.productType || "RETAIL"
+    });
+    setStockError("");
+  };
+
+  const handleSaveStock = async (e) => {
+    e.preventDefault();
+    if (!stockModal.product) return;
+    setStockSaving(true);
+    setStockError("");
+    try {
+      const payload = {
+        currentStock: Number(stockForm.currentStock),
+        minStock: Number(stockForm.minStock),
+        onFloor: Number(stockForm.onFloor),
+        netWeight: stockForm.netWeight !== "" ? Number(stockForm.netWeight) : null,
+        unit: stockForm.unit || null,
+        productType: stockForm.productType
+      };
+      if (payload.onFloor > payload.currentStock) {
+        setStockError("On floor cannot exceed total stock");
+        setStockSaving(false);
+        return;
+      }
+      await api.patch(`/owner/inventory/products/${stockModal.product.id}/stock-details`, payload);
+      setStatus({ success: "Stock details updated", error: "" });
+      setStockModal({ open: false, product: null });
+      loadData();
+    } catch (err) {
+      setStockError(formatApiError(err, "Failed to update stock details"));
+    } finally {
+      setStockSaving(false);
+    }
   };
 
   if (loading) return <PageLoader title="Loading products" />;
@@ -348,9 +401,14 @@ export default function ProductCategoriesPage() {
                       <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{currencySymbol}{Number(p.sellingPrice).toFixed(0)}</span>
                       {p.productType === "CONSUMABLE" && <span style={{ fontSize: 11, background: "#f1f5f9", color: "#475569", padding: "4px 8px", borderRadius: 6, fontWeight: 600 }}>Consumable</span>}
                     </div>
-                    <button onClick={() => openEditProduct(p)} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "8px", cursor: "pointer", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; e.currentTarget.style.borderColor = "#bfdbfe"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#e2e8f0"; }} title="Edit Product">
-                      <Edit2 size={16} />
-                    </button>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button onClick={() => openStockModal(p)} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "8px", cursor: "pointer", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; e.currentTarget.style.borderColor = "#bfdbfe"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#e2e8f0"; }} title="Update Stock Details">
+                        <ClipboardList size={16} />
+                      </button>
+                      <button onClick={() => openEditProduct(p)} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "8px", cursor: "pointer", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; e.currentTarget.style.borderColor = "#bfdbfe"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#e2e8f0"; }} title="Edit Product">
+                        <Edit2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -720,6 +778,72 @@ export default function ProductCategoriesPage() {
               <div className="hub-modal-footer" style={{ borderTop: "1px solid #e2e8f0", padding: "16px 28px", display: "flex", justifyContent: "flex-end", gap: 12, background: "#f8fafc", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
                 <button type="button" onClick={() => setShowProductModal(false)} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>Cancel</button>
                 <button type="submit" disabled={saving} style={{ padding: "10px 32px", background: "#0f172a", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1, transition: "background 0.2s" }} onMouseEnter={e=>{if(!saving) e.currentTarget.style.background="#1e293b"}} onMouseLeave={e=>{if(!saving) e.currentTarget.style.background="#0f172a"}}>{saving ? "Saving..." : "Save Product"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Update Stock Details Modal */}
+      {stockModal.open && stockModal.product && (
+        <div className="hub-modal-overlay" onClick={() => setStockModal({ open: false, product: null })} style={{ background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)" }}>
+          <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 580, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 28px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+              <span style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Update Stock Details</span>
+              <button type="button" onClick={() => setStockModal({ open: false, product: null })} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", padding: 6, borderRadius: "50%", display: "flex" }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
+            </div>
+            <form onSubmit={handleSaveStock} style={{ padding: "24px 28px" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 20 }}>{stockModal.product.name}</div>
+
+              {stockError && <div style={{ background: "#fef2f2", color: "#dc2626", padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 16, fontWeight: 500 }}>{stockError}</div>}
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Stock</label>
+                  <input type="number" min="0" step="any" required value={stockForm.currentStock} onChange={e => setStockForm({...stockForm, currentStock: e.target.value === "" ? "" : parseFloat(e.target.value) || 0})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Min stock</label>
+                  <input type="number" min="0" step="any" required value={stockForm.minStock} onChange={e => setStockForm({...stockForm, minStock: e.target.value === "" ? "" : parseFloat(e.target.value) || 0})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>On floor</label>
+                  <input type="number" min="0" step="any" required value={stockForm.onFloor} onChange={e => setStockForm({...stockForm, onFloor: e.target.value === "" ? "" : parseFloat(e.target.value) || 0})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }} />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Net Weight</label>
+                  <input type="number" min="0" step="any" value={stockForm.netWeight} onChange={e => setStockForm({...stockForm, netWeight: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})} placeholder="0" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Unit</label>
+                  <select value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "#fff" }}>
+                    <option value="">Select Unit</option>
+                    {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 24, marginBottom: 24, padding: "16px 20px", border: "1px solid #f1f5f9", borderRadius: 12, background: "#f8fafc" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
+                  <span style={{ color: "#64748b" }}>Retail</span>
+                  <button type="button" onClick={() => setStockForm({...stockForm, productType: stockForm.productType === "RETAIL" ? "CONSUMABLE" : "RETAIL"})} style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: stockForm.productType === "RETAIL" ? "#3b82f6" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+                    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: stockForm.productType === "RETAIL" ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                  </button>
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
+                  <span style={{ color: "#64748b" }}>Consumable</span>
+                  <button type="button" onClick={() => setStockForm({...stockForm, productType: stockForm.productType === "CONSUMABLE" ? "RETAIL" : "CONSUMABLE"})} style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: stockForm.productType === "CONSUMABLE" ? "#3b82f6" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+                    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: stockForm.productType === "CONSUMABLE" ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                  </button>
+                </label>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
+                <button type="button" onClick={() => setStockModal({ open: false, product: null })} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>Close</button>
+                <button type="submit" disabled={stockSaving} style={{ padding: "10px 32px", background: "#2563eb", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: stockSaving ? "not-allowed" : "pointer", opacity: stockSaving ? 0.7 : 1, transition: "background 0.2s" }} onMouseEnter={e=>{if(!stockSaving) e.currentTarget.style.background="#1d4ed8"}} onMouseLeave={e=>{if(!stockSaving) e.currentTarget.style.background="#2563eb"}}>{stockSaving ? "Saving..." : "Submit"}</button>
               </div>
             </form>
           </div>
