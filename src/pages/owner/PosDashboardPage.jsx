@@ -808,6 +808,23 @@ export default function PosDashboardPage() {
     }
   };
 
+  const [completingInvoice, setCompletingInvoice] = useState(false);
+
+  const handleCompleteInvoice = async () => {
+    const invoiceId = activeInvoiceId;
+    if (!invoiceId) return;
+    try {
+      setCompletingInvoice(true);
+      await api.patch(`/owner/invoices/${invoiceId}/complete`, {});
+      await loadInvoiceDetail(invoiceId);
+      setStatus({ error: "", success: "Invoice completed successfully." });
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Could not complete invoice"), success: "" });
+    } finally {
+      setCompletingInvoice(false);
+    }
+  };
+
   const openBillPreview = async () => {
     if (invoiceDetail) {
       setBillInvoice(invoiceDetail);
@@ -1301,6 +1318,9 @@ export default function PosDashboardPage() {
                 <div className="pos-detail-bottom-actions">
                   <button className="btn-view-bill" onClick={() => { setIsEditing(false); closeDetail(); }}>Clear</button>
                   <button className="btn-view-bill" onClick={updateInvoice} disabled={!isEditing}>Update</button>
+                  {(["STARTED", "UNPAID"].includes(invoiceDetail?.status || detailStatus || detail.status)) && (
+                    <button className="btn-view-bill" onClick={handleCompleteInvoice} disabled={completingInvoice} style={{ background: "#16a34a", color: "white", border: "none" }}>{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
+                  )}
                   <button className="btn-clear" style={{ background: "white", color: "var(--accent, #3b82f6)", border: "1px solid var(--accent, #3b82f6)" }} onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }}>Cancel Edit</button>
                   <button className="btn-view-bill" onClick={openBillPreview} disabled={billLoading}>{billLoading ? "Loading..." : "View Bill"}</button>
                 </div>
