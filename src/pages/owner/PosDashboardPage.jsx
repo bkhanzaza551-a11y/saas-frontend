@@ -333,7 +333,13 @@ export default function PosDashboardPage() {
     return Object.entries(grouped).map(([title, items]) => ({ title, items }));
   }, [posContext.products, productSearch, productCategoryFilter]);
 
+  const [variationModal, setVariationModal] = useState({ open: false, product: null });
+
   const addQuickProduct = (product) => {
+    if (Array.isArray(product.variations) && product.variations.length > 0) {
+      setVariationModal({ open: true, product });
+      return;
+    }
     setForm(prev => ({
       ...prev,
       items: [
@@ -350,7 +356,33 @@ export default function PosDashboardPage() {
           discountPct: 0,
           taxPct: product.taxPct || 0,
           staffUserId: "",
-          staffUserSalonId: ""
+          staffUserSalonId: "",
+          variationName: ""
+        }
+      ]
+    }));
+  };
+
+  const addProductWithVariation = (product, variation) => {
+    setVariationModal({ open: false, product: null });
+    setForm(prev => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        {
+          id: `TEMP_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          itemType: "PRODUCT",
+          productId: product.id,
+          name: `${product.name} (${variation.name})`,
+          qty: 1,
+          unitPrice: variation.price != null ? variation.price : (product.sellingPrice || 0),
+          originalUnitPrice: variation.price != null ? variation.price : (product.sellingPrice || 0),
+          discountAmt: 0,
+          discountPct: 0,
+          taxPct: product.taxPct || 0,
+          staffUserId: "",
+          staffUserSalonId: "",
+          variationName: variation.name || ""
         }
       ]
     }));
@@ -941,8 +973,9 @@ export default function PosDashboardPage() {
                           <div key={group.title}>
                             <div className="pos-group-header">{group.title}</div>
                             <div className="pos-item-grid">
-                              {group.items.map((product) => (
+                               {group.items.map((product) => (
                                 <button type="button" key={product.id} className="pos-item-card" onClick={() => addQuickProduct(product)}>
+                                  {Array.isArray(product.variations) && product.variations.length > 0 && <div style={{ position: "absolute", top: 4, left: 4, fontSize: 9, background: "#dbeafe", color: "#1d4ed8", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>Customisable</div>}
                                   <div className="pos-item-card-name">{product.name}</div>
                                   <div className="pos-item-card-prices">
                                     <span className="pos-item-card-price-new">{Number(product.sellingPrice || product.price || 0).toFixed(0)}</span>
@@ -1814,6 +1847,32 @@ export default function PosDashboardPage() {
           onDownload={downloadBill}
         />
       ) : null}
+
+      {/* ── VARIATION SELECTOR MODAL ── */}
+      {variationModal.open && variationModal.product && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setVariationModal({ open: false, product: null })}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9" }}>
+              <div>
+                <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>{variationModal.product.name}</h2>
+                <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "4px 0 0" }}>Select a variation</p>
+              </div>
+              <button onClick={() => setVariationModal({ open: false, product: null })} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#64748b" }}>✕</button>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
+              {(variationModal.product.variations || []).map((v, idx) => (
+                <button key={idx} type="button" onClick={() => addProductWithVariation(variationModal.product, v)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", marginBottom: 10, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#93c5fd"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#e2e8f0"; }}>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{v.name}</div>
+                    {v.storeSku && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>SKU: {v.storeSku}</div>}
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>₹{Number(v.price || 0).toFixed(0)}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

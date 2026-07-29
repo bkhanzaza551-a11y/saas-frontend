@@ -13,7 +13,7 @@ import IndianPhoneInput from "../../components/IndianPhoneInput";
 import './PosPage.css';
 
 const emptyServiceItem = { itemType: "SERVICE", serviceId: "", staffUserId: "", qty: 1, taxPct: 0, consumableItems: [] };
-const emptyProductItem = { itemType: "PRODUCT", productId: "", qty: 1, taxPct: 0, batchNumber: "" };
+const emptyProductItem = { itemType: "PRODUCT", productId: "", qty: 1, taxPct: 0, batchNumber: "", variationName: "" };
 const emptyMembershipItem = { itemType: "MEMBERSHIP", membershipPlanId: "", staffUserId: "", qty: 1, taxPct: 0 };
 const emptyPackageItem = { itemType: "PACKAGE", packageId: "", staffUserId: "", qty: 1, taxPct: 0 };
 const emptyPayment = { mode: "CASH", amount: 0, note: "" };
@@ -884,8 +884,8 @@ export default function PosPage() {
         ...emptyProductItem,
         productId: product.id,
         productName: `${product.name} (${variation.name})`,
-        unitPrice: toAmount(variation.price || product.sellingPrice),
-        originalUnitPrice: toAmount(variation.price || product.sellingPrice),
+        unitPrice: variation.price != null ? variation.price : toAmount(product.sellingPrice),
+        originalUnitPrice: variation.price != null ? variation.price : toAmount(product.sellingPrice),
         discountPct: 0,
         discountAmt: 0,
         taxPct: product.taxPct || product.taxRate || 0,
