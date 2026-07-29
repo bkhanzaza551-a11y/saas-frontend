@@ -722,8 +722,10 @@ export default function PosDashboardPage() {
         note: reminderModal.note.trim()
       }
     });
+    const savedIndex = reminderModal.index;
     setReminderModal({ open: false, index: -1, date: "", note: "" });
-    setStatus({ error: "", success: `Reminder saved for ${invoiceLabel(form.items[reminderModal.index])}.` });
+    const savedItemName = invoiceLabel(form.items[savedIndex]);
+    setStatus({ error: "", success: `Reminder saved for ${savedItemName}.` });
   };
 
   const openConsumableModal = (index) => {
@@ -918,10 +920,7 @@ export default function PosDashboardPage() {
                         {(row.items || []).every(i => i.itemType === "PRODUCT") ? "Products" : (row.items || []).every(i => i.itemType === "SERVICE") ? "Services" : "Items"}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
-                        {(row.items || []).map(item => {
-                          const prefix = item.itemType === "PRODUCT" ? "" : "";
-                          return item.serviceName || item.productName || "Item";
-                        }).join(", ")}
+                        {(row.items || []).map(item => item.serviceName || item.productName || "Item").join(", ")}
                       </div>
                     </>
                   )}
@@ -1075,11 +1074,11 @@ export default function PosDashboardPage() {
                           <div><strong style={{color:"#0f172a"}}>Phone :</strong> {detail.customer?.phone || ""}</div>
                         </div>
                         <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                          <div><strong style={{color:"#0f172a"}}>DOB :</strong> NA</div>
-                          <div><strong style={{color:"#0f172a"}}>Anniv :</strong> NA</div>
+                          <div><strong style={{color:"#0f172a"}}>DOB :</strong> {detail.customer?.dateOfBirth ? new Date(detail.customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "NA"}</div>
+                          <div><strong style={{color:"#0f172a"}}>Anniv :</strong> {detail.customer?.anniversary ? new Date(detail.customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "NA"}</div>
                         </div>
                         <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                          <div><strong style={{color:"#0f172a"}}>Last Visited :</strong> NA</div>
+                          <div><strong style={{color:"#0f172a"}}>Last Visited :</strong> {detail.customer?.lastVisitAt ? new Date(detail.customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "NA"}</div>
                           <div><strong style={{color:"#0f172a"}}>Due Bal :</strong> NA</div>
                         </div>
                         <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
@@ -1921,7 +1920,7 @@ export default function PosDashboardPage() {
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{v.name}</div>
                     {v.storeSku && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>SKU: {v.storeSku}</div>}
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>₹{Number(v.price || 0).toFixed(0)}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{formatMoney(v.price || 0)}</div>
                 </button>
               ))}
             </div>

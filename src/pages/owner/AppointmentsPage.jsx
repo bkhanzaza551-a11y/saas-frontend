@@ -732,6 +732,7 @@ export default function AppointmentsPage() {
   const confirmedCount = rows.filter((row) => row.status === "CONFIRMED" || row.status === "PENDING").length;
   const completedCount = rows.filter((row) => row.status === "COMPLETED").length;
   const cancelledCount = rows.filter((row) => row.status === "CANCELLED").length;
+  const onlineCount = rows.filter((row) => row.bookingChannel === "ONLINE").length;
   const totalCount = rows.length;
 
   const formatDate = (date) => date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
@@ -1521,7 +1522,7 @@ export default function AppointmentsPage() {
         </div>
         <div className="counters-row">
           <div className="counter-badge active">Confirmed <span className="counter-val">{confirmedCount}</span></div>
-          <div className="counter-badge">Online <span className="counter-val" style={{ background: "#f1f5f9" }}>0</span></div>
+          <div className="counter-badge">Online <span className="counter-val" style={{ background: "#f1f5f9" }}>{onlineCount}</span></div>
           <div className="counter-badge">Completed <span className="counter-val" style={{ background: "#f1f5f9" }}>{completedCount}</span></div>
           <div className="counter-badge">Cancelled <span className="counter-val" style={{ background: "#f1f5f9" }}>{cancelledCount}</span></div>
           <div className="counter-badge">Total <span className="counter-val" style={{ background: "#f1f5f9" }}>{totalCount}</span></div>
@@ -1784,7 +1785,7 @@ export default function AppointmentsPage() {
                         </select>
                       </div>
 
-                      <div className="add-link" style={{ margin: "12px 0" }}>Add more staff +</div>
+                      <div className="add-link" style={{ margin: "12px 0", cursor: "pointer" }} onClick={() => { const nextItems = [...form.items]; const nextItem = { ...nextItems[idx], staffUserIds: [...(nextItems[idx].staffUserIds || []), ""] }; nextItems[idx] = nextItem; setForm((current) => ({ ...current, items: nextItems })); }}>Add more staff +</div>
                       <div className="sp-time-grid">
                         <div>
                           <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>From Time</label>

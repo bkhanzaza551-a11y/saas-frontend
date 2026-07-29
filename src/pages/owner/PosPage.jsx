@@ -605,29 +605,9 @@ export default function PosPage() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
-      try {
-        const params = {};
-        if (form.customerId) params.customerId = form.customerId;
-        if (form.branchId) params.branchId = form.branchId;
-        const [contextResponse, closingResponse, catRes] = await Promise.all([
-          api.get("/owner/pos/context", { params }),
-          api.get("/owner/pos/day-closing", { params: form.branchId ? { branchId: form.branchId } : {} }),
-          api.get("/owner/service-categories", { params: form.branchId ? { branchId: form.branchId } : {} })
-        ]);
-        if (!active) return;
-        applyContext(contextResponse, closingResponse, catRes, form.customerId, form.branchId);
-        setStatus((current) => ({ ...current, error: "" }));
-      } catch (error) {
-        if (!active) return;
-        setLoading(false);
-        setStatus((current) => ({ ...current, error: formatApiError(error, "Could not load POS workspace") }));
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [applyContext, form.branchId, form.customerId]);
+    loadContext().then(() => { if (!active) return; });
+    return () => { active = false; };
+  }, [loadContext]);
 
   useEffect(() => {
     if (tab !== "products") {
@@ -1913,7 +1893,10 @@ export default function PosPage() {
                     const discountedPrice = item.unitPrice != null ? toAmount(item.unitPrice) : basePrice;
                     const qty = Number(item.qty) || 1;
                     const subTotal = discountedPrice * qty;
-                    const tax = (subTotal * Number(item.taxPct || 0)) / 100;
+                    const taxPctVal = Number(item.taxPct || 0);
+                    const advSettings = context.settings?.advancedSettings && typeof context.settings.advancedSettings === "object" ? context.settings.advancedSettings : {};
+                    const isInclTax = advSettings?.taxMapping?.inclusiveTax === true;
+                    const tax = isInclTax && taxPctVal > 0 ? (subTotal * taxPctVal) / (100 + taxPctVal) : (subTotal * taxPctVal) / 100;
                     const total = subTotal + tax;
                     return (
                       <tr key={index}>
