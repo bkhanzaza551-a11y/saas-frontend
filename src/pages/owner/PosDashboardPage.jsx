@@ -16,6 +16,7 @@ const invoiceLabel = (item) => item?.serviceName || item?.productName || item?.n
 const invoiceStatusClass = (status) => {
   const normalized = String(status || "").toUpperCase();
   if (normalized === "PAID") return "paid";
+  if (normalized === "STARTED") return "started";
   if (normalized === "PARTIAL") return "partial";
   if (normalized === "UNPAID") return "unpaid";
   if (normalized === "CANCELLED") return "cancelled";
@@ -854,6 +855,7 @@ export default function PosDashboardPage() {
         </div>
 
         <div className="pos-dash-header-right">
+          <button className={`pos-dash-filter-pill ${statusFilter === "STARTED" ? "active" : ""}`} onClick={() => setStatusFilter("STARTED")} style={{ background: statusFilter === "STARTED" ? "#dbeafe" : undefined, borderColor: statusFilter === "STARTED" ? "#93c5fd" : undefined, color: statusFilter === "STARTED" ? "#1d4ed8" : undefined }}>In Progress <span>{summary?.startedInvoices || 0}</span></button>
           <button className={`pos-dash-filter-pill ${statusFilter === "UNPAID" ? "active" : ""}`} onClick={() => setStatusFilter("UNPAID")}>Unpaid <span>{summary?.unpaidInvoices || 0}</span></button>
           <button className={`pos-dash-filter-pill ${statusFilter === "PARTIAL" ? "active" : ""}`} onClick={() => setStatusFilter("PARTIAL")}>Partial <span>{summary?.partialInvoices || 0}</span></button>
           <button className={`pos-dash-filter-pill ${statusFilter === "PAID" ? "active" : ""}`} onClick={() => setStatusFilter("PAID")}>Paid <span>{summary?.paidInvoices || 0}</span></button>
@@ -869,6 +871,9 @@ export default function PosDashboardPage() {
           {rows.map((row) => {
             const dateStr = new Date(row.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
             const timeStr = new Date(row.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+            const startedStr = row.startedAt ? new Date(row.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
+            const completedStr = row.completedAt ? new Date(row.completedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
+            const apptStatus = row.appointment?.status || null;
             return (
               <div key={row.id} className="pos-dash-card" onClick={() => openInvoice(row.id)}>
                 <div className="pos-dash-card-actions">
@@ -898,12 +903,23 @@ export default function PosDashboardPage() {
                   {row.items?.length > 3 ? <div className="pos-dash-card-item"><span>+{row.items.length - 3} more items</span></div> : null}
                 </div>
                 <div className="pos-dash-card-footer">
-                  <div className="pos-dash-card-meta">
-                    {dateStr}, {timeStr}, Total : {formatMoney(row.total)}
+                  <div className="pos-dash-card-meta" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span>{dateStr}, {timeStr}</span>
+                    {startedStr && <span style={{ fontSize: 11, color: "#2563eb" }}>Started: {startedStr}</span>}
+                    {completedStr && <span style={{ fontSize: 11, color: "#16a34a" }}>Completed: {completedStr}</span>}
+                    <span style={{ fontWeight: 700 }}>Total: {formatMoney(row.total)}</span>
                   </div>
-                  <span className={`pos-dash-card-pickup pos-dash-card-status-${(row.status || "default").toLowerCase()}`}>
-                    {row.status === "PAID" ? "Paid" : row.status === "PARTIAL" ? "Partial" : row.status === "UNPAID" ? "Unpaid" : row.status === "CANCELLED" ? "Cancelled" : row.status || "N/A"}
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}>
+                    {apptStatus && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, textTransform: "uppercase", letterSpacing: "0.5px",
+                        background: apptStatus === "IN_PROGRESS" ? "#dbeafe" : apptStatus === "COMPLETED" ? "#dcfce7" : apptStatus === "CANCELLED" ? "#fee2e2" : "#fef3c7",
+                        color: apptStatus === "IN_PROGRESS" ? "#1d4ed8" : apptStatus === "COMPLETED" ? "#16a34a" : apptStatus === "CANCELLED" ? "#dc2626" : "#92400e"
+                      }}>{apptStatus === "IN_PROGRESS" ? "STARTED" : apptStatus}</span>
+                    )}
+                    <span className={`pos-dash-card-pickup pos-dash-card-status-${(row.status || "default").toLowerCase()}`}>
+                      {row.status === "PAID" ? "Paid" : row.status === "STARTED" ? "In Progress" : row.status === "PARTIAL" ? "Partial" : row.status === "UNPAID" ? "Unpaid" : row.status === "CANCELLED" ? "Cancelled" : row.status || "N/A"}
+                    </span>
+                  </div>
                 </div>
               </div>
             );

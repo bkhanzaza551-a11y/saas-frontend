@@ -96,6 +96,8 @@ export default function PosPage() {
   const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
+  const [activeServiceInvoice, setActiveServiceInvoice] = useState(null);
+  const [showActiveServicePopup, setShowActiveServicePopup] = useState(false);
   
   const [showGcModal, setShowGcModal] = useState(false);
   const [gcModalGc, setGcModalGc] = useState(null);
@@ -702,6 +704,19 @@ export default function PosPage() {
       setForm(prev => ({...prev, branchId: selectedBranchId}));
     }
   }, [selectedBranchId]);
+
+  useEffect(() => {
+    if (!form.customerId) { setActiveServiceInvoice(null); setShowActiveServicePopup(false); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get(`/owner/invoices/active-by-customer/${form.customerId}`);
+        const invoices = Array.isArray(res.data) ? res.data : [];
+        if (!cancelled && invoices.length > 0) { setActiveServiceInvoice(invoices[0]); setShowActiveServicePopup(true); }
+      } catch { if (!cancelled) { setActiveServiceInvoice(null); setShowActiveServicePopup(false); } }
+    })();
+    return () => { cancelled = true; };
+  }, [form.customerId]);
 
   // Auto-apply advance: when a customer with advance is selected and items exist,
   // auto-fill the ADVANCE payment up to min(advance, total). Only fills if the user
@@ -1440,6 +1455,7 @@ export default function PosPage() {
 
     return {
       ...form,
+      mode,
       discount: Number(form.discount || 0),
       tax: Number(form.tax || 0),
       loyaltyPointsUsed: Number(form.loyaltyPointsUsed || 0),
@@ -1499,7 +1515,7 @@ export default function PosPage() {
     try {
       const response = await api.post("/owner/pos/invoices", buildInvoicePayload(mode));
       setResult(response.data);
-      setToastMessage({ type: "success", title: "Invoice Created", message: `${response.data.invoiceNumber} ${mode === "complete" ? "created & completed" : "created"}.` });
+      setToastMessage({ type: "success", title: "Invoice Created", message: `${response.data.invoiceNumber} ${mode === "start" ? "started" : mode === "complete" ? "created & completed" : "created"}.` });
       
       const invoiceId = response.data.id;
       let tipErrors = [];
@@ -2368,8 +2384,8 @@ export default function PosPage() {
               {status.success && <span style={{ color: "#10b981", fontWeight: 500, fontSize: "13px" }}>{status.success}</span>}
             </div>
             <button type="button" className="pos-btn-clear" onClick={() => { setForm(c => ({ ...c, items: [], discount: 0, giftVoucherCode: "", couponCode: "", packageRedemptions: [] })); setTipEntries([]); setCouponValidation(null); setCouponCodeInput(""); setGiftCardDiscount(0); }}>Clear</button>
-            <button type="button" className="pos-btn-create" disabled={submitting} onClick={() => !submitting && submitInvoice("draft")}>Create</button>
-            <button type="button" className="pos-btn-complete" disabled={submitting} onClick={() => !submitting && submitInvoice("complete")}>Create & Complete</button>
+            <button type="button" className="pos-btn-create" disabled={submitting} onClick={() => !submitting && submitInvoice("start")} style={{ background: "#2563eb" }}>Start</button>
+            <button type="button" className="pos-btn-complete" disabled={submitting} onClick={() => !submitting && submitInvoice("complete")}>Complete & Bill</button>
           </div>
         </div>
       </div>
@@ -2417,6 +2433,36 @@ export default function PosPage() {
                 <button type="submit" style={{ flex: 1, padding: "10px", background: "#0f172a", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}>Save Guest</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showActiveServicePopup && activeServiceInvoice && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1299, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "white", padding: 24, borderRadius: 12, width: 440, boxShadow: "none" }}>
+            <h3 style={{ marginTop: 0, marginBottom: 12, color: "#0f172a", fontSize: "18px" }}>Active Service in Progress</h3>
+            <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontWeight: 700, color: "#1d4ed8" }}>{activeServiceInvoice.invoiceNumber}</span>
+                <span style={{ fontSize: 12, padding: "2px 8px", background: "#dbeafe", color: "#1d4ed8", borderRadius: 6, fontWeight: 700 }}>IN PROGRESS</span>
+              </div>
+              <div style={{ fontSize: 13, color: "#334155", marginBottom: 4 }}>Guest: {activeServiceInvoice.customer?.name || "Walk-in"}</div>
+              <div style={{ fontSize: 13, color: "#334155", marginBottom: 4 }}>Started: {activeServiceInvoice.startedAt ? new Date(activeServiceInvoice.startedAt).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "N/A"}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginTop: 8 }}>Total: {formatMoney(activeServiceInvoice.total)}</div>
+              {(activeServiceInvoice.items || []).length > 0 && (
+                <div style={{ marginTop: 8, borderTop: "1px solid #bfdbfe", paddingTop: 8 }}>
+                  {activeServiceInvoice.items.map((item) => (
+                    <div key={item.id} style={{ fontSize: 12, color: "#475569", padding: "2px 0" }}>
+                      {item.serviceName || item.productName} {Number(item.qty) > 1 ? `x${item.qty}` : ""} — {formatMoney(item.lineTotal)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button type="button" style={{ flex: 1, padding: "10px", background: "#f1f5f9", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600, color: "#475569" }} onClick={() => setShowActiveServicePopup(false)}>Dismiss</button>
+              <button type="button" style={{ flex: 1, padding: "10px", background: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }} onClick={() => { setShowActiveServicePopup(false); navigate(`/admin/pos-dashboard`); }}>Go to Dashboard</button>
+            </div>
           </div>
         </div>
       )}

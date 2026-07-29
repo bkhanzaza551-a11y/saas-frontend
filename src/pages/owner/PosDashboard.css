@@ -196,6 +196,11 @@
   color: #15803d;
 }
 
+.pos-dash-card-status-started {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .pos-dash-card-status-partial {
   background: #fef3c7;
   color: #b45309;

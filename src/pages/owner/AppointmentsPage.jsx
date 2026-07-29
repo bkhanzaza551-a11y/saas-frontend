@@ -326,11 +326,11 @@ export default function AppointmentsPage() {
 
   const handleCheckInAction = async (apptId) => {
     try {
-      await api.patch(`/owner/appointments/${apptId}/status`, { status: "CHECKED_IN" });
-      setStatus({ error: "", success: "Appointment checked in." });
+      await api.patch(`/owner/appointments/${apptId}/status`, { status: "IN_PROGRESS" });
+      setStatus({ error: "", success: "Service started." });
       await loadAppointments();
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not check in appointment"), success: "" });
+      setStatus({ error: formatApiError(error, "Could not start service"), success: "" });
     }
     setContextMenu(null);
   };
@@ -691,12 +691,12 @@ export default function AppointmentsPage() {
     event.preventDefault();
     if (!editMode || !editingAppointmentId) return;
     try {
-      await api.patch(`/owner/appointments/${editingAppointmentId}/status`, { status: "CHECKED_IN" });
-      setStatus({ error: "", success: "Appointment checked in." });
+      await api.patch(`/owner/appointments/${editingAppointmentId}/status`, { status: "IN_PROGRESS" });
+      setStatus({ error: "", success: "Service started." });
       setIsCreateModalOpen(false);
       await loadAppointments();
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not check in appointment"), success: "" });
+      setStatus({ error: formatApiError(error, "Could not start service"), success: "" });
     }
   };
 
@@ -1860,11 +1860,11 @@ export default function AppointmentsPage() {
                         <button type="button" className="sp-btn-primary" style={{ flex: 1, background: "#f1f5f9", color: "#ef4444", border: "1px solid #ef4444" }} onClick={handleCancelAppointment}>Cancel Appointment</button>
                       )}
                     </div>
-                    {form.status !== "CHECKED_IN" && form.status !== "COMPLETED" && (
-                      <button type="button" className="sp-btn-primary" style={{ background: "#f97316", borderColor: "#f97316" }} onClick={handleCheckIn}>Check In</button>
+                    {form.status !== "IN_PROGRESS" && form.status !== "COMPLETED" && (
+                      <button type="button" className="sp-btn-primary" style={{ background: "#f97316", borderColor: "#f97316" }} onClick={handleCheckIn}>Start Service</button>
                     )}
                     <button type="button" className="sp-btn-primary" style={{ background: "#10b981", borderColor: "#10b981" }} onClick={handleGenerateBill}>
-                      {form.convertedInvoiceId ? "View Bill" : "Generate Bill"}
+                      {form.convertedInvoiceId ? "Complete & Bill" : "Complete & Bill"}
                     </button>
                   </div>
                 ) : (
@@ -1915,12 +1915,12 @@ export default function AppointmentsPage() {
           >
             {contextMenu.appt ? (
               <>
-                {contextMenu.appt.status !== "CHECKED_IN" && contextMenu.appt.status !== "COMPLETED" && (
+                {contextMenu.appt.status !== "IN_PROGRESS" && contextMenu.appt.status !== "COMPLETED" && (
                   <div className="context-menu-item" onClick={() => handleCheckInAction(contextMenu.appt.id)}>
                     <div className="context-menu-icon-wrapper">
                       <CheckCircle2 size={16} />
                     </div>
-                    <span>Check In</span>
+                    <span>Start Service</span>
                   </div>
                 )}
                 
