@@ -1539,7 +1539,7 @@ export default function PosPage() {
         setToastMessage({ type: "error", title: "Tip Failed", message: `Tip could not be saved for: ${tipErrors.join(", ")}. Invoice was created successfully.` });
       }
 
-      if (mode === "complete") {
+      if (mode === "complete" || mode === "start") {
         setCreatedInvoice(response.data);
         setShowSuccessModal(true);
       }
@@ -2461,7 +2461,7 @@ export default function PosPage() {
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button type="button" style={{ flex: 1, padding: "10px", background: "#f1f5f9", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600, color: "#475569" }} onClick={() => setShowActiveServicePopup(false)}>Dismiss</button>
-              <button type="button" style={{ flex: 1, padding: "10px", background: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }} onClick={() => { setShowActiveServicePopup(false); navigate(`/admin/pos-dashboard`); }}>Go to Dashboard</button>
+              <button type="button" style={{ flex: 1, padding: "10px", background: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }} onClick={() => { setShowActiveServicePopup(false); navigate(`/admin/pos-dashboard/${activeServiceInvoice.id}`); }}>Go to Invoice</button>
             </div>
           </div>
         </div>
@@ -2473,8 +2473,8 @@ export default function PosPage() {
             <div style={{ width: 64, height: 64, background: "#d1fae5", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
               <svg width="32" height="32" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h3 style={{ marginTop: 0, marginBottom: 8, color: "#0f172a", fontSize: "20px", fontWeight: 700 }}>Invoice Created</h3>
-            <p style={{ color: "#64748b", fontSize: "14px", marginBottom: 24 }}>Invoice #{createdInvoice.invoiceNumber} has been generated successfully.</p>
+            <h3 style={{ marginTop: 0, marginBottom: 8, color: "#0f172a", fontSize: "20px", fontWeight: 700 }}>{createdInvoice.status === "STARTED" ? "Service Started" : "Invoice Created"}</h3>
+            <p style={{ color: "#64748b", fontSize: "14px", marginBottom: 24 }}>Invoice #{createdInvoice.invoiceNumber} {createdInvoice.status === "STARTED" ? "is now in progress." : "has been generated successfully."}</p>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <button onClick={() => navigate(`/admin/invoices/${createdInvoice.id}`)} style={{ padding: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
