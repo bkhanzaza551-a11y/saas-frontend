@@ -888,7 +888,7 @@ export default function PosDashboardPage() {
           {rows.map((row) => {
             const dateStr = new Date(row.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
             const timeStr = new Date(row.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-            const startedStr = row.startedAt ? new Date(row.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
+            const startedStr = row.startedAt ? new Date(row.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : (row.createdAt ? new Date(row.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null);
             const completedStr = row.completedAt ? new Date(row.completedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
             const apptStatus = row.appointment?.status || null;
             return (
@@ -912,10 +912,20 @@ export default function PosDashboardPage() {
                 <div className="pos-dash-card-name">{row.customer?.name || "Walk-in"}</div>
                 <div className="pos-dash-card-phone">{row.customer?.phone || "N/A"}</div>
                 <div style={{ marginTop: 6, padding: "6px 10px", background: "#f0fdf4", borderRadius: 6, border: "1px solid #bbf7d0" }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "#166534", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>Service</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
-                    {(row.items || []).map(item => item.serviceName || item.productName || "Item").join(", ") || "No items"}
-                  </div>
+                  {(row.items || []).length > 0 && (
+                    <>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#166534", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                        {(row.items || []).every(i => i.itemType === "PRODUCT") ? "Products" : (row.items || []).every(i => i.itemType === "SERVICE") ? "Services" : "Items"}
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
+                        {(row.items || []).map(item => {
+                          const prefix = item.itemType === "PRODUCT" ? "" : "";
+                          return item.serviceName || item.productName || "Item";
+                        }).join(", ")}
+                      </div>
+                    </>
+                  )}
+                  {!(row.items || []).length && <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>No items</div>}
                 </div>
                 <div className="pos-dash-card-footer">
                   <div className="pos-dash-card-meta" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
