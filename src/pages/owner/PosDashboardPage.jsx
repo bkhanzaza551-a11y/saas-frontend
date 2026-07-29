@@ -894,13 +894,11 @@ export default function PosDashboardPage() {
                 <div className="pos-dash-card-id">{row.invoiceNumber}</div>
                 <div className="pos-dash-card-name">{row.customer?.name || "Walk-in"}</div>
                 <div className="pos-dash-card-phone">{row.customer?.phone || "N/A"}</div>
-                <div className="pos-dash-card-items">
-                  {(row.items || []).slice(0, 3).map((item) => (
-                    <div key={item.id} className="pos-dash-card-item">
-                      <span>{item.serviceName || item.productName || "Item"}{Number(item.qty || 1) > 1 ? ` x${item.qty}` : ""}</span>
-                    </div>
-                  ))}
-                  {row.items?.length > 3 ? <div className="pos-dash-card-item"><span>+{row.items.length - 3} more items</span></div> : null}
+                <div style={{ marginTop: 6, padding: "6px 10px", background: "#f0fdf4", borderRadius: 6, border: "1px solid #bbf7d0" }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#166534", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>Service</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
+                    {(row.items || []).map(item => item.serviceName || item.productName || "Item").join(", ") || "No items"}
+                  </div>
                 </div>
                 <div className="pos-dash-card-footer">
                   <div className="pos-dash-card-meta" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
