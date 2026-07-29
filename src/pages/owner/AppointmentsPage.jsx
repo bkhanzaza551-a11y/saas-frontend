@@ -263,7 +263,7 @@ export default function AppointmentsPage() {
 
   const getStatusColor = (status) => {
     if (status === "COMPLETED") return "#84cc16";
-    if (status === "IN_PROGRESS") return "#2563eb";
+    if (status === "IN_PROGRESS") return "#f97316";
     if (status === "CHECKED_IN") return "#f97316";
     if (status === "CANCELLED") return "#ef4444";
     return "#eab308";
@@ -1583,7 +1583,7 @@ export default function AppointmentsPage() {
                             if (appt.status === "COMPLETED") {
                               bg = "#ecfccb"; border = "#84cc16"; text = "#3f6212";
                             } else if (appt.status === "IN_PROGRESS") {
-                              bg = "#dbeafe"; border = "#2563eb"; text = "#1e3a8a";
+                              bg = "#ffedd5"; border = "#f97316"; text = "#7c2d12";
                             } else if (appt.status === "CHECKED_IN") {
                               bg = "#ffedd5"; border = "#f97316"; text = "#7c2d12";
                             } else if (appt.status === "CANCELLED") {
