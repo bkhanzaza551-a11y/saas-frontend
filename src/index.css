@@ -3618,7 +3618,6 @@ pre {
 @media print and (min-width: 200mm) {
   @page { margin: 10mm; size: A4; }
 }
-}
 
 /* ════════════════════════════════════════════
    MOBILE LAYOUT RESPONSIVENESS
