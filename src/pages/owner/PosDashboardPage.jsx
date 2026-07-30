@@ -913,15 +913,22 @@ export default function PosDashboardPage() {
                 <div className="pos-dash-card-id">{row.invoiceNumber}</div>
                 <div className="pos-dash-card-name">{row.customer?.name || "Walk-in"}</div>
                 <div className="pos-dash-card-phone">{row.customer?.phone || "N/A"}</div>
-                <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 4 }}>
-                  {(row.items || []).map((item, idx) => {
-                    const isProduct = item.itemType === "PRODUCT";
-                    return (
-                      <span key={idx} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, background: isProduct ? "#fef3c7" : "#f0fdf4", color: isProduct ? "#92400e" : "#166534", border: `1px solid ${isProduct ? "#fde68a" : "#bbf7d0"}` }}>
-                        {item.serviceName || item.productName || "Item"}
-                      </span>
-                    );
-                  })}
+                <div style={{ marginTop: 6 }}>
+                  {(row.items || []).length > 0 && (
+                    <span style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      padding: "3px 8px",
+                      borderRadius: 6,
+                      background: (row.items || []).every(i => i.itemType === "PRODUCT") ? "#fef3c7" : (row.items || []).every(i => i.itemType === "SERVICE") ? "#dbeafe" : "#f1f5f9",
+                      color: (row.items || []).every(i => i.itemType === "PRODUCT") ? "#92400e" : (row.items || []).every(i => i.itemType === "SERVICE") ? "#1e40af" : "#475569",
+                      border: `1px solid ${(row.items || []).every(i => i.itemType === "PRODUCT") ? "#fde68a" : (row.items || []).every(i => i.itemType === "SERVICE") ? "#bfdbfe" : "#e2e8f0"}`
+                    }}>
+                      {(row.items || []).every(i => i.itemType === "PRODUCT") ? "Products" : (row.items || []).every(i => i.itemType === "SERVICE") ? "Services" : "Items"}
+                    </span>
+                  )}
                 </div>
                 <div className="pos-dash-card-footer">
                   <div className="pos-dash-card-meta" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
