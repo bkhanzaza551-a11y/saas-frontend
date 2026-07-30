@@ -39,25 +39,22 @@ const clampMoneyInput = (value, max = Number.POSITIVE_INFINITY) => {
 };
 
 const determineGender = (item) => {
-  if (item?.gender) {
-    const g = String(item.gender).toLowerCase().trim();
-    if (g === "female" || g === "f") return "FEMALE";
-    if (g === "male" || g === "m") return "MALE";
-    return "UNISEX";
-  }
+  const dbGender = (item?.gender || "").toUpperCase().trim();
+  if (dbGender === "MALE" || dbGender === "M") return "MALE";
+  if (dbGender === "FEMALE" || dbGender === "F") return "FEMALE";
   const name = String(item?.name || "").toLowerCase();
   const categoryName = String(item?.category?.name || "").toLowerCase();
   const fullText = `${name} ${categoryName}`;
-  const isMale = /\b(beard|grooming|men|male|boy|shave|mustache|guy|gent|gents)\b/.test(fullText);
+  const isMale = /\b(beard|grooming|men|male|boy|shave|mustache|guy|gent|gents|facial hair)\b/.test(fullText);
   const isFemale = /\b(female|women|bridal|makeup|nail|waxing|lady|girl|blush|eyelash|nude|lips|lipstick|pedicure|manicure|threading|braid|lash|hair color & treatments|makeup & bridal|nails, hands & feet)\b/.test(fullText);
   if (isMale && !isFemale) return "MALE";
   if (isFemale && !isMale) return "FEMALE";
-  return "UNISEX";
+  return dbGender === "BOTH" ? "BOTH" : "UNISEX";
 };
 const genderMatches = (item, selectedGender) => {
   if (selectedGender === "ALL") return true;
   const itemGender = determineGender(item);
-  if (itemGender === "UNISEX") return true;
+  if (itemGender === "BOTH" || itemGender === "UNISEX") return true;
   return itemGender === selectedGender;
 };
 
