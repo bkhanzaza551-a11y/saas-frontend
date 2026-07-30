@@ -757,11 +757,11 @@ export default function ProductCategoriesPage() {
 
       {/* Update Stock Details Modal */}
       {stockModal.open && stockModal.product && (
-        <div className="hub-modal-overlay" onClick={() => setStockModal({ open: false, product: null })} style={{ background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)" }}>
+        <div className="hub-modal-overlay" onClick={() => { setStockModal({ open: false, product: null }); }} style={{ background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)" }}>
           <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 580, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 28px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
               <span style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Update Stock Details</span>
-              <button type="button" onClick={() => setStockModal({ open: false, product: null })} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", padding: 6, borderRadius: "50%", display: "flex" }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
+              <button type="button" onClick={() => { setStockModal({ open: false, product: null }); }} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", padding: 6, borderRadius: "50%", display: "flex" }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
             </div>
             <form onSubmit={handleSaveStock} style={{ padding: "24px 28px" }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 20 }}>{stockModal.product.name}</div>
@@ -790,7 +790,7 @@ export default function ProductCategoriesPage() {
                 </div>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Unit {stockForm.productType === "CONSUMABLE" && <span style={{ color: "#dc2626" }}>*</span>}</label>
-                  <select value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: stockForm.productType === "CONSUMABLE" && !stockForm.unit ? "1px solid #fca5a5" : "1px solid #cbd5e1", fontSize: 14, background: stockForm.productType === "CONSUMABLE" ? "#fffbeb" : "#fff" }}>
+                  <select value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: stockForm.productType === "CONSUMABLE" && !stockForm.unit ? "1px solid #fca5a5" : "1px solid #cbd5e1", fontSize: 14, background: stockForm.productType === "CONSUMABLE" ? "#fffbeb" : "#fff", appearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
                     <option value="">Select Unit</option>
                     {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
@@ -813,7 +813,7 @@ export default function ProductCategoriesPage() {
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
-                <button type="button" onClick={() => setStockModal({ open: false, product: null })} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>Close</button>
+                <button type="button" onClick={() => { setStockModal({ open: false, product: null }); }} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>Close</button>
                 <button type="submit" disabled={stockSaving} style={{ padding: "10px 32px", background: "#2563eb", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: stockSaving ? "not-allowed" : "pointer", opacity: stockSaving ? 0.7 : 1, transition: "background 0.2s" }} onMouseEnter={e=>{if(!stockSaving) e.currentTarget.style.background="#1d4ed8"}} onMouseLeave={e=>{if(!stockSaving) e.currentTarget.style.background="#2563eb"}}>{stockSaving ? "Saving..." : "Submit"}</button>
               </div>
             </form>

@@ -195,7 +195,7 @@ export default function PosPage() {
   };
 
   const addConsumableProduct = (product) => {
-    setConsumableItems(prev => [...prev, { productId: product.id, name: product.name, qty: 1, unit: product.unit || "pcs" }]);
+    setConsumableItems(prev => [...prev, { productId: product.id, name: product.name, qty: product.netWeight || 1, unit: product.unit || "" }]);
     setConsumableSearch("");
   };
 
@@ -3156,8 +3156,9 @@ export default function PosPage() {
                       type="text"
                       placeholder="unit"
                       value={ci.unit || ""}
+                      readOnly={Boolean(ci.productId)}
                       onChange={(e) => updateConsumableItem(ciIndex, { unit: e.target.value })}
-                      style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13 }}
+                      style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: ci.productId ? '#f1f5f9' : '#fff', color: ci.productId ? '#64748b' : '#0f172a' }}
                     />
                     <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>🗑</button>
                   </div>
