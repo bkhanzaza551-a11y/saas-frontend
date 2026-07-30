@@ -253,6 +253,18 @@ export default function ProductCategoriesPage() {
         setStockSaving(false);
         return;
       }
+      if (stockForm.productType === "CONSUMABLE") {
+        if (!stockForm.unit) {
+          setStockError("Unit is required for consumable products");
+          setStockSaving(false);
+          return;
+        }
+        if (!stockForm.netWeight || Number(stockForm.netWeight) <= 0) {
+          setStockError("Net weight is required and must be greater than 0 for consumable products");
+          setStockSaving(false);
+          return;
+        }
+      }
       await api.patch(`/owner/inventory/products/${stockModal.product.id}/stock-details`, payload);
       setStatus({ success: "Stock details updated", error: "" });
       setStockModal({ open: false, product: null });
@@ -779,12 +791,12 @@ export default function ProductCategoriesPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Net Weight</label>
-                  <input type="number" min="0" step="any" value={stockForm.netWeight} onChange={e => setStockForm({...stockForm, netWeight: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})} placeholder="0" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }} />
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Net Weight {stockForm.productType === "CONSUMABLE" && <span style={{ color: "#dc2626" }}>*</span>}</label>
+                  <input type="number" min="0" step="any" value={stockForm.netWeight} onChange={e => setStockForm({...stockForm, netWeight: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})} placeholder="0" required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: stockForm.productType === "CONSUMABLE" && (!stockForm.netWeight || Number(stockForm.netWeight) <= 0) ? "1px solid #fca5a5" : "1px solid #cbd5e1", fontSize: 14, background: stockForm.productType === "CONSUMABLE" ? "#fffbeb" : "#fff" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Unit</label>
-                  <select value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "#fff" }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Unit {stockForm.productType === "CONSUMABLE" && <span style={{ color: "#dc2626" }}>*</span>}</label>
+                  <select value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: stockForm.productType === "CONSUMABLE" && !stockForm.unit ? "1px solid #fca5a5" : "1px solid #cbd5e1", fontSize: 14, background: stockForm.productType === "CONSUMABLE" ? "#fffbeb" : "#fff" }}>
                     <option value="">Select Unit</option>
                     {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
