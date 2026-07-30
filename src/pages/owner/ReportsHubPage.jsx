@@ -1518,6 +1518,35 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
           </div>
         </div>
       </div>
+
+      {/* 6. Average Service Time Summary */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid #e2e8f0",
+        borderRadius: "12px",
+        padding: "16px",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.02)"
+      }}>
+        <h3 style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px", marginBottom: "12px", marginTop: 0 }}>Average Service Time Summary</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px" }}>
+          <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "16px" }}>
+            <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>Total Sessions Timed</div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#334155", marginTop: "4px" }}>{data.averageServiceTime?.totalSessions ?? 0}</div>
+          </div>
+          <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "16px" }}>
+            <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>Minimum Time</div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#22c55e", marginTop: "4px" }}>{data.averageServiceTime?.minMinutes ?? 0} min</div>
+          </div>
+          <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "16px" }}>
+            <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>Maximum Time</div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#ef4444", marginTop: "4px" }}>{data.averageServiceTime?.maxMinutes ?? 0} min</div>
+          </div>
+          <div>
+            <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>Average Time</div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#3b82f6", marginTop: "4px" }}>{data.averageServiceTime?.avgMinutes ?? 0} min</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
