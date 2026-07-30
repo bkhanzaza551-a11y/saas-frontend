@@ -913,18 +913,15 @@ export default function PosDashboardPage() {
                 <div className="pos-dash-card-id">{row.invoiceNumber}</div>
                 <div className="pos-dash-card-name">{row.customer?.name || "Walk-in"}</div>
                 <div className="pos-dash-card-phone">{row.customer?.phone || "N/A"}</div>
-                <div style={{ marginTop: 6, padding: "6px 10px", background: "#f0fdf4", borderRadius: 6, border: "1px solid #bbf7d0" }}>
-                  {(row.items || []).length > 0 && (
-                    <>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#166534", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
-                        {(row.items || []).every(i => i.itemType === "PRODUCT") ? "Products" : (row.items || []).every(i => i.itemType === "SERVICE") ? "Services" : "Items"}
-                      </div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
-                        {(row.items || []).map(item => item.serviceName || item.productName || "Item").join(", ")}
-                      </div>
-                    </>
-                  )}
-                  {!(row.items || []).length && <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>No items</div>}
+                <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 4 }}>
+                  {(row.items || []).map((item, idx) => {
+                    const isProduct = item.itemType === "PRODUCT";
+                    return (
+                      <span key={idx} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, background: isProduct ? "#fef3c7" : "#f0fdf4", color: isProduct ? "#92400e" : "#166534", border: `1px solid ${isProduct ? "#fde68a" : "#bbf7d0"}` }}>
+                        {item.serviceName || item.productName || "Item"}
+                      </span>
+                    );
+                  })}
                 </div>
                 <div className="pos-dash-card-footer">
                   <div className="pos-dash-card-meta" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
