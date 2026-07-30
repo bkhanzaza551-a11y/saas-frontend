@@ -616,41 +616,6 @@ export default function ProductCategoriesPage() {
                   </div>
                 </div>
 
-                {/* Size & Dimensions */}
-                <div style={{ marginBottom: 24, padding: "16px 20px", border: "1px solid #f1f5f9", borderRadius: 12, background: "#f8fafc" }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", display: "block", marginBottom: 16 }}>Size & Dimensions</span>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr", gap: 16 }}>
-                    <div className="hub-form-group">
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Unit</label>
-                      <select className="hub-input" value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff" }}>
-                        <option value="">None</option>
-                        {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
-                      </select>
-                    </div>
-                    <div className="hub-form-group">
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Unit Conversion</label>
-                      <input type="number" className="hub-input" value={productForm.unitConversion} onChange={e => setProductForm({...productForm, unitConversion: e.target.value})} placeholder="e.g. 12" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
-                      <span style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, display: "block" }}>1 box = X pcs</span>
-                    </div>
-                    <div className="hub-form-group">
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Weight (g)</label>
-                      <input type="number" className="hub-input" value={productForm.weight} onChange={e => setProductForm({...productForm, weight: e.target.value})} placeholder="0" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
-                    </div>
-                    <div className="hub-form-group">
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Length (cm)</label>
-                      <input type="number" className="hub-input" value={productForm.length} onChange={e => setProductForm({...productForm, length: e.target.value})} placeholder="0" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
-                    </div>
-                    <div className="hub-form-group">
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Width (cm)</label>
-                      <input type="number" className="hub-input" value={productForm.width} onChange={e => setProductForm({...productForm, width: e.target.value})} placeholder="0" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
-                    </div>
-                    <div className="hub-form-group">
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 6, display: "block" }}>Height (cm)</label>
-                      <input type="number" className="hub-input" value={productForm.height} onChange={e => setProductForm({...productForm, height: e.target.value})} placeholder="0" min="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
-                    </div>
-                  </div>
-                </div>
-
                 {/* Category */}
                 <div className="hub-form-group" style={{ marginBottom: 24 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Category</label>
