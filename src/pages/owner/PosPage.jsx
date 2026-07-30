@@ -3104,13 +3104,14 @@ export default function PosPage() {
                     onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, qty: e.target.value }))}
                     style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff' }}
                   />
-                  <input
-                    type="text"
-                    placeholder="Unit (ml)"
+                  <select
                     value={manualConsumableDraft.unit}
                     onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, unit: e.target.value }))}
-                    style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff' }}
-                  />
+                    style={{ width: 80, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff', appearance: 'none', backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+                  >
+                    <option value="">Unit</option>
+                    {["mg","gm","kg","oz","ltr","ml","sachet","ox","can","pcs","carton","roll","pkt","box","unit","btl","jar","cane"].map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
                   <button
                     type="button"
                     onClick={() => addManualConsumableItem()}
