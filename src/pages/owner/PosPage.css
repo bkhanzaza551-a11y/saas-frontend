@@ -211,6 +211,8 @@
 .pos-cart-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
 .pos-cart-table thead tr { background: #111827; }
 .pos-cart-table thead th { padding: 10px 12px; font-size: 12px; font-weight: 600; text-align: left; color: #fff; border: none; white-space: nowrap; }
+.pos-cart-table thead th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.pos-cart-table thead th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 .pos-cart-table tbody tr { border-bottom: 1px solid #f3f4f6; }
 .pos-cart-table tbody tr:hover { background: #f9fafb; }
 .pos-cart-table tbody td { padding: 10px 12px; color: #374151; vertical-align: middle; }

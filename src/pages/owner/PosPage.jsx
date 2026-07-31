@@ -1687,7 +1687,7 @@ export default function PosPage() {
       {/* SCROLLABLE BODY */}
       <div className="pos-body-scroll">
 
-        {dayClosing && <div className="pos-day-closing-banner">Day closing is in progress.</div>}
+
 
         {toastMessage && (
           <div className={`pos-toast ${toastMessage.type}`} style={{ position: "fixed", bottom: 90, right: 24, zIndex: 9999 }}>
@@ -1777,10 +1777,7 @@ export default function PosPage() {
                 <span className="pos-datetime-required">*</span> Booking At &nbsp;
                 <input type="datetime-local" value={bookingAt} onChange={e => setBookingAt(e.target.value)} style={{ border: "none", outline: "none", fontSize: 13, color: "#374151", background: "transparent" }} />
               </div>
-              <select className="pos-manager-select" value={form.branchId} onChange={e => setForm(c => ({ ...c, branchId: e.target.value }))}>
-                <option value="">Select Manager</option>
-                {(context.staffUsers || []).map(u => <option key={u.id} value={u.id}>{u.user?.name}</option>)}
-              </select>
+
             </div>
           </div>
 
