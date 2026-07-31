@@ -1834,7 +1834,7 @@ export default function PosPage() {
           </button>
           <button className="pos-add-item-btn" onClick={() => { if (!form.customerId && !isGuestCheckout) { setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." }); return; } setGcModalGc(null); setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) }); setShowGcModal(true); }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Wallet Balance
+            Gift Card
           </button>
         </div>
 
