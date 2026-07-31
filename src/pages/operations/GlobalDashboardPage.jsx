@@ -22,7 +22,32 @@ export default function GlobalDashboardPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/owner/operations/global-dashboard");
+      
+      let queryStart = "";
+      let queryEnd = "";
+
+      if (period === "Today") {
+        const today = new Date().toISOString().split("T")[0];
+        queryStart = today;
+        queryEnd = today;
+      } else if (period === "Month") {
+        const date = new Date();
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split("T")[0];
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split("T")[0];
+        queryStart = firstDay;
+        queryEnd = lastDay;
+      } else if (period === "Custom") {
+        queryStart = startDate;
+        queryEnd = endDate;
+      }
+
+      const params = {};
+      if (queryStart && queryEnd) {
+        params.startDate = queryStart;
+        params.endDate = queryEnd;
+      }
+
+      const res = await api.get("/owner/operations/global-dashboard", { params });
       setData(res.data);
     } catch (err) {
       console.error("Failed to fetch global dashboard data", err);
@@ -33,29 +58,6 @@ export default function GlobalDashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, [period]);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/owner/dashboard");
-      if (res.data) {
-        // Enhance with multi-branch analytics if available
-        setData(prev => ({
-          ...prev,
-          totalRevenue: res.data.monthlySales ? Number(res.data.monthlySales) * 2.5 : prev.totalRevenue,
-          totalCustomers: res.data.customers || prev.totalCustomers
-        }));
-      }
-    } catch (e) {
-      // fallback to mock multi-branch dataset
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
   }, [period, startDate, endDate]);
 
   return (
@@ -67,7 +69,7 @@ export default function GlobalDashboardPage() {
             <h1 style={{ marginTop: 0 }}>Global Dashboard — Multi-Branch Intelligence</h1>
             <p style={{ marginBottom: 0 }}>Cross-branch revenue performance, appointment volume, and growth analytics across all locations.</p>
           </div>
-          <button className="btn btn-outline" onClick={loadData} disabled={loading} style={{ background: "white" }}>
+          <button className="btn btn-outline" onClick={fetchData} disabled={loading} style={{ background: "white" }}>
             <RefreshCw size={14} className={loading ? "spin" : ""} style={{ marginRight: 6 }} />
             Refresh Data
           </button>
