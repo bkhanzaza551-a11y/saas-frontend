@@ -197,6 +197,10 @@ const Protected = () => {
             can("settings", "edit") && {
               label: "Settings",
               to: "/admin/settings/generic"
+            },
+            {
+              label: "Support Tickets",
+              to: "/admin/support-tickets"
             }
           ].filter(Boolean)
         },
