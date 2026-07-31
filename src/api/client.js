@@ -41,7 +41,12 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
-    validatePhoneFields(config.data);
+    try {
+      validatePhoneFields(config.data);
+    } catch (phoneErr) {
+      // Phone validation warning — do NOT block the request; backend validates authoritatively
+      console.warn("[Phone Validation]", phoneErr.message);
+    }
     config.data = normalizePhoneFields(config.data);
   }
   return config;
