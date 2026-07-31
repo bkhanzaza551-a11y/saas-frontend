@@ -124,7 +124,10 @@ export default function PlansPage() {
       resetForm();
       await load();
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not save plan"), success: "" });
+      const status = error?.response?.status;
+      const msg = formatApiError(error, "Could not save plan");
+      const detail = status ? ` (HTTP ${status})` : (error?.message ? ` — ${error.message}` : "");
+      setStatus({ error: msg + detail, success: "" });
     } finally {
       setSaving(false);
     }
