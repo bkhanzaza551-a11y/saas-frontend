@@ -2,21 +2,25 @@ import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
+import { Settings, MessageSquare, Globe, ShieldAlert, Save } from "lucide-react";
 
 export default function SuperAdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
   const [form, setForm] = useState({
     systemName: "",
     maintenanceMode: false,
     taxLabel: "Tax",
     defaultCurrency: "INR",
-    currencyOptions: "INR, USD, AED",
+    currencyOptions: ["INR", "USD", "AED"],
     defaultCountry: "",
     defaultCity: "",
     defaultTimezone: "",
-    notificationDefaultsText: JSON.stringify({ email: true, sms: false, whatsapp: true }, null, 2),
+    notificationEmailEnabled: true,
+    notificationSmsEnabled: false,
+    notificationWhatsappEnabled: true,
     whatsappNumber: "",
     smsProviderName: "",
     emailProviderName: "",
@@ -25,9 +29,7 @@ export default function SuperAdminSettingsPage() {
     supportEmail: "",
     notificationEmail: "",
     termsUrl: "/terms",
-    termsContent: "",
     privacyUrl: "/privacy",
-    privacyContent: "",
     demoBookingUrl: "/book-demo",
     blogTitle: "",
     blogIntro: "",
@@ -36,40 +38,48 @@ export default function SuperAdminSettingsPage() {
   });
 
   useEffect(() => {
-    api.get("/super-admin/settings").then((response) => {
+    api.get("/super-admin/settings").then((res) => {
+      const d = res.data || {};
+      const notif = d.notificationDefaults || {};
       setForm({
-        systemName: response.data?.systemName || "",
-        maintenanceMode: Boolean(response.data?.maintenanceMode),
-        taxLabel: response.data?.taxLabel || "Tax",
-        defaultCurrency: response.data?.defaultCurrency || "INR",
-        currencyOptions: Array.isArray(response.data?.currencyOptions) ? response.data.currencyOptions.join(", ") : response.data?.currencyOptions || "INR, USD, AED",
-        defaultCountry: response.data?.defaultCountry || "",
-        defaultCity: response.data?.defaultCity || "",
-        defaultTimezone: response.data?.defaultTimezone || "",
-        notificationDefaultsText: JSON.stringify(response.data?.notificationDefaults || { email: true, sms: false, whatsapp: true }, null, 2),
-        whatsappNumber: response.data?.whatsappNumber || "",
-        smsProviderName: response.data?.smsProviderName || "",
-        emailProviderName: response.data?.emailProviderName || "",
-        whatsappProviderName: response.data?.whatsappProviderName || "",
-        contactEmail: response.data?.contactEmail || "",
-        supportEmail: response.data?.supportEmail || "",
-        notificationEmail: response.data?.notificationEmail || "",
-        termsUrl: response.data?.termsUrl || "/terms",
-        termsContent: response.data?.termsContent || "",
-        privacyUrl: response.data?.privacyUrl || "/privacy",
-        privacyContent: response.data?.privacyContent || "",
-        demoBookingUrl: response.data?.demoBookingUrl || "/book-demo",
-        blogTitle: response.data?.blogTitle || "",
-        blogIntro: response.data?.blogIntro || "",
-        backupPolicyNote: response.data?.backupPolicyNote || "",
-        invoicePrefix: response.data?.invoicePrefix || "INV"
+        systemName: d.systemName || "",
+        maintenanceMode: Boolean(d.maintenanceMode),
+        taxLabel: d.taxLabel || "Tax",
+        defaultCurrency: d.defaultCurrency || "INR",
+        currencyOptions: Array.isArray(d.currencyOptions) ? d.currencyOptions : (d.currencyOptions || "INR, USD, AED").split(",").map(s => s.trim()).filter(Boolean),
+        defaultCountry: d.defaultCountry || "",
+        defaultCity: d.defaultCity || "",
+        defaultTimezone: d.defaultTimezone || "",
+        notificationEmailEnabled: notif.email !== false,
+        notificationSmsEnabled: Boolean(notif.sms),
+        notificationWhatsappEnabled: notif.whatsapp !== false,
+        whatsappNumber: d.whatsappNumber || "",
+        smsProviderName: d.smsProviderName || "",
+        emailProviderName: d.emailProviderName || "",
+        whatsappProviderName: d.whatsappProviderName || "",
+        contactEmail: d.contactEmail || "",
+        supportEmail: d.supportEmail || "",
+        notificationEmail: d.notificationEmail || "",
+        termsUrl: d.termsUrl || "/terms",
+        privacyUrl: d.privacyUrl || "/privacy",
+        demoBookingUrl: d.demoBookingUrl || "/book-demo",
+        blogTitle: d.blogTitle || "",
+        blogIntro: d.blogIntro || "",
+        backupPolicyNote: d.backupPolicyNote || "",
+        invoicePrefix: d.invoicePrefix || "INV"
       });
+      setLoading(false);
+    }).catch((err) => {
+      setStatus({ error: formatApiError(err, "Could not load settings."), success: "" });
       setLoading(false);
     });
   }, []);
 
-  const submit = async (event) => {
-    event.preventDefault();
+  const submit = async (e) => {
+    e.preventDefault();
+    if (form.maintenanceMode && !window.confirm("Enable maintenance mode? All salon owners will be locked out until you disable it.")) {
+      return;
+    }
     setStatus({ error: "", success: "" });
     setSaving(true);
     try {
@@ -78,11 +88,15 @@ export default function SuperAdminSettingsPage() {
         maintenanceMode: form.maintenanceMode,
         taxLabel: form.taxLabel,
         defaultCurrency: form.defaultCurrency,
-        currencyOptions: form.currencyOptions.split(",").map((item) => item.trim()).filter(Boolean),
+        currencyOptions: Array.isArray(form.currencyOptions) ? form.currencyOptions : form.currencyOptions.split(",").map((s) => s.trim()).filter(Boolean),
         defaultCountry: form.defaultCountry,
         defaultCity: form.defaultCity,
         defaultTimezone: form.defaultTimezone,
-        notificationDefaults: JSON.parse(form.notificationDefaultsText || "{}"),
+        notificationDefaults: {
+          email: form.notificationEmailEnabled,
+          sms: form.notificationSmsEnabled,
+          whatsapp: form.notificationWhatsappEnabled
+        },
         whatsappNumber: form.whatsappNumber,
         smsProviderName: form.smsProviderName,
         emailProviderName: form.emailProviderName,
@@ -91,85 +105,309 @@ export default function SuperAdminSettingsPage() {
         supportEmail: form.supportEmail,
         notificationEmail: form.notificationEmail,
         termsUrl: form.termsUrl,
-        termsContent: form.termsContent,
         privacyUrl: form.privacyUrl,
-        privacyContent: form.privacyContent,
         demoBookingUrl: form.demoBookingUrl,
         blogTitle: form.blogTitle,
         blogIntro: form.blogIntro,
         backupPolicyNote: form.backupPolicyNote,
         invoicePrefix: form.invoicePrefix
       });
-      setStatus({ error: "", success: "Global settings saved." });
-    } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not save global settings"), success: "" });
+      setStatus({ error: "", success: "Settings saved successfully." });
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not save settings"), success: "" });
     } finally {
       setSaving(false);
     }
   };
 
+  const input = (key, opts = {}) => ({
+    value: form[key],
+    placeholder: opts.placeholder || "",
+    onChange: (e) => setForm({ ...form, [key]: e.target.value }),
+    ...(opts.type ? { type: opts.type } : {})
+  });
+
   return (
-    <div className="page-shell">
+    <div className="page-shell super-admin-page">
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div>
             <h1 style={{ marginTop: 0 }}>Global Settings</h1>
-            <p style={{ marginBottom: 0 }}>Control public defaults, provider references, maintenance mode, and system-wide communication settings.</p>
+            <p style={{ marginBottom: 0 }}>System defaults, provider config, maintenance mode, and communication settings.</p>
           </div>
           <div className="badge-row">
-            <span className="badge">Currency {form.defaultCurrency || "INR"}</span>
-            <span className="badge">{form.maintenanceMode ? "Maintenance On" : "Live Platform"}</span>
+            <span className="badge" style={{ background: "#e0e7ff", color: "#4f46e5" }}>{form.defaultCurrency}</span>
+            <span className="badge" style={{ background: form.maintenanceMode ? "#fef2f2" : "#ecfdf5", color: form.maintenanceMode ? "#ef4444" : "#10b981", fontWeight: 700 }}>
+              {form.maintenanceMode ? "Maintenance Active" : "System Live"}
+            </span>
           </div>
         </div>
       </div>
+
       {loading ? (
-        <PageLoader
-          title="Loading platform settings"
-          message="Collecting communication defaults, public links, and system controls."
-        />
+        <PageLoader title="Loading settings" message="Fetching global config..." />
       ) : (
-      <div className="two-col">
-        <div className="panel-card">
-          {status.error && <p className="error-text">{status.error}</p>}
-          {status.success && <p className="success-text">{status.success}</p>}
-          <form onSubmit={submit} style={{ display: "grid", gap: 8 }}>
-            <input value={form.systemName} placeholder="System name" onChange={(event) => setForm({ ...form, systemName: event.target.value })} />
-            <div className="two-col" style={{ gridTemplateColumns: "1fr 1fr" }}>
-              <input value={form.taxLabel} placeholder="Tax label" onChange={(event) => setForm({ ...form, taxLabel: event.target.value })} />
-              <input value={form.defaultCurrency} placeholder="Default currency" onChange={(event) => setForm({ ...form, defaultCurrency: event.target.value })} />
-            </div>
-            <input value={form.currencyOptions} placeholder="Currency list (comma separated)" onChange={(event) => setForm({ ...form, currencyOptions: event.target.value })} />
-            <div className="two-col" style={{ gridTemplateColumns: "1fr 1fr" }}>
-              <input value={form.defaultCountry} placeholder="Default country" onChange={(event) => setForm({ ...form, defaultCountry: event.target.value })} />
-              <input value={form.defaultCity} placeholder="Default city" onChange={(event) => setForm({ ...form, defaultCity: event.target.value })} />
-            </div>
-            <input value={form.defaultTimezone} placeholder="Default timezone" onChange={(event) => setForm({ ...form, defaultTimezone: event.target.value })} />
-            <input value={form.whatsappNumber} placeholder="WhatsApp number" onChange={(event) => setForm({ ...form, whatsappNumber: event.target.value })} />
-            <input value={form.smsProviderName} placeholder="SMS provider placeholder" onChange={(event) => setForm({ ...form, smsProviderName: event.target.value })} />
-            <input value={form.emailProviderName} placeholder="Email provider placeholder" onChange={(event) => setForm({ ...form, emailProviderName: event.target.value })} />
-            <input value={form.whatsappProviderName} placeholder="WhatsApp provider placeholder" onChange={(event) => setForm({ ...form, whatsappProviderName: event.target.value })} />
-            <input value={form.contactEmail} placeholder="Contact email" onChange={(event) => setForm({ ...form, contactEmail: event.target.value })} />
-            <input value={form.supportEmail} placeholder="Support email" onChange={(event) => setForm({ ...form, supportEmail: event.target.value })} />
-            <input value={form.notificationEmail} placeholder="Notification email" onChange={(event) => setForm({ ...form, notificationEmail: event.target.value })} />
+        <div style={{ display: "flex", gap: 24, background: "white", borderRadius: 16, border: "1px solid #f1f5f9", boxShadow: "0 4px 24px rgba(15,23,42,0.02)", overflow: "hidden", minHeight: 480 }}>
+          {/* Tab Sidebar */}
+          <div style={{ width: 240, background: "#f8fafc", borderRight: "1px solid #e2e8f0", padding: "24px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+            {[
+              { id: "general", label: "General Settings", icon: Settings },
+              { id: "comms", label: "Communications", icon: MessageSquare },
+              { id: "content", label: "Content & Links", icon: Globe },
+              { id: "system", label: "System & Safety", icon: ShieldAlert }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: 10,
+                    border: isActive ? "1px solid #e2e8f0" : "1px solid transparent",
+                    background: isActive ? "white" : "transparent",
+                    color: isActive ? "#4f46e5" : "#475569",
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: "0.88rem",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    boxShadow: isActive ? "0 4px 12px rgba(15,23,42,0.04)" : "none",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  <Icon size={16} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
-            <input value={form.termsUrl} placeholder="Terms URL" onChange={(event) => setForm({ ...form, termsUrl: event.target.value })} />
-            <textarea rows="6" value={form.termsContent} placeholder="Terms & Conditions content (shown on public page)" onChange={(event) => setForm({ ...form, termsContent: event.target.value })} style={{ minHeight: 100 }} />
-            <input value={form.privacyUrl} placeholder="Privacy URL" onChange={(event) => setForm({ ...form, privacyUrl: event.target.value })} />
-            <textarea rows="6" value={form.privacyContent} placeholder="Privacy Policy content (shown on public page)" onChange={(event) => setForm({ ...form, privacyContent: event.target.value })} style={{ minHeight: 100 }} />
-            <input value={form.demoBookingUrl} placeholder="Demo booking URL" onChange={(event) => setForm({ ...form, demoBookingUrl: event.target.value })} />
-            <input value={form.invoicePrefix} placeholder="Invoice Prefix" onChange={(event) => setForm({ ...form, invoicePrefix: event.target.value })} />
-            <input value={form.blogTitle} placeholder="Blog title" onChange={(event) => setForm({ ...form, blogTitle: event.target.value })} />
-            <textarea rows="3" value={form.blogIntro} placeholder="Blog intro" onChange={(event) => setForm({ ...form, blogIntro: event.target.value })} />
-            <textarea rows="3" value={form.backupPolicyNote} placeholder="Backup / retention note" onChange={(event) => setForm({ ...form, backupPolicyNote: event.target.value })} />
-            <label style={{ display: "flex", gap: 8 }}>
-              <input type="checkbox" checked={form.maintenanceMode} onChange={(event) => setForm({ ...form, maintenanceMode: event.target.checked })} />
-              Maintenance Mode
-            </label>
-            <button disabled={saving}>{saving ? "Saving Global Settings..." : "Save Global Settings"}</button>
-          </form>
+          {/* Form Content Area */}
+          <div style={{ flex: 1, padding: 32, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <form onSubmit={submit} style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div>
+                {status.error && <div style={{ padding: 12, borderRadius: 10, marginBottom: 20, background: "#fef2f2", color: "#991b1b", fontSize: 13, fontWeight: 500 }}>{status.error}</div>}
+                {status.success && <div style={{ padding: 12, borderRadius: 10, marginBottom: 20, background: "#ecfdf5", color: "#065f46", fontSize: 13, fontWeight: 500 }}>{status.success}</div>}
+
+                {/* Tab Content: General */}
+                {activeTab === "general" && (
+                  <div>
+                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>General Config</h3>
+                    <p style={{ margin: "0 0 24px", fontSize: "0.85rem", color: "#64748b" }}>Specify basic metadata, standard taxation labels, invoice prefixes, and currency defaults.</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>System Name</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("systemName", { placeholder: "Salon Nest" })} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Tax Label</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("taxLabel", { placeholder: "Tax" })} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Invoice Prefix</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("invoicePrefix", { placeholder: "INV" })} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Currency</span>
+                        <select style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, background: "white" }} {...input("defaultCurrency")}>
+                          <option value="INR">INR - Indian Rupee</option>
+                          <option value="USD">USD - US Dollar</option>
+                          <option value="EUR">EUR - Euro</option>
+                          <option value="GBP">GBP - British Pound</option>
+                          <option value="AED">AED - UAE Dirham</option>
+                          <option value="SAR">SAR - Saudi Riyal</option>
+                          <option value="PKR">PKR - Pakistani Rupee</option>
+                          <option value="BDT">BDT - Bangladeshi Taka</option>
+                          <option value="LKR">LKR - Sri Lankan Rupee</option>
+                          <option value="NPR">NPR - Nepalese Rupee</option>
+                        </select>
+                      </label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Currency Options</span>
+                        <select multiple style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, background: "white", minHeight: 80 }} value={form.currencyOptions || []} onChange={(e) => setForm({ ...form, currencyOptions: Array.from(e.target.selectedOptions, (o) => o.value) })}>
+                          <option value="INR">INR</option>
+                          <option value="USD">USD</option>
+                          <option value="EUR">EUR</option>
+                          <option value="GBP">GBP</option>
+                          <option value="AED">AED</option>
+                          <option value="SAR">SAR</option>
+                          <option value="PKR">PKR</option>
+                          <option value="BDT">BDT</option>
+                          <option value="LKR">LKR</option>
+                          <option value="NPR">NPR</option>
+                        </select>
+                        <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Hold Ctrl/Cmd to select multiple</span>
+                      </label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Country</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultCountry")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default City</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultCity")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Timezone</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultTimezone")} /></label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab Content: Comms */}
+                {activeTab === "comms" && (
+                  <div>
+                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Communications & Providers</h3>
+                    <p style={{ margin: "0 0 24px", fontSize: "0.85rem", color: "#64748b" }}>Manage active notification gateways, provider keys, and internal support routing mailboxes.</p>
+                    
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
+                      {[
+                        { label: "Email Gateways", checked: form.notificationEmailEnabled, key: "notificationEmailEnabled" },
+                        { label: "SMS Dispatchers", checked: form.notificationSmsEnabled, key: "notificationSmsEnabled" },
+                        { label: "WhatsApp APIs", checked: form.notificationWhatsappEnabled, key: "notificationWhatsappEnabled" }
+                      ].map((item) => (
+                        <div 
+                          key={item.key}
+                          onClick={() => setForm({ ...form, [item.key]: !item.checked })}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "12px 16px",
+                            background: "white",
+                            border: "1px solid #cbd5e1",
+                            borderRadius: 12,
+                            cursor: "pointer",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#475569" }}>{item.label}</span>
+                          <div 
+                            style={{
+                              width: 36,
+                              height: 20,
+                              borderRadius: 100,
+                              background: item.checked ? "#10b981" : "#cbd5e1",
+                              position: "relative",
+                              transition: "all 0.25s"
+                            }}
+                          >
+                            <div style={{
+                              width: 14,
+                              height: 14,
+                              borderRadius: "50%",
+                              background: "white",
+                              position: "absolute",
+                              top: 3,
+                              left: item.checked ? 19 : 3,
+                              transition: "all 0.25s",
+                              boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
+                            }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>WhatsApp Number</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("whatsappNumber")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>SMS Provider</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("smsProviderName")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Email Provider</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("emailProviderName")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>WhatsApp Provider</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("whatsappProviderName")} /></label>
+                      
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Contact Email</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} type="email" {...input("contactEmail")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Support Email</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} type="email" {...input("supportEmail")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Notification Email</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} type="email" {...input("notificationEmail")} /></label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab Content: Content */}
+                {activeTab === "content" && (
+                  <div>
+                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Links & Content Settings</h3>
+                    <p style={{ margin: "0 0 24px", fontSize: "0.85rem", color: "#64748b" }}>Manage public website links, legal page references, custom landing titles, and retention policy notices.</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Terms URL</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("termsUrl")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Privacy URL</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("privacyUrl")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Demo Booking URL</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("demoBookingUrl")} /></label>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Blog Title</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("blogTitle")} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Blog Introduction</span><textarea style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, fontFamily: "inherit" }} rows="2" value={form.blogIntro} onChange={(e) => setForm({ ...form, blogIntro: e.target.value })} /></label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Backup Policy Note</span><textarea style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, fontFamily: "inherit" }} rows="2" value={form.backupPolicyNote} onChange={(e) => setForm({ ...form, backupPolicyNote: e.target.value })} /></label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab Content: System */}
+                {activeTab === "system" && (
+                  <div>
+                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>System & Safety</h3>
+                    <p style={{ margin: "0 0 24px", fontSize: "0.85rem", color: "#64748b" }}>Perform global lockouts, initiate database security rules, and toggle public maintenance screens.</p>
+                    
+                    <div style={{ padding: 24, border: "1px solid #fca5a5", background: "#fff5f5", borderRadius: 12, display: "flex", flexDirection: "column", gap: 16 }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                        <ShieldAlert size={24} color="#dc2626" style={{ marginTop: 2 }} />
+                        <div>
+                          <h4 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700, color: "#991b1b" }}>Emergency Maintenance Lockout</h4>
+                          <p style={{ margin: 0, fontSize: "0.85rem", color: "#b91c1c", lineHeight: 1.5 }}>
+                            Enabling maintenance mode suspends all routing actions. All salon owners, POS counters, and client storefront portals will immediately be blocked from operations until this flag is manually cleared.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div style={{ borderTop: "1px solid #fca5a5", paddingTop: 16, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div>
+                          <span style={{ fontSize: "0.9rem", fontWeight: 700, color: form.maintenanceMode ? "#dc2626" : "#475569" }}>
+                            {form.maintenanceMode ? "🚨 Maintenance Lockout is ACTIVE" : "Toggle Maintenance Mode (Currently Off)"}
+                          </span>
+                        </div>
+                        <div 
+                          onClick={() => setForm({ ...form, maintenanceMode: !form.maintenanceMode })}
+                          style={{
+                            width: 44,
+                            height: 24,
+                            borderRadius: 100,
+                            background: form.maintenanceMode ? "#ef4444" : "#cbd5e1",
+                            position: "relative",
+                            cursor: "pointer",
+                            transition: "all 0.25s"
+                          }}
+                        >
+                          <div style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "white",
+                            position: "absolute",
+                            top: 3,
+                            left: form.maintenanceMode ? 23 : 3,
+                            transition: "all 0.25s",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                          }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Save Button Bar */}
+              <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 20, marginTop: 32, display: "flex", justifyContent: "flex-end" }}>
+                <button 
+                  type="submit" 
+                  disabled={saving} 
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: 8, 
+                    minHeight: 40, 
+                    padding: "0 24px", 
+                    background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", 
+                    color: "white", 
+                    borderRadius: 8, 
+                    border: "none", 
+                    fontWeight: 700, 
+                    fontSize: 13, 
+                    cursor: "pointer",
+                    boxShadow: "0 4px 14px rgba(79, 70, 229, 0.15)"
+                  }}
+                >
+                  <Save size={14} />
+                  {saving ? "Saving Changes..." : "Save Settings"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-      </div>
       )}
     </div>
   );

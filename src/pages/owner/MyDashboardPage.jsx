@@ -794,12 +794,12 @@ export default function MyDashboardPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
               {data.recentAppointments.map((item) => {
                 const statusColors = {
-                  SCHEDULED: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
+                  CONFIRMED: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
                   IN_PROGRESS: { bg: "#fffbeb", color: "#d97706", border: "#fde68a" },
                   COMPLETED: { bg: "#ecfdf5", color: "#059669", border: "#a7f3d0" },
                   CANCELLED: { bg: "#f1f5f9", color: "#475569", border: "#cbd5e1" }
                 };
-                const sc = statusColors[item.status] || statusColors.SCHEDULED;
+                const sc = statusColors[item.status] || statusColors.CONFIRMED;
 
                 return (
                   <div key={item.id} style={{ display: "flex", flexDirection: "column", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: 18, boxShadow: "0 2px 4px rgba(0,0,0,0.01)", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}>

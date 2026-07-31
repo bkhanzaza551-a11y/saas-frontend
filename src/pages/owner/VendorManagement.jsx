@@ -16,8 +16,7 @@ const emptyVendor = {
   city: "",
   pincode: "",
   notes: "",
-  isActive: true,
-  branchId: ""
+  isActive: true
 };
 
 const normalizeDisplayPhone = (value) => {
@@ -137,7 +136,7 @@ function TextInput({ label, required, value, onChange, placeholder, type = "text
   );
 }
 
-export default function VendorManagement({ branches = [], formatMoney }) {
+export default function VendorManagement({ branches = [], selectedBranchId = null, formatMoney }) {
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [form, setForm] = useState(emptyVendor);
@@ -212,8 +211,7 @@ export default function VendorManagement({ branches = [], formatMoney }) {
       city: vendor.city || "",
       pincode: vendor.pincode || "",
       notes: vendor.notes || "",
-      isActive: vendor.isActive !== false,
-      branchId: vendor.branchId || ""
+      isActive: vendor.isActive !== false
     });
     setMode("edit");
     setStatus({ error: "", success: "" });
@@ -237,6 +235,7 @@ export default function VendorManagement({ branches = [], formatMoney }) {
     try {
       const payload = {
         ...form,
+        branchId: selectedBranchId || null,
         phone: toApiPhone(form.phone),
         alternateMobile: form.alternateMobile ? toApiPhone(form.alternateMobile) : ""
       };
@@ -419,13 +418,6 @@ export default function VendorManagement({ branches = [], formatMoney }) {
                 <TextInput label="City" required value={form.city} onChange={(v) => setForm({ ...form, city: v })} placeholder="City*" />
                 <TextInput label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} placeholder="Pincode" />
 
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Branch</label>
-                  <select value={form.branchId} onChange={(e) => setForm({ ...form, branchId: e.target.value })} style={inputStyle}>
-                    <option value="">Salon wide</option>
-                    {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-                  </select>
-                </div>
                 <TextInput label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Notes" />
               </div>
 

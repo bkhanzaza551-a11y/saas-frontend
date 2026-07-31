@@ -139,7 +139,7 @@ const REPORT_FILTERS = {
   cancelled_invoices: [],
   appointments: [
     { key: "stylistId", label: "Stylist", type: "select", endpoint: "/owner/staff-users", optionLabel: "name", defaultLabel: "All" },
-    { key: "status", label: "Status", type: "select", options: [{ value: "all", label: "All" }, { value: "SCHEDULED", label: "Scheduled" }, { value: "CONFIRMED", label: "Confirmed" }, { value: "COMPLETED", label: "Completed" }, { value: "CANCELLED", label: "Cancelled" }, { value: "NO_SHOW", label: "No Show" }], defaultValue: "all" },
+    { key: "status", label: "Status", type: "select", options: [{ value: "all", label: "All" }, { value: "PENDING", label: "Pending" }, { value: "CONFIRMED", label: "Confirmed" }, { value: "COMPLETED", label: "Completed" }, { value: "CANCELLED", label: "Cancelled" }, { value: "NO_SHOW", label: "No Show" }], defaultValue: "all" },
     { key: "basedOn", label: "Based ON", type: "select", options: [{ value: "created", label: "Created" }, { value: "appointment", label: "Appointment" }], defaultValue: "created" }
   ],
   gst_returns: [],
@@ -1059,12 +1059,12 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
   return (
     <div className="dash-container" style={{ padding: "8px 0px 24px", overflowY: "auto", height: "100%", boxSizing: "border-box" }}>
       <style>{`
-        .respark-tooltip-container {
+        .salonnest-tooltip-container {
           position: relative;
           display: inline-flex;
           align-items: center;
         }
-        .respark-tooltip-content {
+        .salonnest-tooltip-content {
           visibility: hidden;
           width: 210px;
           background-color: #1e293b;
@@ -1085,11 +1085,11 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
           box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
           pointer-events: none;
         }
-        .respark-tooltip-container:hover .respark-tooltip-content {
+        .salonnest-tooltip-container:hover .salonnest-tooltip-content {
           visibility: visible;
           opacity: 1;
         }
-        .respark-tooltip-content::after {
+        .salonnest-tooltip-content::after {
           content: "";
           position: absolute;
           bottom: 100%;
@@ -1099,24 +1099,24 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
           border-style: solid;
           border-color: transparent transparent #1e293b transparent;
         }
-        .respark-card-details-item {
+        .salonnest-card-details-item {
           background: #f8fafc;
           border: 1px solid #f1f5f9;
           border-radius: 6px;
           padding: 8px;
           margin-bottom: 6px;
         }
-        .respark-card-details-item:last-child {
+        .salonnest-card-details-item:last-child {
           margin-bottom: 0;
         }
-        .respark-card-details-label {
+        .salonnest-card-details-label {
           font-size: 0.68rem;
           color: #64748b;
           font-weight: 500;
           margin-bottom: 2px;
           display: block;
         }
-        .respark-card-details-value {
+        .salonnest-card-details-value {
           font-size: 0.85rem;
           color: #0f172a;
           font-weight: 700;
@@ -1140,7 +1140,7 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
                 <span style={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 600 }}>{card.label} ({card.count})</span>
-                <div className="respark-tooltip-container">
+                <div className="salonnest-tooltip-container">
                   <div style={{
                     width: "12px",
                     height: "12px",
@@ -1161,7 +1161,7 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
                   }}>i</div>
 
                   {card.tooltip && (
-                    <div className="respark-tooltip-content">
+                    <div className="salonnest-tooltip-content">
                       {card.tooltip}
                     </div>
                   )}
@@ -1203,9 +1203,9 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
                 onClick={(e) => e.stopPropagation()}
               >
                 {card.details.map((detail, idx) => (
-                  <div key={idx} className="respark-card-details-item">
-                    <span className="respark-card-details-label">{detail.label}</span>
-                    <div className="respark-card-details-value">₹ {formatVal(detail.value)}</div>
+                  <div key={idx} className="salonnest-card-details-item">
+                    <span className="salonnest-card-details-label">{detail.label}</span>
+                    <div className="salonnest-card-details-value">₹ {formatVal(detail.value)}</div>
                   </div>
                 ))}
               </div>

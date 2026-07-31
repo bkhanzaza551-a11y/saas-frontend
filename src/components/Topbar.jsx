@@ -7,7 +7,7 @@ import { Menu, Settings, FileText, Monitor, Calendar as CalendarIcon, Users, Bar
 export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { branches, selectedBranchId, selectedBranchName, setSelectedBranchId, isOwner } = useBranch();
+  const { branches, selectedBranchId, selectedBranchName, setSelectedBranchId } = useBranch();
   const [salonName, setSalonName] = useState("");
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -17,44 +17,71 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   const [searchResults, setSearchResults] = useState([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [subscription, setSubscription] = useState(null);
   const permissions = auth?.membership?.permissions || {};
   const featureFlags = auth?.membership?.featureFlags || {};
   const can = (key, action = "view") => Array.isArray(permissions[key]) && permissions[key].includes(action);
   const enabled = (key) => featureFlags[key] !== false;
   const canPos = can("pos") && enabled("pos");
   const canNotifications = can("notifications");
-  const canGlobalSearch = can("customers") || can("appointments") || can("services");
+  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
+  const canGlobalSearch = can("customers") || can("appointments") || can("services") || isSuperAdmin;
   const canSettings = can("settings", "edit");
-  const canProfile = can("myProfile");
+  const canProfile = isSuperAdmin || can("myProfile");
 
   useEffect(() => {
     let active = true;
-    if (canPos) {
+    const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
+
+    if (!isSuperAdmin) {
+      api.get("/owner/subscription").then(res => {
+        if (active && res.data) setSubscription(res.data);
+      }).catch(() => {});
+    }
+
+    if (canPos && !isSuperAdmin) {
       api.get("/owner/pos/context").then(res => {
         if (active && res.data?.salon?.name) setSalonName(res.data.salon.name);
       }).catch(()=> {});
     }
 
-    if (canNotifications) {
-      api.get("/owner/notifications", { params: { limit: 5 } }).then((res) => {
-        if (active && res.data) {
-          setNotifications(res.data);
-        }
-      }).catch(() => {});
-    }
+    const fetchNotifications = () => {
+      if (canNotifications && !isSuperAdmin) {
+        api.get("/owner/notifications", { params: { limit: 5 } }).then((res) => {
+          if (active && res.data) {
+            setNotifications(res.data);
+          }
+        }).catch(() => {});
+      }
+    };
 
-    return () => { active = false; };
-  }, [canNotifications, canPos]);
+    fetchNotifications();
+    const notifInterval = setInterval(fetchNotifications, 30000);
+
+    return () => { active = false; clearInterval(notifInterval); };
+  }, [canNotifications, canPos, auth?.user?.systemRole]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest?.(".respark-search-wrap")) setSearchOpen(false);
-      if (!event.target.closest?.(".respark-notif-wrap")) setIsNotifOpen(false);
-      if (!event.target.closest?.(".respark-profile-wrap")) setIsProfileOpen(false);
-      if (!event.target.closest?.(".respark-branch-wrap")) setIsBranchOpen(false);
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+        setIsNotifOpen(false);
+        setIsProfileOpen(false);
+        setIsBranchOpen(false);
+      }
     };
+    const handleClickOutside = (event) => {
+      if (!event.target.closest?.(".salonnest-search-wrap")) setSearchOpen(false);
+      if (!event.target.closest?.(".salonnest-notif-wrap")) setIsNotifOpen(false);
+      if (!event.target.closest?.(".salonnest-profile-wrap")) setIsProfileOpen(false);
+      if (!event.target.closest?.(".salonnest-branch-wrap")) setIsBranchOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -72,7 +99,8 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
     setSearchLoading(true);
     const timeoutId = setTimeout(async () => {
       try {
-        const response = await api.get("/owner/global-search", { params: { q: term } });
+        const endpoint = isSuperAdmin ? "/super-admin/global-search" : "/owner/global-search";
+        const response = await api.get(endpoint, { params: { q: term } });
         if (!active) return;
         setSearchResults(response.data?.results || []);
         setSearchOpen(true);
@@ -87,7 +115,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
       active = false;
       clearTimeout(timeoutId);
     };
-  }, [canGlobalSearch, quickSearch]);
+  }, [canGlobalSearch, quickSearch, isSuperAdmin]);
 
   const handleMarkAllRead = async (e) => {
     e.stopPropagation();
@@ -117,29 +145,17 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   const dateOpts = { weekday: 'short', day: '2-digit', month: 'short' };
   const dateStr = today.toLocaleDateString('en-GB', dateOpts);
 
-  const tabs = [
-    { label: "DASHBOARD", path: "/admin/dashboard", moduleKey: "dashboard", icon: <LayoutDashboard size={14} style={{marginRight: 6}} /> },
-    { label: "POS", path: "/admin/pos", moduleKey: "pos", featureKey: "pos", icon: <Monitor size={14} style={{marginRight: 6}} /> },
-    { label: "INVOICES", path: "/admin/invoices", moduleKey: "pos", icon: <FileText size={14} style={{marginRight: 6}} /> },
-    { label: "POS DASHBOARD", path: "/admin/order-dashboard", moduleKey: "orders", featureKey: "onlineOrders", icon: <Package size={14} style={{marginRight: 6}} /> },
-    { label: "APPOINTMENT", path: "/admin/appointments", moduleKey: "appointments", featureKey: "appointments", icon: <CalendarIcon size={14} style={{marginRight: 6}} /> },
-    { label: "CRM", path: "/admin/customers", moduleKey: "customers", icon: <Users size={14} style={{marginRight: 6}} /> },
-    { label: "REPORTS", path: "/admin/reports", moduleKey: "reports", featureKey: "reports", icon: <BarChart2 size={14} style={{marginRight: 6}} /> },
-    { label: "INVENTORY", path: "/admin/inventory", moduleKey: "inventory", featureKey: "inventory", icon: <Package size={14} style={{marginRight: 6}} /> },
-    { label: "TRENDS", path: "/admin/trends", moduleKey: "reports", featureKey: "reports", icon: <TrendingUp size={14} style={{marginRight: 6}} /> }
-  ].filter((tab) => can(tab.moduleKey) && (!tab.featureKey || enabled(tab.featureKey)));
 
   return (
-    <div className="respark-header-container">
+    <div className="salonnest-header-container">
       <style>{`
-        .respark-header-container {
+        .salonnest-header-container {
           display: flex;
           flex-direction: column;
           width: 100%;
-          z-index: 1050;
-          position: relative;
+          z-index: 50;
         }
-        .respark-top-row {
+        .salonnest-top-row {
           background: var(--navbar-bg, white);
           height: 60px;
           display: flex;
@@ -149,20 +165,18 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           border-bottom: 1px solid #e2e8f0;
           position: relative;
         }
-        .respark-logo-area {
+        .salonnest-logo-area {
           display: flex;
           align-items: center;
           gap: 16px;
           flex: 1;
         }
-        .respark-brand-image {
+        .salonnest-brand-image {
           height: 42px;
-          max-width: 160px;
           width: auto;
           object-fit: contain;
-          display: block;
         }
-        .respark-salon-name {
+        .salonnest-salon-name {
           color: #475569;
           font-size: 0.95rem;
           font-weight: 600;
@@ -170,7 +184,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           padding-left: 16px;
         }
         
-        .respark-search-bar {
+        .salonnest-search-bar {
           display: flex;
           align-items: center;
           background: #f1f5f9;
@@ -181,12 +195,12 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           transition: all 0.2s;
           position: relative;
         }
-        .respark-search-bar:focus-within {
+        .salonnest-search-bar:focus-within {
           background: white;
           border: 1px solid #cbd5e1;
           box-shadow: none;
         }
-        .respark-search-bar input {
+        .salonnest-search-bar input {
           border: none;
           background: transparent;
           outline: none;
@@ -198,16 +212,16 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           padding: 0;
           border-radius: 0;
         }
-        .respark-search-bar input::placeholder {
+        .salonnest-search-bar input::placeholder {
           color: #94a3b8;
         }
-        .respark-search-wrap {
+        .salonnest-search-wrap {
           position: relative;
         }
-        .respark-branch-wrap {
+        .salonnest-branch-wrap {
           position: relative;
         }
-        .respark-branch-btn {
+        .salonnest-branch-btn {
           display: flex;
           align-items: center;
           gap: 6px;
@@ -222,11 +236,11 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           white-space: nowrap;
           transition: all 0.15s;
         }
-        .respark-branch-btn:hover {
+        .salonnest-branch-btn:hover {
           background: #e2e8f0;
           border-color: #cbd5e1;
         }
-        .respark-branch-dropdown {
+        .salonnest-branch-dropdown {
           position: absolute;
           top: calc(100% + 8px);
           left: 0;
@@ -240,7 +254,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           z-index: 120;
           padding: 6px;
         }
-        .respark-branch-option {
+        .salonnest-branch-option {
           display: flex;
           align-items: center;
           gap: 8px;
@@ -255,20 +269,20 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           color: #334155;
           transition: background 0.12s;
         }
-        .respark-branch-option:hover {
+        .salonnest-branch-option:hover {
           background: #eff6ff;
         }
-        .respark-branch-option.active {
+        .salonnest-branch-option.active {
           background: #dbeafe;
           color: #1d4ed8;
           font-weight: 600;
         }
-        .respark-branch-option-check {
+        .salonnest-branch-option-check {
           width: 16px;
           height: 16px;
           flex-shrink: 0;
         }
-        .respark-search-dropdown {
+        .salonnest-search-dropdown {
           position: absolute;
           top: calc(100% + 10px);
           left: 50%;
@@ -283,7 +297,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           z-index: 120;
           padding: 8px;
         }
-        .respark-search-section-title {
+        .salonnest-search-section-title {
           padding: 8px 12px 4px;
           font-size: 0.68rem;
           font-weight: 800;
@@ -291,7 +305,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           text-transform: uppercase;
           letter-spacing: 0.12em;
         }
-        .respark-search-result {
+        .salonnest-search-result {
           width: 100%;
           border: 0;
           background: transparent;
@@ -304,10 +318,10 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           gap: 12px;
           transition: background 0.15s;
         }
-        .respark-search-result:hover {
+        .salonnest-search-result:hover {
           background: #eff6ff;
         }
-        .respark-search-module-badge {
+        .salonnest-search-module-badge {
           font-size: 0.6rem;
           font-weight: 700;
           color: white;
@@ -318,20 +332,25 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           min-width: 70px;
           flex-shrink: 0;
         }
-        .respark-search-module-badge.crm { background: #3b82f6; }
-        .respark-search-module-badge.services { background: #8b5cf6; }
-        .respark-search-module-badge.inventory { background: #f59e0b; }
-        .respark-search-module-badge.staff { background: #10b981; }
-        .respark-search-module-badge.appointments { background: #06b6d4; }
-        .respark-search-module-badge.invoices { background: #6366f1; }
-        .respark-search-module-badge.memberships { background: #ec4899; }
-        .respark-search-module-badge.packages { background: #f97316; }
-        .respark-search-module-badge.pos { background: #14b8a6; }
-        .respark-search-result-text {
+        .salonnest-search-module-badge.crm { background: #3b82f6; }
+        .salonnest-search-module-badge.services { background: #8b5cf6; }
+        .salonnest-search-module-badge.inventory { background: #f59e0b; }
+        .salonnest-search-module-badge.staff { background: #10b981; }
+        .salonnest-search-module-badge.appointments { background: #06b6d4; }
+        .salonnest-search-module-badge.invoices { background: #6366f1; }
+        .salonnest-search-module-badge.memberships { background: #ec4899; }
+        .salonnest-search-module-badge.packages { background: #f97316; }
+        .salonnest-search-module-badge.pos { background: #14b8a6; }
+        .salonnest-search-module-badge.salons { background: #3b82f6; }
+        .salonnest-search-module-badge.demo-leads { background: #10b981; }
+        .salonnest-search-module-badge.subscription-plans { background: #8b5cf6; }
+        .salonnest-search-module-badge.platform-users { background: #f59e0b; }
+        .salonnest-search-module-badge.subscription-contracts { background: #ec4899; }
+        .salonnest-search-result-text {
           flex: 1;
           min-width: 0;
         }
-        .respark-search-result-text strong {
+        .salonnest-search-result-text strong {
           display: block;
           color: #0f172a;
           font-size: 0.88rem;
@@ -339,7 +358,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .respark-search-result-text small {
+        .salonnest-search-result-text small {
           display: block;
           color: #64748b;
           font-size: 0.73rem;
@@ -348,26 +367,26 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .respark-search-result-nav {
+        .salonnest-search-result-nav {
           font-size: 0.68rem;
           color: #94a3b8;
           flex-shrink: 0;
         }
-        .respark-search-empty {
+        .salonnest-search-empty {
           padding: 24px 18px;
           text-align: center;
           color: #94a3b8;
           font-size: 0.85rem;
         }
 
-        .respark-top-right {
+        .salonnest-top-right {
           display: flex;
           align-items: center;
           gap: 16px;
           flex: 1;
           justify-content: flex-end;
         }
-        .respark-date {
+        .salonnest-date {
           font-size: 0.85rem;
           color: #475569;
           font-weight: 600;
@@ -376,7 +395,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           border-radius: 16px;
           border: 1px solid #e2e8f0;
         }
-        .respark-icon-btn {
+        .salonnest-icon-btn {
           width: 40px;
           height: 40px;
           display: flex;
@@ -388,7 +407,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           transition: all 0.2s;
           position: relative;
         }
-        .respark-icon-btn:hover {
+        .salonnest-icon-btn:hover {
           background: #f1f5f9;
           color: #0f172a;
         }
@@ -486,14 +505,14 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           margin: 0;
         }
         
-        .respark-nav-row {
+        .salonnest-nav-row {
           background: var(--sidebar-bg, #334155); /* Slightly darker and richer than #475569 */
           height: 48px;
           display: flex;
           align-items: center;
           padding: 0;
         }
-        .respark-menu-btn {
+        .salonnest-menu-btn {
           background: transparent;
           border: none;
           color: white;
@@ -505,14 +524,14 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           justify-content: center;
           border-right: 1px solid rgba(255,255,255,0.1);
         }
-        .respark-menu-btn:hover { background: rgba(255,255,255,0.1); }
+        .salonnest-menu-btn:hover { background: rgba(255,255,255,0.1); }
         
-        .respark-tabs {
+        .salonnest-tabs {
           display: flex;
           height: 100%;
           flex-grow: 1;
         }
-        .respark-tab {
+        .salonnest-tab {
           color: #f8fafc;
           text-decoration: none;
           display: flex;
@@ -525,10 +544,10 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           border-bottom: 3px solid transparent;
           transition: all 0.2s;
         }
-        .respark-tab:hover {
+        .salonnest-tab:hover {
           background: rgba(255,255,255,0.05);
         }
-        .respark-tab.active {
+        .salonnest-tab.active {
           background: #0f172a;
           border-bottom: 3px solid var(--accent, #ef4444);
           color: white;
@@ -536,20 +555,47 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
       `}</style>
 
       {/* Top White Row */}
-      <div className="respark-top-row">
-        <div className="respark-logo-area">
-          <img src="/skillify-logo.png" alt="Skillify" className="respark-brand-image" />
-          <div className="respark-salon-name">{salonName}</div>
+      <div className="salonnest-top-row">
+        <div className="salonnest-logo-area" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button 
+            type="button" 
+            className="salonnest-menu-btn" 
+            onClick={onToggleSidebar}
+            style={{ 
+              background: "transparent", 
+              border: "none", 
+              cursor: "pointer", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              padding: 6, 
+              borderRadius: 6, 
+              color: "#1e1b4b"
+            }}
+          >
+            <Menu size={20} />
+          </button>
+          {auth?.user?.systemRole === "SUPER_ADMIN" ? (
+            <Link to="/super-admin/dashboard" style={{ textDecoration: "none" }}>
+              <div className="salonnest-salon-name" style={{ borderLeft: "none", paddingLeft: 0, fontWeight: 800, fontSize: "1.2rem", color: "#1e1b4b", cursor: "pointer" }}>
+                Super Admin
+              </div>
+            </Link>
+          ) : (
+            <Link to="/admin/dashboard" style={{ textDecoration: "none" }}>
+              <div className="salonnest-salon-name" style={{ borderLeft: "none", paddingLeft: 0, cursor: "pointer" }}>{salonName}</div>
+            </Link>
+          )}
         </div>
 
         {/* Centered Search Bar */}
-        {canGlobalSearch ? (
-          <div className="respark-search-wrap" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-            <div className="respark-search-bar">
+        {(canGlobalSearch || auth?.user?.systemRole === "SUPER_ADMIN") ? (
+          <div className="salonnest-search-wrap" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+            <div className="salonnest-search-bar">
               <Search size={16} color="#64748b" />
               <input
                 type="text"
-                placeholder="Search guests, services, products, staff, invoices..."
+                placeholder={isSuperAdmin ? "Search salons, plans, leads, users..." : "Search guests, services, products, staff, invoices..."}
                 value={quickSearch}
                 onFocus={() => setSearchOpen(true)}
                 onChange={(event) => setQuickSearch(event.target.value)}
@@ -563,7 +609,11 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                       setSearchOpen(false);
                       setQuickSearch("");
                     } else if (term) {
-                      navigate(`/admin/customers?q=${encodeURIComponent(term)}`);
+                      if (isSuperAdmin) {
+                        navigate(`/super-admin/salons?q=${encodeURIComponent(term)}`);
+                      } else {
+                        navigate(`/admin/customers?q=${encodeURIComponent(term)}`);
+                      }
                       setSearchOpen(false);
                     }
                   }
@@ -571,26 +621,26 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
               />
             </div>
             {searchOpen && quickSearch.trim().length >= 2 ? (
-              <div className="respark-search-dropdown" onMouseDown={(event) => event.preventDefault()}>
-                {searchLoading ? <div className="respark-search-empty">Searching workspace...</div> : null}
-                {!searchLoading && !searchResults.length ? <div className="respark-search-empty">No results found for "{quickSearch.trim()}"</div> : null}
+              <div className="salonnest-search-dropdown" onMouseDown={(event) => event.preventDefault()}>
+                {searchLoading ? <div className="salonnest-search-empty">Searching workspace...</div> : null}
+                {!searchLoading && !searchResults.length ? <div className="salonnest-search-empty">No results found for "{quickSearch.trim()}"</div> : null}
                 {!searchLoading && searchResults.map((item) => (
                   <button
                     type="button"
                     key={`${item.module}-${item.id}`}
-                    className="respark-search-result"
+                    className="salonnest-search-result"
                     onClick={() => {
                       navigate(item.to);
                       setSearchOpen(false);
                       setQuickSearch("");
                     }}
                   >
-                    <span className={`respark-search-module-badge ${(item.module || "").toLowerCase()}`}>{item.module}</span>
-                    <span className="respark-search-result-text">
+                    <span className={`salonnest-search-module-badge ${(item.module || "").toLowerCase().replace(/\s+/g, "-")}`}>{item.module}</span>
+                    <span className="salonnest-search-result-text">
                       <strong>{item.title}</strong>
                       <small>{item.subtitle || "Open record"}</small>
                     </span>
-                    <span className="respark-search-result-nav">â†’</span>
+                    <span className="salonnest-search-result-nav">→</span>
                   </button>
                 ))}
               </div>
@@ -598,43 +648,36 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           </div>
         ) : null}
 
-        <div className="respark-top-right">
-          {/* Branch Selector â€” Owner only */}
-          {isOwner ? (
-          <div className="respark-branch-wrap">
-            <button className="respark-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
-              <Building2 size={14} color="#64748b" style={{ flexShrink: 0 }} />
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{selectedBranchName}</span>
-              <ChevronDown size={14} color="#64748b" style={{ flexShrink: 0 }} />
-            </button>
-            {isBranchOpen && (
-              <div className="respark-branch-dropdown" onClick={e => e.stopPropagation()}>
-                <button className={`respark-branch-option ${!selectedBranchId ? "active" : ""}`} onClick={() => { setSelectedBranchId(""); setIsBranchOpen(false); }}>
-                  <svg className="respark-branch-option-check" viewBox="0 0 16 16" fill="none">{!selectedBranchId ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
-                  All Branches
-                </button>
-                {branches.filter(b => b.isActive).map(branch => (
-                  <button key={branch.id} className={`respark-branch-option ${selectedBranchId === branch.id ? "active" : ""}`} onClick={() => { setSelectedBranchId(branch.id); setIsBranchOpen(false); }}>
-                    <svg className="respark-branch-option-check" viewBox="0 0 16 16" fill="none">{selectedBranchId === branch.id ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
-                    {branch.name}
+        <div className="salonnest-top-right">
+          {/* Branch Selector */}
+          {auth?.user?.systemRole !== "SUPER_ADMIN" && (
+            <div className="salonnest-branch-wrap">
+              <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
+                <Building2 size={14} color="#64748b" />
+                {selectedBranchName}
+                <ChevronDown size={14} color="#64748b" />
+              </button>
+              {isBranchOpen && (
+                <div className="salonnest-branch-dropdown" onClick={e => e.stopPropagation()}>
+                  <button className={`salonnest-branch-option ${!selectedBranchId ? "active" : ""}`} onClick={() => { setSelectedBranchId(""); setIsBranchOpen(false); }}>
+                    <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{!selectedBranchId ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
+                    All Branches
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
-          ) : (
-            <div className="respark-branch-wrap">
-              <span className="respark-branch-btn" style={{ cursor: "default" }}>
-                <Building2 size={14} color="#64748b" style={{ flexShrink: 0 }} />
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{selectedBranchName}</span>
-              </span>
+                  {branches.filter(b => b.isActive).map(branch => (
+                    <button key={branch.id} className={`salonnest-branch-option ${selectedBranchId === branch.id ? "active" : ""}`} onClick={() => { setSelectedBranchId(branch.id); setIsBranchOpen(false); }}>
+                      <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{selectedBranchId === branch.id ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
+                      {branch.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          <div className="respark-date">{dateStr}</div>
+          <div className="salonnest-date">{dateStr}</div>
           
           {/* Notifications */}
-          {canNotifications ? <div className="respark-icon-btn respark-notif-wrap" onClick={() => setIsNotifOpen(!isNotifOpen)}>
+          {canNotifications ? <div className="salonnest-icon-btn salonnest-notif-wrap" onClick={() => setIsNotifOpen(!isNotifOpen)}>
             <Bell size={20} />
             {unreadCount > 0 && (
               <span style={{
@@ -661,7 +704,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                     notifications.map((notif) => (
                       <div key={notif.id} className={`notif-item ${!notif.isRead ? "unread" : ""}`} onClick={(e) => handleNotificationClick(e, notif)}>
                         <div style={{ fontSize: "1.2rem" }}>
-                          {notif.type === 'APPOINTMENT' ? '\u{1F4C5}' : notif.type === 'PAYMENT' ? '\u{1F4B5}' : notif.type === 'FEEDBACK' ? '\u2B50' : '\u{1F514}'}
+                          {notif.type === 'APPOINTMENT' ? '📅' : notif.type === 'PAYMENT' ? '💵' : notif.type === 'FEEDBACK' ? '⭐' : '🔔'}
                         </div>
                         <div>
                           <p><strong>{notif.title}</strong> - {notif.message}</p>
@@ -679,13 +722,13 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           </div> : null}
           
           {/* Settings */}
-          {canSettings ? <div className="respark-icon-btn" onClick={() => navigate('/admin/settings')}>
+          {canSettings ? <div className="salonnest-icon-btn" onClick={() => navigate('/admin/settings')}>
              <Settings size={20} /> 
           </div> : null}
           
           {/* Profile Logo */}
           {canProfile ? <div 
-            className="respark-profile-wrap"
+            className="salonnest-profile-wrap"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             style={{ 
               width: 36, height: 36, borderRadius: '50%', background: "var(--button-bg-solid, #3b82f6)", color: 'white', 
@@ -699,6 +742,20 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
               <div className="profile-dropdown" onClick={e => e.stopPropagation()}>
                 <div className="profile-dropdown-name">{auth?.user?.name || "Admin"}</div>
                 <div className="profile-dropdown-role">{salonName}</div>
+                {subscription?.plan && (
+                  <div
+                    onClick={() => { setIsProfileOpen(false); navigate("/admin/settings/subscription"); }}
+                    style={{ margin: "8px 0 12px", padding: "8px 10px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", textAlign: "left" }}
+                  >
+                    <div style={{ fontSize: "0.65rem", color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>Active Subscribed Plan</div>
+                    <div style={{ fontSize: "0.82rem", color: "#0f172a", fontWeight: 800, display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 2 }}>
+                      <span>{subscription.plan.name}</span>
+                      <span style={{ fontSize: "0.65rem", padding: "2px 6px", borderRadius: 4, background: "#dcfce7", color: "#15803d", fontWeight: 700 }}>
+                        {subscription.daysRemaining !== undefined ? `${subscription.daysRemaining}d left` : "Active"}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <button 
                   className="profile-dropdown-btn primary" 
                   onClick={() => { setIsProfileOpen(false); if(onLogout) onLogout(); }}
@@ -717,7 +774,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                   </button>
                 )}
                 <div className="profile-dropdown-version">
-                  Skillify ERP v1.0.0
+                  Salon Nest ERP v1.0.0
                 </div>
               </div>
             )}
@@ -725,22 +782,6 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         </div>
       </div>
 
-      {/* Dark Tabs Row */}
-      <div className="respark-nav-row">
-        <button className="respark-menu-btn" onClick={onToggleSidebar}>
-          <Menu size={20} />
-        </button>
-        <div className="respark-tabs">
-          {tabs.map(tab => {
-             const isActive = location.pathname.startsWith(tab.path);
-             return (
-               <Link key={tab.path} to={tab.path} className={`respark-tab ${isActive ? 'active' : ''}`}>
-                 {tab.icon} {tab.label}
-               </Link>
-             )
-          })}
-        </div>
-      </div>
     </div>
   );
 }

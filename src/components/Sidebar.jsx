@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Zap,
   Settings,
@@ -11,36 +11,74 @@ import {
   Home,
   FolderOpen,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   X,
   LogOut,
   Globe,
+  CreditCard,
   Building2,
-  Bell,
-  Search,
-  Monitor,
-  Calendar as CalendarIcon,
-  Users as UsersIcon,
-  BarChart2,
+  Calendar,
+  Users,
+  Activity,
+  FileText,
+  UserCheck,
   Package,
-  TrendingUp
+  LifeBuoy,
+  TrendingUp,
+  Sparkles,
+  Clock,
+  CheckSquare,
+  ShoppingBag,
+  Award,
+  Gift
 } from "lucide-react";
-import { useBranch } from "../context/BranchContext";
 import { api } from "../api/client";
 
 const GROUP_ICONS = {
-  "My Workspace":  <User size={17} />,
-  "Operations":    <Zap size={17} />,
-  "Setup":         <Settings size={17} />,
-  "Expenses":      <DollarSign size={17} />,
-  "Enquiries":     <MessageSquare size={17} />,
-  "System":        <Wrench size={17} />,
-  "Workspace":     <Home size={17} />,
-  "Settings":      <Settings size={17} />,
-  "Manage":        <FolderOpen size={17} />,
-  "Website":       <Globe size={17} />,
+  "My Workspace":     <User size={17} />,
+  "Operations":       <Zap size={17} />,
+  "Setup":            <Settings size={17} />,
+  "Expenses":         <DollarSign size={17} />,
+  "Enquiries":        <MessageSquare size={17} />,
+  "System":           <Wrench size={17} />,
+  "Workspace":        <Home size={17} />,
+  "Settings":         <Settings size={17} />,
+  "Manage":           <FolderOpen size={17} />,
+  "Website":          <Globe size={17} />,
+  "Platform Command": <Home size={17} />,
 };
 
 const DEFAULT_ICON = <LayoutDashboard size={17} />;
+
+const getItemIcon = (label, path) => {
+  const l = (label || "").toLowerCase();
+  const p = (path || "").toLowerCase();
+  if (l.includes("dashboard") || l.includes("home")) return <LayoutDashboard size={18} />;
+  if (l.includes("salon") || l.includes("branch")) return <Building2 size={18} />;
+  if (l.includes("sale") || l.includes("pos")) return <CreditCard size={18} />;
+  if (l.includes("appointment")) return <Calendar size={18} />;
+  if (l.includes("schedule") || l.includes("availability")) return <Clock size={18} />;
+  if (l.includes("attendance")) return <CheckSquare size={18} />;
+  if (l.includes("commission") || l.includes("payroll") || l.includes("expense") || l.includes("account") || l.includes("payment")) return <DollarSign size={18} />;
+  if (l.includes("customer") || l.includes("crm") || l.includes("profile")) return <Users size={18} />;
+  if (l.includes("order") || l.includes("shopping")) return <ShoppingBag size={18} />;
+  if (l.includes("staff requirement")) return <UserCheck size={18} />;
+  if (l.includes("product requirement")) return <Package size={18} />;
+  if (l.includes("staff") || l.includes("user") || l.includes("role")) return <UserCheck size={18} />;
+  if (l.includes("analytics") || l.includes("global dashboard")) return <Activity size={18} />;
+  if (l.includes("report") || l.includes("financial")) return <FileText size={18} />;
+  if (l.includes("support") || l.includes("ticket")) return <LifeBuoy size={18} />;
+  if (l.includes("message") || l.includes("enquir") || l.includes("whatsapp") || l.includes("notification")) return <MessageSquare size={18} />;
+  if (l.includes("package") || l.includes("membership")) return <Award size={18} />;
+  if (l.includes("loyalty") || l.includes("coupon") || l.includes("gift")) return <Gift size={18} />;
+  if (l.includes("setting") || l.includes("setup")) return <Settings size={18} />;
+  if (l.includes("trend") || l.includes("traffic")) return <TrendingUp size={18} />;
+  if (l.includes("inventory") || l.includes("product") || l.includes("catalog")) return <Package size={18} />;
+  if (l.includes("service")) return <Sparkles size={18} />;
+  if (l.includes("website") || l.includes("portal") || l.includes("site") || l.includes("editor")) return <Globe size={18} />;
+  return <FolderOpen size={18} />;
+};
 
 const isGroupActive = (group, pathname) =>
   (group.items || []).some(
@@ -52,24 +90,6 @@ const isGroupActive = (group, pathname) =>
 export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true, onToggleSidebar }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { branches, selectedBranchId, setSelectedBranchId, isOwner } = useBranch();
-  const [notifications, setNotifications] = useState([]);
-  const permissions = auth?.membership?.permissions || {};
-  const canNotifications = Array.isArray(permissions["notifications"]) && permissions["notifications"].includes("view");
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-  const flags = auth?.membership?.featureFlags || {};
-  const can = (key, action = "view") => Array.isArray(permissions[key]) && permissions[key].includes(action);
-  const enabled = (key) => flags[key] !== false;
-
-  useEffect(() => {
-    let active = true;
-    if (canNotifications) {
-      api.get("/owner/notifications", { params: { limit: 5 } }).then((res) => {
-        if (active && res.data) setNotifications(res.data);
-      }).catch(() => {});
-    }
-    return () => { active = false; };
-  }, [canNotifications]);
   const defaultOpen = useMemo(() => {
     const next = {};
     for (const group of groups) {
@@ -80,6 +100,9 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
 
   const [openGroups, setOpenGroups] = useState(defaultOpen);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+
+  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
 
   const closeMobile = () => setMobileOpen(false);
   const closeWorkspace = () => {
@@ -92,15 +115,37 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
   }, [defaultOpen]);
 
   useEffect(() => {
-    if (!mobileOpen) return undefined;
-    document.body.style.overflow = "hidden";
-    const onKeyDown = (e) => { if (e.key === "Escape") setMobileOpen(false); };
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKeyDown);
+    if (isSuperAdmin) return;
+    api.get("/owner/subscription").then((res) => setSubscription(res.data)).catch(() => {});
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (!mobileOpen && !sidebarExpanded) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (mobileOpen) setMobileOpen(false);
+        if (sidebarExpanded && onToggleSidebar) onToggleSidebar();
+      }
     };
-  }, [mobileOpen]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen, sidebarExpanded, onToggleSidebar]);
+
+  // Flatten all navigation items for Mini Rail Mode
+  const allNavItems = useMemo(() => {
+    const items = [];
+    for (const group of groups) {
+      if (group.items) {
+        for (const item of group.items) {
+          items.push(item);
+        }
+      }
+    }
+    return items;
+  }, [groups]);
+
+  // Desktop mini rail condition
+  const isMiniRail = !sidebarExpanded && !mobileOpen;
 
   return (
     <>
@@ -116,185 +161,220 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
           <span /><span /><span />
         </button>
         <div className="sidebar-mobile-brand">
-          {/* <img src="/skillify-logo.png" alt="Skillify" height={26} /> */}
+              <img src="/logo.jfif" alt="Logo" className="mini-rail-logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} />
         </div>
       </div>
 
       {/* Overlay */}
       <div
-        className={`surface-overlay ${sidebarExpanded || mobileOpen ? "active" : ""}`}
-        onClick={closeWorkspace}
-        aria-hidden={!(sidebarExpanded || mobileOpen)}
+        className={`surface-overlay ${mobileOpen ? "active" : ""}`}
+        onClick={() => setMobileOpen(false)}
+        aria-hidden={!mobileOpen}
       />
 
       {/* Sidebar Panel */}
-      <aside className={`app-sidebar ${sidebarExpanded || mobileOpen ? "open" : "closed"}`}>
-
-        {/* Brand Row */}
-        <div className="sidebar-brand-row">
-          <div className="sidebar-brand-inner">
-            <img src="/skillify-logo.png" alt="Skillify" className="sidebar-logo" />
-          </div>
-          <button
-            type="button"
-            className="sidebar-close-btn sidebar-mobile-close"
-            onClick={closeWorkspace}
-            aria-label="Close menu"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* Nav Groups */}
-        <nav className="sidebar-nav">
-          <div className="sidebar-mobile-only-actions">
-            {isOwner && branches.length > 0 && (
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Selected Branch</div>
-                <select 
-                  value={selectedBranchId}
-                  onChange={(e) => setSelectedBranchId(e.target.value)}
-                  style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, backgroundColor: "#f8fafc", color: "#334155", fontWeight: 500, outline: "none", cursor: "pointer" }}
-                >
-                  <option value="">All Branches</option>
-                  {branches.map(b => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
+      <aside className={`app-sidebar ${sidebarExpanded || mobileOpen ? "open" : "mini-rail"}`}>
+        {isMiniRail ? (
+          /* Dedicated Mini Rail Mode */
+          <div className="mini-rail-container">
+            {/* Top User Profile Avatar */}
+            <div className="mini-rail-profile">
+              <div className="mini-rail-avatar">
+                {auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : "A"}
               </div>
-            )}
-            
-            <div style={{ display: "flex", gap: 8 }}>
-
-              {canNotifications && (
-                <button 
-                  type="button" 
-                  onClick={() => { closeMobile(); navigate("/admin/notifications"); }}
-                  style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#475569", fontSize: 13, fontWeight: 500, position: "relative", cursor: "pointer" }}
-                >
-                  <Bell size={15} /> 
-                  Alerts
-                  {unreadCount > 0 && (
-                    <span style={{ position: "absolute", top: -4, right: -4, background: "#ef4444", color: "white", fontSize: 10, fontWeight: "bold", padding: "2px 5px", borderRadius: 10 }}>{unreadCount}</span>
-                  )}
-                </button>
-              )}
             </div>
-          </div>
-          
-          <div className="sidebar-mobile-only-actions" style={{ padding: "0 12px 16px 12px", borderBottom: "1px solid #e2e8f0", marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Main Apps</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {[
-                { label: "DASHBOARD", path: "/admin/dashboard", moduleKey: "dashboard", icon: <LayoutDashboard size={15} /> },
-                { label: "POS", path: "/admin/pos", moduleKey: "pos", featureKey: "pos", icon: <Monitor size={15} /> },
-                { label: "POS DASHBOARD", path: "/admin/order-dashboard", moduleKey: "orders", featureKey: "onlineOrders", icon: <Package size={15} /> },
-                { label: "APPOINTMENT", path: isOwner ? "/admin/appointments" : "/admin/my-appointments", moduleKey: "appointments", featureKey: "appointments", icon: <CalendarIcon size={15} /> },
-                { label: "CRM", path: "/admin/customers", moduleKey: "customers", icon: <UsersIcon size={15} /> },
-                { label: "REPORTS", path: "/admin/reports", moduleKey: "reports", featureKey: "reports", icon: <BarChart2 size={15} /> },
-                { label: "INVENTORY", path: "/admin/inventory", moduleKey: "inventory", featureKey: "inventory", icon: <Package size={15} /> },
-                { label: "TRENDS", path: "/admin/trends", moduleKey: "reports", featureKey: "reports", icon: <TrendingUp size={15} /> }
-              ].filter((tab) => can(tab.moduleKey) && (!tab.featureKey || enabled(tab.featureKey))).map((tab) => (
-                <NavLink
-                  key={tab.path}
-                  to={tab.path}
-                  onClick={closeMobile}
-                  className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
-                >
-                  <span className="sidebar-group-icon" style={{marginRight: 10}}>{tab.icon}</span>
-                  <span style={{fontWeight: 600, fontSize: 13}}>{tab.label}</span>
-                </NavLink>
-              ))}
-            </div>
-          </div>
 
-          {groups.map((group) => {
-            const active = isGroupActive(group, location.pathname);
-            const expanded = openGroups[group.label] ?? active;
-            const icon = GROUP_ICONS[group.label] || DEFAULT_ICON;
-
-            return (
-              <div key={group.label} className="sidebar-group">
-                <button
-                  type="button"
-                  className={`sidebar-group-toggle ${active ? "active" : ""}`}
-                  onClick={() =>
-                    setOpenGroups((c) => {
-                      const isCurrentlyOpen = c[group.label];
-                      // Close all, then open clicked one (unless it was already open)
-                      const next = {};
-                      for (const g of groups) next[g.label] = false;
-                      if (!isCurrentlyOpen) next[group.label] = true;
-                      return next;
-                    })
-                  }
-                >
-                  <span className="sidebar-group-label">
-                    <span className="sidebar-group-icon">{icon}</span>
-                    <span className="sidebar-group-text">
-                      <strong>{group.label}</strong>
-                      {group.hint && <small>{group.hint}</small>}
-                    </span>
-                  </span>
-                  <span
-                    className="sidebar-chevron"
-                    style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+            {/* Vertical Stacked Icon Rail */}
+            <div className="mini-rail-items">
+              {allNavItems.map((item) => {
+                const itemIcon = getItemIcon(item.label, item.to);
+                const isActive = location.pathname === item.to || (item.to !== "/super-admin/dashboard" && item.to !== "/admin/dashboard" && location.pathname.startsWith(item.to));
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    target={item.target}
+                    className={`mini-rail-link ${isActive ? "active" : ""}`}
                   >
-                    <ChevronDown size={14} />
-                  </span>
-                </button>
+                    <span className="mini-rail-icon">{itemIcon}</span>
+                    <span className="mini-rail-tooltip">{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
 
-                {expanded && (
-                  <div className="sidebar-group-items">
-                    {(group.items || []).map((item) => (
-                      <div key={item.to} className="sidebar-item-block">
-                        <NavLink
-                          to={item.to}
-                          end={!item.children?.length}
-                          onClick={closeMobile}
-                          className={({ isActive }) =>
-                            `sidebar-link ${isActive || location.pathname.startsWith(item.to) ? "active" : ""}`
-                          }
-                        >
-                          <span>{item.label}</span>
-                          {item.badge && (
-                            <span className="sidebar-link-badge">{item.badge}</span>
-                          )}
-                        </NavLink>
+            {/* Logout Icon */}
+            <div className="mini-rail-footer">
+              <button
+                type="button"
+                onClick={onLogout}
+                className="mini-rail-link logout"
+              >
+                <LogOut size={18} />
+                <span className="mini-rail-tooltip">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Full Expanded Sidebar Mode */
+          <>
+            {/* Brand Row */}
+            <div className="sidebar-brand-row">
+              <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%", paddingLeft: "4px" }}>
+                <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
+              </Link>
 
-                        {item.children?.length ? (
-                          <div className="sidebar-submenu">
-                            {item.children.map((child) => (
-                              <NavLink
-                                key={child.to}
-                                to={child.to}
-                                onClick={closeMobile}
-                                className={({ isActive }) =>
-                                  `sidebar-sublink ${isActive || location.pathname.startsWith(child.to) ? "active" : ""}`
-                                }
-                              >
-                                <span className="sidebar-sublink-dot" />
-                                {child.label}
-                              </NavLink>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    ))}
+              <button
+                type="button"
+                className="sidebar-close-btn sidebar-mobile-close"
+                onClick={closeWorkspace}
+                aria-label="Close menu"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* User Account Profile Avatar Card */}
+            <div className="sidebar-profile-card">
+              <div className="sidebar-avatar-wrapper">
+                {auth?.user?.name ? (
+                  <div className="sidebar-avatar-initials">
+                    {auth.user.name.charAt(0).toUpperCase()}
                   </div>
+                ) : (
+                  <User size={18} />
                 )}
               </div>
-            );
-          })}
-        </nav>
+              <div className="sidebar-profile-info">
+                <div className="sidebar-profile-name">{auth?.user?.name || "Admin User"}</div>
+                <div className="sidebar-profile-role">{isSuperAdmin ? "Super Admin" : auth?.membership?.salonRole || "Salon Owner"}</div>
+              </div>
+            </div>
 
-        {/* Footer */}
-        <div className="sidebar-footer">
-          <button type="button" onClick={onLogout} className="sidebar-logout-btn">
-            <LogOut size={15} />
-            Sign Out
-          </button>
-        </div>
+            {/* Subscription Plan Badge */}
+            {subscription?.active && subscription?.plan && (
+              <div style={{ margin: "0 14px 12px", padding: "6px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <CreditCard size={13} style={{ color: "#10b981" }} />
+                  <span style={{ color: "#0f172a", fontSize: "0.75rem", fontWeight: 700 }}>{subscription.plan.name}</span>
+                </div>
+                {subscription.daysRemaining <= 7 && (
+                  <span style={{ color: "#d97706", fontSize: "0.7rem", fontWeight: 600 }}>{subscription.daysRemaining}d left</span>
+                )}
+              </div>
+            )}
+
+            {/* Nav Groups */}
+            <nav className="sidebar-nav">
+              {groups.map((group) => {
+                const active = isGroupActive(group, location.pathname);
+                const expanded = openGroups[group.label] ?? active;
+                const groupIcon = GROUP_ICONS[group.label] || DEFAULT_ICON;
+
+                return (
+                  <div key={group.label} className="sidebar-group">
+                    {group.to ? (
+                      <NavLink
+                        to={group.to}
+                        className={({ isActive }) => `sidebar-group-toggle sidebar-direct-link ${isActive ? "active" : ""}`}
+                        style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
+                      >
+                        <span className="sidebar-group-label">
+                          <span className="sidebar-group-icon">{groupIcon}</span>
+                          <span className="sidebar-group-text">
+                            <strong>{group.label}</strong>
+                          </span>
+                        </span>
+                      </NavLink>
+                    ) : (
+                      <button
+                        type="button"
+                        className={`sidebar-group-toggle ${active ? "active" : ""}`}
+                        onClick={() =>
+                          setOpenGroups((c) => {
+                            const isCurrentlyOpen = c[group.label];
+                            const next = {};
+                            for (const g of groups) next[g.label] = false;
+                            if (!isCurrentlyOpen) next[group.label] = true;
+                            return next;
+                          })
+                        }
+                      >
+                        <span className="sidebar-group-label">
+                          <span className="sidebar-group-icon">{groupIcon}</span>
+                          <span className="sidebar-group-text">
+                            <strong>{group.label}</strong>
+                          </span>
+                        </span>
+                        <span
+                          className="sidebar-chevron"
+                          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                        >
+                          <ChevronDown size={14} />
+                        </span>
+                      </button>
+                    )}
+
+                    {expanded && (
+                      <div className="sidebar-group-items">
+                        {(group.items || []).map((item) => {
+                          const itemIcon = getItemIcon(item.label, item.to);
+                          return (
+                            <div key={item.to} className="sidebar-item-block">
+                              <NavLink
+                                to={item.to}
+                                target={item.target}
+                                end={!item.children?.length}
+                                onClick={closeMobile}
+                                className={({ isActive }) =>
+                                  `sidebar-link ${isActive || location.pathname === item.to ? "active" : ""}`
+                                }
+                              >
+                                <span className="sidebar-link-content">
+                                  <span className="sidebar-item-icon">{itemIcon}</span>
+                                  <span>{item.label}</span>
+                                </span>
+                                {item.badge && (
+                                  <span className="sidebar-link-badge">{item.badge}</span>
+                                )}
+                              </NavLink>
+
+                              {item.children?.length ? (
+                                <div className="sidebar-submenu">
+                                  {item.children.map((child) => (
+                                    <NavLink
+                                      key={child.to}
+                                      to={child.to}
+                                      onClick={closeMobile}
+                                      className={({ isActive }) =>
+                                        `sidebar-sublink ${isActive || location.pathname.startsWith(child.to) ? "active" : ""}`
+                                      }
+                                    >
+                                      <span className="sidebar-sublink-dot" />
+                                      {child.label}
+                                    </NavLink>
+                                  ))}
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+
+            {/* Footer */}
+            <div className="sidebar-footer">
+              <button type="button" onClick={onLogout} className="sidebar-logout-btn">
+                <LogOut size={15} />
+                Sign Out
+              </button>
+            </div>
+          </>
+        )}
       </aside>
     </>
   );

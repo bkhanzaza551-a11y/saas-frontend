@@ -3,27 +3,44 @@ import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
+import { useAuth } from "../../context/AuthContext";
+import { LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, XCircle, Send, Paperclip, AlertTriangle, HelpCircle, Shield, Sparkles } from "lucide-react";
 
 const formatAttachmentValue = (value) => String(value || "").trim();
 const isAttachmentLink = (value) => /^https?:\/\//i.test(formatAttachmentValue(value));
 
 export default function SupportTicketsPage() {
+  const { auth } = useAuth();
   const [rows, setRows] = useState([]);
   const [filters, setFilters] = useState({ q: "", status: "", priority: "" });
-  const [form, setForm] = useState({ title: "", category: "", priority: "MEDIUM", description: "", attachmentUrl: "" });
+  const [form, setForm] = useState({ title: "", category: "General", priority: "MEDIUM", description: "", attachmentUrl: "" });
   const [replyDrafts, setReplyDrafts] = useState({});
   const [replyAttachments, setReplyAttachments] = useState({});
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
+  const [submitting, setSubmitting] = useState(false);
+  const [replyingId, setReplyingId] = useState(null);
+
+  const permissions = auth?.membership?.permissions || {};
+  const canCreateTicket = Array.isArray(permissions.support) && permissions.support.includes("create");
+  const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
+  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
+  const hasCreateAccess = isOwner || isSuperAdmin || canCreateTicket;
 
   const load = async () => {
-    setRows((await api.get("/owner/support-tickets", {
-    params: {
-      ...(filters.q ? { q: filters.q } : {}),
-      ...(filters.status ? { status: filters.status } : {}),
-      ...(filters.priority ? { priority: filters.priority } : {})
+    try {
+      const res = await api.get("/owner/support-tickets", {
+        params: {
+          ...(filters.q ? { q: filters.q } : {}),
+          ...(filters.status ? { status: filters.status } : {}),
+          ...(filters.priority ? { priority: filters.priority } : {})
+        }
+      });
+      setRows(res.data || []);
+    } catch (err) {
+      console.error("Failed to load tickets", err);
+    } finally {
+      setStatus((current) => ({ ...current, loading: false }));
     }
-  })).data);
-    setStatus((current) => ({ ...current, loading: false }));
   };
 
   useEffect(() => {
@@ -36,178 +53,438 @@ export default function SupportTicketsPage() {
       }
     }).then((response) => {
       if (active) {
-        setRows(response.data);
+        setRows(response.data || []);
         setStatus((current) => ({ ...current, loading: false }));
       }
+    }).catch(() => {
+      if (active) setStatus((current) => ({ ...current, loading: false }));
     });
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [filters]);
 
   const submit = async (event) => {
     event.preventDefault();
+    if (!form.title.trim() || !form.description.trim()) return;
     setStatus({ error: "", success: "" });
+    setSubmitting(true);
     try {
       await api.post("/owner/support-tickets", form);
-      setForm({ title: "", category: "", priority: "MEDIUM", description: "", attachmentUrl: "" });
+      setForm({ title: "", category: "General", priority: "MEDIUM", description: "", attachmentUrl: "" });
       await load();
-      setStatus({ error: "", success: "Support ticket created." });
+      setStatus({ error: "", success: "Support ticket raised successfully!" });
+      setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not create support ticket"), success: "" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const sendReply = async (ticketId) => {
+    if (!replyDrafts[ticketId]?.trim()) return;
     setStatus({ error: "", success: "" });
+    setReplyingId(ticketId);
     try {
-      await api.post(`/owner/support-tickets/${ticketId}/messages`, { message: replyDrafts[ticketId] || "", attachmentUrl: replyAttachments[ticketId] || "" });
+      await api.post(`/owner/support-tickets/${ticketId}/messages`, {
+        message: replyDrafts[ticketId] || "",
+        attachmentUrl: replyAttachments[ticketId] || ""
+      });
       setReplyDrafts((current) => ({ ...current, [ticketId]: "" }));
       setReplyAttachments((current) => ({ ...current, [ticketId]: "" }));
       await load();
-      setStatus({ error: "", success: "Reply sent to support." });
+      setStatus({ error: "", success: "Reply sent to support desk." });
+      setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not send reply"), success: "" });
+    } finally {
+      setReplyingId(null);
+    }
+  };
+
+  const stats = {
+    total: rows.length,
+    open: rows.filter(r => r.status === "OPEN").length,
+    pending: rows.filter(r => r.status === "PENDING").length,
+    resolved: rows.filter(r => r.status === "RESOLVED" || r.status === "CLOSED").length,
+  };
+
+  const getStatusBadge = (s) => {
+    switch (s) {
+      case "OPEN": return <span className="badge" style={{ background: "#e0e7ff", color: "#4338ca", fontWeight: 700 }}>Open</span>;
+      case "PENDING": return <span className="badge" style={{ background: "#fff7ed", color: "#c2410c", fontWeight: 700 }}>Pending Reply</span>;
+      case "RESOLVED": return <span className="badge" style={{ background: "#dcfce7", color: "#166534", fontWeight: 700 }}>Resolved</span>;
+      case "CLOSED": return <span className="badge" style={{ background: "#f1f5f9", color: "#64748b", fontWeight: 700 }}>Closed</span>;
+      default: return <span className="badge" style={{ background: "#f1f5f9", color: "#475569" }}>{s}</span>;
+    }
+  };
+
+  const getPriorityBadge = (p) => {
+    switch (p) {
+      case "LOW": return <span className="badge" style={{ background: "#f8fafc", color: "#64748b", border: "1px solid #e2e8f0" }}>Low</span>;
+      case "MEDIUM": return <span className="badge" style={{ background: "#e0f2fe", color: "#0369a1", border: "1px solid #bae6fd" }}>Medium</span>;
+      case "HIGH": return <span className="badge" style={{ background: "#ffedd5", color: "#c2410c", border: "1px solid #fed7aa" }}>High</span>;
+      case "URGENT": return <span className="badge" style={{ background: "#fee2e2", color: "#b91c1c", border: "1px solid #fecaca", fontWeight: 700 }}>🔥 Urgent</span>;
+      default: return <span className="badge">{p}</span>;
     }
   };
 
   return (
     <div className="page-shell">
+      {/* Hero Banner */}
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <h1 style={{ marginTop: 0, marginBottom: 8 }}>Support Tickets</h1>
-        <p style={{ margin: 0 }}>Raise operational issues, keep message history tidy, and track vendor-side responses without leaving the owner panel.</p>
-      </div>
-      <div className="two-col">
-        <div className="panel-card">
-          <h3>Raise a Ticket</h3>
-          <form onSubmit={submit} style={{ display: "grid", gap: 8, maxWidth: 520 }}>
-            <label>
-              <span className="muted">Title</span>
-              <input value={form.title} placeholder="Title" onChange={(event) => setForm({ ...form, title: event.target.value })} />
-            </label>
-            <label>
-              <span className="muted">Category</span>
-              <input value={form.category} placeholder="Category" onChange={(event) => setForm({ ...form, category: event.target.value })} />
-            </label>
-            <label>
-              <span className="muted">Low</span>
-              <select value={form.priority} onChange={(event) => setForm({ ...form, priority: event.target.value })}>
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-            </select>
-            </label>
-            <textarea rows="5" value={form.description} placeholder="Describe the issue clearly" onChange={(event) => setForm({ ...form, description: event.target.value })} />
-            <label>
-              <span className="muted">Attachment URL</span>
-              <input value={form.attachmentUrl} placeholder="https://example.com/file.pdf" onChange={(event) => setForm({ ...form, attachmentUrl: event.target.value })} />
-            </label>
-            <button>Create Ticket</button>
-          </form>
-          {status.error && <p className="error-text">{status.error}</p>}
-          {status.success && <p className="success-text">{status.success}</p>}
+        <div className="item-head">
+          <div>
+            <h1 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: 10 }}>
+              <LifeBuoy size={26} style={{ color: "#6366f1" }} /> Support & Help Desk
+            </h1>
+            <p style={{ marginBottom: 0 }}>Raise support tickets for billing, feature assistance, technical queries, or system issues and track live resolutions.</p>
+          </div>
+          <div className="badge-row">
+            <span className="badge" style={{ background: "#e0e7ff", color: "#3730a3", fontWeight: 700 }}>Total: {stats.total}</span>
+            <span className="badge" style={{ background: "#fee2e2", color: "#991b1b", fontWeight: 700 }}>Active Open: {stats.open}</span>
+          </div>
         </div>
-        <div className="panel-card">
-          <h3>Ticket Queue</h3>
-          {status.loading ? <PageLoader compact title="Loading support queue" message="Pulling ticket status, conversations, and event history into one view." /> : null}
-          <div className="form-grid" style={{ marginBottom: 16 }}>
-            <label>
-              <span className="muted">Search title, description, category, note, or agent</span>
-              <input value={filters.q} placeholder="Search title, description, category, note, or agent" onChange={(event) => setFilters((current) => ({ ...current, q: event.target.value }))} />
-            </label>
-            <label>
-              <span className="muted">Statuses</span>
-              <select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
-              <option value="">All statuses</option>
+      </div>
+
+      {/* Metrics Row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 }}>
+        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #6366f1" }}>
+          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Total Tickets Raised</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{stats.total}</div>
+        </div>
+        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #3b82f6" }}>
+          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Open / In Review</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#2563eb", marginTop: 4 }}>{stats.open}</div>
+        </div>
+        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #f97316" }}>
+          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Pending Response</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#ea580c", marginTop: 4 }}>{stats.pending}</div>
+        </div>
+        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #22c55e" }}>
+          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Resolved Tickets</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>{stats.resolved}</div>
+        </div>
+      </div>
+
+      {/* Main Content Layout */}
+      <div style={{ display: "grid", gridTemplateColumns: hasCreateAccess ? "1fr 2fr" : "1fr", gap: 24, alignItems: "start" }} className="responsive-grid">
+
+        {/* Left Column: Create Ticket Form */}
+        {hasCreateAccess && (
+          <div className="panel-card" style={{ padding: 24, position: "sticky", top: 20 }}>
+            <h3 style={{ margin: "0 0 14px", fontSize: 17, color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
+              <Sparkles size={18} style={{ color: "#6366f1" }} /> Raise Support Ticket
+            </h3>
+            <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 20px" }}>Need help? Submit a ticket and our technical support engineering team will respond shortly.</p>
+
+            {status.error && (
+              <div style={{ padding: 12, background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", borderRadius: 8, fontSize: 13, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                <XCircle size={16} /> {status.error}
+              </div>
+            )}
+            {status.success && (
+              <div style={{ padding: 12, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", borderRadius: 8, fontSize: 13, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                <CheckCircle2 size={16} /> {status.success}
+              </div>
+            )}
+
+            <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Subject / Title *</label>
+                <input
+                  required
+                  value={form.title}
+                  placeholder="e.g., Billing discrepancy in invoice #1042"
+                  onChange={e => setForm({ ...form, title: e.target.value })}
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Category</label>
+                  <select
+                    value={form.category}
+                    onChange={e => setForm({ ...form, category: e.target.value })}
+                    style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
+                  >
+                    <option value="General">General Query</option>
+                    <option value="Billing">Billing & Invoices</option>
+                    <option value="POS & Sales">POS & Billing</option>
+                    <option value="Appointments">Appointments & Booking</option>
+                    <option value="Staff & Payroll">Staff & Payroll</option>
+                    <option value="Technical Issue">Technical Bug</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Priority</label>
+                  <select
+                    value={form.priority}
+                    onChange={e => setForm({ ...form, priority: e.target.value })}
+                    style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Description *</label>
+                <textarea
+                  required
+                  rows="4"
+                  value={form.description}
+                  placeholder="Describe the issue in detail, steps to reproduce, or relevant context..."
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Attachment URL (Optional)</label>
+                <div style={{ position: "relative" }}>
+                  <Paperclip size={16} color="#94a3b8" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+                  <input
+                    value={form.attachmentUrl}
+                    placeholder="https://example.com/screenshot.png"
+                    onChange={e => setForm({ ...form, attachmentUrl: e.target.value })}
+                    style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  width: "100%",
+                  padding: 14,
+                  background: "var(--sf-accent, #6366f1)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  cursor: submitting ? "not-allowed" : "pointer",
+                  opacity: submitting ? 0.7 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  marginTop: 6
+                }}
+              >
+                <Plus size={18} /> {submitting ? "Submitting Ticket..." : "Submit Support Ticket"}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Right Column: Ticket Inbox & Thread */}
+        <div className="panel-card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid #f1f5f9", paddingBottom: 12 }}>
+            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>Support Queue & Inbox</h3>
+            <span style={{ fontSize: 12, background: "#f1f5f9", color: "#475569", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>
+              {rows.length} Ticket{rows.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {/* Filter Bar */}
+          <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, marginBottom: 20, display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 10, alignItems: "center" }}>
+            <div style={{ position: "relative" }}>
+              <Search size={15} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
+              <input
+                value={filters.q}
+                placeholder="Search subject, category..."
+                onChange={e => setFilters({ ...filters, q: e.target.value })}
+                style={{ width: "100%", padding: "8px 10px 8px 32px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
+              />
+            </div>
+
+            <select
+              value={filters.status}
+              onChange={e => setFilters({ ...filters, status: e.target.value })}
+              style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, background: "white" }}
+            >
+              <option value="">All Statuses</option>
               <option value="OPEN">Open</option>
               <option value="PENDING">Pending</option>
               <option value="RESOLVED">Resolved</option>
               <option value="CLOSED">Closed</option>
             </select>
-            </label>
-            <label>
-              <span className="muted">Priorities</span>
-              <select value={filters.priority} onChange={(event) => setFilters((current) => ({ ...current, priority: event.target.value }))}>
-              <option value="">All priorities</option>
+
+            <select
+              value={filters.priority}
+              onChange={e => setFilters({ ...filters, priority: e.target.value })}
+              style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, background: "white" }}
+            >
+              <option value="">All Priorities</option>
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
+              <option value="URGENT">Urgent</option>
             </select>
-            </label>
-            <button type="button" className="secondary-button" onClick={() => setFilters({ q: "", status: "", priority: "" })}>Reset</button>
+
+            <button
+              type="button"
+              onClick={() => setFilters({ q: "", status: "", priority: "" })}
+              style={{ padding: "8px 14px", background: "white", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+            >
+              <Filter size={14} /> Clear
+            </button>
           </div>
-          {rows.map((row) => (
-            <div key={row.id} style={{ padding: "10px 0", borderTop: "1px solid #e2e8f0" }}>
-              <div className="item-head">
-                <div>
-                  <strong>{row.title}</strong>
-                  <div className="item-meta">{row.category || "General"} | {row.priority}</div>
-                </div>
-                <span className="badge">{row.status}</span>
-              </div>
-              <p>{row.description}</p>
-              {row.internalNote && <p className="muted">Support note: {row.internalNote}</p>}
-              {row.assignedAgentName && <p className="muted">Assigned support agent: {row.assignedAgentName}</p>}
-              <div className="list-stack" style={{ marginTop: 10 }}>
-                {(row.messages || []).map((message) => (
-                  <div key={message.id} className="list-item">
-                    <div className="item-head">
-                      <strong>{message.authorName}</strong>
-                      <span className="badge">{message.authorType}</span>
-                    </div>
-                    <div className="item-meta">{new Date(message.createdAt).toLocaleString()}</div>
-                    <p style={{ marginBottom: 0 }}>{message.message}</p>
-                    {message.attachmentUrl && (
-                      <div className="item-meta">
-                        Attachment: {isAttachmentLink(message.attachmentUrl) ? (
-                          <a href={formatAttachmentValue(message.attachmentUrl)} target="_blank" rel="noreferrer">Open file</a>
-                        ) : (
-                          formatAttachmentValue(message.attachmentUrl)
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="list-stack" style={{ marginTop: 10 }}>
-                {(row.events || []).map((event) => (
-                  <div key={event.id} className="list-item">
-                    <div className="item-head">
-                      <strong>{event.eventType}</strong>
-                      <span className="badge">{new Date(event.createdAt).toLocaleString()}</span>
-                    </div>
-                    <div className="item-meta">{event.actorName}</div>
-                    <div className="item-meta">{event.details || "No event details"}</div>
-                  </div>
-                ))}
-              </div>
-              {row.status !== "CLOSED" && (
-                <div style={{ marginTop: 10 }}>
-                  <textarea
-                    rows="3"
-                    value={replyDrafts[row.id] || ""}
-                    placeholder="Reply back to support"
-                    onChange={(event) => setReplyDrafts((current) => ({ ...current, [row.id]: event.target.value }))}
-                  />
-                  <label>
-              <span className="muted">Attachment URL</span>
-              <input
-                    value={replyAttachments[row.id] || ""}
-                    placeholder="https://example.com/file.pdf"
-                    onChange={(event) => setReplyAttachments((current) => ({ ...current, [row.id]: event.target.value }))}
-                    style={{ marginTop: 8 }} />
-            </label>
-                  <div style={{ marginTop: 8 }}>
-                    <button type="button" className="secondary-button" onClick={() => sendReply(row.id)}>Send Reply</button>
-                  </div>
-                </div>
-              )}
+
+          {status.loading ? (
+            <div style={{ padding: 40 }}><PageLoader compact title="Loading support queue" /></div>
+          ) : rows.length === 0 ? (
+            <div style={{ padding: 40, textAlign: "center" }}>
+              <EmptyState icon={<MessageSquare size={48} />} title="No support tickets found" message="You don't have any support tickets matching the current filter criteria." />
             </div>
-          ))}
-          {!status.loading && !rows.length && <EmptyState title="No support tickets yet" message="Create your first ticket to start tracking product, billing, or setup issues here." />}
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {rows.map((row) => {
+                const isReplying = replyingId === row.id;
+                const createdDate = row.createdAt ? new Date(row.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" }) : "";
+
+                return (
+                  <div key={row.id} style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", background: "white" }}>
+                    {/* Ticket Header Bar */}
+                    <div style={{ padding: "16px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>
+                            #{row.id.substring(0, 8)}
+                          </span>
+                          <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{row.title}</h4>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
+                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={13} /> {createdDate}</span>
+                          <span>•</span>
+                          <span style={{ fontWeight: 600 }}>Category: {row.category || "General"}</span>
+                          <span>•</span>
+                          {getPriorityBadge(row.priority)}
+                        </div>
+                      </div>
+                      <div>
+                        {getStatusBadge(row.status)}
+                      </div>
+                    </div>
+
+                    {/* Ticket Description */}
+                    <div style={{ padding: 20 }}>
+                      <div style={{ background: "#f9fafb", padding: 16, borderRadius: 10, border: "1px solid #f3f4f6", color: "#334155", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap", marginBottom: 16 }}>
+                        {row.description}
+                      </div>
+
+                      {row.assignedAgentName && (
+                        <div style={{ fontSize: 13, color: "#475569", marginBottom: 14, background: "#eef2ff", padding: "8px 12px", borderRadius: 8, display: "inline-block" }}>
+                          🎧 <strong>Assigned Agent:</strong> {row.assignedAgentName}
+                        </div>
+                      )}
+
+                      {/* Conversation Thread */}
+                      {row.messages && row.messages.length > 0 && (
+                        <div style={{ marginTop: 16, marginBottom: 16 }}>
+                          <h5 style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                            Conversation History ({row.messages.length})
+                          </h5>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            {row.messages.map((msg) => {
+                              const isOwnerAuthor = msg.authorType === "OWNER" || msg.authorType === "SALON_OWNER" || msg.authorType === "STAFF";
+                              return (
+                                <div
+                                  key={msg.id}
+                                  style={{
+                                    alignSelf: isOwnerAuthor ? "flex-end" : "flex-start",
+                                    maxWidth: "85%",
+                                    background: isOwnerAuthor ? "#eef2ff" : "#f8fafc",
+                                    border: isOwnerAuthor ? "1px solid #c7d2fe" : "1px solid #e2e8f0",
+                                    padding: 14,
+                                    borderRadius: 12,
+                                  }}
+                                >
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 6 }}>
+                                    <strong style={{ fontSize: 13, color: isOwnerAuthor ? "#3730a3" : "#0f172a" }}>
+                                      {msg.authorName || (isOwnerAuthor ? "You" : "Support Agent")}
+                                      <span style={{ fontWeight: 400, fontSize: 11, color: "#64748b", marginLeft: 4 }}>({msg.authorType})</span>
+                                    </strong>
+                                    <span style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  </div>
+                                  <p style={{ margin: 0, fontSize: 13, color: "#334155", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{msg.message}</p>
+
+                                  {msg.attachmentUrl && (
+                                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed #cbd5e1", fontSize: 12 }}>
+                                      <Paperclip size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />
+                                      {isAttachmentLink(msg.attachmentUrl) ? (
+                                        <a href={formatAttachmentValue(msg.attachmentUrl)} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: 600 }}>View Attachment &rarr;</a>
+                                      ) : (
+                                        <span style={{ color: "#64748b" }}>{formatAttachmentValue(msg.attachmentUrl)}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Reply Box */}
+                      {row.status !== "CLOSED" && (
+                        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16, marginTop: 16 }}>
+                          <textarea
+                            rows="3"
+                            value={replyDrafts[row.id] || ""}
+                            placeholder="Type your reply or additional information..."
+                            onChange={e => setReplyDrafts({ ...replyDrafts, [row.id]: e.target.value })}
+                            style={{ width: "100%", padding: 10, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, resize: "vertical", boxSizing: "border-box", marginBottom: 10 }}
+                          />
+                          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                            <div style={{ flex: 1, position: "relative" }}>
+                              <Paperclip size={14} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
+                              <input
+                                value={replyAttachments[row.id] || ""}
+                                placeholder="Attachment URL (optional)"
+                                onChange={e => setReplyAttachments({ ...replyAttachments, [row.id]: e.target.value })}
+                                style={{ width: "100%", padding: "8px 10px 8px 30px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => sendReply(row.id)}
+                              disabled={isReplying || !replyDrafts[row.id]?.trim()}
+                              style={{
+                                padding: "8px 18px",
+                                background: !replyDrafts[row.id]?.trim() ? "#cbd5e1" : "#0f172a",
+                                color: "white",
+                                border: "none",
+                                borderRadius: 8,
+                                fontWeight: 700,
+                                fontSize: 13,
+                                cursor: !replyDrafts[row.id]?.trim() ? "not-allowed" : "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                                transition: "all 0.2s"
+                              }}
+                            >
+                              <Send size={14} /> {isReplying ? "Sending..." : "Send Reply"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-

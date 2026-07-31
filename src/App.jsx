@@ -36,11 +36,34 @@ const CouponsPage = lazyWithRetry(() => import("./pages/owner/CouponsPage.jsx"))
 const FeedbackPage = lazyWithRetry(() => import("./pages/owner/FeedbackPage.jsx"));
 const EnquiriesPage = lazyWithRetry(() => import("./pages/owner/EnquiriesPage.jsx"));
 const ExpensesPage = lazyWithRetry(() => import("./pages/owner/ExpensesPage.jsx"));
-const PayrollPage = lazyWithRetry(() => import("./pages/owner/PayrollPage.jsx"));
 const NotificationsPage = lazyWithRetry(() => import("./pages/owner/NotificationsPage.jsx"));
 const OwnerAuditLogsPage = lazyWithRetry(() => import("./pages/owner/OwnerAuditLogsPage.jsx"));
 const WhatsAppPage = lazyWithRetry(() => import("./pages/owner/WhatsAppPage.jsx"));
 const BranchesPage = lazyWithRetry(() => import("./pages/owner/BranchesPage.jsx"));
+const GlobalDashboardPage = lazyWithRetry(() => import("./pages/operations/GlobalDashboardPage.jsx"));
+const StaffRequirementPage = lazyWithRetry(() => import("./pages/operations/StaffRequirementsPage.jsx"));
+const ProductsRequirementPage = lazyWithRetry(() => import("./pages/operations/ProductRequirementsPage.jsx"));
+const SalonAnalyticsPage = lazyWithRetry(() => import("./pages/operations/SalonAnalyticsPage.jsx"));
+const FinancialReportsPage = lazyWithRetry(() => import("./pages/owner/FinancialReportsPage.jsx"));
+const WebsiteAnalyticsPage = lazyWithRetry(() => import("./pages/owner/WebsiteAnalyticsPage.jsx"));
+const AttendanceManagementPage = lazyWithRetry(() => import("./pages/owner/AttendanceManagementPage.jsx"));
+
+const PublicDemoLeadPage = lazyWithRetry(() => import("./pages/public/DemoLeadPage.jsx"));
+const DemoCheckoutPage = lazyWithRetry(() => import("./pages/public/DemoCheckoutPage.jsx"));
+const MarketingHomePage = lazyWithRetry(() => import("./pages/public/MarketingHomePage.jsx"));
+
+const SuperAdminDashboard = lazyWithRetry(() => import("./pages/superAdmin/Dashboard.jsx"));
+const SuperAdminSalonsPage = lazyWithRetry(() => import("./pages/superAdmin/SalonsPage.jsx"));
+const SuperAdminPlansPage = lazyWithRetry(() => import("./pages/superAdmin/PlansPage.jsx"));
+const SuperAdminDemoLeadsPage = lazyWithRetry(() => import("./pages/superAdmin/DemoLeadsPage.jsx"));
+const SuperAdminSubscriptionsPage = lazyWithRetry(() => import("./pages/superAdmin/SubscriptionsPage.jsx"));
+const SuperAdminSupportTicketsPage = lazyWithRetry(() => import("./pages/superAdmin/SupportTicketsPage.jsx"));
+const SuperAdminSettingsPage = lazyWithRetry(() => import("./pages/superAdmin/SettingsPage.jsx"));
+const SuperAdminAuditLogsPage = lazyWithRetry(() => import("./pages/superAdmin/AuditLogsPage.jsx"));
+const SuperAdminTrafficAnalyticsPage = lazyWithRetry(() => import("./pages/superAdmin/TrafficAnalyticsPage.jsx"));
+const SuperAdminStaffPage = lazyWithRetry(() => import("./pages/superAdmin/StaffManagementPage.jsx"));
+const SuperAdminProductRequirementPage = lazyWithRetry(() => import("./pages/superAdmin/ProductsRequirementPage.jsx"));
+const SuperAdminFinancialReportsPage = lazyWithRetry(() => import("./pages/superAdmin/FinancialReportsPage.jsx"));
 const InventoryPage = lazyWithRetry(() => import("./pages/owner/InventoryPage.jsx"));
 const ProductCategoriesPage = lazyWithRetry(() => import("./pages/owner/ProductCategoriesPage.jsx"));
 const MembershipsPage = lazyWithRetry(() => import("./pages/owner/MembershipsPage.jsx"));
@@ -98,16 +121,24 @@ const RouteFallback = () => (
 const Protected = () => {
   const { auth, logout } = useAuth();
   const location = useLocation();
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  useEffect(() => {
-    setSidebarExpanded(false);
-  }, [location.pathname]);
+  const [sidebarExpanded, setSidebarExpanded] = useState(() => {
+    const saved = localStorage.getItem("sidebarExpanded");
+    return saved !== null ? saved === "true" : true;
+  });
+  
+  const toggleSidebar = () => {
+    setSidebarExpanded(prev => {
+      const next = !prev;
+      localStorage.setItem("sidebarExpanded", next);
+      return next;
+    });
+  };
   if (!auth) return <Navigate to="/login" replace />;
   const perms = auth.membership?.permissions || {};
   const flags = auth.membership?.featureFlags || {};
   const salonRole = auth.membership?.salonRole || "";
   const can = (key, action = "view") => Array.isArray(perms[key]) && perms[key].includes(action);
-  const enabled = (key) => flags[key] !== false;
+  const enabled = (key) => !key || flags[key] === true;
   const isOwner = salonRole === "SALON_OWNER";
   const shouldShowMyWorkspace = salonRole && !isOwner;
   const myWorkspaceItems = [
@@ -122,49 +153,25 @@ const Protected = () => {
           label: "Operations",
           hint: "Daily flow",
           items: [
-            can("inventory") && enabled("inventory") && { label: "Products", to: "/admin/product-categories" },
-            can("packages") && { label: "Packages Manage", to: "/admin/packages" },
-            can("memberships") && { label: "Membership Manage", to: "/admin/memberships" },
-            can("services") && { label: "Services", to: "/admin/services" }
-          ].filter(Boolean)
-        },
-        {
-          label: "Setup",
-          hint: "Branches and team",
-          items: [
-            can("branches") && { label: "Branches", to: "/admin/branches" },
-            can("staff") && {
-              label: "Staff Details",
-              to: "/admin/users"
-            },
-            can("staff") && {
-              label: "Roles & Permissions",
-              to: "/admin/roles-permissions"
-            },
-            can("attendance") && enabled("attendance") && {
-              label: "Attendance",
-              to: "/admin/attendance"
-            }
+            { label: "Dashboard", to: "/admin/dashboard" },
+            enabled("pos") && { label: "Global Dashboard", to: "/admin/global-dashboard" },
+            enabled("pos") && { label: "New Sale", to: "/admin/pos" },
+            enabled("pos") && { label: "POS Dashboard", to: "/admin/pos-dashboard" },
+            enabled("appointments") && { label: "Appointments", to: "/admin/appointments" },
+            enabled("crm") && { label: "Customer", to: "/admin/customers" },
+            enabled("staffRequirements") && { label: "Staff Requirement", to: "/admin/staff-requirements" },
+            enabled("productRequirements") && enabled("inventory") && { label: "Products Requirement", to: "/admin/product-requirements" },
+            enabled("reports") && { label: "Salon Analytics", to: "/admin/salon-analytics" },
+            enabled("reports") && { label: "Financial Reports", to: "/admin/financial-reports" },
+            enabled("reports") && { label: "Reports", to: "/admin/reports" },
+            enabled("reports") && { label: "Trends", to: "/admin/trends" },
+            enabled("attendance") && { label: "Attendance Management", to: "/admin/attendance" },
           ].filter(Boolean)
         },
 
-        enabled("expenses") && can("expenses") && {
-          label: "Expenses",
-          hint: "Outflow & Accounts",
-          items: [
-            { label: "Dashboard", to: "/admin/expenses/dashboard" },
-            { label: "Types", to: "/admin/expenses/types" },
-            { label: "Accounts", to: "/admin/expenses/accounts" }
-          ]
-        },
-        enabled("enquiries") && can("enquiries") && {
-          label: "Enquiries",
-          hint: "Lead pipeline",
-          items: [
-            { label: "Enquiries", to: "/admin/enquiries" }
-          ]
-        },
-        can("couponsGiftCards") && {
+
+
+        can("couponsGiftCards") && enabled("couponsGiftCards") && {
           label: "Coupons & Gift Cards",
           hint: "Promotions & vouchers",
           items: [
@@ -173,17 +180,16 @@ const Protected = () => {
             { label: "Referral Program", to: "/admin/referral-coupons" }
           ]
         },
-        /*
         {
           label: "Website",
           hint: "Storefront & Portal",
           items: [
             can("settings", "edit") && { label: "Website Editor", to: "/admin/website-editor" },
-            can("customerPortalSettings", "view") && { label: "Portal Settings", to: "/admin/customer-portal-settings" },
+            can("settings", "view") && enabled("catalogAnalytics") && { label: "Website Analytics", to: "/admin/website-analytics" },
+            can("orders", "view") && enabled("onlineOrders") && { label: "Online Orders", to: "/admin/order-dashboard" },
             { label: "View Live Site", to: `/site/${auth?.membership?.salon?.slug || "demo-salon"}` }
           ].filter(Boolean)
         },
-        */
         {
           label: "System",
           hint: "Help and config",
@@ -193,8 +199,13 @@ const Protected = () => {
               to: "/admin/settings/generic"
             }
           ].filter(Boolean)
+        },
+        {
+          label: "Manage",
+          to: "/admin/manage",
+          hint: "Salon lifecycle hub"
         }
-      ].filter((group) => Array.isArray(group?.items) && group.items.length > 0);
+      ].filter((group) => group.to || (Array.isArray(group?.items) && group.items.length > 0));
 
   const settingsGroups = [
     {
@@ -255,22 +266,72 @@ const Protected = () => {
         { label: "Payments", to: "/admin/payments" },
         { label: "Campaigns", to: "/admin/campaigns" },
         { label: "Reports Hub", to: "/admin/reports-hub" },
-        { label: "Inventory", to: "/admin/inventory" }
+        { label: "Inventory", to: "/admin/inventory" },
+        { label: "Support Tickets", to: "/admin/support-tickets" },
+        { label: "Global Dashboard", to: "/admin/global-dashboard" },
+        { label: "Staff Requirement", to: "/admin/staff-requirements" },
+        { label: "Products Requirement", to: "/admin/product-requirements" },
+        { label: "Salon Analytics", to: "/admin/salon-analytics" },
+        { label: "Financial Reports", to: "/admin/financial-reports" }
       ]
     }
   ];
 
-  const visibleGroups = [
-    ...(shouldShowMyWorkspace && myWorkspaceItems.length
-      ? [{
-          label: "My Workspace",
-          hint: "Personal pages",
-          defaultOpen: true,
-          items: myWorkspaceItems
-        }]
-      : []),
-    ...(isOwner ? groups : [])
+  const superAdminGroups = [
+    {
+      label: "Platform Command",
+      hint: "SaaS control deck",
+      items: [
+        { label: "Dashboard", to: "/super-admin/dashboard" },
+        { label: "Salons Control", to: "/super-admin/salons" },
+        { label: "Plans Catalog", to: "/super-admin/plans" },
+        { label: "Customer Management", to: "/super-admin/subscriptions" },
+        { label: "Staff Management", to: "/super-admin/staff" }
+      ]
+    },
+    {
+      label: "Operations",
+      hint: "Leads, tickets, requirements & analytics",
+      items: [
+        { label: "Demo Pipeline", to: "/super-admin/demo-leads" },
+        { label: "Support Queue", to: "/super-admin/support-tickets" },
+        { label: "Traffic Analytics", to: "/super-admin/traffic" },
+        { label: "Financial Reports", to: "/super-admin/financial-reports" }
+      ]
+    },
+    {
+      label: "System",
+      hint: "Configuration & logs",
+      items: [
+        { label: "Global Settings", to: "/super-admin/settings" },
+        { label: "Platform Logs", to: "/super-admin/audit-logs" }
+      ]
+    }
   ];
+
+  const visibleGroups = auth?.user?.systemRole === "SUPER_ADMIN"
+    ? (() => {
+        const perms = auth?.user?.pagePermissions;
+        if (!perms || !Array.isArray(perms) || perms.length === 0) return superAdminGroups;
+        return superAdminGroups.map((group) => ({
+          ...group,
+          items: group.items.filter((item) => {
+            const pageKey = item.to.split("/").pop();
+            return perms.includes(pageKey);
+          })
+        })).filter(group => group.items.length > 0);
+      })()
+    : [
+        ...(shouldShowMyWorkspace && myWorkspaceItems.length
+          ? [{
+              label: "My Workspace",
+              hint: "Personal pages",
+              defaultOpen: true,
+              items: myWorkspaceItems
+            }]
+          : []),
+        ...(isOwner ? groups : [])
+      ];
 
   return (
     <div className={`app-shell ${!sidebarExpanded ? "sidebar-collapsed" : ""} ${!isOwner ? "staff-workspace" : ""}`}>
@@ -279,10 +340,10 @@ const Protected = () => {
         auth={auth}
         onLogout={logout}
         sidebarExpanded={sidebarExpanded}
-        onToggleSidebar={() => setSidebarExpanded((current) => !current)}
+        onToggleSidebar={toggleSidebar}
       />
       <div className="app-content-wrapper">
-        <Topbar auth={auth} sidebarExpanded={sidebarExpanded} onToggleSidebar={() => setSidebarExpanded((current) => !current)} onLogout={logout} />
+        <Topbar auth={auth} sidebarExpanded={sidebarExpanded} onToggleSidebar={toggleSidebar} onLogout={logout} />
         <main className="app-main">
           <Outlet />
         </main>
@@ -346,7 +407,26 @@ const StaffWorkspaceRoute = ({ moduleKey, action = "view", featureKey, element }
   return element;
 };
 
+const SuperAdminRoute = ({ pageKey, element }) => {
+  const { auth } = useAuth();
+  if (!auth) return <Navigate to="/login" replace />;
+  if (auth.user?.systemRole !== "SUPER_ADMIN") {
+    return <AccessNotice title="Super Admin Area" message="You do not have permission to access the SaaS control panel." />;
+  }
+  const perms = auth.user?.pagePermissions;
+  if (pageKey && Array.isArray(perms) && perms.length > 0) {
+    if (!perms.includes(pageKey)) {
+      return <AccessNotice title="Page Access Restricted" message="Your staff account does not have permission to access this page." />;
+    }
+  }
+  return element;
+};
+
 const Home = () => {
+  const { auth } = useAuth();
+  if (auth?.user?.systemRole === "SUPER_ADMIN") {
+    return <Navigate to="/super-admin/dashboard" replace />;
+  }
   return <OwnerDashboard />;
 };
 
@@ -359,7 +439,7 @@ export default function App() {
       <Suspense fallback={<RouteFallback />}>
         <div key={location.pathname} className="route-stage">
       <Routes location={location}>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+
 
         <Route path="/customer/login" element={<CustomerLoginPage />} />
         <Route path="/customer/register" element={<CustomerRegisterPage />} />
@@ -396,6 +476,13 @@ export default function App() {
         <Route path="/terms-and-conditions" element={<LegalContentPage scope="global" title="Terms & Conditions" contentKey="termsAndConditions" />} />
         <Route path="/privacy" element={<LegalContentPage scope="global" title="Privacy Policy" contentKey="privacyPolicy" />} />
         <Route path="/privacy-policy" element={<LegalContentPage scope="global" title="Privacy Policy" contentKey="privacyPolicy" />} />
+
+        <Route path="/" element={<MarketingHomePage />} />
+        <Route path="/features" element={<MarketingHomePage />} />
+        <Route path="/pricing" element={<MarketingHomePage />} />
+        <Route path="/platform" element={<MarketingHomePage />} />
+        <Route path="/book-demo" element={<PublicDemoLeadPage />} />
+        <Route path="/demo-checkout/:leadId/:planId" element={<DemoCheckoutPage />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -453,11 +540,7 @@ export default function App() {
           <Route path="/admin/purchases/transfers" element={<OwnerRoute moduleKey="purchases" featureKey="inventory" element={<InventoryPage />} />} />
           <Route path="/admin/purchases/reconciliation" element={<OwnerRoute moduleKey="purchases" featureKey="inventory" element={<InventoryPage />} />} />
           <Route path="/admin/memberships" element={<OwnerRoute moduleKey="memberships" element={<MembershipsPage />} />} />
-          <Route path="/admin/memberships/create" element={<OwnerRoute moduleKey="memberships" element={<MembershipsPage />} />} />
-          <Route path="/admin/memberships/:id/edit" element={<OwnerRoute moduleKey="memberships" element={<MembershipsPage />} />} />
           <Route path="/admin/packages" element={<OwnerRoute moduleKey="packages" element={<MembershipsPage />} />} />
-          <Route path="/admin/packages/create" element={<OwnerRoute moduleKey="packages" element={<MembershipsPage />} />} />
-          <Route path="/admin/packages/:id/edit" element={<OwnerRoute moduleKey="packages" element={<MembershipsPage />} />} />
           <Route path="/admin/customers/:id/memberships" element={<OwnerRoute moduleKey="memberships" element={<MembershipsPage />} />} />
           <Route path="/admin/customers/:id/packages" element={<OwnerRoute moduleKey="packages" element={<MembershipsPage />} />} />
           <Route path="/admin/coupons" element={<OwnerRoute moduleKey="couponsGiftCards" featureKey="couponsGiftCards" element={<CouponsPage />} />} />
@@ -476,7 +559,7 @@ export default function App() {
           <Route path="/admin/expenses/accounts" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
           <Route path="/admin/expenses/categories" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
           <Route path="/admin/expenses/reports" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
-          <Route path="/admin/attendance" element={<OwnerRoute moduleKey="attendance" featureKey="attendance" element={<PayrollPage />} />} />
+          <Route path="/admin/attendance" element={<OwnerRoute moduleKey="attendance" featureKey="attendance" element={<AttendanceManagementPage />} />} />
           <Route path="/admin/notifications" element={<OwnerRoute moduleKey="notifications" featureKey="notifications" element={<NotificationsPage />} />} />
           <Route path="/admin/audit-logs" element={<OwnerRoute moduleKey="auditLogs" featureKey="auditLogs" element={<OwnerAuditLogsPage />} />} />
           <Route path="/admin/whatsapp" element={<OwnerRoute moduleKey="whatsapp" featureKey="whatsapp" element={<WhatsAppPage />} />} />
@@ -528,17 +611,37 @@ export default function App() {
           <Route path="/admin/settings" element={<OwnerRoute moduleKey="settings" action="edit" element={<Navigate to="/admin/settings/generic" replace />} />} />
           <Route path="/admin/settings/:section" element={<OwnerRoute moduleKey="settings" action="edit" element={<SettingsPage />} />} />
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
+          <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="settings" action="edit" element={<ManagePage />} />} />
+          <Route path="/admin/global-dashboard" element={<OwnerRoute moduleKey="reports" action="view" element={<GlobalDashboardPage />} />} />
+          <Route path="/admin/staff-requirements" element={<OwnerRoute moduleKey="reports" action="view" element={<StaffRequirementPage />} />} />
+          <Route path="/admin/product-requirements" element={<OwnerRoute moduleKey="reports" action="view" element={<ProductsRequirementPage />} />} />
+          <Route path="/admin/salon-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<SalonAnalyticsPage />} />} />
+          <Route path="/admin/financial-reports" element={<OwnerRoute moduleKey="reports" action="view" element={<FinancialReportsPage />} />} />
           <Route path="/admin/my-dashboard" element={<StaffWorkspaceRoute moduleKey="myDashboard" element={<MyDashboardPage />} />} />
           <Route path="/admin/my-attendance" element={<StaffWorkspaceRoute moduleKey="myAttendance" featureKey="attendance" element={<MyAttendanceHistoryPage />} />} />
           <Route path="/admin/my-appointments" element={<StaffWorkspaceRoute moduleKey="myAppointments" featureKey="appointments" element={<MyAppointmentsPage />} />} />
           <Route path="/admin/my-schedule" element={<StaffWorkspaceRoute moduleKey="mySchedule" featureKey="appointments" element={<MySchedulePage />} />} />
           <Route path="/admin/my-profile" element={<StaffWorkspaceRoute moduleKey="myProfile" element={<MyProfilePage />} />} />
+
+          <Route path="/super-admin/dashboard" element={<SuperAdminRoute pageKey="dashboard" element={<SuperAdminDashboard />} />} />
+          <Route path="/super-admin/salons" element={<SuperAdminRoute pageKey="salons" element={<SuperAdminSalonsPage />} />} />
+          <Route path="/super-admin/plans" element={<SuperAdminRoute pageKey="plans" element={<SuperAdminPlansPage />} />} />
+          <Route path="/super-admin/demo-leads" element={<SuperAdminRoute pageKey="demoLeads" element={<SuperAdminDemoLeadsPage />} />} />
+          <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />
+          <Route path="/super-admin/support-tickets" element={<SuperAdminRoute pageKey="supportTickets" element={<SuperAdminSupportTicketsPage />} />} />
+          <Route path="/super-admin/settings" element={<SuperAdminRoute pageKey="settings" element={<SuperAdminSettingsPage />} />} />
+          <Route path="/super-admin/audit-logs" element={<SuperAdminRoute pageKey="auditLogs" element={<SuperAdminAuditLogsPage />} />} />
+          <Route path="/super-admin/traffic" element={<SuperAdminRoute pageKey="traffic" element={<SuperAdminTrafficAnalyticsPage />} />} />
+          <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />
+          <Route path="/super-admin/product-requirements" element={<SuperAdminRoute pageKey="productRequirements" element={<SuperAdminProductRequirementPage />} />} />
+          <Route path="/super-admin/financial-reports" element={<SuperAdminRoute pageKey="financialReports" element={<SuperAdminFinancialReportsPage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
           <Route path="/customers" element={<Navigate to="/admin/customers" replace />} />
           <Route path="/roles" element={<Navigate to="/admin/roles-permissions" replace />} />
           <Route path="/invoices" element={<Navigate to="/admin/pos-dashboard" replace />} />
+          <Route path="/admin/sales" element={<Navigate to="/admin/pos" replace />} />
           <Route path="/reports" element={<Navigate to="/admin/reports" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

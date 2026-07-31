@@ -38,7 +38,6 @@ const makeEmptyForm = () => ({
   phone: "",
   avatarUrl: "",
   profileNote: "",
-  branchId: "",
   customRoleId: "",
   showInCatalog: false,
   attendanceEnabled: true,
@@ -244,9 +243,9 @@ export default function UsersPage() {
   }, [filteredRows, selectedId, selectedRow]);
 
   const filteredServices = useMemo(() => {
-    if (!form.branchId) return services;
-    return services.filter((service) => !service.branchId || service.branchId === form.branchId);
-  }, [form.branchId, services]);
+    if (!selectedBranchId) return services;
+    return services.filter((service) => !service.branchId || service.branchId === selectedBranchId);
+  }, [selectedBranchId, services]);
 
   const permissionSummary = useMemo(
     () => moduleCatalog.filter((module) => Array.isArray(form.permissions[module.key]) && form.permissions[module.key].length),
@@ -281,7 +280,6 @@ export default function UsersPage() {
 
   const startCreate = () => {
     resetForm();
-    setForm((current) => ({ ...current, branchId: selectedBranchId || "" }));
     setStatus((current) => ({ ...current, error: "", success: "" }));
     setIsCreateModalOpen(true);
   };
@@ -755,13 +753,6 @@ export default function UsersPage() {
                         <div className="hub-form-group">
                           <label>Role title (Visible designation)</label>
                           <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" />
-                        </div>
-                        <div className="hub-form-group">
-                          <label>Branch scope</label>
-                          <select className="hub-input" value={form.branchId} onChange={(event) => setForm({ ...form, branchId: event.target.value, serviceIds: [] })}>
-                            <option value="">All branches</option>
-                            {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-                          </select>
                         </div>
                         <div className="hub-form-group">
                           <label>Phone</label>

@@ -16,7 +16,6 @@ const emptyForm = {
   phone: "",
   avatarUrl: "",
   profileNote: "",
-  branchId: "",
   customRoleId: "",
   showInCatalog: true,
   serviceIds: []
@@ -32,9 +31,9 @@ export default function ExpertsPage() {
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
 
   const filteredServices = useMemo(() => {
-    if (!form.branchId) return services;
-    return services.filter((service) => !service.branchId || service.branchId === form.branchId);
-  }, [form.branchId, services]);
+    if (!selectedBranchId) return services;
+    return services.filter((service) => !service.branchId || service.branchId === selectedBranchId);
+  }, [selectedBranchId, services]);
 
   const load = async (branchId = selectedBranchId) => {
     const [usersResponse, servicesResponse, rolesResponse] = await Promise.all([
@@ -70,7 +69,7 @@ export default function ExpertsPage() {
         phone: form.phone || undefined,
         avatarUrl: form.avatarUrl || undefined,
         profileNote: form.profileNote || undefined,
-        branchId: form.branchId || null,
+        branchId: selectedBranchId || null,
         customRoleId: form.customRoleId || undefined,
         showInCatalog: Boolean(form.showInCatalog),
         serviceIds: form.serviceIds,
@@ -82,7 +81,7 @@ export default function ExpertsPage() {
       } else {
         await api.post("/owner/users/create-login", {
           ...payload,
-          branchId: form.branchId || undefined,
+          branchId: selectedBranchId || undefined,
           name: form.name,
           email: form.email,
           password: form.password
@@ -107,7 +106,6 @@ export default function ExpertsPage() {
       phone: row.phone || "",
       avatarUrl: row.avatarUrl || "",
       profileNote: row.profileNote || "",
-      branchId: row.branchId || "",
       customRoleId: row.customRoleId || "",
       showInCatalog: Boolean(row.showInCatalog),
       serviceIds: Array.isArray(row.serviceAssignments) ? row.serviceAssignments.map((item) => item.serviceId) : []
@@ -172,10 +170,6 @@ export default function ExpertsPage() {
             <input value={form.roleTitle} placeholder="Visible title" onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} />
             <IndianPhoneInput value={form.phone} onChange={(phone) => setForm({ ...form, phone })} />
             <input value={form.avatarUrl} placeholder="Avatar URL" onChange={(event) => setForm({ ...form, avatarUrl: event.target.value })} />
-            <select value={form.branchId} onChange={(event) => setForm({ ...form, branchId: event.target.value, serviceIds: [] })}>
-              <option value="">No fixed branch</option>
-              {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-            </select>
             <label className="checkbox-row">
               <input type="checkbox" checked={form.showInCatalog} onChange={(event) => setForm({ ...form, showInCatalog: event.target.checked })} />
               Show in public catalog

@@ -9,7 +9,7 @@ const DEFAULT_ZOOM = 11;
 const OPENFREE_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 const NOMINATIM_BASE_URL = import.meta.env.VITE_NOMINATIM_BASE_URL || "https://nominatim.openstreetmap.org";
 const PHOTON_BASE_URL = import.meta.env.VITE_PHOTON_BASE_URL || "https://photon.komoot.io";
-const GEOCODER_CACHE_KEY = "respark-geocoder-cache-v3";
+const GEOCODER_CACHE_KEY = "salonnest-geocoder-cache-v3";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 100;
 

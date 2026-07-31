@@ -21,7 +21,6 @@ const DURATION_OPTIONS = [
 
 const initialServiceForm = {
   name: "",
-  branchId: "",
   gender: "UNISEX",
   price: 0,
   durationMin: 30,
@@ -303,7 +302,7 @@ export default function ServiceCategoriesPage() {
     }
     const payload = {
       name: serviceForm.name.trim(),
-      branchId: serviceForm.branchId || undefined,
+      branchId: selectedBranchId || undefined,
       categoryId: serviceForm.categoryId,
       gender: serviceForm.gender || "UNISEX",
       price: Number(serviceForm.price || 0),
@@ -654,18 +653,11 @@ export default function ServiceCategoriesPage() {
             )}
 
             <div style={{ padding: "24px 28px", display: "grid", gap: 20 }}>
-              {/* Name + Branch */}
-              <div style={{ display: "grid", gridTemplateColumns: "1.7fr 1fr", gap: 16 }}>
+              {/* Name */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
                 <div>
                   <label style={labelStyle}>Service Name *</label>
                   <input value={serviceForm.name} onChange={e => { setServiceForm(c => ({ ...c, name: e.target.value })); if (status.error) setStatus(c => ({ ...c, error: "" })); }} placeholder="e.g. Trendy Cut, Deep Cleanup..." style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Branch</label>
-                  <select value={serviceForm.branchId} onChange={e => setServiceForm(c => ({ ...c, branchId: e.target.value }))} style={inputStyle}>
-                    <option value="">Salon wide</option>
-                    {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                  </select>
                 </div>
               </div>
 

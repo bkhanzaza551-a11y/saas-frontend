@@ -70,7 +70,7 @@ export default function ServiceHubPage() {
         api.get('/owner/service-categories', { params: branchParams }),
         api.get('/owner/services', { params: branchParams }),
         api.get('/owner/branches'),
-        api.get('/owner/products', { params: branchParams })
+        api.get('/owner/inventory/products', { params: branchParams })
       ]);
       if (catRes.status === "fulfilled") setCategories(catRes.value.data || []);
       else throw catRes.reason;

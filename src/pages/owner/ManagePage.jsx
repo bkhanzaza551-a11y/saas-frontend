@@ -1,66 +1,134 @@
 import { Link } from "react-router-dom";
-import { Layers3, Scissors, Users, CalendarDays, Boxes, BadgeCheck, Sparkles, CreditCard, NotebookPen, Globe, Megaphone, ReceiptText, Smartphone, Store, MessagesSquare } from "lucide-react";
-import ModuleTabs from "../../components/ModuleTabs";
+import { Layers3, Scissors, Users, CalendarDays, Boxes, BadgeCheck, Sparkles, CreditCard, NotebookPen, Globe, Megaphone, ReceiptText, Smartphone, Store, MessagesSquare, FileText, Settings, UserCheck, Banknote, PhoneCall } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
-const manageCards = [
-  { title: "Branches", description: "Locations, outlets, and salon identity.", to: "/admin/branches", icon: Layers3 },
-  { title: "Services", description: "Service catalog and categories.", to: "/admin/services", icon: Scissors },
-  { title: "Staff & Roles", description: "Users, experts, and access rules.", to: "/admin/users", icon: Users },
-  { title: "Staff Schedule", description: "Availability, shifts, and roster.", to: "/admin/staff-schedule", icon: CalendarDays },
-  { title: "Inventory", description: "Products, stock, and movements.", to: "/admin/inventory", icon: Boxes },
-  { title: "Memberships / Packages", description: "Plans, packages, and lifecycle.", to: "/admin/memberships", icon: BadgeCheck },
-  { title: "Loyalty / Coupons", description: "Offers, gift cards, and points.", to: "/admin/coupons", icon: Sparkles },
-  { title: "Payments", description: "Payment modes and settlement view.", to: "/admin/payments", icon: CreditCard },
-  { title: "Website Editor", description: "Homepage text, sections, and banners.", to: "/admin/website-editor", icon: NotebookPen },
-  { title: "Digital Catalog", description: "Storefront products and public pages.", to: "/site/demo", icon: Globe },
-  { title: "Ecommerce / Orders", description: "Card-based order board and bill flow.", to: "/admin/order-dashboard", icon: Store },
-  { title: "Customer Portal", description: "Customer links, portal rules, and access.", to: "/admin/customer-portal-settings", icon: Smartphone },
-  { title: "Messaging / Notifications", description: "Email rules, alerts, logs, and manual outreach.", to: "/admin/whatsapp", icon: MessagesSquare },
-  { title: "Campaigns", description: "Templates, broadcasts, and promos.", to: "/admin/campaigns", icon: Megaphone },
-  { title: "Reports Hub", description: "Operational and revenue summaries.", to: "/admin/reports", icon: ReceiptText }
+const CATEGORIES = [
+  {
+    title: "Catalogue",
+    items: [
+      { title: "Services", description: "Add, edit, and update the services you offer.", to: "/admin/services", icon: Scissors, reqPerm: "services" },
+      { title: "Memberships / Packages", description: "Create and manage service bundles.", to: "/admin/memberships", icon: BadgeCheck, reqPerm: "memberships" },
+      { title: "Loyalty / Coupons", description: "Offers, gift cards, referral programs.", to: "/admin/coupons", icon: Sparkles, reqPerm: "couponsGiftCards" }
+    ]
+  },
+  {
+    title: "Inventory & Finance",
+    items: [
+      { title: "Products", description: "Keep track of your products and stock.", to: "/admin/inventory/products", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
+      { title: "Product Requirements", description: "Manage purchase requests for restocks.", to: "/admin/product-requirements", icon: ReceiptText, reqPerm: "inventory", reqFlag: "inventory" },
+      { title: "Ecommerce / Orders", description: "Card-based order board and online billing.", to: "/admin/order-dashboard", icon: Store, reqPerm: "orders", reqFlag: "ecommerce" },
+      { title: "Manage Expenses", description: "Track outflow, accounts, and expense types.", to: "/admin/expenses/dashboard", icon: Banknote, reqPerm: "expenses", reqFlag: "expenses" }
+    ]
+  },
+  {
+    title: "Staff & Operations",
+    items: [
+      { title: "Branches", description: "Manage locations, outlets, and salon operational identity.", to: "/admin/branches", icon: Layers3, reqPerm: "branches" },
+      { title: "Staff Details", description: "Register team members and configure access.", to: "/admin/users", icon: Users, reqPerm: "staff" },
+      { title: "Roles & Permissions", description: "Manage organizational roles and permissions.", to: "/admin/roles-permissions", icon: UserCheck, reqPerm: "staff" },
+      { title: "Staff Requirement", description: "Manage hiring requirements and positional tracking.", to: "/admin/staff-requirements", icon: FileText, reqPerm: "staff" }
+    ]
+  },
+  {
+    title: "Digital & Marketing",
+    items: [
+      { title: "Website Editor", description: "Design homepage text, sections, themes, and banners.", to: "/admin/website-editor", icon: NotebookPen, reqPerm: "settings" },
+
+      { title: "Manage Enquiries", description: "Track and convert leads into customers.", to: "/admin/enquiries", icon: PhoneCall, reqPerm: "enquiries", reqFlag: "enquiries" }
+    ]
+  }
 ];
 
 export default function ManagePage() {
+  const { auth } = useAuth();
+  
+  const perms = auth?.membership?.permissions || {};
+  const flags = auth?.membership?.featureFlags || {};
+  
+  const can = (key) => !key || (Array.isArray(perms[key]) && perms[key].includes("view")) || (Array.isArray(perms[key]) && perms[key].includes("edit")) || perms[key] !== undefined; // simplified for manage page items
+  const enabled = (key) => !key || flags[key] !== false;
+
   return (
-    <div className="page-shell">
-      <ModuleTabs
-        title="Manage Workspace"
-        description="A clean hub for the core operational modules used to run the salon day-to-day."
-        tabs={[{ label: "Manage", to: "/admin/manage", hint: "Hub" }]}
-      />
+    <div className="page-shell" style={{ backgroundColor: "#f8fafc", minHeight: "100vh", padding: "30px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
+        <h1 style={{ fontSize: "1.8rem", fontWeight: "700", color: "#0f172a", margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
+          <Settings size={28} color="#4f46e5" />
+          Manage Workspace
+        </h1>
+        <p style={{ color: "#64748b", margin: 0 }}>Configure and monitor your entire salon</p>
+      </div>
 
-      <div className="panel-card" style={{ padding: 18, marginBottom: 20 }}>
-        <div className="item-head" style={{ marginBottom: 8 }}>
-          <div>
-            <h3 style={{ margin: 0 }}>Management shortcuts</h3>
-            <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9rem" }}>
-              This page is meant to keep the sidebar in a management-only context and reduce clutter for the owner.
-            </p>
-          </div>
-          <span className="badge">Manage Mode</span>
-        </div>
-
-        <div className="orders-card-grid">
-          {manageCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link key={card.to} to={card.to} className="order-card" style={{ textDecoration: "none", color: "inherit", minHeight: 160 }}>
-                <div className="order-card-top">
-                  <div>
-                    <strong className="order-number" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <Icon size={16} color="var(--accent)" />
-                      {card.title}
-                    </strong>
-                    <div className="order-subline">{card.description}</div>
-                  </div>
-                </div>
-                <div className="order-items-preview" style={{ minHeight: 28 }}>
-                  <span className="badge" style={{ width: "fit-content" }}>Open module</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+        {CATEGORIES.map((category) => {
+          const visibleItems = category.items.filter(item => can(item.reqPerm) && enabled(item.reqFlag));
+          if (visibleItems.length === 0) return null;
+          
+          return (
+            <section key={category.title}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: "600", color: "#334155", marginBottom: "16px", paddingBottom: "8px", borderBottom: "1px solid #e2e8f0" }}>
+                {category.title}
+              </h2>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gap: "20px"
+            }}>
+              {visibleItems.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <Link 
+                    key={card.to} 
+                    to={card.to} 
+                    style={{
+                      textDecoration: "none", 
+                      color: "inherit",
+                      background: "#ffffff",
+                      borderRadius: "12px",
+                      padding: "24px",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.04)",
+                      border: "1px solid #f1f5f9",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px",
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                      cursor: "pointer"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow = "0 8px 24px rgba(79, 70, 229, 0.1)";
+                      e.currentTarget.style.borderColor = "#e0e7ff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "none";
+                      e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.04)";
+                      e.currentTarget.style.borderColor = "#f1f5f9";
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{ 
+                        background: "#eef2ff", 
+                        padding: "10px", 
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}>
+                        <Icon size={22} color="#4f46e5" />
+                      </div>
+                      <strong style={{ fontSize: "1.1rem", color: "#1e293b", fontWeight: "600" }}>
+                        {card.title}
+                      </strong>
+                    </div>
+                    <div style={{ color: "#64748b", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                      {card.description}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+          );
+        })}
       </div>
     </div>
   );

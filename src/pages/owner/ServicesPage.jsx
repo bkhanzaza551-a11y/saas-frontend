@@ -9,7 +9,6 @@ const emptyForm = {
   name: "",
   price: 0,
   durationMin: 30,
-  branchId: "",
   categoryId: "",
   description: "",
   taxRate: 0,
@@ -74,7 +73,7 @@ export default function ServicesPage() {
       ...form,
       price: Number(form.price),
       durationMin: Number(form.durationMin),
-      branchId: form.branchId || undefined,
+      branchId: selectedBranchId || undefined,
       categoryId: form.categoryId || null,
       taxRate: Number(form.taxRate || 0),
       commissionPct: Number(form.commissionPct || 0)
@@ -106,7 +105,6 @@ export default function ServicesPage() {
       name: service.name,
       price: Number(service.price || 0),
       durationMin: Number(service.durationMin || 30),
-      branchId: service.branchId || "",
       categoryId: service.categoryId || "",
       description: service.description || "",
       taxRate: Number(service.taxRate || 0),
@@ -174,12 +172,6 @@ export default function ServicesPage() {
             <select value={form.durationMin} onChange={(event) => setForm({ ...form, durationMin: event.target.value })}>
               {DURATION_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-            <select value={form.branchId} onChange={(event) => setForm({ ...form, branchId: event.target.value })}>
-              <option value="">All branches / salon wide</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>{branch.name}</option>
               ))}
             </select>
             <select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>

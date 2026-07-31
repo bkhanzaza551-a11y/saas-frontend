@@ -11,7 +11,7 @@ const BranchCtx = createContext({
   loading: false
 });
 
-const STORAGE_KEY = "respark_branch";
+const STORAGE_KEY = "salonnest_branch";
 
 export const BranchProvider = ({ children }) => {
   const { auth } = useAuth();

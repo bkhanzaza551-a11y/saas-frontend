@@ -1,4 +1,4 @@
-.respark-pos-dashboard {
+.salonnest-pos-dashboard {
   padding: 28px;
   min-height: 100%;
 }
@@ -437,7 +437,7 @@
 }
 
 @media (max-width: 860px) {
-  .respark-pos-dashboard {
+  .salonnest-pos-dashboard {
     padding: 16px;
   }
 
@@ -565,4 +565,40 @@
   .pos-detail-guest-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Restored UI classes for Update Bill modal */
+.pos-gender-btn {
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pos-gender-btn.active {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: #eff6ff;
+}
+
+.pos-top-tab {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.pos-top-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
 }

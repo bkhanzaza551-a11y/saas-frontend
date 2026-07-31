@@ -766,7 +766,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (sidebarColor) root.style.setProperty("--sidebar-bg", sidebarColor);
     if (buttonColor) {
       root.style.setProperty("--button-bg", buttonColor);
       root.style.setProperty("--button-bg-solid", buttonColor);
@@ -781,8 +780,6 @@ export default function SettingsPage() {
     return () => {
       const cached = readSalonSettingsCache(salonId);
       const ui = cached?.advancedSettings?.uiSettings || {};
-      if (ui.sidebarColor) root.style.setProperty("--sidebar-bg", ui.sidebarColor);
-      else root.style.removeProperty("--sidebar-bg");
       
       if (ui.buttonColor) {
         root.style.setProperty("--button-bg", ui.buttonColor);
@@ -806,7 +803,7 @@ export default function SettingsPage() {
       if (ui.fontColor) root.style.setProperty("--font-color", ui.fontColor);
       else root.style.removeProperty("--font-color");
     };
-  }, [buttonColor, buttonHoverColor, sidebarColor, navbarColor, fontColor, salonId]);
+  }, [buttonColor, buttonHoverColor, navbarColor, fontColor, salonId]);
 
   useEffect(() => {
     if (!summary.staffRows.length) return;

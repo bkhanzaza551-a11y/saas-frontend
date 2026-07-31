@@ -1,158 +1,284 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import { Building2, CheckCircle, Clock, AlertTriangle, Sparkles, LifeBuoy, Calendar, BarChart3, Users, TrendingUp } from "lucide-react";
+
+const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
 export default function SuperAdminDashboard() {
   const [data, setData] = useState(null);
-  const [period, setPeriod] = useState("month");
-  useEffect(() => {
-    api.get("/super-admin/dashboard", { params: { period } }).then((response) => setData(response.data));
-  }, [period]);
+  const [error, setError] = useState("");
+  const [period, setPeriod] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const fetchDashboard = useCallback(() => {
+    setError("");
+    const params = { period };
+    if (period === "custom" && dateFrom) params.dateFrom = dateFrom;
+    if (period === "custom" && dateTo) params.dateTo = dateTo;
+    api.get("/super-admin/dashboard", { params })
+      .then((res) => setData(res.data))
+      .catch((err) => setError(err?.response?.data?.message || "Could not load dashboard."));
+  }, [period, dateFrom, dateTo]);
+
+  useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
 
   const healthCards = useMemo(() => [
-    { label: "Total Salons", value: data?.totalSalons || 0, caption: "All tenants across the platform" },
-    { label: "Active Salons", value: data?.activeSalons || 0, caption: "Currently operational salons" },
-    { label: "Trial Salons", value: data?.trialSalons || 0, caption: "Free-trial accounts in conversion stage" },
-    { label: "Suspended", value: data?.suspendedSalons || 0, caption: "Accounts needing follow-up" },
-    { label: "Demo Leads", value: data?.demoLeadsCount || 0, caption: "Fresh acquisition pipeline" },
-    { label: "Support Queue", value: data?.supportTicketsCount || 0, caption: "Open support workload" }
+    { label: "Total Salons", value: data?.totalSalons || 0, caption: "All tenants", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" },
+    { label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons" },
+    { label: "New Salons", value: data?.trialSalons || 0, caption: "Recently onboarded", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons" },
+    { label: "Suspended", value: data?.suspendedSalons || 0, caption: "Needs follow-up", icon: AlertTriangle, color: "#ef4444", bg: "#fef2f2", path: "/super-admin/salons" },
+    { label: "Demo Leads", value: data?.demoLeadsCount || 0, caption: "Pipeline", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/demo-leads" },
+    { label: "Support Queue", value: data?.supportTicketsCount || 0, caption: "Open tickets", icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets" }
   ], [data]);
 
-  if (!data) {
+  const filteredPayments = useMemo(() => {
+    if (!data?.recentPayments) return [];
+    if (!search.trim()) return data.recentPayments;
+    const q = search.toLowerCase();
+    return data.recentPayments.filter((p) =>
+      (p.mode || "").toLowerCase().includes(q) ||
+      String(p.amount || "").includes(q)
+    );
+  }, [data, search]);
+
+  const periodOptions = [
+    { value: "all", label: "ALL" },
+    { value: "today", label: "Today" },
+    { value: "month", label: "Month" },
+    { value: "custom", label: "Custom" }
+  ];
+
+  if (error) {
     return (
       <div className="page-shell">
-        <PageLoader
-          title="Loading super admin command center"
-          message="Bringing together salon growth, subscription health, revenue, and support activity."
-        />
+        <div className="panel-card" style={{ maxWidth: 600, margin: "40px auto", textAlign: "center" }}>
+          <h2 style={{ color: "#dc2626" }}>Dashboard Error</h2>
+          <p style={{ color: "#64748b" }}>{error}</p>
+          <button type="button" onClick={fetchDashboard} style={{ marginTop: 16 }}>Retry</button>
+        </div>
       </div>
     );
   }
 
+  if (!data) return <div className="page-shell"><PageLoader title="Loading dashboard" message="Fetching stats..." /></div>;
+
+  const plans = data.activePlansSummary || [];
+  const salons = data.recentSalons || [];
+  const payments = filteredPayments;
+
   return (
-    <div className="page-shell">
+    <div className="page-shell super-admin-page">
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
-          <div>
+          <div style={{ cursor: "pointer" }} onClick={() => navigate("/super-admin/dashboard")}>
             <h1 style={{ marginTop: 0 }}>Super Admin Dashboard</h1>
-            <p style={{ marginBottom: 0 }}>Live SaaS overview for salons, subscriptions, leads, and support workload.</p>
+            <p style={{ marginBottom: 0 }}>Live SaaS overview for salons, subscriptions, leads, and support.</p>
           </div>
-          <div style={{ minWidth: 220 }}>
-            <div className="item-meta" style={{ marginBottom: 8 }}>Reporting window</div>
-            <label>
-              <span className="muted">Today</span>
-              <select value={period} onChange={(event) => setPeriod(event.target.value)}>
-              <option value="today">Today</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-            </select>
-            </label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "flex-end" }}>
+            <div style={{ display: "inline-flex", background: "#f1f5f9", padding: 4, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+              {periodOptions.map((opt) => {
+                const isActive = period === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPeriod(opt.value)}
+                    style={{
+                      padding: "6px 16px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: isActive ? "white" : "transparent",
+                      color: isActive ? "#4f46e5" : "#64748b",
+                      fontWeight: isActive ? 700 : 600,
+                      fontSize: "0.82rem",
+                      cursor: "pointer",
+                      boxShadow: isActive ? "0 2px 6px rgba(0,0,0,0.05)" : "none",
+                      transition: "all 0.15s"
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            {period === "custom" && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", background: "white" }}
+                />
+                <span style={{ color: "#64748b", fontSize: "0.82rem" }}>to</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", background: "white" }}
+                />
+              </div>
+            )}
           </div>
         </div>
-        <div className="inline-actions" style={{ marginTop: 16 }}>
-          <Link to="/super-admin/salons" className="cta-secondary">Add Salon</Link>
-          <Link to="/super-admin/plans" className="cta-secondary">Create Plan</Link>
-          <Link to="/super-admin/demo-leads" className="cta-secondary">View Demo Leads</Link>
-          <Link to="/super-admin/support-tickets" className="cta-secondary">View Support Tickets</Link>
+        <div className="inline-actions" style={{ marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link to="/super-admin/salons" className="cta-secondary">Salons</Link>
+            <Link to="/super-admin/plans" className="cta-secondary">Create Plan</Link>
+            <Link to="/super-admin/demo-leads" className="cta-secondary">Demo Leads</Link>
+            <Link to="/super-admin/support-tickets" className="cta-secondary">Support Queue</Link>
+          </div>
+          <input
+            type="text"
+            placeholder="Search payments..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", width: 220, background: "white" }}
+          />
         </div>
       </div>
 
-      <div className="stats-grid" style={{ marginBottom: 20 }}>
-        {healthCards.map((card) => (
-          <div key={card.label} className="stat-card">
-            <div className="stat-label">{card.label}</div>
-            <div className="stat-value">{card.value}</div>
-            <div className="item-meta">{card.caption}</div>
-          </div>
-        ))}
+      <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, marginBottom: 32 }}>
+        {healthCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div 
+              key={card.label} 
+              className="stat-card" 
+              onClick={() => navigate(card.path)}
+              style={{ background: "white", border: "1px solid #f1f5f9", borderRadius: 16, padding: "20px", display: "flex", flexDirection: "column", gap: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.02)", position: "relative", overflow: "hidden", cursor: "pointer", transition: "transform 0.2s" }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="item-meta" style={{ color: "#64748b", fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{card.label}</span>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: card.bg, color: card.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon size={16} />
+                </div>
+              </div>
+              <div>
+                <div className="stat-value" style={{ fontSize: "1.75rem", fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{card.value}</div>
+                <div className="item-meta" style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 4 }}>{card.caption}</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="two-col">
-        <div className="panel-card dashboard-section">
-          <div className="section-heading">
-            <h3>Revenue Snapshot</h3>
-            <span className="badge">SaaS Health</span>
+        <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue</h3>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#f5f3ff", padding: "4px 10px", borderRadius: 100 }}>SaaS Health</span>
           </div>
-          <div className="section-grid">
-            <div className="summary-box">
-              <strong>Monthly Subscription Revenue</strong>
-              <div className="stat-value" style={{ fontSize: "1.8rem", marginTop: 8 }}>{data.monthlySubscriptionRevenue}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ background: "#f8fafc", borderRadius: 12, padding: "20px 24px", border: "1px solid #f1f5f9" }}>
+              <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>Monthly Recurring Revenue (MRR)</span>
+              <div style={{ fontSize: "2rem", fontWeight: 850, color: "#0f172a", marginTop: 8 }}>₹{fmt(data.monthlySubscriptionRevenue)}</div>
             </div>
-            <div className="summary-box">
-              <strong>Total Subscription Revenue</strong>
-              <div className="stat-value" style={{ fontSize: "1.8rem", marginTop: 8 }}>{data.totalSubscriptionRevenue}</div>
+            <div style={{ background: "#f8fafc", borderRadius: 12, padding: "20px 24px", border: "1px solid #f1f5f9" }}>
+              <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>Total Collected Revenue</span>
+              <div style={{ fontSize: "2rem", fontWeight: 850, color: "#0f172a", marginTop: 8 }}>₹{fmt(data.totalSubscriptionRevenue)}</div>
             </div>
           </div>
-          <div className="badge-row" style={{ marginTop: 16 }}>
-            <span className="badge">Plans {data.plansCount}</span>
-            <span className="badge">Support {data.supportTicketsCount}</span>
-            <span className="badge">Expired {data.expiredSalons}</span>
+          <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#475569", background: "#f1f5f9", padding: "6px 12px", borderRadius: 8 }}>Plans: {data.plansCount || 0}</span>
+            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#475569", background: "#f1f5f9", padding: "6px 12px", borderRadius: 8 }}>Expired: {data.expiredSalons || 0}</span>
           </div>
         </div>
-        <div className="panel-card dashboard-section">
-          <div className="section-heading">
-            <h3>Active Plans</h3>
-            <span className="badge">{data.activePlansSummary.length} live</span>
+
+        <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Active Plans</h3>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10b981", background: "#ecfdf5", padding: "4px 10px", borderRadius: 100 }}>{plans.length} Live</span>
           </div>
-          {data.activePlansSummary.map((plan) => (
-            <div key={plan.id} className="list-item">
-              <div>
-                <strong>{plan.name}</strong>
-                <div className="item-meta">Monthly {plan.monthlyPrice}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {plans.length ? plans.map((plan) => (
+              <div key={plan.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{plan.name}</div>
+                  <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>{plan.isCustom ? "Custom Tier" : "Standard Tier"}</div>
+                </div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#4f46e5" }}>₹{fmt(plan.monthlyPrice)}<span style={{ fontSize: "0.75rem", fontWeight: 500, color: "#64748b" }}>/mo</span></div>
               </div>
-            </div>
-          ))}
-          {!data.activePlansSummary.length && (
-            <EmptyState
-              title="No active plans yet"
-              message="Plan analytics will show up here as soon as pricing plans are created or restored."
-            />
-          )}
+            )) : <EmptyState title="No active plans" message="Create plans to see them here." />}
+          </div>
         </div>
       </div>
 
       <div className="two-col" style={{ marginTop: 20 }}>
-        <div className="panel-card dashboard-section">
-          <div className="section-heading">
-            <h3>Recent Salons</h3>
-            <span className="badge">Newest tenants</span>
+        <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Salons</h3>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0d9488", background: "#f0fdfa", padding: "4px 10px", borderRadius: 100 }}>Newest</span>
           </div>
-          {data.recentSalons.map((salon) => (
-            <div key={salon.id} className="list-item">
-              <div>
-                <strong>{salon.name}</strong>
-                <div className="item-meta">{salon.status}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {salons.length ? salons.map((salon) => (
+              <div key={salon.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.85rem" }}>
+                    {(salon.name || "S").charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{salon.name}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>{salon.slug}</div>
+                  </div>
+                </div>
+                <div>
+                  <span style={{ 
+                    fontSize: "0.7rem", 
+                    fontWeight: 700, 
+                    color: salon.status === "ACTIVE" ? "#10b981" : "#ef4444", 
+                    background: salon.status === "ACTIVE" ? "#ecfdf5" : "#fef2f2", 
+                    padding: "4px 10px", 
+                    borderRadius: 100,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
+                  }}>
+                    {salon.status}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-          {!data.recentSalons.length && (
-            <EmptyState
-              title="No recent salons"
-              message="New salon signups or created tenants will appear here automatically."
-            />
-          )}
+            )) : <EmptyState title="No recent salons" message="New signups appear here." />}
+          </div>
         </div>
-        <div className="panel-card dashboard-section">
-          <div className="section-heading">
-            <h3>Recent Payments</h3>
-            <span className="badge">Collections</span>
+
+        <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Payments</h3>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#06b6d4", background: "#ecfeff", padding: "4px 10px", borderRadius: 100 }}>Collections</span>
           </div>
-          {data.recentPayments.map((payment) => (
-            <div key={payment.id} className="list-item">
-              <div>
-                <strong>{payment.mode}</strong>
-                <div className="item-meta">{String(payment.amount)}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {payments.length ? payments.map((payment) => (
+              <div key={payment.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ 
+                    width: 32, 
+                    height: 32, 
+                    borderRadius: 8, 
+                    background: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#fef3c7" : "#dbeafe", 
+                    color: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#d97706" : "#2563eb", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    fontWeight: 800, 
+                    fontSize: "0.7rem",
+                    textTransform: "uppercase"
+                  }}>
+                    {(payment.mode || "Pay").substring(0, 3)}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{payment.mode || "Payment Method"}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>Successful Transaction</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 850, color: "#10b981" }}>+ ₹{fmt(payment.amount)}</div>
               </div>
-            </div>
-          ))}
-          {!data.recentPayments.length && (
-            <EmptyState
-              title="No recent payments"
-              message="Subscription collections and manual payment entries will show here when available."
-            />
-          )}
+            )) : <EmptyState title="No recent payments" message="Payment entries appear here." />}
+          </div>
         </div>
       </div>
     </div>

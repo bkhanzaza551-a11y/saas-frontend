@@ -851,7 +851,7 @@ export default function PosDashboardPage() {
   };
 
   return (
-    <div className="respark-pos-dashboard page-shell">
+    <div className="salonnest-pos-dashboard page-shell">
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div>
@@ -982,7 +982,7 @@ export default function PosDashboardPage() {
                           else setProductSearch(val);
                         }} 
                     />
-                    <svg className="pos-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="pos-search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                   </div>
                 </div>
                 <div className="pos-topbar-right">

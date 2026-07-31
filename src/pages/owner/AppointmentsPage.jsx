@@ -13,18 +13,6 @@ const APPOINTMENT_END_HOUR = 21;
 const APPOINTMENT_SLOT_MINUTES = 15;
 const DEFAULT_APPOINTMENT_DURATION_MINUTES = 15;
 
-const TIME_SLOTS = [];
-for (let h = APPOINTMENT_START_HOUR; h <= APPOINTMENT_END_HOUR; h++) {
-  const ampm = h >= 12 ? "PM" : "AM";
-  const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-  const hourText = String(hour12).padStart(2, "0");
-  [0, 15, 30, 45].forEach((minutes) => {
-    if (h === APPOINTMENT_END_HOUR && minutes > 0) return;
-    TIME_SLOTS.push(`${hourText}:${String(minutes).padStart(2, "0")} ${ampm}`);
-  });
-}
-const TIME_SLOT_INDEX = new Map(TIME_SLOTS.map((slot, index) => [slot, index]));
-
 const emptyItem = { serviceId: "", staffUserIds: [], startAt: "", endAt: "", notes: "" };
 const toApiDateTime = (value) => (value ? new Date(value).toISOString() : "");
 
@@ -1248,12 +1236,6 @@ export default function AppointmentsPage() {
           box-shadow: none;
         }
         .sp-btn-primary:hover { background: #2563eb; transform: none; filter: none; }
-          margin-top: 0;
-          margin-bottom: 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
         .sp-input-group {
           position: relative;
           margin-bottom: 16px;

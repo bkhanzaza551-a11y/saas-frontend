@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from "react";
 import { api, setAuthSessionHandlers, setToken, unblockSession } from "../api/client";
 
 const AuthCtx = createContext(null);
-const STORAGE_KEY = "respark_auth";
+const STORAGE_KEY = "salonnest_auth";
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
@@ -27,16 +27,31 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (payload) => {
     const { data } = await api.post("/auth/login", payload);
+    if (!data.requireOtp) {
+      const state = { ...data, salonId: data.membership?.salonId || null };
+      unblockSession();
+      persistState(state);
+    }
+    return data;
+  };
+
+  const verifyOtp = async (payload) => {
+    const { data } = await api.post("/auth/verify-otp", payload);
     const state = { ...data, salonId: data.membership?.salonId || null };
     unblockSession();
     persistState(state);
     return data;
   };
 
-  const refreshSession = (nextAccessToken) => {
+  const resendOtp = async (payload) => {
+    const { data } = await api.post("/auth/resend-otp", payload);
+    return data;
+  };
+
+  const refreshSession = (nextAccessToken, nextRefreshToken) => {
     setAuth((current) => {
       if (!current) return current;
-      const nextState = { ...current, accessToken: nextAccessToken };
+      const nextState = { ...current, accessToken: nextAccessToken, ...(nextRefreshToken ? { refreshToken: nextRefreshToken } : {}) };
       setToken(nextAccessToken);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
       return nextState;
@@ -67,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     onAuthFailure: clearSession
   });
 
-  const value = { auth, login, logout, clearSession };
+  const value = { auth, login, verifyOtp, resendOtp, logout, clearSession };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 };
 

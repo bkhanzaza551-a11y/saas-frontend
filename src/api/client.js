@@ -1,7 +1,7 @@
 import axios from "axios";
 import { normalizePhoneFields, validatePhoneFields } from "../utils/phone";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://resparkbackend-production-ba7b.up.railway.app/api/v1";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://salonnest-backend-production.up.railway.app/api/v1";
 
 export const api = axios.create({ baseURL: API_BASE });
 
@@ -56,10 +56,6 @@ api.interceptors.response.use(
 
     const originalRequest = error.config;
     if (!error.response || error.response.status !== 401 || originalRequest?._retry) {
-      if (error.response?.status === 401 && !originalRequest?._retry) {
-        sessionBlocked = true;
-        clearSession?.();
-      }
       return Promise.reject(error);
     }
 
@@ -80,7 +76,9 @@ api.interceptors.response.use(
       const refreshResponse = await refreshPromise;
       refreshPromise = null;
       const nextAccessToken = refreshResponse.data.accessToken;
-      updateSession?.(nextAccessToken);
+      const nextRefreshToken = refreshResponse.data.refreshToken;
+      sessionBlocked = false;
+      updateSession?.(nextAccessToken, nextRefreshToken);
       originalRequest.headers = originalRequest.headers || {};
       originalRequest.headers.Authorization = `Bearer ${nextAccessToken}`;
       return api(originalRequest);

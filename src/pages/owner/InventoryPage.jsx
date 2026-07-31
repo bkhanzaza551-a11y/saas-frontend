@@ -13,7 +13,7 @@ import "./InventoryPage.css";
 const emptyCategory = { name: "", description: "", imageUrl: "", sortOrder: 0, isPublicVisible: true };
 const emptyProduct = { branchId: "", categoryId: "", name: "", productType: "RETAIL", costPrice: 0, sellingPrice: 0, currentStock: 0, minStock: 0, sku: "", barcode: "", imageUrl: "", unit: "", unitConversion: "", favourite: false };
 const emptyMovement = { productId: "", branchId: "", movementType: "STOCK_IN", quantity: 1, note: "" };
-const emptyVendor = { branchId: "", name: "", phone: "", email: "", address: "", notes: "" };
+const emptyVendor = { name: "", phone: "", email: "", address: "", notes: "" };
 const createEmptyPoItem = () => ({ productId: "", quantityOrdered: 1, unitCost: 0 });
 
 const getInventoryTabFromPath = (path) => {
@@ -459,7 +459,7 @@ export default function InventoryPage() {
     try {
       await api.post("/owner/purchases/vendors", {
         ...vendorForm,
-        branchId: vendorForm.branchId || null
+        branchId: selectedBranchId || null
       });
       setStatus({ success: "Vendor created successfully!", error: "" });
       setVendorForm(emptyVendor);
@@ -510,7 +510,7 @@ export default function InventoryPage() {
     e.preventDefault();
     try {
       await api.post("/owner/purchases/orders", {
-        branchId: purchaseOrderForm.branchId,
+        branchId: selectedBranchId || branches[0]?.id || "",
         vendorId: purchaseOrderForm.vendorId,
         notes: purchaseOrderForm.notes,
         items: purchaseOrderForm.items.map((item) => ({
@@ -1446,7 +1446,7 @@ export default function InventoryPage() {
 
         {/* Vendor Management Tab */}
         {activeTab === "Vendor Management" && (
-          <VendorManagement branches={branches} formatMoney={formatMoney} />
+          <VendorManagement branches={branches} selectedBranchId={selectedBranchId} formatMoney={formatMoney} />
         )}
 
       </div>
@@ -1650,13 +1650,6 @@ export default function InventoryPage() {
                   <input className="sp-input" required value={vendorForm.name} onChange={e => setVendorForm({ ...vendorForm, name: e.target.value })} placeholder="Enter vendor name" />
                 </div>
                 <div className="sp-group">
-                  <label className="sp-label">Branch</label>
-                  <select className="sp-input" value={vendorForm.branchId} onChange={e => setVendorForm({ ...vendorForm, branchId: e.target.value })}>
-                    <option value="">Salon wide</option>
-                    {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-                  </select>
-                </div>
-                <div className="sp-group">
                   <label className="sp-label">Phone</label>
                   <IndianPhoneInput value={vendorForm.phone} onChange={(phone) => setVendorForm(prev => ({ ...prev, phone }))} />
                 </div>
@@ -1694,10 +1687,7 @@ export default function InventoryPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div className="sp-group">
                     <label className="sp-label">Branch</label>
-                    <select className="sp-input" required value={purchaseOrderForm.branchId} onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, branchId: e.target.value })}>
-                      <option value="">Select branch</option>
-                      {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-                    </select>
+                    <input className="sp-input" value={branches.find(b => b.id === selectedBranchId)?.name || "No branch selected"} disabled style={{ background: "#f8fafc" }} />
                   </div>
                   <div className="sp-group">
                     <label className="sp-label">Vendor</label>

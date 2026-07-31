@@ -84,12 +84,12 @@ export default function MyAppointmentsPage() {
       <div style={{ display: "grid", gap: 20 }}>
         {rows.map((item) => {
           const statusColors = {
-            SCHEDULED: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Scheduled" },
+            CONFIRMED: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Confirmed" },
             IN_PROGRESS: { bg: "#fffbeb", color: "#d97706", border: "#fde68a", label: "In Progress" },
             COMPLETED: { bg: "#ecfdf5", color: "#059669", border: "#a7f3d0", label: "Completed" },
             CANCELLED: { bg: "#f1f5f9", color: "#475569", border: "#cbd5e1", label: "Cancelled" }
           };
-          const sc = statusColors[item.status] || statusColors.SCHEDULED;
+          const sc = statusColors[item.status] || statusColors.CONFIRMED;
 
           return (
             <div key={item.id} style={{ background: "#fff", border: "1px solid rgba(226, 232, 240, 0.8)", borderRadius: 16, padding: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: 18, transition: "transform 0.2s, box-shadow 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 30px rgba(0,0,0,0.06)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.03)"; }}>
@@ -130,15 +130,15 @@ export default function MyAppointmentsPage() {
                   type="button" 
                   disabled={updatingId === item.id || item.status === "IN_PROGRESS" || item.status === "COMPLETED"} 
                   onClick={() => updateStatus(item.id, "IN_PROGRESS")}
-                  style={{ flex: 1, padding: "12px", borderRadius: 10, background: item.status === "SCHEDULED" ? "#3b82f6" : "#f1f5f9", color: item.status === "SCHEDULED" ? "#fff" : "#94a3b8", border: "none", fontWeight: 700, fontSize: 14, cursor: item.status === "SCHEDULED" ? "pointer" : "not-allowed", transition: "all 0.2s", boxShadow: item.status === "SCHEDULED" ? "0 4px 12px rgba(59,130,246,0.2)" : "none" }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 10, background: item.status === "CONFIRMED" ? "#3b82f6" : "#f1f5f9", color: item.status === "CONFIRMED" ? "#fff" : "#94a3b8", border: "none", fontWeight: 700, fontSize: 14, cursor: item.status === "CONFIRMED" ? "pointer" : "not-allowed", transition: "all 0.2s", boxShadow: item.status === "CONFIRMED" ? "0 4px 12px rgba(59,130,246,0.2)" : "none" }}
                 >
-                  {updatingId === item.id && item.status === "SCHEDULED" ? "Starting..." : "Start Service"}
+                  {updatingId === item.id && item.status === "CONFIRMED" ? "Starting..." : "Start Service"}
                 </button>
                 <button 
                   type="button" 
                   disabled={updatingId === item.id || item.status === "COMPLETED"} 
                   onClick={() => updateStatus(item.id, "COMPLETED")}
-                  style={{ flex: 1, padding: "12px", borderRadius: 10, background: item.status === "IN_PROGRESS" ? "#10b981" : "#f1f5f9", color: item.status === "IN_PROGRESS" ? "#fff" : "#94a3b8", border: "none", fontWeight: 700, fontSize: 14, cursor: item.status === "IN_PROGRESS" || item.status === "SCHEDULED" ? "pointer" : "not-allowed", transition: "all 0.2s", boxShadow: item.status === "IN_PROGRESS" ? "0 4px 12px rgba(16,185,129,0.2)" : "none" }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 10, background: item.status === "IN_PROGRESS" ? "#10b981" : "#f1f5f9", color: item.status === "IN_PROGRESS" ? "#fff" : "#94a3b8", border: "none", fontWeight: 700, fontSize: 14, cursor: item.status === "IN_PROGRESS" || item.status === "CONFIRMED" ? "pointer" : "not-allowed", transition: "all 0.2s", boxShadow: item.status === "IN_PROGRESS" ? "0 4px 12px rgba(16,185,129,0.2)" : "none" }}
                 >
                   {updatingId === item.id && item.status === "IN_PROGRESS" ? "Completing..." : "Mark Completed"}
                 </button>

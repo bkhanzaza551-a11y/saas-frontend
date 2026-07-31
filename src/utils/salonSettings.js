@@ -1,7 +1,7 @@
 import { normalizeCurrencyCode } from "./currency";
 
-const SETTINGS_CACHE_PREFIX = "respark_salon_settings";
-export const SETTINGS_UPDATED_EVENT = "respark-settings-updated";
+const SETTINGS_CACHE_PREFIX = "salonnest_salon_settings";
+export const SETTINGS_UPDATED_EVENT = "salonnest-settings-updated";
 
 export const getSalonSettingsCacheKey = (salonId) => `${SETTINGS_CACHE_PREFIX}:${salonId || "global"}`;
 

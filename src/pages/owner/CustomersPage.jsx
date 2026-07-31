@@ -860,28 +860,7 @@ export default function CustomersPage() {
   };
 
   const handleMergeCustomer = async () => {
-    if (!mergeSourceRow?.id || !mergeTargetId) {
-      alert("Please select the target customer");
-      return;
-    }
-    setActionBusy(mergeSourceRow.id);
-    setSavingMessage("Merging Customer Profiles...");
-    setSaving(true);
-    try {
-      await api.post("/owner/customers/merge", {
-        sourceCustomerId: mergeSourceRow.id,
-        targetCustomerId: mergeTargetId
-      });
-      setMergeSourceRow(null);
-      setMergeTargetId("");
-      setActiveMenuRowId("");
-      await load();
-    } catch (error) {
-      alert(formatApiError(error, "Could not merge customers"));
-    } finally {
-      setActionBusy("");
-      setSaving(false);
-    }
+    alert("Customer merge is coming soon. This feature is currently under development.");
   };
 
   const handleSort = (key) => {
@@ -1457,12 +1436,12 @@ export default function CustomersPage() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Alternate Mobile Number</label>
-                  <IndianPhoneInput value={formData.alternatePhone} onChange={(alternatePhone) => setFormData((current) => ({ ...current, alternatePhone }))} />
-                </div>
-                <div className="form-group">
                   <label>Email</label>
                   <input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label>Alternate Mobile Number</label>
+                  <IndianPhoneInput value={formData.alternatePhone} onChange={(alternatePhone) => setFormData((current) => ({ ...current, alternatePhone }))} />
                 </div>
                 <div className="form-group">
                   <label>DOB</label>
@@ -3364,7 +3343,7 @@ export default function CustomersPage() {
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     <button
                       onClick={() => {
-                        const authData = localStorage.getItem("respark_auth");
+                        const authData = localStorage.getItem("salonnest_auth");
                         const token = authData ? JSON.parse(authData).accessToken : "";
                         const base = api.defaults.baseURL?.replace(/\/api\/v1$/, "") || "";
                         window.open(`${base}/api/v1/owner/invoices/${invoiceSuccessData.invoice.id}/receipt?token=${token}`, "_blank", "noopener,noreferrer");
