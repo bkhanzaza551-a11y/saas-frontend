@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Clock3, Download, FileText, Gift, ScissorsLineDashed, TicketPercent, Trash2, X, FlaskConical, Plus } from "lucide-react";
 import { api } from "../../api/client";
@@ -959,7 +960,7 @@ export default function PosDashboardPage() {
         <EmptyState title="No invoices found" message="No POS invoices match the current filter." />
       ) : null}
 
-      {detail ? (
+      {detail ? createPortal(
         <div className="premium-modal-overlay" onClick={closeDetail} style={{ zIndex: 9999, background: "rgba(0,0,0,0.6)" }}>
           <div className="premium-modal-content pos-dashboard-detail-modal" onClick={(event) => event.stopPropagation()}>
             <div className="pos-detail-header-strip" style={{ position: 'relative' }}>
@@ -1343,7 +1344,7 @@ export default function PosDashboardPage() {
         </div>
       </div>
     </div>
-  ) : null}
+  ), document.body) : null}
 
       {reminderModal.open ? (
         <div className="premium-modal-overlay" onClick={() => setReminderModal({ open: false, index: -1, date: "", note: "" })} style={{ zIndex: 10010, background: "rgba(0,0,0,0.55)" }}>

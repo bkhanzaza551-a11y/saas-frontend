@@ -602,3 +602,112 @@
   color: #3b82f6;
   border-bottom-color: #3b82f6;
 }
+
+/* Restored UI classes for PosDashboard modal layout */
+.pos-layout {
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+.pos-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.pos-topbar-left, .pos-topbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.pos-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pos-search-wrapper input {
+  padding: 8px 12px 8px 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  width: 250px;
+}
+.pos-search-icon {
+  position: absolute;
+  left: 10px;
+  color: #94a3b8;
+}
+.pos-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.pos-sidebar {
+  width: 140px;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 12px 8px;
+}
+.pos-cat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pos-cat-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  text-align: left;
+  border-radius: 8px;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pos-cat-btn:hover {
+  background: #f1f5f9;
+}
+.pos-cat-btn.active {
+  background: #eff6ff;
+  color: #3b82f6;
+  font-weight: 700;
+}
+.pos-item-list-container {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.pos-item-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+.pos-item-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+.pos-item-title {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+.pos-item-price {
+  font-weight: 800;
+  color: #059669;
+  font-size: 1rem;
+}
