@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
-import { X, Trash2, FlaskConical, Plus } from "lucide-react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
+import { X, Search, Briefcase, Plus, Filter, Trash2, Calendar, ShoppingBag, CreditCard, TicketPercent, CheckCircle, Tag, CheckSquare, Settings2, Clock3, FlaskConical } from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -497,7 +498,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
     );
   }
 
-  return (
+  return createPortal(
     <div className="premium-modal-overlay" onClick={onClose} style={{ zIndex: 9999, background: "rgba(0,0,0,0.6)", position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="pos-dashboard-detail-modal" style={{ maxWidth: "1200px", width: "95vw", maxHeight: "90vh", background: "#f8fafc", borderRadius: "12px", overflow: "hidden", display: "flex", flexDirection: "column", position: "relative", boxShadow: "none" }} onClick={(e) => e.stopPropagation()}>
         
@@ -1262,7 +1263,8 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
         </div>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 }
 
