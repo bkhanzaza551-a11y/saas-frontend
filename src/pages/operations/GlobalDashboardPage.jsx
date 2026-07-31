@@ -8,27 +8,32 @@ export default function GlobalDashboardPage() {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Multi-branch growth & metrics state
   const [data, setData] = useState({
-    totalRevenue: 1285000,
-    totalAppointments: 1420,
-    revenueGrowth: "+18.4%",
-    appointmentGrowth: "+14.2%",
-    activeBranchesCount: 4,
-    totalCustomers: 2840,
-    branchPerformance: [
-      { id: "b1", name: "Main Flagship Branch", city: "Mumbai", revenue: 580000, appointments: 620, growth: "+22.5%", staffCount: 18, rating: 4.9, status: "TOP PERFORMER" },
-      { id: "b2", name: "Downtown Luxury Spa", city: "Delhi", revenue: 390000, appointments: 410, growth: "+16.8%", staffCount: 14, rating: 4.8, status: "STEADY" },
-      { id: "b3", name: "Westside Salon Studio", city: "Bangalore", revenue: 215000, appointments: 260, growth: "+12.1%", staffCount: 9, rating: 4.7, status: "GROWING" },
-      { id: "b4", name: "Express Salon Counter", city: "Pune", revenue: 100000, appointments: 130, growth: "+8.5%", staffCount: 5, rating: 4.6, status: "NEW" }
-    ],
-    growthTrends: [
-      { month: "Jan", revenue: 950000, appointments: 1100 },
-      { month: "Feb", revenue: 1020000, appointments: 1180 },
-      { month: "Mar", revenue: 1150000, appointments: 1290 },
-      { month: "Apr", revenue: 1285000, appointments: 1420 }
-    ]
+    totalRevenue: 0,
+    totalAppointments: 0,
+    revenueGrowth: "+0%",
+    appointmentGrowth: "+0%",
+    activeBranchesCount: 0,
+    totalCustomers: 0,
+    branchPerformance: [],
+    growthTrends: []
   });
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/owner/operations/global-dashboard");
+      setData(res.data);
+    } catch (err) {
+      console.error("Failed to fetch global dashboard data", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [period]);
 
   const loadData = async () => {
     setLoading(true);
