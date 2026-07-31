@@ -102,12 +102,10 @@ export default function ServiceCategoriesPage() {
     load();
   }, [selectedBranchId]);
 
-  // Strict client-side branch filter — only show categories belonging to selected branch
+  // Categories are global, services are branch-specific. Backend filters services by branch.
   const filteredCategories = useMemo(
-    () => selectedBranchId
-      ? categories.filter(cat => cat.branchId === selectedBranchId)
-      : categories,
-    [categories, selectedBranchId]
+    () => categories,
+    [categories]
   );
 
   const selectedCategory = useMemo(
