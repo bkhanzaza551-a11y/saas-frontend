@@ -43,17 +43,6 @@ export default function TrafficAnalyticsPage() {
 
   const maxDayCount = data ? Math.max(1, ...data.visitsByDay.map((d) => d.count)) : 1;
 
-  const handleSeedData = async () => {
-    try {
-      setLoading(true);
-      await api.post("/super-admin/traffic-analytics/seed");
-      await load();
-    } catch (err) {
-      setError(formatApiError(err, "Could not seed traffic analytics data."));
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="page-shell super-admin-page">
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
@@ -62,26 +51,64 @@ export default function TrafficAnalyticsPage() {
             <h1 style={{ marginTop: 0 }}>Traffic Analytics</h1>
             <p style={{ marginBottom: 0 }}>Monitor visitor traffic across all salon storefronts.</p>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <select value={period} onChange={(e) => setPeriod(e.target.value)} style={{ minHeight: 38, padding: "6px 12px", borderRadius: 8, fontSize: 13 }}>
-              <option value="today">Today</option>
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="90d">Last 90 Days</option>
-              <option value="all">All Time</option>
-            </select>
-            <select value={salonFilter} onChange={(e) => setSalonFilter(e.target.value)} style={{ minHeight: 38, padding: "6px 12px", borderRadius: 8, fontSize: 13, minWidth: 160 }}>
-              <option value="">All Salons</option>
-              {salons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-            <button
-              type="button"
-              className="btn-submit"
-              onClick={handleSeedData}
-              style={{ padding: "8px 14px", fontSize: 13, display: "flex", alignItems: "center", gap: 6, minHeight: 38 }}
-            >
-              <span>⚡ Generate Demo Traffic</span>
-            </button>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ position: "relative" }}>
+              <select 
+                value={period} 
+                onChange={(e) => setPeriod(e.target.value)} 
+                style={{ 
+                  minHeight: 42, 
+                  padding: "8px 36px 8px 16px", 
+                  borderRadius: 10, 
+                  fontSize: 14, 
+                  fontWeight: 500,
+                  color: "#1e293b",
+                  backgroundColor: "#fff",
+                  border: "1px solid #cbd5e1",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                  appearance: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                <option value="today">Today</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+                <option value="all">All Time</option>
+              </select>
+              <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
+
+            <div style={{ position: "relative" }}>
+              <select 
+                value={salonFilter} 
+                onChange={(e) => setSalonFilter(e.target.value)} 
+                style={{ 
+                  minHeight: 42, 
+                  padding: "8px 36px 8px 16px", 
+                  borderRadius: 10, 
+                  fontSize: 14, 
+                  fontWeight: 500,
+                  color: "#1e293b",
+                  backgroundColor: "#fff",
+                  border: "1px solid #cbd5e1",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                  minWidth: 180,
+                  appearance: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                <option value="">All Salons</option>
+                {salons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+              <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
           </div>
         </div>
       </div>
