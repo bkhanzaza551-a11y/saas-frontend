@@ -34,6 +34,8 @@ export const BranchProvider = ({ children }) => {
 
   useEffect(() => {
     if (!auth?.accessToken) return;
+    // Super Admin has no salonId — skip /owner/branches (backend returns 401)
+    if (auth?.user?.systemRole === "SUPER_ADMIN") return;
     let active = true;
     let stopped = false;
     setLoading(true);

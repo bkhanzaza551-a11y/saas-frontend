@@ -40,7 +40,10 @@ export const SalonSettingsProvider = ({ children }) => {
     const hasSettingsPermission = Array.isArray(permissions.settings) && permissions.settings.includes("view");
     const isSuperAdmin = auth.user?.systemRole === "SUPER_ADMIN";
 
-    if (!hasSettingsPermission && !isSuperAdmin) {
+    // Super Admin has no salonId — skip /owner/settings (backend returns 401)
+    if (isSuperAdmin) return undefined;
+
+    if (!hasSettingsPermission) {
       return undefined;
     }
 
