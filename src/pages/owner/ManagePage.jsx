@@ -14,7 +14,7 @@ const CATEGORIES = [
   {
     title: "Inventory & Finance",
     items: [
-      { title: "Products", description: "Keep track of your products and stock.", to: "/admin/inventory/products", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
+      { title: "Manage Inventory", description: "Keep track of your products and stock.", to: "/admin/inventory/products", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Product Requirements", description: "Manage purchase requests for restocks.", to: "/admin/product-requirements", icon: ReceiptText, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Ecommerce / Orders", description: "Card-based order board and online billing.", to: "/admin/order-dashboard", icon: Store, reqPerm: "orders", reqFlag: "ecommerce" },
       { title: "Manage Expenses", description: "Track outflow, accounts, and expense types.", to: "/admin/expenses/dashboard", icon: Banknote, reqPerm: "expenses", reqFlag: "expenses" }
