@@ -153,7 +153,6 @@ export default function SuperAdminSettingsPage() {
             {[
               { id: "general", label: "General Settings", icon: Settings },
               { id: "comms", label: "Communications", icon: MessageSquare },
-              { id: "content", label: "Content & Links", icon: Globe },
               { id: "system", label: "System & Safety", icon: ShieldAlert }
             ].map((tab) => {
               const Icon = tab.icon;
@@ -204,37 +203,7 @@ export default function SuperAdminSettingsPage() {
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>System Name</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("systemName", { placeholder: "Salon Nest" })} /></label>
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Tax Label</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("taxLabel", { placeholder: "Tax" })} /></label>
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Invoice Prefix</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("invoicePrefix", { placeholder: "INV" })} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Currency</span>
-                        <select style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, background: "white" }} {...input("defaultCurrency")}>
-                          <option value="INR">INR - Indian Rupee</option>
-                          <option value="USD">USD - US Dollar</option>
-                          <option value="EUR">EUR - Euro</option>
-                          <option value="GBP">GBP - British Pound</option>
-                          <option value="AED">AED - UAE Dirham</option>
-                          <option value="SAR">SAR - Saudi Riyal</option>
-                          <option value="PKR">PKR - Pakistani Rupee</option>
-                          <option value="BDT">BDT - Bangladeshi Taka</option>
-                          <option value="LKR">LKR - Sri Lankan Rupee</option>
-                          <option value="NPR">NPR - Nepalese Rupee</option>
-                        </select>
-                      </label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Currency Options</span>
-                        <select multiple style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, background: "white", minHeight: 80 }} value={form.currencyOptions || []} onChange={(e) => setForm({ ...form, currencyOptions: Array.from(e.target.selectedOptions, (o) => o.value) })}>
-                          <option value="INR">INR</option>
-                          <option value="USD">USD</option>
-                          <option value="EUR">EUR</option>
-                          <option value="GBP">GBP</option>
-                          <option value="AED">AED</option>
-                          <option value="SAR">SAR</option>
-                          <option value="PKR">PKR</option>
-                          <option value="BDT">BDT</option>
-                          <option value="LKR">LKR</option>
-                          <option value="NPR">NPR</option>
-                        </select>
-                        <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Hold Ctrl/Cmd to select multiple</span>
-                      </label>
+
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Country</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultCountry")} /></label>
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default City</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultCity")} /></label>
                       <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Timezone</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultTimezone")} /></label>
@@ -309,23 +278,7 @@ export default function SuperAdminSettingsPage() {
                   </div>
                 )}
 
-                {/* Tab Content: Content */}
-                {activeTab === "content" && (
-                  <div>
-                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Links & Content Settings</h3>
-                    <p style={{ margin: "0 0 24px", fontSize: "0.85rem", color: "#64748b" }}>Manage public website links, legal page references, custom landing titles, and retention policy notices.</p>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Terms URL</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("termsUrl")} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Privacy URL</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("privacyUrl")} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Demo Booking URL</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("demoBookingUrl")} /></label>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Blog Title</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("blogTitle")} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Blog Introduction</span><textarea style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, fontFamily: "inherit" }} rows="2" value={form.blogIntro} onChange={(e) => setForm({ ...form, blogIntro: e.target.value })} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Backup Policy Note</span><textarea style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, fontFamily: "inherit" }} rows="2" value={form.backupPolicyNote} onChange={(e) => setForm({ ...form, backupPolicyNote: e.target.value })} /></label>
-                    </div>
-                  </div>
-                )}
+
 
                 {/* Tab Content: System */}
                 {activeTab === "system" && (
