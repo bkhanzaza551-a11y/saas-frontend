@@ -961,7 +961,7 @@ export default function PosDashboardPage() {
       ) : null}
 
       {detail ? createPortal(
-        <div className="premium-modal-overlay" onClick={closeDetail} style={{ zIndex: 9999, background: "rgba(0,0,0,0.6)" }}>
+        <div className="premium-modal-overlay" onClick={closeDetail} style={{ zIndex: 99999, background: "rgba(0,0,0,0.6)" }}>
           <div className="premium-modal-content pos-dashboard-detail-modal" onClick={(event) => event.stopPropagation()}>
             <div className="pos-detail-header-strip" style={{ position: 'relative' }}>
               <span style={{ color: '#ec4899', fontWeight: 'bold', margin: '0 auto', fontSize: '15px' }}>Update Bill ({invoiceDetail?.status || detailStatus || detail.status}) Invoice Id: {invoiceDetail?.invoiceNumber || detail?.invoiceNumber || "-"}</span>

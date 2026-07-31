@@ -499,7 +499,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
   }
 
   return createPortal(
-    <div className="premium-modal-overlay" onClick={onClose} style={{ zIndex: 9999, background: "rgba(0,0,0,0.6)", position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div className="premium-modal-overlay" onClick={onClose} style={{ zIndex: 99999, background: "rgba(0,0,0,0.6)", position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="pos-dashboard-detail-modal" style={{ maxWidth: "1200px", width: "95vw", maxHeight: "90vh", background: "#f8fafc", borderRadius: "12px", overflow: "hidden", display: "flex", flexDirection: "column", position: "relative", boxShadow: "none" }} onClick={(e) => e.stopPropagation()}>
         
         {/* Header Strip */}
