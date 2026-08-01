@@ -421,7 +421,17 @@ export default function InventoryPage() {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/owner/inventory/products", { ...productForm, costPrice: Number(productForm.costPrice), sellingPrice: Number(productForm.sellingPrice), currentStock: Number(productForm.currentStock), minStock: Number(productForm.minStock), unit: productForm.unit || null, unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null, favourite: Boolean(productForm.favourite) });
+      await api.post("/owner/inventory/products", { 
+        ...productForm, 
+        branchId: selectedBranchId || undefined,
+        costPrice: Number(productForm.costPrice), 
+        sellingPrice: Number(productForm.sellingPrice), 
+        currentStock: Number(productForm.currentStock), 
+        minStock: Number(productForm.minStock), 
+        unit: productForm.unit || null, 
+        unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null, 
+        favourite: Boolean(productForm.favourite) 
+      });
       setIsProductModalOpen(false);
       setProductForm(emptyProduct);
       loadAll();
@@ -445,7 +455,11 @@ export default function InventoryPage() {
   const handleMovementSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/owner/inventory/stock-movements", { ...movementForm, quantity: Number(movementForm.quantity) });
+      await api.post("/owner/inventory/stock-movements", { 
+        ...movementForm, 
+        branchId: selectedBranchId || undefined,
+        quantity: Number(movementForm.quantity) 
+      });
       setIsMovementModalOpen(false);
       setMovementForm(emptyMovement);
       loadAll();
