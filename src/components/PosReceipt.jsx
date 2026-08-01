@@ -153,7 +153,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
   };
 
   return (
-    <div style={inline ? { display: "flex", justifyContent: "center", width: "100%", padding: "20px 0" } : { position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 20 }} className={inline ? "" : "pos-receipt-overlay"} onClick={inline ? undefined : onClose}>
+    <div style={inline ? { display: "flex", justifyContent: "center", width: "100%", padding: "20px 0" } : { position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999999, padding: 20 }} className={inline ? "" : "pos-receipt-overlay"} onClick={inline ? undefined : onClose}>
       <div style={{ ...wrapStyle, ...(inline ? { maxHeight: "none", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.15)", border: "1px solid #e2e8f0" } : {}) }} className="invoice-paper" onClick={inline ? undefined : (e) => e.stopPropagation()}>
         {/* Action Bar */}
         <div style={{ position: "sticky", top: 0, zIndex: 10, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6, padding: isThermal ? "8px 8px" : "12px 16px", background: "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid #f1f5f9", borderRadius: isThermal ? "8px 8px 0 0" : "16px 16px 0 0" }} className="no-print">
