@@ -154,11 +154,11 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
   useEffect(() => {
     loadVendors();
     api.get("/owner/inventory/products").then(res => setProducts(res.data || [])).catch(console.error);
-  }, []);
+  }, [selectedBranchId]);
 
   const loadVendors = async () => {
     try {
-      const res = await api.get("/owner/purchases/vendors");
+      const res = await api.get("/owner/purchases/vendors", { params: { branchId: selectedBranchId || undefined } });
       setVendors(res.data || []);
     } catch (e) {
       console.error(e);
