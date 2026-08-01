@@ -94,6 +94,7 @@ export default function PosPage() {
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [activeServiceInvoice, setActiveServiceInvoice] = useState(null);
+  const [showActiveServicePopup, setShowActiveServicePopup] = useState(false);
   
   const [showGcModal, setShowGcModal] = useState(false);
   const [gcModalGc, setGcModalGc] = useState(null);
@@ -115,6 +116,7 @@ export default function PosPage() {
   const [memModalMem, setMemModalMem] = useState(null);
   const [memDraft, setMemDraft] = useState({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0, 10), customServices: [] });
   const [memSearch, setMemSearch] = useState("");
+  const [memServiceSearch, setMemServiceSearch] = useState("");
   const [showConsumableModal, setShowConsumableModal] = useState(false);
   const [consumableItemIndex, setConsumableItemIndex] = useState(null);
   const [consumableItems, setConsumableItems] = useState([]);
@@ -625,6 +627,8 @@ export default function PosPage() {
   const productLookup = useMemo(() => Object.fromEntries((context.products || []).map((product) => [product.id, product])), [context.products]);
   const membershipLookup = useMemo(() => Object.fromEntries((context.memberships || []).map((m) => [m.id, m])), [context.memberships]);
   const packageLookup = useMemo(() => Object.fromEntries((context.packages || []).map((p) => [p.id, p])), [context.packages]);
+  const selectedCoupon = useMemo(() => (context.coupons || []).find((coupon) => coupon.code === form.couponCode) || null, [context.coupons, form.couponCode]);
+  const selectedGiftCard = useMemo(() => (context.giftCards || []).find((giftCard) => giftCard.code === form.giftVoucherCode) || null, [context.giftCards, form.giftVoucherCode]);
   const affiliateServiceCreditValue = useMemo(() => {
     const value = Number(context.settings?.advancedSettings?.referralSettings?.affiliateServiceCreditValue || 1);
     return value > 0 ? value : 1;
@@ -1379,10 +1383,8 @@ export default function PosPage() {
     });
   }, [context.staffUsers, form.branchId]);
 
-  const [isGuestCheckout, setIsGuestCheckout] = useState(false);
-
   const validateBeforeSubmit = useCallback((mode) => {
-    if (!form.customerId && !isGuestCheckout) return "Please select a guest.";
+    if (!form.customerId) return "Please select a guest.";
     if (!form.branchId) return "Please select a branch.";
     const activeItems = form.items.filter((item) => item.serviceId || item.productId || item.membershipPlanId || item.packageId || item.giftCardId || item.itemType === "GIFT_CARD");
     if (!activeItems.length) return "Please add at least one item to the invoice.";
@@ -1406,7 +1408,7 @@ export default function PosPage() {
       }
     }
     return "";
-  }, [form, totals.total, isGuestCheckout]);
+  }, [form, totals.total]);
 
   const buildInvoicePayload = useCallback((mode) => {
     const activeItems = form.items.filter((item) => item.serviceId || item.productId || item.membershipPlanId || item.packageId || item.giftCardId || item.itemType === "GIFT_CARD");
@@ -1476,50 +1478,6 @@ export default function PosPage() {
     const next = [...form.packageRedemptions];
     next[index] = { ...next[index], ...patch };
     setForm((current) => ({ ...current, packageRedemptions: next }));
-  };
-
-  const handleSelectCustomer = (customer) => {
-    setGuestSearchInput(customer.name);
-    const draftStr = localStorage.getItem("pos_draft_" + customer.id);
-    if (draftStr) {
-      try {
-        const draft = JSON.parse(draftStr);
-        setForm(draft);
-      } catch(e) {
-        setForm(cur => ({ ...cur, customerId: customer.id }));
-      }
-    } else {
-      setForm(cur => ({ ...cur, customerId: customer.id }));
-    }
-  };
-
-  const saveDraft = () => {
-    if (!form.customerId && !isGuestCheckout) {
-      alert("Please select a customer or use Guest Checkout before saving a draft.");
-      return;
-    }
-    const draftKey = isGuestCheckout ? "pos_draft_guest" : "pos_draft_" + form.customerId;
-    localStorage.setItem(draftKey, JSON.stringify(form));
-    alert("Saved to draft");
-    
-    setForm(c => ({
-      ...c,
-      customerId: "",
-      items: [emptyServiceItem],
-      discount: 0,
-      couponCode: "",
-      giftVoucherCode: "",
-      loyaltyPointsUsed: 0,
-      notes: "",
-      packageRedemptions: [],
-      payments: [emptyPayment]
-    }));
-    setGuestSearchInput("");
-    setTipEntries([]);
-    setCouponValidation(null);
-    setCouponCodeInput("");
-    setGiftCardDiscount(0);
-    setIsGuestCheckout(false);
   };
 
   const submitInvoice = async (mode = "complete") => {
@@ -1633,550 +1591,791 @@ export default function PosPage() {
 
 
 
-  const [showServiceModal, setShowServiceModal] = useState(false);
-  const [serviceModalSelected, setServiceModalSelected] = useState([]);
-  const [serviceModalCat, setServiceModalCat] = useState("");
-  const [serviceModalSearch, setServiceModalSearch] = useState("");
-  const [bookingAt, setBookingAt] = useState(new Date().toISOString().slice(0,16));
-
-  const openServiceSelectorModal = () => {
-    setServiceModalSelected([]);
-    setServiceModalCat("");
-    setServiceModalSearch("");
-    setShowServiceModal(true);
-  };
-
-  const applyServiceModal = () => {
-    serviceModalSelected.forEach(svc => addQuickService(svc));
-    setShowServiceModal(false);
-  };
-
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [productModalSelected, setProductModalSelected] = useState([]);
-  const [productModalCat, setProductModalCat] = useState("");
-  const [productModalSearch, setProductModalSearch] = useState("");
-
-  const openProductSelectorModal = () => {
-    setProductModalSelected([]);
-    setProductModalCat("");
-    setProductModalSearch("");
-    setShowProductModal(true);
-  };
-
-  const applyProductModal = () => {
-    productModalSelected.forEach(prod => addQuickProduct(prod));
-    setShowProductModal(false);
-  };
-
   return (
     <div className="pos-layout">
-
-      {/* TITLE BAR */}
-      <div className="pos-title-bar">
-        <span className="pos-title-subtitle">Create bills for services, products, packages, and memberships.</span>
-        <h2>Sales</h2>
-        <button className="pos-learn-btn">Learn how to use</button>
+      {/* TOP BAR */}
+      <div className="pos-topbar">
+        <div className="pos-topbar-left">
+          <div className="pos-gender-toggles">
+            <button className={`pos-gender-btn ${posGender === "ALL" ? "active" : ""}`} onClick={() => setPosGender("ALL")}>All</button>
+            <button className={`pos-gender-btn ${posGender === "FEMALE" ? "active" : ""}`} onClick={() => setPosGender("FEMALE")}>Female</button>
+            <button className={`pos-gender-btn ${posGender === "MALE" ? "active" : ""}`} onClick={() => setPosGender("MALE")}>Male</button>
+          </div>
+          <div className="pos-search-wrapper">
+            <input 
+              placeholder={tab === "billing" ? "Search Service" : tab === "products" ? "Search Product" : tab === "packages" ? "Search Package" : "Search Membership"} 
+              value={
+                  tab === 'billing' ? serviceSearch : 
+                  tab === 'products' ? productSearch : 
+                  tab === 'packages' ? packageSearch : 
+                  membershipSearch
+                } 
+              onChange={(e) => {
+                  const val = e.target.value;
+                  if (tab === 'billing') setServiceSearch(val);
+                  else if (tab === 'products') setProductSearch(val);
+                  else if (tab === 'packages') setPackageSearch(val);
+                  else setMembershipSearch(val);
+                }} 
+            />
+            <svg className="pos-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </div>
+        </div>
+        <div className="pos-topbar-right">
+          <button className={`pos-top-tab ${tab === "billing" ? "active" : ""}`} onClick={() => setTab("billing")}>Add Service</button>
+          <button className={`pos-top-tab ${tab === "products" ? "active" : ""}`} onClick={() => setTab("products")}>Add Product</button>
+          <button className="pos-top-tab" onClick={() => {
+            if (!form.customerId) {
+              setStatus({ error: "Please select a guest first.", success: "" });
+              setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." });
+              return;
+            }
+            setPkgModalPkg(null);
+            setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" });
+            setShowPkgModal(true);
+          }}>Add Package</button>
+          <button className="pos-top-tab" onClick={() => {
+            if (!form.customerId) {
+              setStatus({ error: "Please select a guest first.", success: "" });
+              setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." });
+              return;
+            }
+            setMemModalMem(null);
+            setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] });
+            setShowMemModal(true);
+          }}>Add Membership</button>
+          <button className="pos-top-tab" onClick={() => {
+            if (!form.customerId) {
+              setStatus({ error: "Please select a guest first.", success: "" });
+              setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." });
+              return;
+            }
+            setGcModalGc(null);
+            setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) });
+            setShowGcModal(true);
+          }}>Add Gift Card</button>
+        </div>
       </div>
 
-      {/* TOOLBAR */}
-      <div className="pos-tabs-bar">
-        <span className="pos-tab-spacer" />
-        <button className="pos-reset-btn" onClick={() => { setForm(c => ({ ...c, customerId: "", items: [emptyServiceItem], discount: 0, couponCode: "", giftVoucherCode: "", loyaltyPointsUsed: 0, notes: "", packageRedemptions: [], payments: [emptyPayment] })); setGuestSearchInput(""); setTipEntries([]); setCouponValidation(null); setCouponCodeInput(""); setGiftCardDiscount(0); setIsGuestCheckout(false); }}>Reset</button>
-      </div>
-
-      {/* SCROLLABLE BODY */}
-      <div className="pos-body-scroll">
-
-
-
-        {toastMessage && (
-          <div className={`pos-toast ${toastMessage.type}`} style={{ position: "fixed", bottom: 90, right: 24, zIndex: 9999 }}>
-            {toastMessage.title && <div className="pos-toast-title">{toastMessage.title}</div>}
-            <div>{toastMessage.message}</div>
-          </div>
-        )}
-
-        {/* CUSTOMER SECTION */}
-        <div className="pos-customer-section">
-          <div className="pos-guest-top-row">
-            <label className="pos-guest-checkbox-label">
-              <input type="checkbox" checked={isGuestCheckout} onChange={e => { 
-                    setIsGuestCheckout(e.target.checked); 
-                    if (e.target.checked) { 
-                      setGuestSearchInput(""); 
-                      const draftStr = localStorage.getItem("pos_draft_guest");
-                      if (draftStr) {
-                        try {
-                          const draft = JSON.parse(draftStr);
-                          setForm(draft);
-                        } catch(err) {
-                          setForm(c => ({ ...c, customerId: "" })); 
-                        }
-                      } else {
-                        setForm(c => ({ ...c, customerId: "" })); 
-                      }
-                    } 
-                  }} />
-              <span>
-                <div className="pos-guest-checkbox-title">Guest Checkout</div>
-                <div className="pos-guest-checkbox-sub">Create sale without customer information</div>
-              </span>
-            </label>
-
-            {!isGuestCheckout && (
-              <div className="pos-search-row">
-                <div className="pos-search-input-wrap">
-                  <svg className="pos-search-icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                  <input type="text" placeholder="Search Customer" value={guestSearchInput}
-                    onChange={e => { 
-                      setGuestSearchInput(e.target.value); 
-                      setShowCustomerDropdown(true); 
-                      const match = context.customers.find(c => c.name === e.target.value || c.phone === e.target.value); 
-                      if (match) {
-                        handleSelectCustomer(match);
-                      } else {
-                        setForm(cur => ({ ...cur, customerId: "" })); 
-                      }
-                    }}
-                    onFocus={() => setShowCustomerDropdown(true)}
-                    onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                  />
-                  {showCustomerDropdown && guestSearchInput && (
-                    <div className="pos-customer-dropdown">
-                      {context.customers.filter(c => c.name.toLowerCase().includes(guestSearchInput.toLowerCase()) || c.phone.includes(guestSearchInput)).map(c => (
-                        <div key={c.id} className="pos-customer-dropdown-item" onClick={() => { handleSelectCustomer(c); setShowCustomerDropdown(false); }}>
-                          <div className="pos-customer-dropdown-name">{c.name}</div>
-                          <div className="pos-customer-dropdown-phone">{c.phone}</div>
-                        </div>
-                      ))}
-                      {context.customers.filter(c => c.name.toLowerCase().includes(guestSearchInput.toLowerCase()) || c.phone.includes(guestSearchInput)).length === 0 && (
-                        <div style={{ padding: "10px 14px", color: "#6b7280", fontSize: 13 }}>No matches found</div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <button className="pos-sort-btn">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h10M4 18h6" /></svg>
-                  Sort
-                </button>
-                <button className="pos-new-customer-btn" onClick={() => {
-                  const val = guestSearchInput.trim();
-                  const isNumber = /^[0-9+\-\s()]+$/.test(val);
-                  setNewGuestForm({
-                    name: isNumber ? "" : val,
-                    phone: isNumber ? val.replace(/\D/g, '') : "",
-                    email: "", gender: "FEMALE", alternatePhone: "", dateOfBirth: "", anniversary: "", gst: "", notes: ""
-                  });
-                  setShowAddGuestModal(true);
-                }}>+ New</button>
-              </div>
-            )}
-
-            <div className="pos-dt-manager-row">
-              <div className="pos-datetime-field">
-                <span className="pos-datetime-required">*</span> Booking At &nbsp;
-                <input type="datetime-local" value={bookingAt} onChange={e => setBookingAt(e.target.value)} style={{ border: "none", outline: "none", fontSize: 13, color: "#374151", background: "transparent" }} />
-              </div>
-
-            </div>
-          </div>
-
-          {form.customerId && !isGuestCheckout && (() => {
-            const customer = context.customers.find(c => c.id === form.customerId);
-            if (!customer) return null;
-            const activeMembership = customer.memberships?.find(m => m.status === "ACTIVE" && new Date(m.endsAt) > new Date());
-            const activePackage = customer.packages?.find(p => p.status === "ACTIVE" && new Date(p.endsAt) > new Date());
-            const dueBal = customer.invoices?.filter(inv => inv.status === "UNPAID" || inv.status === "PARTIAL").reduce((s, inv) => s + Number(inv.balanceAmount || 0), 0) || 0;
-            const standaloneAdvance = Number(customer.advanceAmount || 0);
-            return (
-              <div className="pos-selected-customer-card">
-                <div className="pos-selected-customer-name">{customer.name}</div>
-                <div className="pos-selected-customer-phone">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                  {customer.phone}
-                  <button className="pos-redeem-gc-btn" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }}>
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
-                    Redeem Gift Card
-                  </button>
-                </div>
-                <div className="pos-customer-info-pills">
-                  {dueBal > 0 && <span className="pos-customer-info-pill"><strong>Due:</strong> {formatMoney(dueBal.toFixed(0))}</span>}
-                  {standaloneAdvance > 0 && <span className="pos-customer-info-pill"><strong>Advance:</strong> {formatMoney(standaloneAdvance.toFixed(0))}</span>}
-                  {activePackage && <span className="pos-customer-info-pill"><strong>Package:</strong> {activePackage.package?.name}</span>}
-                  {activeMembership && <span className="pos-customer-info-pill"><strong>Membership:</strong> {activeMembership.membershipPlan?.name}</span>}
-                </div>
-                <a className="pos-view-more-link" onClick={() => window.open(`/admin/customers/${customer.id}`, "_blank")}>View more &gt;</a>
-              </div>
-            );
-          })()}
-        </div>
-
-        {/* ADD ITEMS ROW */}
-        <div className="pos-add-items-row">
-          <button className="pos-add-item-btn" onClick={openServiceSelectorModal}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Service
-          </button>
-          <button className="pos-add-item-btn" onClick={openProductSelectorModal}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Product
-          </button>
-          <button className="pos-add-item-btn" onClick={() => { if (!form.customerId && !isGuestCheckout) { setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." }); return; } setPkgModalPkg(null); setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" }); setShowPkgModal(true); }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Package
-          </button>
-          <button className="pos-add-item-btn" onClick={() => { if (!form.customerId && !isGuestCheckout) { setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." }); return; } setMemModalMem(null); setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] }); setShowMemModal(true); }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Membership
-          </button>
-          <button className="pos-add-item-btn" onClick={() => { if (!form.customerId && !isGuestCheckout) { setToastMessage({ type: "error", title: "Guest Required", message: "Please select a guest first." }); return; } setGcModalGc(null); setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) }); setShowGcModal(true); }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Gift Card
-          </button>
-        </div>
-
-        {/* ITEMS TABLE */}
-        <div className="pos-cart-table-section">
-          <div className="pos-cart-table-wrap">
-            <table className="pos-cart-table">
-              <thead>
-                <tr>
-                  <th>Item Name</th>
-                  <th>Staff</th>
-                  <th>Duration</th>
-                  <th>Time Slot</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Disc</th>
-                  <th>Tax</th>
-                  <th>Final Price</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {form.items.map((item, index) => {
-                  if (!item.serviceId && !item.productId && !item.membershipPlanId && !item.packageId && !item.giftCardId && item.itemType !== "GIFT_CARD") return null;
-                  const baseObj = item.itemType === "PRODUCT" ? productLookup[item.productId] : item.itemType === "MEMBERSHIP" ? membershipLookup[item.membershipPlanId] : item.itemType === "PACKAGE" ? packageLookup[item.packageId] : item.itemType === "GIFT_CARD" ? { name: item.name || "Gift Card" } : serviceLookup[item.serviceId];
-                  if (!baseObj) return null;
-                  const basePrice = getCatalogBasePrice(item);
-                  const discountedPrice = item.unitPrice != null ? toAmount(item.unitPrice) : basePrice;
-                  const qty = Number(item.qty) || 1;
-                  const subTotal = discountedPrice * qty;
-                  const taxPctVal = Number(item.taxPct || 0);
-                  const advSettings = context.settings?.advancedSettings && typeof context.settings.advancedSettings === "object" ? context.settings.advancedSettings : {};
-                  const isInclTax = advSettings?.taxMapping?.inclusiveTax === true;
-                  const tax = isInclTax && taxPctVal > 0 ? (subTotal * taxPctVal) / (100 + taxPctVal) : (subTotal * taxPctVal) / 100;
-                  const finalPrice = Math.max(0, subTotal + tax - Number(item.membershipWalletUsed || 0));
-                  const durationSvc = item.itemType === "SERVICE" ? serviceLookup[item.serviceId] : null;
-                  const durationMin = durationSvc ? Number(durationSvc.durationMin || 0) : 0;
-                  const durationDisplay = durationMin > 0 ? `${String(Math.floor(durationMin/60)).padStart(2,"0")}h ${String(durationMin%60).padStart(2,"0")}m` : "--";
-                  return (
-                    <tr key={index}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{baseObj.name}</div>
-                        {item.isGift && <span style={{ fontSize: 10, background: "#dbeafe", color: "#1d4ed8", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>Comp</span>}
-                        {couponValidation?.eligibleItems?.find(ei => ei.index === index && ei.isEligible) && (
-                          <span style={{ display: "inline-block", marginTop: 2, padding: "1px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: "#dcfce7", color: "#166534" }}>{couponValidation.coupon.code}</span>
-                        )}
-                      </td>
-                      <td>
-                        {item.itemType === "SERVICE" || item.itemType === "PACKAGE" || item.itemType === "MEMBERSHIP" || item.itemType === "GIFT_CARD" ? (
-                          <select className="pos-cart-select" value={item.staffUserSalonId || item.staffUserId || ""} onChange={e => updateItem(index, { staffUserSalonId: e.target.value, staffUserId: e.target.value })}>
-                            <option value="">* Select Staff</option>
-                            {getEligibleStaffUsers(item).map(u => <option key={u.id} value={u.id}>{u.user?.name}</option>)}
-                          </select>
-                        ) : <span style={{ color: "#9ca3af", fontSize: 12 }}>N/A</span>}
-                      </td>
-                      <td style={{ color: "#6b7280", fontSize: 12 }}>{item.itemType === "SERVICE" ? durationDisplay : "--"}</td>
-                      <td>
-                        <button type="button" onClick={() => { setShowTimeModal(true); setTimeModalDraft({ index, startTime: item.startTime || "", endTime: item.endTime || "" }); }} style={{ background: "none", border: "none", color: "#6b7280", fontSize: 12, cursor: "pointer", padding: 0, boxShadow: "none", minHeight: "unset" }}>
-                          {item.startTime ? item.startTime : "--"}
-                        </button>
-                      </td>
-                      <td>
-                        <div className="pos-qty-stepper">
-                          <button type="button" disabled={item.itemType === "MEMBERSHIP" || item.itemType === "PACKAGE" || item.itemType === "GIFT_CARD"} onClick={() => updateItem(index, { qty: Math.max(1, Number(item.qty || 1) - 1) })}>-</button>
-                          <span>{item.itemType === "MEMBERSHIP" || item.itemType === "PACKAGE" || item.itemType === "GIFT_CARD" ? 1 : item.qty}</span>
-                          <button type="button" disabled={item.itemType === "MEMBERSHIP" || item.itemType === "PACKAGE" || item.itemType === "GIFT_CARD"} onClick={() => updateItem(index, { qty: Number(item.qty || 1) + 1 })}>+</button>
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: 600 }}>{discountedPrice.toFixed(0)}</td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <input className="pos-cart-input" style={{ width: 44 }} type="number" min="0" placeholder="0" value={item.discountPct === 0 ? "" : (item.discountPct ?? "")} onChange={e => updateItem(index, applyItemDiscountPatch(item, { discountPct: e.target.value }))} />
-                          <span style={{ color: "#6b7280", fontSize: 11 }}>%</span>
-                        </div>
-                      </td>
-                      <td style={{ color: "#6b7280", fontSize: 12 }}>{taxPctVal > 0 ? `GST ${taxPctVal}%` : "--"}</td>
-                      <td style={{ fontWeight: 700, color: "#111827" }}>{finalPrice.toFixed(2)}</td>
-                      <td>
-                        <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
-                          {item.itemType === "SERVICE" && (
-                            <button type="button" title="Set Reminder" onClick={() => { setShowReminderModal(true); setReminderModalDraft({ index, serviceId: item.serviceId, serviceName: baseObj.name, reminderDays: String(baseObj.serviceRemainderDays || 0) }); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#9ca3af", boxShadow: "none", minHeight: "unset", display: "inline-flex" }}>
-                              <AlarmClock size={16} />
-                            </button>
-                          )}
-                          {(item.itemType === "SERVICE" || item.itemType === "PRODUCT") && (
-                            <button type="button" title="Mark Complimentary" onClick={() => { if (item.isGift) { updateItem(index, { isGift: false, discountPct: 0, complimentaryRemark: "" }); } else { setCompModal({ open: true, index, serviceName: baseObj.name, remark: "" }); } }} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: item.isGift ? "#3b82f6" : "#9ca3af", boxShadow: "none", minHeight: "unset", display: "inline-flex" }}>
-                              <Gift size={16} />
-                            </button>
-                          )}
-                          {item.itemType === "SERVICE" && (
-                            <button type="button" title="Add Consumables" onClick={() => openConsumableModal(index)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: item.consumableItems?.length ? "#16a34a" : "#9ca3af", boxShadow: "none", minHeight: "unset", display: "inline-flex" }}>
-                              <Droplet size={16} />
-                            </button>
-                          )}
-                          <button type="button" className="pos-cart-delete-btn" onClick={() => setForm(c => { const removedItem = c.items[index]; const nextItems = c.items.filter((_, i) => i !== index); let nextRedemptions = c.packageRedemptions; if (removedItem && removedItem.unitPrice === 0 && removedItem.itemType === "SERVICE") { const idx = c.packageRedemptions.findIndex(r => r.serviceId === removedItem.serviceId); if (idx !== -1) nextRedemptions = c.packageRedemptions.filter((_, i) => i !== idx); } return { ...c, items: nextItems, packageRedemptions: nextRedemptions }; })}>
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {form.items.filter(item => item.serviceId || item.productId || item.membershipPlanId || item.packageId || item.giftCardId || item.itemType === "GIFT_CARD").length === 0 && (
-                  <tr><td colSpan="10" style={{ textAlign: "center", padding: "40px", color: "#9ca3af", fontSize: 13 }}>No items added yet. Use the + buttons above to add services or products.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* BOTTOM 3-COL */}
-        <div className="pos-bottom-section">
-          <div className="pos-bottom-col">
-            <div className="pos-bottom-col-title">Discount</div>
-            <div className="pos-discount-input-row">
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginLeft: 10, color: "#9ca3af", flexShrink: 0 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M17 17h.01M9.5 14.5l5-5M7.5 10.5a1 1 0 100-2 1 1 0 000 2zm9 4a1 1 0 100-2 1 1 0 000 2z" /></svg>
-              <input type="number" placeholder="Enter Discount" min="0" value={form.discount > 0 ? form.discount : ""} onChange={e => setForm(c => ({ ...c, discount: Number(e.target.value || 0) }))} />
-              <select className="pos-discount-type-select" value={discountDraft?.type || "FIX"} onChange={e => setDiscountDraft(d => ({ ...d, type: e.target.value }))}>
-                <option value="PERCENT">%</option>
-                <option value="FIX">Flat</option>
-              </select>
-            </div>
-          </div>
-          <div className="pos-bottom-col">
-            <div className="pos-bottom-col-title">Coupon Code</div>
-            {form.couponCode && couponValidation ? (
-              <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#1e40af" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontWeight: 700 }}>{couponValidation.coupon.code} — {formatMoney(couponValidation.totalDiscount)}</span>
-                  <button type="button" onClick={removeCoupon} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontWeight: 600, fontSize: 12, padding: 0 }}>Remove</button>
-                </div>
-              </div>
+      <div className="pos-body">
+        {/* LEFT SIDEBAR (1-CLICK CATALOG) */}
+        <div className="pos-sidebar">
+          <div className="pos-cat-grid">
+            {tab === "products" ? (
+               <>
+                 <button className={`pos-cat-btn ${!productCategoryFilter ? "active" : ""}`} onClick={() => setProductCategoryFilter("")}>ALL</button>
+                 {productCategories.slice(0, 7).map(c => <button key={c.id || c.name} className={`pos-cat-btn ${productCategoryFilter === (c.id || c.name) ? "active" : ""}`} onClick={() => setProductCategoryFilter(c.id || c.name)}>{c.name}</button>)}
+               </>
+            ) : tab === "billing" ? (
+               <>
+                 <button className={`pos-cat-btn ${!serviceCategoryFilter ? "active" : ""}`} onClick={() => setServiceCategoryFilter("")}>ALL</button>
+                 {serviceCategories.slice(0, 7).map(c => <button key={c.id} className={`pos-cat-btn ${serviceCategoryFilter === (c.id || c.name) ? "active" : ""}`} onClick={() => setServiceCategoryFilter(c.id || c.name)}>{c.name}</button>)}
+               </>
             ) : (
-              <>
-                <div className="pos-coupon-input-row">
-                  <input type="text" placeholder="Select Coupon" value={couponCodeInput} onChange={e => setCouponCodeInput(e.target.value.toUpperCase())} onKeyDown={e => { if (e.key === "Enter") applyCoupon(); }} />
-                  <button className="pos-apply-btn" onClick={applyCoupon} disabled={couponValidating || !couponCodeInput.trim()}>{couponValidating ? "..." : "Apply"}</button>
+              <div style={{ padding: "8px 12px", color: "#64748b", fontSize: 13 }}>{tab === "packages" ? "Available Packages" : "Available Memberships"}</div>
+            )}
+          </div>
+
+          <div className="pos-item-list-container">
+            {tab === "products" ? (
+               productTileGroups.length ? productTileGroups.map(group => (
+                 <div key={group.title}>
+                   <div className="pos-group-header">{group.title}</div>
+                   <div className="pos-item-grid">
+                       {group.items.map(product => (
+                        <button type="button" key={product.id} className="pos-item-card" onClick={() => addQuickProduct(product)}>
+                          {product.featured && <div style={{ position: "absolute", top: 4, right: 4, fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>★</div>}
+                          {Array.isArray(product.variations) && product.variations.length > 0 && <div style={{ position: "absolute", top: 4, left: 4, fontSize: 9, background: "#dbeafe", color: "#1d4ed8", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>Customisable</div>}
+                          <div className="pos-item-card-name">{product.name}</div>
+                          <div className="pos-item-card-prices">
+                            <span className="pos-item-card-price-new">{Number(product.sellingPrice || 0).toFixed(0)}</span>
+                          </div>
+                        </button>
+                      ))}
+                   </div>
+                 </div>
+               )) : <EmptyState title="No products found" message="Try All, another product category, or clear product search." />
+            ) : tab === "packages" ? (
+              packageTileGroups.length ? packageTileGroups.map((group) => (
+                <div key={group.title}>
+                  <div className="pos-group-header">{group.title}</div>
+                  <div className="pos-item-grid">
+                    {group.items.map((pkg) => (
+                      <button type="button" key={pkg.id} className="pos-item-card" onClick={() => addQuickPackage(pkg)}>
+                        <div className="pos-item-card-name">{pkg.name}</div>
+                        <div className="pos-item-card-prices">
+                          <span className="pos-item-card-price-new">{Number(pkg.price || 0).toFixed(0)}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="pos-coupon-hint">Coupon will be applied only to eligible services.</div>
-              </>
+              )) : <EmptyState title="No packages found" message="Create active packages to sell them from POS." />
+            ) : tab === "memberships" ? (
+              membershipTileGroups.length ? membershipTileGroups.map((group) => (
+                <div key={group.title}>
+                  <div className="pos-group-header">{group.title}</div>
+                  <div className="pos-item-grid">
+                    {group.items.map((membership) => (
+                      <button type="button" key={membership.id} className="pos-item-card" onClick={() => addQuickMembership(membership)}>
+                        <div className="pos-item-card-name">{membership.name}</div>
+                        <div className="pos-item-card-prices">
+                          <span className="pos-item-card-price-new">{Number(membership.price || membership.monthlyPrice || 0).toFixed(0)}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )) : <EmptyState title="No memberships found" message="Create active membership plans to sell them from POS." />
+            ) : (
+               serviceTileGroups.length ? serviceTileGroups.map(group => (
+                 <div key={group.title}>
+                   <div className="pos-group-header">{group.title}</div>
+                   <div className="pos-item-grid">
+                     {group.items.map(service => (
+                       <button type="button" key={service.id} className="pos-item-card" onClick={() => addQuickService(service)}>
+                         <div className="pos-item-card-name">{service.name}</div>
+                         <div className="pos-item-card-prices">
+                           {service.originalPrice && service.originalPrice > service.price && <span className="pos-item-card-price-old">{Number(service.originalPrice).toFixed(0)}</span>}
+                           <span className="pos-item-card-price-new">{Number(service.price || 0).toFixed(0)}</span>
+                         </div>
+                       </button>
+                     ))}
+                   </div>
+                 </div>
+               )) : <EmptyState title="No services found" message="Try All, switch Male/Female, or clear service search." />
             )}
-          </div>
-          <div className="pos-bottom-col">
-            <div className="pos-bottom-col-title">Appointment Notes</div>
-            <div className="pos-notes-input">
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ flexShrink: 0, marginTop: 2 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-              <textarea placeholder="Is there anything else you would like us to know?" value={form.notes} onChange={e => setForm(c => ({ ...c, notes: e.target.value }))} maxLength={500} />
-            </div>
           </div>
         </div>
 
-        {/* ACTION PILLS */}
-        <div className="pos-action-pills-row">
-          <button type="button" className="pos-action-pill" onClick={openApplyMembershipModal}>Apply Membership</button>
-          <button type="button" className="pos-action-pill" onClick={openDiscountModal}>Apply Discount</button>
-          <button type="button" className="pos-action-pill" onClick={loadCustomerPackagesForRedemption} disabled={loadingCustomerPkgs}>{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
-          <button type="button" className="pos-action-pill" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }}>Apply Gift Card</button>
-          <button type="button" className="pos-action-pill" onClick={() => setShowTipModal(true)}>Add Tip</button>
-        </div>
+        {/* RIGHT MAIN AREA */}
+        <div className="pos-main">
+          <div className="pos-invoice-section">
+            <div className="pos-invoice-header">
+              <h4>Invoice</h4>
+              <div className="pos-invoice-date">
+                {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </div>
+            </div>
 
-        {/* LOYALTY POINTS */}
-        {form.customerId && (() => {
-          const customer = context.customers.find(c => c.id === form.customerId);
-          const loyaltyBal = Number(customer?.loyaltyPoints || 0);
-          if (loyaltyBal <= 0) return null;
-          return (
-            <div style={{ margin: "0 24px 8px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "10px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#166534" }}>Loyalty Points Available</span>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#166534" }}>{loyaltyBal} pts</span>
+            <div className="pos-guest-row">
+              <div className="pos-search-guest">
+                <label>
+                  Guest : 
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <input 
+                      type="text" 
+                      placeholder="Search By Name Or No." 
+                      value={guestSearchInput} 
+                      onChange={(e) => {
+                        setGuestSearchInput(e.target.value);
+                        setShowCustomerDropdown(true);
+                        const match = context.customers.find(c => c.name === e.target.value || c.phone === e.target.value);
+                        if (match) {
+                          setForm(current => ({ ...current, customerId: match.id }));
+                        } else {
+                          setForm(current => ({ ...current, customerId: "" }));
+                        }
+                      }}
+                      onFocus={() => setShowCustomerDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                    />
+                    {showCustomerDropdown && guestSearchInput && (
+                      <div className="pos-customer-dropdown" style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", marginTop: "4px", maxHeight: "300px", overflowY: "auto", zIndex: 50, boxShadow: "none" }}>
+                        {context.customers.filter(c => c.name.toLowerCase().includes(guestSearchInput.toLowerCase()) || c.phone.includes(guestSearchInput)).map(c => (
+                          <div key={c.id} style={{ padding: "10px 12px", borderBottom: "1px solid #f1f5f9", cursor: "pointer" }} onClick={() => {
+                            setGuestSearchInput(c.name);
+                            setForm(current => ({ ...current, customerId: c.id }));
+                            setShowCustomerDropdown(false);
+                          }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                            <div style={{ fontWeight: 600, fontSize: "13px", color: "#0f172a" }}>{c.name}</div>
+                            <div style={{ fontSize: "11px", color: "#64748b" }}>{c.phone}</div>
+                          </div>
+                        ))}
+                        {context.customers.filter(c => c.name.toLowerCase().includes(guestSearchInput.toLowerCase()) || c.phone.includes(guestSearchInput)).length === 0 && (
+                          <div style={{ padding: "10px 12px", color: "#64748b", fontSize: "13px", textAlign: "center" }}>No matches found</div>
+                        )}
+                      </div>
+                    )}
+                    <svg style={{ position: "absolute", right: 8, top: 10, width: 16, height: 16, color: "#94a3b8", pointerEvents: "none" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                </label>
+                {!form.customerId && <div className="pos-guest-error">Please select guest</div>}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#475569" }}>Redeem Points:</label>
-                <input type="number" min="0" max={loyaltyBal} placeholder="0" value={form.loyaltyPointsUsed || ""} onChange={e => setForm(c => ({ ...c, loyaltyPointsUsed: Number(e.target.value || 0) }))} style={{ flex: 1, padding: "6px 10px", border: "1px solid #86efac", borderRadius: 6, fontSize: 13, outline: "none" }} />
-                {Number(form.loyaltyPointsUsed || 0) > 0 && <button type="button" onClick={() => setForm(c => ({ ...c, loyaltyPointsUsed: 0 }))} style={{ padding: "6px 10px", fontSize: 11, background: "#dcfce7", border: "1px solid #86efac", borderRadius: 6, cursor: "pointer", color: "#166534", fontWeight: 600 }}>Clear</button>}
-              </div>
+              <button type="button" className="pos-add-guest-btn" onClick={() => setShowAddGuestModal(true)}>
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                Add Guest
+              </button>
             </div>
-          );
-        })()}
 
-        {/* PAYMENT DETAILS */}
-        <div className="pos-payment-section">
-          <div className="pos-payment-section-title">
-            <span>Payment Details:</span>
-            <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 400 }}>(Click amount field to auto-fill remaining balance)</span>
-          </div>
-          <div className="pos-payment-grid">
-            {form.payments.find(p => p.mode === "WALLET") && (
-              <div className="pos-payment-input">
-                <label>Membership</label>
-                <input type="number" readOnly value={form.payments.find(p => p.mode === "WALLET")?.amount || ""} style={{ background: "#f1f5f9", cursor: "not-allowed" }} />
-              </div>
-            )}
-            <div className="pos-payment-input">
-              <label>Online</label>
-              <input type="number" placeholder="0.0" value={form.payments.find(p => p.mode === "ONLINE")?.amount || ""}
-                onFocus={() => { if (paymentManuallyEdited.cash) return; setForm(cur => { const preserved = (cur.payments||[]).filter(p=>!["ONLINE","CASH","BALANCE","WALLET"].includes(p.mode)); const preservedPaid = preserved.reduce((s,p)=>s+Number(p.amount||0),0); const maxOnline = Math.max(0,totals.total-preservedPaid); let np = (cur.payments||[]).filter(p=>p.mode!=="ONLINE"&&p.mode!=="CASH"&&p.mode!=="BALANCE"); np.push({mode:"ONLINE",amount:maxOnline,note:""}); return {...cur,payments:np}; }); }}
-                onChange={e => { const preservedPaid = (form.payments||[]).filter(p=>!["ONLINE","BALANCE","WALLET"].includes(p.mode)).reduce((s,p)=>s+Number(p.amount||0),0); const amount = Math.min(Number(e.target.value)||0,Math.max(0,totals.total-preservedPaid)); setPaymentManuallyEdited(pv=>({...pv,online:true})); setForm(cur => { const np = (cur.payments||[]).filter(p=>p.mode!=="ONLINE"); np.push({mode:"ONLINE",amount,note:""}); const paidSoFar=np.filter(p=>p.mode!=="BALANCE"&&p.mode!=="WALLET").reduce((s,p)=>s+Number(p.amount||0),0); const bal=Math.max(0,totals.total-paidSoFar); const be=np.find(p=>p.mode==="BALANCE"); if(be){be.amount=bal;}else if(bal>0){np.push({mode:"BALANCE",amount:bal,note:""});} return {...cur,payments:np}; }); }} />
-            </div>
-            <div className="pos-payment-input">
-              <label>Cash</label>
-              <input type="number" placeholder="0.0" value={form.payments.find(p => p.mode === "CASH")?.amount || ""}
-                onFocus={() => { if (paymentManuallyEdited.online) return; setForm(cur => { const preserved = (cur.payments||[]).filter(p=>!["ONLINE","CASH","BALANCE","WALLET"].includes(p.mode)); const preservedPaid = preserved.reduce((s,p)=>s+Number(p.amount||0),0); const maxCash = Math.max(0,totals.total-preservedPaid); let np = (cur.payments||[]).filter(p=>p.mode!=="ONLINE"&&p.mode!=="CASH"&&p.mode!=="BALANCE"); np.push({mode:"CASH",amount:maxCash,note:""}); return {...cur,payments:np}; }); }}
-                onChange={e => { const preservedPaid = (form.payments||[]).filter(p=>!["CASH","BALANCE","WALLET"].includes(p.mode)).reduce((s,p)=>s+Number(p.amount||0),0); const amount = Math.min(Number(e.target.value)||0,Math.max(0,totals.total-preservedPaid)); setPaymentManuallyEdited(pv=>({...pv,cash:true})); setForm(cur => { const np = (cur.payments||[]).filter(p=>p.mode!=="CASH"); np.push({mode:"CASH",amount,note:""}); const paidSoFar=np.filter(p=>p.mode!=="BALANCE"&&p.mode!=="WALLET").reduce((s,p)=>s+Number(p.amount||0),0); const bal=Math.max(0,totals.total-paidSoFar); const be=np.find(p=>p.mode==="BALANCE"); if(be){be.amount=bal;}else if(bal>0){np.push({mode:"BALANCE",amount:bal,note:""});} return {...cur,payments:np}; }); }} />
-            </div>
-            <div className="pos-payment-input">
-              <label>Balance</label>
-              <input type="number" placeholder="0.0" value={form.payments.find(p => p.mode === "BALANCE")?.amount || ""}
-                onFocus={() => { setForm(cur => { const paidSoFar=(cur.payments||[]).filter(p=>p.mode!=="BALANCE"&&p.mode!=="WALLET").reduce((s,p)=>s+Number(p.amount||0),0); const balance=Math.max(0,totals.total-paidSoFar); const np=(cur.payments||[]).filter(p=>p.mode!=="BALANCE"); np.push({mode:"BALANCE",amount:balance,note:""}); return {...cur,payments:np}; }); }}
-                onChange={e => { const advAmount=Number((form.payments||[]).find(p=>p.mode==="ADVANCE")?.amount||0); const amount=Math.min(Number(e.target.value)||0,Math.max(0,totals.total-advAmount)); setForm(cur=>{const np=(cur.payments||[]).filter(p=>p.mode!=="BALANCE");np.push({mode:"BALANCE",amount,note:""});return{...cur,payments:np};}); }} />
-            </div>
             {form.customerId && (() => {
               const customer = context.customers.find(c => c.id === form.customerId);
-              const adv = Number(customer?.advanceAmount || 0);
-              if (adv <= 0) return null;
+              if(!customer) return null;
+              
+              const activeMembership = customer.memberships?.find(m => String(m.status) === 'ACTIVE' && new Date(m.endsAt) > new Date());
+              const activePackage = customer.packages?.find(p => String(p.status) === 'ACTIVE' && new Date(p.endsAt) > new Date());
+              const cartPackage = form.items.find(i => i.itemType === 'PACKAGE');
+              const dueBal = customer.invoices?.filter(inv => inv.status === 'UNPAID' || inv.status === 'PARTIAL').reduce((sum, inv) => sum + Number(inv.balanceAmount || 0), 0) || 0;
+              const standaloneAdvance = Number(customer.advanceAmount || 0);
+              
+              const dob = customer.dateOfBirth ? new Date(customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "NA";
+              const anniv = customer.anniversary ? new Date(customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "NA";
+              const lastVisited = customer.lastVisitAt ? new Date(customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "NA";
+              
               return (
-                <div className="pos-payment-input">
-                  <label style={{ color: "#10b981" }}>Advance ({formatMoney(adv)})</label>
-                  <input type="number" placeholder="0.0" value={form.payments.find(p=>p.mode==="ADVANCE")?.amount||""}
-                    onFocus={()=>{const nonAdvPaid=(form.payments||[]).filter(p=>p.mode!=="ADVANCE"&&p.mode!=="WALLET").reduce((s,p)=>s+Number(p.amount||0),0);const useAdv=Math.min(Math.max(0,totals.total-nonAdvPaid),adv);setForm(cur=>({...cur,payments:[...(cur.payments||[]).filter(p=>p.mode!=="ADVANCE"),{mode:"ADVANCE",amount:useAdv,note:"Advance used"}]}));}}
-                    onChange={e=>{const nonAdvPaid=(form.payments||[]).filter(p=>p.mode!=="ADVANCE"&&p.mode!=="WALLET").reduce((s,p)=>s+Number(p.amount||0),0);const maxAdv=Math.max(0,Math.min(adv,totals.total-nonAdvPaid));const amount=Math.min(Number(e.target.value)||0,maxAdv);setForm(cur=>({...cur,payments:[...(cur.payments||[]).filter(p=>p.mode!=="ADVANCE"),{mode:"ADVANCE",amount,note:"Advance used"}]}));}} />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", padding: "12px 16px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "16px", fontSize: "12px", color: "#334155" }}>
+                  <div style={{display: "flex", gap: "24px", width: "100%", justifyContent: "space-between"}}>
+                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                      <div><strong style={{color:"#0f172a"}}>Guest :</strong> {customer.name}</div>
+                      <div><strong style={{color:"#0f172a"}}>Phone :</strong> {customer.phone}</div>
+                    </div>
+                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                      <div><strong style={{color:"#0f172a"}}>DOB :</strong> {dob}</div>
+                      <div><strong style={{color:"#0f172a"}}>Anniv :</strong> {anniv}</div>
+                    </div>
+                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                      <div><strong style={{color:"#0f172a"}}>Last Visited :</strong> {lastVisited}</div>
+                      <div><strong style={{color:"#0f172a"}}>Due Bal :</strong> {dueBal > 0 ? formatMoney(Number(dueBal.toFixed(0))) : "NA"}</div>
+                    </div>
+                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                      <div><strong style={{color:"#0f172a"}}>Adv :</strong> {standaloneAdvance > 0 ? <span style={{color: "#10b981", fontWeight: 700}}>{formatMoney(Number(standaloneAdvance.toFixed(0)))}</span> : "NA"}</div>
+                      <div><strong style={{color:"#0f172a"}}>Package :</strong> {activePackage ? <span style={{color:"#2563eb", cursor:"pointer"}} onClick={() => void openPackageDetails(activePackage)}>{activePackage?.package?.name || "NA"}</span> : cartPackage ? <span style={{color:"#10b981", fontWeight:"600"}}>{cartPackage.name} (In Cart)</span> : "NA"} {activePackage && <span title="Package Details" onClick={() => void openPackageDetails(activePackage)} style={{display:"inline-flex", alignItems:"center", justifyContent:"center", width:18, height:18, borderRadius:"50%", background:"#e2e8f0", color:"#475569", fontSize:11, fontWeight:700, cursor:"pointer", marginLeft:4, verticalAlign:"middle"}}>&#9432;</span>}</div>
+                    </div>
+                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                      <div><strong style={{color:"#0f172a"}}>Membership :</strong> {activeMembership?.membershipPlan?.name || "NA"}</div>
+                    </div>
+                    <div style={{display: "flex", alignItems: "flex-start"}}>
+                      <button style={{background: "none", border: "none", cursor: "pointer", color: "var(--accent, #3b82f6)"}} onClick={() => window.open(`/admin/customers/${customer.id}`, '_blank')}>
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               );
             })()}
-          </div>
-          <div className="pos-message-config">
-            <h5>Message Configurations:</h5>
-            <div className="pos-message-options">
-              <label style={{ display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:13 }}><input type="checkbox" checked={form.sendFeedbackMessage!==false} onChange={e=>setForm(c=>({...c,sendFeedbackMessage:e.target.checked}))} style={{width:16,height:16}} /> Feedback Message</label>
-              <label style={{ display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:13 }}><input type="checkbox" checked={form.sendInvoiceMessage!==false} onChange={e=>setForm(c=>({...c,sendInvoiceMessage:e.target.checked}))} style={{width:16,height:16}} /> Invoice Message</label>
-            </div>
-          </div>
-        </div>
 
-      </div>
+            <div className="pos-cart-table-wrapper">
 
-      {/* FOOTER */}
-      <div className="pos-footer-bar">
-        <div className="pos-total-row">
-          <span className="pos-total-label">TOTAL:</span>
-          <span className="pos-total-amount">{totals.total > 0 ? formatMoney(totals.total.toFixed(0)) : "\u2014"}</span>
-        </div>
-        <div className="pos-footer-actions">
-          <button type="button" className="pos-footer-btn" onClick={() => submitInvoice("start")}>Review</button>
-          <button type="button" className="pos-footer-btn" disabled={submitting} onClick={saveDraft}>Save Draft</button>
-          <button type="button" className="pos-footer-btn checkout" disabled={submitting || !!activeServiceInvoice} onClick={() => !submitting && submitInvoice("complete")}>
-            {submitting ? "Processing..." : "Checkout"}
-          </button>
-        </div>
-      </div>
+              <table className="pos-cart-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Staff</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Sub Total</th>
+                    <th>Disc (%)</th>
+                    <th>Disc (Flat)</th>
+                    <th>Tax</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {form.items.map((item, index) => {
+                    if (!item.serviceId && !item.productId && !item.membershipPlanId && !item.packageId && !item.giftCardId && item.itemType !== "GIFT_CARD") return null;
+                    const baseObj = item.itemType === "PRODUCT"
+                      ? productLookup[item.productId]
+                      : item.itemType === "MEMBERSHIP"
+                        ? membershipLookup[item.membershipPlanId]
+                        : item.itemType === "PACKAGE"
+                          ? packageLookup[item.packageId]
+                          : item.itemType === "GIFT_CARD"
+                            ? { name: item.name || "Gift Card" }
+                            : serviceLookup[item.serviceId];
+                    if (!baseObj) return null;
+                    const basePrice = getCatalogBasePrice(item);
+                    const originalPrice = basePrice;
+                    const discountedPrice = item.unitPrice != null ? toAmount(item.unitPrice) : basePrice;
+                    const qty = Number(item.qty) || 1;
+                    const subTotal = discountedPrice * qty;
+                    const taxPctVal = Number(item.taxPct || 0);
+                    const advSettings = context.settings?.advancedSettings && typeof context.settings.advancedSettings === "object" ? context.settings.advancedSettings : {};
+                    const isInclTax = advSettings?.taxMapping?.inclusiveTax === true;
+                    const tax = isInclTax && taxPctVal > 0 ? (subTotal * taxPctVal) / (100 + taxPctVal) : (subTotal * taxPctVal) / 100;
+                    const total = subTotal + tax;
+                    return (
+                      <tr key={index}>
+                        <td style={{ color: "#334155" }}>
+                          <div style={{ fontWeight: 600 }}>{baseObj.name}</div>
+                          {couponValidation?.eligibleItems?.find(ei => ei.index === index && ei.isEligible) && (
+                            <span style={{ display: "inline-block", marginTop: 2, padding: "1px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: "#dcfce7", color: "#166534", whiteSpace: "nowrap" }}>
+                              {couponValidation.coupon.code}
+                            </span>
+                          )}
+                          {item.itemType === 'SERVICE' && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4 }}>
+                              {(serviceLookup[item.serviceId]?.consumables || baseObj.consumables || [])?.map((c, ci) => {
+                                const overrideKey = `${item.serviceId}:${c.productId}`;
+                                const currentVal = consumableOverrides[overrideKey] !== undefined ? consumableOverrides[overrideKey] : c.reqdQty;
+                                const unit = c.product?.unit || 'pcs';
+                                return (
+                                  <div key={ci} style={{ fontSize: 11, color: "#334155", display: "flex", alignItems: "center", gap: 4, background: "#f1f5f9", padding: "2px 6px", borderRadius: 4, width: "fit-content" }}>
+                                    <span style={{ color: "#2563eb", fontWeight: 600 }}>🧪 {c.product?.name || "Consumable"}:</span>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      value={currentVal}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setConsumableOverrides(prev => ({ ...prev, [overrideKey]: val }));
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      style={{ width: 44, padding: "1px 3px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 11, textAlign: "center", fontWeight: 700, background: "#fff" }}
+                                      title="Edit quantity of consumable used for this client"
+                                    />
+                                    <span style={{ fontWeight: 600, color: "#64748b" }}>{unit}</span>
+                                  </div>
+                                );
+                              })}
+                              {item.consumableItems?.map((ci, cidx) => (
+                                <div key={`extra-${cidx}`} style={{ fontSize: 11, color: "#16a34a", display: "flex", alignItems: "center", gap: 4, background: "#f0fdf4", padding: "2px 6px", borderRadius: 4, width: "fit-content" }}>
+                                  <span style={{ fontWeight: 600 }}>➕ {ci.name}:</span>
+                                  <span style={{ fontWeight: 700 }}>{ci.qty} {ci.unit || 'pcs'}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {item.itemType === "SERVICE" || item.itemType === "PACKAGE" || item.itemType === "MEMBERSHIP" || item.itemType === "GIFT_CARD" ? (
+                            <select className="pos-cart-select" value={item.staffUserSalonId || item.staffUserId || ""} onChange={(e) => updateItem(index, { staffUserSalonId: e.target.value, staffUserId: e.target.value })}>
+                              <option value="">Assign staff</option>
+                              {getEligibleStaffUsers(item).map((u) => <option key={u.id} value={u.id}>{u.user?.name}</option>)}
+                            </select>
+                          ) : (
+                            <span style={{ color: "#94a3b8" }}>N/A</span>
+                          )}
+                        </td>
+                        <td>
+                          <input
+                            className="pos-cart-input"
+                            type="number"
+                            min="1"
+                            value={item.itemType === "MEMBERSHIP" || item.itemType === "PACKAGE" || item.itemType === "GIFT_CARD" ? 1 : item.qty}
+                            disabled={item.itemType === "MEMBERSHIP" || item.itemType === "PACKAGE" || item.itemType === "GIFT_CARD"}
+                            onChange={(e) => updateItem(index, { qty: Number(e.target.value || 1) })}
+                          />
+                        </td>
+                        <td>{originalPrice.toFixed(0)}</td>
+                        <td>{subTotal.toFixed(0)}</td>
+                        <td>
+                          <input
+                            className="pos-cart-input"
+                            style={{ width: 50 }}
+                            type="number"
+                            min="0"
+                            max="100"
+                            placeholder="0"
+                            value={item.discountPct === 0 ? "" : (item.discountPct ?? "")}
+                            onChange={(e) => updateItem(index, applyItemDiscountPatch(item, { discountPct: e.target.value }))}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            className="pos-cart-input"
+                            style={{ width: 60 }}
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={item.discountAmt === 0 ? "" : (item.discountAmt ?? "")}
+                            onChange={(e) => updateItem(index, applyItemDiscountPatch(item, { discountAmt: e.target.value }))}
+                          />
+                        </td>
+                        <td>{tax.toFixed(0)}</td>
+                        <td>{Math.max(0, total - Number(item.membershipWalletUsed || 0)).toFixed(0)}</td>
+                        <td style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          {item.itemType === "SERVICE" && (
+                            <button type="button" title="Update Service Reminder" onClick={() => { setShowReminderModal(true); setReminderModalDraft({ index, serviceId: item.serviceId, serviceName: baseObj.name, reminderDays: String(baseObj.serviceRemainderDays || 0) }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a' }}>
+                              <AlarmClock size={20} />
+                            </button>
+                          )}
+                          {(item.itemType === "SERVICE" || item.itemType === "PRODUCT") && (
+                            <button type="button" title="Mark as Complimentary" onClick={() => {
+                              if (item.isGift) {
+                                updateItem(index, { isGift: false, discountPct: 0, complimentaryRemark: "" });
+                              } else {
+                                setCompModal({ open: true, index, serviceName: baseObj.name, remark: "" });
+                              }
+                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: item.isGift ? '#3b82f6' : '#94a3b8' }}>
+                              <Gift size={20} />
+                            </button>
+                          )}
+                          {item.itemType === "SERVICE" && (
+                            <button type="button" title="Add Consumables" onClick={() => openConsumableModal(index)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: item.consumableItems?.length ? '#16a34a' : '#3b82f6' }}>
+                              <Droplet size={20} />
+                            </button>
+                          )}
+                          <button type="button" className="pos-cart-remove" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }} onClick={() => setForm(c => {
+                            const removedItem = c.items[index];
+                            const nextItems = c.items.filter((_, i) => i !== index);
+                            let nextRedemptions = c.packageRedemptions;
+                            if (removedItem && removedItem.unitPrice === 0 && removedItem.itemType === "SERVICE") {
+                              const matchedRedemptionIdx = c.packageRedemptions.findIndex(r => r.serviceId === removedItem.serviceId);
+                              if (matchedRedemptionIdx !== -1) {
+                                nextRedemptions = c.packageRedemptions.filter((_, i) => i !== matchedRedemptionIdx);
+                              }
+                            }
+                            return { ...c, items: nextItems, packageRedemptions: nextRedemptions };
+                          })}><X size={20} /></button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                   {form.items.filter(item => item.serviceId || item.productId || item.membershipPlanId || item.packageId || item.giftCardId || item.itemType === "GIFT_CARD").length === 0 && (
+                    <tr>
+                      <td colSpan="10" style={{ textAlign: "center", padding: 32, color: "#94a3b8" }}>
+                        No items added yet. Click a service or product on the left to add.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-      {/* SERVICE SELECTOR MODAL */}
-      {showServiceModal && (
-        <div className="pos-service-modal-overlay" onClick={() => setShowServiceModal(false)}>
-          <div className="pos-service-modal" onClick={e => e.stopPropagation()}>
-            <div className="pos-service-modal-header">
-              <button className="pos-service-modal-close" onClick={() => setShowServiceModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="pos-service-modal-search">
-              <input placeholder="Search Services" value={serviceModalSearch} onChange={e => setServiceModalSearch(e.target.value)} autoFocus />
-            </div>
-            <div className="pos-service-modal-cats">
-              <button className={`pos-modal-cat-btn ${!serviceModalCat ? "active" : ""}`} onClick={() => setServiceModalCat("")}>All</button>
-              {(context.serviceCategories || []).map(cat => (
-                <button key={cat.id} className={`pos-modal-cat-btn ${serviceModalCat === (cat.id || cat.name) ? "active" : ""}`} onClick={() => setServiceModalCat(cat.id || cat.name)}>{cat.name}</button>
-              ))}
-            </div>
-            <div className="pos-service-modal-list">
-              {(context.services || [])
-                .filter(svc => (!serviceModalSearch || svc.name.toLowerCase().includes(serviceModalSearch.toLowerCase())) && (!serviceModalCat || normalizeCategoryId(svc) === serviceModalCat) && genderMatches(svc, posGender))
-                .map(svc => {
-                  const isSelected = serviceModalSelected.some(s => s.id === svc.id);
+            <div className="pos-grand-total-row">
+              <div className="pos-grand-total" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, width: "100%" }}>
+                {(() => {
+                  const advancePayment = (form.payments || []).find(p => p.mode === "ADVANCE");
+                  const advanceUsed = Number(advancePayment?.amount || 0);
+                  const hasAdvance = advanceUsed > 0;
+                  if (hasAdvance) {
+                    const due = Math.max(0, totals.total - totals.paid);
+                    return (
+                      <>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#64748b" }}>
+                          <span>Subtotal:</span>
+                          <span style={{ textDecoration: "line-through" }}>{formatMoney(totals.total.toFixed(0))}</span>
+                          <span style={{ background: "#d1fae5", color: "#065f46", fontWeight: 700, fontSize: 11, padding: "2px 8px", borderRadius: 10, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <span>−</span>Advance: {formatMoney(advanceUsed.toFixed(0))}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Payable:</span>
+                          <strong style={{ color: due === 0 ? "#10b981" : "#0f172a", fontSize: 18 }}>{formatMoney(due.toFixed(0))}</strong>
+                          {due === 0 && <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700, background: "#d1fae5", padding: "2px 8px", borderRadius: 10 }}>FULLY PAID VIA ADVANCE</span>}
+                        </div>
+                      </>
+                    );
+                  }
                   return (
-                    <div key={svc.id} className="pos-service-modal-item" onClick={() => setServiceModalSelected(prev => isSelected ? prev.filter(s => s.id !== svc.id) : [...prev, svc])}>
-                      <input type="checkbox" checked={isSelected} onChange={() => {}} />
-                      <div className="pos-service-modal-icon">&#9988;</div>
-                      <div className="pos-service-modal-info">
-                        <div className="pos-service-modal-name">{svc.name}</div>
-                        <div className="pos-service-modal-meta">Code: -- &nbsp; Barcode: --</div>
-                      </div>
-                      <div className="pos-service-modal-price">{formatMoney(Number(svc.price || 0).toFixed(2))}</div>
+                    <div>
+                      {totals.couponDiscount > 0 && <div style={{ fontSize: 12, color: "#2563eb", marginBottom: 2 }}>Coupon: −{formatMoney(totals.couponDiscount.toFixed(0))}</div>}
+                      {totals.gcDiscount > 0 && <div style={{ fontSize: 12, color: "#7c3aed", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>Gift Card: −{formatMoney(totals.gcDiscount.toFixed(0))} <button type="button" onClick={removeGiftCard} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11, padding: 0, fontWeight: 700 }}>Remove</button></div>}
+                      {Number(form.discount || 0) > 0 && <div style={{ fontSize: 12, color: "#16a34a", marginBottom: 2 }}>Discount: −{formatMoney(Number(form.discount || 0).toFixed(0))}</div>}
+                      Grand Total <strong>{formatMoney(totals.total.toFixed(0))}</strong>
                     </div>
                   );
-                })}
+                })()}
+              </div>
             </div>
-            <div className="pos-service-modal-footer">
-              <button className="pos-modal-footer-btn" onClick={() => setShowServiceModal(false)}>Convert to Package</button>
-              <button className="pos-modal-footer-btn apply-btn" onClick={applyServiceModal} disabled={serviceModalSelected.length === 0}>Apply</button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* PRODUCT SELECTOR MODAL */}
-      {showProductModal && (
-        <div className="pos-service-modal-overlay" onClick={() => setShowProductModal(false)}>
-          <div className="pos-service-modal" onClick={e => e.stopPropagation()}>
-            <div className="pos-service-modal-header">
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Select Products</h3>
-              <button className="pos-service-modal-close" onClick={() => setShowProductModal(false)}>
-                <X size={20} />
-              </button>
+            <div className="pos-instruction-row">
+              <input placeholder="Add Order Instruction (Optional, Max 500 Characters)" value={form.notes} onChange={(e) => setForm(c => ({ ...c, notes: e.target.value }))} />
             </div>
-            <div className="pos-service-modal-search">
-              <input placeholder="Search Products" value={productModalSearch} onChange={e => setProductModalSearch(e.target.value)} autoFocus />
+
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: "8px 0" }}>
+              <button type="button" onClick={openApplyMembershipModal} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Apply Membership</button>
+              <button type="button" onClick={openDiscountModal} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Apply Discount</button>
+              <button type="button" onClick={loadCustomerPackagesForRedemption} disabled={loadingCustomerPkgs} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: loadingCustomerPkgs ? "not-allowed" : "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap", opacity: loadingCustomerPkgs ? 0.6 : 1 }}>{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
+              <button type="button" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Apply Gift Card</button>
+              <button type="button" onClick={() => setShowTipModal(true)} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Add Tip</button>
             </div>
-            <div className="pos-service-modal-cats">
-              <button className={`pos-modal-cat-btn ${!productModalCat ? "active" : ""}`} onClick={() => setProductModalCat("")}>All</button>
-              {productCategories.map(cat => (
-                <button key={cat.id} className={`pos-modal-cat-btn ${productModalCat === (cat.id || cat.name) ? "active" : ""}`} onClick={() => setProductModalCat(cat.id || cat.name)}>{cat.name}</button>
-              ))}
-            </div>
-            <div className="pos-service-modal-list">
-              {(context.products || [])
-                .filter(prod => (!productModalSearch || prod.name.toLowerCase().includes(productModalSearch.toLowerCase())) && (!productModalCat || (prod.categoryId || prod.productCategoryId) === productModalCat))
-                .map(prod => {
-                  const isSelected = productModalSelected.some(p => p.id === prod.id);
-                  return (
-                    <div key={prod.id} className="pos-service-modal-item" onClick={() => setProductModalSelected(prev => isSelected ? prev.filter(p => p.id !== prod.id) : [...prev, prod])}>
-                      <input type="checkbox" checked={isSelected} onChange={() => {}} />
-                      <div className="pos-service-modal-icon">&#128722;</div>
-                      <div className="pos-service-modal-info">
-                        <div className="pos-service-modal-name">{prod.name}</div>
-                        <div className="pos-service-modal-meta">Stock: {prod.stock ?? prod.quantity ?? "--"}</div>
+
+            {form.couponCode && couponValidation ? (
+              <div style={{ margin: "4px 0 8px", padding: "10px 14px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#1e40af" }}>
+                    Coupon: {couponValidation.coupon.code}
+                    {couponValidation.coupon.title ? ` — ${couponValidation.coupon.title}` : ""}
+                  </span>
+                  <button type="button" onClick={removeCoupon} style={{ background: "none", border: "none", color: "#ef4444", fontSize: 12, cursor: "pointer", fontWeight: 600, padding: 0 }}>Remove</button>
+                </div>
+                <div style={{ fontSize: 12, color: "#334155" }}>
+                  {couponValidation.coupon.discountType === "PERCENT"
+                    ? `${couponValidation.coupon.discountValue}% off`
+                    : `${formatMoney(couponValidation.coupon.discountValue)} off`} — Eligible: {couponValidation.eligibleItems.filter(i => i.isEligible).length} item(s)
+                </div>
+                <div style={{ marginTop: 8, display: "grid", gap: 4 }}>
+                  {couponValidation.eligibleItems
+                    .filter((item) => item.isEligible && Number(item.discount || 0) > 0)
+                    .map((item) => (
+                      <div key={`${item.index}-${item.serviceId || item.productId || item.name}`} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 11, color: "#1d4ed8", background: "#dbeafe", borderRadius: 6, padding: "5px 8px" }}>
+                        <span>{item.name} x{item.qty}</span>
+                        <strong>-{formatMoney(item.discount)}</strong>
                       </div>
-                      <div className="pos-service-modal-price">{formatMoney(Number(prod.sellingPrice || prod.salesPrice || prod.price || 0).toFixed(2))}</div>
+                    ))}
+                  {Number(couponValidation.totalDiscount || 0) > 0 && (
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12, color: "#0f172a", fontWeight: 700, borderTop: "1px solid #bfdbfe", paddingTop: 6 }}>
+                      <span>Coupon discount total</span>
+                      <span>-{formatMoney(couponValidation.totalDiscount)}</span>
+                    </div>
+                  )}
+                </div>
+                {couponValidation.totalPartnerCredits > 0 && (
+                  <div style={{ marginTop: 4, fontSize: 11, color: "#7c3aed", fontWeight: 600 }}>
+                    Partner earns {couponValidation.totalPartnerCredits.toFixed(2)} credits — {couponValidation.partnerCreditNote}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8, margin: "4px 0 8px", alignItems: "center" }}>
+                <input
+                  type="text"
+                  placeholder="Enter coupon code"
+                  value={couponCodeInput}
+                  onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => { if (e.key === "Enter") applyCoupon(); }}
+                  style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, outline: "none" }}
+                />
+                <button
+                  type="button"
+                  onClick={applyCoupon}
+                  disabled={couponValidating || !couponCodeInput.trim()}
+                  style={{ padding: "8px 16px", background: "var(--button-bg-solid, #0f172a)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: couponValidating || !couponCodeInput.trim() ? "not-allowed" : "pointer", opacity: couponValidating || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: "nowrap" }}
+                >
+                  {couponValidating ? "Checking..." : "Apply Coupon"}
+                </button>
+              </div>
+            )}
+
+            <div className="pos-payment-details">
+              {form.customerId && (() => {
+                const customer = context.customers.find(c => c.id === form.customerId);
+                const loyaltyBal = Number(customer?.loyaltyPoints || 0);
+                if (loyaltyBal <= 0) return null;
+                return (
+                  <div style={{ marginBottom: '12px', padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#166534' }}>Loyalty Points Available</span>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: '#166534' }}>{loyaltyBal} pts</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Redeem Points:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={loyaltyBal}
+                        placeholder="0"
+                        value={form.loyaltyPointsUsed || ""}
+                        onChange={(e) => setForm(c => ({ ...c, loyaltyPointsUsed: Number(e.target.value || 0) }))}
+                        style={{ flex: 1, padding: '6px 10px', border: '1px solid #86efac', borderRadius: '6px', fontSize: '13px', outline: 'none' }}
+                      />
+                      {Number(form.loyaltyPointsUsed || 0) > 0 && (
+                        <button type="button" onClick={() => setForm(c => ({ ...c, loyaltyPointsUsed: 0 }))} style={{ padding: '6px 10px', fontSize: '11px', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '6px', cursor: 'pointer', color: '#166534', fontWeight: 600 }}>Clear</button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h5 style={{ margin: 0 }}>Payment Details:</h5>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>(Click amount field to auto-fill remaining balance)</span>
+              </div>
+              <div className="pos-payment-grid">
+                {form.payments.find(p => p.mode === "WALLET") && (
+                  <div className="pos-payment-input" style={{ gridColumn: "1 / -1" }}>
+                    <label><svg width="16" height="16" style={{ color: "#2563eb" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> Membership</label>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <input type="number" readOnly value={form.payments.find((payment) => payment.mode === "WALLET")?.amount || ""} style={{ background: "#f1f5f9", cursor: "not-allowed", flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 8 }} />
+                      <button type="button" onClick={() => {
+                        setForm(c => {
+                          const newPayments = (c.payments || []).filter(p => p.mode !== "WALLET");
+                          const newItems = (c.items || []).map(item => ({ ...item, membershipWalletUsed: 0 }));
+                          
+                          const paidSoFar = newPayments.filter(p => p.mode !== "BALANCE").reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                          const balanceNeeded = Math.max(0, totals.total - paidSoFar);
+                          const balanceEntry = newPayments.find(p => p.mode === "BALANCE");
+                          if (balanceEntry) {
+                            balanceEntry.amount = balanceNeeded;
+                          } else if (balanceNeeded > 0) {
+                            newPayments.push({ mode: "BALANCE", amount: balanceNeeded, note: "" });
+                          }
+
+                          return { ...c, payments: newPayments, items: newItems, appliedMembershipId: "" };
+                        });
+                      }} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontWeight: 700, padding: "0 8px", fontSize: 13 }}>Remove</button>
+                    </div>
+                  </div>
+                )}
+                <div className="pos-payment-input">
+                  <label><svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> Online</label>
+                  <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "ONLINE")?.amount || ""} onFocus={() => {
+                    if (paymentManuallyEdited.cash) return;
+                    setForm((current) => {
+                      const preservedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE", "WALLET"].includes(p.mode));
+                      const preservedPaid = preservedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const maxOnline = Math.max(0, totals.total - preservedPaid);
+                      let newPayments = (current.payments || []).filter(p => p.mode !== "ONLINE" && p.mode !== "CASH" && p.mode !== "BALANCE");
+                      newPayments.push({ mode: "ONLINE", amount: maxOnline, note: "" });
+                      const remainingAfter = Math.max(0, totals.total - preservedPaid - maxOnline);
+                      if (remainingAfter > 0) {
+                        newPayments.push({ mode: "BALANCE", amount: remainingAfter, note: "" });
+                      }
+                      return { ...current, payments: newPayments };
+                    });
+                  }} onChange={(e) => {
+                    const preservedPaid = (form.payments || []).filter(p => !["ONLINE", "BALANCE", "WALLET"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                    const maxOnline = Math.max(0, totals.total - preservedPaid);
+                    const amount = Math.min(Number(e.target.value) || 0, maxOnline);
+                    setPaymentManuallyEdited(prev => ({ ...prev, online: true }));
+                    setForm((current) => {
+                      const newPayments = (current.payments || []).filter(p => p.mode !== "ONLINE");
+                      newPayments.push({ mode: "ONLINE", amount, note: "" });
+                      const paidSoFar = newPayments.filter(p => p.mode !== "BALANCE" && p.mode !== "WALLET").reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const balanceNeeded = Math.max(0, totals.total - paidSoFar);
+                      const balanceEntry = newPayments.find(p => p.mode === "BALANCE");
+                      if (balanceEntry) {
+                        balanceEntry.amount = balanceNeeded;
+                      } else if (balanceNeeded > 0) {
+                        newPayments.push({ mode: "BALANCE", amount: balanceNeeded, note: "" });
+                      }
+                      return { ...current, payments: newPayments };
+                    });
+                  }} />
+                </div>
+                <div className="pos-payment-input">
+                  <label><svg width="16" height="16" style={{ color: "#64748b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Cash</label>
+                  <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "CASH")?.amount || ""} onFocus={() => {
+                    if (paymentManuallyEdited.online) return;
+                    setForm((current) => {
+                      const preservedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE", "WALLET"].includes(p.mode));
+                      const preservedPaid = preservedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const maxCash = Math.max(0, totals.total - preservedPaid);
+                      let newPayments = (current.payments || []).filter(p => p.mode !== "ONLINE" && p.mode !== "CASH" && p.mode !== "BALANCE");
+                      newPayments.push({ mode: "CASH", amount: maxCash, note: "" });
+                      const remainingAfter = Math.max(0, totals.total - preservedPaid - maxCash);
+                      if (remainingAfter > 0) {
+                        newPayments.push({ mode: "BALANCE", amount: remainingAfter, note: "" });
+                      }
+                      return { ...current, payments: newPayments };
+                    });
+                  }} onChange={(e) => {
+                    const preservedPaid = (form.payments || []).filter(p => !["CASH", "BALANCE", "WALLET"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                    const maxCash = Math.max(0, totals.total - preservedPaid);
+                    const amount = Math.min(Number(e.target.value) || 0, maxCash);
+                    setPaymentManuallyEdited(prev => ({ ...prev, cash: true }));
+                    setForm((current) => {
+                      const newPayments = (current.payments || []).filter(p => p.mode !== "CASH");
+                      newPayments.push({ mode: "CASH", amount, note: "" });
+                      const paidSoFar = newPayments.filter(p => p.mode !== "BALANCE" && p.mode !== "WALLET").reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const balanceNeeded = Math.max(0, totals.total - paidSoFar);
+                      const balanceEntry = newPayments.find(p => p.mode === "BALANCE");
+                      if (balanceEntry) {
+                        balanceEntry.amount = balanceNeeded;
+                      } else if (balanceNeeded > 0) {
+                        newPayments.push({ mode: "BALANCE", amount: balanceNeeded, note: "" });
+                      }
+                      return { ...current, payments: newPayments };
+                    });
+                  }} />
+                </div>
+                <div className="pos-payment-input">
+                  <label><svg width="16" height="16" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> Balance</label>
+                  <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "BALANCE")?.amount || ""} onFocus={() => {
+                    setForm((current) => {
+                      const paidSoFar = (current.payments || []).filter(p => p.mode !== "BALANCE" && p.mode !== "WALLET").reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const balance = Math.max(0, totals.total - paidSoFar);
+                      const newPayments = (current.payments || []).filter(p => p.mode !== "BALANCE");
+                      newPayments.push({ mode: "BALANCE", amount: balance, note: "" });
+                      return { ...current, payments: newPayments };
+                    });
+                  }} onChange={(e) => {
+                    const advAmount = Number((form.payments || []).find(p => p.mode === "ADVANCE")?.amount || 0);
+                    const maxBalance = Math.max(0, totals.total - advAmount);
+                    const amount = Math.min(Number(e.target.value) || 0, maxBalance);
+                    setForm((current) => {
+                      const newPayments = (current.payments || []).filter(p => p.mode !== "BALANCE");
+                      newPayments.push({ mode: "BALANCE", amount, note: "" });
+                      return { ...current, payments: newPayments };
+                    });
+                  }} />
+                </div>
+                {form.customerId && (() => {
+                  const customer = context.customers.find(c => c.id === form.customerId);
+                  const adv = Number(customer?.advanceAmount || 0);
+                  if (adv <= 0) return null;
+                  return (
+                    <div className="pos-payment-input">
+                      <label style={{ color: "#10b981" }} title={`Available advance: ${formatMoney(adv)}`}>
+                        <svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        Advance ({formatMoney(adv)})
+                      </label>
+                      <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "ADVANCE")?.amount || ""} onFocus={() => {
+                        const nonAdvancePaid = (form.payments || []).filter(p => p.mode !== "ADVANCE" && p.mode !== "WALLET").reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                        const remaining = Math.max(0, totals.total - nonAdvancePaid);
+                        const useAdv = Math.min(remaining, adv);
+                        setForm((current) => ({ ...current, payments: [...(current.payments || []).filter(p => p.mode !== "ADVANCE"), { mode: "ADVANCE", amount: useAdv, note: "Advance used" }] }));
+                      }} onChange={(e) => {
+                        const nonAdvancePaid = (form.payments || []).filter(p => p.mode !== "ADVANCE" && p.mode !== "WALLET").reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                        const maxAdv = Math.max(0, Math.min(adv, totals.total - nonAdvancePaid));
+                        const amount = Math.min(Number(e.target.value) || 0, maxAdv);
+                        setForm((current) => ({ ...current, payments: [...(current.payments || []).filter(p => p.mode !== "ADVANCE"), { mode: "ADVANCE", amount, note: "Advance used" }] }));
+                      }} />
                     </div>
                   );
-                })}
-            </div>
-            <div className="pos-service-modal-footer">
-              <button className="pos-modal-footer-btn" onClick={() => setShowProductModal(false)}>Cancel</button>
-              <button className="pos-modal-footer-btn apply-btn" onClick={applyProductModal} disabled={productModalSelected.length === 0}>Apply ({productModalSelected.length})</button>
+                })()}
+                {form.customerId && affiliateWallet && Number(affiliateWallet.balance || 0) > 0 && (
+                  <div className="pos-payment-input">
+                    <label style={{ color: "#7c3aed" }} title={`Available affiliate credits: ${Number(affiliateWallet.balance || 0).toFixed(2)}`}>
+                      <svg width="16" height="16" style={{ color: "#7c3aed" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M4 7h16M4 17h16" /></svg>
+                      Affiliate Credits ({Number(affiliateWallet.balance || 0).toFixed(2)} cr)
+                    </label>
+                    <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "AFFILIATE_CREDIT")?.amount || ""} onFocus={() => {
+                      const walletBalance = Number(affiliateWallet.balance || 0) * affiliateServiceCreditValue;
+                      const nonAffiliatePaid = (form.payments || []).filter(p => !["AFFILIATE_CREDIT", "BALANCE", "WALLET"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const useCredits = Math.min(walletBalance, Math.max(0, totals.total - nonAffiliatePaid));
+                      setForm((current) => ({ ...current, payments: [...(current.payments || []).filter(p => p.mode !== "AFFILIATE_CREDIT"), { mode: "AFFILIATE_CREDIT", amount: useCredits, note: "Affiliate service credit used" }] }));
+                    }} onChange={(e) => {
+                      const walletBalance = Number(affiliateWallet.balance || 0) * affiliateServiceCreditValue;
+                      const nonAffiliatePaid = (form.payments || []).filter(p => !["AFFILIATE_CREDIT", "BALANCE", "WALLET"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                      const maxCredits = Math.max(0, Math.min(walletBalance, totals.total - nonAffiliatePaid));
+                      const amount = Math.min(Number(e.target.value) || 0, maxCredits);
+                      setForm((current) => ({ ...current, payments: [...(current.payments || []).filter(p => p.mode !== "AFFILIATE_CREDIT"), { mode: "AFFILIATE_CREDIT", amount, note: "Affiliate service credit used" }] }));
+                    }} />
+                    <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 4 }}>1 credit = {formatMoney(affiliateServiceCreditValue)} service discount</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pos-message-config">
+                <h5>Message Configurations:</h5>
+                <div className="pos-message-options">
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
+                    <input type="checkbox" checked={form.sendFeedbackMessage !== false} onChange={(e) => setForm(c => ({ ...c, sendFeedbackMessage: e.target.checked }))} style={{ width: 16, height: 16, margin: 0, cursor: "pointer" }} /> Feedback Message
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
+                    <input type="checkbox" checked={form.sendInvoiceMessage !== false} onChange={(e) => setForm(c => ({ ...c, sendInvoiceMessage: e.target.checked }))} style={{ width: 16, height: 16, margin: 0, cursor: "pointer" }} /> Invoice Message
+                  </label>
+                  {totals.membershipWalletUsed > 0 && (
+                    <div style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 600, marginTop: 8 }}>
+                      Payment done by: <span style={{ color: "#0f172a" }}>Membership ₹{totals.membershipWalletUsed.toFixed(0)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
 
+          <div className="pos-footer-bar">
+            <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+              {status.error && <span style={{ color: "#ef4444", fontWeight: 500, fontSize: "13px" }}>{status.error}</span>}
+              {status.success && <span style={{ color: "#10b981", fontWeight: 500, fontSize: "13px" }}>{status.success}</span>}
+            </div>
+            <button type="button" className="pos-btn-clear" onClick={() => { setForm(c => ({ ...c, items: [], discount: 0, giftVoucherCode: "", couponCode: "", packageRedemptions: [] })); setTipEntries([]); setCouponValidation(null); setCouponCodeInput(""); setGiftCardDiscount(0); }}>Clear</button>
+            <button type="button" className="pos-btn-create" disabled={submitting || !!activeServiceInvoice} title={activeServiceInvoice ? "Customer already has an active service. Complete it first." : ""} onClick={() => !submitting && submitInvoice("start")} style={{ background: activeServiceInvoice ? "#94a3b8" : "#2563eb", cursor: activeServiceInvoice ? "not-allowed" : "pointer" }}>Start</button>
+            <button type="button" className="pos-btn-complete" disabled={submitting} onClick={() => !submitting && submitInvoice("complete")}>Complete & Bill</button>
+          </div>
+        </div>
+      </div>
+      
       {showAddGuestModal && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1199, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "white", padding: 24, borderRadius: 12, width: 480, maxHeight: "90vh", overflowY: "auto", boxShadow: "none" }}>
             <h3 style={{ marginTop: 0, marginBottom: 16, color: "#0f172a", fontSize: "18px" }}>Quick Add Guest</h3>
             <form onSubmit={handleAddGuest} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} placeholder="Full Name *" required value={newGuestForm.name} onChange={e => setNewGuestForm(c => ({ ...c, name: e.target.value }))} />
               <IndianPhoneInput
                     required
                 value={newGuestForm.phone}
@@ -2184,13 +2383,6 @@ export default function PosPage() {
                 style={{ width: "100%", borderRadius: 6 }}
                 inputStyle={{ padding: "10px" }}
               />
-              <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} placeholder="Full Name *" required value={newGuestForm.name} onChange={e => setNewGuestForm(c => ({ ...c, name: e.target.value }))} />
-              <select style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} value={newGuestForm.gender} onChange={e => setNewGuestForm(c => ({ ...c, gender: e.target.value }))}>
-                <option value="FEMALE">Female</option>
-                <option value="MALE">Male</option>
-                <option value="UNISEX">Other</option>
-              </select>
-              <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} type="email" placeholder="Email (Optional)" value={newGuestForm.email} onChange={e => setNewGuestForm(c => ({ ...c, email: e.target.value }))} />
               <IndianPhoneInput
                 value={newGuestForm.alternatePhone}
                 onChange={(alternatePhone) => setNewGuestForm(c => ({ ...c, alternatePhone }))}
@@ -2198,6 +2390,12 @@ export default function PosPage() {
                 style={{ width: "100%", borderRadius: 6 }}
                 inputStyle={{ padding: "10px" }}
               />
+              <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} type="email" placeholder="Email (Optional)" value={newGuestForm.email} onChange={e => setNewGuestForm(c => ({ ...c, email: e.target.value }))} />
+              <select style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} value={newGuestForm.gender} onChange={e => setNewGuestForm(c => ({ ...c, gender: e.target.value }))}>
+                <option value="FEMALE">Female</option>
+                <option value="MALE">Male</option>
+                <option value="UNISEX">Other</option>
+              </select>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.75rem", color: "#475569", marginBottom: 4, fontWeight: 600 }}>Date of Birth</label>
@@ -3533,7 +3731,7 @@ export default function PosPage() {
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{v.name}</div>
                     {v.storeSku && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>SKU: {v.storeSku}</div>}
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>₹{Number(v.price || 0).toFixed(0)}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{currencySymbol}{Number(v.price || 0).toFixed(0)}</div>
                 </button>
               ))}
             </div>
