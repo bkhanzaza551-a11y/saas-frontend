@@ -1686,7 +1686,7 @@ export default function PosPage() {
                         <button type="button" key={product.id} className="pos-item-card" onClick={() => addQuickProduct(product)}>
                           {product.featured && <div style={{ position: "absolute", top: 4, right: 4, fontSize: 9, background: "#fef3c7", color: "#92400e", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>★</div>}
                           {Array.isArray(product.variations) && product.variations.length > 0 && <div style={{ position: "absolute", top: 4, left: 4, fontSize: 9, background: "#dbeafe", color: "#1d4ed8", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>Customisable</div>}
-                          <div className="pos-item-card-name">{product.name}</div>
+                          <div className="pos-item-card-name" style={{ marginTop: (Array.isArray(product.variations) && product.variations.length > 0) ? "16px" : "0" }}>{product.name}</div>
                           <div className="pos-item-card-prices">
                             <span className="pos-item-card-price-new">{Number(product.sellingPrice || 0).toFixed(0)}</span>
                           </div>
