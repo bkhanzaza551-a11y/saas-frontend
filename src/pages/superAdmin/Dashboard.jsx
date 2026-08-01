@@ -195,9 +195,9 @@ export default function SuperAdminDashboard() {
             <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Active Plans</h3>
             <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10b981", background: "#ecfdf5", padding: "4px 10px", borderRadius: 100 }}>{plans.length} Live</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "350px", overflowY: "auto", paddingRight: 8 }}>
             {plans.length ? plans.map((plan) => (
-              <div key={plan.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+              <div key={plan.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
                 <div>
                   <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{plan.name}</div>
                   <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>{plan.isCustom ? "Custom Tier" : "Standard Tier"}</div>
@@ -215,28 +215,29 @@ export default function SuperAdminDashboard() {
             <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Salons</h3>
             <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0d9488", background: "#f0fdfa", padding: "4px 10px", borderRadius: 100 }}>Newest</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
             {salons.length ? salons.map((salon) => (
-              <div key={salon.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+              <div key={salon.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.85rem" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.9rem", boxShadow: "0 2px 6px rgba(59, 130, 246, 0.3)" }}>
                     {(salon.name || "S").charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{salon.name}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>{salon.slug}</div>
+                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{salon.name}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{salon.slug}</div>
                   </div>
                 </div>
                 <div>
                   <span style={{ 
                     fontSize: "0.7rem", 
-                    fontWeight: 700, 
-                    color: salon.status === "ACTIVE" ? "#10b981" : "#ef4444", 
-                    background: salon.status === "ACTIVE" ? "#ecfdf5" : "#fef2f2", 
+                    fontWeight: 750, 
+                    color: salon.status === "ACTIVE" ? "#065f46" : "#991b1b", 
+                    background: salon.status === "ACTIVE" ? "#d1fae5" : "#fee2e2", 
                     padding: "4px 10px", 
                     borderRadius: 100,
                     textTransform: "uppercase",
-                    letterSpacing: "0.05em"
+                    letterSpacing: "0.05em",
+                    border: `1px solid ${salon.status === "ACTIVE" ? "#a7f3d0" : "#fecaca"}`
                   }}>
                     {salon.status}
                   </span>
@@ -251,31 +252,32 @@ export default function SuperAdminDashboard() {
             <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Payments</h3>
             <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#06b6d4", background: "#ecfeff", padding: "4px 10px", borderRadius: 100 }}>Collections</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
             {payments.length ? payments.map((payment) => (
-              <div key={payment.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+              <div key={payment.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ 
-                    width: 32, 
-                    height: 32, 
-                    borderRadius: 8, 
+                    width: 36, 
+                    height: 36, 
+                    borderRadius: 10, 
                     background: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#fef3c7" : "#dbeafe", 
                     color: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#d97706" : "#2563eb", 
                     display: "flex", 
                     alignItems: "center", 
                     justifyContent: "center", 
                     fontWeight: 800, 
-                    fontSize: "0.7rem",
-                    textTransform: "uppercase"
+                    fontSize: "0.8rem",
+                    textTransform: "uppercase",
+                    boxShadow: (payment.mode || "Payment").toUpperCase() === "CASH" ? "0 2px 6px rgba(217, 119, 6, 0.2)" : "0 2px 6px rgba(37, 99, 235, 0.2)"
                   }}>
                     {(payment.mode || "Pay").substring(0, 3)}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{payment.mode || "Payment Method"}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>Successful Transaction</div>
+                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{payment.mode || "Payment Method"}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Successful Transaction</div>
                   </div>
                 </div>
-                <div style={{ fontSize: "0.95rem", fontWeight: 850, color: "#10b981" }}>+ ₹{fmt(payment.amount)}</div>
+                <div style={{ fontSize: "1rem", fontWeight: 850, color: "#059669" }}>+ ₹{fmt(payment.amount)}</div>
               </div>
             )) : <EmptyState title="No recent payments" message="Payment entries appear here." />}
           </div>
