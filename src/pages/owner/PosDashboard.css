@@ -711,3 +711,206 @@
   color: #059669;
   font-size: 1rem;
 }
+
+/* =========================================================================
+   Update Bill Modal (Zooms out the POS view to fit perfectly in a modal)
+========================================================================= */
+
+.pos-edit-modal-wrapper {
+  max-width: 95vw !important;
+  width: 1400px; /* Force wide width for better density */
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -12px rgba(0,0,0,0.4);
+}
+
+.pos-edit-modal-wrapper .pos-detail-header-strip {
+  padding: 12px 20px !important;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pos-edit-modal-wrapper .pos-detail-header-strip span {
+  font-size: 14px !important;
+  color: #1e293b !important; /* Darker, more premium than pink */
+  letter-spacing: 0.5px;
+}
+
+.pos-edit-modal-wrapper .pos-layout {
+  height: calc(92vh - 44px) !important;
+}
+
+/* TOPBAR OVERRIDES */
+.pos-edit-modal-wrapper .pos-topbar {
+  padding: 8px 16px !important;
+  min-height: 48px;
+}
+
+.pos-edit-modal-wrapper .pos-search-wrapper input {
+  padding: 6px 14px;
+  padding-left: 32px;
+  font-size: 13px;
+  height: 32px;
+}
+
+.pos-edit-modal-wrapper .pos-search-icon {
+  left: 10px;
+  top: 8px;
+  width: 14px;
+  height: 14px;
+}
+
+.pos-edit-modal-wrapper .pos-gender-btn,
+.pos-edit-modal-wrapper .pos-top-tab {
+  font-size: 11px !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+  height: auto;
+}
+
+/* SIDEBAR OVERRIDES */
+.pos-edit-modal-wrapper .pos-sidebar {
+  width: 240px;
+  padding: 12px;
+}
+
+.pos-edit-modal-wrapper .pos-cat-grid,
+.pos-edit-modal-wrapper .pos-item-grid {
+  gap: 4px;
+}
+
+.pos-edit-modal-wrapper .pos-cat-btn {
+  font-size: 10px;
+  padding: 6px 4px;
+  border-radius: 6px;
+}
+
+.pos-edit-modal-wrapper .pos-item-card {
+  padding: 8px 6px;
+  min-height: 52px;
+  border-radius: 6px;
+}
+
+.pos-edit-modal-wrapper .pos-item-card-name {
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+
+.pos-edit-modal-wrapper .pos-item-card-prices {
+  font-size: 11px;
+}
+
+/* MAIN AREA OVERRIDES */
+.pos-edit-modal-wrapper .pos-main {
+  padding: 12px 16px;
+}
+
+.pos-edit-modal-wrapper .pos-cart-table {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  background: white;
+}
+
+.pos-edit-modal-wrapper .cart-table-head {
+  padding: 8px 12px !important;
+  font-size: 10.5px !important;
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.pos-edit-modal-wrapper .cart-table-row {
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  gap: 6px !important;
+}
+
+.pos-edit-modal-wrapper .cart-table-row > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pos-edit-modal-wrapper .pos-cart-table select,
+.pos-edit-modal-wrapper .pos-cart-table input {
+  padding: 3px 6px !important;
+  font-size: 11px !important;
+  border-radius: 4px !important;
+  height: 26px;
+}
+
+/* INFO BLOCK OVERRIDES */
+.pos-edit-modal-wrapper .pos-main > div:first-child {
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+  background: #fdfdfd !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+}
+.pos-edit-modal-wrapper .pos-main > div:first-child h4 {
+  font-size: 13px !important;
+}
+.pos-edit-modal-wrapper .pos-main > div:first-child > div:last-child {
+  font-size: 12px !important;
+  gap: 12px !important;
+}
+
+/* PAYMENT BOTTOM BAR OVERRIDES */
+.pos-edit-modal-wrapper .pos-detail-payment-section {
+  padding: 12px !important;
+  background: #f8fafc !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.pos-edit-modal-wrapper .payment-title {
+  font-size: 12px !important;
+}
+.pos-edit-modal-wrapper .payment-inputs {
+  gap: 8px !important;
+}
+.pos-edit-modal-wrapper .payment-inputs .payment-box {
+  padding: 8px !important;
+  border-radius: 6px !important;
+}
+.pos-edit-modal-wrapper .payment-inputs .payment-box span {
+  font-size: 11px !important;
+}
+.pos-edit-modal-wrapper .payment-inputs .payment-box input {
+  font-size: 13px !important;
+  height: 28px !important;
+  margin-top: 4px !important;
+}
+.pos-edit-modal-wrapper .payment-done {
+  font-size: 11px !important;
+  margin-top: 6px !important;
+}
+
+/* RIGHT SIDE CART BUTTONS OVERRIDES */
+.pos-edit-modal-wrapper .pos-cart {
+  width: 280px;
+}
+.pos-edit-modal-wrapper .pos-cart-actions {
+  padding: 12px 16px;
+  gap: 8px;
+}
+.pos-edit-modal-wrapper .pos-btn-action,
+.pos-edit-modal-wrapper .btn-view-bill,
+.pos-edit-modal-wrapper .btn-clear {
+  padding: 8px 12px !important;
+  font-size: 11.5px !important;
+  border-radius: 6px !important;
+}
+.pos-edit-modal-wrapper .pos-cart-totals {
+  padding: 12px 16px;
+  gap: 6px;
+}
+.pos-edit-modal-wrapper .pos-cart-totals .row {
+  font-size: 12px;
+}
+.pos-edit-modal-wrapper .pos-cart-totals .total-row {
+  font-size: 14px;
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
