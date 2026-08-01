@@ -37,35 +37,33 @@ const toApiPhone = (value) => {
 
 const inputStyle = {
   width: "100%",
-  padding: "12px 14px",
+  padding: "10px 14px",
   border: "1px solid #cbd5e1",
-  borderRadius: 8,
+  borderRadius: 6,
   fontSize: "0.95rem",
   boxSizing: "border-box",
   background: "white",
-  outline: "none"
+  outline: "none",
+  transition: "border-color 0.2s"
 };
 
 const labelStyle = {
   fontSize: "0.85rem",
   fontWeight: 600,
   color: "#475569",
-  marginBottom: 6,
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 4,
-  whiteSpace: "nowrap"
+  marginBottom: 4,
+  display: "block"
 };
 
 const formGroupStyle = {
   display: "flex",
   flexDirection: "column",
-  gap: 6
+  marginBottom: 8
 };
 
 function Toggle({ checked, onChange, activeLabel = "Active", inactiveLabel = "Inactive" }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <span style={{ fontSize: "0.85rem", fontWeight: 500, color: checked ? "#3b82f6" : "#64748b" }}>
         {checked ? activeLabel : inactiveLabel}
       </span>
@@ -73,9 +71,9 @@ function Toggle({ checked, onChange, activeLabel = "Active", inactiveLabel = "In
         type="button"
         onClick={onChange}
         style={{
-          width: 52,
-          height: 28,
-          borderRadius: 14,
+          width: 44,
+          height: 24,
+          borderRadius: 12,
           border: "none",
           background: checked ? "#3b82f6" : "#cbd5e1",
           position: "relative",
@@ -88,13 +86,13 @@ function Toggle({ checked, onChange, activeLabel = "Active", inactiveLabel = "In
       >
         <span style={{
           display: "block",
-          width: 22,
-          height: 22,
+          width: 18,
+          height: 18,
           borderRadius: "50%",
           background: "white",
           position: "absolute",
           top: 3,
-          left: checked ? 27 : 3,
+          left: checked ? 23 : 3,
           transition: "left 0.25s ease",
           boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
         }} />
@@ -108,9 +106,9 @@ function PhoneInput({ label, required, value, onChange, placeholder }) {
   const isInvalid = value && digits.length !== 10;
   return (
     <div style={formGroupStyle}>
-      <label style={labelStyle}>{label} {required && <span style={{ color: "#ef4444" }}>*</span>}</label>
-      <div style={{ display: "flex", border: `1px solid ${isInvalid ? "#ef4444" : "#cbd5e1"}`, borderRadius: 8, overflow: "hidden", background: "white" }}>
-        <span style={{ padding: "12px 10px", background: "#f1f5f9", color: "#475569", fontWeight: 600, fontSize: "0.95rem", borderRight: "1px solid #cbd5e1", display: "flex", alignItems: "center" }}>
+      <label style={labelStyle}>{label} {required && <span style={{ color: "#ef4444", marginLeft: 2 }}>*</span>}</label>
+      <div style={{ display: "flex", border: `1px solid ${isInvalid ? "#ef4444" : "#cbd5e1"}`, borderRadius: 6, overflow: "hidden", background: "white", transition: "border-color 0.2s" }}>
+        <span style={{ padding: "10px 12px", background: "#f8fafc", color: "#64748b", fontWeight: 500, fontSize: "0.95rem", borderRight: "1px solid #cbd5e1", display: "flex", alignItems: "center" }}>
           +91
         </span>
         <input
@@ -119,19 +117,34 @@ function PhoneInput({ label, required, value, onChange, placeholder }) {
           value={value}
           onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 10))}
           placeholder={placeholder || "XXXXXXXXXX"}
-          style={{ flex: 1, border: "none", padding: "12px 14px", fontSize: "0.95rem", outline: "none", background: "transparent" }}
+          style={{ flex: 1, border: "none", padding: "10px 14px", fontSize: "0.95rem", outline: "none", background: "transparent" }}
         />
       </div>
-      {isInvalid && <span style={{ fontSize: "0.75rem", color: "#ef4444" }}>Enter exactly 10 digits</span>}
+      {isInvalid && <span style={{ fontSize: "0.75rem", color: "#ef4444", marginTop: 4 }}>Enter exactly 10 digits</span>}
     </div>
   );
 }
 
-function TextInput({ label, required, value, onChange, placeholder, type = "text" }) {
+function TextInput({ label, required, value, onChange, placeholder, type = "text", multiline = false }) {
   return (
     <div style={formGroupStyle}>
-      <label style={labelStyle}>{label} {required && <span style={{ color: "#ef4444" }}>*</span>}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={inputStyle} />
+      <label style={labelStyle}>{label} {required && <span style={{ color: "#ef4444", marginLeft: 2 }}>*</span>}</label>
+      {multiline ? (
+        <textarea 
+          value={value} 
+          onChange={(e) => onChange(e.target.value)} 
+          placeholder={placeholder} 
+          style={{ ...inputStyle, minHeight: 80, resize: "vertical" }} 
+        />
+      ) : (
+        <input 
+          type={type} 
+          value={value} 
+          onChange={(e) => onChange(e.target.value)} 
+          placeholder={placeholder} 
+          style={inputStyle} 
+        />
+      )}
     </div>
   );
 }
@@ -396,9 +409,8 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
                 <TextInput label="Email" required type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="Email*" />
                 <TextInput label="GST Number" value={form.gstNumber} onChange={(v) => setForm({ ...form, gstNumber: v })} placeholder="GstNo" />
 
-                <div style={{ ...formGroupStyle, gridColumn: "1 / -1" }}>
-                  <label style={labelStyle}>Address <span style={{ color: "#ef4444" }}>*</span></label>
-                  <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Address*" style={inputStyle} />
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <TextInput label="Address" required value={form.address} onChange={(v) => setForm({ ...form, address: v })} placeholder="Address*" multiline />
                 </div>
 
                 <TextInput label="Area" value={form.area} onChange={(v) => setForm({ ...form, area: v })} placeholder="Area" />
@@ -407,7 +419,7 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
                 <TextInput label="City" required value={form.city} onChange={(v) => setForm({ ...form, city: v })} placeholder="City*" />
                 <TextInput label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} placeholder="Pincode" />
 
-                <TextInput label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Notes" />
+                <TextInput label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Notes" multiline />
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
