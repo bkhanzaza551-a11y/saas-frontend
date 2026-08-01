@@ -518,6 +518,8 @@ export default function App() {
           <Route path="/admin/pos-dashboard" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
           <Route path="/admin/pos-dashboard/:id" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
           <Route path="/admin/trends" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<TrendsPage />} />} />
+          <Route path="/admin/salon-analytics" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<SalonAnalyticsPage />} />} />
+          <Route path="/admin/financial-reports" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<FinancialReportsPage />} />} />
           <Route path="/admin/reports-hub" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsHubPage />} />} />
           <Route path="/admin/invoices" element={<OwnerRoute moduleKey="pos" element={<InvoicesPage />} />} />
           <Route path="/admin/invoices/:id" element={<OwnerRoute moduleKey="pos" element={<InvoicesPage />} />} />
