@@ -224,13 +224,13 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         .salonnest-branch-btn {
           display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
+          gap: 4px;
+          padding: 4px 10px;
           background: #f1f5f9;
           border: 1px solid #e2e8f0;
-          border-radius: 20px;
+          border-radius: 16px;
           cursor: pointer;
-          font-size: 0.82rem;
+          font-size: 0.78rem;
           color: #334155;
           font-weight: 600;
           white-space: nowrap;
