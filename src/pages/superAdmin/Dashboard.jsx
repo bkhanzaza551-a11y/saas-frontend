@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Building2, CheckCircle, Clock, AlertTriangle, Sparkles, LifeBuoy, Calendar, BarChart3, Users, TrendingUp } from "lucide-react";
+import { Building2, CheckCircle, Clock, AlertTriangle, Sparkles, LifeBuoy, Calendar, BarChart3, Users, TrendingUp, IndianRupee, Layers, AlertCircle } from "lucide-react";
 
 const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
@@ -175,18 +175,41 @@ export default function SuperAdminDashboard() {
             <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#f5f3ff", padding: "4px 10px", borderRadius: 100 }}>SaaS Health</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div style={{ background: "#f8fafc", borderRadius: 12, padding: "20px 24px", border: "1px solid #f1f5f9" }}>
-              <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>Monthly Recurring Revenue (MRR)</span>
-              <div style={{ fontSize: "2rem", fontWeight: 850, color: "#0f172a", marginTop: 8 }}>₹{fmt(data.monthlySubscriptionRevenue)}</div>
+            <div style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
+              <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                <TrendingUp size={16} /> Monthly Recurring (MRR)
+              </span>
+              <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.monthlySubscriptionRevenue)}</div>
             </div>
-            <div style={{ background: "#f8fafc", borderRadius: 12, padding: "20px 24px", border: "1px solid #f1f5f9" }}>
-              <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>Total Collected Revenue</span>
-              <div style={{ fontSize: "2rem", fontWeight: 850, color: "#0f172a", marginTop: 8 }}>₹{fmt(data.totalSubscriptionRevenue)}</div>
+            <div style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
+              <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                <IndianRupee size={16} /> Total Collected Revenue
+              </span>
+              <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.totalSubscriptionRevenue)}</div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#475569", background: "#f1f5f9", padding: "6px 12px", borderRadius: 8 }}>Plans: {data.plansCount || 0}</span>
-            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#475569", background: "#f1f5f9", padding: "6px 12px", borderRadius: 8 }}>Expired: {data.expiredSalons || 0}</span>
+          <div style={{ display: "flex", gap: 12, marginTop: 24, padding: "16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: "#e0e7ff", color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Layers size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Active Plans</div>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>{data.plansCount || 0}</div>
+              </div>
+            </div>
+            <div style={{ width: 1, background: "#e2e8f0" }}></div>
+            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, paddingLeft: 8 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fee2e2", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AlertCircle size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Expired Salons</div>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>{data.expiredSalons || 0}</div>
+              </div>
+            </div>
           </div>
         </div>
 
