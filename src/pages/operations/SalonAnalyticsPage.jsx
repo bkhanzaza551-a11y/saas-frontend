@@ -329,19 +329,7 @@ export default function SalonAnalyticsPage() {
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Building size={16} style={{ color: "#64748b" }} />
-          <select
-            value={selectedBranch}
-            onChange={e => setSelectedBranch(e.target.value)}
-            style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, fontWeight: 600, background: "white" }}
-          >
-            <option value="ALL">All Salon Branches</option>
-            {branchesList.map(b => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
-        </div>
+
       </div>
 
       {loading && <div style={{ textAlign: "center", padding: "20px 0", color: "#6366f1", fontWeight: 600 }}>Updating analytics metrics...</div>}
