@@ -299,8 +299,7 @@ const Protected = () => {
       items: [
         { label: "Demo Pipeline", to: "/super-admin/demo-leads" },
         { label: "Support Queue", to: "/super-admin/support-tickets" },
-        { label: "Traffic Analytics", to: "/super-admin/traffic" },
-        { label: "Financial Reports", to: "/super-admin/financial-reports" }
+        { label: "Traffic Analytics", to: "/super-admin/traffic" }
       ]
     },
     {
