@@ -488,6 +488,7 @@ export default function App() {
         <Route element={<Protected />}>
           <Route path="/app" element={<Home />} />
           <Route path="/admin/dashboard" element={<OwnerRoute moduleKey="dashboard" element={<OwnerDashboard />} />} />
+          <Route path="/admin/global-dashboard" element={<OwnerRoute moduleKey="dashboard" element={<GlobalDashboardPage />} />} />
           <Route path="/admin/appointments" element={<OwnerRoute moduleKey="appointments" featureKey="appointments" element={<AppointmentsPage />} />} />
           <Route path="/admin/appointments/calendar" element={<OwnerRoute moduleKey="appointments" featureKey="appointments" element={<AppointmentsPage />} />} />
           <Route path="/admin/appointments/create" element={<OwnerRoute moduleKey="appointments" featureKey="appointments" element={<AppointmentsPage />} />} />
