@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Search, Filter, ShieldAlert, UserCheck, Clock, CheckCircle2, XCircle, AlertCircle, Edit2, Trash2, Building2 } from "lucide-react";
 import { api } from "../../api/client";
-import { useBranch } from "../../context/BranchContext";
+import { formatApiError } from "../../utils/apiError";
 
 const emptyForm = {
   title: "",
@@ -13,37 +13,20 @@ const emptyForm = {
   urgency: "Immediate",
   skills: "",
   description: "",
-  status: "PENDING"
+  status: "OPEN"
 };
 
 export default function StaffRequirementsPage() {
-  const { selectedBranchId: globalBranchId } = useBranch();
   const [requirements, setRequirements] = useState([]);
-  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [urgencyFilter, setUrgencyFilter] = useState("ALL");
-  const [selectedBranch, setSelectedBranch] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-
-  // Sync global branch selection
-  useEffect(() => {
-    if (globalBranchId) {
-      setSelectedBranch(globalBranchId);
-    }
-  }, [globalBranchId]);
-
-  // Load real branches
-  useEffect(() => {
-    api.get("/owner/branches")
-      .then(res => setBranches(res.data || []))
-      .catch(() => setBranches([]));
-  }, []);
 
   // Fetch real staff requirements from backend
   const loadRequirements = useCallback(async () => {
@@ -53,9 +36,8 @@ export default function StaffRequirementsPage() {
       if (search) params.append("q", search);
       if (statusFilter && statusFilter !== "ALL") params.append("status", statusFilter);
       if (urgencyFilter && urgencyFilter !== "ALL") params.append("urgency", urgencyFilter);
-      if (selectedBranch && selectedBranch !== "ALL") params.append("branchId", selectedBranch);
 
-      const res = await api.get(`/owner/staff-requirements?${params.toString()}`);
+      const res = await api.get(`/super-admin/staff-requirements?${params.toString()}`);
       setRequirements(res.data || []);
     } catch (err) {
       console.error("Failed to load staff requirements:", err);
@@ -63,7 +45,7 @@ export default function StaffRequirementsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, urgencyFilter, selectedBranch]);
+  }, [search, statusFilter, urgencyFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,22 +67,20 @@ export default function StaffRequirementsPage() {
       const payload = {
         title: form.title,
         department: form.department,
-        branchId: form.branchId || null,
-        quantity: Number(form.quantity) || 1,
-        salary: form.salary,
-        shift: form.shift,
-        urgency: form.urgency,
-        skills: skillsArray,
+        position: form.shift || "Full-Time",
+        count: Number(form.quantity) || 1,
+        priority: (form.urgency || "MEDIUM").toUpperCase(),
         description: form.description,
         status: form.status
       };
 
       if (editingId) {
-        const res = await api.patch(`/owner/staff-requirements/${editingId}`, payload);
-        setRequirements(prev => prev.map(req => req.id === editingId ? res.data : req));
+        const res = await api.patch(`/super-admin/staff-requirements/${editingId}`, payload);
+        // We will reload entirely
+        loadRequirements();
       } else {
-        const res = await api.post("/owner/staff-requirements", payload);
-        setRequirements(prev => [res.data, ...prev]);
+        const res = await api.post("/super-admin/staff-requirements", payload);
+        loadRequirements();
       }
       resetForm();
     } catch (err) {
@@ -125,14 +105,13 @@ export default function StaffRequirementsPage() {
     setForm({
       title: req.title || "",
       department: req.department || "Hair Care",
-      branchId: req.branchId || "",
       quantity: req.quantity || 1,
       salary: req.salary || "",
       shift: req.shift || "Full-Time",
       urgency: req.urgency || "Immediate",
       skills: skillsStr,
       description: req.description || "",
-      status: req.status || "PENDING"
+      status: req.status || "OPEN"
     });
     setIsModalOpen(true);
   };
@@ -140,7 +119,7 @@ export default function StaffRequirementsPage() {
   const deleteReq = async (id) => {
     if (!window.confirm("Are you sure you want to delete this staff requirement?")) return;
     try {
-      await api.delete(`/owner/staff-requirements/${id}`);
+      await api.delete(`/super-admin/staff-requirements/${id}`);
       setRequirements(prev => prev.filter(r => r.id !== id));
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete staff requirement");

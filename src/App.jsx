@@ -41,8 +41,6 @@ const OwnerAuditLogsPage = lazyWithRetry(() => import("./pages/owner/OwnerAuditL
 const WhatsAppPage = lazyWithRetry(() => import("./pages/owner/WhatsAppPage.jsx"));
 const BranchesPage = lazyWithRetry(() => import("./pages/owner/BranchesPage.jsx"));
 const GlobalDashboardPage = lazyWithRetry(() => import("./pages/operations/GlobalDashboardPage.jsx"));
-const StaffRequirementPage = lazyWithRetry(() => import("./pages/operations/StaffRequirementsPage.jsx"));
-const ProductsRequirementPage = lazyWithRetry(() => import("./pages/operations/ProductRequirementsPage.jsx"));
 const SalonAnalyticsPage = lazyWithRetry(() => import("./pages/operations/SalonAnalyticsPage.jsx"));
 const FinancialReportsPage = lazyWithRetry(() => import("./pages/owner/FinancialReportsPage.jsx"));
 const WebsiteAnalyticsPage = lazyWithRetry(() => import("./pages/owner/WebsiteAnalyticsPage.jsx"));
@@ -63,6 +61,7 @@ const SuperAdminAuditLogsPage = lazyWithRetry(() => import("./pages/superAdmin/A
 const SuperAdminTrafficAnalyticsPage = lazyWithRetry(() => import("./pages/superAdmin/TrafficAnalyticsPage.jsx"));
 const SuperAdminStaffPage = lazyWithRetry(() => import("./pages/superAdmin/StaffManagementPage.jsx"));
 const SuperAdminProductRequirementPage = lazyWithRetry(() => import("./pages/superAdmin/ProductsRequirementPage.jsx"));
+const SuperAdminStaffRequirementPage = lazyWithRetry(() => import("./pages/superAdmin/StaffRequirementsPage.jsx"));
 const SuperAdminFinancialReportsPage = lazyWithRetry(() => import("./pages/superAdmin/FinancialReportsPage.jsx"));
 const InventoryPage = lazyWithRetry(() => import("./pages/owner/InventoryPage.jsx"));
 const ProductCategoriesPage = lazyWithRetry(() => import("./pages/owner/ProductCategoriesPage.jsx"));
@@ -159,8 +158,6 @@ const Protected = () => {
             enabled("pos") && { label: "POS Dashboard", to: "/admin/pos-dashboard" },
             enabled("appointments") && { label: "Appointments", to: "/admin/appointments" },
             enabled("crm") && { label: "Customer", to: "/admin/customers" },
-            enabled("staffRequirements") && { label: "Staff Requirement", to: "/admin/staff-requirements" },
-            enabled("productRequirements") && enabled("inventory") && { label: "Products Requirement", to: "/admin/product-requirements" },
             enabled("reports") && { label: "Salon Analytics", to: "/admin/salon-analytics" },
             enabled("reports") && { label: "Financial Reports", to: "/admin/financial-reports" },
             enabled("reports") && { label: "Reports", to: "/admin/reports" },
@@ -190,20 +187,21 @@ const Protected = () => {
             { label: "View Live Site", to: `/site/${auth?.membership?.salon?.slug || "demo-salon"}` }
           ].filter(Boolean)
         },
-        {
-          label: "System",
-          hint: "Help and config",
-          items: [
-            can("settings", "edit") && {
-              label: "Settings",
-              to: "/admin/settings/generic"
-            },
-            {
-              label: "Support Tickets",
-              to: "/admin/support-tickets"
-            }
-          ].filter(Boolean)
-        },
+          {
+            label: "Support & Help",
+            to: "/admin/support-tickets",
+            hint: "Tickets & assistance"
+          },
+          {
+            label: "System",
+            hint: "Help and config",
+            items: [
+              can("settings", "edit") && {
+                label: "Settings",
+                to: "/admin/settings/generic"
+              }
+            ].filter(Boolean)
+          },
         {
           label: "Manage",
           to: "/admin/manage",
@@ -271,12 +269,7 @@ const Protected = () => {
         { label: "Campaigns", to: "/admin/campaigns" },
         { label: "Reports Hub", to: "/admin/reports-hub" },
         { label: "Inventory", to: "/admin/inventory" },
-        { label: "Support Tickets", to: "/admin/support-tickets" },
-        { label: "Global Dashboard", to: "/admin/global-dashboard" },
-        { label: "Staff Requirement", to: "/admin/staff-requirements" },
-        { label: "Products Requirement", to: "/admin/product-requirements" },
-        { label: "Salon Analytics", to: "/admin/salon-analytics" },
-        { label: "Financial Reports", to: "/admin/financial-reports" }
+        { label: "Support Tickets", to: "/admin/support-tickets" }
       ]
     }
   ];
@@ -293,15 +286,17 @@ const Protected = () => {
         { label: "Staff Management", to: "/super-admin/staff" }
       ]
     },
-    {
-      label: "Operations",
-      hint: "Leads, tickets, requirements & analytics",
-      items: [
-        { label: "Demo Pipeline", to: "/super-admin/demo-leads" },
-        { label: "Support Queue", to: "/super-admin/support-tickets" },
-        { label: "Traffic Analytics", to: "/super-admin/traffic" }
-      ]
-    },
+      {
+        label: "Operations",
+        hint: "Leads, tickets, requirements & analytics",
+        items: [
+          { label: "Demo Pipeline", to: "/super-admin/demo-leads" },
+          { label: "Support Queue", to: "/super-admin/support-tickets" },
+          { label: "Traffic Analytics", to: "/super-admin/traffic" },
+          { label: "Staff Requirements", to: "/super-admin/staff-requirements" },
+          { label: "Product Requirements", to: "/super-admin/product-requirements" }
+        ]
+      },
     {
       label: "System",
       hint: "Configuration & logs",
@@ -616,11 +611,6 @@ export default function App() {
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="settings" action="edit" element={<ManagePage />} />} />
-          <Route path="/admin/global-dashboard" element={<OwnerRoute moduleKey="reports" action="view" element={<GlobalDashboardPage />} />} />
-          <Route path="/admin/staff-requirements" element={<OwnerRoute moduleKey="reports" action="view" element={<StaffRequirementPage />} />} />
-          <Route path="/admin/product-requirements" element={<OwnerRoute moduleKey="reports" action="view" element={<ProductsRequirementPage />} />} />
-          <Route path="/admin/salon-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<SalonAnalyticsPage />} />} />
-          <Route path="/admin/financial-reports" element={<OwnerRoute moduleKey="reports" action="view" element={<FinancialReportsPage />} />} />
           <Route path="/admin/my-dashboard" element={<StaffWorkspaceRoute moduleKey="myDashboard" element={<MyDashboardPage />} />} />
           <Route path="/admin/my-attendance" element={<StaffWorkspaceRoute moduleKey="myAttendance" featureKey="attendance" element={<MyAttendanceHistoryPage />} />} />
           <Route path="/admin/my-appointments" element={<StaffWorkspaceRoute moduleKey="myAppointments" featureKey="appointments" element={<MyAppointmentsPage />} />} />
@@ -638,6 +628,7 @@ export default function App() {
           <Route path="/super-admin/traffic" element={<SuperAdminRoute pageKey="traffic" element={<SuperAdminTrafficAnalyticsPage />} />} />
           <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />
           <Route path="/super-admin/product-requirements" element={<SuperAdminRoute pageKey="productRequirements" element={<SuperAdminProductRequirementPage />} />} />
+          <Route path="/super-admin/staff-requirements" element={<SuperAdminRoute pageKey="staffRequirements" element={<SuperAdminStaffRequirementPage />} />} />
           <Route path="/super-admin/financial-reports" element={<SuperAdminRoute pageKey="financialReports" element={<SuperAdminFinancialReportsPage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
