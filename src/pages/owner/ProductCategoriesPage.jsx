@@ -85,7 +85,7 @@ export default function ProductCategoriesPage() {
   const filteredCategories = categories.filter(c => selectedBranchId ? c.branchId === selectedBranchId || !c.branchId : true);
 
   const filteredProducts = products.filter(p => {
-    const matchBranch = selectedBranchId ? p.branchId === selectedBranchId : true;
+    const matchBranch = selectedBranchId ? (p.branchId === selectedBranchId || !p.branchId) : true;
     const matchCat = selectedCategory ? p.categoryId === selectedCategory.id : true;
     const matchQ = searchQ ? p.name.toLowerCase().includes(searchQ.toLowerCase()) || (p.sku || "").toLowerCase().includes(searchQ.toLowerCase()) : true;
     return matchBranch && matchCat && matchQ && p.isActive;
