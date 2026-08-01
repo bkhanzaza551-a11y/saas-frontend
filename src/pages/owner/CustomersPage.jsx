@@ -1440,10 +1440,6 @@ export default function CustomersPage() {
                   <input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label>Alternate Mobile Number</label>
-                  <IndianPhoneInput value={formData.alternatePhone} onChange={(alternatePhone) => setFormData((current) => ({ ...current, alternatePhone }))} />
-                </div>
-                <div className="form-group">
                   <label>DOB</label>
                   <input type="date" max={new Date().toISOString().slice(0, 10)} value={formData.dateOfBirth} onChange={(event) => setFormData((current) => ({ ...current, dateOfBirth: event.target.value }))} />
                 </div>

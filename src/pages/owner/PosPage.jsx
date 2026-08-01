@@ -2383,13 +2383,6 @@ export default function PosPage() {
                 style={{ width: "100%", borderRadius: 6 }}
                 inputStyle={{ padding: "10px" }}
               />
-              <IndianPhoneInput
-                value={newGuestForm.alternatePhone}
-                onChange={(alternatePhone) => setNewGuestForm(c => ({ ...c, alternatePhone }))}
-                placeholder="Alternate Phone"
-                style={{ width: "100%", borderRadius: 6 }}
-                inputStyle={{ padding: "10px" }}
-              />
               <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} type="email" placeholder="Email (Optional)" value={newGuestForm.email} onChange={e => setNewGuestForm(c => ({ ...c, email: e.target.value }))} />
               <select style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} value={newGuestForm.gender} onChange={e => setNewGuestForm(c => ({ ...c, gender: e.target.value }))}>
                 <option value="FEMALE">Female</option>

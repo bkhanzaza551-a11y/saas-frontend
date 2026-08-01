@@ -226,10 +226,6 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
       setStatus({ error: "Mobile number must be exactly 10 digits", success: "" });
       return;
     }
-    if (form.alternateMobile && form.alternateMobile.replace(/\D/g, "").length !== 10) {
-      setStatus({ error: "Alternate mobile number must be exactly 10 digits", success: "" });
-      return;
-    }
 
     setLoading(true);
     try {
@@ -397,13 +393,6 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
                   onChange={(v) => setForm({ ...form, phone: v })}
                   placeholder="XXXXXXXXXX"
                 />
-                <PhoneInput
-                  label="Alternate Mobile"
-                  value={form.alternateMobile}
-                  onChange={(v) => setForm({ ...form, alternateMobile: v })}
-                  placeholder="XXXXXXXXXX"
-                />
-
                 <TextInput label="Email" required type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="Email*" />
                 <TextInput label="GST Number" value={form.gstNumber} onChange={(v) => setForm({ ...form, gstNumber: v })} placeholder="GstNo" />
 
