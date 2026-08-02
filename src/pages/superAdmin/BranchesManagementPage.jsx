@@ -181,7 +181,7 @@ export default function BranchesManagementPage() {
       )}
 
       {/* Salon Selector - Searchable Dropdown */}
-      <div className="panel-card" style={{ marginBottom: 20, padding: 20 }}>
+      <div className="panel-card" style={{ marginBottom: 20, padding: 20, position: "relative", zIndex: 100 }}>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ position: "relative", minWidth: 320, flex: "1 1 320px" }}>
             <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#475569", marginBottom: 6 }}>Select Salon *</label>
