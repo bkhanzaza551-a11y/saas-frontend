@@ -359,7 +359,7 @@ export default function BranchesManagementPage() {
                             </span>
                           </div>
                           <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, marginLeft: 20 }}>
-                            {branch.latitude && branch.longitude ? `Geo: ${branch.geofenceRadiusMeters}m radius` : "No geofence"}
+                            {branch.latitude && branch.longitude ? `Geo: ${branch.geofenceRadiusMeters}m radius` : "Location not set"}
                           </div>
                         </td>
                         <td style={{ padding: "12px 16px" }}>
