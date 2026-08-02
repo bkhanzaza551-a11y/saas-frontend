@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -9,6 +10,8 @@ import {
 } from "recharts";
 
 const ALL_REPORTS = [
+  { key: "salon_analytics", label: "Salon Analytics" },
+  { key: "financial_reports", label: "Financial Reports" },
   { key: "sales_summary", label: "Sales Summary" },
   { key: "product_sales", label: "Product Revenue" },
   { key: "service_sales", label: "Service Revenue" },
@@ -1552,6 +1555,7 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
 }
 
 export default function ReportsHubPage() {
+  const navigate = useNavigate();
   const { auth } = useAuth();
   const { selectedBranchId, branches } = useBranch();
   const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
@@ -1745,6 +1749,14 @@ export default function ReportsHubPage() {
               type="button"
               className={`rpt-nav-item ${activeReport === report.key ? "active" : ""}`}
               onClick={() => {
+                if (report.key === "salon_analytics") {
+                  navigate("/admin/salon-analytics");
+                  return;
+                }
+                if (report.key === "financial_reports") {
+                  navigate("/admin/financial-reports");
+                  return;
+                }
                 setActiveReport(report.key);
                 setSearch("");
               }}
