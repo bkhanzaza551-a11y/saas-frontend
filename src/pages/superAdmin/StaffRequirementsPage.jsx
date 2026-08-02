@@ -330,7 +330,7 @@ export default function StaffRequirementsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Senior Hair Stylist & Colorist"
+                  placeholder="e.g. Senior Software Engineer"
                   value={form.title}
                   onChange={e => setForm({ ...form, title: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
@@ -406,7 +406,7 @@ export default function StaffRequirementsPage() {
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Required Skills (comma separated)</label>
                 <input
                   type="text"
-                  placeholder="Balayage, Keratin, Precision Cutting"
+                  placeholder="React, Node.js, System Design"
                   value={form.skills}
                   onChange={e => setForm({ ...form, skills: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
