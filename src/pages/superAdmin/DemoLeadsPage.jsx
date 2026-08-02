@@ -4,6 +4,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { CheckCircle, XCircle, Clock, Mail, Phone, Calendar, Building2, Send, ChevronDown, ArrowRight, RotateCcw, Plus, Video, ExternalLink, Tag } from "lucide-react";
 
 const PIPELINE = [
@@ -543,15 +544,11 @@ export default function DemoLeadsPage() {
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                         <div>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Select Plan</label>
-                          <select
+                          <CustomSelect
                             value={draft.planId}
                             onChange={e => updateDraft(row.id, "planId", e.target.value)}
-                            style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13, background: "white", boxSizing: "border-box" }}
-                          >
-                            {plans.map(p => (
-                              <option key={p.id} value={p.id}>{p.name} (₹{p.monthlyPrice}/mo)</option>
-                            ))}
-                          </select>
+                            options={plans.map(p => ({ label: `${p.name} (₹${p.monthlyPrice}/mo)`, value: p.id }))}
+                          />
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Trial Days</label>
@@ -661,15 +658,11 @@ export default function DemoLeadsPage() {
 
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Lead Source</label>
-                  <select
+                  <CustomSelect
                     value={leadForm.leadSource}
                     onChange={e => setLeadForm({ ...leadForm, leadSource: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white", boxSizing: "border-box" }}
-                  >
-                    {LEAD_SOURCES.map(src => (
-                      <option key={src} value={src}>{src}</option>
-                    ))}
-                  </select>
+                    options={LEAD_SOURCES.map(src => ({ label: src, value: src }))}
+                  />
                 </div>
               </div>
 

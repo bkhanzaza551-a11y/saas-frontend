@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle2, Bookmark, Building2, Send, Paperclip, Shield, Clock, Sparkles } from "lucide-react";
 
 export default function SuperAdminSupportTicketsPage() {
@@ -158,32 +159,32 @@ export default function SuperAdminSupportTicketsPage() {
 
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Status</label>
-            <select
+            <CustomSelect
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              style={{ width: "100%", padding: "9px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1", background: "white", boxSizing: "border-box" }}
-            >
-              <option value="">All Statuses</option>
-              <option value="OPEN">Open</option>
-              <option value="PENDING">Pending</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="CLOSED">Closed</option>
-            </select>
+              options={[
+                { label: "All Statuses", value: "" },
+                { label: "Open", value: "OPEN" },
+                { label: "In Progress", value: "IN_PROGRESS" },
+                { label: "Resolved", value: "RESOLVED" },
+                { label: "Closed", value: "CLOSED" }
+              ]}
+            />
           </div>
 
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Priority</label>
-            <select
+            <CustomSelect
               value={filters.priority}
               onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-              style={{ width: "100%", padding: "9px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1", background: "white", boxSizing: "border-box" }}
-            >
-              <option value="">All Priorities</option>
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-              <option value="URGENT">Urgent</option>
-            </select>
+              options={[
+                { label: "All Priorities", value: "" },
+                { label: "Low", value: "LOW" },
+                { label: "Medium", value: "MEDIUM" },
+                { label: "High", value: "HIGH" },
+                { label: "Urgent", value: "URGENT" }
+              ]}
+            />
           </div>
 
           <button

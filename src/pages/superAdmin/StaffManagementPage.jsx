@@ -3,7 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Shield, Plus, Pencil, Trash2, Eye, EyeOff, Mail } from "lucide-react";
+import { Shield, Plus, Pencil, Trash2, Eye, EyeOff, Mail, User } from "lucide-react";
 
 const emptyForm = {
   name: "",
@@ -131,7 +131,7 @@ export default function StaffManagementPage() {
   const sendVerificationLink = async (email) => {
     setStatus({ error: "", success: "" });
     try {
-      const res = await api.post("/auth/send-verification-link", { email });
+      const res = await api.post("/auth/forgot-password", { email });
       setStatus({ error: "", success: res.data.message });
       if (res.data.verificationLink) {
         alert(`Verification Link Generated:\n${res.data.verificationLink}`);
@@ -219,7 +219,6 @@ export default function StaffManagementPage() {
               <tr>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
-                <th style={thStyle}>Pages Access</th>
                 <th style={thStyle}>Status</th>
                 <th style={thStyle}>Created</th>
                 <th style={{ ...thStyle, textAlign: "right" }}>Actions</th>
@@ -228,29 +227,20 @@ export default function StaffManagementPage() {
             <tbody>
               {staff.map((s) => (
                 <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <td style={tdStyle}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{
                         width: 32, height: 32, borderRadius: "50%",
-                        background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                        background: "#f1f5f9",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        color: "white", fontSize: 13, fontWeight: 700
+                        color: "#475569"
                       }}>
-                        {s.name.charAt(0).toUpperCase()}
+                        <User size={16} />
                       </div>
                       <span style={{ fontWeight: 600 }}>{s.name}</span>
                     </div>
                   </td>
                   <td style={tdStyle}>{s.email}</td>
-                  <td style={tdStyle}>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                      {(s.pagePermissions || []).map((pk) => (
-                        <span key={pk} style={badgeStyle}>
-                          {availablePages.find((p) => p.key === pk)?.label || pk}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
                   <td style={tdStyle}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{
@@ -316,112 +306,121 @@ export default function StaffManagementPage() {
               <h3>{editingId ? "Edit Staff Member" : "Add Staff Member"}</h3>
               <button type="button" className="modal-close-btn" onClick={resetForm}>&times;</button>
             </div>
-            <form onSubmit={submit} className="form-grid" style={{ padding: "0 24px 24px" }}>
-              <label>
-                <span>Name *</span>
-                <input
-                  placeholder="Staff member name"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                />
-              </label>
-              <label>
-                <span>Email *</span>
-                <input
-                  type="email"
-                  placeholder="email@example.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  disabled={!!editingId}
-                  required={!editingId}
-                />
-              </label>
-              <label>
-                <span>{editingId ? "New Password (leave blank to keep)" : "Password *"}</span>
-                <div style={{ position: "relative" }}>
+            <form onSubmit={submit} style={{ padding: "0 24px 24px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Name *</span>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder={editingId ? "••••••" : "Min 6 characters"}
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    required={!editingId}
-                    style={{ paddingRight: 40 }}
+                    placeholder="Staff member name"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    required
+                    style={{ minHeight: 40, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{
-                      position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
-                      background: "none", border: "none", cursor: "pointer", color: "#64748b"
-                    }}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </label>
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Email *</span>
+                  <input
+                    type="email"
+                    placeholder="email@example.com"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    disabled={!!editingId}
+                    required={!editingId}
+                    style={{ minHeight: 40, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", background: editingId ? "#f8fafc" : "white" }}
+                  />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>
+                    {editingId ? "New Password (leave blank to keep)" : "Password *"}
+                  </span>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder={editingId ? "••••••••" : "Min 6 characters"}
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      required={!editingId}
+                      style={{ minHeight: 40, padding: "8px 12px", paddingRight: 40, borderRadius: 8, border: "1px solid #cbd5e1", width: "100%", boxSizing: "border-box" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+                        background: "none", border: "none", cursor: "pointer", color: "#64748b"
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </label>
+              </div>
 
-              <div style={{ gridColumn: "1 / -1" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <Shield size={16} style={{ color: "#6366f1" }} />
                   <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#0f172a" }}>Page Access Permissions *</span>
                 </div>
-                <p style={{ fontSize: "0.78rem", color: "#64748b", marginBottom: 12 }}>
+                <p style={{ fontSize: "0.78rem", color: "#64748b", marginBottom: 16 }}>
                   Select which pages this staff member can access. They will only see these pages in their sidebar.
                 </p>
 
-                {Object.entries(PAGE_GROUP_LABELS).map(([group, pageKeys]) => (
-                  <div key={group} style={{ marginBottom: 12 }}>
-                    <div
-                      onClick={() => toggleGroupPermissions(pageKeys)}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
-                        background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8,
-                        cursor: "pointer", marginBottom: 6
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={pageKeys.every((k) => form.pagePermissions.includes(k))}
-                        onChange={() => toggleGroupPermissions(pageKeys)}
-                        style={{ cursor: "pointer" }}
-                      />
-                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155" }}>{group}</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {Object.entries(PAGE_GROUP_LABELS).map(([group, pageKeys]) => (
+                    <div key={group} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden" }}>
+                      <div
+                        onClick={() => toggleGroupPermissions(pageKeys)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 10, padding: "12px 16px",
+                          background: pageKeys.every((k) => form.pagePermissions.includes(k)) ? "#eef2ff" : "#f8fafc",
+                          borderBottom: "1px solid #e2e8f0", cursor: "pointer", transition: "background 0.2s"
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={pageKeys.every((k) => form.pagePermissions.includes(k))}
+                          onChange={() => toggleGroupPermissions(pageKeys)}
+                          style={{ cursor: "pointer", width: 16, height: 16, accentColor: "#4f46e5" }}
+                        />
+                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b" }}>{group}</span>
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: "16px" }}>
+                        {pageKeys.map((pk) => {
+                          const page = availablePages.find((p) => p.key === pk);
+                          if (!page) return null;
+                          const isSelected = form.pagePermissions.includes(pk);
+                          return (
+                            <label
+                              key={pk}
+                              style={{
+                                display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
+                                border: `1px solid ${isSelected ? "#6366f1" : "#cbd5e1"}`,
+                                borderRadius: 20, cursor: "pointer", fontSize: "0.82rem", fontWeight: 500,
+                                background: isSelected ? "#eef2ff" : "white",
+                                color: isSelected ? "#4338ca" : "#475569",
+                                transition: "all 0.2s ease", userSelect: "none"
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => togglePagePermission(pk)}
+                                style={{ display: "none" }}
+                              />
+                              {page.label}
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingLeft: 20 }}>
-                      {pageKeys.map((pk) => {
-                        const page = availablePages.find((p) => p.key === pk);
-                        if (!page) return null;
-                        return (
-                          <label
-                            key={pk}
-                            style={{
-                              display: "flex", alignItems: "center", gap: 6, padding: "6px 12px",
-                              border: `1px solid ${form.pagePermissions.includes(pk) ? "#6366f1" : "#e2e8f0"}`,
-                              borderRadius: 8, cursor: "pointer", fontSize: "0.8rem",
-                              background: form.pagePermissions.includes(pk) ? "#eef2ff" : "white",
-                              color: form.pagePermissions.includes(pk) ? "#4338ca" : "#475569",
-                              transition: "all 0.15s ease"
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={form.pagePermissions.includes(pk)}
-                              onChange={() => togglePagePermission(pk)}
-                              style={{ cursor: "pointer" }}
-                            />
-                            {page.label}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
-              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
-                <button type="button" className="btn btn-outline" onClick={resetForm}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                <button type="button" className="btn btn-outline" onClick={resetForm} style={{ minWidth: 100 }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={saving} style={{ minWidth: 120 }}>
                   {saving ? "Saving..." : editingId ? "Update Staff" : "Create Staff"}
                 </button>
               </div>

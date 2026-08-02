@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { Edit2, Bell, Trash2, Calendar, Award, Landmark, RefreshCw } from "lucide-react";
 
 const emptyForm = { salonId: "", planId: "", status: "ACTIVE", paymentStatus: "PAID", manualDiscount: 0, notes: "", startsAt: "", endsAt: "" };
@@ -185,29 +186,32 @@ export default function SubscriptionsPage() {
             />
           </div>
           <div style={{ width: 160 }}>
-            <select 
+            <CustomSelect 
               value={filters.status} 
               onChange={(e) => setFilters((c) => ({ ...c, status: e.target.value }))}
-              style={{ width: "100%", minHeight: 40, padding: "8px 12px", borderRadius: 10, fontSize: 13, border: "1px solid #cbd5e1", background: "#f8fafc" }}
-            >
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="TRIAL">Trial</option>
-              <option value="SUSPENDED">Suspended</option>
-              <option value="EXPIRED">Expired</option>
-            </select>
+              options={[
+                { label: "All Statuses", value: "" },
+                { label: "Active", value: "ACTIVE" },
+                { label: "Trial", value: "TRIAL" },
+                { label: "Suspended", value: "SUSPENDED" }
+              ]}
+              placeholder="All Statuses"
+              style={{ width: "100%", height: 40 }}
+            />
           </div>
           <div style={{ width: 160 }}>
-            <select 
+            <CustomSelect 
               value={filters.paymentStatus} 
               onChange={(e) => setFilters((c) => ({ ...c, paymentStatus: e.target.value }))}
-              style={{ width: "100%", minHeight: 40, padding: "8px 12px", borderRadius: 10, fontSize: 13, border: "1px solid #cbd5e1", background: "#f8fafc" }}
-            >
-              <option value="">All Payments</option>
-              <option value="PAID">Paid</option>
-              <option value="PENDING">Pending</option>
-              <option value="FAILED">Failed</option>
-            </select>
+              options={[
+                { label: "All Payments", value: "" },
+                { label: "Paid", value: "PAID" },
+                { label: "Pending", value: "PENDING" },
+                { label: "Failed", value: "FAILED" }
+              ]}
+              placeholder="All Payments"
+              style={{ width: "100%", height: 40 }}
+            />
           </div>
           <div>
             <button 
@@ -279,10 +283,13 @@ export default function SubscriptionsPage() {
                     </td>
                     <td style={{ padding: "16px 20px" }}>
                       <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                        <select style={{ padding: "6px 8px", fontSize: 12, height: 32, borderRadius: 8, border: "1px solid #cbd5e1", background: "white", minWidth: 120 }} value={selectedPlanChange[row.id] || ""} onChange={(e) => setSelectedPlanChange({ ...selectedPlanChange, [row.id]: e.target.value })}>
-                          <option value="">Change plan...</option>
-                          {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                        </select>
+                        <CustomSelect 
+                          value={selectedPlanChange[row.id] || ""} 
+                          onChange={(e) => setSelectedPlanChange({ ...selectedPlanChange, [row.id]: e.target.value })}
+                          options={plans.map(p => ({ label: p.name, value: p.id }))}
+                          placeholder="Change plan..."
+                          style={{ minWidth: 140, height: 32 }}
+                        />
                         <button type="button" onClick={() => updateSubscriptionDirect(row.id, { planId: selectedPlanChange[row.id] })} disabled={!selectedPlanChange[row.id] || isBusy} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "0 12px", fontSize: 12, height: 32, borderRadius: 8, background: "#f1f5f9", color: "#475569", border: "none", cursor: "pointer", fontWeight: 700, transition: "all 0.15s" }}>
                           <RefreshCw size={12} className={isBusy ? "spin" : ""} />
                           Apply
@@ -322,25 +329,35 @@ export default function SubscriptionsPage() {
             <form onSubmit={handleCreateSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 20px" }}>
               <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Salon *</span>
-                <select required value={form.salonId} onChange={(e) => setForm({ ...form, salonId: e.target.value })}>
-                  <option value="">-- Select salon --</option>
-                  {salons.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.slug})</option>)}
-                </select>
+                <CustomSelect 
+                  required 
+                  value={form.salonId} 
+                  onChange={(e) => setForm({ ...form, salonId: e.target.value })}
+                  options={salons.map(s => ({ label: `${s.name} (${s.slug})`, value: s.id }))}
+                  placeholder="-- Select salon --"
+                />
               </label>
               <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Plan *</span>
-                <select required value={form.planId} onChange={(e) => setForm({ ...form, planId: e.target.value })}>
-                  <option value="">-- Select plan --</option>
-                  {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                <CustomSelect 
+                  required 
+                  value={form.planId} 
+                  onChange={(e) => setForm({ ...form, planId: e.target.value })}
+                  options={plans.map(p => ({ label: p.name, value: p.id }))}
+                  placeholder="-- Select plan --"
+                />
               </label>
               <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Status</span>
-                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                  <option value="ACTIVE">Active</option>
-                  <option value="TRIAL">Trial</option>
-                  <option value="SUSPENDED">Suspended</option>
-                </select>
+                <CustomSelect 
+                  value={form.status} 
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  options={[
+                    { label: "Active", value: "ACTIVE" },
+                    { label: "Trial", value: "TRIAL" },
+                    { label: "Suspended", value: "SUSPENDED" }
+                  ]}
+                />
               </label>
               <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Payment</span>
@@ -384,12 +401,16 @@ export default function SubscriptionsPage() {
             <form onSubmit={handleEditSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 20px" }}>
               <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Status</span>
-                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                  <option value="ACTIVE">Active</option>
-                  <option value="TRIAL">Trial</option>
-                  <option value="SUSPENDED">Suspended</option>
-                  <option value="EXPIRED">Expired</option>
-                </select>
+                <CustomSelect 
+                  value={form.status} 
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  options={[
+                    { label: "Active", value: "ACTIVE" },
+                    { label: "Trial", value: "TRIAL" },
+                    { label: "Suspended", value: "SUSPENDED" },
+                    { label: "Expired", value: "EXPIRED" }
+                  ]}
+                />
               </label>
               <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Payment</span>

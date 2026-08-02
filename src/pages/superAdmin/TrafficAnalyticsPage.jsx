@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { BarChart3, Users, Eye, TrendingUp, Globe, ArrowUpRight } from "lucide-react";
 
 export default function TrafficAnalyticsPage() {
@@ -52,62 +53,31 @@ export default function TrafficAnalyticsPage() {
             <p style={{ marginBottom: 0 }}>Monitor visitor traffic across all salon storefronts.</p>
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ position: "relative" }}>
-              <select 
+            <div style={{ width: 140 }}>
+              <CustomSelect 
                 value={period} 
                 onChange={(e) => setPeriod(e.target.value)} 
-                style={{ 
-                  minHeight: 42, 
-                  padding: "8px 36px 8px 16px", 
-                  borderRadius: 10, 
-                  fontSize: 14, 
-                  fontWeight: 500,
-                  color: "#1e293b",
-                  backgroundColor: "#fff",
-                  border: "1px solid #cbd5e1",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                  appearance: "none",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                <option value="today">Today</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="90d">Last 90 Days</option>
-                <option value="all">All Time</option>
-              </select>
-              <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
+                options={[
+                  { label: "Today", value: "today" },
+                  { label: "Last 7 Days", value: "7d" },
+                  { label: "Last 30 Days", value: "30d" },
+                  { label: "Last 90 Days", value: "90d" },
+                  { label: "All Time", value: "all" }
+                ]}
+                style={{ width: "100%", height: 42 }}
+              />
             </div>
 
-            <div style={{ position: "relative" }}>
-              <select 
+            <div style={{ width: 180 }}>
+              <CustomSelect 
                 value={salonFilter} 
                 onChange={(e) => setSalonFilter(e.target.value)} 
-                style={{ 
-                  minHeight: 42, 
-                  padding: "8px 36px 8px 16px", 
-                  borderRadius: 10, 
-                  fontSize: 14, 
-                  fontWeight: 500,
-                  color: "#1e293b",
-                  backgroundColor: "#fff",
-                  border: "1px solid #cbd5e1",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                  minWidth: 180,
-                  appearance: "none",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                <option value="">All Salons</option>
-                {salons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-              <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
+                options={[
+                  { label: "All Salons", value: "all" },
+                  ...salons.map(s => ({ label: s.name, value: s.id }))
+                ]}
+                style={{ width: "100%", height: 42 }}
+              />
             </div>
           </div>
         </div>

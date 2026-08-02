@@ -5,6 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
+import CustomSelect from "../../components/CustomSelect";
 import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Landmark, Globe, Clock } from "lucide-react";
 
 const businessTypes = ["Salon", "Spa", "Beauty Clinic", "Nail Studio", "Tattoo Studio", "Pet Grooming", "Wellness Center"];
@@ -294,17 +295,20 @@ export default function SalonsPage() {
             />
           </div>
           <div style={{ width: 180 }}>
-            <select 
+            <CustomSelect 
               value={statusFilter} 
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ width: "100%", minHeight: 40, padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1", background: "#f8fafc" }}
-            >
-              <option value="">All statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="TRIAL">Trial</option>
-              <option value="SUSPENDED">Suspended</option>
-              <option value="EXPIRED">Expired</option>
-            </select>
+              options={[
+                { label: "All statuses", value: "" },
+                { label: "Active", value: "ACTIVE" },
+                { label: "Trial", value: "TRIAL" },
+                { label: "Suspended", value: "SUSPENDED" },
+                { label: "Expired", value: "EXPIRED" },
+                { label: "Cancelled", value: "CANCELLED" }
+              ]}
+              placeholder="All statuses"
+              style={{ width: "100%", height: 40 }}
+            />
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button 
@@ -348,9 +352,12 @@ export default function SalonsPage() {
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Business Type</span>
-                  <select value={form.businessType} onChange={(e) => setForm({ ...form, businessType: e.target.value })}>
-                    {businessTypes.map((t) => <option key={t} value={t}>{t}</option>)}
-                  </select>
+                  <CustomSelect 
+                    value={form.businessType} 
+                    onChange={(e) => setForm({ ...form, businessType: e.target.value })}
+                    options={businessTypes.map(t => ({ label: t, value: t }))}
+                    placeholder="Select Business Type"
+                  />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Business Email</span>

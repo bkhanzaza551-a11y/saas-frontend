@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { formatApiError } from "../../utils/apiError";
 import { Search, RotateCcw, Clock, Activity } from "lucide-react";
 
@@ -75,14 +76,16 @@ export default function AuditLogsPage() {
             />
           </div>
           <div style={{ width: 220 }}>
-            <select 
+            <CustomSelect 
               value={typeFilter} 
               onChange={(e) => setTypeFilter(e.target.value)} 
-              style={{ width: "100%", fontSize: 13, border: "1px solid #cbd5e1", background: "#f8fafc" }}
-            >
-              <option value="">All Event Types</option>
-              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
+              options={[
+                { label: "All Event Types", value: "" },
+                ...typeOptions.map(t => ({ label: t, value: t }))
+              ]}
+              placeholder="All Event Types"
+              style={{ width: "100%", height: 38 }}
+            />
           </div>
           <div>
             <button 

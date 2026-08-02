@@ -5,6 +5,7 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import MapPicker from "../../components/MapPicker";
+import CustomSelect from "../../components/CustomSelect";
 import { Building2, MapPin, Edit3, Trash2, Plus, AlertTriangle, Search, ChevronDown, ChevronUp, X } from "lucide-react";
 
 const emptyForm = {
@@ -443,43 +444,49 @@ export default function BranchesManagementPage() {
                 <div className="settings-input-group" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                   <span className="muted" style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>Business hours</span>
                   <div style={{ display: "flex", gap: 12 }}>
-                    <select 
-                      style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }}
-                      value={form.businessHours.split(" - ")[0] || ""} 
-                      onChange={(e) => {
-                        const close = form.businessHours.split(" - ")[1] || "";
-                        setForm({ ...form, businessHours: `${e.target.value}${close ? ` - ${close}` : " - "}` });
-                      }}
-                    >
-                      <option value="">Open Time</option>
-                      {timeOptions.map(t => <option key={`open-${t}`} value={t}>{t}</option>)}
-                    </select>
-                    <select 
-                      style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }}
-                      value={form.businessHours.split(" - ")[1] || ""} 
-                      onChange={(e) => {
-                        const open = form.businessHours.split(" - ")[0] || "";
-                        setForm({ ...form, businessHours: `${open ? `${open} - ` : " - "}${e.target.value}` });
-                      }}
-                    >
-                      <option value="">Close Time</option>
-                      {timeOptions.map(t => <option key={`close-${t}`} value={t}>{t}</option>)}
-                    </select>
+                    <div style={{ flex: 1 }}>
+                      <CustomSelect 
+                        value={form.businessHours.split(" - ")[0] || ""} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const close = form.businessHours.split(" - ")[1] || "";
+                          setForm({ ...form, businessHours: `${val}${close ? ` - ${close}` : " - "}` });
+                        }}
+                        options={timeOptions.map(t => ({ label: t, value: t }))}
+                        placeholder="Open Time"
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <CustomSelect 
+                        value={form.businessHours.split(" - ")[1] || ""} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const open = form.businessHours.split(" - ")[0] || "";
+                          setForm({ ...form, businessHours: `${open ? `${open} - ` : " - "}${val}` });
+                        }}
+                        options={timeOptions.map(t => ({ label: t, value: t }))}
+                        placeholder="Close Time"
+                      />
+                    </div>
                   </div>
                 </div>
                 
                 <label className="settings-input-group" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                   <span className="muted" style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>Weekly off</span>
-                  <select value={form.weeklyOff} onChange={(event) => setForm({ ...form, weeklyOff: event.target.value })} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }}>
-                    <option value="">None / Open 7 days</option>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                  </select>
+                  <CustomSelect 
+                    value={form.weeklyOff} 
+                    onChange={(event) => setForm({ ...form, weeklyOff: event.target.value })} 
+                    options={[
+                      { label: "None / Open 7 days", value: "" },
+                      { label: "Monday", value: "Monday" },
+                      { label: "Tuesday", value: "Tuesday" },
+                      { label: "Wednesday", value: "Wednesday" },
+                      { label: "Thursday", value: "Thursday" },
+                      { label: "Friday", value: "Friday" },
+                      { label: "Saturday", value: "Saturday" },
+                      { label: "Sunday", value: "Sunday" }
+                    ]}
+                  />
                 </label>
                 
               </form>

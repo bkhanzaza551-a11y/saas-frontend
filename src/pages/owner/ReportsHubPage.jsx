@@ -1557,8 +1557,7 @@ export default function ReportsHubPage() {
   const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
   const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
   const canSelectBranch = isSuperAdmin || isOwner;
-  const [reportBranchId, setReportBranchId] = useState("");
-  const effectiveBranchId = canSelectBranch ? reportBranchId : selectedBranchId;
+  const effectiveBranchId = selectedBranchId;
   const [activeReport, setActiveReport] = useState("sales_summary");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ start: "", end: "" });
@@ -1875,17 +1874,6 @@ export default function ReportsHubPage() {
                 </div>
               );
             })}
-
-            {canSelectBranch && (
-              <select
-                value={reportBranchId}
-                onChange={(e) => setReportBranchId(e.target.value)}
-                style={{ padding: "4px 10px", border: "1px solid #e2e8f0", borderRadius: "5px", fontSize: "0.72rem", minWidth: 130, fontWeight: 600, color: "#334155", background: "white" }}
-              >
-                <option value="">All Branches</option>
-                {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
-            )}
         </div>
 
         <div className="rpt-table-wrap" style={{

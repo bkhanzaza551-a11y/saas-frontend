@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { Package } from "lucide-react";
 
 const emptyForm = {
@@ -131,21 +132,29 @@ export default function ProductsRequirementPage() {
           </label>
           <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Priority</span>
-            <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-              <option value="URGENT">Urgent</option>
-            </select>
+            <CustomSelect 
+              value={form.priority} 
+              onChange={(e) => setForm({ ...form, priority: e.target.value })}
+              options={[
+                { label: "Low", value: "LOW" },
+                { label: "Medium", value: "MEDIUM" },
+                { label: "High", value: "HIGH" },
+                { label: "Urgent", value: "URGENT" }
+              ]}
+            />
           </label>
           <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Status</span>
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              <option value="PENDING">Pending</option>
-              <option value="ORDERED">Ordered</option>
-              <option value="RECEIVED">Received</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
+            <CustomSelect 
+              value={form.status} 
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              options={[
+                { label: "Pending", value: "PENDING" },
+                { label: "Ordered", value: "ORDERED" },
+                { label: "Received", value: "RECEIVED" },
+                { label: "Cancelled", value: "CANCELLED" }
+              ]}
+            />
           </label>
           <div style={{ gridColumn: "1 / -1" }}>
             <button type="submit" disabled={saving} style={{ background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", fontWeight: 700, borderRadius: 10, padding: "12px 24px", border: "none", cursor: "pointer" }}>

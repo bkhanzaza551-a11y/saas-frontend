@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Search, Filter, ShieldAlert, UserCheck, Clock, CheckCircle2, XCircle, AlertCircle, Edit2, Trash2, Building2 } from "lucide-react";
+import PageLoader from "../../components/PageLoader";
+import EmptyState from "../../components/EmptyState";
+import CustomSelect from "../../components/CustomSelect";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 
@@ -210,43 +213,44 @@ export default function StaffRequirementsPage() {
             />
           </div>
 
-          <select
+          <CustomSelect
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white" }}
-          >
-            <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending Approval</option>
-            <option value="APPROVED">Approved & Hiring</option>
-            <option value="FULFILLED">Fulfilled</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
+            options={[
+              { label: "All Statuses", value: "ALL" },
+              { label: "Pending Approval", value: "PENDING" },
+              { label: "Approved & Hiring", value: "APPROVED" },
+              { label: "Fulfilled", value: "FULFILLED" },
+              { label: "Rejected", value: "REJECTED" }
+            ]}
+            style={{ minWidth: 150 }}
+          />
 
-          <select
+          <CustomSelect
             value={urgencyFilter}
             onChange={e => setUrgencyFilter(e.target.value)}
-            style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white" }}
-          >
-            <option value="ALL">All Urgencies</option>
-            <option value="Immediate">Immediate</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+            options={[
+              { label: "All Urgencies", value: "ALL" },
+              { label: "Immediate", value: "Immediate" },
+              { label: "High", value: "High" },
+              { label: "Medium", value: "Medium" },
+              { label: "Low", value: "Low" }
+            ]}
+            style={{ minWidth: 150 }}
+          />
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Building2 size={16} style={{ color: "#64748b" }} />
-          <select
+          <CustomSelect
             value={selectedBranch}
             onChange={e => setSelectedBranch(e.target.value)}
-            style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, fontWeight: 600, background: "white" }}
-          >
-            <option value="ALL">All Salon Branches</option>
-            {branches.map(b => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
+            options={[
+              { label: "All Salon Branches", value: "ALL" },
+              ...branches.map(b => ({ label: b.name, value: b.id }))
+            ]}
+            style={{ minWidth: 200 }}
+          />
         </div>
       </div>
 
@@ -357,32 +361,30 @@ export default function StaffRequirementsPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Department</label>
-                  <select
+                  <CustomSelect
                     value={form.department}
                     onChange={e => setForm({ ...form, department: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white", boxSizing: "border-box" }}
-                  >
-                    <option value="Hair Care">Hair Care</option>
-                    <option value="Skin & Beauty">Skin & Beauty</option>
-                    <option value="Nail Studio">Nail Studio</option>
-                    <option value="Spa & Massage">Spa & Massage</option>
-                    <option value="Front Office">Front Office</option>
-                    <option value="Housekeeping & Staff">Housekeeping & Staff</option>
-                  </select>
+                    options={[
+                      { label: "Hair Care", value: "Hair Care" },
+                      { label: "Skin & Beauty", value: "Skin & Beauty" },
+                      { label: "Nail Studio", value: "Nail Studio" },
+                      { label: "Spa & Massage", value: "Spa & Massage" },
+                      { label: "Management", value: "Management" },
+                      { label: "Support Staff", value: "Support Staff" }
+                    ]}
+                  />
                 </div>
 
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Target Branch</label>
-                  <select
+                  <CustomSelect
                     value={form.branchId}
                     onChange={e => setForm({ ...form, branchId: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white", boxSizing: "border-box" }}
-                  >
-                    <option value="">Main Salon (All Branches)</option>
-                    {branches.map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
+                    options={[
+                      { label: "Main Salon (All Branches)", value: "" },
+                      ...branches.map(b => ({ label: b.name, value: b.id }))
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -400,30 +402,30 @@ export default function StaffRequirementsPage() {
 
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Urgency Level</label>
-                  <select
+                  <CustomSelect
                     value={form.urgency}
                     onChange={e => setForm({ ...form, urgency: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white", boxSizing: "border-box" }}
-                  >
-                    <option value="Immediate">Immediate</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                  </select>
+                    options={[
+                      { label: "Immediate", value: "Immediate" },
+                      { label: "High", value: "High" },
+                      { label: "Medium", value: "Medium" },
+                      { label: "Low", value: "Low" }
+                    ]}
+                  />
                 </div>
 
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Status</label>
-                  <select
+                  <CustomSelect
                     value={form.status}
                     onChange={e => setForm({ ...form, status: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "white", boxSizing: "border-box" }}
-                  >
-                    <option value="PENDING">PENDING</option>
-                    <option value="APPROVED">APPROVED</option>
-                    <option value="FULFILLED">FULFILLED</option>
-                    <option value="REJECTED">REJECTED</option>
-                  </select>
+                    options={[
+                      { label: "PENDING", value: "PENDING" },
+                      { label: "APPROVED", value: "APPROVED" },
+                      { label: "FULFILLED", value: "FULFILLED" },
+                      { label: "REJECTED", value: "REJECTED" }
+                    ]}
+                  />
                 </div>
               </div>
 
