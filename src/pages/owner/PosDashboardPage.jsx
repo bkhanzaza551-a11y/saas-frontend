@@ -1062,7 +1062,12 @@ export default function PosDashboardPage() {
                   </div>
                 </div>
 
-                <div className="pos-main">
+                <div className="pos-main" style={{ position: "relative" }}>
+                  {!isEditing ? (
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", zIndex: 30, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+                      <button className="btn-edit-shield" onClick={() => { setIsEditing(true); setPaymentDraft({ online: String(paidOnline), offline: String(paidOffline) }); }} style={{ padding: "10px 28px", borderRadius: 24, fontSize: "13px", fontWeight: 700, background: "#3b82f6", color: "#fff", boxShadow: "0 4px 12px rgba(59, 130, 246, 0.4)", border: "none", cursor: "pointer" }}>CLICK HERE TO EDIT</button>
+                    </div>
+                  ) : null}
                   <div className="pos-invoice-section" style={{ height: "100%", overflowY: "auto", padding: "20px" }}>
                     <div className="pos-invoice-header">
                       <h4>Invoice</h4>
@@ -1239,12 +1244,6 @@ export default function PosDashboardPage() {
 
                 {/* --- CONSOLIDATED PREMIUM FOOTER --- */}
                 <div style={{ position: "sticky", bottom: -20, background: "#fff", zIndex: 10, marginTop: "auto", paddingTop: 16, paddingBottom: 20, borderTop: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 12 }}>
-                  {!isEditing ? (
-                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
-                      <button className="btn-edit-shield" onClick={() => { setIsEditing(true); setPaymentDraft({ online: String(paidOnline), offline: String(paidOffline) }); }} style={{ padding: "8px 24px", borderRadius: 20, fontSize: "12px", fontWeight: 700, boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)", border: "none", cursor: "pointer" }}>CLICK HERE TO EDIT</button>
-                    </div>
-                  ) : null}
-
                   {/* Top Row: Notes & Quick Actions */}
                   <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                     <input type="text" placeholder="Add Order Instruction (Optional)" disabled={!isEditing} value={detailNote} onChange={(e) => setDetailNote(e.target.value)} style={{ flex: 1, padding: "8px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "12px", outline: "none" }} />

@@ -812,6 +812,7 @@
 /* MAIN AREA OVERRIDES */
 .pos-edit-modal-wrapper .pos-main {
   padding: 12px 16px;
+  overflow: hidden !important;
 }
 
 .pos-edit-modal-wrapper .pos-cart-table {
