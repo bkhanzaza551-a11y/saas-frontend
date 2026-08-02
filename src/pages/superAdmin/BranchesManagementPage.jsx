@@ -299,6 +299,7 @@ export default function BranchesManagementPage() {
               <div style={{ flex: 1, maxWidth: 320, position: "relative" }}>
                 <Search size={16} style={{ position: "absolute", left: 12, top: 10, color: "#64748b" }} />
                 <input 
+                  className="search-input-field"
                   placeholder="Search branches..." 
                   value={query} 
                   onChange={(e) => setQuery(e.target.value)} 

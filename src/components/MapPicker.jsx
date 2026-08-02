@@ -531,6 +531,7 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
             ? <LoaderCircle className="map-picker__spinner" size={17} aria-hidden="true" />
             : <Search size={17} aria-hidden="true" />}
           <input
+            className="search-input-field"
             aria-label="Search for an address"
             aria-autocomplete="list"
             aria-controls="branch-location-suggestions"
