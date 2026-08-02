@@ -28,6 +28,16 @@ export default function StaffRequirementsPage() {
   const [urgencyFilter, setUrgencyFilter] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  const [branches, setBranches] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState("ALL");
+
+  useEffect(() => {
+    api.get("/super-admin/branches")
+      .then(res => setBranches(res.data || []))
+      .catch(err => console.error("Failed to fetch branches:", err));
+  }, []);
+
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
