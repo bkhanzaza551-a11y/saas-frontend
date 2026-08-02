@@ -1072,23 +1072,27 @@ export default function PosDashboardPage() {
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", padding: "12px 16px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "16px", fontSize: "12px", color: "#334155" }}>
-                      <div style={{display: "flex", gap: "24px", width: "100%", justifyContent: "space-between"}}>
-                        <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                          <div><strong style={{color:"#0f172a"}}>Guest :</strong> {detail.customer?.name || "Walk-in"}</div>
-                          <div><strong style={{color:"#0f172a"}}>Phone :</strong> {detail.customer?.phone || ""}</div>
+                    <div style={{ display: "flex", padding: "10px 16px", background: "#0f172a", borderRadius: "8px", marginBottom: "16px", fontSize: "11px", color: "#cbd5e1", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
+                      <div style={{ display: "flex", gap: "24px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Guest</span>
+                          <strong style={{ color: "#fff", fontSize: "13px" }}>{detail.customer?.name || "Walk-in"}</strong>
+                          <span>{detail.customer?.phone || "No phone"}</span>
                         </div>
-                        <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                          <div><strong style={{color:"#0f172a"}}>DOB :</strong> {detail.customer?.dateOfBirth ? new Date(detail.customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "NA"}</div>
-                          <div><strong style={{color:"#0f172a"}}>Anniv :</strong> {detail.customer?.anniversary ? new Date(detail.customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "NA"}</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Dates</span>
+                          <span>DOB: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.dateOfBirth ? new Date(detail.customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "NA"}</strong></span>
+                          <span>Anniv: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.anniversary ? new Date(detail.customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "NA"}</strong></span>
                         </div>
-                        <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                          <div><strong style={{color:"#0f172a"}}>Last Visited :</strong> {detail.customer?.lastVisitAt ? new Date(detail.customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "NA"}</div>
-                          <div><strong style={{color:"#0f172a"}}>Due Bal :</strong> NA</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Visits & Dues</span>
+                          <span>Last: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.lastVisitAt ? new Date(detail.customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "NA"}</strong></span>
+                          <span>Due Bal: <strong style={{ color: "#e2e8f0" }}>NA</strong></span>
                         </div>
-                        <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                          <div><strong style={{color:"#0f172a"}}>Membership:</strong> NA</div>
-                          <div><strong style={{color:"#0f172a"}}>Package:</strong> NA</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Subscriptions</span>
+                          <span>Membership: <strong style={{ color: "#e2e8f0" }}>NA</strong></span>
+                          <span>Package: <strong style={{ color: "#e2e8f0" }}>NA</strong></span>
                         </div>
                       </div>
                     </div>
@@ -1233,110 +1237,63 @@ export default function PosDashboardPage() {
                 </div>
               </div>
 
-              <div className="pos-detail-mid-actions">
-                  <input type="text" className="pos-instruction-input" placeholder="Add Order Instruction (Optional, Max 500 Characters)" disabled={!isEditing} value={detailNote} onChange={(event) => setDetailNote(event.target.value)} />
-                  <button className="pos-btn-action" type="button" onClick={applyInvoiceLevelDiscount} disabled={!isEditing}>Apply Discount</button>
-                  <button className="pos-btn-action" type="button" onClick={() => { if (!isEditing) return; loadCustomerPackages(); }} disabled={!isEditing || loadingCustomerPkgs}>{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
-                  <button className="pos-btn-action" type="button" onClick={() => { if (!isEditing) return; setGcRedemptionCode(""); setGcRedemptionResult(null); setShowApplyGcModal(true); }} disabled={!isEditing}>Apply Gift Card</button>
-                  <button className="pos-btn-action" type="button" onClick={() => { if (!isEditing) return; setShowTipModal(true); }} disabled={!isEditing}>Add Tip</button>
-                </div>
-
-                {!isEditing ? (
-                  <div className="pos-detail-edit-shield">
-                    <button className="btn-edit-shield" onClick={() => { setIsEditing(true); setPaymentDraft({ online: String(paidOnline), offline: String(paidOffline) }); }}>CLICK HERE TO EDIT</button>
-                  </div>
-                ) : null}
-
-                <div className="pos-detail-payment-section">
-                  <div className="payment-title">Payment Details:</div>
-                  <div style={{ marginBottom: 10, color: "#475569", fontWeight: 600 }}>
-                    Invoice Discount: <span style={{ color: "#0f172a" }}>{formatMoney(invoiceDiscountDraft)}</span>
-                  </div>
-                  <div className="payment-inputs">
-                    <div className="payment-box">
-                      <span>Online Collected</span>
-                      <input
-                        type="number"
-                        min={paidOnline}
-                        disabled={!isEditing}
-                        value={isEditing ? paymentDraft.online : paidOnline.toFixed(0)}
-                        onChange={(event) => {
-                          const val = event.target.value;
-                          if (val === "") {
-                            setPaymentDraft((current) => ({ ...current, online: "" }));
-                            return;
-                          }
-                          const numVal = Number(val);
-                          const maxOnline = Math.max(paidOnline, totals.total - Number(paymentDraft.offline || 0));
-                          if (numVal <= maxOnline) {
-                            setPaymentDraft((current) => ({ ...current, online: val }));
-                          } else {
-                            setPaymentDraft((current) => ({ ...current, online: String(maxOnline) }));
-                          }
-                        }}
-                      />
+                {/* --- CONSOLIDATED PREMIUM FOOTER --- */}
+                <div style={{ position: "sticky", bottom: -20, background: "#fff", zIndex: 10, marginTop: "auto", paddingTop: 16, paddingBottom: 20, borderTop: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 12 }}>
+                  {!isEditing ? (
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+                      <button className="btn-edit-shield" onClick={() => { setIsEditing(true); setPaymentDraft({ online: String(paidOnline), offline: String(paidOffline) }); }} style={{ padding: "8px 24px", borderRadius: 20, fontSize: "12px", fontWeight: 700, boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)", border: "none", cursor: "pointer" }}>CLICK HERE TO EDIT</button>
                     </div>
-                    <div className="payment-box">
-                      <span>Cash</span>
-                      <input
-                        type="number"
-                        min={paidOffline}
-                        disabled={!isEditing}
-                        value={isEditing ? paymentDraft.offline : paidOffline.toFixed(0)}
-                        onChange={(event) => {
-                          const val = event.target.value;
-                          if (val === "") {
-                            setPaymentDraft((current) => ({ ...current, offline: "" }));
-                            return;
-                          }
-                          const numVal = Number(val);
-                          const maxOffline = Math.max(paidOffline, totals.total - Number(paymentDraft.online || 0));
-                          if (numVal <= maxOffline) {
-                            setPaymentDraft((current) => ({ ...current, offline: val }));
-                          } else {
-                            setPaymentDraft((current) => ({ ...current, offline: String(maxOffline) }));
-                          }
-                        }}
-                      />
-                    </div>
-                    <div className="payment-box">
-                      <span>Balance</span>
-                      <input
-                        type="number"
-                        disabled
-                        value={Math.max(
-                          0,
-                          totals.total - 
-                          (isEditing ? Number(paymentDraft.online || 0) : paidOnline) - 
-                          (isEditing ? Number(paymentDraft.offline || 0) : paidOffline)
-                        ).toFixed(0)}
-                      />
+                  ) : null}
+
+                  {/* Top Row: Notes & Quick Actions */}
+                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <input type="text" placeholder="Add Order Instruction (Optional)" disabled={!isEditing} value={detailNote} onChange={(e) => setDetailNote(e.target.value)} style={{ flex: 1, padding: "8px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "12px", outline: "none" }} />
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button type="button" onClick={applyInvoiceLevelDiscount} disabled={!isEditing} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>Discount</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; loadCustomerPackages(); }} disabled={!isEditing || loadingCustomerPkgs} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>{loadingCustomerPkgs ? "..." : "Package"}</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; setGcRedemptionCode(""); setGcRedemptionResult(null); setShowApplyGcModal(true); }} disabled={!isEditing} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>Gift Card</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; setShowTipModal(true); }} disabled={!isEditing} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>Tip</button>
                     </div>
                   </div>
-                  <div className="payment-done">
-                    Payment done by: <span className="muted">Paid {formatMoney(isEditing ? Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0) : (invoiceDetail?.paidAmount || 0))} | Balance {formatMoney(Math.max(0, totals.total - (isEditing ? Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0) : (invoiceDetail?.paidAmount || 0))))}</span>
-                  </div>
-                </div>
 
-                <div style={{ marginTop: 18, padding: "16px 18px", borderRadius: 14, border: "1px solid #dbeafe", background: "#f8fbff" }}>
-                  <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 10 }}>Message Configurations</div>
-                  <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#334155", fontWeight: 600 }}>
-                    <input type="checkbox" checked={messageConfig.invoiceMessage} onChange={(event) => setMessageConfig({ invoiceMessage: event.target.checked })} disabled={!isEditing} />
-                    Invoice Message
-                  </label>
-                  <div style={{ marginTop: 8, color: "#64748b", fontSize: 13 }}>
-                    You can control the customer automation message here after updating the invoice.
+                  {/* Middle Row: Payment & Settings */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", padding: "10px 14px", borderRadius: 8, border: "1px solid #f1f5f9" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ fontSize: "11px", fontWeight: 700, color: "#475569", display: "flex", flexDirection: "column", gap: 2 }}>
+                        <span>Total: <strong style={{color:"#0f172a"}}>{formatMoney(totals.total)}</strong></span>
+                        <span>Disc: <strong style={{color:"#0f172a"}}>{formatMoney(invoiceDiscountDraft)}</strong></span>
+                      </div>
+                      <div style={{ width: 1, height: 24, background: "#cbd5e1" }}></div>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontSize: "11px", fontWeight: 600, color: "#64748b" }}>Online</span>
+                          <input type="number" min={paidOnline} disabled={!isEditing} value={isEditing ? paymentDraft.online : paidOnline.toFixed(0)} onChange={(event) => { const val = event.target.value; if (val === "") { setPaymentDraft((current) => ({ ...current, online: "" })); return; } const numVal = Number(val); const maxOnline = Math.max(paidOnline, totals.total - Number(paymentDraft.offline || 0)); if (numVal <= maxOnline) { setPaymentDraft((current) => ({ ...current, online: val })); } else { setPaymentDraft((current) => ({ ...current, online: String(maxOnline) })); } }} style={{ width: 70, padding: "4px 8px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: "12px", fontWeight: 600 }} />
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontSize: "11px", fontWeight: 600, color: "#64748b" }}>Cash</span>
+                          <input type="number" min={paidOffline} disabled={!isEditing} value={isEditing ? paymentDraft.offline : paidOffline.toFixed(0)} onChange={(event) => { const val = event.target.value; if (val === "") { setPaymentDraft((current) => ({ ...current, offline: "" })); return; } const numVal = Number(val); const maxOffline = Math.max(paidOffline, totals.total - Number(paymentDraft.online || 0)); if (numVal <= maxOffline) { setPaymentDraft((current) => ({ ...current, offline: val })); } else { setPaymentDraft((current) => ({ ...current, offline: String(maxOffline) })); } }} style={{ width: 70, padding: "4px 8px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: "12px", fontWeight: 600 }} />
+                        </div>
+                        <div style={{ fontSize: "11px", fontWeight: 700, color: "#16a34a", background: "#dcfce7", padding: "4px 8px", borderRadius: 6 }}>
+                          Bal: {formatMoney(Math.max(0, totals.total - (isEditing ? Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0) : (invoiceDetail?.paidAmount || 0))))}
+                        </div>
+                      </div>
+                    </div>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "11px", fontWeight: 600, color: "#475569", cursor: "pointer" }}>
+                      <input type="checkbox" checked={messageConfig.invoiceMessage} onChange={(e) => setMessageConfig({ invoiceMessage: e.target.checked })} disabled={!isEditing} />
+                      Send SMS
+                    </label>
                   </div>
-                </div>
 
-                <div className="pos-detail-bottom-actions">
-                  <button className="btn-view-bill" onClick={() => { setIsEditing(false); closeDetail(); }}>Clear</button>
-                  <button className="btn-view-bill" onClick={updateInvoice} disabled={!isEditing}>Update</button>
-                  {(["STARTED", "UNPAID"].includes(invoiceDetail?.status || detailStatus || detail.status)) && (
-                    <button className="btn-view-bill" onClick={handleCompleteInvoice} disabled={completingInvoice} style={{ background: "#16a34a", color: "white", border: "none" }}>{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
-                  )}
-                  <button className="btn-clear" style={{ background: "white", color: "var(--accent, #3b82f6)", border: "1px solid var(--accent, #3b82f6)" }} onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }}>Cancel Edit</button>
-                  <button className="btn-view-bill" onClick={openBillPreview} disabled={billLoading}>{billLoading ? "Loading..." : "View Bill"}</button>
+                  {/* Bottom Row: Main Actions */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                    <button type="button" onClick={() => { setIsEditing(false); closeDetail(); }} style={{ padding: "8px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#475569", cursor: "pointer" }}>Clear</button>
+                    <button type="button" onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }} style={{ padding: "8px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#ef4444", cursor: "pointer" }}>Cancel</button>
+                    <button type="button" onClick={openBillPreview} disabled={billLoading} style={{ padding: "8px 20px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#3b82f6", cursor: "pointer" }}>{billLoading ? "Loading..." : "View Bill"}</button>
+                    <button type="button" onClick={updateInvoice} disabled={!isEditing} style={{ padding: "8px 24px", background: "#3b82f6", border: "none", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#fff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.2)" }}>Update Bill</button>
+                    {(["STARTED", "UNPAID"].includes(invoiceDetail?.status || detailStatus || detail.status)) && (
+                      <button type="button" onClick={handleCompleteInvoice} disabled={completingInvoice} style={{ padding: "8px 24px", background: "#16a34a", border: "none", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#fff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(22, 163, 74, 0.2)" }}>{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

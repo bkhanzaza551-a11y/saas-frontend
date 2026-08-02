@@ -105,11 +105,18 @@ export default function SalonAnalyticsPage() {
     ]).then(([invoicesRes, expensesRes, customersRes, usersRes, productsRes, settingsRes, payrollRes, pnlRes]) => {
       if (!active) return;
 
-      const invoices = invoicesRes.status === "fulfilled" && Array.isArray(invoicesRes.value?.data) ? invoicesRes.value.data : [];
-      const expenses = expensesRes.status === "fulfilled" && Array.isArray(expensesRes.value?.data) ? expensesRes.value.data : [];
-      const customers = customersRes.status === "fulfilled" && Array.isArray(customersRes.value?.data) ? customersRes.value.data : [];
-      const users = usersRes.status === "fulfilled" && Array.isArray(usersRes.value?.data) ? usersRes.value.data : [];
-      const products = productsRes.status === "fulfilled" && Array.isArray(productsRes.value?.data) ? productsRes.value.data : [];
+      const extractArray = (res) => {
+        if (res.status !== "fulfilled" || !res.value) return [];
+        if (Array.isArray(res.value.data)) return res.value.data;
+        if (res.value.data && Array.isArray(res.value.data.data)) return res.value.data.data;
+        return [];
+      };
+
+      const invoices = extractArray(invoicesRes);
+      const expenses = extractArray(expensesRes);
+      const customers = extractArray(customersRes);
+      const users = extractArray(usersRes);
+      const products = extractArray(productsRes);
       const settings = settingsRes.status === "fulfilled" ? settingsRes.value?.data || {} : {};
       const rawPayrollData = payrollRes.status === "fulfilled" ? payrollRes.value?.data : null;
       const payrollRuns = Array.isArray(rawPayrollData) ? rawPayrollData : (rawPayrollData?.rows || []);
@@ -450,7 +457,7 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 2: Revenue Streams */}
       {activeTab === "revenue" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20 }}>
           <div className="panel-card" style={{ padding: 24 }}>
             <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Revenue Breakdown by Stream</h3>
             <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -482,24 +489,6 @@ export default function SalonAnalyticsPage() {
                 <div style={{ background: "#e2e8f0", height: 10, borderRadius: 5, overflow: "hidden" }}>
                   <div style={{ background: "#10b981", height: "100%", width: `${metrics.revenue > 0 ? (metrics.membershipsRevenue / metrics.revenue) * 100 : 0}%` }} />
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="panel-card" style={{ padding: 24 }}>
-            <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Payment Modes Channel</h3>
-            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", background: "#f8fafc", borderRadius: 8 }}>
-                <span style={{ fontWeight: 600, color: "#334155" }}>UPI / Online Payment</span>
-                <span style={{ fontWeight: 700, color: "#4f46e5" }}>₹{metrics.paymentModes.online.toLocaleString("en-IN")}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", background: "#f8fafc", borderRadius: 8 }}>
-                <span style={{ fontWeight: 600, color: "#334155" }}>Cash at Counter</span>
-                <span style={{ fontWeight: 700, color: "#059669" }}>₹{metrics.paymentModes.cash.toLocaleString("en-IN")}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", background: "#f8fafc", borderRadius: 8 }}>
-                <span style={{ fontWeight: 600, color: "#334155" }}>Credit / Debit Card</span>
-                <span style={{ fontWeight: 700, color: "#0284c7" }}>₹{metrics.paymentModes.card.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>

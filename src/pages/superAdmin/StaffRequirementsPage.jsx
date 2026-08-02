@@ -128,7 +128,7 @@ export default function StaffRequirementsPage() {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      const res = await api.patch(`/owner/staff-requirements/${id}`, { status: newStatus });
+      const res = await api.patch(`/super-admin/staff-requirements/${id}`, { status: newStatus });
       setRequirements(prev => prev.map(r => r.id === id ? res.data : r));
     } catch (err) {
       alert(err.response?.data?.message || "Failed to update status");

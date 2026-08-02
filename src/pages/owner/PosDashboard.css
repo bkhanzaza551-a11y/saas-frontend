@@ -367,18 +367,26 @@
 .cart-table-row {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr 1fr 1.5fr 1fr 1fr 1fr 1.5fr 2fr;
-  gap: 8px;
-  padding: 8px 0;
-  font-size: 0.75rem;
+  gap: 6px;
+  padding: 6px 0;
+  font-size: 0.7rem;
   align-items: center;
 }
 
 .cart-table-head {
   border-bottom: 1px solid #dbe4f0;
   color: #475569;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.cart-table-row select,
+.cart-table-row input {
+  padding: 2px 4px !important;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  height: 22px;
 }
 
 .cart-table-row {
