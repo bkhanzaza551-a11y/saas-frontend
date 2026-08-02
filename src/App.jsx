@@ -160,8 +160,6 @@ const Protected = () => {
             enabled("pos") && { label: "POS Dashboard", to: "/admin/pos-dashboard" },
             enabled("appointments") && { label: "Appointments", to: "/admin/appointments" },
             enabled("crm") && { label: "Customer", to: "/admin/customers" },
-            enabled("reports") && { label: "Salon Analytics", to: "/admin/salon-analytics" },
-            enabled("reports") && { label: "Financial Reports", to: "/admin/financial-reports" },
             enabled("reports") && { label: "Reports", to: "/admin/reports" },
             enabled("reports") && { label: "Trends", to: "/admin/trends" },
             enabled("attendance") && { label: "Attendance Management", to: "/admin/attendance" },
@@ -332,6 +330,18 @@ const Protected = () => {
               items: myWorkspaceItems
             }]
           : []),
+        ...(shouldShowMyWorkspace
+          ? [{
+              label: "Operations",
+              hint: "Quick access",
+              items: [
+                can("reports") && { label: "Financial Reports", to: "/admin/reports/financial-reports" },
+                can("support") && { label: "Support Tickets", to: "/admin/support-tickets" },
+                can("attendance") && { label: "Attendance", to: "/admin/attendance" },
+                can("feedback") && { label: "Feedback", to: "/admin/feedback" },
+              ].filter(Boolean)
+            }]
+          : []),
         ...(isOwner ? groups : [])
       ];
 
@@ -490,7 +500,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<Protected />}>
-          <Route path="/app" element={<Home />} />
+          <Route path="/app" element={<OwnerRoute moduleKey="dashboard" element={<Home />} />} />
           <Route path="/admin/dashboard" element={<OwnerRoute moduleKey="dashboard" element={<OwnerDashboard />} />} />
           <Route path="/admin/global-dashboard" element={<OwnerRoute moduleKey="dashboard" element={<GlobalDashboardPage />} />} />
           <Route path="/admin/appointments" element={<OwnerRoute moduleKey="appointments" featureKey="appointments" element={<AppointmentsPage />} />} />
@@ -526,8 +536,8 @@ export default function App() {
           <Route path="/admin/salon-analytics" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<SalonAnalyticsPage />} />} />
           <Route path="/admin/financial-reports" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<FinancialReportsPage />} />} />
           <Route path="/admin/reports-hub" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsHubPage />} />} />
-          <Route path="/admin/invoices" element={<OwnerRoute moduleKey="pos" element={<InvoicesPage />} />} />
-          <Route path="/admin/invoices/:id" element={<OwnerRoute moduleKey="pos" element={<InvoicesPage />} />} />
+          <Route path="/admin/invoices" element={<OwnerRoute moduleKey="invoices" element={<InvoicesPage />} />} />
+          <Route path="/admin/invoices/:id" element={<OwnerRoute moduleKey="invoices" element={<InvoicesPage />} />} />
           <Route path="/admin/payments" element={<OwnerRoute moduleKey="payments" element={<PaymentsPage />} />} />
           <Route path="/admin/product-categories" element={<OwnerRoute moduleKey="inventory" featureKey="inventory" element={<ProductCategoriesPage />} />} />
           <Route path="/admin/inventory" element={<OwnerRoute moduleKey="inventory" featureKey="inventory" element={<InventoryPage />} />} />
@@ -592,6 +602,8 @@ export default function App() {
           <Route path="/admin/reports/expenses" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />
           <Route path="/admin/reports/profit-loss" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />
           <Route path="/admin/reports/tax" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />
+          <Route path="/admin/reports/salon-analytics" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />
+          <Route path="/admin/reports/financial-reports" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />
 
           <Route path="/admin/orders" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<OrdersPage />} />} />
           <Route path="/admin/orders/new" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<OrdersPage />} />} />

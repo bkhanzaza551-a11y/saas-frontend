@@ -392,13 +392,40 @@ export default function PosDashboardPage() {
     }));
   };
 
+  const categoryDescendantMap = useMemo(() => {
+    const map = {};
+    const parentMapByName = {};
+    const collect = (cat, acc, nameLookup) => {
+      acc.add(cat.id);
+      acc.add(cat.name);
+      nameLookup[cat.name] = cat.parentId || null;
+      (cat.children || []).forEach(ch => collect(ch, acc, nameLookup));
+    };
+    (posContext.serviceCategories || []).forEach(c => {
+      const ids = new Set();
+      collect(c, ids, parentMapByName);
+      map[c.id] = { ids, parentMapByName };
+      map[c.name] = { ids, parentMapByName };
+    });
+    map._parentMapByName = parentMapByName;
+    return map;
+  }, [posContext.serviceCategories]);
+
   const serviceTileGroups = useMemo(() => {
     let list = posContext.services || [];
     if (posGender && posGender !== "ALL") {
       list = list.filter((service) => !service.gender || ["UNISEX", "BOTH", "ALL"].includes(service.gender.toUpperCase()) || service.gender.toUpperCase() === posGender);
     }
     if (serviceSearch) list = list.filter((service) => service.name.toLowerCase().includes(serviceSearch.toLowerCase()));
-    if (serviceCategoryFilter) list = list.filter((service) => service.category?.name === serviceCategoryFilter || service.category?.id === serviceCategoryFilter);
+    if (serviceCategoryFilter) {
+      const matchIds = categoryDescendantMap[serviceCategoryFilter]?.ids || new Set();
+      list = list.filter((service) => {
+        const catId = service.categoryId || service.category?.id || "";
+        const catName = service.category?.name || "";
+        if (matchIds.has(catId) || matchIds.has(catName)) return true;
+        return false;
+      });
+    }
 
     const grouped = {};
     list.forEach((service) => {
@@ -407,7 +434,7 @@ export default function PosDashboardPage() {
       grouped[category].push(service);
     });
     return Object.entries(grouped).map(([title, items]) => ({ title, items }));
-  }, [posContext.services, posGender, serviceSearch, serviceCategoryFilter]);
+  }, [posContext.services, posGender, serviceSearch, serviceCategoryFilter, categoryDescendantMap]);
 
   const getDetailBasePrice = useCallback((item) => {
     const original = toAmount(item.originalUnitPrice, NaN);

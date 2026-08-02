@@ -287,6 +287,20 @@ export default function StaffRolesPage() {
     });
   };
 
+  const deleteRole = async (role) => {
+    if (!confirm(`Delete "${role.name}"? Staff with this role will lose it.`)) return;
+    try {
+      await api.delete(`/owner/custom-roles/${role.id}`);
+      if (editingRoleId === role.id) {
+        setEditingRoleId("");
+        setRoleForm({ name: "", description: "", permissions: { dashboard: ["view"] } });
+      }
+      await load();
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to delete role");
+    }
+  };
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -362,14 +376,22 @@ export default function StaffRolesPage() {
 
           <div>
             {customRoles.map((role) => (
-              <button
-                key={role.id}
-                className={`srp-role-item ${editingRoleId === role.id ? "active" : ""}`}
-                onClick={() => startRoleEdit(role)}
-              >
-                <span className="role-name">{role.name}</span>
-                <span className="role-desc">{role.description || "No description"}</span>
-              </button>
+              <div key={role.id} className={`srp-role-item ${editingRoleId === role.id ? "active" : ""}`} style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                <button
+                  style={{ flex: 1, display: "flex", flexDirection: "column", padding: 0, border: "none", background: "transparent", cursor: "pointer", textAlign: "left" }}
+                  onClick={() => startRoleEdit(role)}
+                >
+                  <span className="role-name">{role.name}</span>
+                  <span className="role-desc">{role.description || "No description"}</span>
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); deleteRole(role); }}
+                  style={{ padding: "4px 8px", fontSize: 11, fontWeight: 600, color: "#ef4444", background: "transparent", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", flexShrink: 0 }}
+                  title={`Delete ${role.name}`}
+                >
+                  ✕
+                </button>
+              </div>
             ))}
             {!customRoles.length && (
               <div style={{ padding: "20px 20px", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
@@ -558,6 +580,11 @@ export default function StaffRolesPage() {
                       {/* Expanded permission grid */}
                       {isExpanded && (
                         <div className="srp-user-body">
+                          {row.customRole?.name && (
+                            <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 8, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1e40af", fontSize: 12, fontWeight: 600 }}>
+                              📋 This user has role "{row.customRole.name}". Toggling below will override the role and apply individual permissions instead.
+                            </div>
+                          )}
                           {MODULE_GROUPS.map((group) => (
                             <div key={group.group}>
                               <div className="srp-group-label">

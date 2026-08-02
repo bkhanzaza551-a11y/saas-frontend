@@ -7,6 +7,8 @@ import { useBranch } from '../../context/BranchContext';
 import EmptyState from "../../components/EmptyState";
 import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
+import SalonAnalyticsPage from "../operations/SalonAnalyticsPage";
+import FinancialReportsPage from "./FinancialReportsPage";
 
 const reportSections = [
   { key: "overview", label: "Overview", to: "/admin/reports", hint: "KPIs" },
@@ -15,7 +17,9 @@ const reportSections = [
   { key: "loyalty", label: "Loyalty", to: "/admin/reports/loyalty", hint: "Retention" },
   { key: "inventory", label: "Inventory", to: "/admin/reports/stock", hint: "Risk" },
   { key: "finance", label: "Finance", to: "/admin/reports/profit-loss", hint: "P&L" },
-  { key: "engagement", label: "Engagement", to: "/admin/reports/campaigns", hint: "Growth" }
+  { key: "engagement", label: "Engagement", to: "/admin/reports/campaigns", hint: "Growth" },
+  { key: "analytics", label: "Salon Analytics", to: "/admin/reports/salon-analytics", hint: "Insights" },
+  { key: "financial", label: "Financial Reports", to: "/admin/reports/financial-reports", hint: "Finance Detail" }
 ];
 
 const initialData = {
@@ -125,6 +129,8 @@ export default function ReportsPage() {
     if (path.includes("/reports/stock") || path.includes("/reports/low-stock")) return "inventory";
     if (path.includes("/reports/profit-loss") || path.includes("/reports/expenses") || path.includes("/reports/tax")) return "finance";
     if (path.includes("/reports/campaigns") || path.includes("/reports/feedback") || path.includes("/reports/enquiries")) return "engagement";
+    if (path.includes("/reports/salon-analytics")) return "analytics";
+    if (path.includes("/reports/financial-reports")) return "financial";
     return "overview";
   }, [location.pathname]);
 
@@ -489,6 +495,18 @@ export default function ReportsPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {reportView === "analytics" && (
+            <div style={{ marginTop: 18 }}>
+              <SalonAnalyticsPage />
+            </div>
+          )}
+
+          {reportView === "financial" && (
+            <div style={{ marginTop: 18 }}>
+              <FinancialReportsPage />
             </div>
           )}
 

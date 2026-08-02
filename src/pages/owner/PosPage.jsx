@@ -151,7 +151,10 @@ export default function PosPage() {
   const [couponValidation, setCouponValidation] = useState(null);
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [affiliateWallet, setAffiliateWallet] = useState(null);
-  const [newGuestForm, setNewGuestForm] = useState({ name: "", phone: "", email: "", gender: "FEMALE", alternatePhone: "", dateOfBirth: "", anniversary: "", gst: "", notes: "" });
+  const [newGuestForm, setNewGuestForm] = useState({
+    name: "", phone: "", email: "", gender: "FEMALE",
+    dateOfBirth: "", anniversary: "", gst: "", notes: ""
+  });
   const [form, setForm] = useState({
     customerId: "",
     branchId: "",
@@ -748,6 +751,23 @@ export default function PosPage() {
     return context.serviceCategories;
   }, [context.serviceCategories]);
 
+  const categoryDescendantMap = useMemo(() => {
+    const map = {};
+    const parentMap = {};
+    const collect = (cat, acc, parentLookup) => {
+      acc.add(cat.id);
+      parentLookup[cat.id] = cat.parentId || null;
+      (cat.children || []).forEach(ch => collect(ch, acc, parentLookup));
+    };
+    (context.serviceCategories || []).forEach(c => {
+      const ids = new Set();
+      collect(c, ids, parentMap);
+      map[c.id] = { ids, parentMap };
+    });
+    map._parentMap = parentMap;
+    return map;
+  }, [context.serviceCategories]);
+
   const serviceTileGroups = useMemo(() => {
     let list = context.services || [];
     if (posGender) {
@@ -757,10 +777,17 @@ export default function PosPage() {
       list = list.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()));
     }
     if (serviceCategoryFilter) {
+      const matchIds = categoryDescendantMap[serviceCategoryFilter]?.ids || new Set();
+      const fullParentMap = categoryDescendantMap._parentMap || {};
       list = list.filter(s => {
         const catId = s.categoryId || s.category?.id || "";
-        const parentId = s.category?.parentId || "";
-        return catId === serviceCategoryFilter || parentId === serviceCategoryFilter;
+        if (matchIds.has(catId)) return true;
+        let p = fullParentMap[catId] || s.category?.parentId || "";
+        while (p) {
+          if (matchIds.has(p)) return true;
+          p = fullParentMap[p] || "";
+        }
+        return false;
       });
     }
     const grouped = {};
@@ -770,7 +797,7 @@ export default function PosPage() {
       grouped[cat].push(s);
     });
     return Object.entries(grouped).map(([title, items]) => ({ title, items }));
-  }, [context.services, posGender, serviceSearch, serviceCategoryFilter]);
+  }, [context.services, posGender, serviceSearch, serviceCategoryFilter, categoryDescendantMap, context.serviceCategories]);
 
   const productCategories = useMemo(() => {
     const cats = new Map();
@@ -1214,13 +1241,13 @@ export default function PosPage() {
       setCreatedInvoice(response.data);
       setShowSuccessModal(true);
 
-      // Reset main POS form
+      // Reset main POS form but keep customer selected so membership shows
+      const keptCustomerId = form.customerId;
       setGuestSearchInput("");
       setCouponValidation(null);
       setCouponCodeInput("");
       setForm(current => ({
         ...current,
-        customerId: "",
         items: [emptyServiceItem],
         packageRedemptions: [],
         payments: [emptyPayment]
@@ -1229,7 +1256,7 @@ export default function PosPage() {
       setGiftCardDiscount(0);
 
       setShowMemModal(false);
-      await loadContext("", form.branchId);
+      await loadContext(keptCustomerId, form.branchId);
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not create membership purchase invoice"), success: "" });
     } finally {
@@ -1568,7 +1595,7 @@ export default function PosPage() {
       setGuestSearchInput(res.data.name);
       setForm(c => ({ ...c, customerId: res.data.id }));
       setShowAddGuestModal(false);
-      setNewGuestForm({ name: "", phone: "", email: "", gender: "FEMALE", alternatePhone: "", dateOfBirth: "", anniversary: "", gst: "", notes: "" });
+      setNewGuestForm({ name: "", phone: "", email: "", gender: "FEMALE", dateOfBirth: "", anniversary: "", gst: "", notes: "" });
       await loadContext(res.data.id, form.branchId);
       setStatus({ error: "", success: "Guest added successfully!" });
     } catch (err) {
@@ -3636,7 +3663,7 @@ export default function PosPage() {
                       <div style={{ fontSize: "0.9rem", color: "#475569" }}>Membership Type: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.membershipPlan?.benefitType === "WALLET_VALUE" ? "Fixed" : "Discount"}</span></div>
                       <div style={{ fontSize: "0.9rem", color: "#475569" }}>Expiry Date: <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(membership.endsAt).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')}</span></div>
                       <div style={{ fontSize: "0.9rem", color: "#475569" }}>Expires In: <span style={{ fontWeight: 600, color: "#0f172a" }}>{daysLeft} days</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Balance Amount: <span style={{ fontWeight: 600, color: "#0f172a" }}>₹ {Number(membership.remainingWalletValue || 0)}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Balance Amount: <span style={{ fontWeight: 600, color: "#0f172a" }}>₹ {Number(membership.remainingWalletValue || membership.membershipPlan?.price || 0)}</span></div>
                       
                       <button type="button" onClick={() => !isSelected && selectMembershipForApply(membership)} style={{ marginTop: 12, padding: "10px", background: isSelected ? "#fff" : "var(--button-bg-solid, #3b82f6)", color: isSelected ? "#0f172a" : "#fff", border: isSelected ? "1px solid #e2e8f0" : "none", borderRadius: 6, fontWeight: 600, cursor: isSelected ? "default" : "pointer", boxShadow: isSelected ? "none" : "0 4px 6px -1px rgba(59, 130, 246, 0.3)" }}>{isSelected ? "Selected" : "Select"}</button>
                     </div>

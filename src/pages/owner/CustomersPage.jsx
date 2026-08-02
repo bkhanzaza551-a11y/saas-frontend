@@ -2447,7 +2447,10 @@ export default function CustomersPage() {
                           }}
                         >
                           <option value="" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Select Staff</option>
-                          {staffUsers.filter((s) => !selectedBranchId || s.branchId === selectedBranchId).map((s) => (
+                          {staffUsers.filter((s) => {
+                            const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
+                            return !effectiveBranchId || s.branchId === effectiveBranchId;
+                          }).map((s) => (
                             <option key={s.id} value={s.id} style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>{s.user?.name || s.name || s.id}</option>
                           ))}
                         </select>
@@ -2482,15 +2485,15 @@ export default function CustomersPage() {
                               setMembershipError("");
                               const val = e.target.value;
                               if (val === "") {
-                                setMembershipForm((prev) => ({ ...prev, online: "" }));
+                                setMembershipForm((prev) => ({ ...prev, online: "", offline: String(Number(prev.price || 0) - Number(prev.advance || 0)) }));
                                 return;
                               }
                               const num = Number(val);
                               const price = Number(membershipForm.price || 0);
-                              const offline = Number(membershipForm.offline || 0);
                               const advance = Number(membershipForm.advance || 0);
-                              const maxAllowed = Math.max(0, price - (offline + advance));
-                              setMembershipForm((prev) => ({ ...prev, online: String(Math.max(0, Math.min(num, maxAllowed))) }));
+                              const clampedOnline = Math.max(0, Math.min(num, price - advance));
+                              const newOffline = Math.max(0, price - clampedOnline - advance);
+                              setMembershipForm((prev) => ({ ...prev, online: String(clampedOnline), offline: String(newOffline) }));
                             }} 
                             style={{ width: "100%", padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }} 
                           />
@@ -2505,15 +2508,15 @@ export default function CustomersPage() {
                               setMembershipError("");
                               const val = e.target.value;
                               if (val === "") {
-                                setMembershipForm((prev) => ({ ...prev, offline: "" }));
+                                setMembershipForm((prev) => ({ ...prev, offline: "", online: String(Number(prev.price || 0) - Number(prev.advance || 0)) }));
                                 return;
                               }
                               const num = Number(val);
                               const price = Number(membershipForm.price || 0);
-                              const online = Number(membershipForm.online || 0);
                               const advance = Number(membershipForm.advance || 0);
-                              const maxAllowed = Math.max(0, price - (online + advance));
-                              setMembershipForm((prev) => ({ ...prev, offline: String(Math.max(0, Math.min(num, maxAllowed))) }));
+                              const clampedOffline = Math.max(0, Math.min(num, price - advance));
+                              const newOnline = Math.max(0, price - clampedOffline - advance);
+                              setMembershipForm((prev) => ({ ...prev, offline: String(clampedOffline), online: String(newOnline) }));
                             }} 
                             style={{ width: "100%", padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }} 
                           />
@@ -2749,7 +2752,10 @@ export default function CustomersPage() {
                 <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "6px", display: "block" }}>Staff</label>
                 <select value={giftCardForm.staffId || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, staffId: e.target.value}))} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }}>
                   <option value="" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Select Staff</option>
-                  {staffUsers.map(s => (
+                  {staffUsers.filter((s) => {
+                    const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
+                    return !effectiveBranchId || s.branchId === effectiveBranchId;
+                  }).map(s => (
                     <option key={s.id} value={s.id} style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>
                       {s.user?.name || s.name || s.id}
                     </option>
@@ -3144,7 +3150,10 @@ export default function CustomersPage() {
                     <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block", fontWeight: 700 }}>Staff Assignment</label>
                     <select value={packageForm.staffId} onChange={(e) => setPackageForm(prev => ({...prev, staffId: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 6, outline: "none", width: "100%", padding: "10px", fontSize: "0.9rem", boxSizing: "border-box", background: "#fff", color: "#0f172a" }}>
                       <option value="" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Select Staff</option>
-                      {staffUsers.map(s => <option key={s.id} value={s.id} style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>{s.user?.name || s.name || s.id}</option>)}
+                      {staffUsers.filter((s) => {
+                        const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
+                        return !effectiveBranchId || s.branchId === effectiveBranchId;
+                      }).map(s => <option key={s.id} value={s.id} style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>{s.user?.name || s.name || s.id}</option>)}
                     </select>
                  </div>
               </div>
@@ -3289,7 +3298,10 @@ export default function CustomersPage() {
                 <label>Assigned Staff *</label>
                 <select value={followUpForm.staffUserId} onChange={(e) => setFollowUpForm(prev => ({ ...prev, staffUserId: e.target.value }))}>
                   <option value="">Select Staff</option>
-                  {staffUsers.map((s) => (
+                  {staffUsers.filter((s) => {
+                    const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
+                    return !effectiveBranchId || s.branchId === effectiveBranchId;
+                  }).map((s) => (
                     <option key={s.id} value={s.id}>{s.user?.name || s.name || s.user?.email || s.id}</option>
                   ))}
                 </select>

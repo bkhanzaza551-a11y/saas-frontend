@@ -649,17 +649,19 @@ export default function AppointmentsPage() {
     try {
       const payloadItems = activeItems.map((item) => ({
         ...item,
+        staffUserIds: (item.staffUserIds || []).filter((id) => id && id.length >= 8),
         startAt: toApiDateTime(item.startAt),
         endAt: toApiDateTime(item.endAt)
       }));
-      const sortedStarts = payloadItems.map((item) => item.startAt).sort();
-      const sortedEnds = payloadItems.map((item) => item.endAt).sort();
+      const validItems = payloadItems.filter((item) => item.staffUserIds.length > 0);
+      const sortedStarts = validItems.map((item) => item.startAt).sort();
+      const sortedEnds = validItems.map((item) => item.endAt).sort();
       const payload = {
         ...form,
-        items: payloadItems,
+        items: validItems,
         startAt: sortedStarts[0],
         endAt: sortedEnds[sortedEnds.length - 1],
-        primaryStaffUserId: payloadItems[0]?.staffUserIds?.[0] || form.items[0]?.staffUserIds?.[0] || ""
+        primaryStaffUserId: validItems[0]?.staffUserIds?.[0] || form.items[0]?.staffUserIds?.[0] || ""
       };
       if (editMode) {
         await api.patch(`/owner/appointments/${editingAppointmentId}`, payload);
