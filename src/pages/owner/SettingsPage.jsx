@@ -1557,18 +1557,8 @@ export default function SettingsPage() {
               />
             </label>
             <label className="settings-input-group">
-              <span className="muted">Use Currency :</span>
-              <select
-                value={normalizeCurrencyCode(generic.currency || "INR")}
-                onChange={(event) => updateGeneric("currency", event.target.value)}
-              >
-                <option value="INR">Indian Rupee (INR)</option>
-                <option value="USD">US Dollar (USD)</option>
-                <option value="EUR">Euro (EUR)</option>
-                <option value="GBP">British Pound (GBP)</option>
-                <option value="AED">UAE Dirham (AED)</option>
-                <option value="SAR">Saudi Riyal (SAR)</option>
-              </select>
+              <span className="muted">Currency :</span>
+              <div style={{ padding: "10px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", fontWeight: 700, color: "#475569" }}>INR — Indian Rupee</div>
             </label>
           </div>
         </div>

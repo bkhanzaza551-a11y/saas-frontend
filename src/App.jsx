@@ -89,6 +89,7 @@ const TrendsPage = lazyWithRetry(() => import("./pages/owner/TrendsPage.jsx"));
 const ReportsHubPage = lazyWithRetry(() => import("./pages/owner/ReportsHubPage.jsx"));
 const SupportTicketsPage = lazyWithRetry(() => import("./pages/owner/SupportTicketsPage.jsx"));
 const SettingsPage = lazyWithRetry(() => import("./pages/owner/SettingsPage.jsx"));
+const SalonDetailsPage = lazyWithRetry(() => import("./pages/owner/SalonDetailsPage.jsx"));
 
 const CustomerLoginPage = lazyWithRetry(() => import("./pages/customer/CustomerLoginPage.jsx"));
 const CustomerRegisterPage = lazyWithRetry(() => import("./pages/customer/CustomerRegisterPage.jsx"));
@@ -193,16 +194,17 @@ const Protected = () => {
             to: "/admin/support-tickets",
             hint: "Tickets & assistance"
           },
-          {
-            label: "System",
-            hint: "Help and config",
-            items: [
-              can("settings", "edit") && {
-                label: "Settings",
-                to: "/admin/settings/generic"
-              }
-            ].filter(Boolean)
-          },
+        {
+          label: "System",
+          hint: "Help and config",
+          items: [
+            can("settings", "edit") && {
+              label: "Settings",
+              to: "/admin/settings/generic"
+            },
+            { label: "Salon Details", to: "/admin/salon-details" }
+          ].filter(Boolean)
+        },
         {
           label: "Manage",
           to: "/admin/manage",
@@ -616,6 +618,7 @@ export default function App() {
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="settings" action="edit" element={<ManagePage />} />} />
+          <Route path="/admin/salon-details" element={<OwnerRoute moduleKey="settings" action="view" element={<SalonDetailsPage />} />} />
           <Route path="/admin/my-dashboard" element={<StaffWorkspaceRoute moduleKey="myDashboard" element={<MyDashboardPage />} />} />
           <Route path="/admin/my-attendance" element={<StaffWorkspaceRoute moduleKey="myAttendance" featureKey="attendance" element={<MyAttendanceHistoryPage />} />} />
           <Route path="/admin/my-appointments" element={<StaffWorkspaceRoute moduleKey="myAppointments" featureKey="appointments" element={<MyAppointmentsPage />} />} />
