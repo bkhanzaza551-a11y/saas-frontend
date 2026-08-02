@@ -4,11 +4,20 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import { Building2, MapPin, Phone, Mail, Calendar, CreditCard, Users, Package, Receipt, ShoppingBag, Clock, AlertTriangle, CheckCircle2, Zap } from "lucide-react";
 
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
-const fmtMoney = (v) => `₹${Number(v || 0).toLocaleString("en-IN")}`;
+const fmtDate = (d) => {
+  if (!d) return "—";
+  const date = new Date(d);
+  return isNaN(date.getTime()) ? "—" : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+};
+const fmtMoney = (v) => {
+  const num = Number(v || 0);
+  return `₹${(isNaN(num) ? 0 : num).toLocaleString("en-IN")}`;
+};
 const daysLeft = (d) => {
   if (!d) return null;
-  const diff = Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24));
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return null;
+  const diff = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
   return diff;
 };
 
@@ -36,11 +45,13 @@ export default function SalonDetailsPage() {
   if (!data) return null;
 
   const { salon, subscription, branches } = data;
+  if (!salon) return <div className="page-shell"><div style={{ background: "#fef2f2", color: "#991b1b", padding: "16px 20px", borderRadius: 12 }}>Salon data not found.</div></div>;
   const plan = subscription?.plan;
   const sc = statusConfig[salon.status] || statusConfig.TRIAL;
   const expiry = subscription?.endsAt || salon.trialEndsAt;
   const remaining = daysLeft(expiry);
-  const activeBranches = branches.filter(b => b.isActive).length;
+  const counts = salon._count || {};
+  const activeBranches = Array.isArray(branches) ? branches.filter(b => b.isActive).length : 0;
 
   return (
     <div className="page-shell" style={{ padding: "24px 16px", maxWidth: 900, margin: "0 auto" }}>
@@ -77,9 +88,9 @@ export default function SalonDetailsPage() {
             {sc.label === "Active" ? <CheckCircle2 size={14} /> : <Clock size={14} />}
             {sc.label}
           </span>
-          {remaining !== null && (
+            {remaining !== null && (
             <span className="sd-badge" style={{ background: remaining > 14 ? "#ecfdf5" : remaining > 0 ? "#fffbeb" : "#fef2f2", color: remaining > 14 ? "#16a34a" : remaining > 0 ? "#d97706" : "#dc2626" }}>
-              {remaining > 0 ? `${remaining} days left` : "Expired"}
+              {remaining > 1 ? `${remaining} days left` : remaining === 1 ? "1 day left" : remaining === 0 ? "Expires today" : "Expired"}
             </span>
           )}
         </div>
@@ -111,10 +122,10 @@ export default function SalonDetailsPage() {
             {/* Limits */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
               {[
-                { label: "Branches", used: salon._count.branches, limit: plan.branchLimit, icon: <Building2 size={14} /> },
-                { label: "Staff", used: salon._count.users, limit: plan.userLimit, icon: <Users size={14} /> },
-                { label: "Customers", used: salon._count.customers, limit: plan.customerLimit, icon: <Package size={14} /> },
-                { label: "Invoices", used: salon._count.invoices, limit: plan.invoiceLimit, icon: <Receipt size={14} /> }
+                { label: "Branches", used: counts.branches || 0, limit: plan.branchLimit, icon: <Building2 size={14} /> },
+                { label: "Staff", used: counts.users || 0, limit: plan.userLimit, icon: <Users size={14} /> },
+                { label: "Customers", used: counts.customers || 0, limit: plan.customerLimit, icon: <Package size={14} /> },
+                { label: "Invoices", used: counts.invoices || 0, limit: plan.invoiceLimit, icon: <Receipt size={14} /> }
               ].map((item) => {
                 const pct = item.limit > 0 ? Math.min(100, (item.used / item.limit) * 100) : 0;
                 const isNearLimit = pct > 80;
@@ -171,7 +182,7 @@ export default function SalonDetailsPage() {
       </div>
 
       {/* Branches */}
-      {branches.length > 0 && (
+      {Array.isArray(branches) && branches.length > 0 && (
         <div className="sd-card">
           <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}><Building2 size={18} color="#10b981" /> Branches ({activeBranches} active of {branches.length})</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
