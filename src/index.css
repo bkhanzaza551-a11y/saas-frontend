@@ -128,7 +128,7 @@ label span.muted {
   color: #475569;
 }
 
-button {
+button:not([class*="maplibregl"]) {
   background: var(--button-bg, linear-gradient(135deg, #0f766e, #0ea5e9));
   color: white;
   cursor: pointer;
@@ -138,11 +138,11 @@ button {
   box-shadow: none;
 }
 
-button:hover {
+button:not([class*="maplibregl"]):hover {
   transform: translateY(-1px);
 }
 
-button:not(.btn-cancel):not(.btn-submit):not(.secondary-button):not(.crm-btn):not(.blue-btn-secondary):not(.eq-btn-secondary):not(.danger-button):hover {
+button:not([class*="maplibregl"]):not(.btn-cancel):not(.btn-submit):not(.secondary-button):not(.crm-btn):not(.blue-btn-secondary):not(.eq-btn-secondary):not(.danger-button):hover {
   background: var(--button-bg-hover, var(--button-bg, linear-gradient(135deg, #0f766e, #0ea5e9)));
   filter: brightness(1.05);
 }
