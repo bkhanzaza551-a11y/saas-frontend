@@ -394,9 +394,11 @@ export default function PosDashboardPage() {
 
   const serviceTileGroups = useMemo(() => {
     let list = posContext.services || [];
-    if (posGender) list = list.filter((service) => !service.gender || ["UNISEX", "BOTH", "ALL"].includes(service.gender.toUpperCase()) || service.gender.toUpperCase() === posGender);
+    if (posGender && posGender !== "ALL") {
+      list = list.filter((service) => !service.gender || ["UNISEX", "BOTH", "ALL"].includes(service.gender.toUpperCase()) || service.gender.toUpperCase() === posGender);
+    }
     if (serviceSearch) list = list.filter((service) => service.name.toLowerCase().includes(serviceSearch.toLowerCase()));
-    if (serviceCategoryFilter) list = list.filter((service) => service.category?.name === serviceCategoryFilter);
+    if (serviceCategoryFilter) list = list.filter((service) => service.category?.name === serviceCategoryFilter || service.category?.id === serviceCategoryFilter);
 
     const grouped = {};
     list.forEach((service) => {
