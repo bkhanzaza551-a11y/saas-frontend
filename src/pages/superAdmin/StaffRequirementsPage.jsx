@@ -8,8 +8,6 @@ import { formatApiError } from "../../utils/apiError";
 
 const emptyForm = {
   title: "",
-  department: "Hair Care",
-  branchId: "",
   quantity: 1,
   salary: "",
   shift: "Full-Time",
@@ -29,14 +27,6 @@ export default function StaffRequirementsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState("ALL");
-
-  useEffect(() => {
-    api.get("/super-admin/branches")
-      .then(res => setBranches(res.data || []))
-      .catch(err => console.error("Failed to fetch branches:", err));
-  }, []);
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -79,7 +69,6 @@ export default function StaffRequirementsPage() {
 
       const payload = {
         title: form.title,
-        department: form.department,
         position: form.shift || "Full-Time",
         count: Number(form.quantity) || 1,
         priority: (form.urgency || "MEDIUM").toUpperCase(),
@@ -117,7 +106,6 @@ export default function StaffRequirementsPage() {
 
     setForm({
       title: req.title || "",
-      department: req.department || "Hair Care",
       quantity: req.quantity || 1,
       salary: req.salary || "",
       shift: req.shift || "Full-Time",
@@ -249,19 +237,6 @@ export default function StaffRequirementsPage() {
             style={{ minWidth: 150 }}
           />
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Building2 size={16} style={{ color: "#64748b" }} />
-          <CustomSelect
-            value={selectedBranch}
-            onChange={e => setSelectedBranch(e.target.value)}
-            options={[
-              { label: "All Salon Branches", value: "ALL" },
-              ...branches.map(b => ({ label: b.name, value: b.id }))
-            ]}
-            style={{ minWidth: 200 }}
-          />
-        </div>
       </div>
 
       {loading && <div style={{ textAlign: "center", padding: "20px 0", color: "#6366f1", fontWeight: 600 }}>Loading staff requirements...</div>}
@@ -270,7 +245,6 @@ export default function StaffRequirementsPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16 }}>
         {requirements.length > 0 ? (
           requirements.map(req => {
-            const branchName = req.branch?.name || "Main Salon";
             const skillsList = Array.isArray(req.skills) ? req.skills : [];
             const reqDate = req.createdAt ? new Date(req.createdAt).toLocaleDateString() : "";
 
@@ -281,11 +255,6 @@ export default function StaffRequirementsPage() {
                     <div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>{req.reqNumber || req.id}</span>
                       <h3 style={{ margin: "6px 0 2px", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{req.title}</h3>
-                      <div style={{ fontSize: 13, color: "#64748b", display: "flex", alignItems: "center", gap: 6 }}>
-                        <span>{req.department}</span>
-                        <span>•</span>
-                        <span style={{ fontWeight: 600, color: "#475569" }}>{branchName}</span>
-                      </div>
                     </div>
                     {getUrgencyBadge(req.urgency)}
                   </div>
@@ -366,36 +335,6 @@ export default function StaffRequirementsPage() {
                   onChange={e => setForm({ ...form, title: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
                 />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Department</label>
-                  <CustomSelect
-                    value={form.department}
-                    onChange={e => setForm({ ...form, department: e.target.value })}
-                    options={[
-                      { label: "Hair Care", value: "Hair Care" },
-                      { label: "Skin & Beauty", value: "Skin & Beauty" },
-                      { label: "Nail Studio", value: "Nail Studio" },
-                      { label: "Spa & Massage", value: "Spa & Massage" },
-                      { label: "Management", value: "Management" },
-                      { label: "Support Staff", value: "Support Staff" }
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Target Branch</label>
-                  <CustomSelect
-                    value={form.branchId}
-                    onChange={e => setForm({ ...form, branchId: e.target.value })}
-                    options={[
-                      { label: "Main Salon (All Branches)", value: "" },
-                      ...branches.map(b => ({ label: b.name, value: b.id }))
-                    ]}
-                  />
-                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
