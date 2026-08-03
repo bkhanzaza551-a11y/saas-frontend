@@ -326,7 +326,7 @@
 
 .settings-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
@@ -660,6 +660,7 @@
 .radio-option {
   display: flex;
   align-items: center;
+  flex-direction: row !important;
   gap: 8px;
   font-size: 13px;
   color: #334155;
@@ -687,6 +688,7 @@
 .checkbox-option {
   display: flex;
   align-items: center;
+  flex-direction: row !important;
   gap: 8px;
   font-size: 13px;
   color: #334155;
@@ -714,15 +716,16 @@
 
 .ordering-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 .ordering-column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  align-items: flex-start;
 }
 
 .ordering-column span.col-header {
@@ -732,14 +735,17 @@
 }
 
 /* Appointment columns layout */
-.appointment-columns-grid {
+.appointment-columns-grid,
+.appointment-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
+  margin-top: 12px;
 }
 
 @media (max-width: 900px) {
-  .appointment-columns-grid {
+  .appointment-columns-grid,
+  .appointment-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -747,7 +753,8 @@
 .appointment-col {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  align-items: flex-start;
 }
 
 .tag-input-container {
@@ -860,16 +867,16 @@
 /* Responsive layout for Business Settings Grid */
 .business-settings-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.5fr;
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
   align-items: start;
 }
 
 .weekly-off-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
 }
 
 @media (max-width: 900px) {

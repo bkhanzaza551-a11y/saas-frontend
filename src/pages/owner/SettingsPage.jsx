@@ -1090,23 +1090,23 @@ export default function SettingsPage() {
             <div className="business-settings-grid">
               <div>
                 <span className="sub-section-title">Business Timing</span>
-                <div className="timing-inputs" style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px" }}>
+                <div className="timing-inputs" style={{ display: "flex", flexDirection: "row", gap: "16px", marginTop: "12px", flexWrap: "wrap" }}>
                   <label className="checkbox-option">
-                    <span style={{ minWidth: 40 }}>From :</span>
+                    <span style={{ minWidth: 40, fontWeight: 600 }}>From :</span>
                     <input
                       type="time"
                       value={generic.businessStart}
                       onChange={(event) => updateGeneric("businessStart", event.target.value)}
-                      style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                      style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "6px", flex: 1 }}
                     />
                   </label>
                   <label className="checkbox-option">
-                    <span style={{ minWidth: 40 }}>To :</span>
+                    <span style={{ minWidth: 40, fontWeight: 600 }}>To :</span>
                     <input
                       type="time"
                       value={generic.businessEnd}
                       onChange={(event) => updateGeneric("businessEnd", event.target.value)}
-                      style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                      style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "6px", flex: 1 }}
                     />
                   </label>
                 </div>
@@ -1114,7 +1114,7 @@ export default function SettingsPage() {
 
               <div>
                 <span className="sub-section-title">Applicable For</span>
-                <div className="radio-group" style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px" }}>
+                <div className="radio-group" style={{ display: "flex", flexDirection: "row", gap: "16px", marginTop: "12px" }}>
                   <label className="radio-option">
                     <input
                       type="radio"
