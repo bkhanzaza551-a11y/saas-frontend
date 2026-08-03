@@ -22,7 +22,7 @@ export default class ErrorBoundary extends Component {
     if (isChunkLoadError) {
       if (!sessionStorage.getItem("chunk_reload_attempted")) {
         sessionStorage.setItem("chunk_reload_attempted", "true");
-        window.location.reload(true);
+        window.location.href = window.location.pathname + "?_t=" + Date.now();
       }
     }
   }
@@ -35,7 +35,7 @@ export default class ErrorBoundary extends Component {
             <div style={{ fontSize: 48, marginBottom: 16 }}>!</div>
             <h2 style={{ margin: "0 0 8px", color: "#0f172a" }}>Something went wrong</h2>
             <p style={{ margin: "0 0 20px", color: "#64748b", fontSize: 14 }}>An unexpected error occurred. Please try refreshing the page.</p>
-            <button onClick={() => window.location.reload()} style={{ padding: "10px 24px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>
+            <button onClick={() => { sessionStorage.removeItem("chunk_reload_attempted"); window.location.href = window.location.pathname + "?_t=" + Date.now(); }} style={{ padding: "10px 24px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>
               Refresh Page
             </button>
             {this.state.error && (

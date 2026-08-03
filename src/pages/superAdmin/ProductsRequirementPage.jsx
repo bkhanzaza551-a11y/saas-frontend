@@ -98,7 +98,10 @@ export default function ProductsRequirementPage() {
             <h1 style={{ marginTop: 0 }}>Product Requirements</h1>
             <p style={{ marginBottom: 0 }}>Manage procurement needs for the platform (Software, Electronics, Furniture, etc).</p>
           </div>
-          
+          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: "8px 16px", height: "fit-content", alignSelf: "center", fontSize: "0.85rem" }}>
+            <Plus size={16} style={{ marginRight: 6 }} />
+            New Product Requirement
+          </button>
         </div>
       </div>
 
