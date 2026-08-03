@@ -80,11 +80,14 @@ export default function DemoLeadsPage() {
   const [feedback, setFeedback] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
   const [lastApprovedLead, setLastApprovedLead] = useState(null);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   // Manual Lead Creation Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [leadForm, setLeadForm] = useState(emptyLeadForm);
   const [addingLead, setAddingLead] = useState(false);
+
+  const closeDetailModal = () => setSelectedLead(null);
 
   const load = async (nextFilters = filters) => {
     setLoading(true);
@@ -409,192 +412,188 @@ export default function DemoLeadsPage() {
         </div>
       )}
 
-      {/* Lead Cards List */}
+      {/* Lead Table */}
       {loading ? (
         <PageLoader title="Loading Demo Pipeline" />
       ) : rows.length === 0 ? (
         <EmptyState title="No demo leads found" message="Add a lead or wait for new website demo inquiries." />
       ) : (
-        <div style={{ display: "grid", gap: 16 }}>
-          {rows.map((row) => {
-            const meta = getStatusMeta(row.status);
-            const draft = draftsById[row.id];
-
-            return (
-              <div key={row.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
-                      <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>{row.name}</h3>
-                      {row.company && (
-                        <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", background: "#f1f5f9", padding: "2px 8px", borderRadius: 6 }}>
-                          <Building2 size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
-                          {row.company}
-                        </span>
-                      )}
-                      <span style={{ fontSize: 12, fontWeight: 700, color: meta.color, background: meta.bg, padding: "3px 10px", borderRadius: 100 }}>
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0", color: "#64748b", fontWeight: 700, textAlign: "left" }}>
+                <th style={{ padding: "13px 18px" }}>Lead</th>
+                <th style={{ padding: "13px 18px" }}>Contact</th>
+                <th style={{ padding: "13px 18px" }}>Source</th>
+                <th style={{ padding: "13px 18px" }}>Status</th>
+                <th style={{ padding: "13px 18px" }}>Added</th>
+                <th style={{ padding: "13px 18px", textAlign: "right" }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const meta = getStatusMeta(row.status);
+                return (
+                  <tr key={row.id} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.15s", cursor: "default" }} className="table-row-hover">
+                    <td style={{ padding: "14px 18px" }}>
+                      <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 2 }}>{row.name}</div>
+                      {row.company && <div style={{ fontSize: 12, color: "#94a3b8" }}>{row.company}</div>}
+                    </td>
+                    <td style={{ padding: "14px 18px", color: "#475569" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}><Mail size={12} />{row.email}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Phone size={12} />{row.phone}</div>
+                    </td>
+                    <td style={{ padding: "14px 18px" }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#475569", background: "#f1f5f9", border: "1px solid #e2e8f0", padding: "3px 8px", borderRadius: 6 }}>
+                        {row.leadSource || "Website"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 18px" }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: meta.color, background: meta.bg, padding: "4px 10px", borderRadius: 100, whiteSpace: "nowrap" }}>
                         {meta.label}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "#475569", background: "#f8fafc", border: "1px solid #cbd5e1", padding: "2px 8px", borderRadius: 100 }}>
-                        🏷️ Source: {row.leadSource || "Website"}
-                      </span>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginBottom: 8 }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Mail size={14} /> {row.email}</span>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Phone size={14} /> {row.phone}</span>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={14} /> Added: {new Date(row.createdAt).toLocaleDateString()}</span>
-                    </div>
-
-                    {row.message && (
-                      <p style={{ fontSize: 13, color: "#475569", background: "#f8fafc", padding: "8px 12px", borderRadius: 8, margin: "6px 0", borderLeft: "3px solid #6366f1" }}>
-                        "{row.message}"
-                      </p>
-                    )}
-
-                    {row.leadNotes && (
-                      <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0" }}>
-                        <strong>Notes:</strong> {row.leadNotes}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Quick Action Button Bar */}
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                    {row.status === "NEW" && (
+                    </td>
+                    <td style={{ padding: "14px 18px", color: "#94a3b8", whiteSpace: "nowrap" }}>
+                      {new Date(row.createdAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: "14px 18px", textAlign: "right" }}>
                       <button
-                        onClick={() => markContacted(row.id)}
-                        disabled={busyId === row.id}
-                        style={{ padding: "8px 14px", background: "#8b5cf6", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => setSelectedLead(row)}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 6px rgba(79,70,229,0.25)" }}
                       >
-                        Mark Connected
+                        View Details <ArrowRight size={12} />
                       </button>
-                    )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {selectedLead && (() => {
+        const row = selectedLead;
+        const meta = getStatusMeta(row.status);
+        const draft = draftsById[row.id];
+        const isBusy = busyId === row.id;
+        return (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16, backdropFilter: "blur(4px)" }} onClick={closeDetailModal}>
+            <div style={{ background: "white", width: "100%", maxWidth: 680, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
+              
+              {/* Modal Header */}
+              <div style={{ padding: "22px 26px 18px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <h2 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{row.name}</h2>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: meta.color, background: meta.bg, padding: "3px 10px", borderRadius: 100 }}>{meta.label}</span>
+                    {row.leadSource && <span style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", padding: "3px 8px", borderRadius: 6, fontWeight: 600 }}>🏷️ {row.leadSource}</span>}
+                  </div>
+                  {row.company && <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>{row.company}</div>}
+                </div>
+                <button onClick={closeDetailModal} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontSize: 18, flexShrink: 0 }}>✕</button>
+              </div>
+
+              <div style={{ padding: "20px 26px", display: "flex", flexDirection: "column", gap: 20 }}>
+
+                {/* Contact Info Row */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Email</div>
+                    <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Mail size={12} color="#6366f1" />{row.email}</div>
+                  </div>
+                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Phone</div>
+                    <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Phone size={12} color="#6366f1" />{row.phone}</div>
+                  </div>
+                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Added On</div>
+                    <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Clock size={12} color="#6366f1" />{new Date(row.createdAt).toLocaleDateString()}</div>
                   </div>
                 </div>
 
-                {/* Extended Action Drawer */}
-                <div style={{ borderTop: "1px solid #f1f5f9", marginTop: 16, paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  {/* Left Box: Meeting & Calendar Integration */}
-                  <div style={{ background: "#f8fafc", padding: 14, borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Video size={16} color="#6366f1" /> Zoho Meeting & Calendar Scheduling
-                    </div>
+                {/* Message & Notes */}
+                {(row.message || row.leadNotes) && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {row.message && (
+                      <div style={{ background: "#fefce8", border: "1px solid #fef08a", borderRadius: 10, padding: "12px 14px" }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", textTransform: "uppercase", marginBottom: 5 }}>Inquiry Message</div>
+                        <p style={{ margin: 0, fontSize: 13, color: "#451a03", lineHeight: 1.6 }}>"{row.message}"</p>
+                      </div>
+                    )}
+                    {row.leadNotes && (
+                      <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 10, padding: "12px 14px" }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#075985", textTransform: "uppercase", marginBottom: 5 }}>Internal Notes</div>
+                        <p style={{ margin: 0, fontSize: 13, color: "#0c4a6e" }}>{row.leadNotes}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
+                {/* Quick Action */}
+                {row.status === "NEW" && (
+                  <button onClick={() => { markContacted(row.id); closeDetailModal(); }} disabled={isBusy} style={{ padding: "10px 16px", background: "#8b5cf6", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", alignSelf: "flex-start" }}>
+                    ✓ Mark as Connected
+                  </button>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  {/* Meeting Section */}
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 16, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Video size={15} color="#6366f1" /> Schedule Demo
+                    </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Meeting Date & Time</label>
-                        <input
-                          type="datetime-local"
-                          value={draft.meetingScheduledAt}
-                          onChange={e => updateDraft(row.id, "meetingScheduledAt", e.target.value)}
-                          style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                        />
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Meeting Date & Time</label>
+                        <input type="datetime-local" value={draft.meetingScheduledAt} onChange={e => updateDraft(row.id, "meetingScheduledAt", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
                       </div>
-
                       <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Zoho Meeting Room Link</label>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Meeting Link</label>
                         <div style={{ display: "flex", gap: 6 }}>
-                          <input
-                            type="text"
-                            placeholder="https://meeting.zoho.com/meeting/join?key=..."
-                            value={draft.meetingLink}
-                            onChange={e => updateDraft(row.id, "meetingLink", e.target.value)}
-                            style={{ flex: 1, padding: 8, borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => generateZohoMeetingLink(row.id)}
-                            style={{ padding: "6px 10px", background: "#e0e7ff", color: "#4338ca", border: "1px solid #c7d2fe", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer", whitespace: "nowrap" }}
-                            title="Generate a new Zoho Meeting room URL"
-                          >
-                            + Zoho Link
-                          </button>
+                          <input type="text" placeholder="https://meeting.zoho.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
+                          <button type="button" onClick={() => generateZohoMeetingLink(row.id)} style={{ padding: "6px 10px", background: "#e0e7ff", color: "#4338ca", border: "1px solid #c7d2fe", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Link</button>
                         </div>
                       </div>
-
-                      <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                        <button
-                          type="button"
-                          onClick={() => scheduleMeeting(row.id)}
-                          disabled={busyId === row.id}
-                          style={{ flex: 1, padding: "8px 12px", background: "#f59e0b", color: "#fff", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                        >
-                          Save & Email Demo Invite
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openZohoCalendarInvite(row)}
-                          style={{ padding: "8px 12px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
-                          title="Open Zoho Calendar Event with pre-filled lead details"
-                        >
-                          <Calendar size={13} /> Zoho Calendar
-                        </button>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button type="button" onClick={() => scheduleMeeting(row.id)} disabled={isBusy} style={{ flex: 1, padding: "9px 10px", background: "#f59e0b", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Save & Email Invite</button>
+                        <button type="button" onClick={() => openZohoCalendarInvite(row)} style={{ padding: "9px 10px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Calendar</button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Box: Subscription & Workspace Approval */}
-                  <div style={{ background: "#f8fafc", padding: 14, borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Building2 size={16} color="#16a34a" /> Subscription Plan & Workspace Conversion
+                  {/* Conversion Section */}
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 16, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Building2 size={15} color="#16a34a" /> Convert to Client
                     </div>
-
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 80px", gap: 8 }}>
                         <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Select Plan</label>
-                          <CustomSelect
-                            value={draft.planId}
-                            onChange={e => updateDraft(row.id, "planId", e.target.value)}
-                            options={plans.map(p => ({ label: `${p.name} (₹${p.monthlyPrice}/mo)`, value: p.id }))}
-                          />
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
+                          <CustomSelect value={draft.planId} onChange={e => updateDraft(row.id, "planId", e.target.value)} options={plans.map(p => ({ label: `${p.name} (₹${p.monthlyPrice}/mo)`, value: p.id }))} />
                         </div>
                         <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Trial Days</label>
-                          <input
-                            type="number"
-                            value={draft.trialDays}
-                            onChange={e => updateDraft(row.id, "trialDays", e.target.value)}
-                            style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                          />
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
+                          <input type="number" value={draft.trialDays} onChange={e => updateDraft(row.id, "trialDays", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
                         </div>
                       </div>
-
-                      <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                        <button
-                          type="button"
-                          onClick={() => approveLead(row.id)}
-                          disabled={busyId === row.id || row.status === "CONVERTED"}
-                          style={{ flex: 1, padding: "8px 12px", background: "#10b981", color: "#fff", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: row.status === "CONVERTED" ? "not-allowed" : "pointer" }}
-                        >
-                          {row.status === "CONVERTED" ? "Already Converted" : "Approve & Create Workspace"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => sendPurchaseLink(row.id)}
-                          disabled={busyId === row.id}
-                          style={{ padding: "8px 12px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                        >
-                          Send Pay Link
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => rejectLead(row.id)}
-                          disabled={busyId === row.id || row.status === "CANCELED"}
-                          style={{ padding: "8px 12px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                        >
-                          Cancel
-                        </button>
+                      <button type="button" onClick={() => approveLead(row.id)} disabled={isBusy || row.status === "CONVERTED"} style={{ padding: "9px 12px", background: row.status === "CONVERTED" ? "#d1fae5" : "#10b981", color: row.status === "CONVERTED" ? "#065f46" : "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: row.status === "CONVERTED" ? "not-allowed" : "pointer" }}>
+                        {row.status === "CONVERTED" ? "✓ Already Converted" : "Approve & Create Workspace"}
+                      </button>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button type="button" onClick={() => sendPurchaseLink(row.id)} disabled={isBusy} style={{ flex: 1, padding: "9px 10px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Send Pay Link</button>
+                        <button type="button" onClick={() => rejectLead(row.id)} disabled={isBusy || row.status === "CANCELED"} style={{ flex: 1, padding: "9px 10px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Cancel Lead</button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Manual Add Lead Modal */}
       {isAddModalOpen && (
