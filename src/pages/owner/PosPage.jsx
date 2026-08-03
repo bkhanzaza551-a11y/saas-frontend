@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, FlaskConical, Plus } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
@@ -583,8 +583,10 @@ export default function PosPage() {
   const removeTipEntry = (index) => {
     setTipEntries(prev => prev.filter((_, i) => i !== index));
   };
+  const loadContextReqId = useRef(0);
 
   const loadContext = useCallback(async (customerId = form.customerId, branchId = form.branchId) => {
+    const reqId = ++loadContextReqId.current;
     setLoading(true);
     try {
       const params = {};
@@ -595,9 +597,11 @@ export default function PosPage() {
         api.get("/owner/pos/day-closing", { params: branchId ? { branchId } : {} }),
         api.get("/owner/service-categories", { params: branchId ? { branchId } : {} })
       ]);
+      if (reqId !== loadContextReqId.current) return;
       applyContext(contextResponse, closingResponse, catRes, customerId, branchId);
       setStatus((current) => ({ ...current, error: "" }));
     } catch (error) {
+      if (reqId !== loadContextReqId.current) return;
       setLoading(false);
       setStatus((current) => ({ ...current, error: formatApiError(error, "Could not load POS workspace") }));
     }
