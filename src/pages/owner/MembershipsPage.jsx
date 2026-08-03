@@ -591,262 +591,280 @@ export default function MembershipsPage() {
             {customerPackageMode && !loading && !selectedCustomerHistory?.packages?.length && <EmptyState title="No packages assigned yet" message="Assign a package to start tracking prepaid sessions for this customer." />}
             {!customerPackageMode && !loading && !filteredPackages.length && <EmptyState title="No packages yet" message="Create your first package to launch prepaid session bundles." />}
           </div>
-        </div>}
-
-      {showMembershipModal && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: 800, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
-            <div className="modal-header">
-              <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                {membershipEditMode ? <><Edit2 size={20} color="#64748b" /> Edit Membership Plan</> : <><Plus size={20} color="#64748b" /> Create Membership Plan</>}
-              </span>
-              <button type="button" className="modal-close-btn" onClick={() => setShowMembershipModal(false)}><X size={20} /></button>
+        </d      {showMembershipModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => setShowMembershipModal(false)} />
+          <div style={{ position: "relative", width: 800, maxWidth: "90vw", maxHeight: "90vh", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                {membershipEditMode ? <Edit2 size={20} color="#3b82f6" /> : <Plus size={20} color="#3b82f6" />}
+                {membershipEditMode ? "Edit Membership Plan" : "Create Membership Plan"}
+              </h2>
+              <button onClick={() => setShowMembershipModal(false)} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4, display: "flex" }}>
+                <X size={20} />
+              </button>
             </div>
             
-            <div className="modal-body">
-            <form onSubmit={async (event) => {
-              event.preventDefault();
-              setStatus({ error: "", success: "" });
-              try {
-                if (!membershipForm.name.trim()) throw new Error("Membership name is required.");
-                const isFixed = membershipForm.membershipType === "Fixed";
-                const payload = {
-                  ...membershipForm,
-                  name: membershipForm.name.trim(),
-                  description: membershipForm.description.trim(),
-                  benefits: cleanBenefits(membershipForm.benefits),
-                  price: Number(membershipForm.price),
-                  validityDays: Number(membershipForm.validityDays),
-                  benefitType: isFixed ? "WALLET_VALUE" : "DISCOUNT_PERCENT",
-                  walletValue: isFixed ? Number(membershipForm.walletValue || 0) : 0,
-                  discountValue: !isFixed ? Number(membershipForm.discountValue || 0) : 0,
-                  // Pass new fields incase backend accepts them, otherwise they are ignored safely
-                  renewalReminder: Number(membershipForm.renewalReminder || 0),
-                  isSharable: membershipForm.isSharable,
-                  applySelectedDays: membershipForm.applySelectedDays,
-                  applySelectedServices: membershipForm.applySelectedServices,
-                  serviceIds: membershipForm.applySelectedServices ? membershipForm.serviceIds : [],
-                  branchId: selectedBranchId || null
-                };
-                if (membershipEditMode) {
-                  await api.patch(`/owner/memberships/${editableMembershipId}`, payload);
-                } else {
-                  await api.post("/owner/memberships", payload);
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              <form onSubmit={async (event) => {
+                event.preventDefault();
+                setStatus({ error: "", success: "" });
+                try {
+                  if (!membershipForm.name.trim()) throw new Error("Membership name is required.");
+                  const isFixed = membershipForm.membershipType === "Fixed";
+                  const payload = {
+                    ...membershipForm,
+                    name: membershipForm.name.trim(),
+                    description: membershipForm.description.trim(),
+                    benefits: cleanBenefits(membershipForm.benefits),
+                    price: Number(membershipForm.price),
+                    validityDays: Number(membershipForm.validityDays),
+                    benefitType: isFixed ? "WALLET_VALUE" : "DISCOUNT_PERCENT",
+                    walletValue: isFixed ? Number(membershipForm.walletValue || 0) : 0,
+                    discountValue: !isFixed ? Number(membershipForm.discountValue || 0) : 0,
+                    renewalReminder: Number(membershipForm.renewalReminder || 0),
+                    isSharable: membershipForm.isSharable,
+                    applySelectedDays: membershipForm.applySelectedDays,
+                    applySelectedServices: membershipForm.applySelectedServices,
+                    serviceIds: membershipForm.applySelectedServices ? membershipForm.serviceIds : [],
+                    branchId: selectedBranchId || null
+                  };
+                  if (membershipEditMode) {
+                    await api.patch(`/owner/memberships/${editableMembershipId}`, payload);
+                  } else {
+                    await api.post("/owner/memberships", payload);
+                  }
+                  setMembershipForm(emptyMembership);
+                  await loadAll();
+                  setStatus({ error: "", success: membershipEditMode ? "Membership updated." : "Membership created." });
+                  setShowMembershipModal(false);
+                } catch (error) {
+                  setStatus({ error: formatApiError(error, "Could not save membership"), success: "" });
                 }
-                setMembershipForm(emptyMembership);
-                await loadAll();
-                setStatus({ error: "", success: membershipEditMode ? "Membership updated." : "Membership created." });
-                setShowMembershipModal(false);
-              } catch (error) {
-                setStatus({ error: formatApiError(error, "Could not save membership"), success: "" });
-              }
-            }} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              }} style={{ display: "flex", flexDirection: "column" }}>
 
-              {/* Membership Type Radio */}
-              <div>
-                <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "8px" }}>Membership Type:</label>
-                <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "0.9rem", color: "#0f172a" }}>
-                    <input 
-                      type="radio" 
-                      name="membershipType" 
-                      value="Fixed" 
-                      checked={membershipForm.membershipType === "Fixed"} 
-                      onChange={() => setMembershipForm({ ...membershipForm, membershipType: "Fixed" })}
-                      style={{ accentColor: "#e11d48", width: "16px", height: "16px" }}
-                    />
-                    Fixed
-                  </label>
-                  <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "0.9rem", color: "#0f172a" }}>
-                    <input 
-                      type="radio" 
-                      name="membershipType" 
-                      value="Percentage" 
-                      checked={membershipForm.membershipType === "Percentage"} 
-                      onChange={() => setMembershipForm({ ...membershipForm, membershipType: "Percentage" })}
-                      style={{ accentColor: "#e11d48", width: "16px", height: "16px" }}
-                    />
-                    Percentage
-                  </label>
-                </div>
-              </div>
-
-              {/* Name & Active */}
-              <div style={{ display: "flex", gap: "24px", alignItems: "flex-end", flexWrap: "wrap" }}>
-                <div style={{ flex: 1, minWidth: "250px" }}>
-                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Enter Name" 
-                    value={membershipForm.name} 
-                    onChange={(e) => setMembershipForm({ ...membershipForm, name: e.target.value })} 
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  />
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", height: "38px" }}>
-                  <input 
-                    type="checkbox" 
-                    checked={membershipForm.isActive} 
-                    onChange={(e) => setMembershipForm({ ...membershipForm, isActive: e.target.checked })}
-                    style={{ accentColor: "var(--accent, #3b82f6)", width: "16px", height: "16px", cursor: "pointer" }}
-                  />
-                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#0f172a" }}>Active</span>
-                </div>
-              </div>
-
-              {/* Fees, Validity, Renewal Reminder, Standard Discount */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Fees</label>
-                  <input 
-                    type="number" 
-                    placeholder="Enter Fee" 
-                    value={membershipForm.price} 
-                    onChange={(e) => setMembershipForm({ ...membershipForm, price: e.target.value })} 
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Validity</label>
-                  <input 
-                    type="number" 
-                    placeholder="In Days" 
-                    value={membershipForm.validityDays} 
-                    onChange={(e) => setMembershipForm({ ...membershipForm, validityDays: e.target.value })} 
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Renewal Reminder</label>
-                  <input 
-                    type="number" 
-                    placeholder="In Days" 
-                    value={membershipForm.renewalReminder} 
-                    onChange={(e) => setMembershipForm({ ...membershipForm, renewalReminder: e.target.value })} 
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  />
-                </div>
-                {membershipForm.membershipType === "Percentage" && (
+                <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 24 }}>
+                  {/* Membership Type Options */}
                   <div>
-                    <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Standard Discount '%'</label>
-                    <input 
-                      type="number" 
-                      placeholder="Enter %" 
-                      value={membershipForm.discountValue} 
-                      onChange={(e) => setMembershipForm({ ...membershipForm, discountValue: e.target.value })} 
-                      style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                    />
+                    <label style={{ display: "block", fontSize: 14, color: "#334155", fontWeight: 700, marginBottom: 12 }}>Membership Type</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Fixed" })} style={{ padding: "16px", border: membershipForm.membershipType === "Fixed" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Fixed" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Fixed" ? "#1d4ed8" : "#334155", fontSize: 14 }}>Fixed Wallet Amount</div>
+                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Customer pays a fee and gets a fixed prepaid wallet balance.</div>
+                      </button>
+                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Percentage" })} style={{ padding: "16px", border: membershipForm.membershipType === "Percentage" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Percentage" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Percentage" ? "#1d4ed8" : "#334155", fontSize: 14 }}>Percentage Discount</div>
+                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Customer gets a flat percentage discount on selected services.</div>
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* Benefit Amount (Fixed Only) */}
-              {membershipForm.membershipType === "Fixed" && (
-                <div style={{ width: "200px" }}>
-                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Benefit Amount</label>
-                  <input 
-                    type="number" 
-                    placeholder="Enter Amount" 
-                    value={membershipForm.walletValue} 
-                    onChange={(e) => setMembershipForm({ ...membershipForm, walletValue: e.target.value })} 
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  />
-                </div>
-              )}
-
-              {/* Toggles */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", width: "fit-content" }}>
-                  <span style={{ fontSize: "0.85rem", color: "#0f172a", fontWeight: 600 }}>Membership Sharable</span>
-                  <div style={{ position: "relative", width: "36px", height: "20px", background: membershipForm.isSharable ? "#3b82f6" : "#cbd5e1", borderRadius: "20px", transition: "background 0.3s" }}>
-                    <div style={{ position: "absolute", top: "2px", left: membershipForm.isSharable ? "18px" : "2px", width: "16px", height: "16px", background: "white", borderRadius: "50%", transition: "left 0.3s" }}></div>
-                  </div>
-                  <input type="checkbox" checked={membershipForm.isSharable} onChange={e => setMembershipForm({...membershipForm, isSharable: e.target.checked})} style={{ display: "none" }} />
-                </label>
-                
-                {membershipForm.membershipType === "Percentage" && (
-                  <>
-                    <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", width: "fit-content" }}>
-                      <span style={{ fontSize: "0.85rem", color: "#0f172a", fontWeight: 600 }}>Apply Membership For Selected Days</span>
-                      <div style={{ position: "relative", width: "36px", height: "20px", background: membershipForm.applySelectedDays ? "#3b82f6" : "#cbd5e1", borderRadius: "20px", transition: "background 0.3s" }}>
-                        <div style={{ position: "absolute", top: "2px", left: membershipForm.applySelectedDays ? "18px" : "2px", width: "16px", height: "16px", background: "white", borderRadius: "50%", transition: "left 0.3s" }}></div>
+                  {/* Name & Active Status */}
+                  <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Membership Name</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. VIP Gold Membership" 
+                        value={membershipForm.name} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, name: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: membershipForm.isActive ? "#f0fdfa" : "#f8fafc", border: membershipForm.isActive ? "1px solid #99f6e4" : "1px solid #e2e8f0", borderRadius: 8, height: 42, width: 200 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: membershipForm.isActive ? "#0f766e" : "#475569" }}>Active Status</div>
+                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                        <input type="checkbox" checked={membershipForm.isActive} onChange={(e) => setMembershipForm({ ...membershipForm, isActive: e.target.checked })} />
+                        <span className="toggle-switch-slider" />
                       </div>
-                      <input type="checkbox" checked={membershipForm.applySelectedDays} onChange={e => setMembershipForm({...membershipForm, applySelectedDays: e.target.checked})} style={{ display: "none" }} />
-                    </label>
+                    </div>
+                  </div>
 
-                    <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", width: "fit-content" }}>
-                      <span style={{ fontSize: "0.85rem", color: "#0f172a", fontWeight: 600 }}>Apply Membership On Selected Services</span>
-                      <div style={{ position: "relative", width: "36px", height: "20px", background: membershipForm.applySelectedServices ? "#3b82f6" : "#cbd5e1", borderRadius: "20px", transition: "background 0.3s" }}>
-                        <div style={{ position: "absolute", top: "2px", left: membershipForm.applySelectedServices ? "18px" : "2px", width: "16px", height: "16px", background: "white", borderRadius: "50%", transition: "left 0.3s" }}></div>
+                  {/* Settings Grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Selling Price (Fee)</label>
+                      <input 
+                        type="number" 
+                        placeholder="0.00" 
+                        value={membershipForm.price} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, price: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Validity (Days)</label>
+                      <input 
+                        type="number" 
+                        placeholder="e.g. 365" 
+                        value={membershipForm.validityDays} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, validityDays: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Renewal Reminder (Days)</label>
+                      <input 
+                        type="number" 
+                        placeholder="e.g. 7" 
+                        value={membershipForm.renewalReminder} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, renewalReminder: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Benefit / Discount Specific */}
+                  {membershipForm.membershipType === "Percentage" && (
+                    <div style={{ width: "33%" }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Standard Discount (%)</label>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <input 
+                          type="number" 
+                          placeholder="0" 
+                          value={membershipForm.discountValue} 
+                          onChange={(e) => setMembershipForm({ ...membershipForm, discountValue: e.target.value })} 
+                          style={{ flex: 1, padding: "10px 14px", borderRadius: "8px 0 0 8px", border: "1px solid #cbd5e1", borderRight: "none", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                          onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                          onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                        />
+                        <span style={{ padding: "10px 16px", background: "#f8fafc", border: "1px solid #cbd5e1", borderLeft: "none", borderRadius: "0 8px 8px 0", fontSize: 14, color: "#475569", fontWeight: 600 }}>%</span>
                       </div>
-                      <input type="checkbox" checked={membershipForm.applySelectedServices} onChange={e => setMembershipForm({...membershipForm, applySelectedServices: e.target.checked})} style={{ display: "none" }} />
-                    </label>
-                  </>
-                )}
-              </div>
+                    </div>
+                  )}
 
-              {/* Service Selection for Percentage (If enabled) */}
-              {membershipForm.membershipType === "Percentage" && membershipForm.applySelectedServices && (
-                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "8px" }}>Select Services</label>
-                  <input 
-                    type="text" 
-                    placeholder="Search services..." 
-                    value={serviceSearch} 
-                    onChange={(e) => setServiceSearch(e.target.value)} 
-                    style={{ marginBottom: "12px", padding: "8px 12px", width: "100%", borderRadius: "6px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "0.8rem", outline: "none" }}
-                  />
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto" }}>
-                    {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).map((service) => {
-                      const isSelected = membershipForm.serviceIds.includes(service.id);
-                      return (
-                        <button 
-                          type="button" 
-                          key={service.id} 
-                          onClick={() => {
-                            setMembershipForm(cur => ({
-                              ...cur,
-                              serviceIds: isSelected ? cur.serviceIds.filter(id => id !== service.id) : [...cur.serviceIds, service.id]
-                            }));
-                          }}
-                          style={{
-                            padding: "6px 12px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
-                            background: isSelected ? "#3b82f6" : "white",
-                            color: isSelected ? "white" : "#475569",
-                            border: isSelected ? "1px solid #3b82f6" : "1px solid #cbd5e1"
-                          }}
-                        >
-                          {service.name}
-                        </button>
-                      );
-                    })}
-                    {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>No services found</span>}
+                  {membershipForm.membershipType === "Fixed" && (
+                    <div style={{ width: "33%" }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Wallet Benefit Amount</label>
+                      <input 
+                        type="number" 
+                        placeholder="0.00" 
+                        value={membershipForm.walletValue} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, walletValue: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                  )}
+
+                  {/* Toggles Container */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>Sharable Membership</div>
+                        <div style={{ fontSize: 12, color: "#64748b" }}>Allow multiple clients (family/friends) to use this membership.</div>
+                      </div>
+                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                        <input type="checkbox" checked={membershipForm.isSharable} onChange={e => setMembershipForm({...membershipForm, isSharable: e.target.checked})} />
+                        <span className="toggle-switch-slider" />
+                      </div>
+                    </div>
+
+                    {membershipForm.membershipType === "Percentage" && (
+                      <>
+                        <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "4px 0" }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>Apply for Selected Days</div>
+                            <div style={{ fontSize: 12, color: "#64748b" }}>Restrict this discount to specific days of the week.</div>
+                          </div>
+                          <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                            <input type="checkbox" checked={membershipForm.applySelectedDays} onChange={e => setMembershipForm({...membershipForm, applySelectedDays: e.target.checked})} />
+                            <span className="toggle-switch-slider" />
+                          </div>
+                        </div>
+
+                        <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "4px 0" }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>Apply on Selected Services Only</div>
+                            <div style={{ fontSize: 12, color: "#64748b" }}>Limit this discount to specific services.</div>
+                          </div>
+                          <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                            <input type="checkbox" checked={membershipForm.applySelectedServices} onChange={e => setMembershipForm({...membershipForm, applySelectedServices: e.target.checked})} />
+                            <span className="toggle-switch-slider" />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Service Selection for Percentage (If enabled) */}
+                  {membershipForm.membershipType === "Percentage" && membershipForm.applySelectedServices && (
+                    <div style={{ background: "#fff", padding: 16, borderRadius: 12, border: "1px solid #cbd5e1" }}>
+                      <label style={{ display: "block", fontSize: 14, color: "#1e293b", fontWeight: 700, marginBottom: 12 }}>Select Eligible Services</label>
+                      <input 
+                        type="text" 
+                        placeholder="Search services..." 
+                        value={serviceSearch} 
+                        onChange={(e) => setServiceSearch(e.target.value)} 
+                        style={{ marginBottom: 16, padding: "10px 14px", width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, outline: "none" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, maxHeight: 180, overflowY: "auto", paddingBottom: 4 }}>
+                        {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).map((service) => {
+                          const isSelected = membershipForm.serviceIds.includes(service.id);
+                          return (
+                            <button 
+                              type="button" 
+                              key={service.id} 
+                              onClick={() => {
+                                setMembershipForm(cur => ({
+                                  ...cur,
+                                  serviceIds: isSelected ? cur.serviceIds.filter(id => id !== service.id) : [...cur.serviceIds, service.id]
+                                }));
+                              }}
+                              style={{
+                                padding: "8px 16px", borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                                background: isSelected ? "#3b82f6" : "#f1f5f9",
+                                color: isSelected ? "#fff" : "#475569",
+                                border: isSelected ? "1px solid #3b82f6" : "1px solid #cbd5e1",
+                                display: "flex", alignItems: "center", gap: 6
+                              }}
+                            >
+                              {isSelected && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />}
+                              {service.name}
+                            </button>
+                          );
+                        })}
+                        {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && (
+                          <div style={{ color: "#94a3b8", fontSize: 14, padding: "10px 0" }}>No services found</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ padding: "16px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Total Fee</div>
+                    <div style={{ fontSize: 18, color: "#0f172a", fontWeight: 800 }}>{formatMoney(membershipForm.price || 0)}</div>
+                    {membershipForm.membershipType === "Fixed" && (
+                      <div style={{ fontSize: 12, color: "#059669", fontWeight: 600, marginTop: 2 }}>Wallet Benefit: {formatMoney(membershipForm.walletValue || 0)}</div>
+                    )}
+                  </div>
+                  
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); }} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14 }}>
+                      Cancel
+                    </button>
+                    <button type="submit" style={{ padding: "10px 24px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                      <Plus size={16} /> Save Plan
+                    </button>
                   </div>
                 </div>
-              )}
 
-              <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "10px 0" }} />
-
-              {/* Bottom Totals */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div style={{ alignSelf: "flex-end", fontSize: "0.9rem", color: "#475569", fontWeight: 600 }}>
-                  Total Amount To Pay: <span style={{ color: "#0f172a", fontWeight: 800 }}>{formatMoney(membershipForm.price || 0)}</span>
-                </div>
-                
-                {membershipForm.membershipType === "Fixed" && (
-                  <div style={{ background: "#e2e8f0", padding: "12px", borderRadius: "4px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.9rem", color: "#334155" }}>Final benefit amount is: <strong style={{ color: "var(--accent, #3b82f6)" }}>{formatMoney(membershipForm.walletValue || 0)}</strong></span>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "10px" }}>
-                <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); }} style={{ padding: "8px 24px", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#f1f5f9", color: "#475569", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-                <button type="submit" style={{ padding: "8px 32px", borderRadius: "6px", border: "none", background: "var(--button-bg-solid, #3b82f6)", color: "white", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s" }}>Save</button>
-              </div>
-
-            </form>
+              </form>
             </div>
           </div>
         </div>
