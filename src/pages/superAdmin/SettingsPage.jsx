@@ -203,10 +203,6 @@ export default function SuperAdminSettingsPage() {
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>System Name</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("systemName", { placeholder: "Salon Nest" })} /></label>
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Tax Label</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("taxLabel", { placeholder: "Tax" })} /></label>
                       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Invoice Prefix</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("invoicePrefix", { placeholder: "INV" })} /></label>
-
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Country</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultCountry")} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default City</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultCity")} /></label>
-                      <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Default Timezone</span><input style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14 }} {...input("defaultTimezone")} /></label>
                     </div>
                   </div>
                 )}
