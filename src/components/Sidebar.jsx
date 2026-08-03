@@ -247,7 +247,6 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
               </div>
               <div className="sidebar-profile-info">
                 <div className="sidebar-profile-name">{auth?.user?.name || "Admin User"}</div>
-                <div className="sidebar-profile-role">{isSuperAdmin ? "Super Admin" : auth?.membership?.salonRole || "Salon Owner"}</div>
               </div>
             </div>
 
