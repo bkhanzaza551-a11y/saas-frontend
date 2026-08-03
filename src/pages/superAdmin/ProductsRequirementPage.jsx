@@ -6,16 +6,7 @@ import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import { Package, Plus } from "lucide-react";
 
-const emptyForm = {
-  productName: "",
-  description: "",
-  category: "",
-  quantity: "1",
-  unitPrice: "",
-  priority: "MEDIUM",
-  status: "PENDING",
-  vendor: ""
-};
+
 
 const priorityColors = {
   LOW: { bg: "#f0fdf4", color: "#166534" },
@@ -37,11 +28,7 @@ export default function ProductsRequirementPage() {
   const [requirements, setRequirements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const load = async () => {
     setLoading(true);
     try {
@@ -56,25 +43,7 @@ export default function ProductsRequirementPage() {
 
   useEffect(() => { load(); }, []);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!form.productName.trim()) {
-      setStatus({ error: "Product name is required.", success: "" });
-      return;
-    }
-    setSaving(true);
-    try {
-      await api.post("/super-admin/product-requirements", form);
-      setForm(emptyForm);
-      setIsModalOpen(false);
-      setStatus({ error: "", success: "Product requirement created." });
-      await load();
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not submit"), success: "" });
-    } finally {
-      setSaving(false);
-    }
-  };
+
 
   const updateStatus = async (id, newStatus) => {
     try {
@@ -98,10 +67,7 @@ export default function ProductsRequirementPage() {
             <h1 style={{ marginTop: 0 }}>Product Requirements</h1>
             <p style={{ marginBottom: 0 }}>Manage procurement needs for the platform (Software, Electronics, Furniture, etc).</p>
           </div>
-          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-            <Plus size={16} style={{ marginRight: 6 }} />
-            New Product Requirement
-          </button>
+          </div>
         </div>
       </div>
 
@@ -159,106 +125,7 @@ export default function ProductsRequirementPage() {
         )}
       </div>
 
-      {isModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 540, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>New Product Requirement</h2>
-              <button onClick={() => { setIsModalOpen(false); setForm(emptyForm); }} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
-            </div>
 
-            <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Product Name *</label>
-                <input
-                  value={form.productName}
-                  placeholder="e.g. MacBook Pro, Office Desk, AWS Credits"
-                  required
-                  onChange={(e) => setForm({ ...form, productName: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Description</label>
-                <textarea
-                  rows={3}
-                  value={form.description}
-                  placeholder="Describe the product need or specifications..."
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Category</label>
-                  <input
-                    value={form.category}
-                    placeholder="e.g. Electronics, Furniture, Software"
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Vendor (Optional)</label>
-                  <input
-                    value={form.vendor}
-                    placeholder="e.g. Amazon, Dell, Microsoft"
-                    onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Quantity</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.quantity}
-                    onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Unit Price</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.unitPrice}
-                    placeholder="0.00"
-                    onChange={(e) => setForm({ ...form, unitPrice: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Priority</label>
-                  <CustomSelect 
-                    value={form.priority} 
-                    onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                    options={[
-                      { label: "Low", value: "LOW" },
-                      { label: "Medium", value: "MEDIUM" },
-                      { label: "High", value: "HIGH" },
-                      { label: "Urgent", value: "URGENT" }
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 12, borderTop: "1px solid #eee", paddingTop: 16 }}>
-                <button type="button" onClick={() => { setIsModalOpen(false); setForm(emptyForm); }} className="btn btn-secondary">Cancel</button>
-                <button type="submit" disabled={saving} className="btn btn-primary" style={{ opacity: saving ? 0.7 : 1 }}>
-                  {saving ? "Creating..." : "Create Requirement"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

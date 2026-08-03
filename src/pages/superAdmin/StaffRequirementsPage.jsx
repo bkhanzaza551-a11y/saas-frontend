@@ -6,16 +6,7 @@ import CustomSelect from "../../components/CustomSelect";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 
-const emptyForm = {
-  title: "",
-  quantity: 1,
-  salary: "",
-  shift: "Full-Time",
-  urgency: "Immediate",
-  skills: "",
-  description: "",
-  status: "OPEN"
-};
+
 
 export default function StaffRequirementsPage() {
   const [requirements, setRequirements] = useState([]);
@@ -24,12 +15,7 @@ export default function StaffRequirementsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [urgencyFilter, setUrgencyFilter] = useState("ALL");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
 
-
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
 
   // Fetch real staff requirements from backend
   const loadRequirements = useCallback(async () => {
@@ -57,65 +43,7 @@ export default function StaffRequirementsPage() {
     return () => clearTimeout(timer);
   }, [loadRequirements]);
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!form.title.trim()) return;
 
-    setSaving(true);
-    try {
-      const skillsArray = typeof form.skills === "string"
-        ? form.skills.split(",").map(s => s.trim()).filter(Boolean)
-        : form.skills;
-
-      const payload = {
-        title: form.title,
-        position: form.shift || "Full-Time",
-        count: Number(form.quantity) || 1,
-        priority: (form.urgency || "MEDIUM").toUpperCase(),
-        description: form.description,
-        status: form.status
-      };
-
-      if (editingId) {
-        const res = await api.patch(`/super-admin/staff-requirements/${editingId}`, payload);
-        // We will reload entirely
-        loadRequirements();
-      } else {
-        const res = await api.post("/super-admin/staff-requirements", payload);
-        loadRequirements();
-      }
-      resetForm();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to save staff requirement");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId(null);
-    setIsModalOpen(false);
-  };
-
-  const startEdit = (req) => {
-    setEditingId(req.id);
-    const skillsStr = Array.isArray(req.skills)
-      ? req.skills.join(", ")
-      : (typeof req.skills === "string" ? req.skills : "");
-
-    setForm({
-      title: req.title || "",
-      quantity: req.quantity || 1,
-      salary: req.salary || "",
-      shift: req.shift || "Full-Time",
-      urgency: req.urgency || "Immediate",
-      skills: skillsStr,
-      description: req.description || "",
-      status: req.status || "OPEN"
-    });
-    setIsModalOpen(true);
-  };
 
   const deleteReq = async (id) => {
     if (!window.confirm("Are you sure you want to delete this staff requirement?")) return;
@@ -170,10 +98,7 @@ export default function StaffRequirementsPage() {
             <h1 style={{ marginTop: 0 }}>Staff Requirement & Hiring Requisitions</h1>
             <p style={{ marginBottom: 0 }}>Manage vacancies, skill requirements, branch allocations, and recruitment status across all salons.</p>
           </div>
-          <button className="btn btn-primary" onClick={() => { resetForm(); setIsModalOpen(true); }}>
-            <Plus size={16} style={{ marginRight: 6 }} />
-            New Staff Requirement
-          </button>
+          </div>
         </div>
       </div>
 
@@ -297,9 +222,7 @@ export default function StaffRequirementsPage() {
                         <UserCheck size={14} />
                       </button>
                     )}
-                    <button onClick={() => startEdit(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12 }} title="Edit">
-                      <Edit2 size={14} />
-                    </button>
+
                     <button onClick={() => deleteReq(req.id)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12, color: "#dc2626" }} title="Delete">
                       <Trash2 size={14} />
                     </button>
@@ -315,125 +238,7 @@ export default function StaffRequirementsPage() {
         )}
       </div>
 
-      {/* Create / Edit Requirement Modal */}
-      {isModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 540, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{editingId ? "Edit Staff Requirement" : "New Staff Requirement"}</h2>
-              <button onClick={resetForm} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
-            </div>
 
-            <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Position Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Senior Software Engineer"
-                  value={form.title}
-                  onChange={e => setForm({ ...form, title: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Quantity</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.quantity}
-                    onChange={e => setForm({ ...form, quantity: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Urgency Level</label>
-                  <CustomSelect
-                    value={form.urgency}
-                    onChange={e => setForm({ ...form, urgency: e.target.value })}
-                    options={[
-                      { label: "Immediate", value: "Immediate" },
-                      { label: "High", value: "High" },
-                      { label: "Medium", value: "Medium" },
-                      { label: "Low", value: "Low" }
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Status</label>
-                  <CustomSelect
-                    value={form.status}
-                    onChange={e => setForm({ ...form, status: e.target.value })}
-                    options={[
-                      { label: "PENDING", value: "PENDING" },
-                      { label: "APPROVED", value: "APPROVED" },
-                      { label: "FULFILLED", value: "FULFILLED" },
-                      { label: "REJECTED", value: "REJECTED" }
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Offered Salary</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ₹35,000 - ₹45,000 / mo"
-                    value={form.salary}
-                    onChange={e => setForm({ ...form, salary: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Shift Timing</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Full-Time (10 AM - 7 PM)"
-                    value={form.shift}
-                    onChange={e => setForm({ ...form, shift: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Required Skills (comma separated)</label>
-                <input
-                  type="text"
-                  placeholder="React, Node.js, System Design"
-                  value={form.skills}
-                  onChange={e => setForm({ ...form, skills: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Job Description & Criteria</label>
-                <textarea
-                  rows={3}
-                  placeholder="Describe experience requirements, duties, or special notes..."
-                  value={form.description}
-                  onChange={e => setForm({ ...form, description: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 12, borderTop: "1px solid #eee", paddingTop: 16 }}>
-                <button type="button" onClick={resetForm} className="btn btn-secondary">Cancel</button>
-                <button type="submit" disabled={saving} className="btn btn-primary" style={{ opacity: saving ? 0.7 : 1 }}>
-                  {saving ? "Saving..." : editingId ? "Update Requirement" : "Create Requirement"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
