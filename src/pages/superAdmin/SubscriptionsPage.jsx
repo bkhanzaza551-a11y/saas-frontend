@@ -320,13 +320,13 @@ export default function SubscriptionsPage() {
                     </td>
                     <td style={{ padding: "16px 20px", textAlign: "right" }}>
                       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                        <button type="button" onClick={() => openEditModal(row)} disabled={isBusy} title="Edit" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, border: "1px solid #cbd5e1", background: "white", color: "#475569", cursor: "pointer", transition: "all 0.2s" }}>
+                        <button type="button" onClick={() => openEditModal(row)} disabled={isBusy} title="Edit" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 10, border: "1px solid #cbd5e1", background: "white", color: "#475569", cursor: "pointer", transition: "all 0.2s" }}>
                           <Edit2 size={18} />
                         </button>
-                        <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Renewal Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
+                        <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Renewal Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 10, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
                           {busyId === `reminder-${row.id}` ? <RefreshCw size={18} className="spin" /> : <Bell size={18} />}
                         </button>
-                        <button type="button" onClick={() => deleteSubscription(row.id)} disabled={isBusy} title="Delete" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, border: "1px solid #fca5a5", background: "#fef2f2", color: "#991b1b", cursor: "pointer", transition: "all 0.2s" }}>
+                        <button type="button" onClick={() => deleteSubscription(row.id)} disabled={isBusy} title="Delete" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 10, border: "1px solid #fca5a5", background: "#fef2f2", color: "#991b1b", cursor: "pointer", transition: "all 0.2s" }}>
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -459,6 +459,20 @@ export default function SubscriptionsPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 24, right: 24, padding: "14px 24px",
+          background: toast.type === "success" ? "#10b981" : "#ef4444",
+          color: "white", borderRadius: 12, fontWeight: 600, fontSize: "0.95rem",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.2)", zIndex: 9999,
+          display: "flex", alignItems: "center", gap: 8,
+          animation: "slideInRight 0.3s ease"
+        }}>
+          {toast.message}
         </div>
       )}
     </div>
