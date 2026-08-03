@@ -6,6 +6,29 @@ import EmptyState from "../../components/EmptyState";
 import ModuleTabs from "../../components/ModuleTabs";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
+import { Star, User, MessageCircle, Calendar, CheckCircle, Mail, AlertCircle, Clock, Trash2, MailPlus, Check } from "lucide-react";
+
+const statusColors = {
+  NEW: "#3b82f6",
+  REVIEWED: "#eab308",
+  CONTACTED: "#f97316",
+  RESOLVED: "#10b981"
+};
+
+const statusBadges = {
+  NEW: { bg: "#eff6ff", color: "#1d4ed8" },
+  REVIEWED: { bg: "#fefce8", color: "#a16207" },
+  CONTACTED: { bg: "#fff7ed", color: "#c2410c" },
+  RESOLVED: { bg: "#ecfdf5", color: "#047857" }
+};
+
+const renderStars = (rating) => (
+  <div style={{ display: "flex", gap: 2 }}>
+    {[1, 2, 3, 4, 5].map(i => (
+      <Star key={i} size={16} fill={i <= rating ? "#f59e0b" : "transparent"} color={i <= rating ? "#f59e0b" : "#cbd5e1"} />
+    ))}
+  </div>
+);
 
 export default function FeedbackPage() {
   const location = useLocation();
@@ -154,42 +177,65 @@ export default function FeedbackPage() {
       {status.success && <div className="panel-card"><p className="success-text">{status.success}</p></div>}
 
       {mode === "feedback" && (
-        <div className="panel-card">
-          <h3>Feedback Inbox</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <h3 style={{ margin: "0 0 8px", fontSize: 18, color: "#1e293b" }}>Feedback Inbox</h3>
           {loading ? <PageLoader compact title="Loading feedback inbox" message="Preparing ratings, branch filters, and customer comments for review." /> : null}
-          <div className="list-stack" style={{ maxHeight: "55vh", overflowY: "auto" }}>
+          <div style={{ display: "grid", gap: 16 }}>
             {rows.map((row) => {
               const buttons = getVisibleButtons(row.status);
               const isBusy = processingId === row.id;
+              const badge = statusBadges[row.status] || { bg: "#f1f5f9", color: "#475569" };
+              
               return (
-                <div key={row.id} className="list-item">
-                  <strong>{row.customer?.name || "Customer"} | Rating {row.rating}/5</strong>
-                  <div className="item-meta">{row.status} | {row.message || "No comment"}</div>
-                  <div className="inline-actions" style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div key={row.id} style={{ background: "#fff", borderRadius: 12, padding: 24, boxShadow: "0 2px 10px rgba(0,0,0,0.03)", border: "1px solid #e2e8f0", borderLeft: `4px solid ${statusColors[row.status] || "#cbd5e1"}`, display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 700, color: "#1e293b" }}>
+                          <User size={16} color="#64748b" /> {row.customer?.name || "Anonymous Customer"}
+                        </span>
+                        <span style={{ background: badge.bg, color: badge.color, padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>
+                          {row.status}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16, color: "#64748b", fontSize: 13 }}>
+                        {renderStars(row.rating)}
+                        {row.customer?.email && (
+                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Mail size={14} /> {row.customer.email}</span>
+                        )}
+                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Calendar size={14} /> {new Date(row.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8, color: "#334155", fontSize: 14, lineHeight: 1.5, border: "1px solid #f1f5f9", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                    <MessageCircle size={18} color="#94a3b8" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ fontStyle: row.message ? "normal" : "italic", color: row.message ? "#334155" : "#94a3b8" }}>
+                      {row.message || "No comment provided by the customer."}
+                    </span>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", marginTop: 8 }}>
                     {buttons.reviewed && (
-                      <button type="button" className="secondary-button" disabled={isBusy} onClick={() => updateStatus(row.id, "REVIEWED")}>
-                        {isBusy ? "..." : "Mark Reviewed"}
+                      <button type="button" disabled={isBusy} onClick={() => updateStatus(row.id, "REVIEWED")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                        <CheckCircle size={14} /> {isBusy ? "..." : "Mark Reviewed"}
                       </button>
                     )}
                     {buttons.contacted && (
-                      <button type="button" className="secondary-button" disabled={isBusy} onClick={() => updateStatus(row.id, "CONTACTED")}>
-                        {isBusy ? "..." : "Mark Contacted"}
+                      <button type="button" disabled={isBusy} onClick={() => updateStatus(row.id, "CONTACTED")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                        <MailPlus size={14} /> {isBusy ? "..." : "Mark Contacted"}
                       </button>
                     )}
                     {buttons.resolved && (
-                      <button type="button" className="secondary-button" style={{ background: "#16a34a", color: "#fff", border: "none" }} disabled={isBusy} onClick={() => updateStatus(row.id, "RESOLVED")}>
-                        {isBusy ? "..." : "Mark Resolved"}
+                      <button type="button" disabled={isBusy} onClick={() => updateStatus(row.id, "RESOLVED")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "none", background: "#10b981", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                        <Check size={14} /> {isBusy ? "..." : "Mark Resolved"}
                       </button>
                     )}
-                    <button type="button" className="secondary-button" style={{ background: "#dc2626", color: "#fff", border: "none" }} disabled={isBusy} onClick={() => deleteFeedback(row.id)}>
-                      {isBusy ? "..." : "Delete"}
+                    <button type="button" disabled={isBusy} onClick={() => { setFollowUpFeedback(row); setFollowUpNote(""); setShowFollowUpModal(true); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "none", background: "#f59e0b", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                      <AlertCircle size={14} /> {isBusy ? "..." : "Follow Up"}
                     </button>
-                    <button type="button" className="secondary-button" style={{ background: "#f59e0b", color: "#fff", border: "none" }} disabled={isBusy} onClick={() => {
-                      setFollowUpFeedback(row);
-                      setFollowUpNote("");
-                      setShowFollowUpModal(true);
-                    }}>
-                      {isBusy ? "..." : "Follow Up"}
+                    <button type="button" disabled={isBusy} onClick={() => deleteFeedback(row.id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", background: "#fef2f2", color: "#dc2626", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
@@ -201,22 +247,42 @@ export default function FeedbackPage() {
       )}
 
       {mode === "reports" && report && (
-        <div className="panel-card">
-          <h3>Feedback Reports</h3>
-          <div className="badge-row">
-            <span className="badge">Total {report.summary?.total || 0}</span>
-            <span className="badge">Average {Number(report.summary?.averageRating || 0).toFixed(2)}</span>
-            <span className="badge">Negative {report.summary?.negativeCount || 0}</span>
+        <div style={{ background: "#fff", borderRadius: 16, padding: 32, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)" }}>
+          <h3 style={{ margin: "0 0 24px", fontSize: 20, color: "#1e293b" }}>Feedback Analytics</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
+            <div style={{ background: "#f8fafc", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Total Feedback</span>
+              <span style={{ fontSize: 36, color: "#0f172a", fontWeight: 800 }}>{report.summary?.total || 0}</span>
+            </div>
+            <div style={{ background: "#f0fdf4", padding: 24, borderRadius: 12, border: "1px solid #bbf7d0", display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 13, color: "#166534", fontWeight: 600, textTransform: "uppercase" }}>Average Rating</span>
+              <span style={{ fontSize: 36, color: "#15803d", fontWeight: 800 }}>{Number(report.summary?.averageRating || 0).toFixed(1)} <span style={{fontSize: 20}}>⭐</span></span>
+            </div>
+            <div style={{ background: "#fef2f2", padding: 24, borderRadius: 12, border: "1px solid #fecaca", display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 13, color: "#991b1b", fontWeight: 600, textTransform: "uppercase" }}>Negative Reviews</span>
+              <span style={{ fontSize: 36, color: "#b91c1c", fontWeight: 800 }}>{report.summary?.negativeCount || 0}</span>
+            </div>
           </div>
         </div>
       )}
 
       {mode === "settings" && report && (
-        <div className="panel-card">
-          <h3>Feedback Request Settings</h3>
-          <p className="muted">WhatsApp: {report.settings?.whatsappNumber || "-"}</p>
-          <p className="muted">Booking Notes: {report.settings?.bookingNotes || "-"}</p>
-          <p className="muted">Cancellation Policy: {report.settings?.cancellationPolicy || "-"}</p>
+        <div style={{ background: "#fff", borderRadius: 16, padding: 32, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)", maxWidth: 600 }}>
+          <h3 style={{ margin: "0 0 20px", fontSize: 20, color: "#1e293b", display: "flex", alignItems: "center", gap: 10 }}>⚙️ Collection Settings</h3>
+          <div style={{ display: "grid", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>WhatsApp Number</span>
+              <div style={{ padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#1e293b", fontWeight: 500 }}>{report.settings?.whatsappNumber || "Not configured"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Booking Notes</span>
+              <div style={{ padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#1e293b", fontWeight: 500 }}>{report.settings?.bookingNotes || "Default"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Cancellation Policy</span>
+              <div style={{ padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#1e293b", fontWeight: 500 }}>{report.settings?.cancellationPolicy || "Standard policy"}</div>
+            </div>
+          </div>
         </div>
       )}
 

@@ -38,6 +38,26 @@ export default function MyProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const response = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      setForm((f) => ({ ...f, avatarUrl: response.data?.url || "" }));
+      setImgError(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setImageUploading(false);
+    }
+  };
 
   useEffect(() => {
     api.get("/owner/my-profile").then((response) => {
@@ -145,7 +165,7 @@ export default function MyProfilePage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 24, alignItems: "start" }}>
             {/* Left: Edit Form */}
-            <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)" }}>
+            <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)", position: "sticky", top: 24 }}>
               <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid #f1f5f9" }}>
                 <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 20 }}>✏️</span> Edit Profile
@@ -160,24 +180,18 @@ export default function MyProfilePage() {
                 </label>
 
                 <label style={{ display: "grid", gap: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Avatar / Photo URL</span>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type="text"
-                      value={form.avatarUrl}
-                      placeholder="https://example.com/your-photo.jpg"
-                      onChange={(event) => { setForm((current) => ({ ...current, avatarUrl: event.target.value })); setImgError(false); }}
-                      style={{ width: "100%", padding: "12px 16px", border: "2px solid #e2e8f0", borderRadius: 10, fontSize: 14, color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
-                      onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
-                      onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
-                    />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Profile Photo</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    {form.avatarUrl && !imgError ? (
+                      <img src={form.avatarUrl} alt="" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", border: "2px solid #e2e8f0" }} onError={() => setImgError(true)} />
+                    ) : (
+                      <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px dashed #cbd5e1" }}>👤</div>
+                    )}
+                    <label style={{ cursor: "pointer", background: "#f8fafc", border: "1px solid #cbd5e1", padding: "8px 16px", borderRadius: 6, fontSize: 14, fontWeight: 500, color: "#334155", display: "inline-flex", alignItems: "center" }}>
+                      {imageUploading ? "Uploading..." : "Choose Photo"}
+                      <input type="file" accept="image/*" onChange={handleImageUpload} disabled={imageUploading} hidden />
+                    </label>
                   </div>
-                  {form.avatarUrl && !imgError && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#f0fdf4", borderRadius: 8, border: "1px solid #bbf7d0" }}>
-                      <img src={form.avatarUrl} alt="" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} onError={() => setImgError(true)} />
-                      <span style={{ fontSize: 13, color: "#166534", fontWeight: 600 }}>✓ Image preview looks good</span>
-                    </div>
-                  )}
                 </label>
 
                 <label style={{ display: "grid", gap: 8 }}>

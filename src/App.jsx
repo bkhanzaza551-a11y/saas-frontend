@@ -110,6 +110,9 @@ const CheckoutPage = lazyWithRetry(() => import("./pages/storefront/CheckoutPage
 const LegalContentPage = lazyWithRetry(() => import("./pages/shared/LegalContentPage.jsx"));
 const WebsiteEditorPage = lazyWithRetry(() => import("./pages/owner/WebsiteEditorPage.jsx"));
 const ManagePage = lazyWithRetry(() => import("./pages/owner/ManagePage.jsx"));
+const EcommerceOrdersPage = lazyWithRetry(() => import("./pages/owner/EcommerceOrdersPage.jsx"));
+const ProductsRequirementPage = lazyWithRetry(() => import("./pages/owner/ProductsRequirementPage.jsx"));
+const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffRequirementsPage.jsx"));
 
 const RouteFallback = () => (
   <div className="page-shell">
@@ -334,7 +337,7 @@ const Protected = () => {
               label: "Operations",
               hint: "Quick access",
               items: [
-                can("reports") && { label: "Financial Reports", to: "/admin/reports/financial-reports" },
+                can("reports") && { label: "Financial Reports", to: "/admin/financial-reports" },
                 can("support") && { label: "Support Tickets", to: "/admin/support-tickets" },
                 can("attendance") && { label: "Attendance", to: "/admin/attendance" },
                 can("feedback") && { label: "Feedback", to: "/admin/feedback" },
@@ -522,13 +525,13 @@ export default function App() {
           <Route path="/admin/pos" element={<OwnerRoute moduleKey="pos" featureKey="pos" element={<PosPage />} />} />
           <Route path="/admin/pos/new" element={<OwnerRoute moduleKey="pos" featureKey="pos" element={<PosPage />} />} />
           <Route path="/admin/pos/day-closing" element={<OwnerRoute moduleKey="payments" featureKey="pos" element={<PosPage />} />} />
-          <Route path="/admin/order-dashboard" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
-          <Route path="/admin/order-dashboard/new" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
-          <Route path="/admin/order-dashboard/accepted" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
-          <Route path="/admin/order-dashboard/ready" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
-          <Route path="/admin/order-dashboard/completed" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
-          <Route path="/admin/order-dashboard/cancelled" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
-          <Route path="/admin/order-dashboard/:id" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
+          <Route path="/admin/order-dashboard" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
+          <Route path="/admin/order-dashboard/new" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
+          <Route path="/admin/order-dashboard/accepted" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
+          <Route path="/admin/order-dashboard/ready" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
+          <Route path="/admin/order-dashboard/completed" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
+          <Route path="/admin/order-dashboard/cancelled" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
+          <Route path="/admin/order-dashboard/:id" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<EcommerceOrdersPage />} />} />
           <Route path="/admin/pos-dashboard" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
           <Route path="/admin/pos-dashboard/:id" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<PosDashboardPage />} />} />
           <Route path="/admin/trends" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<TrendsPage />} />} />
@@ -629,6 +632,8 @@ export default function App() {
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="settings" action="edit" element={<ManagePage />} />} />
+          <Route path="/admin/product-requirements" element={<OwnerRoute moduleKey="inventory" element={<ProductsRequirementPage />} />} />
+          <Route path="/admin/staff-requirements" element={<OwnerRoute moduleKey="staff" element={<StaffRequirementsPage />} />} />
           <Route path="/admin/salon-details" element={<OwnerRoute moduleKey="settings" action="view" element={<SalonDetailsPage />} />} />
           <Route path="/admin/my-dashboard" element={<StaffWorkspaceRoute moduleKey="myDashboard" element={<MyDashboardPage />} />} />
           <Route path="/admin/my-attendance" element={<StaffWorkspaceRoute moduleKey="myAttendance" featureKey="attendance" element={<MyAttendanceHistoryPage />} />} />

@@ -33,12 +33,6 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
     let active = true;
     const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
 
-    if (!isSuperAdmin) {
-      api.get("/owner/subscription").then(res => {
-        if (active && res.data) setSubscription(res.data);
-      }).catch(() => {});
-    }
-
     if (canPos && !isSuperAdmin) {
       api.get("/owner/pos/context").then(res => {
         if (active && res.data?.salon?.name) setSalonName(res.data.salon.name);
@@ -56,7 +50,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
     };
 
     fetchNotifications();
-    const notifInterval = setInterval(fetchNotifications, 30000);
+    const notifInterval = setInterval(fetchNotifications, 120000); // 2 minutes
 
     return () => { active = false; clearInterval(notifInterval); };
   }, [canNotifications, canPos, auth?.user?.systemRole]);

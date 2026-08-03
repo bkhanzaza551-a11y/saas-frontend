@@ -492,7 +492,7 @@ export default function SettingsPage() {
   });
   const [sidebarColor, setSidebarColor] = useState(() => {
     const cached = readSalonSettingsCache(salonId);
-    return cached?.advancedSettings?.uiSettings?.sidebarColor || "#0f172a";
+    return cached?.advancedSettings?.uiSettings?.sidebarColor || "#ffffff";
   });
   const [navbarColor, setNavbarColor] = useState(() => {
     const cached = readSalonSettingsCache(salonId);
@@ -775,6 +775,7 @@ export default function SettingsPage() {
       root.style.setProperty("--button-bg-hover", buttonHoverColor);
     }
     if (navbarColor) root.style.setProperty("--navbar-bg", navbarColor);
+    if (sidebarColor) root.style.setProperty("--sidebar-bg", sidebarColor);
     if (fontColor) root.style.setProperty("--font-color", fontColor);
 
     return () => {
@@ -800,10 +801,13 @@ export default function SettingsPage() {
       if (ui.navbarColor) root.style.setProperty("--navbar-bg", ui.navbarColor);
       else root.style.removeProperty("--navbar-bg");
       
+      if (ui.sidebarColor) root.style.setProperty("--sidebar-bg", ui.sidebarColor);
+      else root.style.removeProperty("--sidebar-bg");
+      
       if (ui.fontColor) root.style.setProperty("--font-color", ui.fontColor);
       else root.style.removeProperty("--font-color");
     };
-  }, [buttonColor, buttonHoverColor, navbarColor, fontColor, salonId]);
+  }, [buttonColor, buttonHoverColor, navbarColor, sidebarColor, fontColor, salonId]);
 
   useEffect(() => {
     if (!summary.staffRows.length) return;

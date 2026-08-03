@@ -1309,17 +1309,34 @@ export default function InventoryPage() {
                 </thead>
                 <tbody>
                   {filteredReconProducts.map(p => {
-                    const actualStock = p.productType === "RETAIL" ? Number(p.currentStock || 0) : 0;
+                    const totalStock = Number(p.currentStock || 0);
+                    const onFloor = Number(p.onFloor || 0);
+                    
+                    let baseActualStock = 0;
+                    let baseActualConsumable = 0;
+                    
+                    if (p.productType === "RETAIL") {
+                      baseActualStock = totalStock;
+                    } else if (p.productType === "CONSUMABLE") {
+                      baseActualConsumable = totalStock;
+                    } else {
+                      // BOTH
+                      baseActualConsumable = onFloor;
+                      baseActualStock = Math.max(0, totalStock - onFloor);
+                    }
+
+                    const actualStock = baseActualStock;
                     const adjustStock = getEditValue(p.id, "adjustStock", actualStock);
                     const stockDiff = adjustStock - actualStock;
-                    const stockValue = adjustStock * Number(p.costPrice || 0);
 
-                    const actualConsumable = p.productType === "CONSUMABLE" ? Number(p.currentStock || 0) : 0;
+                    const actualConsumable = baseActualConsumable;
                     const adjustConsumable = getEditValue(p.id, "adjustConsumable", actualConsumable);
                     const consumableDiff = adjustConsumable - actualConsumable;
 
+                    const stockValue = (adjustStock + adjustConsumable) * Number(p.costPrice || 0);
+
                     const remark = getEditValue(p.id, "remark", "");
-                    const unit = p.productType === "CONSUMABLE" ? "ml" : "gm";
+                    const unit = p.unit || (p.productType === "CONSUMABLE" ? "ml" : "gm");
 
                     return (
                       <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>

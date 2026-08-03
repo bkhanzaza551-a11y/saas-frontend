@@ -174,7 +174,6 @@ export default function GlobalDashboardPage() {
                 <th style={{ padding: 12 }}>Appointments</th>
                 <th style={{ padding: 12 }}>Staff Count</th>
                 <th style={{ padding: 12 }}>MoM Growth</th>
-                <th style={{ padding: 12 }}>Rating</th>
                 <th style={{ padding: 12 }}>Status</th>
               </tr>
             </thead>
@@ -201,7 +200,6 @@ export default function GlobalDashboardPage() {
                     <td style={{ padding: 14, fontWeight: 600 }}>{b.appointments} Bookings</td>
                     <td style={{ padding: 14 }}>{b.staffCount} Staff</td>
                     <td style={{ padding: 14, fontWeight: 700, color: "#059669" }}>{b.growth}</td>
-                    <td style={{ padding: 14, fontWeight: 700, color: "#d97706" }}>★ {b.rating}</td>
                     <td style={{ padding: 14 }}>
                       <span className="badge" style={{
                         background: b.status === "TOP PERFORMER" ? "#dcfce7" : "#e0e7ff",

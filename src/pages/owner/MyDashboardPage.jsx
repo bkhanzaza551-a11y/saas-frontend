@@ -232,7 +232,7 @@ export default function MyDashboardPage() {
       try {
         const result = await compareFaceSources({ enrollmentSource: enrollmentUrl, liveSource: blob });
         if (!result.matched) {
-          setFlow((c) => ({ ...c, busy: false, error: `Face does not match enrollment photo. Distance: ${result.distance.toFixed(2)} (threshold: ${result.threshold}). Please ensure you are the enrolled staff member.` }));
+          setFlow((c) => ({ ...c, busy: false, error: `🚨 Verification Failed: The face in the camera does not match your registered staff profile. Proxy attendance is strictly prohibited. If this is a mistake, please try in good lighting or contact your manager.` }));
           return;
         }
       } catch (err) {
@@ -286,9 +286,9 @@ export default function MyDashboardPage() {
       const position = savedPosition || await getCurrentPosition();
 
       const coords = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracyMeters: position.coords.accuracy
+        latitude: position.coords.latitude ?? 0,
+        longitude: position.coords.longitude ?? 0,
+        accuracyMeters: position.coords.accuracy ?? 0
       };
 
       if (coords.accuracyMeters > 200) {
@@ -345,9 +345,9 @@ export default function MyDashboardPage() {
       }
 
       const coords = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracyMeters: position.coords.accuracy
+        latitude: position.coords.latitude ?? 0,
+        longitude: position.coords.longitude ?? 0,
+        accuracyMeters: position.coords.accuracy ?? 0
       };
 
       if (coords.accuracyMeters > 200) {

@@ -5,7 +5,7 @@ import MapPicker from "../../components/MapPicker";
 import EmptyState from "../../components/EmptyState";
 import { formatApiError } from "../../utils/apiError";
 import { useBranch } from "../../context/BranchContext";
-import { Search, Plus, Edit3, Trash2, MapPin, X } from "lucide-react";
+import { Search, Edit3, MapPin, X } from "lucide-react";
 
 const emptyForm = { name: "", phone: "", email: "", address: "", businessHours: "", weeklyOff: "", latitude: "", longitude: "", geofenceRadiusMeters: "200" };
 
@@ -127,14 +127,12 @@ export default function BranchesPage() {
 
   return (
     <div className="page-shell">
-      <div className="page-header" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Branches</h1>
-          <p className="muted" style={{ margin: "4px 0 0 0" }}>Manage your salon locations, operating hours, and geofencing.</p>
+      <div className="page-header" style={{ marginBottom: 24 }}>
+        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Branches</h1>
+        <p className="muted" style={{ margin: "4px 0 8px 0" }}>View your salon locations and update their details. To add or remove branches, contact your Super Admin.</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, padding: "6px 12px", fontSize: 12, color: "#1d4ed8", fontWeight: 500 }}>
+          ℹ️ Branch creation &amp; deletion is managed by Super Admin only
         </div>
-        <button type="button" onClick={() => { resetForm(); setShowModal(true); }} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Plus size={16} /> Add Branch
-        </button>
       </div>
 
       <div className="panel-card" style={{ padding: 0, overflow: "hidden" }}>
@@ -211,9 +209,6 @@ export default function BranchesPage() {
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
                         <button type="button" onClick={() => startEdit(branch)} className="icon-btn" style={{ padding: 6, color: "#64748b", background: "none", border: "none", cursor: "pointer" }} title="Edit Branch">
                           <Edit3 size={16} />
-                        </button>
-                        <button type="button" onClick={() => deleteBranch(branch.id)} className="icon-btn" style={{ padding: 6, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }} title="Delete Branch">
-                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>

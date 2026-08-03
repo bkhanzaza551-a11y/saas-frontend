@@ -11,6 +11,7 @@ import { useBranch } from "../../context/BranchContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { downloadFromApi } from "../../utils/download";
 import { formatApiError } from "../../utils/apiError";
+import AppointmentCheckoutModal from "./AppointmentCheckoutModal";
 import "./PosDashboard.css";
 import "./PosPage.css";
 const invoiceLabel = (item) => item?.serviceName || item?.productName || item?.name || "Item";
@@ -56,6 +57,8 @@ export default function PosDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [billLoading, setBillLoading] = useState(false);
   const [invoiceDiscountDraft, setInvoiceDiscountDraft] = useState(0);
+  const [scheduledAppts, setScheduledAppts] = useState([]);
+  const [checkoutAppt, setCheckoutAppt] = useState(null);
 
   const [showPkgModal, setShowPkgModal] = useState(false);
   const [pkgModalPkg, setPkgModalPkg] = useState(null);
@@ -241,15 +244,47 @@ export default function PosDashboardPage() {
     setLoading(true);
     try {
       const queryParams = { startDate, endDate };
-      if (statusFilter) queryParams.status = statusFilter;
+      if (statusFilter && statusFilter !== "SCHEDULED") queryParams.status = statusFilter;
       if (selectedBranchId) queryParams.branchId = selectedBranchId;
 
-      const [invoiceResponse, summaryResponse] = await Promise.all([
+      const apptQueryParams = { from: startDate, to: endDate };
+      if (selectedBranchId) apptQueryParams.branchId = selectedBranchId;
+
+      const [invoiceResponse, summaryResponse, appointmentResponse] = await Promise.all([
         api.get("/owner/invoices", { params: queryParams }),
-        api.get("/owner/invoices/reports/summary", { params: { startDate, endDate, ...(selectedBranchId ? { branchId: selectedBranchId } : {}) } })
+        api.get("/owner/invoices/reports/summary", { params: { startDate, endDate, ...(selectedBranchId ? { branchId: selectedBranchId } : {}) } }),
+        api.get("/owner/appointments", { params: apptQueryParams }).catch(() => ({ data: { data: [] } }))
       ]);
 
-      setRows(invoiceResponse.data?.data || invoiceResponse.data || []);
+      const allInvoices = invoiceResponse.data.data || invoiceResponse.data || [];
+      const allAppts = appointmentResponse.data.data || [];
+      
+      const validAppts = allAppts.filter(a => a.status === "CONFIRMED" || a.status === "PENDING" || a.status === "APPROVED");
+      setScheduledAppts(validAppts);
+
+      let finalRows = [];
+      if (!statusFilter || statusFilter !== "SCHEDULED") {
+         finalRows = [...allInvoices];
+      }
+      if (!statusFilter || statusFilter === "SCHEDULED") {
+         const mappedAppts = validAppts.map(a => ({
+           id: "appt-" + a.id,
+           originalAppt: a,
+           isScheduledAppt: true,
+           invoiceNumber: "APPT-" + a.id.substring(a.id.length - 6).toUpperCase(),
+           customer: a.customer,
+           createdAt: a.startAt,
+           status: "SCHEDULED",
+           items: a.items.map(i => ({
+              serviceName: i.service?.name,
+              productName: i.product?.name
+           }))
+         }));
+         finalRows = [...finalRows, ...mappedAppts];
+      }
+      finalRows.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setRows(finalRows);
       setSummary(summaryResponse.data || null);
 
       if (params.id) {
@@ -908,8 +943,9 @@ export default function PosDashboardPage() {
           <button className={`pos-dash-filter-pill ${statusFilter === "UNPAID" ? "active" : ""}`} onClick={() => setStatusFilter("UNPAID")}>Unpaid <span>{summary?.unpaidInvoices || 0}</span></button>
           <button className={`pos-dash-filter-pill ${statusFilter === "PARTIAL" ? "active" : ""}`} onClick={() => setStatusFilter("PARTIAL")}>Partial <span>{summary?.partialInvoices || 0}</span></button>
           <button className={`pos-dash-filter-pill ${statusFilter === "PAID" ? "active" : ""}`} onClick={() => setStatusFilter("PAID")}>Paid <span>{summary?.paidInvoices || 0}</span></button>
+          <button className={`pos-dash-filter-pill ${statusFilter === "SCHEDULED" ? "active" : ""}`} onClick={() => setStatusFilter("SCHEDULED")}>Scheduled <span>{scheduledAppts?.length || 0}</span></button>
           <button className={`pos-dash-filter-pill ${statusFilter === "CANCELLED" ? "active" : ""}`} onClick={() => setStatusFilter("CANCELLED")}>Cancelled <span>{summary?.cancelledInvoices || 0}</span></button>
-          <button className={`pos-dash-filter-pill ${!statusFilter ? "active" : ""}`} onClick={() => setStatusFilter("")}>Total <span>{summary?.totalInvoices || 0}</span></button>
+          <button className={`pos-dash-filter-pill ${!statusFilter ? "active" : ""}`} onClick={() => setStatusFilter("")}>Total <span>{(summary?.totalInvoices || 0) + (scheduledAppts?.length || 0)}</span></button>
         </div>
       </div>
 
@@ -923,8 +959,9 @@ export default function PosDashboardPage() {
             const startedStr = row.startedAt ? new Date(row.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : (row.createdAt ? new Date(row.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null);
             const completedStr = row.completedAt ? new Date(row.completedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
             const apptStatus = row.appointment?.status || null;
+            const isAppt = row.isScheduledAppt;
             return (
-              <div key={row.id} className="pos-dash-card" onClick={() => openInvoice(row.id)}>
+              <div key={row.id} className="pos-dash-card" onClick={() => isAppt ? setCheckoutAppt(row.originalAppt) : openInvoice(row.id)}>
                 <div className="pos-dash-card-actions">
                   {(row.status === "PAID" || row.status === "PARTIAL") ? (
                     <button
@@ -988,6 +1025,17 @@ export default function PosDashboardPage() {
       {!loading && !rows.length ? (
         <EmptyState title="No invoices found" message="No POS invoices match the current filter." />
       ) : null}
+
+      {checkoutAppt && (
+        <AppointmentCheckoutModal
+          appointment={checkoutAppt}
+          onClose={() => setCheckoutAppt(null)}
+          onComplete={() => {
+            setCheckoutAppt(null);
+            load();
+          }}
+        />
+      )}
 
       {detail ? createPortal(
         <div className="premium-modal-overlay" onClick={closeDetail} style={{ zIndex: 99999, background: "rgba(0,0,0,0.6)" }}>
@@ -1332,7 +1380,7 @@ export default function PosDashboardPage() {
   , document.body) : null}
 
       {reminderModal.open ? (
-        <div className="premium-modal-overlay" onClick={() => setReminderModal({ open: false, index: -1, date: "", note: "" })} style={{ zIndex: 10010, background: "rgba(0,0,0,0.55)" }}>
+        <div className="premium-modal-overlay" onClick={() => setReminderModal({ open: false, index: -1, date: "", note: "" })} style={{ zIndex: 100005, background: "rgba(0,0,0,0.55)" }}>
           <div className="premium-modal-content" onClick={(event) => event.stopPropagation()} style={{ maxWidth: 420, padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <strong style={{ fontSize: 20 }}>Service Reminder</strong>
@@ -1359,7 +1407,7 @@ export default function PosDashboardPage() {
       ) : null}
 
       {consumableModal.open ? (
-        <div className="premium-modal-overlay" onClick={() => setConsumableModal({ open: false, index: -1, rows: [{ name: "", qty: 1, cost: 0 }] })} style={{ zIndex: 10010, background: "rgba(0,0,0,0.55)" }}>
+        <div className="premium-modal-overlay" onClick={() => setConsumableModal({ open: false, index: -1, rows: [{ name: "", qty: 1, cost: 0 }] })} style={{ zIndex: 100005, background: "rgba(0,0,0,0.55)" }}>
           <div className="premium-modal-content" onClick={(event) => event.stopPropagation()} style={{ maxWidth: 620, padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <strong style={{ fontSize: 20 }}>Consumable Items</strong>
@@ -1401,7 +1449,7 @@ export default function PosDashboardPage() {
 
       {/* ======= FULL ADD GIFTCARD MODAL ======= */}
       {showGcModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex:10010, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowGcModal(false)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex: 100005, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowGcModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,900px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "none", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
               <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a" }}>Add Gift Card</div>
@@ -1472,7 +1520,7 @@ export default function PosDashboardPage() {
 
   {/* ======= FULL ADD PACKAGE MODAL ======= */}
       {showPkgModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.65)", zIndex:10010, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }} onClick={() => setShowPkgModal(false)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.65)", zIndex: 100005, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }} onClick={() => setShowPkgModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,1000px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"20px 28px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #e2e8f0", position:"sticky", top:0, background:"#fff", zIndex:10 }}>
               <div style={{ fontWeight:800, fontSize:"1.3rem", color:"#0f172a" }}>Add packages</div>
@@ -1631,7 +1679,7 @@ export default function PosDashboardPage() {
 
       {/* ======= FULL ADD MEMBERSHIP MODAL ======= */}
       {showMemModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex:10010, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowMemModal(false)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex: 100005, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowMemModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,900px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "none", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
               <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a" }}>Add membership</div>
@@ -1720,7 +1768,7 @@ export default function PosDashboardPage() {
 
       {/* ======= APPLY DISCOUNT MODAL ======= */}
       {showDiscountModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 10010, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowDiscountModal(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 100005, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowDiscountModal(false)}>
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 420px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Discount:</strong>
@@ -1744,7 +1792,7 @@ export default function PosDashboardPage() {
 
       {/* ======= APPLY PACKAGE MODAL ======= */}
       {showApplyPkgModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 10010, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowApplyPkgModal(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 100005, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowApplyPkgModal(false)}>
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 560px)", maxHeight: "85vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Apply Packages</strong>
@@ -1801,7 +1849,7 @@ export default function PosDashboardPage() {
 
       {/* ======= APPLY GIFT CARD MODAL ======= */}
       {showApplyGcModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 10010, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowApplyGcModal(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 100005, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowApplyGcModal(false)}>
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 440px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Apply Gift Card</strong>
@@ -1830,7 +1878,7 @@ export default function PosDashboardPage() {
 
       {/* ======= ADD TIP MODAL ======= */}
       {showTipModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 10010, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowTipModal(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 100005, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowTipModal(false)}>
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 560px)", maxHeight: "85vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Tip</strong>
@@ -1894,7 +1942,7 @@ export default function PosDashboardPage() {
 
       {/* ── VARIATION SELECTOR MODAL ── */}
       {variationModal.open && variationModal.product && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setVariationModal({ open: false, product: null })}>
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 100005, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setVariationModal({ open: false, product: null })}>
           <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9" }}>
               <div>
@@ -1920,7 +1968,7 @@ export default function PosDashboardPage() {
 
       {/* Complimentary Remark Modal */}
       {compModal.open && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 100005, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })}>
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 480px)", padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Complimentary Remark</strong>

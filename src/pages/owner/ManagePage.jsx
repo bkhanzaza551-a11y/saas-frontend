@@ -17,7 +17,8 @@ const CATEGORIES = [
       { title: "Manage Inventory", description: "Manage overall stock and warehouses.", to: "/admin/inventory", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Products", description: "Keep track of your products and stock.", to: "/admin/product-categories", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Ecommerce / Orders", description: "Card-based order board and online billing.", to: "/admin/order-dashboard", icon: Store, reqPerm: "orders", reqFlag: "ecommerce" },
-      { title: "Manage Expenses", description: "Track outflow, accounts, and expense types.", to: "/admin/expenses/dashboard", icon: Banknote, reqPerm: "expenses", reqFlag: "expenses" }
+      { title: "Manage Expenses", description: "Track outflow, accounts, and expense types.", to: "/admin/expenses/dashboard", icon: Banknote, reqPerm: "expenses", reqFlag: "expenses" },
+      { title: "Product Requirements", description: "Submit requests for stock, electronics, or software.", to: "/admin/product-requirements", icon: Boxes, reqPerm: "inventory" }
     ]
   },
   {
@@ -25,7 +26,8 @@ const CATEGORIES = [
     items: [
       { title: "Branches", description: "Manage locations, outlets, and salon operational identity.", to: "/admin/branches", icon: Layers3, reqPerm: "branches" },
       { title: "Staff Details", description: "Register team members and configure access.", to: "/admin/users", icon: Users, reqPerm: "staff" },
-      { title: "Roles & Permissions", description: "Manage organizational roles and permissions.", to: "/admin/roles-permissions", icon: UserCheck, reqPerm: "staff" }
+      { title: "Roles & Permissions", description: "Manage organizational roles and permissions.", to: "/admin/roles-permissions", icon: UserCheck, reqPerm: "staff" },
+      { title: "Staff Requirements", description: "Submit hiring requisitions and requests.", to: "/admin/staff-requirements", icon: Users, reqPerm: "staff" }
     ]
   },
   {
