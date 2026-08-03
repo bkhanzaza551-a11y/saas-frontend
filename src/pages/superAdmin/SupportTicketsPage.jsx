@@ -289,7 +289,7 @@ export default function SuperAdminSupportTicketsPage() {
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Internal Support Notes</label>
                   <textarea
-                    rows="2"
+                    rows="1"
                     value={notes[selectedTicket.id] || ""}
                     onChange={(e) => setNotes({ ...notes, [selectedTicket.id]: e.target.value })}
                     placeholder="Type internal staff notes here..."
@@ -349,13 +349,13 @@ export default function SuperAdminSupportTicketsPage() {
             </div>
 
             {/* Modal Footer / Actions */}
-            <div style={{ padding: "20px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
+            <div style={{ padding: "12px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
               {selectedTicket.status !== "CLOSED" ? (
                 <>
-                  <div style={{ marginBottom: 16 }}>
+                  <div style={{ marginBottom: 12 }}>
                     <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 6 }}>Compose Official Reply to Salon</label>
                     <textarea
-                      rows="3"
+                      rows="2"
                       value={replyDrafts[selectedTicket.id] || ""}
                       placeholder="Type official support desk response to the salon owner..."
                       onChange={(e) => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })}
@@ -366,21 +366,21 @@ export default function SuperAdminSupportTicketsPage() {
                         value={replyAttachments[selectedTicket.id] || ""}
                         placeholder="Optional Attachment URL (screenshot/document)..."
                         onChange={(e) => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: e.target.value })}
-                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 12px", fontSize: 13, background: "white", width: "100%", boxSizing: "border-box" }}
+                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", fontSize: 13, background: "white", width: "100%", boxSizing: "border-box" }}
                       />
                     </div>
                   </div>
                   
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button type="button" onClick={() => { updateTicket(selectedTicket.id, { internalNote: notes[selectedTicket.id] || "", assignedAgentName: assignedAgents[selectedTicket.id] || null }); setSelectedTicket({...selectedTicket, internalNote: notes[selectedTicket.id], assignedAgentName: assignedAgents[selectedTicket.id]}); }} style={{ background: "white", color: "#475569", border: "1px solid #cbd5e1", padding: "10px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Save Note</button>
-                      <button type="button" onClick={() => { updateTicket(selectedTicket.id, { status: "CLOSED", internalNote: notes[selectedTicket.id] || "", assignedAgentName: assignedAgents[selectedTicket.id] || null }); setSelectedTicket({...selectedTicket, status: "CLOSED"}); }} style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fecaca", padding: "10px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Close Ticket</button>
+                      <button type="button" onClick={() => { updateTicket(selectedTicket.id, { internalNote: notes[selectedTicket.id] || "", assignedAgentName: assignedAgents[selectedTicket.id] || null }); setSelectedTicket({...selectedTicket, internalNote: notes[selectedTicket.id], assignedAgentName: assignedAgents[selectedTicket.id]}); }} style={{ background: "white", color: "#475569", border: "1px solid #cbd5e1", padding: "8px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 12 }}>Save Note</button>
+                      <button type="button" onClick={() => { updateTicket(selectedTicket.id, { status: "CLOSED", internalNote: notes[selectedTicket.id] || "", assignedAgentName: assignedAgents[selectedTicket.id] || null }); setSelectedTicket({...selectedTicket, status: "CLOSED"}); }} style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fecaca", padding: "8px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 12 }}>Close Ticket</button>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button type="button" onClick={() => sendReply(selectedTicket.id, "PENDING")} style={{ background: "#4f46e5", color: "white", border: "none", padding: "10px 20px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: 13 }}>
+                      <button type="button" onClick={() => sendReply(selectedTicket.id, "PENDING")} style={{ background: "#4f46e5", color: "white", border: "none", padding: "8px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
                         Reply & Keep Pending
                       </button>
-                      <button type="button" onClick={() => { sendReply(selectedTicket.id, "RESOLVED"); setSelectedTicket({...selectedTicket, status: "RESOLVED"}); }} style={{ background: "#16a34a", color: "white", border: "none", padding: "10px 20px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: 13 }}>
+                      <button type="button" onClick={() => { sendReply(selectedTicket.id, "RESOLVED"); setSelectedTicket({...selectedTicket, status: "RESOLVED"}); }} style={{ background: "#16a34a", color: "white", border: "none", padding: "8px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
                         Reply & Resolve
                       </button>
                     </div>
