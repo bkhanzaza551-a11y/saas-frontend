@@ -175,64 +175,90 @@ export default function StaffRequirementsPage() {
       </div>
 
       {/* Metric Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 20 }}>
-        <div className="panel-card" style={{ padding: 20 }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Requisitions</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{stats.total}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 24 }}>
+        <div className="panel-card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(to right, #ffffff, #f8fafc)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#475569" }}>
+            <Building2 size={24} />
+          </div>
+          <div>
+            <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Total Requisitions</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{stats.total}</div>
+          </div>
         </div>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #f97316" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Pending Approval</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#ea580c", marginTop: 4 }}>{stats.pending}</div>
+        
+        <div className="panel-card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(to right, #ffffff, #fff7ed)", borderLeft: "4px solid #f97316" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#ffedd5", display: "flex", alignItems: "center", justifyContent: "center", color: "#ea580c" }}>
+            <Clock size={24} />
+          </div>
+          <div>
+            <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Pending Approval</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#ea580c", marginTop: 2 }}>{stats.pending}</div>
+          </div>
         </div>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Active Hiring</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#4f46e5", marginTop: 4 }}>{stats.approved}</div>
+        
+        <div className="panel-card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(to right, #ffffff, #eef2ff)", borderLeft: "4px solid #6366f1" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#e0e7ff", display: "flex", alignItems: "center", justifyContent: "center", color: "#4f46e5" }}>
+            <UserCheck size={24} />
+          </div>
+          <div>
+            <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Active Hiring</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#4f46e5", marginTop: 2 }}>{stats.approved}</div>
+          </div>
         </div>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #22c55e" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Positions Fulfilled</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>{stats.fulfilled}</div>
+        
+        <div className="panel-card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(to right, #ffffff, #f0fdf4)", borderLeft: "4px solid #22c55e" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", color: "#16a34a" }}>
+            <CheckCircle2 size={24} />
+          </div>
+          <div>
+            <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Positions Fulfilled</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", marginTop: 2 }}>{stats.fulfilled}</div>
+          </div>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="panel-card" style={{ padding: 16, marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", flex: 1, minWidth: 280 }}>
-          <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-            <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-            <input
-              type="text"
-              placeholder="Search title, department, skills..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ padding: "8px 12px 8px 36px", width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+      <div className="panel-card" style={{ padding: 16, marginBottom: 20, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", background: "white", border: "1px solid #e2e8f0", borderRadius: 12 }}>
+        <div style={{ position: "relative", flex: "1 1 300px", minWidth: 200 }}>
+          <Search size={18} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b", pointerEvents: "none" }} />
+          <input
+            type="text"
+            placeholder="Search title, department, skills..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ paddingLeft: 42, paddingRight: 16, paddingTop: 10, paddingBottom: 10, width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", outline: "none", transition: "border-color 0.2s" }}
+          />
+        </div>
+
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ width: 200 }}>
+            <CustomSelect
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              options={[
+                { label: "All Statuses", value: "ALL" },
+                { label: "Pending Approval", value: "PENDING" },
+                { label: "Approved & Hiring", value: "APPROVED" },
+                { label: "Fulfilled", value: "FULFILLED" },
+                { label: "Rejected", value: "REJECTED" }
+              ]}
+              style={{ width: "100%", minHeight: 42 }}
             />
           </div>
-
-          <CustomSelect
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            options={[
-              { label: "All Statuses", value: "ALL" },
-              { label: "Pending Approval", value: "PENDING" },
-              { label: "Approved & Hiring", value: "APPROVED" },
-              { label: "Fulfilled", value: "FULFILLED" },
-              { label: "Rejected", value: "REJECTED" }
-            ]}
-            style={{ minWidth: 150 }}
-          />
-
-          <CustomSelect
-            value={urgencyFilter}
-            onChange={e => setUrgencyFilter(e.target.value)}
-            options={[
-              { label: "All Urgencies", value: "ALL" },
-              { label: "Immediate", value: "Immediate" },
-              { label: "High", value: "High" },
-              { label: "Medium", value: "Medium" },
-              { label: "Low", value: "Low" }
-            ]}
-            style={{ minWidth: 150 }}
-          />
+          <div style={{ width: 180 }}>
+            <CustomSelect
+              value={urgencyFilter}
+              onChange={e => setUrgencyFilter(e.target.value)}
+              options={[
+                { label: "All Urgencies", value: "ALL" },
+                { label: "Immediate", value: "Immediate" },
+                { label: "High", value: "High" },
+                { label: "Medium", value: "Medium" },
+                { label: "Low", value: "Low" }
+              ]}
+              style={{ width: "100%", minHeight: 42 }}
+            />
+          </div>
         </div>
       </div>
 
