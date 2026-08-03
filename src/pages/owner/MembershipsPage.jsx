@@ -591,7 +591,8 @@ export default function MembershipsPage() {
             {customerPackageMode && !loading && !selectedCustomerHistory?.packages?.length && <EmptyState title="No packages assigned yet" message="Assign a package to start tracking prepaid sessions for this customer." />}
             {!customerPackageMode && !loading && !filteredPackages.length && <EmptyState title="No packages yet" message="Create your first package to launch prepaid session bundles." />}
           </div>
-        </d      {showMembershipModal && (
+        </div>}
+      {showMembershipModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => setShowMembershipModal(false)} />
           <div style={{ position: "relative", width: 800, maxWidth: "90vw", maxHeight: "90vh", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>

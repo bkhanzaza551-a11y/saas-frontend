@@ -277,9 +277,9 @@ export default function ReferralProgramPage() {
       </div>
 
       <div style={{ display: "flex", gap: 4, background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 18, width: "fit-content" }}>
-        <button onClick={() => setActiveTab("coupons")} style={tabBtnStyle("coupons")}>Coupons</button>
-        <button onClick={() => setActiveTab("partners")} style={tabBtnStyle("partners")}>Partners</button>
-        <button onClick={() => setActiveTab("wallets")} style={tabBtnStyle("wallets")}>Wallets</button>
+        <button onClick={() => { setActiveTab("coupons"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("coupons")}>Coupons</button>
+        <button onClick={() => { setActiveTab("partners"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("partners")}>Partners</button>
+        <button onClick={() => { setActiveTab("wallets"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("wallets")}>Wallets</button>
       </div>
 
       {status.error && <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fee2e2", color: "#b91c1c", fontSize: 13, marginBottom: 12 }}>{status.error}</div>}
@@ -585,7 +585,7 @@ export default function ReferralProgramPage() {
         </>
       )}
 
-      {!loading && selectedWallet && (
+      {!loading && activeTab === "wallets" && selectedWallet && (
         <div className="cpn-card anim-fade">
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 20, flexWrap: "wrap" }}>
             <button onClick={() => { setSelectedWallet(null); setWalletDetail(null); }} className="cpn-btn cpn-btn-ghost" style={{ fontSize: 13 }}>← Back</button>

@@ -53,8 +53,36 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: rgba(14, 165, 233, 0.55);
-  box-shadow: none;
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+/* ── Global Custom Select Styling ── */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px !important;
+  color: #1e293b;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  cursor: pointer;
+}
+
+select:hover {
+  border-color: #94a3b8;
+}
+
+select option {
+  font-weight: 500;
+  color: #1e293b;
+  padding: 12px;
+  background: #fff;
 }
 
 /* ── Global Checkbox Styling ── */
@@ -6073,8 +6101,8 @@ pre {
 }
 
 .modal-close-btn {
-  background: transparent;
-  border: none;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -6084,13 +6112,15 @@ pre {
   justify-content: center;
   font-size: 24px;
   line-height: 1;
-  color: #64748b;
-  transition: background-color 0.2s, color 0.2s;
+  color: #0f172a;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
 }
 
 .modal-close-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #fff;
 }
 
 @keyframes fadeIn {
