@@ -202,12 +202,29 @@ export default function DemoLeadsPage() {
   const openZohoCalendarInvite = (row) => {
     const draft = draftsById[row.id];
     const meetingTime = draft.meetingScheduledAt ? new Date(draft.meetingScheduledAt) : new Date();
-    const startTimeIso = meetingTime.toISOString();
     const meetLink = draft.meetingLink || "https://meeting.zoho.com";
 
     const title = `Salon Nest Product Demo - ${row.company || row.name}`;
-    const details = `Product Demo walkthrough for ${row.name} (${row.phone}).\n\nZoho Meeting: ${meetLink}`;
-    const calUrl = `https://calendar.zoho.com/eventreq/add?title=${encodeURIComponent(title)}&date=${encodeURIComponent(startTimeIso)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(meetLink)}`;
+    const description = `Product Demo walkthrough for ${row.name} (${row.phone}).\n\nZoho Meeting: ${meetLink}\nEmail: ${row.email}`;
+
+    // Zoho Calendar uses yyyyMMddTHHmmss format
+    const pad = (n) => String(n).padStart(2, "0");
+    const y = meetingTime.getFullYear();
+    const mo = pad(meetingTime.getMonth() + 1);
+    const d = pad(meetingTime.getDate());
+    const h = pad(meetingTime.getHours());
+    const mi = pad(meetingTime.getMinutes());
+    const startStr = `${y}${mo}${d}T${h}${mi}00`;
+    // End time = start + 1 hour
+    const endTime = new Date(meetingTime.getTime() + 60 * 60 * 1000);
+    const ey = endTime.getFullYear();
+    const emo = pad(endTime.getMonth() + 1);
+    const ed = pad(endTime.getDate());
+    const eh = pad(endTime.getHours());
+    const emi = pad(endTime.getMinutes());
+    const endStr = `${ey}${emo}${ed}T${eh}${emi}00`;
+
+    const calUrl = `https://calendar.zoho.com/calendar#action=addEvent&title=${encodeURIComponent(title)}&sdate=${startStr}&edate=${endStr}&desc=${encodeURIComponent(description)}&location=${encodeURIComponent(meetLink)}`;
 
     window.open(calUrl, "_blank");
   };
