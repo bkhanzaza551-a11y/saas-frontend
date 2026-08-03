@@ -6,15 +6,15 @@
 .pos-dash-header {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   background: var(--surface, rgba(255, 255, 255, 0.86));
   backdrop-filter: blur(12px);
   border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.22));
-  border-radius: 18px;
+  border-radius: 12px;
   box-shadow: var(--surface-shadow, none);
-  margin-bottom: 24px;
-  padding: 20px 24px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
   flex-wrap: wrap;
 }
 
@@ -50,12 +50,12 @@
 .btn-view-bill,
 .btn-edit-shield {
   border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.22));
-  border-radius: 12px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.84);
   color: #1e293b;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
@@ -73,7 +73,7 @@
 .btn-clear,
 .btn-view-bill,
 .btn-edit-shield {
-  padding: 6px 14px;
+  padding: 4px 10px;
 }
 
 .pos-dash-filter-pill {
@@ -530,12 +530,13 @@
 /* Date Picker Responsive Styles */
 .pos-dash-date-picker {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   background: white;
-  padding: 6px 12px;
+  padding: 4px 8px;
   border-radius: 6px;
   border: 1px solid #cbd5e1;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 860px) {

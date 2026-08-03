@@ -1051,17 +1051,7 @@ export default function SettingsPage() {
         <SectionHeader
           title="Generic Settings"
           description="Business timing, storefront behavior, booking rules, checkout defaults, and currency propagation are managed from this workspace."
-          badges={[
-            `${normalizeCurrencyCode(generic.currency || "INR")} live currency`,
-            generic.appointmentBookingEnabled ? "Booking Live" : "Booking Off",
-            generic.productOrderingEnabled ? "Store Orders Live" : "Store Orders Off"
-          ]}
-          action={<Link className="secondary-button" to="/site">Open Storefront</Link>}
         />
-
-        <div className="muted" style={{ marginBottom: 12, fontSize: 12 }}>
-          Currency, storefront product layout, minimum online order value, cancellation/reschedule permissions, and cancelled-appointment visibility are already wired into live customer/storefront flows. Appointment tags and service-PDP preferences are kept here as saved rollout metadata unless noted otherwise.
-        </div>
 
         <div className="settings-panel-card">
           <div className="settings-panel-header-with-toggle" style={{ borderBottom: "none", marginBottom: 16, paddingBottom: 0 }}>

@@ -917,11 +917,11 @@ export default function PosDashboardPage() {
 
   return (
     <div className="salonnest-pos-dashboard page-shell">
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
+      <div className="hero-card" style={{ padding: "16px 24px", marginBottom: 16 }}>
         <div className="item-head">
           <div>
-            <h1 style={{ margin: "0 0 4px 0", fontSize: "2.2rem" }}>POS Dashboard</h1>
-            <p style={{ margin: 0, color: "#64748b", fontSize: "1rem" }}>
+            <h1 style={{ margin: "0 0 2px 0", fontSize: "1.6rem" }}>POS Dashboard</h1>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "0.85rem" }}>
               Unified billing and point-of-sale overview for your salon.
             </p>
           </div>
