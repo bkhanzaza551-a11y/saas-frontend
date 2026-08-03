@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -1675,6 +1675,11 @@ export default function SettingsPage() {
         const res = await api.post("/owner/shifts", payload);
         setShifts((prev) => [...prev, res.data]);
         setSelectedShiftId(res.data.id);
+        setShiftDraft({
+          ...res.data,
+          days: (res.data.days || []).map(d => ({ dayOfWeek: d.dayOfWeek, startTime: d.startTime, endTime: d.endTime, active: d.active })),
+          breaks: (res.data.breaks || []).map(b => ({ name: b.name, active: b.active, fromTime: b.fromTime, toTime: b.toTime }))
+        });
         setForm((prev) => ({
           ...prev,
           advancedSettings: {
@@ -1827,7 +1832,7 @@ export default function SettingsPage() {
 
     return (
       <>
-        <SectionHeader title="Shift Management" description="Create reusable shift templates with per-day timing so roster planning stays consistent across staff, roles, and branches." badges={[`${shiftList.length} shifts`]} action={<button type="button" onClick={saveShift} disabled={!selectedShift || shiftSaving} className="primary-button" style={{ padding: "8px 18px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 600, cursor: shiftSaving ? "not-allowed" : "pointer", opacity: !selectedShift || shiftSaving ? 0.6 : 1 }}>{shiftSaving ? "Saving..." : "Save Shift"}</button>} />
+        <SectionHeader title="Shift Management" description="Create reusable shift templates with per-day timing so roster planning stays consistent across staff, roles, and branches." />
 
         <div className="shift-layout-grid">
           <div style={{ background: "#fff", border: "1px solid rgba(226, 232, 240, 0.8)", borderRadius: 16, padding: 16, height: "fit-content", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
@@ -1880,25 +1885,34 @@ export default function SettingsPage() {
 
           <div className="shift-management-card" style={{ background: "#fff", border: "1px solid rgba(226, 232, 240, 0.8)", borderRadius: 16, padding: 32, boxShadow: "0 4px 24px rgba(0,0,0,0.04)" }}>
             {!selectedShift || !shiftDraft ? (
-              <div style={{ padding: "60px 20px", textAlign: "center", color: "#64748b" }}>
-                <div style={{ fontSize: 40, opacity: 0.3, marginBottom: 16 }}>🗓️</div>
-                <strong style={{ fontSize: 16 }}>Select a shift to edit</strong>
-                <div style={{ fontSize: 14, marginTop: 8 }}>Or create a new shift to get started.</div>
+              <div style={{ padding: "60px 20px", textAlign: "center", color: "#64748b", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ background: "#f8fafc", padding: "24px", borderRadius: "50%", marginBottom: "16px" }}>
+                  <CalendarDays size={48} color="#94a3b8" />
+                </div>
+                <strong style={{ fontSize: 18, color: "#1e293b", marginBottom: "8px" }}>Select a shift to edit</strong>
+                <div style={{ fontSize: 14 }}>Or create a new shift to get started.</div>
               </div>
             ) : (
               <>
                 <div className="shift-header-mobile" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid #f1f5f9" }}>
                   <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ background: "#eff6ff", color: "#3b82f6", width: 36, height: 36, display: "flex", justifyContent: "center", alignItems: "center", borderRadius: 10, fontSize: 18 }}>🕒</span> 
+                    <span style={{ background: "#eff6ff", color: "#3b82f6", width: 36, height: 36, display: "flex", justifyContent: "center", alignItems: "center", borderRadius: 10 }}>
+                      <Clock size={20} />
+                    </span> 
                     Shift Details
                   </h2>
-                  <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", background: shiftDraft.active ? "#ecfdf5" : "#f1f5f9", padding: "8px 16px", borderRadius: 20, transition: "background 0.2s" }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: shiftDraft.active ? "#059669" : "#64748b" }}>{shiftDraft.active ? "Active" : "Inactive"}</span>
-                    <div className="toggle-switch-label" style={{ margin: 0 }}>
-                      <input type="checkbox" checked={Boolean(shiftDraft.active)} onChange={(event) => updateDraftField("active", event.target.checked)} />
-                      <span className="toggle-switch-slider" />
-                    </div>
-                  </label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <button type="button" onClick={saveShift} disabled={shiftSaving} style={{ padding: "8px 18px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 600, cursor: shiftSaving ? "not-allowed" : "pointer", opacity: shiftSaving ? 0.6 : 1, display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Save size={16} /> {shiftSaving ? "Saving..." : "Save Shift"}
+                    </button>
+                    <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", background: shiftDraft.active ? "#ecfdf5" : "#f1f5f9", padding: "8px 16px", borderRadius: 20, transition: "background 0.2s" }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: shiftDraft.active ? "#059669" : "#64748b" }}>{shiftDraft.active ? "Active" : "Inactive"}</span>
+                      <div className="toggle-switch-label" style={{ margin: 0 }}>
+                        <input type="checkbox" checked={Boolean(shiftDraft.active)} onChange={(event) => updateDraftField("active", event.target.checked)} />
+                        <span className="toggle-switch-slider" />
+                      </div>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="settings-form-grid" style={{ marginBottom: 24 }}>

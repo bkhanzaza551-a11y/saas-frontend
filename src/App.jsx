@@ -359,7 +359,9 @@ const Protected = () => {
       <div className="app-content-wrapper">
         <Topbar auth={auth} sidebarExpanded={sidebarExpanded} onToggleSidebar={toggleSidebar} onLogout={logout} />
         <main className="app-main">
-          <Outlet />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>
