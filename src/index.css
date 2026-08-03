@@ -19,6 +19,11 @@
   box-sizing: border-box;
 }
 
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 body {
   margin: 0;
   min-height: 100vh;

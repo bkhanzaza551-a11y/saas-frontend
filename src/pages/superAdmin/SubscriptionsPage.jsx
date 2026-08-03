@@ -21,6 +21,12 @@ export default function SubscriptionsPage() {
   const [status, setStatus] = useState({ error: "", success: "" });
   const [busyId, setBusyId] = useState("");
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   const load = async (nextFilters = filters) => {
     setLoading(true);
@@ -134,15 +140,12 @@ export default function SubscriptionsPage() {
     try {
       const res = await api.post(`/super-admin/subscriptions/${id}/send-trial-reminder`);
       if (res.data.emailError) {
-        setStatus({ error: `Email failed: ${res.data.emailError}`, success: "" });
-        alert(`Failed to send email: ${res.data.emailError}`);
+        showToast(`Email failed: ${res.data.emailError}`, "error");
       } else {
-        setStatus({ error: "", success: "Renewal reminder sent to owner." });
-        alert("Renewal reminder sent successfully to the salon owner!");
+        showToast("✅ Renewal reminder sent successfully to the salon owner!", "success");
       }
-      await load();
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not send reminder."), success: "" });
+      showToast(formatApiError(err, "Could not send reminder."), "error");
     } finally {
       setBusyId("");
     }
@@ -173,6 +176,23 @@ export default function SubscriptionsPage() {
           <span className="badge" style={{ background: "#ecfdf5", color: "#065f46", fontWeight: 700 }}>Plans: {plans.length}</span>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          position: "fixed", top: 24, right: 24, zIndex: 9999,
+          padding: "14px 20px", borderRadius: 12, fontWeight: 600, fontSize: 14,
+          background: toast.type === "success" ? "#ecfdf5" : "#fef2f2",
+          color: toast.type === "success" ? "#065f46" : "#991b1b",
+          border: `1px solid ${toast.type === "success" ? "#a7f3d0" : "#fca5a5"}`,
+          boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+          display: "flex", alignItems: "center", gap: 10, maxWidth: 380,
+          animation: "slideInRight 0.3s ease"
+        }}>
+          <span>{toast.message}</span>
+          <button onClick={() => setToast(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "inherit", marginLeft: "auto", lineHeight: 1 }}>×</button>
+        </div>
+      )}
 
       {status.success && <div style={{ padding: 12, borderRadius: 10, marginBottom: 16, background: "#ecfdf5", color: "#065f46", fontWeight: 500, fontSize: 14 }}>{status.success}</div>}
       {status.error && <div style={{ padding: 12, borderRadius: 10, marginBottom: 16, background: "#fef2f2", color: "#991b1b", fontWeight: 500, fontSize: 14 }}>{status.error}</div>}
@@ -303,8 +323,8 @@ export default function SubscriptionsPage() {
                         <button type="button" onClick={() => openEditModal(row)} disabled={isBusy} title="Edit" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", cursor: "pointer", transition: "all 0.2s" }}>
                           <Edit2 size={14} />
                         </button>
-                        <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Expiry Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
-                          <Bell size={18} />
+                        <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Renewal Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
+                          {busyId === `reminder-${row.id}` ? <RefreshCw size={14} className="spin" /> : <Bell size={16} />}
                         </button>
                         <button type="button" onClick={() => deleteSubscription(row.id)} disabled={isBusy} title="Delete" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #fca5a5", background: "#fef2f2", color: "#991b1b", cursor: "pointer", transition: "all 0.2s" }}>
                           <Trash2 size={14} />
