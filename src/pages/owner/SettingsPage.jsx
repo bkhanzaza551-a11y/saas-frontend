@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee, X } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -2442,128 +2442,152 @@ export default function SettingsPage() {
 
     return (
       <>
-        <SectionHeader title="Tax Mapping" description="Define named tax mappings for billing, services, packages, and reporting labels." badges={["Tax label: " + form.taxLabel, taxRows.length + " tax rows", inclusiveTax ? "Inclusive" : "Exclusive"]} />
-        <div className="muted" style={{ marginBottom: 12, fontSize: 12 }}>
+        <SectionHeader
+          title="Tax Mapping"
+          description="Define named tax mappings for billing, services, packages, and reporting labels."
+          badges={["Tax label: " + form.taxLabel, taxRows.length + " tax rows", inclusiveTax ? "Inclusive" : "Exclusive"]}
+          action={
+            <button
+              type="button"
+              onClick={startCreate}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "#14b8a6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: "pointer", boxShadow: "0 2px 10px rgba(20, 184, 166, 0.2)", transition: "background 0.2s" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#0d9488"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "#14b8a6"}
+            >
+              <Plus size={18} /> Create Tax
+            </button>
+          }
+        />
+        <div className="muted" style={{ marginBottom: 20, fontSize: 13 }}>
           New services without an explicit tax rate now inherit the first active tax mapping automatically.
         </div>
 
-        <div className="shift-layout-grid">
-          {/* LEFT PANEL — Tax List */}
-          <div style={{ width: "100%", flexShrink: 0 }}>
-            <div className="settings-panel-card" style={{ padding: 0 }}>
-              <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid #f1f5f9" }}>
-                <button type="button" onClick={startCreate} style={{ width: "100%", padding: "10px", background: "#14b8a6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Create New</button>
+        {/* TAX LIST TABLE */}
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, overflowX: "auto", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+          <div style={{ minWidth: 800 }}>
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.5fr 100px", alignItems: "center", gap: 16, fontSize: 13, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <div>Tax Name & Code</div>
+              <div>Rate</div>
+              <div>Status</div>
+              <div>Applicable For</div>
+              <div style={{ textAlign: "right" }}>Actions</div>
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {taxRows.map((row, index) => (
+                <div key={row.id} style={{ padding: "16px 20px", borderBottom: index < taxRows.length - 1 ? "1px solid #f1f5f9" : "none", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.5fr 100px", alignItems: "center", gap: 16, transition: "background 0.15s", background: "#fff" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{row.label || "Untitled Tax"}</div>
+                    <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Code: {row.code}</div>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>
+                    {row.rate}%
+                  </div>
+                  <div>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: row.active ? "#dcfce7" : "#f1f5f9", color: row.active ? "#16a34a" : "#64748b" }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#16a34a" : "#94a3b8" }} />
+                      {row.active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {(Array.isArray(row.applicableFor) ? row.applicableFor : typeof row.applicableFor === "string" ? row.applicableFor.split(",") : []).map(a => (
+                      <span key={a} style={{ fontSize: 11, background: "#f1f5f9", color: "#475569", padding: "2px 8px", borderRadius: 4, fontWeight: 500 }}>
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <button type="button" onClick={() => { startEdit(row); }} title="Edit tax" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#475569", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#eff6ff"; e.currentTarget.style.color="#2563eb"; e.currentTarget.style.borderColor="#bfdbfe";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#475569"; e.currentTarget.style.borderColor="#cbd5e1";}}><Edit2 size={15} /></button>
+                    <button type="button" onClick={() => { deleteTax(row.id); }} title="Delete tax" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#ef4444", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#fef2f2"; e.currentTarget.style.borderColor="#fecaca";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1";}}><Trash2 size={15} /></button>
+                  </div>
+                </div>
+              ))}
+              {!taxRows.length && (
+                <div style={{ padding: "60px 20px", textAlign: "center", color: "#64748b", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "50%", marginBottom: "16px" }}>
+                    <Plus size={40} color="#94a3b8" />
+                  </div>
+                  <strong style={{ fontSize: 16, color: "#1e293b", marginBottom: 8 }}>No taxes defined</strong>
+                  <div style={{ fontSize: 14 }}>Click "Create Tax" to add your first tax mapping.</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* MODAL */}
+        {editing && (
+          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={cancelDraft}>
+            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 500, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }} onClick={e => e.stopPropagation()}>
+              <div style={{ padding: "24px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 8, height: 24, background: "#14b8a6", borderRadius: 4 }} />
+                  {draftTax?._isNew ? "Create Tax" : `Edit Tax`}
+                </h2>
+                <button onClick={cancelDraft} style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", borderRadius: "50%", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                  <X size={20} />
+                </button>
               </div>
-              <div style={{ maxHeight: 400, overflowY: "auto" }}>
-                {taxRows.map((row) => (
-                  <div
-                    key={row.id}
-                    style={{
-                      padding: "14px 16px",
-                      borderBottom: "1px solid #f1f5f9",
-                      cursor: "pointer",
-                      background: selectedTaxId === row.id ? "#eff6ff" : "white",
-                      borderLeft: selectedTaxId === row.id ? "3px solid #3b82f6" : "3px solid transparent",
-                      transition: "all 0.15s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between"
-                    }}
-                  >
-                    <div style={{ flex: 1 }} onClick={() => { setSelectedTaxId(row.id); setDraftTax(null); }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: "#0f172a" }}>{row.label || "Untitled Tax"}</div>
-                      <div style={{ fontSize: 11, color: "#64748b", marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
-                        <span>{row.code}</span>
-                        <span>·</span>
-                        <span>{row.rate}%</span>
-                        <span>·</span>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#22c55e" : "#94a3b8" }} />
-                          {row.active ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(row); }} title="Edit tax" style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer", color: "#475569", padding: 0 }}><Edit2 size={13} /></button>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); deleteTax(row.id); }} title="Delete tax" style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", color: "#dc2626", padding: 0 }}><Trash2 size={13} /></button>
+
+              <div style={{ padding: "24px", flex: 1, overflowY: "auto" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Tax Name <span style={{ color: "#ef4444" }}>*</span></label>
+                    <input type="text" value={draftTax?.label ?? editing.label} onChange={(e) => draftTax && setDraftTax({ ...draftTax, label: e.target.value })} placeholder="e.g. VAT, GST, Sales Tax" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, color: "#0f172a", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#14b8a6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Tax Value (%) <span style={{ color: "#ef4444" }}>*</span></label>
+                    <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#14b8a6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}>
+                      <input type="number" min="0" step="0.1" value={draftTax?.rate ?? editing.rate} onChange={(e) => draftTax && setDraftTax({ ...draftTax, rate: Number(e.target.value) })} placeholder="0" style={{ flex: 1, padding: "10px 14px", border: "none", fontSize: 14, color: "#0f172a", outline: "none" }} />
+                      <span style={{ padding: "10px 16px", background: "#f8fafc", borderLeft: "1px solid #cbd5e1", fontSize: 14, color: "#475569", fontWeight: 600 }}>%</span>
                     </div>
                   </div>
-                ))}
-                {!taxRows.length && <div style={{ padding: 24, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>No taxes defined</div>}
+
+                  <div style={{ display: "flex", gap: 32, padding: "16px", background: "#f8fafc", borderRadius: 8, border: "1px solid #f1f5f9" }}>
+                    <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                      <input type="checkbox" checked={draftTax?.active ?? editing.active} onChange={(e) => draftTax && setDraftTax({ ...draftTax, active: e.target.checked })} />
+                      <span className="toggle-switch-slider" />
+                      <span style={{ marginLeft: 12, fontSize: 14, fontWeight: 600, color: "#334155" }}>Active</span>
+                    </div>
+                    
+                    <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                      <input type="checkbox" checked={inclusiveTax} onChange={(e) => updateAdvancedObject("taxMapping", { inclusiveTax: e.target.checked })} />
+                      <span className="toggle-switch-slider" />
+                      <span style={{ marginLeft: 12, fontSize: 14, fontWeight: 600, color: "#334155" }}>Inclusive Tax</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 12 }}>Applicable For</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      {[{ key: "SERVICE", label: "Services" }, { key: "PRODUCT", label: "Products" }, { key: "MEMBERSHIP", label: "Memberships" }, { key: "PACKAGE", label: "Packages" }].map(({ key, label }) => {
+                        const isChecked = (draftTax?.applicableFor ?? (typeof editing.applicableFor === "string" ? editing.applicableFor.split(",") : (editing.applicableFor || []))).includes(key);
+                        return (
+                          <label key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", border: isChecked ? "1px solid #14b8a6" : "1px solid #e2e8f0", background: isChecked ? "#f0fdfa" : "#fff", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => { if(!isChecked) e.currentTarget.style.borderColor = "#cbd5e1" }} onMouseLeave={e => { if(!isChecked) e.currentTarget.style.borderColor = "#e2e8f0" }}>
+                            <input type="checkbox" checked={isChecked} onChange={() => draftTax && toggleApplicable(key)} style={{ width: 18, height: 18, accentColor: "#14b8a6", cursor: "pointer" }} />
+                            <span style={{ fontSize: 14, fontWeight: 500, color: isChecked ? "#0f766e" : "#475569" }}>{label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div style={{ padding: "16px 24px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+                  Cancel
+                </button>
+                <button type="button" onClick={saveDraft} disabled={!draftTax?.label} style={{ padding: "10px 24px", background: "#14b8a6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: draftTax?.label ? "pointer" : "not-allowed", fontSize: 14, opacity: draftTax?.label ? 1 : 0.6, transition: "background 0.2s" }} onMouseEnter={e => { if(draftTax?.label) e.currentTarget.style.background = "#0d9488" }} onMouseLeave={e => { if(draftTax?.label) e.currentTarget.style.background = "#14b8a6" }}>
+                  Save Tax
+                </button>
               </div>
             </div>
           </div>
-
-          {/* RIGHT PANEL â€” Form */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {editing ? (
-              <div className="settings-panel-card">
-                <h3 style={{ color: "#14b8a6" }}>{draftTax?._isNew ? "Create Tax" : `Edit: ${editing.label || "Tax"}`}</h3>
-
-                <div className="settings-form-grid" style={{ marginBottom: 16 }}>
-                  <label className="settings-input-group">
-                    <span className="muted">Tax Name</span>
-                    <input value={draftTax?.label ?? editing.label} onChange={(e) => draftTax && setDraftTax({ ...draftTax, label: e.target.value })} placeholder="Enter Tax Name" />
-                  </label>
-                  <label className="settings-input-group">
-                    <span className="muted">Tax Value</span>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <input type="number" value={draftTax?.rate ?? editing.rate} onChange={(e) => draftTax && setDraftTax({ ...draftTax, rate: Number(e.target.value) })} placeholder="Enter Tax Value" style={{ flex: 1 }} />
-                      <span style={{ padding: "8px 12px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderLeft: "none", borderRadius: "0 8px 8px 0", fontSize: 13, color: "#475569" }}>%</span>
-                    </div>
-                  </label>
-                </div>
-
-                <div style={{ display: "flex", gap: 32, marginBottom: 16 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={draftTax?.active ?? editing.active}
-                      onChange={(e) => draftTax && setDraftTax({ ...draftTax, active: e.target.checked })}
-                      style={{ width: 18, height: 18, accentColor: "var(--accent, #3b82f6)", cursor: "pointer" }}
-                    />
-                    Active
-                  </label>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={inclusiveTax}
-                      onChange={(e) => updateAdvancedObject("taxMapping", { inclusiveTax: e.target.checked })}
-                      style={{ width: 18, height: 18, accentColor: "var(--accent, #3b82f6)", cursor: "pointer" }}
-                    />
-                    Inclusive Taxes
-                  </label>
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: "#334155", marginBottom: 8 }}>Applicable For</div>
-                  <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                    {[{ key: "SERVICE", label: "Service" }, { key: "PRODUCT", label: "Product" }, { key: "MEMBERSHIP", label: "Membership" }, { key: "PACKAGE", label: "Packages" }].map(({ key, label }) => (
-                      <label key={key} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#334155", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={(draftTax?.applicableFor ?? (typeof editing.applicableFor === "string" ? editing.applicableFor.split(",") : (editing.applicableFor || []))).includes(key)}
-                          onChange={() => draftTax && toggleApplicable(key)}
-                          style={{ width: 16, height: 16, accentColor: "var(--accent, #3b82f6)", cursor: "pointer" }}
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-                  <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13 }}>Cancel</button>
-                  <button type="button" onClick={saveDraft} style={{ padding: "10px 24px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Save</button>
-                </div>
-              </div>
-            ) : (
-              <div className="settings-panel-card" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300, color: "#94a3b8", fontSize: 14 }}>
-                Select a tax from the left panel or click "Create New"
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </>
     );
   };
