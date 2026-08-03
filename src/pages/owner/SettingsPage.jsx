@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare, Bell, Mail, Smartphone, AlertCircle } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare, Bell, Mail, Smartphone, AlertCircle } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -2169,94 +2169,105 @@ export default function SettingsPage() {
 
     return (
       <>
-        <SectionHeader title="Roster Management" description="Use saved shifts as templates and keep a quick day-wise operating roster for all staff inside settings." badges={[`${roster.rows.length} staff rows`, `${summary.staffSchedules.length} live schedule rows`, rosterModuleEnabled ? "Roster Editable" : "Roster Locked"]} />
+        <SectionHeader title="Roster Management" description="Use saved shifts as templates and keep a quick day-wise operating roster for all staff inside settings." badges={[]} />
         {!rosterModuleEnabled ? (
           <div className="muted" style={{ marginBottom: 12, fontSize: 12 }}>
             Roster management is locked from settings, so these rows remain visible but editing is intentionally paused until the module is enabled again.
           </div>
         ) : null}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, flexWrap: "wrap", background: "#f8fafc", padding: "16px 20px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}><Users size={16} color="#64748b" /> Apply Shift for</span>
-              <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, paddingRight: 8 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, marginBottom: 24, flexWrap: "wrap", background: "#fff", padding: "20px 24px", borderRadius: 12, border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+            {/* Days Selection */}
+            <div>
+              <label style={{ display: "block", fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Apply for</label>
+              <div style={{ display: "flex", alignItems: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "0 12px", height: 42, width: 140, transition: "border-color 0.2s" }} onFocusCapture={(e) => e.currentTarget.style.borderColor = "#3b82f6"} onBlurCapture={(e) => e.currentTarget.style.borderColor = "#e2e8f0"}>
+                <Users size={16} color="#94a3b8" />
                 <input
                   type="number"
                   min="1"
                   disabled={!rosterModuleEnabled}
                   value={roster.applyFor || 1}
                   onChange={(event) => updateAdvancedObject("rosterManagement", { applyFor: Number(event.target.value) || 1 })}
-                  style={{ width: 44, padding: "8px 0 8px 10px", border: "none", background: "transparent", fontSize: 14, textAlign: "center", outline: "none", color: "#0f172a", fontWeight: 600 }}
+                  style={{ width: "100%", padding: "0 8px", border: "none", background: "transparent", fontSize: 15, textAlign: "center", outline: "none", color: "#0f172a", fontWeight: 700 }}
                 />
-                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Days</span>
+                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Days</span>
               </div>
             </div>
 
-            <div style={{ width: 1, height: 24, background: "#cbd5e1" }} />
-
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}><Clock size={16} color="#64748b" /> Template</span>
-              <select
-                disabled={!rosterModuleEnabled}
-                value={roster.useShiftId}
-                onChange={(event) => updateAdvancedObject("rosterManagement", { useShiftId: event.target.value })}
-                style={{ minWidth: 200, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 14, background: "#fff", outline: "none", color: "#0f172a", fontWeight: 500, cursor: "pointer" }}
-              >
-                <option value="">Select template...</option>
-                {shifts.filter((shift) => shift.active !== false).map((shift) => <option key={shift.id} value={shift.id}>{shift.name || "Unnamed Shift"}</option>)}
-              </select>
+            {/* Template Selection */}
+            <div>
+              <label style={{ display: "block", fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Template</label>
+              <div style={{ position: "relative" }}>
+                <Clock size={16} color="#94a3b8" style={{ position: "absolute", left: 14, top: 13 }} />
+                <select
+                  disabled={!rosterModuleEnabled}
+                  value={roster.useShiftId}
+                  onChange={(event) => updateAdvancedObject("rosterManagement", { useShiftId: event.target.value })}
+                  style={{ width: 260, height: 42, padding: "0 36px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, background: "#f8fafc", outline: "none", color: "#0f172a", fontWeight: 600, cursor: "pointer", appearance: "none", transition: "border-color 0.2s" }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = "#3b82f6"}
+                  onBlur={(e) => e.currentTarget.style.borderColor = "#e2e8f0"}
+                >
+                  <option value="">Select template...</option>
+                  {shifts.filter((shift) => shift.active !== false).map((shift) => <option key={shift.id} value={shift.id}>{shift.name || "Unnamed Shift"}</option>)}
+                </select>
+                <ChevronDown size={16} color="#94a3b8" style={{ position: "absolute", right: 14, top: 13, pointerEvents: "none" }} />
+              </div>
             </div>
           </div>
           
-          <div style={{ flex: 1 }} />
-          
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden" }}>
-              <button
-                type="button"
-                onClick={() => handleDateNav(-1)}
-                disabled={!rosterModuleEnabled}
-                title="Previous Day"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, border: "none", borderRight: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", color: "#475569", transition: "background 0.2s" }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
-                onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                type="button"
-                onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toISOString().split("T")[0] })}
-                disabled={!rosterModuleEnabled}
-                style={{ height: 36, padding: "0 16px", border: "none", borderRight: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#2563eb", transition: "background 0.2s" }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "#eff6ff"}
-                onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
-              >
-                TODAY
-              </button>
-              <span style={{ height: 36, padding: "0 16px", fontSize: 14, fontWeight: 700, color: "#1e293b", minWidth: 130, textAlign: "center", display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center", background: "#f8fafc", borderRight: "1px solid #e2e8f0" }}>
-                <CalendarDays size={16} color="#64748b" /> {formatDate(roster.selectedDate)}
-              </span>
-              <button
-                type="button"
-                onClick={() => handleDateNav(1)}
-                disabled={!rosterModuleEnabled}
-                title="Next Day"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, border: "none", background: "#fff", cursor: "pointer", color: "#475569", transition: "background 0.2s" }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
-                onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
-              >
-                <ChevronRight size={18} />
-              </button>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+            {/* Date Navigation */}
+            <div>
+              <label style={{ display: "block", fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Starting Date</label>
+              <div style={{ display: "flex", alignItems: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden", height: 42 }}>
+                <button
+                  type="button"
+                  onClick={() => handleDateNav(-1)}
+                  disabled={!rosterModuleEnabled}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 42, height: "100%", border: "none", borderRight: "1px solid #e2e8f0", background: "transparent", cursor: "pointer", color: "#64748b", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toISOString().split("T")[0] })}
+                  disabled={!rosterModuleEnabled}
+                  style={{ height: "100%", padding: "0 16px", border: "none", borderRight: "1px solid #e2e8f0", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#3b82f6", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "#eff6ff"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  TODAY
+                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 16px", height: "100%", background: "#fff", borderRight: "1px solid #e2e8f0" }}>
+                  <CalendarDays size={16} color="#64748b" />
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", minWidth: 100, textAlign: "center" }}>{formatDate(roster.selectedDate)}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDateNav(1)}
+                  disabled={!rosterModuleEnabled}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 42, height: "100%", border: "none", background: "transparent", cursor: "pointer", color: "#64748b", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
             </div>
-            
+
             <button
               type="button"
               onClick={applyShiftTemplate}
               disabled={!rosterModuleEnabled || !roster.useShiftId}
-              style={{ height: 36, padding: "0 20px", background: roster.useShiftId ? "#2563eb" : "#94a3b8", color: "#fff", border: "none", borderRadius: 8, cursor: roster.useShiftId ? "pointer" : "not-allowed", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "background 0.2s" }}
+              style={{ height: 42, padding: "0 28px", background: roster.useShiftId ? "#3b82f6" : "#cbd5e1", color: "#fff", border: "none", borderRadius: 8, cursor: roster.useShiftId ? "pointer" : "not-allowed", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 8, transition: "background 0.2s, transform 0.1s", transform: roster.useShiftId ? "scale(1)" : "none", boxShadow: roster.useShiftId ? "0 4px 12px rgba(59, 130, 246, 0.25)" : "none" }}
+              onMouseDown={(e) => { if (roster.useShiftId) e.currentTarget.style.transform = "scale(0.96)" }}
+              onMouseUp={(e) => { if (roster.useShiftId) e.currentTarget.style.transform = "scale(1)" }}
+              onMouseLeave={(e) => { if (roster.useShiftId) e.currentTarget.style.transform = "scale(1)" }}
             >
-              Apply
+              Apply Schedule
             </button>
           </div>
         </div>
