@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee, X } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -2839,100 +2839,169 @@ export default function SettingsPage() {
 
     return (
       <>
-        <SectionHeader
-          title="Feedback Setting"
-          description="Control how guest feedback is requested, escalated, and acknowledged from one polished workspace."
-          badges={[feedback.enabled ? "Feedback On" : "Feedback Off", `${feedbackTypesList.length} types`, `${activeCount} active`]}
-          action={<Link className="secondary-button" to="/admin/feedback">Open Feedback Module</Link>}
-        />
-        <div className="muted" style={{ marginBottom: 16, fontSize: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+          <SectionHeader
+            title="Feedback Setting"
+            description="Control how guest feedback is requested, escalated, and acknowledged from one polished workspace."
+            badges={[feedback.enabled ? "Feedback On" : "Feedback Off", `${feedbackTypesList.length} types`, `${activeCount} active`]}
+          />
+          <div style={{ display: "flex", gap: 12 }}>
+            <Link className="secondary-button" to="/admin/feedback" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: "none", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#94a3b8"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
+              <MessageSquare size={18} /> Open Feedback Module
+            </Link>
+          </div>
+        </div>
+        <div className="muted" style={{ marginBottom: 24, fontSize: 13 }}>
           These values feed the live feedback settings endpoint, low-rating alert flow, and owner feedback workspace.
         </div>
 
-        <div className="settings-panel-card" style={{ marginBottom: 20 }}>
-          <div className="settings-toggle-grid">
-            <ToggleRow checked={feedback.enabled} label="Enable feedback" onChange={(value) => updateAdvancedObject("feedbackSetting", { enabled: value })} />
-            <ToggleRow checked={feedback.sendSms} label="Send feedback SMS" onChange={(value) => updateAdvancedObject("feedbackSetting", { sendSms: value })} />
-            <ToggleRow checked={feedback.sendWhatsapp} label="Send follow-up WhatsApp" onChange={(value) => updateAdvancedObject("feedbackSetting", { sendWhatsapp: value })} />
+        {/* FEEDBACK CONFIGURATION */}
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ margin: "0 0 20px 0", fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 4, height: 16, background: "#3b82f6", borderRadius: 4 }} />
+            General Settings
+          </h3>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 24 }}>
+            {[
+              { id: 'enabled', label: 'Enable Feedback System', desc: 'Activate automated feedback requests', checked: feedback.enabled, key: 'enabled' },
+              { id: 'sendSms', label: 'Send SMS', desc: 'Send feedback link via SMS', checked: feedback.sendSms, key: 'sendSms' },
+              { id: 'sendWhatsapp', label: 'Send WhatsApp', desc: 'Send feedback link via WhatsApp', checked: feedback.sendWhatsapp, key: 'sendWhatsapp' }
+            ].map(item => (
+              <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px", background: item.checked ? "#eff6ff" : "#f8fafc", border: item.checked ? "1px solid #bfdbfe" : "1px solid #e2e8f0", borderRadius: 10, transition: "all 0.2s" }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: item.checked ? "#1e40af" : "#334155" }}>{item.label}</div>
+                  <div style={{ fontSize: 12, color: item.checked ? "#3b82f6" : "#64748b", marginTop: 4 }}>{item.desc}</div>
+                </div>
+                <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                  <input type="checkbox" checked={item.checked} onChange={(e) => updateAdvancedObject("feedbackSetting", { [item.key]: e.target.checked })} />
+                  <span className="toggle-switch-slider" />
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="settings-form-grid" style={{ marginTop: 18 }}>
-            <label className="settings-input-group"><span className="muted">Feedback delay (hours)</span><input type="number" value={feedback.feedbackDelayHours} onChange={(event) => updateAdvancedObject("feedbackSetting", { feedbackDelayHours: Number(event.target.value) })} /></label>
-            <label className="settings-input-group"><span className="muted">Low rating alert email</span><input value={feedback.lowRatingAlertEmail} onChange={(event) => updateAdvancedObject("feedbackSetting", { lowRatingAlertEmail: event.target.value })} /></label>
-            <label className="settings-input-group"><span className="muted">Rating prompt</span><textarea rows="3" value={feedback.ratingPrompt} onChange={(event) => updateAdvancedObject("feedbackSetting", { ratingPrompt: event.target.value })} /></label>
-            <label className="settings-input-group"><span className="muted">Thank you message</span><textarea rows="3" value={feedback.thankYouMessage} onChange={(event) => updateAdvancedObject("feedbackSetting", { thankYouMessage: event.target.value })} /></label>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Feedback delay (hours)</label>
+              <input type="number" min="0" value={feedback.feedbackDelayHours} onChange={(event) => updateAdvancedObject("feedbackSetting", { feedbackDelayHours: Number(event.target.value) })} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none" }} />
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Delay after appointment completion before sending link.</div>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Low rating alert email</label>
+              <input type="email" value={feedback.lowRatingAlertEmail} onChange={(event) => updateAdvancedObject("feedbackSetting", { lowRatingAlertEmail: event.target.value })} placeholder="e.g. manager@salon.com" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none" }} />
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Instantly get notified for ratings &lt; 3 stars.</div>
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Rating prompt (SMS/WhatsApp content)</label>
+              <textarea rows="2" value={feedback.ratingPrompt} onChange={(event) => updateAdvancedObject("feedbackSetting", { ratingPrompt: event.target.value })} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", resize: "vertical" }} placeholder="How was your visit?" />
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Thank you message (Post-feedback)</label>
+              <textarea rows="2" value={feedback.thankYouMessage} onChange={(event) => updateAdvancedObject("feedbackSetting", { thankYouMessage: event.target.value })} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", resize: "vertical" }} placeholder="Thank you for your valuable feedback!" />
+            </div>
           </div>
         </div>
 
-        <div className="shift-layout-grid">
-          <div style={{ width: "100%", flexShrink: 0 }}>
-            <div className="settings-panel-card" style={{ padding: 0 }}>
-              <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid #f1f5f9" }}>
-                <button type="button" onClick={startCreate} style={{ width: "100%", padding: "10px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Create New</button>
-              </div>
-              <div style={{ maxHeight: 420, overflowY: "auto" }}>
-                {feedbackTypesList.map((row) => (
-                  <div
-                    key={row.id}
-                    style={{
-                      padding: "14px 16px",
-                      borderBottom: "1px solid #f1f5f9",
-                      cursor: "pointer",
-                      background: selectedFeedbackTypeId === row.id ? "#eff6ff" : "white",
-                      borderLeft: selectedFeedbackTypeId === row.id ? "3px solid #3b82f6" : "3px solid transparent",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between"
-                    }}
-                  >
-                    <div style={{ flex: 1 }} onClick={() => { setSelectedFeedbackTypeId(row.id); setDraftFeedbackType(null); }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: "#0f172a" }}>{row.name}</div>
-                      <div style={{ fontSize: 11, color: "#64748b", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#22c55e" : "#94a3b8" }} />
-                        <span>{row.active ? "Active" : "Inactive"}</span>
-                      </div>
+        {/* FEEDBACK TYPES LIST TABLE */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 4, height: 16, background: "#8b5cf6", borderRadius: 4 }} />
+            Feedback Types (Categories)
+          </h3>
+          <button type="button" onClick={startCreate} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#2563eb"} onMouseLeave={e => e.currentTarget.style.background = "#3b82f6"}>
+            <Plus size={16} /> Add Type
+          </button>
+        </div>
+
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, overflowX: "auto", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+          <div style={{ minWidth: 600 }}>
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "grid", gridTemplateColumns: "1fr 150px 100px", alignItems: "center", gap: 16, fontSize: 13, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <div>Feedback Type Name</div>
+              <div>Status</div>
+              <div style={{ textAlign: "right" }}>Actions</div>
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {feedbackTypesList.map((row, index) => (
+                <div key={row.id} style={{ padding: "16px 20px", borderBottom: index < feedbackTypesList.length - 1 ? "1px solid #f1f5f9" : "none", display: "grid", gridTemplateColumns: "1fr 150px 100px", alignItems: "center", gap: 16, transition: "background 0.15s", background: "#fff" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "#f1f5f9", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <MessageSquare size={16} />
                     </div>
-                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                      <button type="button" onClick={(event) => { event.stopPropagation(); startEdit(row); }} title="Edit type" style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer", color: "#475569", padding: 0 }}><Edit2 size={13} /></button>
-                      <button type="button" onClick={(event) => { event.stopPropagation(); deleteRow(row.id); }} style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", color: "#dc2626", padding: 0 }}><Trash2 size={13} /></button>
+                    {row.name}
+                  </div>
+                  <div>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: row.active ? "#dcfce7" : "#f1f5f9", color: row.active ? "#16a34a" : "#64748b" }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#16a34a" : "#94a3b8" }} />
+                      {row.active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <button type="button" onClick={() => { startEdit(row); }} title="Edit type" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#475569", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#eff6ff"; e.currentTarget.style.color="#2563eb"; e.currentTarget.style.borderColor="#bfdbfe";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#475569"; e.currentTarget.style.borderColor="#cbd5e1";}}><Edit2 size={15} /></button>
+                    <button type="button" onClick={() => { deleteRow(row.id); }} title="Delete type" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#ef4444", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#fef2f2"; e.currentTarget.style.borderColor="#fecaca";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1";}}><Trash2 size={15} /></button>
+                  </div>
+                </div>
+              ))}
+              {!feedbackTypesList.length && (
+                <div style={{ padding: "40px 20px", textAlign: "center", color: "#64748b" }}>
+                  <div style={{ marginBottom: 12 }}><MessageSquare size={32} color="#94a3b8" /></div>
+                  <div style={{ fontSize: 14 }}>No feedback types defined. Click "Add Type" to create one.</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* MODAL */}
+        {editing && (
+          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={cancelDraft}>
+            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 450, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }} onClick={e => e.stopPropagation()}>
+              <div style={{ padding: "20px 24px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 6, height: 20, background: "#3b82f6", borderRadius: 4 }} />
+                  {draftFeedbackType?._isNew ? "Create Feedback Type" : "Edit Feedback Type"}
+                </h2>
+                <button onClick={cancelDraft} style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", borderRadius: "50%", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ padding: "24px", flex: 1, overflowY: "auto" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Feedback Name <span style={{ color: "#ef4444" }}>*</span></label>
+                    <input type="text" value={draftFeedbackType?.name ?? editing.name} onChange={(event) => draftFeedbackType && setDraftFeedbackType({ ...draftFeedbackType, name: event.target.value })} placeholder="e.g. Ambience, Service Quality" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, color: "#0f172a", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
+                  </div>
+                  
+                  <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer", padding: "16px", background: "#f8fafc", borderRadius: 8, border: "1px solid #f1f5f9", display: "inline-flex" }}>
+                    <input type="checkbox" checked={draftFeedbackType?.active ?? editing.active} onChange={(event) => draftFeedbackType && setDraftFeedbackType({ ...draftFeedbackType, active: event.target.checked })} />
+                    <span className="toggle-switch-slider" />
+                    <span style={{ marginLeft: 12, fontSize: 14, fontWeight: 600, color: "#334155" }}>Active</span>
+                  </div>
+
+                  <div style={{ padding: 16, borderRadius: 8, background: "#eff6ff", border: "1px solid #bfdbfe" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                      <MessageSquare size={14} /> How it works
+                    </div>
+                    <div style={{ fontSize: 12, color: "#1e3a8a", lineHeight: 1.5 }}>
+                      Feedback types are the distinct categories you ask customers to rate. When an invoice is paid or a service completes, the customer will be asked to rate these specific aspects of their visit.
                     </div>
                   </div>
-                ))}
+                </div>
+              </div>
+
+              <div style={{ padding: "16px 24px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+                  Cancel
+                </button>
+                <button type="button" onClick={saveDraft} disabled={!draftFeedbackType?.name} style={{ padding: "10px 24px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: draftFeedbackType?.name ? "pointer" : "not-allowed", fontSize: 14, opacity: draftFeedbackType?.name ? 1 : 0.6, transition: "background 0.2s" }} onMouseEnter={e => { if(draftFeedbackType?.name) e.currentTarget.style.background = "#2563eb" }} onMouseLeave={e => { if(draftFeedbackType?.name) e.currentTarget.style.background = "#3b82f6" }}>
+                  Save Type
+                </button>
               </div>
             </div>
           </div>
-
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {editing ? (
-              <div className="settings-panel-card">
-                <h3 style={{ color: "var(--accent, #3b82f6)" }}>{draftFeedbackType?._isNew ? "Create Feedback Type" : "Edit Feedback Type"}</h3>
-                <div className="settings-form-grid" style={{ marginBottom: 16 }}>
-                  <label className="settings-input-group">
-                    <span className="muted">Feedback Name</span>
-                    <input type="text" value={draftFeedbackType?.name ?? editing.name} onChange={(event) => draftFeedbackType && setDraftFeedbackType({ ...draftFeedbackType, name: event.target.value })} placeholder="Enter Feedback Name" />
-                  </label>
-                </div>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer", marginBottom: 20 }}>
-                  <input type="checkbox" checked={draftFeedbackType?.active ?? editing.active} onChange={(event) => draftFeedbackType && setDraftFeedbackType({ ...draftFeedbackType, active: event.target.checked })} style={{ width: 18, height: 18, accentColor: "var(--accent, #3b82f6)", cursor: "pointer" }} />
-                  Active
-                </label>
-                <div style={{ marginTop: 18, padding: 16, borderRadius: 12, background: "#f8fafc", border: "1px solid #e2e8f0", marginBottom: 20 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>How it works</div>
-                  <div style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>
-                    Feedback types stay synced with the live feedback request flow. When an invoice completes or a service closes, the selected type can be used to organize the request and follow-up sequence.
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-                  <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13 }}>Cancel</button>
-                  <button type="button" onClick={saveDraft} style={{ padding: "10px 24px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Save</button>
-                </div>
-              </div>
-            ) : (
-              <div className="settings-panel-card" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300, color: "#94a3b8", fontSize: 14 }}>
-                Select a feedback type from the left panel or click "Create New"
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </>
     );
   };
