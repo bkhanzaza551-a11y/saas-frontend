@@ -38,7 +38,7 @@ const EnquiriesPage = lazyWithRetry(() => import("./pages/owner/EnquiriesPage.js
 const ExpensesPage = lazyWithRetry(() => import("./pages/owner/ExpensesPage.jsx"));
 const NotificationsPage = lazyWithRetry(() => import("./pages/owner/NotificationsPage.jsx"));
 const OwnerAuditLogsPage = lazyWithRetry(() => import("./pages/owner/OwnerAuditLogsPage.jsx"));
-const WhatsAppPage = lazyWithRetry(() => import("./pages/owner/WhatsAppPage.jsx"));
+
 const BranchesPage = lazyWithRetry(() => import("./pages/owner/BranchesPage.jsx"));
 const GlobalDashboardPage = lazyWithRetry(() => import("./pages/operations/GlobalDashboardPage.jsx"));
 const SalonAnalyticsPage = lazyWithRetry(() => import("./pages/operations/SalonAnalyticsPage.jsx"));
@@ -259,15 +259,7 @@ const Protected = () => {
         { label: "Memberships / Packages", to: "/admin/memberships", children: [{ label: "Packages", to: "/admin/packages" }] },
         { label: "Coupons & Gift Cards", to: "/admin/coupons", children: [{ label: "Coupons", to: "/admin/coupons" }, { label: "Gift Cards", to: "/admin/gift-cards" }] },
         { label: "Referral Program", to: "/admin/referral-coupons", children: [{ label: "Coupons", to: "/admin/referral-coupons" }, { label: "Partners", to: "/admin/referral-coupons" }, { label: "Wallets", to: "/admin/referral-coupons" }] },
-        {
-          label: "WhatsApp / Notifications",
-          to: "/admin/whatsapp",
-          children: [
-            { label: "Settings", to: "/admin/whatsapp/settings" },
-            { label: "Logs", to: "/admin/whatsapp/logs" },
-            { label: "Automations", to: "/admin/whatsapp/automations" }
-          ]
-        },
+
         { label: "Payments", to: "/admin/payments" },
         { label: "Campaigns", to: "/admin/campaigns" },
         { label: "Reports Hub", to: "/admin/reports-hub" },
@@ -581,10 +573,7 @@ export default function App() {
           <Route path="/admin/attendance" element={<OwnerRoute moduleKey="attendance" featureKey="attendance" element={<AttendanceManagementPage />} />} />
           <Route path="/admin/notifications" element={<OwnerRoute moduleKey="notifications" featureKey="notifications" element={<NotificationsPage />} />} />
           <Route path="/admin/audit-logs" element={<OwnerRoute moduleKey="auditLogs" featureKey="auditLogs" element={<OwnerAuditLogsPage />} />} />
-          <Route path="/admin/whatsapp" element={<OwnerRoute moduleKey="whatsapp" featureKey="whatsapp" element={<WhatsAppPage />} />} />
-          <Route path="/admin/whatsapp/settings" element={<OwnerRoute moduleKey="whatsapp" featureKey="whatsapp" element={<WhatsAppPage />} />} />
-          <Route path="/admin/whatsapp/logs" element={<OwnerRoute moduleKey="whatsapp" featureKey="whatsapp" element={<WhatsAppPage />} />} />
-          <Route path="/admin/whatsapp/automations" element={<OwnerRoute moduleKey="whatsapp" featureKey="whatsapp" element={<WhatsAppPage />} />} />
+
           <Route path="/admin/reports" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsHubPage />} />} />
           <Route path="/admin/reports/appointments" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />
           <Route path="/admin/reports/staff-performance" element={<OwnerRoute moduleKey="reports" featureKey="reports" element={<ReportsPage />} />} />

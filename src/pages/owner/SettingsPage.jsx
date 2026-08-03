@@ -3563,7 +3563,7 @@ export default function SettingsPage() {
 
   const renderSmsSection = () => (
     <>
-      <SectionHeader title="Messaging Center" description="Review delivery-provider defaults. Email is sent through backend SMTP; SMS and WhatsApp values stay ready for live gateway integration." badges={[form.smsSettings.gatewayProvider.replace("_PLACEHOLDER", ""), form.smsSettings.senderId || "No Sender ID"]} action={<Link className="secondary-button" to="/admin/whatsapp">Open Messaging</Link>} />
+      <SectionHeader title="Messaging Center" description="Review delivery-provider defaults. Email is sent through backend SMTP; SMS and WhatsApp values stay ready for live gateway integration." badges={[form.smsSettings.gatewayProvider.replace("_PLACEHOLDER", ""), form.smsSettings.senderId || "No Sender ID"]} />
       <div className="muted" style={{ marginBottom: 12, fontSize: 12 }}>
         SMTP credentials are configured on the backend environment. SMS/WhatsApp provider details are saved here so the UI stays ready when the real gateway API is connected.
       </div>
