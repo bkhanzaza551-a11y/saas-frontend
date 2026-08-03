@@ -241,7 +241,6 @@ const Protected = () => {
       label: "Manage",
       hint: "Salon lifecycle",
       items: [
-        { label: "Branches", to: "/admin/branches" },
         { label: "Services", to: "/admin/services" },
         {
           label: "Staff & Roles",
