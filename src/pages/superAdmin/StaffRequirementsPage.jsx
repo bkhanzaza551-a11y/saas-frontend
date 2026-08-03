@@ -170,10 +170,7 @@ export default function StaffRequirementsPage() {
             <h1 style={{ marginTop: 0 }}>Staff Requirement & Hiring Requisitions</h1>
             <p style={{ marginBottom: 0 }}>Manage vacancies, skill requirements, branch allocations, and recruitment status across all salons.</p>
           </div>
-          <button className="btn btn-primary" onClick={() => { resetForm(); setIsModalOpen(true); }}>
-            <Plus size={16} style={{ marginRight: 6 }} />
-            New Staff Requirement
-          </button>
+          
         </div>
       </div>
 
