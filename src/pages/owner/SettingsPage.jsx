@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -2176,140 +2176,176 @@ export default function SettingsPage() {
           </div>
         ) : null}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>Apply Shift for</span>
-            <input
-              type="number"
-              min="1"
-              disabled={!rosterModuleEnabled}
-              value={roster.applyFor || 1}
-              onChange={(event) => updateAdvancedObject("rosterManagement", { applyFor: Number(event.target.value) || 1 })}
-              style={{ width: 60, padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 14, textAlign: "center" }}
-            />
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>Days:</span>
-            <select
-              disabled={!rosterModuleEnabled}
-              value={roster.useShiftId}
-              onChange={(event) => updateAdvancedObject("rosterManagement", { useShiftId: event.target.value })}
-              style={{ minWidth: 200, padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 14, background: "#fff" }}
-            >
-              <option value="">Select shift template</option>
-              {shifts.filter((shift) => shift.active !== false).map((shift) => <option key={shift.id} value={shift.id}>{shift.name || "Unnamed Shift"}</option>)}
-            </select>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, flexWrap: "wrap", background: "#f8fafc", padding: "16px 20px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}><Users size={16} color="#64748b" /> Apply Shift for</span>
+              <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, paddingRight: 8 }}>
+                <input
+                  type="number"
+                  min="1"
+                  disabled={!rosterModuleEnabled}
+                  value={roster.applyFor || 1}
+                  onChange={(event) => updateAdvancedObject("rosterManagement", { applyFor: Number(event.target.value) || 1 })}
+                  style={{ width: 44, padding: "8px 0 8px 10px", border: "none", background: "transparent", fontSize: 14, textAlign: "center", outline: "none", color: "#0f172a", fontWeight: 600 }}
+                />
+                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Days</span>
+              </div>
+            </div>
+
+            <div style={{ width: 1, height: 24, background: "#cbd5e1" }} />
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}><Clock size={16} color="#64748b" /> Template</span>
+              <select
+                disabled={!rosterModuleEnabled}
+                value={roster.useShiftId}
+                onChange={(event) => updateAdvancedObject("rosterManagement", { useShiftId: event.target.value })}
+                style={{ minWidth: 200, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 14, background: "#fff", outline: "none", color: "#0f172a", fontWeight: 500, cursor: "pointer" }}
+              >
+                <option value="">Select template...</option>
+                {shifts.filter((shift) => shift.active !== false).map((shift) => <option key={shift.id} value={shift.id}>{shift.name || "Unnamed Shift"}</option>)}
+              </select>
+            </div>
           </div>
+          
           <div style={{ flex: 1 }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <button
-              type="button"
-              onClick={() => handleDateNav(-1)}
-              disabled={!rosterModuleEnabled}
-              title="Previous Day"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, border: "1px solid #cbd5e1", background: "#fff", borderRadius: 6, cursor: "pointer", color: "#475569" }}
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toISOString().split("T")[0] })}
-              disabled={!rosterModuleEnabled}
-              style={{ height: 34, padding: "0 12px", border: "1px solid #cbd5e1", background: "#fff", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              TODAY
-            </button>
-            <span style={{ padding: "0 12px", fontSize: 14, fontWeight: 600, color: "#0f172a", minWidth: 110, textAlign: "center", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-              {formatDate(roster.selectedDate)}
-            </span>
-            <button
-              type="button"
-              onClick={() => handleDateNav(1)}
-              disabled={!rosterModuleEnabled}
-              title="Next Day"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, border: "1px solid #cbd5e1", background: "#fff", borderRadius: 6, cursor: "pointer", color: "#475569" }}
-            >
-              <ChevronRight size={16} />
-            </button>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden" }}>
+              <button
+                type="button"
+                onClick={() => handleDateNav(-1)}
+                disabled={!rosterModuleEnabled}
+                title="Previous Day"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, border: "none", borderRight: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", color: "#475569", transition: "background 0.2s" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toISOString().split("T")[0] })}
+                disabled={!rosterModuleEnabled}
+                style={{ height: 36, padding: "0 16px", border: "none", borderRight: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#2563eb", transition: "background 0.2s" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#eff6ff"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
+              >
+                TODAY
+              </button>
+              <span style={{ height: 36, padding: "0 16px", fontSize: 14, fontWeight: 700, color: "#1e293b", minWidth: 130, textAlign: "center", display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center", background: "#f8fafc", borderRight: "1px solid #e2e8f0" }}>
+                <CalendarDays size={16} color="#64748b" /> {formatDate(roster.selectedDate)}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleDateNav(1)}
+                disabled={!rosterModuleEnabled}
+                title="Next Day"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, border: "none", background: "#fff", cursor: "pointer", color: "#475569", transition: "background 0.2s" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            
             <button
               type="button"
               onClick={applyShiftTemplate}
-              disabled={!rosterModuleEnabled}
-              style={{ marginLeft: 8, height: 34, padding: "0 16px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}
+              disabled={!rosterModuleEnabled || !roster.useShiftId}
+              style={{ height: 36, padding: "0 20px", background: roster.useShiftId ? "#2563eb" : "#94a3b8", color: "#fff", border: "none", borderRadius: 8, cursor: roster.useShiftId ? "pointer" : "not-allowed", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "background 0.2s" }}
             >
               Apply
             </button>
           </div>
         </div>
 
-        <div className="settings-table-wrap" style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, overflowX: "auto" }}>
-          <div style={{ minWidth: 850 }}>
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", background: "#f8fafc", display: "grid", gridTemplateColumns: "100px 1fr 180px 180px 120px 1fr", alignItems: "center", gap: 12, fontSize: 14, fontWeight: 600, color: "#475569" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                disabled={!rosterModuleEnabled}
-                checked={visibleRosterRows.length > 0 && visibleRosterRows.every((row) => row.applyToAll)}
-                onChange={(event) => {
-                  const visibleIds = new Set(visibleRosterRows.map(r => r.id));
-                  updateAdvancedObject("rosterManagement", {
-                    rows: roster.rows.map((row) => visibleIds.has(row.id) ? { ...row, applyToAll: event.target.checked } : row)
-                  });
-                }}
-                style={{ width: 16, height: 16 }}
-              />
-              <span>Apply to All</span>
-            </label>
-            <div>Staff Name</div>
-            <div>From Time</div>
-            <div>To Time</div>
-            <div>Is Working</div>
-            <div>Add Break</div>
-          </div>
-          {visibleRosterRows.map((row) => (
-            <div key={row.id} style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", display: "grid", gridTemplateColumns: "100px 1fr 180px 180px 120px 1fr", alignItems: "center", gap: 12 }}>
-              <input
-                type="checkbox"
-                disabled={!rosterModuleEnabled}
-                checked={Boolean(row.applyToAll)}
-                onChange={(event) => updateRow(row.id, { applyToAll: event.target.checked })}
-                style={{ width: 16, height: 16 }}
-              />
-              <div style={{ fontSize: 14, color: "#0f172a", fontWeight: 500 }}>{row.staffName}</div>
-              <input
-                type="time"
-                disabled={!rosterModuleEnabled}
-                value={row.fromTime || "09:00"}
-                onChange={(event) => updateRow(row.id, { fromTime: event.target.value })}
-                style={{ width: "100%", padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, background: "#f8fafc" }}
-              />
-              <input
-                type="time"
-                disabled={!rosterModuleEnabled}
-                value={row.toTime || "21:00"}
-                onChange={(event) => updateRow(row.id, { toTime: event.target.value })}
-                style={{ width: "100%", padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, background: "#f8fafc" }}
-              />
-              <input
-                type="checkbox"
-                disabled={!rosterModuleEnabled}
-                checked={Boolean(row.isWorking)}
-                onChange={(event) => updateRow(row.id, { isWorking: event.target.checked })}
-                style={{ width: 18, height: 18 }}
-              />
-              <input
-                type="text"
-                disabled={!rosterModuleEnabled}
-                value={row.breakLabel || ""}
-                onChange={(event) => updateRow(row.id, { breakLabel: event.target.value })}
-                placeholder="Add Break"
-                style={{ width: "100%", padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13 }}
-              />
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, overflowX: "auto", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+          <div style={{ minWidth: 900 }}>
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "grid", gridTemplateColumns: "110px 1.5fr 150px 150px 100px 1.5fr", alignItems: "center", gap: 16, fontSize: 13, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" }}>
+                <input
+                  type="checkbox"
+                  disabled={!rosterModuleEnabled}
+                  checked={visibleRosterRows.length > 0 && visibleRosterRows.every((row) => row.applyToAll)}
+                  onChange={(event) => {
+                    const visibleIds = new Set(visibleRosterRows.map(r => r.id));
+                    updateAdvancedObject("rosterManagement", {
+                      rows: roster.rows.map((row) => visibleIds.has(row.id) ? { ...row, applyToAll: event.target.checked } : row)
+                    });
+                  }}
+                  style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#3b82f6" }}
+                />
+                <span>Apply All</span>
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Users size={14} /> Staff Name</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Clock size={14} /> From Time</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Clock size={14} /> To Time</div>
+              <div>Working</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Coffee size={14} /> Break Label</div>
             </div>
-          ))}
-          {visibleRosterRows.length === 0 && (
-            <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
-              <strong>No staff members found in this branch</strong>
+            
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {visibleRosterRows.map((row, index) => (
+                <div key={row.id} style={{ padding: "12px 20px", borderBottom: index < visibleRosterRows.length - 1 ? "1px solid #f1f5f9" : "none", display: "grid", gridTemplateColumns: "110px 1.5fr 150px 150px 100px 1.5fr", alignItems: "center", gap: 16, transition: "background 0.15s", background: row.applyToAll ? "#f8fafc" : "#fff" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = row.applyToAll ? "#f8fafc" : "#fff"}>
+                  <input
+                    type="checkbox"
+                    disabled={!rosterModuleEnabled}
+                    checked={Boolean(row.applyToAll)}
+                    onChange={(event) => updateRow(row.id, { applyToAll: event.target.checked })}
+                    style={{ width: 18, height: 18, cursor: "pointer", accentColor: "#3b82f6", marginLeft: 4 }}
+                  />
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>
+                      {row.staffName?.charAt(0).toUpperCase() || "S"}
+                    </div>
+                    <div style={{ fontSize: 14, color: "#1e293b", fontWeight: 600 }}>{row.staffName}</div>
+                  </div>
+                  <input
+                    type="time"
+                    disabled={!rosterModuleEnabled}
+                    value={row.fromTime || "09:00"}
+                    onChange={(event) => updateRow(row.id, { fromTime: event.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "#fff", outline: "none", color: "#0f172a", fontWeight: 500 }}
+                  />
+                  <input
+                    type="time"
+                    disabled={!rosterModuleEnabled}
+                    value={row.toTime || "21:00"}
+                    onChange={(event) => updateRow(row.id, { toTime: event.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "#fff", outline: "none", color: "#0f172a", fontWeight: 500 }}
+                  />
+                  <div className="toggle-switch-label" style={{ margin: 0 }}>
+                    <input
+                      type="checkbox"
+                      disabled={!rosterModuleEnabled}
+                      checked={Boolean(row.isWorking)}
+                      onChange={(event) => updateRow(row.id, { isWorking: event.target.checked })}
+                    />
+                    <span className="toggle-switch-slider" />
+                  </div>
+                  <input
+                    type="text"
+                    disabled={!rosterModuleEnabled}
+                    value={row.breakLabel || ""}
+                    onChange={(event) => updateRow(row.id, { breakLabel: event.target.value })}
+                    placeholder="e.g. Lunch 1pm"
+                    style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "#fff", outline: "none", color: "#0f172a" }}
+                  />
+                </div>
+              ))}
             </div>
-          )}
+            
+            {visibleRosterRows.length === 0 && (
+              <div style={{ padding: "60px 20px", textAlign: "center", color: "#64748b", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "50%", marginBottom: "16px" }}>
+                  <Users size={40} color="#94a3b8" />
+                </div>
+                <strong style={{ fontSize: 16, color: "#1e293b", marginBottom: 8 }}>No staff members found</strong>
+                <div style={{ fontSize: 14 }}>Please add staff members to this branch to start managing their roster.</div>
+              </div>
+            )}
           </div>
         </div>
 
