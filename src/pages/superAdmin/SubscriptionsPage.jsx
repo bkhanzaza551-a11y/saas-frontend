@@ -135,8 +135,10 @@ export default function SubscriptionsPage() {
       const res = await api.post(`/super-admin/subscriptions/${id}/send-trial-reminder`);
       if (res.data.emailError) {
         setStatus({ error: `Email failed: ${res.data.emailError}`, success: "" });
+        alert(`Failed to send email: ${res.data.emailError}`);
       } else {
         setStatus({ error: "", success: "Renewal reminder sent to owner." });
+        alert("Renewal reminder sent successfully to the salon owner!");
       }
       await load();
     } catch (err) {
@@ -302,7 +304,7 @@ export default function SubscriptionsPage() {
                           <Edit2 size={14} />
                         </button>
                         <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Expiry Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
-                          <Bell size={14} />
+                          <Bell size={18} />
                         </button>
                         <button type="button" onClick={() => deleteSubscription(row.id)} disabled={isBusy} title="Delete" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #fca5a5", background: "#fef2f2", color: "#991b1b", cursor: "pointer", transition: "all 0.2s" }}>
                           <Trash2 size={14} />
