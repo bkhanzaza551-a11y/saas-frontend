@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
+import SalonAnalyticsPage from "../operations/SalonAnalyticsPage";
+import FinancialReportsPage from "./FinancialReportsPage";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, Line, ComposedChart
@@ -1555,7 +1556,6 @@ function SalesSummaryDashboard({ data, loading, onViewReport }) {
 }
 
 export default function ReportsHubPage() {
-  const navigate = useNavigate();
   const { auth } = useAuth();
   const { selectedBranchId, branches } = useBranch();
   const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
@@ -1683,7 +1683,7 @@ export default function ReportsHubPage() {
           .rpt-search-input:focus { border-color: #3b82f6; background: #fff; }
           .rpt-search-wrap { position: relative; }
           .rpt-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-          .rpt-nav-item { width: 100%; text-align: left; padding: 9px 12px; border: none; background: none; font-size: 0.78rem; color: #475569; cursor: pointer; border-left: 3px solid transparent; min-height: unset; box-shadow: none; font-weight: 500; transition: background 140ms, color 140ms; }
+          .rpt-nav-item { width: 100%; text-align: left; padding: 6px 10px; border: none; background: none; font-size: 0.72rem; color: #475569; cursor: pointer; border-left: 3px solid transparent; min-height: unset; box-shadow: none; font-weight: 500; transition: background 140ms, color 140ms; line-height: 1.3; }
           .rpt-nav-item:hover { background: #f8fafc; color: #0f172a; transform: none; filter: none; }
           .rpt-nav-item.active { background: #f0f9ff; color: #0284c7; border-left-color: #0284c7; font-weight: 700; }
           .rpt-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #f8fafc; }
@@ -1749,14 +1749,6 @@ export default function ReportsHubPage() {
               type="button"
               className={`rpt-nav-item ${activeReport === report.key ? "active" : ""}`}
               onClick={() => {
-                if (report.key === "salon_analytics") {
-                  navigate("/admin/salon-analytics");
-                  return;
-                }
-                if (report.key === "financial_reports") {
-                  navigate("/admin/financial-reports");
-                  return;
-                }
                 setActiveReport(report.key);
                 setSearch("");
               }}
@@ -1768,6 +1760,7 @@ export default function ReportsHubPage() {
       </div>
 
       <div id="printable-report" className="rpt-main">
+        {activeReport !== "salon_analytics" && activeReport !== "financial_reports" && (
         <div className="rpt-topbar" style={{ justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {REPORTS_WITH_CHARTS.has(activeReport) && activeReport !== "sales_summary" && (
@@ -1862,7 +1855,9 @@ export default function ReportsHubPage() {
             </button>
           </div>
         </div>
+        )}
 
+        {activeReport !== "salon_analytics" && activeReport !== "financial_reports" && (
         <div id="report-filters" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "6px 14px", background: "#fff", borderBottom: "1px solid #e2e8f0" }}>
             {filterConfig.map((f) => {
               const opts = getFilterOptions(f, filterOptions);
@@ -1887,22 +1882,35 @@ export default function ReportsHubPage() {
               );
             })}
         </div>
+        )}
 
-        <div className="rpt-table-wrap" style={{
-          background: activeReport === "sales_summary" ? "transparent" : "#ffffff",
-          border: activeReport === "sales_summary" ? "none" : "1px solid #e2e8f0"
-        }}>
-          {activeReport === "sales_summary" ? (
-            <SalesSummaryDashboard data={dashboardData} loading={loading} onViewReport={setActiveReport} />
-          ) : activeReport === "pnl_report" ? (
-            <PnLStatement data={pnlData} loading={loading} />
-          ) : (
-            <ReportTable reportKey={activeReport} rows={rows} loading={loading} visibleColumns={activeVisibleColumns} />
-          )}
-        </div>
+        {activeReport === "salon_analytics" ? (
+          <div style={{ flex: 1, overflow: "auto", background: "#f8fafc" }}>
+            <SalonAnalyticsPage />
+          </div>
+        ) : activeReport === "financial_reports" ? (
+          <div style={{ flex: 1, overflow: "auto", background: "#f8fafc" }}>
+            <FinancialReportsPage />
+          </div>
+        ) : (
+          <>
+            <div className="rpt-table-wrap" style={{
+              background: activeReport === "sales_summary" ? "transparent" : "#ffffff",
+              border: activeReport === "sales_summary" ? "none" : "1px solid #e2e8f0"
+            }}>
+              {activeReport === "sales_summary" ? (
+                <SalesSummaryDashboard data={dashboardData} loading={loading} onViewReport={setActiveReport} />
+              ) : activeReport === "pnl_report" ? (
+                <PnLStatement data={pnlData} loading={loading} />
+              ) : (
+                <ReportTable reportKey={activeReport} rows={rows} loading={loading} visibleColumns={activeVisibleColumns} />
+              )}
+            </div>
 
-        {showChart && REPORTS_WITH_CHARTS.has(activeReport) && activeReport !== "sales_summary" && activeReport !== "pnl_report" && (
-          activeReport === "customers" ? <GuestCollectionChart rows={rows} /> : <ReportChart reportKey={activeReport} rows={rows} />
+            {showChart && REPORTS_WITH_CHARTS.has(activeReport) && activeReport !== "sales_summary" && activeReport !== "pnl_report" && (
+              activeReport === "customers" ? <GuestCollectionChart rows={rows} /> : <ReportChart reportKey={activeReport} rows={rows} />
+            )}
+          </>
         )}
       </div>
     </div>
