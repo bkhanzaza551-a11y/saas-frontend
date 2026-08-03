@@ -451,8 +451,8 @@ export default function App() {
     <>
       <div key={location.pathname} className="route-progress active" aria-hidden="true" />
       <Suspense fallback={<RouteFallback />}>
-        <div key={location.pathname} className="route-stage">
-      <Routes location={location}>
+        <div className="route-stage">
+          <Routes location={location}>
 
 
         <Route path="/customer/login" element={<CustomerLoginPage />} />
