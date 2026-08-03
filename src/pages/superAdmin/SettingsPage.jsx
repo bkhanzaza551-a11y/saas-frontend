@@ -152,8 +152,7 @@ export default function SuperAdminSettingsPage() {
           <div style={{ width: 240, background: "#f8fafc", borderRight: "1px solid #e2e8f0", padding: "24px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
             {[
               { id: "general", label: "General Settings", icon: Settings },
-              { id: "comms", label: "Communications", icon: MessageSquare },
-              { id: "system", label: "System & Safety", icon: ShieldAlert }
+              { id: "comms", label: "Communications", icon: MessageSquare }
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -276,57 +275,6 @@ export default function SuperAdminSettingsPage() {
 
 
 
-                {/* Tab Content: System */}
-                {activeTab === "system" && (
-                  <div>
-                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>System & Safety</h3>
-                    <p style={{ margin: "0 0 24px", fontSize: "0.85rem", color: "#64748b" }}>Perform global lockouts, initiate database security rules, and toggle public maintenance screens.</p>
-                    
-                    <div style={{ padding: 24, border: "1px solid #fca5a5", background: "#fff5f5", borderRadius: 12, display: "flex", flexDirection: "column", gap: 16 }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                        <ShieldAlert size={24} color="#dc2626" style={{ marginTop: 2 }} />
-                        <div>
-                          <h4 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700, color: "#991b1b" }}>Emergency Maintenance Lockout</h4>
-                          <p style={{ margin: 0, fontSize: "0.85rem", color: "#b91c1c", lineHeight: 1.5 }}>
-                            Enabling maintenance mode suspends all routing actions. All salon owners, POS counters, and client storefront portals will immediately be blocked from operations until this flag is manually cleared.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div style={{ borderTop: "1px solid #fca5a5", paddingTop: 16, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div>
-                          <span style={{ fontSize: "0.9rem", fontWeight: 700, color: form.maintenanceMode ? "#dc2626" : "#475569" }}>
-                            {form.maintenanceMode ? "🚨 Maintenance Lockout is ACTIVE" : "Toggle Maintenance Mode (Currently Off)"}
-                          </span>
-                        </div>
-                        <div 
-                          onClick={() => setForm({ ...form, maintenanceMode: !form.maintenanceMode })}
-                          style={{
-                            width: 44,
-                            height: 24,
-                            borderRadius: 100,
-                            background: form.maintenanceMode ? "#ef4444" : "#cbd5e1",
-                            position: "relative",
-                            cursor: "pointer",
-                            transition: "all 0.25s"
-                          }}
-                        >
-                          <div style={{
-                            width: 18,
-                            height: 18,
-                            borderRadius: "50%",
-                            background: "white",
-                            position: "absolute",
-                            top: 3,
-                            left: form.maintenanceMode ? 23 : 3,
-                            transition: "all 0.25s",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-                          }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Save Button Bar */}
