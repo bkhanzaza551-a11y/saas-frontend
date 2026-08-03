@@ -320,14 +320,14 @@ export default function SubscriptionsPage() {
                     </td>
                     <td style={{ padding: "16px 20px", textAlign: "right" }}>
                       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                        <button type="button" onClick={() => openEditModal(row)} disabled={isBusy} title="Edit" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", cursor: "pointer", transition: "all 0.2s" }}>
-                          <Edit2 size={14} />
+                        <button type="button" onClick={() => openEditModal(row)} disabled={isBusy} title="Edit" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, border: "1px solid #cbd5e1", background: "white", color: "#475569", cursor: "pointer", transition: "all 0.2s" }}>
+                          <Edit2 size={18} />
                         </button>
-                        <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Renewal Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
-                          {busyId === `reminder-${row.id}` ? <RefreshCw size={14} className="spin" /> : <Bell size={16} />}
+                        <button type="button" onClick={() => sendExpiryReminder(row.id)} disabled={isBusy} title="Send Renewal Reminder" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, border: "1px solid #a7f3d0", background: "#ecfdf5", color: "#065f46", cursor: "pointer", transition: "all 0.2s" }}>
+                          {busyId === `reminder-${row.id}` ? <RefreshCw size={18} className="spin" /> : <Bell size={18} />}
                         </button>
-                        <button type="button" onClick={() => deleteSubscription(row.id)} disabled={isBusy} title="Delete" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "1px solid #fca5a5", background: "#fef2f2", color: "#991b1b", cursor: "pointer", transition: "all 0.2s" }}>
-                          <Trash2 size={14} />
+                        <button type="button" onClick={() => deleteSubscription(row.id)} disabled={isBusy} title="Delete" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, border: "1px solid #fca5a5", background: "#fef2f2", color: "#991b1b", cursor: "pointer", transition: "all 0.2s" }}>
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </td>
