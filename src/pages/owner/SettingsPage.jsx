@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare, Bell, Mail, Smartphone, AlertCircle } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -3184,54 +3184,111 @@ export default function SettingsPage() {
 
     return (
       <>
-        <SectionHeader title="Notification Settings" description="Control email delivery and in-web alert rules for automated business notifications. SMS/WhatsApp provider details are saved separately until a live gateway is connected." badges={[`${summary.notifications.filter((row) => !row.isRead).length} unread live alerts`]} action={<Link className="secondary-button" to="/admin/notifications">Open Notifications</Link>} />
-        
-        <div className="settings-panel-card" style={{ marginBottom: 20 }}>
-          <div className="settings-toggle-grid">
-            <ToggleRow checked={config.emailEnabled} label="Email alerts" onChange={(value) => updateAdvancedObject("notificationSettings", { emailEnabled: value })} />
-            <ToggleRow checked={config.smsEnabled} label="SMS alerts" onChange={(value) => updateAdvancedObject("notificationSettings", { smsEnabled: value })} />
-            <ToggleRow checked={config.whatsappEnabled} label="WhatsApp alerts" onChange={(value) => updateAdvancedObject("notificationSettings", { whatsappEnabled: value })} />
-            <ToggleRow checked={config.pushEnabled} label="In-web alerts" onChange={(value) => updateAdvancedObject("notificationSettings", { pushEnabled: value })} />
-            <label className="settings-input-group"><span className="muted">Digest hour</span><input type="time" value={config.digestHour} onChange={(event) => updateAdvancedObject("notificationSettings", { digestHour: event.target.value })} /></label>
-            <div className="settings-input-group" style={{ alignSelf: "end" }}><span className="muted" style={{ fontSize: 12 }}>Email uses SMTP. In-web alerts appear in the bell and notifications page.</span></div>
-            <label className="settings-input-group"><span className="muted">Alert email</span><input value={config.alertEmail} onChange={(event) => updateAdvancedObject("notificationSettings", { alertEmail: event.target.value })} /></label>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+          <SectionHeader
+            title="Notification Settings"
+            description="Control email delivery and in-web alert rules for automated business notifications. SMS/WhatsApp provider details are saved separately."
+            badges={[`${summary.notifications.filter((row) => !row.isRead).length} unread live alerts`]}
+          />
+          <div style={{ display: "flex", gap: 12 }}>
+            <Link className="secondary-button" to="/admin/notifications" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: "none", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#94a3b8"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
+              <Bell size={18} /> Open Notifications
+            </Link>
           </div>
         </div>
 
-        {categories.map((category) => (
-          <div key={category.title} style={{ marginBottom: 24 }}>
-            <h4 style={{ margin: "0 0 10px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>{category.title}</h4>
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden" }}>
-              {category.items.map((item, index) => {
-                const isChecked = config.toggles ? (config.toggles[item.key] !== false) : true;
-                return (
-                  <div key={item.key} style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 190px",
-                    alignItems: "center",
-                    padding: "12px 16px",
-                    borderBottom: index === category.items.length - 1 ? "none" : "1px solid #f1f5f9",
-                    fontSize: 14,
-                    color: "#0f172a"
-                  }}>
-                    <div style={{ fontWeight: 500, color: "#334155" }}>{item.label}</div>
-                    <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => handleToggleChange(item.key, e.target.checked)}
-                        style={{ width: 16, height: 16, cursor: "pointer", accentColor: "var(--accent, #3b82f6)" }}
-                      />
-                      <span style={{ fontSize: 12, fontWeight: 700, color: channelLabels[item.key] === "Not wired yet" ? "#b45309" : "#475569" }}>
-                        {channelLabels[item.key] || "Saved rule"}
-                      </span>
-                    </label>
-                  </div>
-                );
-              })}
+        {/* NOTIFICATION CHANNELS */}
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24, marginBottom: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ margin: "0 0 20px 0", fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 4, height: 16, background: "#f59e0b", borderRadius: 4 }} />
+            Delivery Channels & Alerts
+          </h3>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
+            {[
+              { id: 'emailEnabled', label: 'Email Alerts', icon: <Mail size={16} />, checked: config.emailEnabled, key: 'emailEnabled' },
+              { id: 'smsEnabled', label: 'SMS Alerts', icon: <MessageSquare size={16} />, checked: config.smsEnabled, key: 'smsEnabled' },
+              { id: 'whatsappEnabled', label: 'WhatsApp Alerts', icon: <Smartphone size={16} />, checked: config.whatsappEnabled, key: 'whatsappEnabled' },
+              { id: 'pushEnabled', label: 'In-Web Alerts', icon: <Bell size={16} />, checked: config.pushEnabled, key: 'pushEnabled' }
+            ].map(item => (
+              <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px", background: item.checked ? "#fffbeb" : "#f8fafc", border: item.checked ? "1px solid #fde68a" : "1px solid #e2e8f0", borderRadius: 10, transition: "all 0.2s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 700, color: item.checked ? "#b45309" : "#334155" }}>
+                  <div style={{ color: item.checked ? "#d97706" : "#94a3b8", display: "flex" }}>{item.icon}</div>
+                  {item.label}
+                </div>
+                <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                  <input type="checkbox" checked={item.checked} onChange={(e) => updateAdvancedObject("notificationSettings", { [item.key]: e.target.checked })} />
+                  <span className="toggle-switch-slider" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, padding: "20px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12 }}>
+            <div>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 8 }}>
+                <AlertCircle size={14} color="#64748b" /> Business Alert Email
+              </label>
+              <input type="email" value={config.alertEmail} onChange={(event) => updateAdvancedObject("notificationSettings", { alertEmail: event.target.value })} placeholder="e.g. manager@salon.com" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Where system alerts (like low balance or end-of-day reports) should be sent.</div>
+            </div>
+            <div>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 8 }}>
+                <Clock size={14} color="#64748b" /> Daily Digest Time
+              </label>
+              <input type="time" value={config.digestHour} onChange={(event) => updateAdvancedObject("notificationSettings", { digestHour: event.target.value })} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Time of day to send the consolidated daily summary.</div>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* NOTIFICATION EVENT RULES */}
+        <h3 style={{ margin: "0 0 16px 0", fontSize: 18, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 4, height: 18, background: "#3b82f6", borderRadius: 4 }} />
+          Event Rules & Triggers
+        </h3>
+        
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 24, marginBottom: 24 }}>
+          {categories.map((category) => (
+            <div key={category.title} style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+              <div style={{ padding: "14px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontSize: 14, fontWeight: 700, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                {category.title}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {category.items.map((item, index) => {
+                  const isChecked = config.toggles ? (config.toggles[item.key] !== false) : true;
+                  return (
+                    <div key={item.key} style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr auto",
+                      alignItems: "center",
+                      gap: 16,
+                      padding: "16px 20px",
+                      borderBottom: index === category.items.length - 1 ? "none" : "1px solid #f1f5f9",
+                      transition: "background 0.2s",
+                      background: "#fff"
+                    }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>
+                        {item.label}
+                        <div style={{ fontSize: 11, color: channelLabels[item.key] === "Not wired yet" ? "#f59e0b" : "#94a3b8", marginTop: 4, fontWeight: 500 }}>
+                          Channels: {channelLabels[item.key] || "System Rule"}
+                        </div>
+                      </div>
+                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => handleToggleChange(item.key, e.target.checked)}
+                        />
+                        <span className="toggle-switch-slider" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </>
     );
   };
