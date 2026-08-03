@@ -464,10 +464,6 @@ pre {
   display: inline-flex;
 }
 
-  border-color: rgba(239, 68, 68, 0.25);
-  transform: none;
-  filter: none;
-}
 
 .surface-overlay {
   position: fixed;
