@@ -1139,17 +1139,20 @@ export default function AppointmentsPage() {
           font-weight: 600;
         }
         .sp-close {
-          background: #f1f5f9;
+          background: transparent;
           border: none;
-          border-radius: 50%;
+          border-radius: 6px;
           padding: 4px;
           cursor: pointer;
-          color: #475569;
+          color: #64748b;
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: unset;
-          box-shadow: none;
+          transition: all 0.2s;
+        }
+        .sp-close:hover {
+          background: #f1f5f9;
+          color: #0f172a;
         }
         .sp-body {
           flex-grow: 1;

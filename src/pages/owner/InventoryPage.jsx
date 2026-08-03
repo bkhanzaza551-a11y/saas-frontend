@@ -1489,8 +1489,8 @@ export default function InventoryPage() {
         @keyframes slideIn { to { transform: translateX(0); } }
         .sp-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; background: white; border-bottom: 1px solid #e2e8f0; }
         .sp-header h3 { margin: 0; font-size: 1.2rem; color: #0f172a; font-weight: 700; }
-        .sp-close { background: #f1f5f9; border: none; border-radius: 50%; padding: 8px; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .sp-close:hover { background: #e2e8f0; color: #0f172a; }
+        .sp-close { background: transparent; border: none; border-radius: 8px; padding: 6px; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .sp-close:hover { background: #f1f5f9; color: #0f172a; }
         .sp-body { flex-grow: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; background: #f8fafc; }
         .sp-group { display: flex; flex-direction: column; gap: 6px; }
         .sp-label { font-size: 0.85rem; font-weight: 600; color: #475569; }
