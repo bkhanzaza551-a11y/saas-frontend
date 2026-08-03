@@ -18,6 +18,7 @@ const emptyMembership = {
   validityDays: "",
   renewalReminder: "",
   isSharable: false,
+  maxShareCount: "",
   applySelectedDays: false,
   applySelectedServices: false,
   description: "",
@@ -122,8 +123,9 @@ export default function MembershipsPage() {
           benefits: normalizeBenefits(membershipDetail.data.benefits),
           price: membershipDetail.data.price || "",
           validityDays: membershipDetail.data.validityDays || "",
-          renewalReminder: "", // not in db yet?
-          isSharable: false, // not in db yet?
+          renewalReminder: membershipDetail.data.renewalReminder || "", 
+          isSharable: membershipDetail.data.sharable || false,
+          maxShareCount: membershipDetail.data.maxShareCount || "",
           applySelectedDays: false,
           applySelectedServices: (membershipDetail.data.services || []).length > 0,
           benefitType: membershipDetail.data.benefitType || "WALLET_VALUE",
@@ -452,8 +454,9 @@ export default function MembershipsPage() {
                               benefits: normalizeBenefits(item.benefits),
                               price: item.price || "",
                               validityDays: item.validityDays || "",
-                              renewalReminder: "",
-                              isSharable: false,
+                              renewalReminder: item.renewalReminder || "",
+                              isSharable: item.sharable || false,
+                              maxShareCount: item.maxShareCount || "",
                               applySelectedDays: false,
                               applySelectedServices: (item.services || []).length > 0,
                               benefitType: item.benefitType || "WALLET_VALUE",
@@ -624,7 +627,8 @@ export default function MembershipsPage() {
                     walletValue: isFixed ? Number(membershipForm.walletValue || 0) : 0,
                     discountValue: !isFixed ? Number(membershipForm.discountValue || 0) : 0,
                     renewalReminder: Number(membershipForm.renewalReminder || 0),
-                    isSharable: membershipForm.isSharable,
+                    sharable: membershipForm.isSharable,
+                    maxShareCount: membershipForm.isSharable && membershipForm.maxShareCount ? Number(membershipForm.maxShareCount) : null,
                     applySelectedDays: membershipForm.applySelectedDays,
                     applySelectedServices: membershipForm.applySelectedServices,
                     serviceIds: membershipForm.applySelectedServices ? membershipForm.serviceIds : [],
@@ -769,6 +773,22 @@ export default function MembershipsPage() {
                         <span className="toggle-switch-slider" />
                       </div>
                     </div>
+                    {membershipForm.isSharable && (
+                      <div style={{ marginTop: 12 }}>
+                        <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Max Members Allowed</label>
+                        <input 
+                          type="number" 
+                          min="1"
+                          placeholder="e.g. 3" 
+                          value={membershipForm.maxShareCount} 
+                          onChange={(e) => setMembershipForm({ ...membershipForm, maxShareCount: e.target.value })} 
+                          style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                          onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                          onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                        />
+                        <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748b" }}>Specify how many people can share this membership.</p>
+                      </div>
+                    )}
 
                     {membershipForm.membershipType === "Percentage" && (
                       <>

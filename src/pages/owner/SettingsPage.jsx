@@ -1069,6 +1069,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            <div style={{ pointerEvents: generic.businessOpen ? "auto" : "none", opacity: generic.businessOpen ? 1 : 0.5, transition: "opacity 0.2s" }}>
             <div className="business-settings-grid" style={{ marginBottom: "24px" }}>
               <label className="checkbox-option" style={{ gridColumn: "1 / -1" }}>
                 <span style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>Display Salon Name on Invoice :</span>
@@ -1646,6 +1647,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        </div>{/* End of disabled wrapper */}
       </>
     );
   };
@@ -2145,7 +2147,8 @@ export default function SettingsPage() {
             fromTime: fromTime || "09:00",
             toTime: toTime || "21:00",
             isWorking: selectedShift.active !== false ? true : row.isWorking ?? true,
-            breakLabel: selectedShift.breakLabel || row.breakLabel || ""
+            breakLabel: selectedShift.breakLabel || row.breakLabel || "",
+            breaks: selectedShift.breaks || []
           };
         })
       });
