@@ -194,8 +194,8 @@
   color: #0f172a;
 }
 
-.mem-page button[type="button"]:not(.cta-secondary):not(.secondary-button):not(.inline-actions button),
-.mem-page button[type="submit"] {
+.mem-page button[type="button"]:not(.cta-secondary):not(.secondary-button):not(.inline-actions button):not(.modal-close-btn),
+.mem-page button[type="submit"]:not(.modal-close-btn) {
   padding: 10px 24px;
   border: none;
   border-radius: 8px;

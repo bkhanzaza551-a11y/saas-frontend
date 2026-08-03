@@ -600,7 +600,7 @@ export default function MembershipsPage() {
                 {membershipEditMode ? <Edit2 size={20} color="#3b82f6" /> : <Plus size={20} color="#3b82f6" />}
                 {membershipEditMode ? "Edit Membership Plan" : "Create Membership Plan"}
               </h2>
-              <button onClick={() => setShowMembershipModal(false)} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4, display: "flex" }}>
+              <button type="button" className="modal-close-btn" onClick={() => setShowMembershipModal(false)} style={{ margin: 0 }}>
                 <X size={20} />
               </button>
             </div>
