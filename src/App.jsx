@@ -419,11 +419,7 @@ export default function App() {
           <Route path="/admin/packages/:id/edit" element={<OwnerRoute moduleKey="packages" element={<MembershipsPage />} />} />
           <Route path="/admin/customers/:id/memberships" element={<OwnerRoute moduleKey="memberships" element={<MembershipsPage />} />} />
           <Route path="/admin/customers/:id/packages" element={<OwnerRoute moduleKey="packages" element={<MembershipsPage />} />} />
-          <Route path="/admin/customers/:id/loyalty" element={<OwnerRoute moduleKey="loyalty" featureKey="loyalty" element={<LoyaltyPage />} />} />
-          <Route path="/admin/loyalty" element={<OwnerRoute moduleKey="loyalty" featureKey="loyalty" element={<LoyaltyPage />} />} />
-          <Route path="/admin/loyalty/rules" element={<OwnerRoute moduleKey="loyalty" featureKey="loyalty" element={<LoyaltyPage />} />} />
-          <Route path="/admin/loyalty/transactions" element={<OwnerRoute moduleKey="loyalty" featureKey="loyalty" element={<LoyaltyPage />} />} />
-          <Route path="/admin/loyalty/reports" element={<OwnerRoute moduleKey="loyalty" featureKey="loyalty" element={<LoyaltyPage />} />} />
+
           <Route path="/admin/coupons" element={<OwnerRoute moduleKey="couponsGiftCards" featureKey="couponsGiftCards" element={<CouponsPage />} />} />
           <Route path="/admin/coupons/reports" element={<OwnerRoute moduleKey="couponsGiftCards" featureKey="couponsGiftCards" element={<CouponsPage />} />} />
           <Route path="/admin/gift-cards" element={<OwnerRoute moduleKey="couponsGiftCards" featureKey="couponsGiftCards" element={<CouponsPage />} />} />
@@ -503,8 +499,7 @@ export default function App() {
           <Route path="/admin/my-dashboard" element={<OwnerRoute moduleKey="myDashboard" element={<MyDashboardPage />} />} />
           <Route path="/admin/my-appointments" element={<OwnerRoute moduleKey="myAppointments" featureKey="appointments" element={<MyAppointmentsPage />} />} />
           <Route path="/admin/my-schedule" element={<OwnerRoute moduleKey="mySchedule" featureKey="appointments" element={<MySchedulePage />} />} />
-          <Route path="/admin/my-commission" element={<OwnerRoute moduleKey="myCommission" element={<MyCommissionPage />} />} />
-          <Route path="/admin/my-payroll" element={<OwnerRoute moduleKey="myPayroll" element={<MyPayrollPage />} />} />
+
           <Route path="/admin/my-profile" element={<OwnerRoute moduleKey="myProfile" element={<MyProfilePage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
