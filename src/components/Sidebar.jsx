@@ -223,15 +223,6 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
               <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%", paddingLeft: "4px" }}>
                 <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
               </Link>
-
-              <button
-                type="button"
-                className="sidebar-close-btn sidebar-mobile-close"
-                onClick={closeWorkspace}
-                aria-label="Close menu"
-              >
-                <X size={16} />
-              </button>
             </div>
 
             {/* User Account Profile Avatar Card */}
