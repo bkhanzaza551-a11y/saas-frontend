@@ -4079,112 +4079,161 @@ export default function SettingsPage() {
           title="PNL Categories"
           description="Build ordered profit-and-loss buckets that can be reused by finance, expense, and reporting workflows."
           badges={[`${rows.length} entries`, `${summary.expenseAccountInjections.length} account injections`]}
-          action={<div className="inline-actions"><Link className="secondary-button" to="/admin/expenses/categories">Expense Types</Link><Link className="secondary-button" to="/admin/expenses/accounts">Ledger Accounts</Link></div>}
+          action={
+            <div style={{ display: "flex", gap: 12 }}>
+              <Link to="/admin/expenses/categories" className="secondary-button" style={{ background: "#fff", border: "1px solid #cbd5e1", display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 8, color: "#475569", fontWeight: 600, textDecoration: "none" }} onMouseEnter={e => {e.currentTarget.style.background="#f8fafc"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"}}>
+                Expense Types
+              </Link>
+              <Link to="/admin/expenses/accounts" className="secondary-button" style={{ background: "#fff", border: "1px solid #cbd5e1", display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 8, color: "#475569", fontWeight: 600, textDecoration: "none" }} onMouseEnter={e => {e.currentTarget.style.background="#f8fafc"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"}}>
+                Ledger Accounts
+              </Link>
+            </div>
+          }
         />
-        <div className="muted" style={{ marginBottom: 12, fontSize: 12 }}>
+        <div className="muted" style={{ marginBottom: 20, fontSize: 13, background: "#f8fafc", padding: "12px 16px", borderRadius: 8, border: "1px solid #e2e8f0" }}>
           These categories behave like a finance taxonomy: income buckets, expense buckets, and ordered report rows. The active list is stored in salon settings and reused by report and expense modules.
         </div>
 
-        <div className="shift-layout-grid">
-          <div style={{ width: "100%", flexShrink: 0 }}>
-            <div className="settings-panel-card" style={{ padding: 0 }}>
-              <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid #f1f5f9" }}>
-                <button type="button" onClick={startCreate} style={{ width: "100%", padding: "10px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Create New</button>
-              </div>
-              <div style={{ maxHeight: 420, overflowY: "auto" }}>
-                {rows.map((row) => (
-                  <div
-                    key={row.id}
-                    style={{
-                      padding: "14px 16px",
-                      borderBottom: "1px solid #f1f5f9",
-                      cursor: "pointer",
-                      background: selectedPnlCategoryId === row.id ? "#eff6ff" : "white",
-                      borderLeft: selectedPnlCategoryId === row.id ? "3px solid #3b82f6" : "3px solid transparent",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between"
-                    }}
-                  >
-                    <div style={{ flex: 1 }} onClick={() => { setSelectedPnlCategoryId(row.id); setDraftPnlCategory(null); }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: "#0f172a" }}>{row.name || "Untitled Category"}</div>
-                      <div style={{ fontSize: 11, color: "#64748b", marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
-                        <span>#{row.sequenceNumber || 0}</span>
-                        <span>·</span>
-                        <span>{row.type || "Expense"}</span>
-                        <span>·</span>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#22c55e" : "#94a3b8" }} />
-                          {row.active ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                      <button type="button" onClick={(event) => { event.stopPropagation(); startEdit(row); }} title="Edit category" style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer", color: "#475569", padding: 0 }}><Edit2 size={13} /></button>
-                      <button type="button" onClick={(event) => { event.stopPropagation(); deleteRow(row.id); }} title="Delete category" style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", color: "#dc2626", padding: 0 }}><Trash2 size={13} /></button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="settings-panel-card" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
+            <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 4, height: 16, background: "#10b981", borderRadius: 4 }} />
+              Category Rules
+            </h3>
+            <button type="button" onClick={startCreate} style={{ padding: "8px 16px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+              <Plus size={16} /> Add Category
+            </button>
           </div>
 
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {editing ? (
-              <div className="settings-panel-card">
-                <h3 style={{ color: "var(--accent, #3b82f6)" }}>{draftPnlCategory?._isNew ? "Create PNL Category" : `Edit: ${editing.name || "Category"}`}</h3>
-                <div className="settings-form-grid" style={{ marginBottom: 16 }}>
-                  <label className="settings-input-group">
-                    <span className="muted">Category Name</span>
-                    <input
-                      type="text"
-                      value={draftPnlCategory?.name ?? editing.name}
-                      onChange={(event) => draftPnlCategory && setDraftPnlCategory({ ...draftPnlCategory, name: event.target.value })}
-                      placeholder="Enter Name"
-                    />
-                  </label>
-                  <label className="settings-input-group">
-                    <span className="muted">Category Sequence Number</span>
+          <div style={{ width: "100%", overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+              <thead>
+                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                  <th style={{ padding: "12px 24px", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sequence</th>
+                  <th style={{ padding: "12px 24px", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Category Name</th>
+                  <th style={{ padding: "12px 24px", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Type</th>
+                  <th style={{ padding: "12px 24px", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Status</th>
+                  <th style={{ padding: "12px 24px", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.id} style={{ borderBottom: "1px solid #f1f5f9", background: "#fff", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+                    <td style={{ padding: "16px 24px", fontSize: 14, fontWeight: 600, color: "#64748b" }}>#{row.sequenceNumber || 0}</td>
+                    <td style={{ padding: "16px 24px", fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{row.name || "Untitled Category"}</td>
+                    <td style={{ padding: "16px 24px" }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: row.type === "INCOME" ? "#ecfdf5" : "#fef2f2", color: row.type === "INCOME" ? "#059669" : "#dc2626" }}>
+                        {row.type || "Expense"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px 24px" }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, color: row.active ? "#16a34a" : "#94a3b8" }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: row.active ? "#22c55e" : "#cbd5e1" }} />
+                        {row.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                        <button type="button" onClick={() => startEdit(row)} style={{ padding: "6px 12px", background: "#f8fafc", color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600 }}>
+                          <Edit2 size={14} /> Edit
+                        </button>
+                        <button type="button" onClick={() => deleteRow(row.id)} style={{ padding: "6px 12px", background: "#fef2f2", color: "#ef4444", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600 }}>
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {!rows.length && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: "32px 24px", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
+                      No PNL categories found. Click "Add Category" to create one.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {draftPnlCategory && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={cancelDraft} />
+            <div style={{ position: "relative", width: 480, maxWidth: "90vw", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a" }}>
+                  {draftPnlCategory._isNew ? "Create PNL Category" : `Edit Category`}
+                </h2>
+                <button onClick={cancelDraft} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4, display: "flex" }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 20 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Category Name</label>
+                  <input
+                    type="text"
+                    value={draftPnlCategory.name || ""}
+                    onChange={(event) => setDraftPnlCategory({ ...draftPnlCategory, name: event.target.value })}
+                    placeholder="e.g. Operating Expenses"
+                    style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                    onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                    onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                  />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Sequence #</label>
                     <input
                       type="number"
                       min="0"
-                      value={draftPnlCategory?.sequenceNumber ?? editing.sequenceNumber ?? 0}
-                      onChange={(event) => draftPnlCategory && setDraftPnlCategory({ ...draftPnlCategory, sequenceNumber: Number(event.target.value || 0) })}
-                      placeholder="Enter Sequence Number"
+                      value={draftPnlCategory.sequenceNumber || 0}
+                      onChange={(event) => setDraftPnlCategory({ ...draftPnlCategory, sequenceNumber: Number(event.target.value || 0) })}
+                      style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none" }}
                     />
-                  </label>
-                  <label className="settings-input-group">
-                    <span className="muted">Category Type</span>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Type</label>
                     <select
-                      value={draftPnlCategory?.type ?? editing.type ?? "Expense"}
-                      onChange={(event) => draftPnlCategory && setDraftPnlCategory({ ...draftPnlCategory, type: event.target.value })}
+                      value={draftPnlCategory.type || "Expense"}
+                      onChange={(event) => setDraftPnlCategory({ ...draftPnlCategory, type: event.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", backgroundColor: "#fff" }}
                     >
                       <option value="INCOME">Income</option>
                       <option value="EXPENSE">Expense</option>
                     </select>
-                  </label>
+                  </div>
                 </div>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer", marginBottom: 20 }}>
-                  <input
-                    type="checkbox"
-                    checked={draftPnlCategory?.active ?? editing.active}
-                    onChange={(event) => draftPnlCategory && setDraftPnlCategory({ ...draftPnlCategory, active: event.target.checked })}
-                    style={{ width: 18, height: 18, accentColor: "var(--accent, #3b82f6)", cursor: "pointer" }}
-                  />
-                  Active
-                </label>
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-                  <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13 }}>Cancel</button>
-                  <button type="button" onClick={saveDraft} style={{ padding: "10px 24px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Save</button>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: draftPnlCategory.active ? "#f0fdfa" : "#f8fafc", border: draftPnlCategory.active ? "1px solid #99f6e4" : "1px solid #e2e8f0", borderRadius: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: draftPnlCategory.active ? "#0f766e" : "#475569" }}>Active Status</div>
+                    <div style={{ fontSize: 12, color: "#64748b" }}>Enable or disable this category globally.</div>
+                  </div>
+                  <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={draftPnlCategory.active}
+                      onChange={(event) => setDraftPnlCategory({ ...draftPnlCategory, active: event.target.checked })}
+                    />
+                    <span className="toggle-switch-slider" />
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="settings-panel-card" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300, color: "#94a3b8", fontSize: 14 }}>
-                Select a PNL category from the left panel or click "Create New"
+
+              <div style={{ padding: "16px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", gap: 12, justifyContent: "flex-end" }}>
+                <button type="button" onClick={cancelDraft} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14 }}>
+                  Cancel
+                </button>
+                <button type="button" onClick={saveDraft} style={{ padding: "10px 20px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14 }}>
+                  Save Category
+                </button>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="settings-panel-card" style={{ marginTop: 16 }}>
           <div className="settings-toggle-grid">
