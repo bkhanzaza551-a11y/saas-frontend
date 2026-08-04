@@ -587,10 +587,10 @@ export default function ReferralProgramPage() {
 
       {!loading && activeTab === "wallets" && selectedWallet && (
         <div className="cpn-card anim-fade">
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 20, flexWrap: "wrap" }}>
-            <button onClick={() => { setSelectedWallet(null); setWalletDetail(null); }} className="cpn-btn cpn-btn-ghost" style={{ fontSize: 13 }}>← Back</button>
-            <button onClick={handleRedeemService} className="cpn-btn cpn-btn-primary" style={{ fontSize: 13, background: "#16a34a" }}>Redeem for Services</button>
-            <button onClick={handleRequestPayout} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, border: "1px solid #eab308", color: "#eab308" }}>Request Cash Payout</button>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24, flexWrap: "wrap" }}>
+            <button onClick={() => { setSelectedWallet(null); setWalletDetail(null); }} className="cpn-btn" style={{ fontSize: 13, background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}>← Back</button>
+            <button onClick={handleRedeemService} className="cpn-btn" style={{ fontSize: 13, background: "#10b981", color: "white", border: "none", boxShadow: "0 4px 6px -1px rgba(16, 185, 129, 0.2)" }}>Redeem for Services</button>
+            <button onClick={handleRequestPayout} className="cpn-btn" style={{ fontSize: 13, background: "#fffbeb", color: "#b45309", border: "1px solid #fcd34d", boxShadow: "0 4px 6px -1px rgba(252, 211, 77, 0.15)" }}>Request Cash Payout</button>
           </div>
           {detailLoading ? <PageLoader title="Loading wallet..." message="Please wait" /> : walletDetail?.wallet ? (
             <>
