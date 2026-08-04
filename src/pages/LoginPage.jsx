@@ -157,11 +157,13 @@ export default function LoginPage() {
           flex: 1;
           display: none;
           flex-direction: column;
-          justify-content: center;
+          justify-content: flex-end;
           padding: 60px;
           color: white;
-          background: linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%);
-          backdrop-filter: blur(10px);
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0.1) 100%), url('https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&q=80');
+          background-size: cover;
+          background-position: center;
+          position: relative;
           border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
@@ -292,12 +294,29 @@ export default function LoginPage() {
         <div className="login-content-wrapper">
           {/* Left Hero Panel for Desktop */}
           <div className="login-left-panel">
-            <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px', lineHeight: 1.1, background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Elevate Your<br />Salon Management.
-            </h1>
-            <p style={{ fontSize: '1.1rem', color: '#cbd5e1', maxWidth: '400px', lineHeight: 1.6 }}>
-              Experience the next generation ERP designed exclusively for premium salons and spas. Streamline operations, delight customers, and grow your business.
-            </p>
+            <div style={{ zIndex: 2, maxWidth: '500px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.2)', marginBottom: '24px', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></span>
+                SalonNest ERP 2.0
+              </div>
+              
+              <h1 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '24px', lineHeight: 1.1, color: 'white', letterSpacing: '-0.02em' }}>
+                Elevate Your<br />Salon Experience.
+              </h1>
+              
+              <div style={{ background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(12px)', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', borderLeft: '4px solid #3b82f6' }}>
+                <p style={{ fontSize: '1.1rem', color: '#f1f5f9', lineHeight: 1.6, fontStyle: 'italic', marginBottom: '16px' }}>
+                  "Since switching to SalonNest, our daily operations have become effortless. The analytics and booking flow are simply unmatched."
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <img src="https://i.pravatar.cc/100?img=47" alt="User" style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)' }} />
+                  <div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'white' }}>Sarah Jenkins</div>
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Owner, Luxe Spa & Salon</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Login Panel */}
