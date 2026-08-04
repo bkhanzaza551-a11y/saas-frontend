@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Search, CheckCircle2, UserCheck, Edit2, Trash2 } from "lucide-react";
+import { Plus, Search, CheckCircle2, UserCheck, Edit2, Trash2, Eye, Activity } from "lucide-react";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import { api } from "../../api/client";
@@ -28,6 +28,9 @@ export default function StaffRequirementsPage() {
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  
+  const [viewDetailReq, setViewDetailReq] = useState(null);
+  const [statusUpdateReq, setStatusUpdateReq] = useState(null);
 
   const loadRequirements = useCallback(async () => {
     setLoading(true);
@@ -81,6 +84,16 @@ export default function StaffRequirementsPage() {
       alert(err.response?.data?.message || "Failed to save staff requirement");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await api.patch(`/owner/staff-requirements/${id}`, { status: newStatus });
+      setStatusUpdateReq(null);
+      loadRequirements();
+    } catch (err) {
+      alert(err.response?.data?.message || "Could not update status");
     }
   };
 
@@ -263,13 +276,19 @@ export default function StaffRequirementsPage() {
                   )}
                 </div>
 
-                <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 14, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 14, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {getStatusBadge(req.status)}
                     <span style={{ fontSize: 11, color: "#94a3b8" }}>{reqDate}</span>
                   </div>
 
                   <div style={{ display: "flex", gap: 6 }}>
+                    <button onClick={() => setViewDetailReq(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }} title="View Details">
+                      <Eye size={14} /> View
+                    </button>
+                    <button onClick={() => setStatusUpdateReq(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }} title="Update Status">
+                      <Activity size={14} /> Status
+                    </button>
                     <button onClick={() => startEdit(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12 }} title="Edit">
                       <Edit2 size={14} />
                     </button>
@@ -303,7 +322,7 @@ export default function StaffRequirementsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Senior Software Engineer"
+                  placeholder="e.g. Senior Hair Stylist, Makeup Artist"
                   value={form.title}
                   onChange={e => setForm({ ...form, title: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
@@ -365,7 +384,7 @@ export default function StaffRequirementsPage() {
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Required Skills (comma separated)</label>
                 <input
                   type="text"
-                  placeholder="React, Node.js, System Design"
+                  placeholder="Haircutting, Balayage, Client Management"
                   value={form.skills}
                   onChange={e => setForm({ ...form, skills: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
@@ -390,6 +409,68 @@ export default function StaffRequirementsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Detail Modal */}
+      {viewDetailReq && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 500, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Staff Requirement Details</h2>
+              <button onClick={() => setViewDetailReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div><strong>Title:</strong> {viewDetailReq.title}</div>
+              <div><strong>Description:</strong> {viewDetailReq.description || "N/A"}</div>
+              <div><strong>Skills Required:</strong> {Array.isArray(viewDetailReq.skills) ? viewDetailReq.skills.join(', ') : viewDetailReq.skills || "N/A"}</div>
+              <div><strong>Quantity:</strong> {viewDetailReq.quantity}</div>
+              <div><strong>Salary:</strong> {viewDetailReq.salary || "N/A"}</div>
+              <div><strong>Shift:</strong> {viewDetailReq.shift || "N/A"}</div>
+              <div><strong>Urgency:</strong> {viewDetailReq.urgency}</div>
+              <div><strong>Status:</strong> {viewDetailReq.status}</div>
+              <div><strong>Created At:</strong> {new Date(viewDetailReq.createdAt).toLocaleString()}</div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
+              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Status Modal */}
+      {statusUpdateReq && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 400, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Update Status</h2>
+              <button onClick={() => setStatusUpdateReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {["PENDING", "APPROVED", "FULFILLED", "REJECTED"].map(s => (
+                <button
+                  key={s}
+                  onClick={() => updateStatus(statusUpdateReq.id, s)}
+                  className="btn"
+                  style={{
+                    background: statusUpdateReq.status === s ? "#f1f5f9" : "white",
+                    border: "1px solid #cbd5e1",
+                    color: "#0f172a",
+                    fontWeight: 600,
+                    padding: "10px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    borderRadius: 8
+                  }}
+                >
+                  Mark as {s}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
+              <button type="button" onClick={() => setStatusUpdateReq(null)} className="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       )}

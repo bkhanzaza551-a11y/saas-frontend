@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { Package, Plus } from "lucide-react";
+import { Package, Plus, Eye, Edit2 } from "lucide-react";
 
 const emptyForm = {
   productName: "",
@@ -35,26 +35,37 @@ const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
 export default function ProductsRequirementPage() {
   const [requirements, setRequirements] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [viewDetailReq, setViewDetailReq] = useState(null);
+  const [statusUpdateReq, setStatusUpdateReq] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get("/owner/product-requirements");
-      setRequirements(res.data);
+      const [resReq, resCat, resVen] = await Promise.all([
+        api.get("/owner/product-requirements"),
+        api.get("/owner/inventory/categories").catch(() => ({ data: [] })),
+        api.get("/owner/purchases/vendors").catch(() => ({ data: [] }))
+      ]);
+      setRequirements(resReq.data || []);
+      setCategories(resCat.data || []);
+      setVendors(resVen.data || []);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load requirements"), success: "" });
+      setStatus({ error: formatApiError(err, "Could not load data"), success: "" });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -79,10 +90,11 @@ export default function ProductsRequirementPage() {
   const updateStatus = async (id, newStatus) => {
     try {
       await api.patch(`/owner/product-requirements/${id}`, { status: newStatus });
-      setStatus({ error: "", success: "Status updated." });
+      setStatus({ error: "", success: "Status updated successfully." });
+      setStatusUpdateReq(null);
       await load();
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not update"), success: "" });
+      setStatus({ error: formatApiError(err, "Could not update status"), success: "" });
     }
   };
 
@@ -96,7 +108,7 @@ export default function ProductsRequirementPage() {
         <div className="item-head">
           <div>
             <h1 style={{ marginTop: 0 }}>Product Requirements</h1>
-            <p style={{ marginBottom: 0 }}>Manage procurement needs for the platform (Software, Electronics, Furniture, etc).</p>
+            <p style={{ marginBottom: 0 }}>Manage procurement needs for the salon (e.g. Shampoos, Chairs, Hair Dryers).</p>
           </div>
           <button className="btn btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: "8px 16px", height: "fit-content", alignSelf: "center", fontSize: "0.85rem" }}>
             <Plus size={16} style={{ marginRight: 6 }} />
@@ -139,12 +151,15 @@ export default function ProductsRequirementPage() {
                     <div style={{ fontSize: "0.85rem", color: "#64748b" }}>{r.unitPrice ? "\u20B9" + fmt(r.unitPrice) : "-"}</div>
                     <div style={{ fontSize: "0.85rem", color: "#64748b" }}>{r.vendor || "-"}</div>
                   </div>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                     <span style={{ background: pc.bg, color: pc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>{r.priority}</span>
                     <span style={{ background: sc.bg, color: sc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>{r.status}</span>
-                    {r.status === "PENDING" && (
-                      <button type="button" onClick={() => updateStatus(r.id, "CANCELLED")} style={{ padding: "4px 10px", fontSize: "0.75rem", borderRadius: 6, border: "1px solid #fecaca", background: "#fef2f2", color: "#ef4444", cursor: "pointer" }}>Cancel</button>
-                    )}
+                    <button type="button" onClick={() => setViewDetailReq(r)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4 }} title="View Detail">
+                      <Eye size={14} /> Detail
+                    </button>
+                    <button type="button" onClick={() => setStatusUpdateReq(r)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4 }} title="Update Status">
+                      <Edit2 size={14} /> Status
+                    </button>
                   </div>
                 </div>
               );
@@ -166,7 +181,7 @@ export default function ProductsRequirementPage() {
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Product Name *</label>
                 <input
                   value={form.productName}
-                  placeholder="e.g. MacBook Pro, Office Desk, AWS Credits"
+                  placeholder="e.g. Hair Dryer, Keratin Shampoo, Massage Bed"
                   required
                   onChange={(e) => setForm({ ...form, productName: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
@@ -187,20 +202,24 @@ export default function ProductsRequirementPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Category</label>
-                  <input
+                  <CustomSelect
                     value={form.category}
-                    placeholder="e.g. Electronics, Furniture, Software"
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                    options={[
+                      { label: "Select Category", value: "" },
+                      ...categories.map(c => ({ label: c.name, value: c.name }))
+                    ]}
                   />
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Vendor (Optional)</label>
-                  <input
+                  <CustomSelect
                     value={form.vendor}
-                    placeholder="e.g. Amazon, Dell, Microsoft"
                     onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                    options={[
+                      { label: "Select Vendor", value: "" },
+                      ...vendors.map(v => ({ label: v.name, value: v.name }))
+                    ]}
                   />
                 </div>
               </div>
@@ -250,6 +269,68 @@ export default function ProductsRequirementPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Detail Modal */}
+      {viewDetailReq && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 500, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Requirement Details</h2>
+              <button onClick={() => setViewDetailReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div><strong>Product Name:</strong> {viewDetailReq.productName}</div>
+              <div><strong>Description:</strong> {viewDetailReq.description || "N/A"}</div>
+              <div><strong>Category:</strong> {viewDetailReq.category || "N/A"}</div>
+              <div><strong>Vendor:</strong> {viewDetailReq.vendor || "N/A"}</div>
+              <div><strong>Quantity:</strong> {viewDetailReq.quantity}</div>
+              <div><strong>Est. Unit Price:</strong> {viewDetailReq.unitPrice ? "\u20B9" + fmt(viewDetailReq.unitPrice) : "N/A"}</div>
+              <div><strong>Priority:</strong> {viewDetailReq.priority}</div>
+              <div><strong>Status:</strong> {viewDetailReq.status}</div>
+              <div><strong>Created At:</strong> {new Date(viewDetailReq.createdAt).toLocaleString()}</div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
+              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Status Modal */}
+      {statusUpdateReq && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 400, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Update Status</h2>
+              <button onClick={() => setStatusUpdateReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {["PENDING", "ORDERED", "RECEIVED", "CANCELLED"].map(s => (
+                <button
+                  key={s}
+                  onClick={() => updateStatus(statusUpdateReq.id, s)}
+                  className="btn"
+                  style={{
+                    background: statusUpdateReq.status === s ? "#f1f5f9" : "white",
+                    border: "1px solid #cbd5e1",
+                    color: "#0f172a",
+                    fontWeight: 600,
+                    padding: "10px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    borderRadius: 8
+                  }}
+                >
+                  Mark as {s}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
+              <button type="button" onClick={() => setStatusUpdateReq(null)} className="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       )}
