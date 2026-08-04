@@ -415,13 +415,13 @@ export default function StaffRequirementsPage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16, animation: "fadeIn 0.2s ease" }}>
           <div style={{ background: "white", width: "100%", maxWidth: 520, borderRadius: 20, boxShadow: "0 25px 60px rgba(0,0,0,0.18)", overflow: "hidden", animation: "slideUp 0.3s ease" }}>
             {/* Gradient Accent Bar */}
-            <div style={{ height: 5, background: "linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)" }} />
+            <div style={{ height: 5, background: "linear-gradient(90deg, #475569, #334155, #0f172a)" }} />
 
             {/* Header */}
             <div style={{ padding: "20px 24px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Briefcase size={18} color="white" />
                   </div>
                   <div>
@@ -457,7 +457,7 @@ export default function StaffRequirementsPage() {
               {viewDetailReq.description && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Description</div>
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", fontSize: "0.88rem", color: "#334155", lineHeight: 1.6, borderLeft: "3px solid #6366f1" }}>{viewDetailReq.description}</div>
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", fontSize: "0.88rem", color: "#334155", lineHeight: 1.6, borderLeft: "3px solid #334155" }}>{viewDetailReq.description}</div>
                 </div>
               )}
 
@@ -473,7 +473,7 @@ export default function StaffRequirementsPage() {
                         : [];
                     return skills.length > 0
                       ? skills.map((skill, i) => (
-                          <span key={i} style={{ background: "#eef2ff", color: "#4f46e5", padding: "5px 12px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 600 }}>{skill}</span>
+                          <span key={i} style={{ background: "#f1f5f9", color: "#334155", padding: "5px 12px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 600, border: "1px solid #e2e8f0" }}>{skill}</span>
                         ))
                       : <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontStyle: "italic" }}>No specific skills listed</span>;
                   })()}
@@ -496,7 +496,7 @@ export default function StaffRequirementsPage() {
               <button type="button" onClick={() => { setViewDetailReq(null); setStatusUpdateReq(viewDetailReq); }} className="btn btn-secondary" style={{ padding: "8px 16px", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: 6 }}>
                 <Activity size={14} /> Update Status
               </button>
-              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>
+              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary" style={{ padding: "8px 20px", fontSize: "0.82rem", background: "#0f172a", border: "none" }}>
                 Close
               </button>
             </div>
@@ -509,7 +509,7 @@ export default function StaffRequirementsPage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
           <div style={{ background: "white", width: "100%", maxWidth: 420, borderRadius: 20, boxShadow: "0 25px 60px rgba(0,0,0,0.18)", overflow: "hidden" }}>
             {/* Gradient Accent Bar */}
-            <div style={{ height: 5, background: "linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)" }} />
+            <div style={{ height: 5, background: "linear-gradient(90deg, #475569, #334155, #0f172a)" }} />
 
             <div style={{ padding: "20px 24px 0" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
