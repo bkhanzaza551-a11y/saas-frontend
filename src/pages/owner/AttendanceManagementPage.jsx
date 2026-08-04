@@ -269,7 +269,7 @@ export default function AttendanceManagementPage() {
         <div className="panel-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <h3 style={{ margin: 0 }}>Day Sheet — {new Date(date).toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</h3>
-            <button type="button" onClick={() => { loadSummary(); loadDaySheet(); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", fontSize: 12, fontWeight: 600, background: "#f1f5f9", border: "none", borderRadius: 6, cursor: "pointer" }}><RefreshCw size={13} /> Refresh</button>
+            <button type="button" onClick={() => { loadSummary(); loadDaySheet(); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", fontSize: 12, fontWeight: 600, background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer" }}><RefreshCw size={13} /> Refresh</button>
           </div>
           {daySheet.length === 0 ? (
             <EmptyState title="No attendance data" message="No staff attendance records found for this date and branch." />
