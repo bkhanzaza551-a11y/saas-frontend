@@ -850,7 +850,7 @@ function ColumnPicker({ reportKey, visibleColumns, onToggle, onClose, onSelectAl
         </button>
       </div>
       {allCols.map((col) => (
-        <label key={col} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 2px", cursor: "pointer", fontSize: 13, color: "#334155" }}>
+        <label key={col} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, padding: "4px 2px", cursor: "pointer", fontSize: 13, color: "#334155" }}>
           <input type="checkbox" checked={visibleColumns.includes(col)} onChange={() => onToggle(col)} />
           <span>{col}</span>
         </label>
