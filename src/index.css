@@ -161,7 +161,7 @@ label span.muted {
   color: #475569;
 }
 
-button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]) {
+button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not([class*="map-picker"]) {
   background: var(--button-bg, linear-gradient(135deg, #0f766e, #0ea5e9));
   color: white;
   cursor: pointer;
@@ -171,11 +171,11 @@ button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest
   box-shadow: none;
 }
 
-button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):hover {
+button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not([class*="map-picker"]):hover {
   transform: translateY(-1px);
 }
 
-button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not(.btn-cancel):not(.btn-submit):not(.secondary-button):not(.crm-btn):not(.blue-btn-secondary):not(.eq-btn-secondary):not(.danger-button):hover {
+button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not([class*="map-picker"]):not(.btn-cancel):not(.btn-submit):not(.secondary-button):not(.crm-btn):not(.blue-btn-secondary):not(.eq-btn-secondary):not(.danger-button):hover {
   background: var(--button-bg-hover, var(--button-bg, linear-gradient(135deg, #0f766e, #0ea5e9)));
   filter: brightness(1.05);
 }
