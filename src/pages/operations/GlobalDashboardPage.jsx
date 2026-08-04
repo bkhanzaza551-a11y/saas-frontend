@@ -60,6 +60,24 @@ export default function GlobalDashboardPage() {
     fetchData();
   }, [period, startDate, endDate]);
 
+  const renderGrowthBadge = (growthStr) => {
+    if (!growthStr || growthStr === "-") return (
+      <span style={{ background: "#f1f5f9", color: "#64748b", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
+        -
+      </span>
+    );
+    const isNegative = growthStr.startsWith("-");
+    const Icon = isNegative ? ArrowDownRight : ArrowUpRight;
+    const bg = isNegative ? "#fee2e2" : "#dcfce7";
+    const color = isNegative ? "#991b1b" : "#166534";
+    
+    return (
+      <span style={{ background: bg, color: color, padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
+        <Icon size={14} /> {growthStr}
+      </span>
+    );
+  };
+
   return (
     <div className="page-shell super-admin-page">
       {/* Hero Card */}
@@ -125,9 +143,7 @@ export default function GlobalDashboardPage() {
         <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Combined Revenue</span>
-            <span style={{ background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
-              <ArrowUpRight size={14} /> {data.revenueGrowth}
-            </span>
+            {renderGrowthBadge(data.revenueGrowth)}
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 6 }}>₹{data.totalRevenue.toLocaleString("en-IN")}</div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Across all {data.activeBranchesCount} active branches</div>
@@ -136,9 +152,7 @@ export default function GlobalDashboardPage() {
         <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #06b6d4" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Appointments</span>
-            <span style={{ background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
-              <ArrowUpRight size={14} /> {data.appointmentGrowth}
-            </span>
+            {renderGrowthBadge(data.appointmentGrowth)}
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 6 }}>{data.totalAppointments} Bookings</div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Service completion rate: 96.2%</div>
@@ -199,7 +213,9 @@ export default function GlobalDashboardPage() {
                     </td>
                     <td style={{ padding: 14, fontWeight: 600 }}>{b.appointments} Bookings</td>
                     <td style={{ padding: 14 }}>{b.staffCount} Staff</td>
-                    <td style={{ padding: 14, fontWeight: 700, color: "#059669" }}>{b.growth}</td>
+                    <td style={{ padding: 14 }}>
+                      {renderGrowthBadge(b.growth)}
+                    </td>
                     <td style={{ padding: 14 }}>
                       <span className="badge" style={{
                         background: b.status === "TOP PERFORMER" ? "#dcfce7" : "#e0e7ff",
