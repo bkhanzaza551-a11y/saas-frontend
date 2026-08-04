@@ -615,7 +615,7 @@ export default function SettingsPage() {
           });
           setPaymentModes({ ...defaultPaymentModes, ...(row.paymentModes || {}) });
           const mergedAdvanced = mergeAdvancedSettings(row.advancedSettings || {});
-          setSelectedShiftId(mergedAdvanced.shiftManagement?.shifts?.[0]?.id || null);
+          // setSelectedShiftId(mergedAdvanced.shiftManagement?.shifts?.[0]?.id || null);
         }
 
         const nextSummary = {
