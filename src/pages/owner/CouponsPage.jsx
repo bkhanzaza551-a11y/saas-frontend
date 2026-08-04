@@ -363,13 +363,16 @@ export default function CouponsPage() {
           <div className="coupons-right-col cpn-card" style={{ display: "flex", flexDirection: "column" }}>
             <h2 style={{ marginTop: 0, marginBottom: 28, fontSize: "1.5rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span>{editingCoupon ? "Update Coupon" : "Create Coupon"}</span>
-              <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", background: couponForm.isActive ? "#dcfce7" : "#f1f5f9", padding: "8px 16px", borderRadius: 30, transition: "all 0.3s" }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: couponForm.isActive ? "#166534" : "#64748b", textTransform: "uppercase" }}>{couponForm.isActive ? "Active" : "Inactive"}</span>
+              <label style={{ position: "relative", display: "inline-flex", alignItems: "center", cursor: "pointer", gap: 10 }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: couponForm.isActive ? "#4f46e5" : "#94a3b8", textTransform: "uppercase", transition: "color 0.3s" }}>{couponForm.isActive ? "Active" : "Inactive"}</span>
+                <div style={{ width: 46, height: 26, background: couponForm.isActive ? "#4f46e5" : "#cbd5e1", borderRadius: 100, position: "relative", transition: "background 0.3s ease" }}>
+                  <div style={{ position: "absolute", top: 3, left: couponForm.isActive ? 23 : 3, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)", boxShadow: "0 2px 5px rgba(0,0,0,0.15)" }} />
+                </div>
                 <input 
                   type="checkbox" 
                   checked={couponForm.isActive} 
                   onChange={(e) => setCouponForm({ ...couponForm, isActive: e.target.checked })}
-                  style={{ width: 18, height: 18, cursor: "pointer", accentColor: "#16a34a" }}
+                  style={{ opacity: 0, position: "absolute", width: 0, height: 0 }}
                 />
               </label>
             </h2>
