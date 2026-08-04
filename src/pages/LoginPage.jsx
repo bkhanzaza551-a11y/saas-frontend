@@ -442,7 +442,7 @@ export default function LoginPage() {
                             <label className="premium-label">Password</label>
                             <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: '#3b82f6', textDecoration: 'none', fontWeight: 600 }}>Forgot?</Link>
                           </div>
-                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <div style={{ position: 'relative' }}>
                             <input
                               type={showPassword ? "text" : "password"}
                               required
