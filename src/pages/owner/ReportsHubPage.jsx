@@ -860,7 +860,7 @@ function ColumnPicker({ reportKey, visibleColumns, onToggle, onClose, onSelectAl
 }
 
 function ReportTable({ reportKey, rows, loading, visibleColumns }) {
-  const cols = (visibleColumns && visibleColumns.length > 0 ? visibleColumns : (COLUMNS[reportKey] || ["Data"]));
+  const cols = (visibleColumns !== null && visibleColumns !== undefined ? visibleColumns : (COLUMNS[reportKey] || ["Data"]));
 
   return (
     <table className="rpt-table">
@@ -1632,7 +1632,7 @@ export default function ReportsHubPage() {
   const handleExportCSV = () => {
     if (!rows.length) return;
 
-    const cols = visibleColumns && visibleColumns.length > 0 ? visibleColumns : (COLUMNS[activeReport] || ["Data"]);
+    const cols = (visibleColumns !== null && visibleColumns !== undefined ? visibleColumns : (COLUMNS[activeReport] || ["Data"]));
     let csv = `${cols.join(",")}\n`;
 
     rows.forEach((row) => {
@@ -1665,7 +1665,7 @@ export default function ReportsHubPage() {
   };
 
   const allColumns = COLUMNS[activeReport] || ["Data"];
-  const activeVisibleColumns = visibleColumns && visibleColumns.length > 0 ? visibleColumns : allColumns;
+  const activeVisibleColumns = (visibleColumns !== null && visibleColumns !== undefined) ? visibleColumns : allColumns;
 
   return (
       <div className="reports-layout" style={{ display: "flex", height: "calc(100vh - 108px)", overflow: "hidden", background: "#f8fafc" }}>
