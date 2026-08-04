@@ -87,9 +87,16 @@ export default function SalonAnalyticsPage() {
     }
 
     const params = new URLSearchParams();
-    if (startIso) params.append("startDate", startIso);
-    if (endIso) params.append("endDate", endIso);
+    if (startIso) {
+      params.append("startDate", startIso);
+      params.append("start", startIso);
+    }
+    if (endIso) {
+      params.append("endDate", endIso);
+      params.append("end", endIso);
+    }
     if (selectedBranch && selectedBranch !== "ALL") params.append("branchId", selectedBranch);
+    params.append("take", "500"); // Maximize invoice fetch limit
 
     const queryString = params.toString() ? `?${params.toString()}` : "";
 
