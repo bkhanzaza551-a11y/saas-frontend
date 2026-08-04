@@ -60,8 +60,6 @@ const SuperAdminSettingsPage = lazyWithRetry(() => import("./pages/superAdmin/Se
 const SuperAdminAuditLogsPage = lazyWithRetry(() => import("./pages/superAdmin/AuditLogsPage.jsx"));
 const SuperAdminTrafficAnalyticsPage = lazyWithRetry(() => import("./pages/superAdmin/TrafficAnalyticsPage.jsx"));
 const SuperAdminStaffPage = lazyWithRetry(() => import("./pages/superAdmin/StaffManagementPage.jsx"));
-const SuperAdminProductRequirementPage = lazyWithRetry(() => import("./pages/superAdmin/ProductsRequirementPage.jsx"));
-const SuperAdminStaffRequirementPage = lazyWithRetry(() => import("./pages/superAdmin/StaffRequirementsPage.jsx"));
 const SuperAdminFinancialReportsPage = lazyWithRetry(() => import("./pages/superAdmin/FinancialReportsPage.jsx"));
 const SuperAdminBranchesPage = lazyWithRetry(() => import("./pages/superAdmin/BranchesManagementPage.jsx"));
 const InventoryPage = lazyWithRetry(() => import("./pages/owner/InventoryPage.jsx"));
@@ -288,9 +286,7 @@ const Protected = () => {
         items: [
           { label: "Demo Pipeline", to: "/super-admin/demo-leads" },
           { label: "Support Queue", to: "/super-admin/support-tickets" },
-          { label: "Traffic Analytics", to: "/super-admin/traffic" },
-          { label: "Staff Requirements", to: "/super-admin/staff-requirements" },
-          { label: "Product Requirements", to: "/super-admin/product-requirements" }
+          { label: "Traffic Analytics", to: "/super-admin/traffic" }
         ]
       },
     {
@@ -643,8 +639,6 @@ export default function App() {
           <Route path="/super-admin/audit-logs" element={<SuperAdminRoute pageKey="auditLogs" element={<SuperAdminAuditLogsPage />} />} />
           <Route path="/super-admin/traffic" element={<SuperAdminRoute pageKey="traffic" element={<SuperAdminTrafficAnalyticsPage />} />} />
           <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />
-          <Route path="/super-admin/product-requirements" element={<SuperAdminRoute pageKey="productRequirements" element={<SuperAdminProductRequirementPage />} />} />
-          <Route path="/super-admin/staff-requirements" element={<SuperAdminRoute pageKey="staffRequirements" element={<SuperAdminStaffRequirementPage />} />} />
           <Route path="/super-admin/financial-reports" element={<SuperAdminRoute pageKey="financialReports" element={<SuperAdminFinancialReportsPage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
