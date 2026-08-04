@@ -590,7 +590,7 @@ export default function ReferralProgramPage() {
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24, flexWrap: "wrap" }}>
             <button onClick={() => { setSelectedWallet(null); setWalletDetail(null); }} className="cpn-btn" style={{ fontSize: 13, background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}>← Back</button>
             <button onClick={handleRedeemService} className="cpn-btn" style={{ fontSize: 13, background: "#10b981", color: "white", border: "none", boxShadow: "0 4px 6px -1px rgba(16, 185, 129, 0.2)" }}>Redeem for Services</button>
-            <button onClick={handleRequestPayout} className="cpn-btn" style={{ fontSize: 13, background: "#fffbeb", color: "#b45309", border: "1px solid #fcd34d", boxShadow: "0 4px 6px -1px rgba(252, 211, 77, 0.15)" }}>Request Cash Payout</button>
+            <button onClick={handleRequestPayout} className="cpn-btn" style={{ fontSize: 13, background: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe", boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.15)" }}>Request Cash Payout</button>
           </div>
           {detailLoading ? <PageLoader title="Loading wallet..." message="Please wait" /> : walletDetail?.wallet ? (
             <>
