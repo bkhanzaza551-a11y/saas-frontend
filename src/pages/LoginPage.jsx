@@ -472,7 +472,7 @@ export default function LoginPage() {
                               type="checkbox"
                               checked={rememberMe}
                               onChange={(event) => setRememberMe(event.target.checked)}
-                              style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#3b82f6', borderRadius: '4px', margin: 0 }}
+                              style={{ cursor: 'pointer', margin: 0 }}
                             />
                             <span style={{ fontSize: '0.9rem', color: '#475569', fontWeight: 500, margin: 0 }}>Keep me logged in</span>
                           </label>
