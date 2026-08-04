@@ -65,9 +65,13 @@ export default function StaffRequirementsPage() {
       const payload = {
         title: form.title,
         position: form.shift || "Full-Time",
+        shift: form.shift || "Full-Time",
         count: Number(form.quantity) || 1,
         priority: (form.urgency || "MEDIUM").toUpperCase(),
+        urgency: (form.urgency || "MEDIUM").toUpperCase(),
         description: form.description,
+        salary: form.salary,
+        skills: form.skills,
         status: form.status
       };
 
