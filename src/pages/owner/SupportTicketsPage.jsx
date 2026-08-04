@@ -19,6 +19,7 @@ export default function SupportTicketsPage() {
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
   const [submitting, setSubmitting] = useState(false);
   const [replyingId, setReplyingId] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState(null);
 
   const permissions = auth?.membership?.permissions || {};
   const canCreateTicket = Array.isArray(permissions.support) && permissions.support.includes("create");
@@ -345,55 +346,87 @@ export default function SupportTicketsPage() {
               <EmptyState icon={<MessageSquare size={48} />} title="No support tickets found" message="You don't have any support tickets matching the current filter criteria." />
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
               {rows.map((row) => {
-                const isReplying = replyingId === row.id;
                 const createdDate = row.createdAt ? new Date(row.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" }) : "";
 
                 return (
-                  <div key={row.id} style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", background: "white" }}>
-                    {/* Ticket Header Bar */}
-                    <div style={{ padding: "16px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>
-                            #{row.id.substring(0, 8)}
-                          </span>
-                          <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{row.title}</h4>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
-                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={13} /> {createdDate}</span>
-                          <span>•</span>
-                          <span style={{ fontWeight: 600 }}>Category: {row.category || "General"}</span>
-                          <span>•</span>
-                          {getPriorityBadge(row.priority)}
-                        </div>
-                      </div>
-                      <div>
-                        {getStatusBadge(row.status)}
-                      </div>
+                  <div key={row.id} style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", background: "white", padding: 16, display: "flex", flexDirection: "column", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "4px 10px", borderRadius: 6 }}>
+                        #{row.id.substring(0, 8)}
+                      </span>
+                      {getStatusBadge(row.status)}
+                    </div>
+                    
+                    <h4 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{row.title}</h4>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b", marginBottom: 12 }}>
+                      <Clock size={13} /> {createdDate}
                     </div>
 
-                    {/* Ticket Description */}
-                    <div style={{ padding: 20 }}>
+                    <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        {getPriorityBadge(row.priority)}
+                        <span style={{ fontSize: 12, fontWeight: 600, color: "#475569" }}>{row.category || "General"}</span>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => setSelectedTicket(row)} 
+                      style={{ marginTop: 16, width: "100%", padding: "10px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#3b82f6", cursor: "pointer", transition: "all 0.2s" }} 
+                      onMouseEnter={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.borderColor = "#cbd5e1"; }} 
+                      onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                    >
+                      View Details
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Ticket Detail Modal */}
+          {selectedTicket && (
+            <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", padding: 16 }}>
+              <div className="anim-fade" style={{ background: "white", width: "100%", maxWidth: 640, maxHeight: "90vh", borderRadius: 20, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 25px 60px rgba(0,0,0,0.18)" }}>
+                {/* Gradient Accent Bar */}
+                <div style={{ height: 5, background: "linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef)" }} />
+                
+                {/* Header */}
+                <div style={{ padding: "20px 24px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+                   <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                         <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>#{selectedTicket.id.substring(0, 8)}</span>
+                         {getStatusBadge(selectedTicket.status)}
+                         {getPriorityBadge(selectedTicket.priority)}
+                      </div>
+                      <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#0f172a" }}>{selectedTicket.title}</h2>
+                      <div style={{ marginTop: 6, fontSize: 12, color: "#64748b" }}>Created on {selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" }) : ""}</div>
+                   </div>
+                   <button onClick={() => setSelectedTicket(null)} style={{ border: "none", background: "#f1f5f9", cursor: "pointer", width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>✕</button>
+                </div>
+                
+                {/* Content */}
+                <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
+                    <div style={{ padding: 0 }}>
                       <div style={{ background: "#f9fafb", padding: 16, borderRadius: 10, border: "1px solid #f3f4f6", color: "#334155", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap", marginBottom: 16 }}>
-                        {row.description}
+                        {selectedTicket.description}
                       </div>
 
-                      {row.assignedAgentName && (
+                      {selectedTicket.assignedAgentName && (
                         <div style={{ fontSize: 13, color: "#475569", marginBottom: 14, background: "#eef2ff", padding: "8px 12px", borderRadius: 8, display: "inline-block" }}>
-                          🎧 <strong>Assigned Agent:</strong> {row.assignedAgentName}
+                          🎧 <strong>Assigned Agent:</strong> {selectedTicket.assignedAgentName}
                         </div>
                       )}
 
                       {/* Conversation Thread */}
-                      {row.messages && row.messages.length > 0 && (
+                      {selectedTicket.messages && selectedTicket.messages.length > 0 && (
                         <div style={{ marginTop: 16, marginBottom: 16 }}>
                           <h5 style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                            Conversation History ({row.messages.length})
+                            Conversation History ({selectedTicket.messages.length})
                           </h5>
                           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                            {row.messages.map((msg) => {
+                            {selectedTicket.messages.map((msg) => {
                               const isOwnerAuthor = msg.authorType === "OWNER" || msg.authorType === "SALON_OWNER" || msg.authorType === "STAFF";
                               return (
                                 <div
@@ -433,58 +466,59 @@ export default function SupportTicketsPage() {
                         </div>
                       )}
 
-                      {/* Reply Box */}
-                      {row.status !== "CLOSED" && (
-                        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16, marginTop: 16 }}>
-                          <textarea
-                            rows="3"
-                            value={replyDrafts[row.id] || ""}
-                            placeholder="Type your reply or additional information..."
-                            onChange={e => setReplyDrafts({ ...replyDrafts, [row.id]: e.target.value })}
-                            style={{ width: "100%", padding: 10, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, resize: "vertical", boxSizing: "border-box", marginBottom: 10 }}
-                          />
-                          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                            <div style={{ flex: 1, position: "relative" }}>
-                              <Paperclip size={14} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
-                              <input
-                                value={replyAttachments[row.id] || ""}
-                                placeholder="Attachment URL (optional)"
-                                onChange={e => setReplyAttachments({ ...replyAttachments, [row.id]: e.target.value })}
-                                style={{ width: "100%", padding: "8px 10px 8px 30px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
-                              />
+                        {/* Reply Box */}
+                        {selectedTicket.status !== "CLOSED" && (
+                          <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16, marginTop: 16 }}>
+                            <textarea
+                              rows="3"
+                              value={replyDrafts[selectedTicket.id] || ""}
+                              placeholder="Type your reply or additional information..."
+                              onChange={e => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })}
+                              style={{ width: "100%", padding: 10, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, resize: "vertical", boxSizing: "border-box", marginBottom: 10, outline: "none", transition: "border 0.2s" }}
+                              onFocus={e => e.currentTarget.style.borderColor = "#6366f1"}
+                              onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                            />
+                            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                              <div style={{ flex: 1, position: "relative" }}>
+                                <Paperclip size={14} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
+                                <input
+                                  value={replyAttachments[selectedTicket.id] || ""}
+                                  placeholder="Attachment URL (optional)"
+                                  onChange={e => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: e.target.value })}
+                                  style={{ width: "100%", padding: "8px 10px 8px 30px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box", outline: "none", transition: "border 0.2s" }}
+                                  onFocus={e => e.currentTarget.style.borderColor = "#6366f1"}
+                                  onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => sendReply(selectedTicket.id)}
+                                disabled={replyingId === selectedTicket.id || !replyDrafts[selectedTicket.id]?.trim()}
+                                style={{
+                                  padding: "8px 18px",
+                                  background: !replyDrafts[selectedTicket.id]?.trim() ? "#cbd5e1" : "#4f46e5",
+                                  color: "white",
+                                  border: "none",
+                                  borderRadius: 8,
+                                  fontWeight: 700,
+                                  fontSize: 13,
+                                  cursor: !replyDrafts[selectedTicket.id]?.trim() ? "not-allowed" : "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
+                                  transition: "all 0.2s"
+                                }}
+                              >
+                                <Send size={14} /> {replyingId === selectedTicket.id ? "Sending..." : "Send Reply"}
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => sendReply(row.id)}
-                              disabled={isReplying || !replyDrafts[row.id]?.trim()}
-                              style={{
-                                padding: "8px 18px",
-                                background: !replyDrafts[row.id]?.trim() ? "#cbd5e1" : "#0f172a",
-                                color: "white",
-                                border: "none",
-                                borderRadius: 8,
-                                fontWeight: 700,
-                                fontSize: 13,
-                                cursor: !replyDrafts[row.id]?.trim() ? "not-allowed" : "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 6,
-                                transition: "all 0.2s"
-                              }}
-                            >
-                              <Send size={14} /> {isReplying ? "Sending..." : "Send Reply"}
-                            </button>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+                </div>
+              )}
     </div>
   );
 }
