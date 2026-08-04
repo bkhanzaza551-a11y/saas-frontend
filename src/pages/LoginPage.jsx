@@ -223,11 +223,11 @@ export default function LoginPage() {
         }
 
         .premium-input {
-          padding: 10px 14px;
-          border-radius: 8px;
+          padding: 8px 12px;
+          border-radius: 6px;
           border: 1px solid #cbd5e1;
           background: #f8fafc;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           color: #0f172a;
           transition: all 0.2s ease;
           outline: none;
@@ -236,28 +236,29 @@ export default function LoginPage() {
 
         .premium-input:focus {
           background: white;
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+          border-color: #000000;
+          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
         }
 
         .premium-button {
           width: 100%;
           padding: 10px;
-          border-radius: 8px;
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          border-radius: 6px;
+          background: #000000;
           color: white;
-          font-size: 0.9rem;
-          font-weight: 700;
+          font-size: 0.85rem;
+          font-weight: 600;
           border: none;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
           margin-top: 8px;
         }
 
         .premium-button:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+          background: #1a1a1a;
         }
 
         .premium-button:disabled {
@@ -356,7 +357,7 @@ export default function LoginPage() {
                             value={otp}
                             onChange={(event) => setOtp(event.target.value.replace(/\D/g, ""))}
                             className="premium-input"
-                            style={{ fontSize: '1.5rem', letterSpacing: '8px', textAlign: 'center', padding: '16px' }}
+                            style={{ fontSize: '1.25rem', letterSpacing: '8px', textAlign: 'center', padding: '10px' }}
                           />
                         </div>
 
