@@ -385,10 +385,14 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           font-size: 0.85rem;
           color: #475569;
           font-weight: 600;
-          padding: 6px 12px;
+          padding: 4px 12px;
           background: #f8fafc;
           border-radius: 16px;
           border: 1px solid #e2e8f0;
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .salonnest-icon-btn {
           width: 40px;
