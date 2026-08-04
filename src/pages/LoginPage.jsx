@@ -160,7 +160,7 @@ export default function LoginPage() {
           justify-content: flex-end;
           padding: 60px;
           color: white;
-          background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0.1) 100%), url('https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&q=80');
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0.1) 100%), url('https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&q=80');
           background-size: cover;
           background-position: center;
           position: relative;
