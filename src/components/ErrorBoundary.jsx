@@ -6,6 +6,12 @@ export default class ErrorBoundary extends Component {
     this.state = { hasError: false, error: null };
   }
 
+  componentDidMount() {
+    if (!this.state.hasError) {
+      sessionStorage.removeItem("chunk_reload_attempted");
+    }
+  }
+
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
