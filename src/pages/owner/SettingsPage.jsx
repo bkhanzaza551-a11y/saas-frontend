@@ -2952,107 +2952,153 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* FEEDBACK TYPES LIST TABLE */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 4, height: 16, background: "#8b5cf6", borderRadius: 4 }} />
-            Feedback Types (Categories)
-          </h3>
-          <button type="button" onClick={startCreate} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#2563eb"} onMouseLeave={e => e.currentTarget.style.background = "#3b82f6"}>
-            <Plus size={16} /> Add Type
-          </button>
-        </div>
-
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, overflowX: "auto", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-          <div style={{ minWidth: 600 }}>
-            <div style={{ padding: "14px 20px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "grid", gridTemplateColumns: "1fr 150px 100px", alignItems: "center", gap: 16, fontSize: 13, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              <div>Feedback Type Name</div>
-              <div>Status</div>
-              <div style={{ textAlign: "right" }}>Actions</div>
-            </div>
-            
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {feedbackTypesList.map((row, index) => (
-                <div key={row.id} style={{ padding: "16px 20px", borderBottom: index < feedbackTypesList.length - 1 ? "1px solid #f1f5f9" : "none", display: "grid", gridTemplateColumns: "1fr 150px 100px", alignItems: "center", gap: 16, transition: "background 0.15s", background: "#fff" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "#f1f5f9", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <MessageSquare size={16} />
-                    </div>
-                    {row.name}
+        {/* FEEDBACK TYPES SPLIT PANE */}
+        <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24, minHeight: 500 }}>
+          {/* Left Pane: List */}
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              {feedbackTypesList.map(type => {
+                const isSelected = selectedFeedbackTypeId === type.id || (!draftFeedbackType?._isNew && draftFeedbackType?.id === type.id);
+                return (
+                  <div 
+                    key={type.id} 
+                    onClick={() => startEdit(type)}
+                    style={{ 
+                      padding: "16px 20px", 
+                      cursor: "pointer", 
+                      background: isSelected ? "#f8fafc" : "#fff", 
+                      borderBottom: "1px solid #f1f5f9", 
+                      fontWeight: isSelected ? "700" : "500", 
+                      color: isSelected ? "#0f172a" : "#475569",
+                      transition: "all 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between"
+                    }}
+                    onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = "#f8fafc"; }}
+                    onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = "#fff"; }}
+                  >
+                    {type.name}
+                    {isSelected && <div style={{ width: 4, height: 16, background: "#3b82f6", borderRadius: 4 }} />}
                   </div>
-                  <div>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: row.active ? "#dcfce7" : "#f1f5f9", color: row.active ? "#16a34a" : "#64748b" }}>
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#16a34a" : "#94a3b8" }} />
-                      {row.active ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                    <button type="button" onClick={() => { startEdit(row); }} title="Edit type" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#475569", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#eff6ff"; e.currentTarget.style.color="#2563eb"; e.currentTarget.style.borderColor="#bfdbfe";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#475569"; e.currentTarget.style.borderColor="#cbd5e1";}}><Edit2 size={15} /></button>
-                    <button type="button" onClick={() => { deleteRow(row.id); }} title="Delete type" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#ef4444", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#fef2f2"; e.currentTarget.style.borderColor="#fecaca";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1";}}><Trash2 size={15} /></button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {!feedbackTypesList.length && (
-                <div style={{ padding: "40px 20px", textAlign: "center", color: "#64748b" }}>
-                  <div style={{ marginBottom: 12 }}><MessageSquare size={32} color="#94a3b8" /></div>
-                  <div style={{ fontSize: 14 }}>No feedback types defined. Click "Add Type" to create one.</div>
+                <div style={{ padding: "40px 20px", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+                  No feedback types found.
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* MODAL */}
-        {editing && (
-          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={cancelDraft}>
-            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 450, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }} onClick={e => e.stopPropagation()}>
-              <div style={{ padding: "20px 24px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 6, height: 20, background: "#3b82f6", borderRadius: 4 }} />
-                  {draftFeedbackType?._isNew ? "Create Feedback Type" : "Edit Feedback Type"}
-                </h2>
-                <button onClick={cancelDraft} style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", borderRadius: "50%", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "none"}>
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div style={{ padding: "24px", flex: 1, overflowY: "auto" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                  <div>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Feedback Name <span style={{ color: "#ef4444" }}>*</span></label>
-                    <input type="text" value={draftFeedbackType?.name ?? editing.name} onChange={(event) => draftFeedbackType && setDraftFeedbackType({ ...draftFeedbackType, name: event.target.value })} placeholder="e.g. Ambience, Service Quality" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, color: "#0f172a", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
-                  </div>
-                  
-                  <label style={{ display: "inline-flex", alignItems: "center", gap: 12, cursor: "pointer", margin: 0, padding: "16px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
-                    <div style={{ position: "relative", width: 36, height: 20, background: (draftFeedbackType?.active ?? editing.active) ? "#3b82f6" : "#cbd5e1", borderRadius: 20, transition: "background 0.3s" }}>
-                      <div style={{ position: "absolute", top: 2, left: (draftFeedbackType?.active ?? editing.active) ? 18 : 2, width: 16, height: 16, background: "#fff", borderRadius: "50%", transition: "left 0.3s", boxShadow: "0 1px 2px rgba(0,0,0,0.1)" }} />
-                    </div>
-                    <input type="checkbox" checked={draftFeedbackType?.active ?? editing.active} onChange={(event) => draftFeedbackType && setDraftFeedbackType({ ...draftFeedbackType, active: event.target.checked })} style={{ display: "none" }} />
-                    <span style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>Active</span>
-                  </label>
-
-                  <div style={{ padding: 16, borderRadius: 8, background: "#eff6ff", border: "1px solid #bfdbfe" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
-                      <MessageSquare size={14} /> How it works
-                    </div>
-                    <div style={{ fontSize: 12, color: "#1e3a8a", lineHeight: 1.5 }}>
-                      Feedback types are the distinct categories you ask customers to rate. When an invoice is paid or a service completes, the customer will be asked to rate these specific aspects of their visit.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ padding: "16px 24px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", justifyContent: "flex-end", gap: 12 }}>
-                <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
-                  Cancel
-                </button>
-                <button type="button" onClick={saveDraft} disabled={!draftFeedbackType?.name} style={{ padding: "10px 24px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: draftFeedbackType?.name ? "pointer" : "not-allowed", fontSize: 14, opacity: draftFeedbackType?.name ? 1 : 0.6, transition: "background 0.2s" }} onMouseEnter={e => { if(draftFeedbackType?.name) e.currentTarget.style.background = "#2563eb" }} onMouseLeave={e => { if(draftFeedbackType?.name) e.currentTarget.style.background = "#3b82f6" }}>
-                  Save Type
-                </button>
-              </div>
+            <div style={{ padding: "16px", borderTop: "1px solid #e2e8f0", background: "#fff" }}>
+              <button 
+                type="button" 
+                onClick={startCreate} 
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  background: draftFeedbackType?._isNew ? "#2563eb" : "#3b82f6", 
+                  color: "white", 
+                  borderRadius: 8, 
+                  border: "none", 
+                  cursor: "pointer", 
+                  fontWeight: 600,
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "#2563eb"}
+                onMouseLeave={e => e.currentTarget.style.background = draftFeedbackType?._isNew ? "#2563eb" : "#3b82f6"}
+              >
+                Create New
+              </button>
             </div>
           </div>
-        )}
+
+          {/* Right Pane: Details */}
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            {editing ? (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+                  <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", fontWeight: 700 }}>Feedback Type Details</h3>
+                  {!draftFeedbackType?._isNew && editing.id && (
+                    <button 
+                      type="button" 
+                      onClick={() => deleteRow(editing.id)}
+                      style={{ background: "none", border: "none", color: "#ef4444", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                      onMouseEnter={e => e.currentTarget.style.textDecoration = "underline"}
+                      onMouseLeave={e => e.currentTarget.style.textDecoration = "none"}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 150px", gap: 32, alignItems: "start" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 600 }}>Feedback Name</label>
+                    <input 
+                      type="text" 
+                      value={draftFeedbackType?.name ?? editing.name} 
+                      onChange={(event) => setDraftFeedbackType({ ...(draftFeedbackType || editing), name: event.target.value })} 
+                      placeholder="e.g. Service Quality" 
+                      style={{ width: "100%", padding: "12px 16px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 14, color: "#0f172a", outline: "none", transition: "border-color 0.2s" }} 
+                      onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} 
+                      onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} 
+                    />
+                  </div>
+                  
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 28 }}>
+                    <label className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                      <input 
+                        type="checkbox" 
+                        checked={draftFeedbackType?.active ?? editing.active} 
+                        onChange={(event) => setDraftFeedbackType({ ...(draftFeedbackType || editing), active: event.target.checked })} 
+                      />
+                      <span className="toggle-switch-slider" />
+                    </label>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>Active</span>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end", gap: 12, paddingTop: 40, borderTop: "1px solid #f1f5f9" }}>
+                  <button 
+                    type="button" 
+                    onClick={cancelDraft} 
+                    style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} 
+                    onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} 
+                    onMouseLeave={e => e.currentTarget.style.background = "#fff"}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={saveDraft} 
+                    disabled={!draftFeedbackType?.name} 
+                    style={{ 
+                      padding: "10px 24px", 
+                      background: "#3b82f6", 
+                      color: "white", 
+                      border: "none", 
+                      borderRadius: 8, 
+                      fontWeight: 700, 
+                      cursor: draftFeedbackType?.name ? "pointer" : "not-allowed", 
+                      fontSize: 14, 
+                      opacity: draftFeedbackType?.name ? 1 : 0.6,
+                      transition: "background 0.2s" 
+                    }} 
+                    onMouseEnter={e => { if(draftFeedbackType?.name) e.currentTarget.style.background = "#2563eb" }} 
+                    onMouseLeave={e => { if(draftFeedbackType?.name) e.currentTarget.style.background = "#3b82f6" }}
+                  >
+                    {draftFeedbackType?._isNew ? "Create" : "Update"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "#94a3b8", textAlign: "center", gap: 16 }}>
+                <MessageSquare size={48} color="#cbd5e1" opacity={0.5} />
+                <div style={{ fontSize: 15, fontWeight: 500 }}>Select a feedback type from the list<br/>or create a new one to view details.</div>
+              </div>
+            )}
+          </div>
+        </div>
       </>
     );
   };
