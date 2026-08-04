@@ -408,25 +408,93 @@ export default function StaffRequirementsPage() {
 
       {/* View Detail Modal */}
       {viewDetailReq && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 500, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Staff Requirement Details</h2>
-              <button onClick={() => setViewDetailReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16, animation: "fadeIn 0.2s ease" }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 520, borderRadius: 20, boxShadow: "0 25px 60px rgba(0,0,0,0.18)", overflow: "hidden", animation: "slideUp 0.3s ease" }}>
+            {/* Gradient Accent Bar */}
+            <div style={{ height: 5, background: "linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)" }} />
+
+            {/* Header */}
+            <div style={{ padding: "20px 24px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Briefcase size={18} color="white" />
+                  </div>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a", lineHeight: 1.3 }}>{viewDetailReq.title}</h2>
+                    <span style={{ fontSize: "0.75rem", color: "#64748b" }}>{viewDetailReq.shift || "Full-Time"}</span>
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => setViewDetailReq(null)} style={{ border: "none", background: "#f1f5f9", cursor: "pointer", width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#64748b", transition: "all 0.2s", flexShrink: 0 }} onMouseEnter={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>✕</button>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div><strong>Title:</strong> {viewDetailReq.title}</div>
-              <div><strong>Description:</strong> {viewDetailReq.description || "N/A"}</div>
-              <div><strong>Skills Required:</strong> {Array.isArray(viewDetailReq.skills) ? viewDetailReq.skills.join(', ') : viewDetailReq.skills || "N/A"}</div>
-              <div><strong>Quantity:</strong> {viewDetailReq.quantity}</div>
-              <div><strong>Salary:</strong> {viewDetailReq.salary || "N/A"}</div>
-              <div><strong>Shift:</strong> {viewDetailReq.shift || "N/A"}</div>
-              <div><strong>Urgency:</strong> {viewDetailReq.urgency}</div>
-              <div><strong>Status:</strong> {viewDetailReq.status}</div>
-              <div><strong>Created At:</strong> {new Date(viewDetailReq.createdAt).toLocaleString()}</div>
+
+            {/* Status & Urgency Badges */}
+            <div style={{ padding: "12px 24px 0", display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {getStatusBadge(viewDetailReq.status)}
+              {getUrgencyBadge(viewDetailReq.urgency)}
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
-              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary">Close</button>
+
+            {/* Content Body */}
+            <div style={{ padding: "20px 24px" }}>
+              {/* Key Details Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px" }}>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Positions Needed</div>
+                  <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{viewDetailReq.quantity || 1}</div>
+                </div>
+                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px" }}>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Salary Range</div>
+                  <div style={{ fontSize: "1rem", fontWeight: 700, color: viewDetailReq.salary ? "#0f172a" : "#94a3b8" }}>{viewDetailReq.salary || "Not specified"}</div>
+                </div>
+              </div>
+
+              {/* Description */}
+              {viewDetailReq.description && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Description</div>
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", fontSize: "0.88rem", color: "#334155", lineHeight: 1.6, borderLeft: "3px solid #6366f1" }}>{viewDetailReq.description}</div>
+                </div>
+              )}
+
+              {/* Skills */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Required Skills</div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {(() => {
+                    const skills = Array.isArray(viewDetailReq.skills)
+                      ? viewDetailReq.skills
+                      : (typeof viewDetailReq.skills === "string" && viewDetailReq.skills.trim())
+                        ? viewDetailReq.skills.split(",").map(s => s.trim()).filter(Boolean)
+                        : [];
+                    return skills.length > 0
+                      ? skills.map((skill, i) => (
+                          <span key={i} style={{ background: "#eef2ff", color: "#4f46e5", padding: "5px 12px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 600 }}>{skill}</span>
+                        ))
+                      : <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontStyle: "italic" }}>No specific skills listed</span>;
+                  })()}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: 1, background: "#e2e8f0", margin: "4px 0 16px" }} />
+
+              {/* Footer Info */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+                  Created {new Date(viewDetailReq.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} at {new Date(viewDetailReq.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Footer */}
+            <div style={{ padding: "0 24px 20px", display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => { setViewDetailReq(null); setStatusUpdateReq(viewDetailReq); }} className="btn btn-secondary" style={{ padding: "8px 16px", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: 6 }}>
+                <Activity size={14} /> Update Status
+              </button>
+              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -434,35 +502,60 @@ export default function StaffRequirementsPage() {
 
       {/* Update Status Modal */}
       {statusUpdateReq && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 400, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Update Status</h2>
-              <button onClick={() => setStatusUpdateReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 420, borderRadius: 20, boxShadow: "0 25px 60px rgba(0,0,0,0.18)", overflow: "hidden" }}>
+            {/* Gradient Accent Bar */}
+            <div style={{ height: 5, background: "linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)" }} />
+
+            <div style={{ padding: "20px 24px 0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Update Status</h2>
+                <button onClick={() => setStatusUpdateReq(null)} style={{ border: "none", background: "#f1f5f9", cursor: "pointer", width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#64748b", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>✕</button>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.82rem", color: "#64748b" }}>Select the new status for <strong>{statusUpdateReq.title}</strong></p>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {["PENDING", "APPROVED", "FULFILLED", "REJECTED"].map(s => (
+
+            <div style={{ padding: "16px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { key: "PENDING", label: "Pending", desc: "Awaiting review and approval", color: "#d97706", bg: "#fffbeb" },
+                { key: "APPROVED", label: "Approved — Hiring", desc: "Actively recruiting candidates", color: "#4f46e5", bg: "#eef2ff" },
+                { key: "FULFILLED", label: "Fulfilled", desc: "Position has been filled", color: "#10b981", bg: "#ecfdf5" },
+                { key: "REJECTED", label: "Rejected", desc: "Requirement has been declined", color: "#ef4444", bg: "#fef2f2" }
+              ].map(s => (
                 <button
-                  key={s}
-                  onClick={() => updateStatus(statusUpdateReq.id, s)}
-                  className="btn"
+                  key={s.key}
+                  onClick={() => updateStatus(statusUpdateReq.id, s.key)}
                   style={{
-                    background: statusUpdateReq.status === s ? "#f1f5f9" : "white",
-                    border: "1px solid #cbd5e1",
+                    background: statusUpdateReq.status === s.key ? s.bg : "white",
+                    border: statusUpdateReq.status === s.key ? `2px solid ${s.color}` : "1px solid #e2e8f0",
+                    borderLeft: `4px solid ${s.color}`,
                     color: "#0f172a",
-                    fontWeight: 600,
-                    padding: "10px",
-                    textAlign: "center",
+                    padding: "12px 16px",
+                    textAlign: "left",
                     cursor: "pointer",
-                    borderRadius: 8
+                    borderRadius: 12,
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12
                   }}
+                  onMouseEnter={e => { if (statusUpdateReq.status !== s.key) e.currentTarget.style.background = "#f8fafc"; }}
+                  onMouseLeave={e => { if (statusUpdateReq.status !== s.key) e.currentTarget.style.background = "white"; }}
                 >
-                  Mark as {s}
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: "0.88rem" }}>{s.label}</div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>{s.desc}</div>
+                  </div>
+                  {statusUpdateReq.status === s.key && (
+                    <span style={{ marginLeft: "auto", fontSize: "0.7rem", fontWeight: 700, color: s.color, background: s.bg, padding: "3px 8px", borderRadius: 100 }}>Current</span>
+                  )}
                 </button>
               ))}
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
-              <button type="button" onClick={() => setStatusUpdateReq(null)} className="btn btn-secondary">Cancel</button>
+
+            <div style={{ padding: "0 24px 20px", display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => setStatusUpdateReq(null)} className="btn btn-secondary" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>Cancel</button>
             </div>
           </div>
         </div>
