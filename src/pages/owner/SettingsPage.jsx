@@ -2540,7 +2540,7 @@ export default function SettingsPage() {
         {/* MODAL */}
         {editing && (
           <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={cancelDraft}>
-            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 540, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 540, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", maxHeight: "90vh" }} onClick={e => e.stopPropagation()}>
               <div style={{ padding: "24px 28px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 8, height: 24, background: "#14b8a6", borderRadius: 4 }} />
