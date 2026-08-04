@@ -130,13 +130,15 @@
 .pos-dash-card-icon {
   width: 32px;
   height: 32px;
+  min-height: 32px !important;
+  padding: 0 !important;
   border: 1px solid #dbeafe;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #f8fbff;
-  color: #3b82f6;
+  background: #f8fbff !important;
+  color: #3b82f6 !important;
 }
 
 .pos-dash-card-id {
