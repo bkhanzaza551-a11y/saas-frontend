@@ -42,6 +42,7 @@ export default function CouponsPage() {
   const [editingGc, setEditingGc] = useState(null);
   const [couponSearch, setCouponSearch] = useState("");
   const [editingCoupon, setEditingCoupon] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleEditCoupon = (c) => {
     setEditingCoupon(c);
@@ -63,6 +64,7 @@ export default function CouponsPage() {
       isActive: !c.isArchived,
       isPrivate: c.notes === "PRIVATE"
     });
+    setShowModal(true);
   };
 
   const mode = location.pathname.includes("/gift-cards")
@@ -127,6 +129,7 @@ export default function CouponsPage() {
       }
       setCouponForm(defaultCouponForm);
       setEditingCoupon(null);
+      setShowModal(false);
       await load();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not save coupon"), success: "" });
@@ -138,6 +141,7 @@ export default function CouponsPage() {
     try {
       await api.delete(`/owner/coupons/${id}`);
       setStatus({ error: "", success: "Coupon deleted." });
+      setShowModal(false);
       await load();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not delete coupon"), success: "" });
@@ -225,19 +229,6 @@ export default function CouponsPage() {
         .cpn-btn-secondary { background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; }
         .cpn-btn-secondary:hover { background: #f1f5f9; border-color: #94a3b8; }
         
-        .coupons-layout {
-          display: flex;
-          gap: 24px;
-          margin-top: 20px;
-          min-height: 600px;
-        }
-        .coupons-left-col {
-          width: 32%;
-          min-width: 300px;
-        }
-        .coupons-right-col {
-          flex: 1;
-        }
         .coupons-form-grid-1 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .coupons-form-grid-2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         
@@ -246,10 +237,32 @@ export default function CouponsPage() {
         .cpn-radio-option { flex: 1; text-align: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; color: #64748b; }
         .cpn-radio-option.active { background: white; color: #4f46e5; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
+        .modal-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(4px);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+          background: white;
+          width: 100%;
+          max-width: 650px;
+          max-height: 90vh;
+          border-radius: 16px;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
         @media (max-width: 900px) {
-          .coupons-layout { flex-direction: column !important; }
-          .coupons-left-col { width: 100% !important; min-width: 0 !important; }
-          .coupons-right-col { padding: 20px !important; }
           .coupons-form-grid-1, .coupons-form-grid-2 { grid-template-columns: 1fr !important; }
         }
       `}</style>
@@ -271,7 +284,15 @@ export default function CouponsPage() {
           <div style={{ display: "flex", gap: 8, flexShrink: 0, alignItems: "center" }}>
             <span style={{ padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#e0f2fe", color: "#0369a1", whiteSpace: "nowrap" }}>Coupons {coupons.length}</span>
             <span style={{ padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#f0fdf4", color: "#15803d", whiteSpace: "nowrap" }}>Gift Cards {giftCards.length}</span>
-            <span style={{ padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#f5f3ff", color: "#6d28d9", whiteSpace: "nowrap" }}>{mode === "reports" ? "Reports" : "Active Setup"}</span>
+            {mode === "coupons" && (
+              <button 
+                onClick={() => { setEditingCoupon(null); setCouponForm(defaultCouponForm); setStatus({ error: "", success: "" }); setShowModal(true); }}
+                className="cpn-btn cpn-btn-primary"
+                style={{ marginLeft: 8 }}
+              >
+                + Create Coupon
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -280,285 +301,165 @@ export default function CouponsPage() {
       {loading && <PageLoader title="Loading promotions workspace" message="Bringing together coupon rules, gift card balances, and redemption insights." />}
 
       {!loading && mode === "coupons" && (
-        <div className="coupons-layout anim-fade">
-          {/* Left Column - List of Coupons */}
-          <div className="coupons-left-col cpn-card" style={{ display: "flex", flexDirection: "column", padding: "20px" }}>
-            <div style={{ marginBottom: 16 }}>
+        <div className="anim-fade">
+          <div className="panel-card" style={{ padding: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "#0f172a" }}>Active Coupons</h2>
               <input 
-                placeholder="Search" 
+                placeholder="Search coupons..." 
                 value={couponSearch} 
                 onChange={(e) => setCouponSearch(e.target.value)} 
                 className="cpn-input"
-                style={{ background: "#f8fafc" }}
+                style={{ width: "300px", background: "#f8fafc" }}
               />
             </div>
             
-            <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, maxHeight: 480, paddingRight: 4 }}>
-              {filteredCoupons.map((row) => {
-                const isSelected = editingCoupon && editingCoupon.id === row.id;
-                return (
-                  <div 
-                    key={row.id} 
-                    style={{ 
-                      padding: "16px 20px", 
-                      borderRadius: 12, 
-                      cursor: "pointer", 
-                      background: isSelected ? "#eff6ff" : "white",
-                      border: isSelected ? "2px solid #3b82f6" : "1px solid #e2e8f0",
-                      transition: "all 0.2s",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 12,
-                      boxShadow: isSelected ? "0 4px 12px rgba(59, 130, 246, 0.1)" : "none"
-                    }}
-                    onClick={() => handleEditCoupon(row)}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 800, color: isSelected ? "#1e40af" : "#0f172a", fontSize: "1rem" }}>
-                        {row.discountType === "PERCENT" ? `FLAT ${Number(row.discountValue)}% OFF` : row.discountType === "CAMPAIGN" ? `CAMPAIGN ${Number(row.discountValue)}% OFF` : `FLAT ${Number(row.discountValue)} Rs OFF`}
-                      </div>
-                      <div style={{ color: isSelected ? "#3b82f6" : "#64748b", fontSize: "0.85rem", marginTop: 6, fontWeight: 600, letterSpacing: 0.5, textTransform: "uppercase" }}>
-                        {row.code}
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); deleteCoupon(row.id); }}
-                      title="Delete coupon"
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
-                        background: "#fee2e2",
-                        border: "none",
-                        color: "#ef4444",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        transition: "all 0.2s"
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = "#fecaca"}
-                      onMouseLeave={(e) => e.currentTarget.style.background = "#fee2e2"}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                );
-              })}
-              {!filteredCoupons.length && (
-                <div style={{ textAlign: "center", color: "#94a3b8", padding: "40px 10px", fontSize: "0.9rem" }}>No coupons found</div>
-              )}
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Coupon</th>
+                    <th>Code</th>
+                    <th>Benefit</th>
+                    <th>Min. Bill</th>
+                    <th>Validity</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCoupons.map((row) => (
+                    <tr key={row.id}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.95rem" }}>{row.title}</div>
+                        {row.notes === "PRIVATE" && <span style={{ fontSize: 11, background: "#f1f5f9", color: "#64748b", padding: "2px 6px", borderRadius: 4, display: "inline-block", marginTop: 4 }}>Private</span>}
+                      </td>
+                      <td style={{ fontWeight: 700, color: "#4f46e5", letterSpacing: 0.5 }}>{row.code}</td>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>
+                          {row.discountType === "PERCENT" ? `${Number(row.discountValue)}% OFF` : row.discountType === "CAMPAIGN" ? `CAMPAIGN ${Number(row.discountValue)}%` : `₹${Number(row.discountValue)} OFF`}
+                        </div>
+                      </td>
+                      <td style={{ color: "#64748b" }}>{row.minBillAmount ? `₹${Number(row.minBillAmount)}` : "None"}</td>
+                      <td style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                        {row.startsAt && row.endsAt ? (
+                          `${new Date(row.startsAt).toLocaleDateString()} - ${new Date(row.endsAt).toLocaleDateString()}`
+                        ) : "Unlimited"}
+                      </td>
+                      <td>
+                        <span style={{ padding: "4px 8px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: row.isArchived ? "#f1f5f9" : "#dcfce7", color: row.isArchived ? "#64748b" : "#166534" }}>
+                          {row.isArchived ? "Inactive" : "Active"}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        <button onClick={() => handleEditCoupon(row)} className="cpn-btn cpn-btn-secondary" style={{ padding: "6px 12px", fontSize: 12 }}>Edit</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!filteredCoupons.length && (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>No coupons found. Click "+ Create Coupon" to add one.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
-            <button 
-              onClick={() => { setEditingCoupon(null); setCouponForm(defaultCouponForm); setStatus({ error: "", success: "" }); }}
-              className="cpn-btn cpn-btn-primary"
-              style={{ marginTop: 20, width: "100%", justifyContent: "center" }}
-            >
-              + Create New Coupon
-            </button>
           </div>
+        </div>
+      )}
 
-          {/* Right Column - Coupon Form */}
-          <div className="coupons-right-col cpn-card" style={{ display: "flex", flexDirection: "column" }}>
-            <h2 style={{ marginTop: 0, marginBottom: 28, fontSize: "1.5rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span>{editingCoupon ? "Update Coupon" : "Create Coupon"}</span>
-              <label style={{ position: "relative", display: "inline-flex", alignItems: "center", cursor: "pointer", gap: 10 }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: couponForm.isActive ? "#4f46e5" : "#94a3b8", textTransform: "uppercase", transition: "color 0.3s" }}>{couponForm.isActive ? "Active" : "Inactive"}</span>
-                <div style={{ width: 46, height: 26, background: couponForm.isActive ? "#4f46e5" : "#cbd5e1", borderRadius: 100, position: "relative", transition: "background 0.3s ease" }}>
-                  <div style={{ position: "absolute", top: 3, left: couponForm.isActive ? 23 : 3, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)", boxShadow: "0 2px 5px rgba(0,0,0,0.15)" }} />
-                </div>
-                <input 
-                  type="checkbox" 
-                  checked={couponForm.isActive} 
-                  onChange={(e) => setCouponForm({ ...couponForm, isActive: e.target.checked })}
-                  style={{ opacity: 0, position: "absolute", width: 0, height: 0 }}
-                />
-              </label>
-            </h2>
-            
-            <form onSubmit={saveCoupon} style={{ display: "flex", flexDirection: "column", gap: 24, flex: 1 }}>
-              
-              <div className="coupons-form-grid-1">
-                <label>
-                  <span className="cpn-label">Name</span>
-                  <input 
-                    placeholder="e.g. Summer Special" 
-                    required 
-                    value={couponForm.title} 
-                    onChange={(e) => setCouponForm({ ...couponForm, title: e.target.value })}
-                    className="cpn-input"
-                  />
-                </label>
-                
-                <label>
-                  <span className="cpn-label">Code</span>
-                  <input 
-                    placeholder="e.g. SUMMER20" 
-                    required 
-                    value={couponForm.code} 
-                    onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })}
-                    className="cpn-input"
-                    style={{ textTransform: "uppercase", fontWeight: 700, letterSpacing: 1 }}
-                  />
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>
+                  {editingCoupon ? "Update Coupon" : "Create Coupon"}
+                </h2>
+                <label style={{ position: "relative", display: "inline-flex", alignItems: "center", cursor: "pointer", gap: 8 }}>
+                  <div style={{ width: 40, height: 22, background: couponForm.isActive ? "#10b981" : "#cbd5e1", borderRadius: 100, position: "relative", transition: "background 0.3s ease" }}>
+                    <div style={{ position: "absolute", top: 2, left: couponForm.isActive ? 20 : 2, width: 18, height: 18, background: "white", borderRadius: "50%", transition: "all 0.3s ease", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                  </div>
+                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: couponForm.isActive ? "#10b981" : "#64748b", textTransform: "uppercase" }}>{couponForm.isActive ? "Active" : "Inactive"}</span>
+                  <input type="checkbox" checked={couponForm.isActive} onChange={(e) => setCouponForm({ ...couponForm, isActive: e.target.checked })} style={{ opacity: 0, position: "absolute", width: 0, height: 0 }} />
                 </label>
               </div>
+              <button onClick={() => setShowModal(false)} style={{ background: "transparent", border: "none", fontSize: 24, cursor: "pointer", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: "50%", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>&times;</button>
+            </div>
+            
+            <div style={{ padding: "24px", overflowY: "auto", flex: 1 }}>
+              <form id="coupon-form" onSubmit={saveCoupon} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                <div className="coupons-form-grid-1">
+                  <label>
+                    <span className="cpn-label">Name</span>
+                    <input placeholder="e.g. Summer Special" required value={couponForm.title} onChange={(e) => setCouponForm({ ...couponForm, title: e.target.value })} className="cpn-input" />
+                  </label>
+                  <label>
+                    <span className="cpn-label">Code</span>
+                    <input placeholder="e.g. SUMMER20" required value={couponForm.code} onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })} className="cpn-input" style={{ textTransform: "uppercase", fontWeight: 700, letterSpacing: 1 }} />
+                  </label>
+                </div>
 
-              <label>
-                <span className="cpn-label">Description (Optional)</span>
-                <input 
-                  placeholder="e.g. Valid only for first-time customers..." 
-                  value={couponForm.description} 
-                  onChange={(e) => setCouponForm({ ...couponForm, description: e.target.value })}
-                  className="cpn-input"
-                />
-              </label>
+                <label>
+                  <span className="cpn-label">Description (Optional)</span>
+                  <input placeholder="e.g. Valid only for first-time customers..." value={couponForm.description} onChange={(e) => setCouponForm({ ...couponForm, description: e.target.value })} className="cpn-input" />
+                </label>
 
-              <div className="coupons-form-grid-2">
-                <div>
-                  <span className="cpn-label">Benefit Type</span>
-                  <div className="cpn-radio-group">
-                    <div 
-                      className={`cpn-radio-option ${couponForm.discountType === "FIXED" ? "active" : ""}`}
-                      onClick={() => setCouponForm({ ...couponForm, discountType: "FIXED" })}
-                    >
-                      ₹ Fixed
-                    </div>
-                    <div 
-                      className={`cpn-radio-option ${couponForm.discountType === "PERCENT" ? "active" : ""}`}
-                      onClick={() => setCouponForm({ ...couponForm, discountType: "PERCENT" })}
-                    >
-                      % Percent
-                    </div>
-                    <div 
-                      className={`cpn-radio-option ${couponForm.discountType === "CAMPAIGN" ? "active" : ""}`}
-                      onClick={() => setCouponForm({ ...couponForm, discountType: "CAMPAIGN" })}
-                    >
-                      📣 Campaign
+                <div className="coupons-form-grid-2">
+                  <div>
+                    <span className="cpn-label">Benefit Type</span>
+                    <div className="cpn-radio-group">
+                      <div className={`cpn-radio-option ${couponForm.discountType === "FIXED" ? "active" : ""}`} onClick={() => setCouponForm({ ...couponForm, discountType: "FIXED" })}>₹ Fixed</div>
+                      <div className={`cpn-radio-option ${couponForm.discountType === "PERCENT" ? "active" : ""}`} onClick={() => setCouponForm({ ...couponForm, discountType: "PERCENT" })}>% Percent</div>
+                      <div className={`cpn-radio-option ${couponForm.discountType === "CAMPAIGN" ? "active" : ""}`} onClick={() => setCouponForm({ ...couponForm, discountType: "CAMPAIGN" })}>📣 Campaign</div>
                     </div>
                   </div>
+                  <label>
+                    <span className="cpn-label">Benefit Value {couponForm.discountType === "FIXED" ? "(₹)" : "(%)"}</span>
+                    <input type="number" min="0" placeholder="50" required value={couponForm.discountValue} onChange={(e) => setCouponForm({ ...couponForm, discountValue: e.target.value })} className="cpn-input" />
+                  </label>
+                  <label>
+                    <span className="cpn-label">Coupon Activated Date</span>
+                    <input type="date" required value={couponForm.startsAt} onChange={(e) => setCouponForm({ ...couponForm, startsAt: e.target.value })} className="cpn-input" />
+                  </label>
                 </div>
-                
-                <label>
-                  <span className="cpn-label">Benefit Value {couponForm.discountType === "FIXED" ? "(₹)" : "(%)"}</span>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    placeholder="50" 
-                    required 
-                    value={couponForm.discountValue} 
-                    onChange={(e) => setCouponForm({ ...couponForm, discountValue: e.target.value })}
-                    className="cpn-input"
-                  />
-                </label>
-                
-                <label>
-                  <span className="cpn-label">Coupon Activated Date</span>
-                  <input 
-                    type="date" 
-                    required 
-                    value={couponForm.startsAt} 
-                    onChange={(e) => setCouponForm({ ...couponForm, startsAt: e.target.value })}
-                    min={new Date().toISOString().slice(0, 10)}
-                    className="cpn-input"
-                  />
-                </label>
-              </div>
 
-              <div className="coupons-form-grid-2">
-                <label>
-                  <span className="cpn-label">Min. Bill Amount (₹)</span>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    placeholder="0 for none" 
-                    value={couponForm.minBillAmount} 
-                    onChange={(e) => setCouponForm({ ...couponForm, minBillAmount: e.target.value })}
-                    className="cpn-input"
-                  />
-                </label>
-                
-                <label>
-                  <span className="cpn-label">Usage Limit (Total)</span>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    placeholder="Leave empty for unlimited" 
-                    value={couponForm.usageLimit} 
-                    onChange={(e) => setCouponForm({ ...couponForm, usageLimit: e.target.value })}
-                    className="cpn-input"
-                  />
-                </label>
-                
-                <label>
-                  <span className="cpn-label">Validity (Days)</span>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    placeholder="90" 
-                    required 
-                    value={couponForm.validityDays} 
-                    onChange={(e) => setCouponForm({ ...couponForm, validityDays: e.target.value })}
-                    className="cpn-input"
-                  />
-                </label>
-              </div>
-
-              {/* Toggle Row: Private */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", border: "1px solid #e2e8f0", borderRadius: 12, background: "#f8fafc", marginTop: 10 }}>
-                <div>
-                  <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.9rem" }}>Private</div>
-                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>This coupon will not be visible on the public online catalog.</div>
+                <div className="coupons-form-grid-2">
+                  <label>
+                    <span className="cpn-label">Min. Bill Amount (₹)</span>
+                    <input type="number" min="0" placeholder="0 for none" value={couponForm.minBillAmount} onChange={(e) => setCouponForm({ ...couponForm, minBillAmount: e.target.value })} className="cpn-input" />
+                  </label>
+                  <label>
+                    <span className="cpn-label">Usage Limit (Total)</span>
+                    <input type="number" min="0" placeholder="Unlimited" value={couponForm.usageLimit} onChange={(e) => setCouponForm({ ...couponForm, usageLimit: e.target.value })} className="cpn-input" />
+                  </label>
+                  <label>
+                    <span className="cpn-label">Validity (Days)</span>
+                    <input type="number" min="1" placeholder="90" required value={couponForm.validityDays} onChange={(e) => setCouponForm({ ...couponForm, validityDays: e.target.value })} className="cpn-input" />
+                  </label>
                 </div>
-                <div 
-                  onClick={() => setCouponForm({ ...couponForm, isPrivate: !couponForm.isPrivate })}
-                  style={{ 
-                    width: 44, 
-                    height: 22, 
-                    background: couponForm.isPrivate ? "#3b82f6" : "#cbd5e1", 
-                    borderRadius: 11, 
-                    padding: 2, 
-                    cursor: "pointer", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: couponForm.isPrivate ? "flex-end" : "flex-start",
-                    transition: "all 0.2s",
-                    boxSizing: "border-box"
-                  }}
-                >
-                  <div style={{ width: 18, height: 18, background: "white", borderRadius: "50%", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
-                </div>
-              </div>
 
-              {/* Form Buttons */}
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: "auto", paddingTop: 20 }}>
-                {editingCoupon && (
-                  <button 
-                    type="button" 
-                    onClick={() => deleteCoupon(editingCoupon.id)}
-                    className="cpn-btn cpn-btn-secondary"
-                    style={{ marginRight: "auto", color: "#dc2626", borderColor: "#fca5a5", background: "#fef2f2" }}
-                  >
-                    Delete Coupon
-                  </button>
-                )}
-                
-                <button 
-                  type="button" 
-                  onClick={() => { setEditingCoupon(null); setCouponForm(defaultCouponForm); setStatus({ error: "", success: "" }); }}
-                  className="cpn-btn cpn-btn-secondary"
-                >
-                  Cancel
-                </button>
-                
-                <button 
-                  type="submit" 
-                  className="cpn-btn cpn-btn-primary"
-                >
-                  {editingCoupon ? "Save Changes" : "Create Coupon"}
-                </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", border: "1px solid #e2e8f0", borderRadius: 12, background: "#f8fafc" }}>
+                  <div>
+                    <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.95rem" }}>Private Coupon</div>
+                    <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 4 }}>This coupon will not be visible on the public online catalog.</div>
+                  </div>
+                  <div onClick={() => setCouponForm({ ...couponForm, isPrivate: !couponForm.isPrivate })} style={{ width: 44, height: 24, background: couponForm.isPrivate ? "#3b82f6" : "#cbd5e1", borderRadius: 12, padding: 2, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: couponForm.isPrivate ? "flex-end" : "flex-start", transition: "all 0.2s", boxSizing: "border-box" }}>
+                    <div style={{ width: 20, height: 20, background: "white", borderRadius: "50%", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+            <div style={{ padding: "16px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              {editingCoupon ? (
+                <button type="button" onClick={() => deleteCoupon(editingCoupon.id)} className="cpn-btn" style={{ background: "transparent", color: "#ef4444", border: "1px solid #fca5a5" }}>Delete Coupon</button>
+              ) : <div />}
+              <div style={{ display: "flex", gap: 12 }}>
+                <button type="button" onClick={() => setShowModal(false)} className="cpn-btn cpn-btn-secondary">Cancel</button>
+                <button type="submit" form="coupon-form" className="cpn-btn cpn-btn-primary">{editingCoupon ? "Save Changes" : "Create Coupon"}</button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -659,19 +560,41 @@ export default function CouponsPage() {
       )}
 
       {!loading && mode === "reports" && reports && (
-        <div className="panel-card">
-          <h3>Promotion Reports</h3>
-          <div className="badge-row" style={{ marginBottom: 16 }}>
-            <span className="badge">Coupon Savings ₹{reports.totalSavings || 0}</span>
+        <div className="anim-fade">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20, marginBottom: 24 }}>
+            <div className="panel-card" style={{ padding: "32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#e0f2fe", color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>💰</div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: 1 }}>Total Coupon Savings</div>
+              <div style={{ fontSize: "3rem", fontWeight: 800, color: "#0f172a", marginTop: 8 }}>₹{reports.totalSavings || 0}</div>
+              <div style={{ fontSize: "0.9rem", color: "#94a3b8", marginTop: 8 }}>Amount saved by customers via promotions</div>
+            </div>
           </div>
-          <div className="list-stack">
-            {(reports.redemptions || []).map((row) => (
-              <div key={row.id} className="list-item">
-                <strong>{row.coupon?.code || "-"}</strong>
-                <div className="item-meta">Saved ₹{row.amountSaved}</div>
-              </div>
-            ))}
-            {!reports.redemptions?.length && <EmptyState title="No promotion redemptions yet" message="Savings and gift card usage will appear here once customers begin using promotions." />}
+          
+          <div className="panel-card" style={{ padding: 24 }}>
+            <h3 style={{ marginTop: 0, marginBottom: 20, fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>Redemption History</h3>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Coupon Code</th>
+                    <th>Saved Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(reports.redemptions || []).map((row) => (
+                    <tr key={row.id}>
+                      <td style={{ fontWeight: 700, color: "#4f46e5" }}>{row.coupon?.code || "-"}</td>
+                      <td style={{ fontWeight: 600, color: "#10b981" }}>₹{row.amountSaved}</td>
+                    </tr>
+                  ))}
+                  {!reports.redemptions?.length && (
+                    <tr>
+                      <td colSpan="2" style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>No redemptions found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
