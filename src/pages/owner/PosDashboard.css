@@ -184,41 +184,34 @@
 }
 
 .pos-dash-card-pickup {
-  padding: 8px 12px;
-  border-radius: 999px;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .pos-dash-card-status-paid {
-  background: #dcfce7;
-  color: #15803d;
+  color: #16a34a;
 }
 
 .pos-dash-card-status-started {
-  background: #dbeafe;
-  color: #1d4ed8;
+  color: #2563eb;
 }
 
 .pos-dash-card-status-partial {
-  background: #fef3c7;
-  color: #b45309;
+  color: #d97706;
 }
 
 .pos-dash-card-status-unpaid {
-  background: #fee2e2;
   color: #dc2626;
 }
 
 .pos-dash-card-status-cancelled {
-  background: #e2e8f0;
-  color: #475569;
+  color: #64748b;
 }
 
 .pos-dash-card-status-default {
-  background: #e0f2fe;
-  color: #0369a1;
+  color: #0f172a;
 }
 
 .pos-dashboard-detail-modal {
