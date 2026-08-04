@@ -273,14 +273,14 @@ export default function SalonAnalyticsPage() {
   return (
     <div className="page-shell super-admin-page">
       {/* Hero Header */}
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
+      <div className="hero-card" style={{ padding: "16px 20px", marginBottom: 16 }}>
         <div className="item-head">
           <div>
-            <h1 style={{ marginTop: 0 }}>Salon Analytics & Profit & Loss Intelligence</h1>
-            <p style={{ marginBottom: 0 }}>Live financial performance breakdown, real-time revenue streams, customer retention, staff utilization, and P&L metrics.</p>
+            <h1 style={{ marginTop: 0, fontSize: 20, marginBottom: 4 }}>Salon Analytics & Profit & Loss Intelligence</h1>
+            <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Live financial performance breakdown, real-time revenue streams, customer retention, staff utilization, and P&L metrics.</p>
           </div>
-          <div className="badge-row">
-            <span className="badge" style={{ background: isProfitable ? "#dcfce7" : "#fee2e2", color: isProfitable ? "#166534" : "#991b1b", fontWeight: 700, fontSize: 13 }}>
+          <div className="badge-row" style={{ marginTop: 8 }}>
+            <span className="badge" style={{ padding: "4px 8px", borderRadius: 6, background: isProfitable ? "#dcfce7" : "#fee2e2", color: isProfitable ? "#166534" : "#991b1b", fontWeight: 700, fontSize: 11 }}>
               {isProfitable ? `Net Profit Margin: +${profitMargin}%` : `Net Loss Margin: ${profitMargin}%`}
             </span>
           </div>
@@ -288,9 +288,9 @@ export default function SalonAnalyticsPage() {
       </div>
 
       {/* Date Period & Filter Bar */}
-      <div className="panel-card" style={{ padding: 16, marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
+      <div className="panel-card" style={{ padding: "12px 16px", marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginRight: 4 }}>Period Filter:</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginRight: 4 }}>Period Filter:</span>
           {[
             { id: "ALL", label: "All Time" },
             { id: "Today", label: "Today" },
@@ -301,9 +301,9 @@ export default function SalonAnalyticsPage() {
               key={p.id}
               onClick={() => setPeriod(p.id)}
               style={{
-                padding: "6px 14px",
-                borderRadius: 8,
-                fontSize: 13,
+                padding: "4px 12px",
+                borderRadius: 6,
+                fontSize: 12,
                 fontWeight: 600,
                 border: "1px solid",
                 borderColor: period === p.id ? "#6366f1" : "#e2e8f0",
@@ -342,38 +342,38 @@ export default function SalonAnalyticsPage() {
       {loading && <div style={{ textAlign: "center", padding: "20px 0", color: "#6366f1", fontWeight: 600 }}>Updating analytics metrics...</div>}
 
       {/* P&L Key Performance Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 20 }}>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Gross Salon Revenue</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>₹{metrics.revenue.toLocaleString("en-IN")}</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Services + Products + Memberships</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 16 }}>
+        <div className="panel-card" style={{ padding: 16, borderLeft: "4px solid #6366f1" }}>
+          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>Gross Salon Revenue</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>₹{metrics.revenue.toLocaleString("en-IN")}</div>
+          <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>Services + Products + Memberships</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #ef4444" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Operational Expenses</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#dc2626", marginTop: 4 }}>₹{metrics.expenses.toLocaleString("en-IN")}</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Approved & Paid Operational Expenses</div>
+        <div className="panel-card" style={{ padding: 16, borderLeft: "4px solid #ef4444" }}>
+          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>Total Operational Expenses</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#dc2626", marginTop: 4 }}>₹{metrics.expenses.toLocaleString("en-IN")}</div>
+          <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>Approved & Paid Operational Expenses</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #f59e0b" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Staff Payroll & Commissions</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#d97706", marginTop: 4 }}>₹{metrics.payroll.toLocaleString("en-IN")}</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Payroll Runs & Performance Commissions</div>
+        <div className="panel-card" style={{ padding: 16, borderLeft: "4px solid #f59e0b" }}>
+          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>Staff Payroll & Commissions</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#d97706", marginTop: 4 }}>₹{metrics.payroll.toLocaleString("en-IN")}</div>
+          <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>Payroll Runs & Performance Commissions</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 20, borderLeft: `4px solid ${isProfitable ? "#22c55e" : "#ef4444"}`, background: isProfitable ? "#f0fdf4" : "#fef2f2" }}>
-          <div style={{ color: isProfitable ? "#166534" : "#991b1b", fontSize: 13, fontWeight: 700 }}>Net Profit / Loss</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: isProfitable ? "#15803d" : "#b91c1c", marginTop: 4 }}>
+        <div className="panel-card" style={{ padding: 16, borderLeft: `4px solid ${isProfitable ? "#22c55e" : "#ef4444"}`, background: isProfitable ? "#f0fdf4" : "#fef2f2" }}>
+          <div style={{ color: isProfitable ? "#166534" : "#991b1b", fontSize: 11, fontWeight: 700 }}>Net Profit / Loss</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: isProfitable ? "#15803d" : "#b91c1c", marginTop: 4 }}>
             {isProfitable ? `+₹${netProfit.toLocaleString("en-IN")}` : `-₹${Math.abs(netProfit).toLocaleString("en-IN")}`}
           </div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: isProfitable ? "#166534" : "#991b1b", marginTop: 4 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: isProfitable ? "#166534" : "#991b1b", marginTop: 4 }}>
             {isProfitable ? "Profitable Business" : "Operating Loss"}
           </div>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div style={{ display: "flex", borderBottom: "2px solid #e2e8f0", marginBottom: 20, gap: 16, overflowX: "auto" }}>
+      <div style={{ display: "flex", borderBottom: "2px solid #e2e8f0", marginBottom: 16, gap: 12, overflowX: "auto" }}>
         {[
           { id: "pnl", label: "Profit & Loss Health" },
           { id: "revenue", label: "Revenue Streams" },
@@ -386,8 +386,8 @@ export default function SalonAnalyticsPage() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: "10px 16px",
-              fontSize: 14,
+              padding: "8px 12px",
+              fontSize: 13,
               fontWeight: 700,
               border: "none",
               background: "none",
@@ -405,47 +405,47 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 1: P&L Health */}
       {activeTab === "pnl" && (
-        <div className="panel-card" style={{ padding: 24 }}>
-          <h3 style={{ marginTop: 0, fontSize: 18, color: "#0f172a" }}>Profit & Loss Calculation Statement</h3>
-          <p style={{ color: "#64748b", fontSize: 14 }}>Summary of income streams minus operating costs and staff expenditures.</p>
+        <div className="panel-card" style={{ padding: 16 }}>
+          <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Profit & Loss Calculation Statement</h3>
+          <p style={{ color: "#64748b", fontSize: 12, marginBottom: 12 }}>Summary of income streams minus operating costs and staff expenditures.</p>
 
-          <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", marginTop: 16 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden", marginTop: 12 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <tbody>
                 <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: 14, fontWeight: 700, color: "#1e293b" }}>1. Gross Revenue (Total Income)</td>
-                  <td style={{ padding: 14, fontWeight: 800, textAlign: "right", color: "#059669" }}>₹{metrics.revenue.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1e293b", fontSize: 13 }}>1. Gross Revenue (Total Income)</td>
+                  <td style={{ padding: "10px 12px", fontWeight: 800, textAlign: "right", color: "#059669", fontSize: 13 }}>₹{metrics.revenue.toLocaleString("en-IN")}</td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <td style={{ padding: "10px 14px 10px 32px", color: "#475569" }}>• Service Revenue (Hair, Spa, Beauty)</td>
-                  <td style={{ padding: 10, textAlign: "right", color: "#334155" }}>₹{metrics.servicesRevenue.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "8px 12px 8px 24px", color: "#475569" }}>• Service Revenue (Hair, Spa, Beauty)</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", color: "#334155" }}>₹{metrics.servicesRevenue.toLocaleString("en-IN")}</td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <td style={{ padding: "10px 14px 10px 32px", color: "#475569" }}>• Product Retail Sales</td>
-                  <td style={{ padding: 10, textAlign: "right", color: "#334155" }}>₹{metrics.productsRevenue.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "8px 12px 8px 24px", color: "#475569" }}>• Product Retail Sales</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", color: "#334155" }}>₹{metrics.productsRevenue.toLocaleString("en-IN")}</td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "10px 14px 10px 32px", color: "#475569" }}>• Memberships & Packages</td>
-                  <td style={{ padding: 10, textAlign: "right", color: "#334155" }}>₹{metrics.membershipsRevenue.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "8px 12px 8px 24px", color: "#475569" }}>• Memberships & Packages</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", color: "#334155" }}>₹{metrics.membershipsRevenue.toLocaleString("en-IN")}</td>
                 </tr>
 
                 <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: 14, fontWeight: 700, color: "#1e293b" }}>2. Operational Expenses</td>
-                  <td style={{ padding: 14, fontWeight: 800, textAlign: "right", color: "#dc2626" }}>-₹{metrics.expenses.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1e293b", fontSize: 13 }}>2. Operational Expenses</td>
+                  <td style={{ padding: "10px 12px", fontWeight: 800, textAlign: "right", color: "#dc2626", fontSize: 13 }}>-₹{metrics.expenses.toLocaleString("en-IN")}</td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "10px 14px 10px 32px", color: "#475569" }}>• Approved Salon Expenses</td>
-                  <td style={{ padding: 10, textAlign: "right", color: "#334155" }}>-₹{metrics.expenses.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "8px 12px 8px 24px", color: "#475569" }}>• Approved Salon Expenses</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", color: "#334155" }}>-₹{metrics.expenses.toLocaleString("en-IN")}</td>
                 </tr>
 
                 <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: 14, fontWeight: 700, color: "#1e293b" }}>3. Staff Payroll & Commissions</td>
-                  <td style={{ padding: 14, fontWeight: 800, textAlign: "right", color: "#dc2626" }}>-₹{metrics.payroll.toLocaleString("en-IN")}</td>
+                  <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1e293b", fontSize: 13 }}>3. Staff Payroll & Commissions</td>
+                  <td style={{ padding: "10px 12px", fontWeight: 800, textAlign: "right", color: "#dc2626", fontSize: 13 }}>-₹{metrics.payroll.toLocaleString("en-IN")}</td>
                 </tr>
 
                 <tr style={{ background: isProfitable ? "#ecfdf5" : "#fef2f2", borderTop: "2px solid #e2e8f0" }}>
-                  <td style={{ padding: 16, fontWeight: 800, fontSize: 16, color: isProfitable ? "#166534" : "#991b1b" }}>Net Profit / Loss (1 - 2 - 3)</td>
-                  <td style={{ padding: 16, fontWeight: 900, fontSize: 18, textAlign: "right", color: isProfitable ? "#15803d" : "#b91c1c" }}>
+                  <td style={{ padding: "12px 14px", fontWeight: 800, fontSize: 14, color: isProfitable ? "#166534" : "#991b1b" }}>Net Profit / Loss (1 - 2 - 3)</td>
+                  <td style={{ padding: "12px 14px", fontWeight: 900, fontSize: 16, textAlign: "right", color: isProfitable ? "#15803d" : "#b91c1c" }}>
                     {isProfitable ? `+₹${netProfit.toLocaleString("en-IN")}` : `-₹${Math.abs(netProfit).toLocaleString("en-IN")}`}
                   </td>
                 </tr>
@@ -457,10 +457,10 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 2: Revenue Streams */}
       {activeTab === "revenue" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20 }}>
-          <div className="panel-card" style={{ padding: 24 }}>
-            <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Revenue Breakdown by Stream</h3>
-            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
+          <div className="panel-card" style={{ padding: 16 }}>
+            <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Revenue Breakdown by Stream</h3>
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
                   <span>Services (Hair, Skin, Spa)</span>
@@ -497,25 +497,25 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 3: Customer Insights */}
       {activeTab === "customers" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-          <div className="panel-card" style={{ padding: 24 }}>
-            <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Client Acquisition & Retention</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
-              <div style={{ background: "#eef2ff", padding: 16, borderRadius: 10 }}>
-                <div style={{ fontSize: 12, color: "#4338ca", fontWeight: 700 }}>Total Registered Guests</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "#3730a3", marginTop: 4 }}>{metrics.totalCustomers}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
+          <div className="panel-card" style={{ padding: 16 }}>
+            <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Client Acquisition & Retention</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+              <div style={{ background: "#eef2ff", padding: 12, borderRadius: 8 }}>
+                <div style={{ fontSize: 11, color: "#4338ca", fontWeight: 700 }}>Total Registered Guests</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#3730a3", marginTop: 4 }}>{metrics.totalCustomers}</div>
               </div>
-              <div style={{ background: "#ecfdf5", padding: 16, borderRadius: 10 }}>
-                <div style={{ fontSize: 12, color: "#065f46", fontWeight: 700 }}>Repeat Customer Rate</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "#047857", marginTop: 4 }}>
+              <div style={{ background: "#ecfdf5", padding: 12, borderRadius: 8 }}>
+                <div style={{ fontSize: 11, color: "#065f46", fontWeight: 700 }}>Repeat Customer Rate</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#047857", marginTop: 4 }}>
                   {metrics.totalCustomers > 0 ? ((metrics.repeatCustomers / metrics.totalCustomers) * 100).toFixed(0) : 0}%
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="panel-card" style={{ padding: 24 }}>
-            <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Top Spending Clients Leaderboard</h3>
+          <div className="panel-card" style={{ padding: 16 }}>
+            <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Top Spending Clients Leaderboard</h3>
             <div style={{ marginTop: 12 }}>
               {metrics.topCustomers.length > 0 ? (
                 metrics.topCustomers.map(c => (
@@ -537,25 +537,25 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 4: Staff Performance */}
       {activeTab === "staff" && (
-        <div className="panel-card" style={{ padding: 24 }}>
-          <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Staff Revenue Contribution & Commissions</h3>
+        <div className="panel-card" style={{ padding: 16 }}>
+          <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Staff Revenue Contribution & Commissions</h3>
           {metrics.staffPerformance.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 16 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 12 }}>
               <thead>
-                <tr style={{ borderBottom: "2px solid #e2e8f0", textAlign: "left", fontSize: 12, color: "#64748b" }}>
-                  <th style={{ padding: 12 }}>Staff Member</th>
-                  <th style={{ padding: 12 }}>Services Completed</th>
-                  <th style={{ padding: 12 }}>Revenue Generated</th>
-                  <th style={{ padding: 12 }}>Earned Commission (Est.)</th>
+                <tr style={{ borderBottom: "2px solid #e2e8f0", textAlign: "left", fontSize: 11, color: "#64748b" }}>
+                  <th style={{ padding: 10 }}>Staff Member</th>
+                  <th style={{ padding: 10 }}>Services Completed</th>
+                  <th style={{ padding: 10 }}>Revenue Generated</th>
+                  <th style={{ padding: 10 }}>Earned Commission (Est.)</th>
                 </tr>
               </thead>
               <tbody>
                 {metrics.staffPerformance.map(st => (
-                  <tr key={st.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: 12, fontWeight: 600 }}>{st.name}</td>
-                    <td style={{ padding: 12 }}>{st.clients} item{st.clients !== 1 ? 's' : ''}</td>
-                    <td style={{ padding: 12, fontWeight: 700, color: "#4f46e5" }}>₹{st.revenue.toLocaleString("en-IN")}</td>
-                    <td style={{ padding: 12, fontWeight: 700, color: "#059669" }}>₹{st.commission.toLocaleString("en-IN")}</td>
+                  <tr key={st.id} style={{ borderBottom: "1px solid #f1f5f9", fontSize: 13 }}>
+                    <td style={{ padding: 10, fontWeight: 600 }}>{st.name}</td>
+                    <td style={{ padding: 10 }}>{st.clients} item{st.clients !== 1 ? 's' : ''}</td>
+                    <td style={{ padding: 10, fontWeight: 700, color: "#4f46e5" }}>₹{st.revenue.toLocaleString("en-IN")}</td>
+                    <td style={{ padding: 10, fontWeight: 700, color: "#059669" }}>₹{st.commission.toLocaleString("en-IN")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -568,11 +568,11 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 5: Products */}
       {activeTab === "products" && (
-        <div className="panel-card" style={{ padding: 24 }}>
-          <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Top Selling Products & Inventory Valuation</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginTop: 16 }}>
+        <div className="panel-card" style={{ padding: 16 }}>
+          <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Top Selling Products & Inventory Valuation</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginTop: 12 }}>
             <div>
-              <h4 style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>Best Selling Retail Products</h4>
+              <h4 style={{ margin: "0 0 10px", fontSize: 13, color: "#475569" }}>Best Selling Retail Products</h4>
               {metrics.topProducts.length > 0 ? (
                 metrics.topProducts.map((p, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #f1f5f9" }}>
@@ -588,8 +588,8 @@ export default function SalonAnalyticsPage() {
               )}
             </div>
 
-            <div style={{ background: "#f8fafc", padding: 20, borderRadius: 10 }}>
-              <h4 style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>Inventory Summary</h4>
+            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8 }}>
+              <h4 style={{ margin: "0 0 10px", fontSize: 13, color: "#475569" }}>Inventory Summary</h4>
               <div style={{ fontSize: 13, color: "#64748b", marginBottom: 8 }}>Total Inventory Valuation: <strong style={{ color: "#0f172a" }}>₹{metrics.inventoryValue.toLocaleString("en-IN")}</strong></div>
               <div style={{ fontSize: 13, color: "#64748b", marginBottom: 8 }}>Total Product Units Sold: <strong style={{ color: "#0f172a" }}>{metrics.totalProductsSold} units</strong></div>
               <div style={{ fontSize: 13, color: metrics.lowStockCount > 0 ? "#dc2626" : "#059669", fontWeight: 700 }}>Low Stock Alert Items: {metrics.lowStockCount} product{metrics.lowStockCount !== 1 ? 's' : ''}</div>
@@ -600,24 +600,24 @@ export default function SalonAnalyticsPage() {
 
       {/* Tab 6: Details */}
       {activeTab === "details" && (
-        <div className="panel-card" style={{ padding: 24 }}>
-          <h3 style={{ marginTop: 0, fontSize: 16, color: "#0f172a" }}>Salon Specifications & Operating Profile</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginTop: 16 }}>
-            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8 }}>
-              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>SALON NAME</span>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginTop: 2 }}>{metrics.salonDetails.name}</div>
+        <div className="panel-card" style={{ padding: 16 }}>
+          <h3 style={{ marginTop: 0, fontSize: 15, color: "#0f172a" }}>Salon Specifications & Operating Profile</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 12 }}>
+            <div style={{ background: "#f8fafc", padding: 12, borderRadius: 6 }}>
+              <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>SALON NAME</span>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginTop: 2 }}>{metrics.salonDetails.name}</div>
             </div>
-            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8 }}>
-              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>ACTIVE SUBSCRIPTION PLAN</span>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#4f46e5", marginTop: 2 }}>{metrics.salonDetails.plan}</div>
+            <div style={{ background: "#f8fafc", padding: 12, borderRadius: 6 }}>
+              <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>ACTIVE SUBSCRIPTION PLAN</span>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#4f46e5", marginTop: 2 }}>{metrics.salonDetails.plan}</div>
             </div>
-            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8 }}>
-              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>BRANCHES OPERATING</span>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginTop: 2 }}>{metrics.salonDetails.branchesCount} Location{metrics.salonDetails.branchesCount !== 1 ? 's' : ''}</div>
+            <div style={{ background: "#f8fafc", padding: 12, borderRadius: 6 }}>
+              <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>BRANCHES OPERATING</span>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginTop: 2 }}>{metrics.salonDetails.branchesCount} Location{metrics.salonDetails.branchesCount !== 1 ? 's' : ''}</div>
             </div>
-            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 8 }}>
-              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>APPLICABLE TAX RATE & CURRENCY</span>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#059669", marginTop: 2 }}>{metrics.salonDetails.currency} • GST {metrics.salonDetails.taxRate}</div>
+            <div style={{ background: "#f8fafc", padding: 12, borderRadius: 6 }}>
+              <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>APPLICABLE TAX RATE & CURRENCY</span>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#059669", marginTop: 2 }}>{metrics.salonDetails.currency} • GST {metrics.salonDetails.taxRate}</div>
             </div>
           </div>
         </div>
