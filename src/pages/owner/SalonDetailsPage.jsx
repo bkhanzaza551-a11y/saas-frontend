@@ -166,10 +166,7 @@ export default function SalonDetailsPage() {
             <span className="sd-label">Address</span>
             <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><MapPin size={14} color="#94a3b8" /> {salon.address || "—"}</span>
           </div>
-          <div className="sd-field">
-            <span className="sd-label">Currency</span>
-            <span className="sd-value">{salon.currency || "INR"}</span>
-          </div>
+
           <div className="sd-field">
             <span className="sd-label">Tax Rate</span>
             <span className="sd-value">{salon.taxRate ? `${salon.taxRate}%` : "—"}</span>
