@@ -303,11 +303,13 @@ button.pos-item-card:hover {
 .pos-search-guest { flex: 1; }
 .pos-search-guest label {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-weight: 600;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: #334155;
+  margin: 0;
 }
 .pos-search-guest input,
 .pos-search-guest select {
@@ -320,11 +322,14 @@ button.pos-item-card:hover {
   min-height: unset;
 }
 .pos-guest-error {
-  color: #ef4444;
-  font-size: 0.72rem;
-  margin-top: 1px;
-  margin-left: 56px;
-  margin-bottom: -4px;
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  margin-left: 50px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
 }
 .pos-add-guest-btn {
   display: flex;
