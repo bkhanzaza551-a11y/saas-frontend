@@ -168,6 +168,7 @@ export default function FinancialReportsPage() {
           background: #e2e8f0;
           border-radius: 8px;
           padding: 4px;
+          gap: 6px;
         }
         .period-btn {
           padding: 6px 14px;
