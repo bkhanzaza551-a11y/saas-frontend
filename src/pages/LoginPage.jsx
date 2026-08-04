@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [sandboxOtp, setSandboxOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
   const [resendMsg, setResendMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     let interval = null;
@@ -123,22 +124,13 @@ export default function LoginPage() {
           display: flex;
           min-height: 100vh;
           font-family: 'Inter', system-ui, sans-serif;
-          background: #0f172a;
+          background: #ffffff;
           position: relative;
           overflow: hidden;
         }
         
         .login-bg-animated {
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15), transparent 60%),
-                      radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15), transparent 50%),
-                      radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1), transparent 50%);
-          animation: rotateBg 30s linear infinite;
-          z-index: 0;
+          display: none;
         }
 
         @keyframes rotateBg {
@@ -179,17 +171,13 @@ export default function LoginPage() {
           justify-content: center;
           align-items: center;
           padding: 20px;
+          background: #ffffff;
         }
 
         .login-card {
           width: 100%;
           maxWidth: 440px;
-          background: rgba(255, 255, 255, 0.98);
-          padding: 48px 40px;
-          borderRadius: 24px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0,0,0,0.05);
-          backdrop-filter: blur(20px);
-          transition: transform 0.3s ease;
+          padding: 40px;
         }
 
         .login-logo-container {
@@ -289,7 +277,6 @@ export default function LoginPage() {
       `}</style>
 
       <div className="login-page-container">
-        <div className="login-bg-animated"></div>
         
         <div className="login-content-wrapper">
           {/* Left Hero Panel for Desktop */}
@@ -455,14 +442,28 @@ export default function LoginPage() {
                             <label className="premium-label">Password</label>
                             <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: '#3b82f6', textDecoration: 'none', fontWeight: 600 }}>Forgot?</Link>
                           </div>
-                          <input
-                            type="password"
-                            required
-                            placeholder="••••••••"
-                            value={form.password}
-                            onChange={(event) => setForm({ ...form, password: event.target.value })}
-                            className="premium-input"
-                          />
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              required
+                              placeholder="••••••••"
+                              value={form.password}
+                              onChange={(event) => setForm({ ...form, password: event.target.value })}
+                              className="premium-input"
+                              style={{ width: '100%', paddingRight: '44px' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#64748b' }}
+                            >
+                              {showPassword ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                              )}
+                            </button>
+                          </div>
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', margin: '20px 0' }}>
