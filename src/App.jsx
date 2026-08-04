@@ -61,7 +61,7 @@ const SuperAdminAuditLogsPage = lazyWithRetry(() => import("./pages/superAdmin/A
 const SuperAdminTrafficAnalyticsPage = lazyWithRetry(() => import("./pages/superAdmin/TrafficAnalyticsPage.jsx"));
 const SuperAdminStaffPage = lazyWithRetry(() => import("./pages/superAdmin/StaffManagementPage.jsx"));
 const SuperAdminFinancialReportsPage = lazyWithRetry(() => import("./pages/superAdmin/FinancialReportsPage.jsx"));
-const SuperAdminBranchesPage = lazyWithRetry(() => import("./pages/superAdmin/BranchesManagementPage.jsx"));
+
 const InventoryPage = lazyWithRetry(() => import("./pages/owner/InventoryPage.jsx"));
 const ProductCategoriesPage = lazyWithRetry(() => import("./pages/owner/ProductCategoriesPage.jsx"));
 const MembershipsPage = lazyWithRetry(() => import("./pages/owner/MembershipsPage.jsx"));
@@ -274,7 +274,7 @@ const Protected = () => {
       items: [
         { label: "Dashboard", to: "/super-admin/dashboard" },
         { label: "Salons Control", to: "/super-admin/salons" },
-        { label: "Branch Management", to: "/super-admin/branches" },
+
         { label: "Plans Catalog", to: "/super-admin/plans" },
         { label: "Customer Management", to: "/super-admin/subscriptions" },
         { label: "Staff Management", to: "/super-admin/staff" }
@@ -630,7 +630,7 @@ export default function App() {
 
           <Route path="/super-admin/dashboard" element={<SuperAdminRoute pageKey="dashboard" element={<SuperAdminDashboard />} />} />
           <Route path="/super-admin/salons" element={<SuperAdminRoute pageKey="salons" element={<SuperAdminSalonsPage />} />} />
-          <Route path="/super-admin/branches" element={<SuperAdminRoute pageKey="branches" element={<SuperAdminBranchesPage />} />} />
+
           <Route path="/super-admin/plans" element={<SuperAdminRoute pageKey="plans" element={<SuperAdminPlansPage />} />} />
           <Route path="/super-admin/demo-leads" element={<SuperAdminRoute pageKey="demoLeads" element={<SuperAdminDemoLeadsPage />} />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />

@@ -1,17 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { api } from "../../api/client";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import MapPicker from "../../components/MapPicker";
+import CustomSelect from "../../components/CustomSelect";
 import EmptyState from "../../components/EmptyState";
+import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
 import { useBranch } from "../../context/BranchContext";
-import { Search, Edit3, MapPin, X } from "lucide-react";
+import { Search, Edit3, MapPin, X, Building2, Trash2, Plus, AlertTriangle } from "lucide-react";
 
 const emptyForm = { name: "", phone: "", email: "", address: "", businessHours: "", weeklyOff: "", latitude: "", longitude: "", geofenceRadiusMeters: "200" };
 
 export default function BranchesPage() {
   const { refetch: refetchBranches } = useBranch();
   const [rows, setRows] = useState([]);
+  const [limitInfo, setLimitInfo] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
@@ -20,7 +23,7 @@ export default function BranchesPage() {
   const [showModal, setShowModal] = useState(false);
   const [query, setQuery] = useState("");
 
-  const heading = useMemo(() => (editingId ? "Update Branch" : "Create Branch"), [editingId]);
+  const heading = useMemo(() => (editingId ? "Update Branch" : "Add New Branch"), [editingId]);
 
   const timeOptions = useMemo(() => {
     const options = [];
@@ -34,24 +37,22 @@ export default function BranchesPage() {
     return options;
   }, []);
 
-  const load = async () => {
-    const response = await api.get("/owner/branches");
-    setRows(response.data);
-    setStatus((current) => ({ ...current, loading: false }));
-  };
-
-  useEffect(() => {
-    let active = true;
-    api.get("/owner/branches").then((response) => {
-      if (active) {
-        setRows(response.data);
-        setStatus((current) => ({ ...current, loading: false }));
-      }
-    });
-    return () => {
-      active = false;
-    };
+  const load = useCallback(async () => {
+    try {
+      const [branchRes, limitRes] = await Promise.all([
+        api.get("/owner/branches"),
+        api.get("/owner/branches/limit-info")
+      ]);
+      setRows(branchRes.data || []);
+      setLimitInfo(limitRes.data);
+    } catch (err) {
+      console.error("Failed to load branches", err);
+    } finally {
+      setStatus((current) => ({ ...current, loading: false }));
+    }
   }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -64,7 +65,7 @@ export default function BranchesPage() {
     event.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
-    setStatus({ error: "", success: "" });
+    setStatus(s => ({ ...s, error: "", success: "" }));
     const payload = {
       ...form,
       latitude: form.latitude === "" ? null : Number(form.latitude),
@@ -74,32 +75,32 @@ export default function BranchesPage() {
     try {
       if (editingId) {
         await api.patch(`/owner/branches/${editingId}`, payload);
-        setStatus({ error: "", success: "Branch updated." });
+        setStatus(s => ({ ...s, error: "", success: "Branch updated successfully." }));
       } else {
         await api.post("/owner/branches", payload);
-        setStatus({ error: "", success: "Branch created." });
+        setStatus(s => ({ ...s, error: "", success: "Branch created successfully." }));
       }
       resetForm();
       await load();
       await refetchBranches();
     } catch (error) {
       console.error("[BranchForm] submit failed:", error);
-      setStatus({ error: formatApiError(error, "Could not save branch"), success: "" });
+      setStatus(s => ({ ...s, error: formatApiError(error, "Could not save branch"), success: "" }));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const deleteBranch = async (branchId) => {
-    if (!window.confirm("Are you sure you want to delete this branch? It will be archived from the system.")) return;
+    if (!window.confirm("Delete this branch? This cannot be undone.")) return;
     try {
-      await api.patch(`/owner/branches/${branchId}/archive`);
+      await api.delete(`/owner/branches/${branchId}`);
+      setStatus(s => ({ ...s, error: "", success: "Branch deleted." }));
       if (editingId === branchId) resetForm();
       await load();
       await refetchBranches();
     } catch (error) {
-      console.error("Failed to delete branch:", error);
-      alert("Failed to delete branch.");
+      setStatus(s => ({ ...s, error: formatApiError(error, "Failed to delete branch"), success: "" }));
     }
   };
 
@@ -129,14 +130,60 @@ export default function BranchesPage() {
     <div className="page-shell">
       <div className="page-header" style={{ marginBottom: 24 }}>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Branches</h1>
-        <p className="muted" style={{ margin: "4px 0 8px 0" }}>View your salon locations and update their details. To add or remove branches, contact your Super Admin.</p>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, padding: "6px 12px", fontSize: 12, color: "#1d4ed8", fontWeight: 500 }}>
-          ℹ️ Branch creation &amp; deletion is managed by Super Admin only
-        </div>
+        <p className="muted" style={{ margin: "4px 0 8px 0" }}>Manage your salon locations, add new branches, and update their details.</p>
       </div>
 
+      {status.error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertTriangle size={16} /> {status.error}
+          <button onClick={() => setStatus(s => ({ ...s, error: "" }))} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#991b1b" }}><X size={14} /></button>
+        </div>
+      )}
+      {status.success && (
+        <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#065f46", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
+          {status.success}
+          <button onClick={() => setStatus(s => ({ ...s, success: "" }))} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#065f46" }}><X size={14} /></button>
+        </div>
+      )}
+
+      {/* Plan Limit Info Stats */}
+      {limitInfo && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}><Building2 size={18} color="#2563eb" /></div>
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Plan</div>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#0f172a" }}>{limitInfo.planName}</div>
+            </div>
+          </div>
+          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}><Building2 size={18} color="#16a34a" /></div>
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Branches Used</div>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#2563eb" }}>{limitInfo.branchCount}</div>
+            </div>
+          </div>
+          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#f5f3ff", display: "flex", alignItems: "center", justifyContent: "center" }}><Building2 size={18} color="#6366f1" /></div>
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Plan Limit</div>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#6366f1" }}>{limitInfo.branchLimit}</div>
+            </div>
+          </div>
+          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, background: limitInfo.remaining > 0 ? "#f0fdf4" : "#fef2f2" }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: limitInfo.remaining > 0 ? "#dcfce7" : "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <AlertTriangle size={18} color={limitInfo.remaining > 0 ? "#16a34a" : "#dc2626"} />
+            </div>
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Remaining</div>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: limitInfo.remaining > 0 ? "#16a34a" : "#dc2626" }}>{limitInfo.remaining}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="panel-card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: 16, borderBottom: "1px solid #e2e8f0", display: "flex", gap: 12, backgroundColor: "#fff" }}>
+        <div style={{ padding: 16, borderBottom: "1px solid #e2e8f0", display: "flex", gap: 12, backgroundColor: "#fff", alignItems: "center" }}>
           <div style={{ flex: 1, maxWidth: 320, position: "relative" }}>
             <Search size={16} style={{ position: "absolute", left: 12, top: 10, color: "#64748b" }} />
             <input 
@@ -146,6 +193,20 @@ export default function BranchesPage() {
               style={{ width: "100%", padding: "8px 12px 8px 36px", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 14 }}
             />
           </div>
+          <button
+            onClick={() => { resetForm(); setShowModal(true); }}
+            disabled={limitInfo && limitInfo.remaining <= 0}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, marginLeft: "auto",
+              background: limitInfo && limitInfo.remaining <= 0 ? "#e2e8f0" : "linear-gradient(135deg, #4f46e5, #3b82f6)",
+              color: limitInfo && limitInfo.remaining <= 0 ? "#94a3b8" : "white",
+              fontWeight: 700, borderRadius: 10, padding: "10px 20px", border: "none",
+              cursor: limitInfo && limitInfo.remaining <= 0 ? "not-allowed" : "pointer",
+              fontSize: "0.88rem", whiteSpace: "nowrap"
+            }}
+          >
+            <Plus size={16} /> Add Branch
+          </button>
         </div>
 
         <div style={{ overflowX: "auto" }}>
@@ -163,7 +224,7 @@ export default function BranchesPage() {
             <tbody>
               {status.loading ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: 32, textAlign: "center", color: "#64748b" }}>Loading branches...</td>
+                  <td colSpan={6} style={{ padding: 32, textAlign: "center", color: "#64748b" }}><PageLoader title="Loading branches" /></td>
                 </tr>
               ) : filteredRows.length === 0 ? (
                 <tr>
@@ -179,6 +240,9 @@ export default function BranchesPage() {
                   <tr key={branch.id} style={{ borderBottom: "1px solid #f1f5f9" }} className="table-row-hover">
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ fontWeight: 600, color: "#0f172a", fontSize: 14 }}>{branch.name}</div>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 600, padding: "2px 8px", borderRadius: 4, background: branch.isActive ? "#dcfce7" : "#f1f5f9", color: branch.isActive ? "#166534" : "#94a3b8", display: "inline-block", marginTop: 4 }}>
+                        {branch.isActive ? "Active" : "Inactive"}
+                      </span>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ fontSize: 13, color: "#334155" }}>{branch.phone || "No phone"}</div>
@@ -196,7 +260,7 @@ export default function BranchesPage() {
                         </span>
                       </div>
                       <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, marginLeft: 20 }}>
-                        {branch.latitude && branch.longitude ? `Geo: ${branch.geofenceRadiusMeters}m radius` : "No geofence"}
+                        {branch.latitude && branch.longitude ? `Geo: ${branch.geofenceRadiusMeters}m radius` : "Location not set"}
                       </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
@@ -209,6 +273,9 @@ export default function BranchesPage() {
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
                         <button type="button" onClick={() => startEdit(branch)} className="icon-btn" style={{ padding: 6, color: "#64748b", background: "none", border: "none", cursor: "pointer" }} title="Edit Branch">
                           <Edit3 size={16} />
+                        </button>
+                        <button type="button" onClick={() => deleteBranch(branch.id)} className="icon-btn" style={{ padding: 6, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }} title="Delete Branch">
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>
@@ -274,43 +341,49 @@ export default function BranchesPage() {
                 <div className="settings-input-group" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                   <span className="muted" style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>Business hours</span>
                   <div style={{ display: "flex", gap: 12 }}>
-                    <select 
-                      style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }}
-                      value={form.businessHours.split(" - ")[0] || ""} 
-                      onChange={(e) => {
-                        const close = form.businessHours.split(" - ")[1] || "";
-                        setForm({ ...form, businessHours: `${e.target.value}${close ? ` - ${close}` : " - "}` });
-                      }}
-                    >
-                      <option value="">Open Time</option>
-                      {timeOptions.map(t => <option key={`open-${t}`} value={t}>{t}</option>)}
-                    </select>
-                    <select 
-                      style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }}
-                      value={form.businessHours.split(" - ")[1] || ""} 
-                      onChange={(e) => {
-                        const open = form.businessHours.split(" - ")[0] || "";
-                        setForm({ ...form, businessHours: `${open ? `${open} - ` : " - "}${e.target.value}` });
-                      }}
-                    >
-                      <option value="">Close Time</option>
-                      {timeOptions.map(t => <option key={`close-${t}`} value={t}>{t}</option>)}
-                    </select>
+                    <div style={{ flex: 1 }}>
+                      <CustomSelect 
+                        value={form.businessHours.split(" - ")[0] || ""} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const close = form.businessHours.split(" - ")[1] || "";
+                          setForm({ ...form, businessHours: `${val}${close ? ` - ${close}` : " - "}` });
+                        }}
+                        options={timeOptions.map(t => ({ label: t, value: t }))}
+                        placeholder="Open Time"
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <CustomSelect 
+                        value={form.businessHours.split(" - ")[1] || ""} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const open = form.businessHours.split(" - ")[0] || "";
+                          setForm({ ...form, businessHours: `${open ? `${open} - ` : " - "}${val}` });
+                        }}
+                        options={timeOptions.map(t => ({ label: t, value: t }))}
+                        placeholder="Close Time"
+                      />
+                    </div>
                   </div>
                 </div>
                 
                 <label className="settings-input-group" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                   <span className="muted" style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>Weekly off</span>
-                  <select value={form.weeklyOff} onChange={(event) => setForm({ ...form, weeklyOff: event.target.value })} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }}>
-                    <option value="">None / Open 7 days</option>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                  </select>
+                  <CustomSelect 
+                    value={form.weeklyOff} 
+                    onChange={(event) => setForm({ ...form, weeklyOff: event.target.value })} 
+                    options={[
+                      { label: "None / Open 7 days", value: "" },
+                      { label: "Monday", value: "Monday" },
+                      { label: "Tuesday", value: "Tuesday" },
+                      { label: "Wednesday", value: "Wednesday" },
+                      { label: "Thursday", value: "Thursday" },
+                      { label: "Friday", value: "Friday" },
+                      { label: "Saturday", value: "Saturday" },
+                      { label: "Sunday", value: "Sunday" }
+                    ]}
+                  />
                 </label>
                 
               </form>
@@ -320,8 +393,8 @@ export default function BranchesPage() {
             </div>
             
             <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: 12, backgroundColor: "#f8fafc", borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}>
-              <button type="button" className="secondary-button" onClick={resetForm}>Cancel</button>
-              <button type="submit" form="branch-form" className="primary-button" disabled={isSubmitting}>
+              <button type="button" className="secondary-button" onClick={resetForm} style={{ padding: "8px 16px", borderRadius: 6, border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontWeight: 500, cursor: "pointer" }}>Cancel</button>
+              <button type="submit" form="branch-form" className="primary-button" disabled={isSubmitting} style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "#fff", fontWeight: 500, cursor: "pointer" }}>
                 {isSubmitting ? "Saving..." : (editingId ? "Update Branch" : "Add Branch")}
               </button>
             </div>
