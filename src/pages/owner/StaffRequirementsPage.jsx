@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Search, CheckCircle2, UserCheck, Edit2, Trash2, Eye, Activity } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Eye, Activity, Briefcase } from "lucide-react";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
+import EmptyState from "../../components/EmptyState";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 
@@ -22,7 +23,6 @@ export default function StaffRequirementsPage() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [urgencyFilter, setUrgencyFilter] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -38,7 +38,6 @@ export default function StaffRequirementsPage() {
       const params = new URLSearchParams();
       if (search) params.append("q", search);
       if (statusFilter && statusFilter !== "ALL") params.append("status", statusFilter);
-      if (urgencyFilter && urgencyFilter !== "ALL") params.append("urgency", urgencyFilter);
 
       const res = await api.get(`/owner/staff-requirements?${params.toString()}`);
       setRequirements(res.data || []);
@@ -48,7 +47,7 @@ export default function StaffRequirementsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, urgencyFilter]);
+  }, [search, statusFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -141,168 +140,162 @@ export default function StaffRequirementsPage() {
 
   const getUrgencyBadge = (urgency) => {
     switch (urgency) {
-      case "Immediate": return <span className="badge" style={{ background: "#fee2e2", color: "#991b1b", fontWeight: 700 }}>Immediate</span>;
-      case "High": return <span className="badge" style={{ background: "#ffedd5", color: "#9a3412", fontWeight: 700 }}>High</span>;
-      case "Medium": return <span className="badge" style={{ background: "#fef9c3", color: "#854d0e", fontWeight: 700 }}>Medium</span>;
-      default: return <span className="badge" style={{ background: "#e0f2fe", color: "#075985", fontWeight: 700 }}>Low</span>;
+      case "Immediate": return <span style={{ background: "#fef2f2", color: "#dc2626", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Immediate</span>;
+      case "High": return <span style={{ background: "#fff7ed", color: "#ea580c", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>High</span>;
+      case "Medium": return <span style={{ background: "#fefce8", color: "#ca8a04", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Medium</span>;
+      default: return <span style={{ background: "#f0f9ff", color: "#0284c7", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Low</span>;
     }
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "PENDING": return <span className="badge" style={{ background: "#fff7ed", color: "#c2410c" }}>Pending Approval</span>;
-      case "APPROVED": return <span className="badge" style={{ background: "#e0e7ff", color: "#3730a3" }}>Approved & Hiring</span>;
-      case "FULFILLED": return <span className="badge" style={{ background: "#dcfce7", color: "#166534" }}>Fulfilled</span>;
-      default: return <span className="badge" style={{ background: "#fee2e2", color: "#991b1b" }}>Rejected</span>;
+      case "PENDING": return <span style={{ background: "#fffbeb", color: "#d97706", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Pending</span>;
+      case "APPROVED": return <span style={{ background: "#eef2ff", color: "#4f46e5", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Active Hiring</span>;
+      case "FULFILLED": return <span style={{ background: "#ecfdf5", color: "#10b981", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Fulfilled</span>;
+      default: return <span style={{ background: "#fef2f2", color: "#ef4444", padding: "4px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>Rejected</span>;
     }
   };
 
   return (
     <div className="page-shell">
       {/* Hero Header */}
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
+      <div className="hero-card" style={{ padding: "20px 24px", marginBottom: 20 }}>
         <div className="item-head">
           <div>
-            <h1 style={{ marginTop: 0 }}>Staff Requirement & Hiring Requisitions</h1>
-            <p style={{ marginBottom: 0 }}>Submit and track your branch's hiring requirements here.</p>
+            <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Staff Hiring Requisitions</h1>
+            <p style={{ marginBottom: 0, color: "#64748b", fontSize: "0.9rem" }}>Manage hiring requests and track recruitment status for the salon.</p>
           </div>
-          <button className="btn btn-primary" onClick={() => { resetForm(); setIsModalOpen(true); }}>
+          <button className="btn btn-primary" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ padding: "8px 16px", height: "fit-content", alignSelf: "center", fontSize: "0.85rem" }}>
             <Plus size={16} style={{ marginRight: 6 }} />
-            New Staff Requirement
+            New Requirement
           </button>
         </div>
       </div>
 
       {/* Metric Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 20 }}>
-        <div className="panel-card" style={{ padding: 20 }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Requisitions</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{stats.total}</div>
-        </div>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #f97316" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Pending Approval</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#ea580c", marginTop: 4 }}>{stats.pending}</div>
-        </div>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Active Hiring</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#4f46e5", marginTop: 4 }}>{stats.approved}</div>
-        </div>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #22c55e" }}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Positions Fulfilled</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>{stats.fulfilled}</div>
-        </div>
-      </div>
-
-      {/* Filter & Search Bar */}
-      <div className="panel-card" style={{ padding: 16, marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", flex: 1, minWidth: 280 }}>
-          <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-            <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-            <input
-              type="text"
-              placeholder="Search title..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ padding: "8px 12px 8px 36px", width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-            />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 20 }}>
+        <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}><Briefcase size={18} color="#475569" /></div>
+          <div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Total Requisitions</div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>{stats.total}</div>
           </div>
-
-          <CustomSelect
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            options={[
-              { label: "All Statuses", value: "ALL" },
-              { label: "Pending Approval", value: "PENDING" },
-              { label: "Approved & Hiring", value: "APPROVED" },
-              { label: "Fulfilled", value: "FULFILLED" },
-              { label: "Rejected", value: "REJECTED" }
-            ]}
-            style={{ minWidth: 150 }}
-          />
-
-          <CustomSelect
-            value={urgencyFilter}
-            onChange={e => setUrgencyFilter(e.target.value)}
-            options={[
-              { label: "All Urgencies", value: "ALL" },
-              { label: "Immediate", value: "Immediate" },
-              { label: "High", value: "High" },
-              { label: "Medium", value: "Medium" },
-              { label: "Low", value: "Low" }
-            ]}
-            style={{ minWidth: 150 }}
-          />
+        </div>
+        <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center" }}><Briefcase size={18} color="#ea580c" /></div>
+          <div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Pending Approval</div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#ea580c" }}>{stats.pending}</div>
+          </div>
+        </div>
+        <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center" }}><Briefcase size={18} color="#4f46e5" /></div>
+          <div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Active Hiring</div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#4f46e5" }}>{stats.approved}</div>
+          </div>
+        </div>
+        <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}><Briefcase size={18} color="#10b981" /></div>
+          <div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Fulfilled</div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#10b981" }}>{stats.fulfilled}</div>
+          </div>
         </div>
       </div>
 
-      {loading && <div style={{ textAlign: "center", padding: "20px 0", color: "#6366f1", fontWeight: 600 }}>Loading staff requirements...</div>}
+      {/* Main Content Area */}
+      <div className="panel-card" style={{ padding: 20 }}>
+        {/* Sleek Filter & Search Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+          <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>All Requirements</h3>
+          
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ position: "relative", minWidth: 220 }}>
+              <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+              <input
+                type="text"
+                placeholder="Search roles..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ padding: "6px 12px 6px 32px", width: "100%", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
+              />
+            </div>
 
-      {/* Requirements List Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16 }}>
-        {requirements.length > 0 ? (
-          requirements.map(req => {
-            const skillsList = Array.isArray(req.skills) ? req.skills : [];
-            const reqDate = req.createdAt ? new Date(req.createdAt).toLocaleDateString() : "";
+            <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 6, padding: 2 }}>
+              {["ALL", "PENDING", "APPROVED", "FULFILLED"].map(s => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  style={{
+                    padding: "6px 12px",
+                    border: "none",
+                    background: statusFilter === s ? "white" : "transparent",
+                    color: statusFilter === s ? "#0f172a" : "#64748b",
+                    fontWeight: 600,
+                    fontSize: "0.75rem",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    boxShadow: statusFilter === s ? "0 1px 2px rgba(0,0,0,0.05)" : "none",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  {s === "ALL" ? "All" : s.charAt(0) + s.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
-            return (
-              <div key={req.id} className="panel-card" style={{ padding: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                    <div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>{req.reqNumber || req.id}</span>
-                      <h3 style={{ margin: "6px 0 2px", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{req.title}</h3>
-                    </div>
-                    {getUrgencyBadge(req.urgency)}
-                  </div>
-
-                  <div style={{ margin: "14px 0", display: "flex", flexWrap: "wrap", gap: 12, fontSize: 13, color: "#334155", background: "#f8fafc", padding: 12, borderRadius: 8 }}>
-                    <div><strong>Qty:</strong> {req.quantity} Position{req.quantity > 1 ? "s" : ""}</div>
-                    <div><strong>Salary:</strong> {req.salary || "As per industry"}</div>
-                    <div><strong>Shift:</strong> {req.shift || "Full-Time"}</div>
-                  </div>
-
-                  {req.description && (
-                    <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.5, margin: "0 0 14px" }}>{req.description}</p>
-                  )}
-
-                  {skillsList.length > 0 && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                      {skillsList.map((skill, i) => (
-                        <span key={i} style={{ fontSize: 11, background: "#f1f5f9", color: "#475569", padding: "3px 8px", borderRadius: 100, fontWeight: 600 }}>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 14, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {getStatusBadge(req.status)}
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>{reqDate}</span>
-                  </div>
-
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => setViewDetailReq(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }} title="View Details">
-                      <Eye size={14} /> View
-                    </button>
-                    <button onClick={() => setStatusUpdateReq(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }} title="Update Status">
-                      <Activity size={14} /> Status
-                    </button>
-                    <button onClick={() => startEdit(req)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12 }} title="Edit">
-                      <Edit2 size={14} />
-                    </button>
-                    <button onClick={() => deleteReq(req.id)} className="btn btn-secondary" style={{ padding: "4px 8px", fontSize: 12, color: "#dc2626" }} title="Delete">
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+        {/* Professional Table Layout */}
+        {loading ? (
+          <div style={{ padding: "40px 0" }}><PageLoader title="Loading requirements..." /></div>
+        ) : requirements.length === 0 ? (
+          <EmptyState title="No staff requirements found" />
         ) : (
-          <div className="panel-card" style={{ padding: 40, textAlign: "center", color: "#94a3b8", gridColumn: "1 / -1" }}>
-            <p style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>No staff requirements found matching criteria.</p>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid #e2e8f0" }}>
+                  <th style={{ padding: "12px 16px", color: "#475569", fontSize: "0.8rem", fontWeight: 700 }}>Role / Title</th>
+                  <th style={{ padding: "12px 16px", color: "#475569", fontSize: "0.8rem", fontWeight: 700 }}>Qty</th>
+                  <th style={{ padding: "12px 16px", color: "#475569", fontSize: "0.8rem", fontWeight: 700 }}>Salary Est.</th>
+                  <th style={{ padding: "12px 16px", color: "#475569", fontSize: "0.8rem", fontWeight: 700 }}>Urgency</th>
+                  <th style={{ padding: "12px 16px", color: "#475569", fontSize: "0.8rem", fontWeight: 700 }}>Status</th>
+                  <th style={{ padding: "12px 16px", color: "#475569", fontSize: "0.8rem", fontWeight: 700, textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requirements.map((req) => (
+                  <tr key={req.id} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                    <td style={{ padding: "16px", verticalAlign: "middle" }}>
+                      <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.9rem" }}>{req.title}</div>
+                      <div style={{ color: "#64748b", fontSize: "0.75rem", marginTop: 2 }}>{req.shift || "Full-Time"}</div>
+                    </td>
+                    <td style={{ padding: "16px", verticalAlign: "middle", fontSize: "0.9rem", color: "#334155", fontWeight: 600 }}>{req.quantity}</td>
+                    <td style={{ padding: "16px", verticalAlign: "middle", fontSize: "0.85rem", color: "#475569" }}>{req.salary || "N/A"}</td>
+                    <td style={{ padding: "16px", verticalAlign: "middle" }}>{getUrgencyBadge(req.urgency)}</td>
+                    <td style={{ padding: "16px", verticalAlign: "middle" }}>{getStatusBadge(req.status)}</td>
+                    <td style={{ padding: "16px", verticalAlign: "middle", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <button onClick={() => setViewDetailReq(req)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4 }} title="View Detail">
+                          <Eye size={14} /> Detail
+                        </button>
+                        <button onClick={() => setStatusUpdateReq(req)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4 }} title="Update Status">
+                          <Activity size={14} /> Status
+                        </button>
+                        <button onClick={() => startEdit(req)} className="btn btn-secondary" style={{ padding: "6px" }} title="Edit">
+                          <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => deleteReq(req.id)} className="btn btn-secondary" style={{ padding: "6px", color: "#dc2626" }} title="Delete">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
