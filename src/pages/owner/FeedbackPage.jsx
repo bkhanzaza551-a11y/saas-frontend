@@ -153,32 +153,39 @@ export default function FeedbackPage() {
         title="Feedback"
         description="Customer ratings, complaint follow-up and staff/service analytics."
         items={[
-          { label: "Feedback", to: "/admin/feedback" },
-          { label: "Reports", to: "/admin/feedback/reports" },
-          { label: "Settings", to: "/admin/feedback/settings" }
+          { label: "Feedback Inbox", to: "/admin/feedback" },
+          { label: "Analytics & Reports", to: "/admin/feedback/reports" }
         ]}
-        actions={(
-          <>
-            <label>
-              <span className="muted">Statuses</span>
-              <select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
-              <option value="">All statuses</option>
-              <option value="NEW">New</option>
-              <option value="REVIEWED">Reviewed</option>
-              <option value="CONTACTED">Contacted</option>
-              <option value="RESOLVED">Resolved</option>
-            </select>
-            </label>
-            <button type="button" className="secondary-button" onClick={() => setFilters({ status: "" })}>Reset</button>
-          </>
-        )}
       />
       {status.error && <div className="panel-card"><p className="error-text">{status.error}</p></div>}
       {status.success && <div className="panel-card"><p className="success-text">{status.success}</p></div>}
 
       {mode === "feedback" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <h3 style={{ margin: "0 0 8px", fontSize: 18, color: "#1e293b" }}>Feedback Inbox</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <h3 style={{ margin: 0, fontSize: 18, color: "#1e293b" }}>Recent Feedback</h3>
+            
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", padding: "6px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>Filter Status:</span>
+                <select 
+                  value={filters.status} 
+                  onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
+                  style={{ border: "none", outline: "none", fontSize: 13, fontWeight: 700, color: "#0f172a", background: "transparent", cursor: "pointer" }}
+                >
+                  <option value="">All statuses</option>
+                  <option value="NEW">New</option>
+                  <option value="REVIEWED">Reviewed</option>
+                  <option value="CONTACTED">Contacted</option>
+                  <option value="RESOLVED">Resolved</option>
+                </select>
+              </div>
+              {filters.status && (
+                <button type="button" onClick={() => setFilters({ status: "" })} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 13, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Clear</button>
+              )}
+            </div>
+          </div>
+
           {loading ? <PageLoader compact title="Loading feedback inbox" message="Preparing ratings, branch filters, and customer comments for review." /> : null}
           <div style={{ display: "grid", gap: 16 }}>
             {rows.map((row) => {
@@ -241,7 +248,12 @@ export default function FeedbackPage() {
                 </div>
               );
             })}
-            {!loading && !rows.length && <EmptyState title="No feedback yet" message="Customer ratings and review responses will appear here once feedback starts coming in." />}
+            {!loading && !rows.length && (
+              <EmptyState 
+                title="No feedback yet" 
+                message="Data comes directly from your customers! After a checkout or order is completed, customers receive an automated SMS/Email with a feedback link. Their ratings and reviews will automatically populate here." 
+              />
+            )}
           </div>
         </div>
       )}
@@ -261,26 +273,6 @@ export default function FeedbackPage() {
             <div style={{ background: "#fef2f2", padding: 24, borderRadius: 12, border: "1px solid #fecaca", display: "flex", flexDirection: "column", gap: 8 }}>
               <span style={{ fontSize: 13, color: "#991b1b", fontWeight: 600, textTransform: "uppercase" }}>Negative Reviews</span>
               <span style={{ fontSize: 36, color: "#b91c1c", fontWeight: 800 }}>{report.summary?.negativeCount || 0}</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {mode === "settings" && report && (
-        <div style={{ background: "#fff", borderRadius: 16, padding: 32, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)", maxWidth: 600 }}>
-          <h3 style={{ margin: "0 0 20px", fontSize: 20, color: "#1e293b", display: "flex", alignItems: "center", gap: 10 }}>⚙️ Collection Settings</h3>
-          <div style={{ display: "grid", gap: 16 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>WhatsApp Number</span>
-              <div style={{ padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#1e293b", fontWeight: 500 }}>{report.settings?.whatsappNumber || "Not configured"}</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Booking Notes</span>
-              <div style={{ padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#1e293b", fontWeight: 500 }}>{report.settings?.bookingNotes || "Default"}</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Cancellation Policy</span>
-              <div style={{ padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, color: "#1e293b", fontWeight: 500 }}>{report.settings?.cancellationPolicy || "Standard policy"}</div>
             </div>
           </div>
         </div>
