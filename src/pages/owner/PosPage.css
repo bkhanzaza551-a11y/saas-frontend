@@ -328,15 +328,15 @@ button.pos-item-card:hover {
 .pos-add-guest-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: #ffffff;
   background: #3b82f6;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 6px 10px;
   box-shadow: 0 2px 4px rgba(59,130,246,0.2);
   transition: all 0.2s;
   white-space: nowrap;
@@ -347,6 +347,8 @@ button.pos-item-card:hover {
 }
 .pos-add-guest-btn svg {
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
 .pos-cart-table-wrapper { overflow-x: auto; }
