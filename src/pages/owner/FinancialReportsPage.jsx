@@ -96,21 +96,21 @@ export default function FinancialReportsPage() {
       value: fmt(summary.totalGrossIncome),
       subtitle: "Services + Retail + Memberships",
       gradient: "linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)",
-      icon: <DollarSign size={24} color="#fff" />,
+      icon: <DollarSign size={18} color="#fff" />,
     },
     {
       label: "Gross Profit",
       value: fmt(summary.grossProfit),
       subtitle: `Margin: ${Number(summary.grossMargin || 0).toFixed(1)}%`,
       gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-      icon: <TrendingUp size={24} color="#fff" />,
+      icon: <TrendingUp size={18} color="#fff" />,
     },
     {
       label: "Operating Expenses",
       value: fmt(summary.totalExpensesPayroll),
       subtitle: "OpEx + Staff Payroll",
       gradient: "linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)",
-      icon: <Receipt size={24} color="#fff" />,
+      icon: <Receipt size={18} color="#fff" />,
     },
     {
       label: "Net Profit / (Loss)",
@@ -119,7 +119,7 @@ export default function FinancialReportsPage() {
       gradient: netProfitPositive 
         ? "linear-gradient(135deg, #34d399 0%, #10b981 100%)" 
         : "linear-gradient(135deg, #f87171 0%, #ef4444 100%)",
-      icon: netProfitPositive ? <ArrowUpRight size={24} color="#fff" /> : <ArrowDownRight size={24} color="#fff" />,
+      icon: netProfitPositive ? <ArrowUpRight size={18} color="#fff" /> : <ArrowDownRight size={18} color="#fff" />,
     },
   ];
 
@@ -129,26 +129,26 @@ export default function FinancialReportsPage() {
         .premium-page-container {
           min-height: 100vh;
           background: #f8fafc;
-          padding: 32px 40px;
+          padding: 20px 24px;
           font-family: 'Poppins', system-ui, sans-serif;
           color: #0f172a;
         }
         
         .header-section {
-          margin-bottom: 32px;
+          margin-bottom: 24px;
         }
         .header-title {
-          font-size: 28px;
+          font-size: 22px;
           font-weight: 700;
           letter-spacing: -0.5px;
           color: #0f172a;
           display: flex;
           align-items: center;
-          gap: 12px;
-          margin: 0 0 8px 0;
+          gap: 10px;
+          margin: 0 0 6px 0;
         }
         .header-subtitle {
-          font-size: 14px;
+          font-size: 13px;
           color: #64748b;
           margin: 0;
           font-weight: 400;
@@ -158,23 +158,23 @@ export default function FinancialReportsPage() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 32px;
+          margin-bottom: 24px;
           flex-wrap: wrap;
-          gap: 20px;
+          gap: 16px;
         }
 
         .period-selector {
           display: flex;
           background: #e2e8f0;
-          border-radius: 12px;
+          border-radius: 8px;
           padding: 4px;
         }
         .period-btn {
-          padding: 8px 20px;
-          border-radius: 8px;
+          padding: 6px 14px;
+          border-radius: 6px;
           border: none;
           background: transparent;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           color: #64748b;
           cursor: pointer;
@@ -192,70 +192,70 @@ export default function FinancialReportsPage() {
         .summary-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 24px;
-          margin-bottom: 40px;
+          gap: 16px;
+          margin-bottom: 24px;
         }
         .summary-card {
-          border-radius: 20px;
-          padding: 24px;
+          border-radius: 12px;
+          padding: 16px;
           color: white;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
           position: relative;
           overflow: hidden;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .summary-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         .sc-icon-wrapper {
           position: absolute;
-          top: 24px;
-          right: 24px;
+          top: 16px;
+          right: 16px;
           background: rgba(255,255,255,0.2);
-          padding: 10px;
-          border-radius: 14px;
+          padding: 8px;
+          border-radius: 10px;
           backdrop-filter: blur(10px);
         }
         .sc-label {
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 600;
           opacity: 0.9;
-          margin-bottom: 8px;
+          margin-bottom: 4px;
           letter-spacing: 0.5px;
         }
         .sc-value {
-          font-size: 32px;
+          font-size: 20px;
           font-weight: 700;
           margin-bottom: 4px;
           letter-spacing: -0.5px;
         }
         .sc-subtitle {
-          font-size: 12px;
+          font-size: 10px;
           opacity: 0.8;
           font-weight: 500;
         }
 
         .tab-segment {
           display: inline-flex;
-          gap: 8px;
-          margin-bottom: 24px;
-          border-bottom: 2px solid #e2e8f0;
+          gap: 4px;
+          margin-bottom: 16px;
+          border-bottom: 1px solid #e2e8f0;
           width: 100%;
         }
         .tab-btn {
-          padding: 14px 24px;
-          font-size: 14px;
+          padding: 10px 16px;
+          font-size: 13px;
           font-weight: 600;
           color: #64748b;
           border: none;
           background: transparent;
           cursor: pointer;
           border-bottom: 2px solid transparent;
-          margin-bottom: -2px;
+          margin-bottom: -1px;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           transition: all 0.2s;
         }
         .tab-btn.active {
@@ -268,9 +268,9 @@ export default function FinancialReportsPage() {
 
         .data-panel {
           background: white;
-          border-radius: 24px;
-          padding: 32px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+          border-radius: 12px;
+          padding: 16px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.05);
           border: 1px solid #f1f5f9;
         }
 
@@ -281,8 +281,8 @@ export default function FinancialReportsPage() {
         }
         .premium-table th {
           text-align: left;
-          padding: 16px 20px;
-          font-size: 12px;
+          padding: 10px 14px;
+          font-size: 11px;
           font-weight: 700;
           color: #64748b;
           text-transform: uppercase;
@@ -290,8 +290,8 @@ export default function FinancialReportsPage() {
           border-bottom: 2px solid #f1f5f9;
         }
         .premium-table td {
-          padding: 18px 20px;
-          font-size: 14px;
+          padding: 10px 14px;
+          font-size: 13px;
           color: #334155;
           border-bottom: 1px solid #f1f5f9;
           font-weight: 500;
@@ -310,66 +310,66 @@ export default function FinancialReportsPage() {
         }
         .row-group-header td {
           background: #f8fafc;
-          font-size: 12px !important;
+          font-size: 11px !important;
           font-weight: 700 !important;
           color: #475569 !important;
           text-transform: uppercase;
           letter-spacing: 1px;
-          padding: 12px 20px !important;
+          padding: 8px 14px !important;
         }
         .row-subtotal td {
           background: #f1f5f9;
           font-weight: 700 !important;
           color: #0f172a !important;
-          font-size: 15px !important;
+          font-size: 13px !important;
         }
         .row-net-profit td {
           background: #1e293b;
           color: white !important;
           font-weight: 700 !important;
-          font-size: 18px !important;
+          font-size: 14px !important;
           border: none !important;
         }
         .row-net-profit td:first-child {
-          border-radius: 12px 0 0 12px;
+          border-radius: 8px 0 0 8px;
         }
         .row-net-profit td:last-child {
-          border-radius: 0 12px 12px 0;
+          border-radius: 0 8px 8px 0;
         }
 
         .gst-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          margin-bottom: 32px;
+          gap: 16px;
+          margin-bottom: 24px;
         }
         .gst-card {
           background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
           border: 1px solid #e2e8f0;
-          border-radius: 16px;
-          padding: 24px;
+          border-radius: 12px;
+          padding: 16px;
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
         .gst-card-info h4 {
           margin: 0 0 4px 0;
-          font-size: 13px;
+          font-size: 11px;
           color: #64748b;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         .gst-card-info h2 {
           margin: 0;
-          font-size: 28px;
+          font-size: 20px;
           color: #0f172a;
           font-weight: 700;
         }
         .gst-card-icon {
           background: white;
-          padding: 16px;
+          padding: 10px;
           border-radius: 50%;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         @media (max-width: 1100px) {
@@ -379,7 +379,7 @@ export default function FinancialReportsPage() {
 
       <div className="header-section">
         <h1 className="header-title">
-          <PieChart size={28} color="#2563eb" strokeWidth={2.5} />
+          <PieChart size={24} color="#2563eb" strokeWidth={2.5} />
           Financial Reports
         </h1>
         <p className="header-subtitle">
@@ -542,7 +542,7 @@ function GstTab({ gst }) {
             <h2>{fmt(gst.taxableTurnover)}</h2>
           </div>
           <div className="gst-card-icon">
-            <Activity size={24} color="#64748b" />
+            <Activity size={18} color="#64748b" />
           </div>
         </div>
         <div className="gst-card">
@@ -551,7 +551,7 @@ function GstTab({ gst }) {
             <h2>{fmt(gst.totalGSTCollected)}</h2>
           </div>
           <div className="gst-card-icon">
-            <Building size={24} color="#64748b" />
+            <Building size={18} color="#64748b" />
           </div>
         </div>
       </div>
