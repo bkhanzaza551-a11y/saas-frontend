@@ -519,6 +519,8 @@ export default function SupportTicketsPage() {
                   </div>
                 </div>
               )}
+        </div>
+      </div>
     </div>
   );
 }

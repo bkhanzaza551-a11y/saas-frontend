@@ -1045,108 +1045,90 @@ export default function PosDashboardPage() {
               <button type="button" onClick={closeDetail} style={{ position: 'absolute', right: 0, background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '50%', cursor: 'pointer', padding: '6px', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
             </div>
 
-            <div className="pos-layout" style={{ height: "calc(95vh - 50px)", margin: 0, padding: 0, borderRadius: "0 0 16px 16px" }}>
-              {/* TOP BAR */}
-              <div className="pos-topbar" style={{ padding: "12px 20px" }}>
-                <div className="pos-topbar-left">
-                  <div className="pos-gender-toggles">
-                    <button className={`pos-gender-btn ${posGender === "ALL" ? "active" : ""}`} onClick={() => setPosGender("ALL")}>All</button>
-                    <button className={`pos-gender-btn ${posGender === "FEMALE" ? "active" : ""}`} onClick={() => setPosGender("FEMALE")}>Female</button>
-                    <button className={`pos-gender-btn ${posGender === "MALE" ? "active" : ""}`} onClick={() => setPosGender("MALE")}>Male</button>
+            <div className="pos-detail-split-pane" style={{ padding: "12px", overflowY: "auto", display: "grid", gridTemplateColumns: "minmax(260px, 1fr) 2.8fr", gap: "16px", height: "calc(95vh - 50px)" }}>
+              {/* Left Panel - Categories & Services / Products */}
+              <div className="pos-detail-left" style={{ background: "#f1f5f9", borderRadius: "8px", padding: "10px", display: "flex", flexDirection: "column", gap: "10px", maxHeight: "calc(95vh - 80px)", overflowY: "hidden", opacity: isEditing ? 1 : 0.6, pointerEvents: isEditing ? "auto" : "none" }}>
+                <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: "4px", flex: "1 0 auto" }}>
+                    <button onClick={() => setPosGender("FEMALE")} style={{ padding: "6px 10px", borderRadius: "6px", border: posGender === "FEMALE" ? "none" : "1px solid #cbd5e1", background: posGender === "FEMALE" ? "#3b82f6" : "white", color: posGender === "FEMALE" ? "white" : "#334155", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer" }}>Female</button>
+                    <button onClick={() => setPosGender("MALE")} style={{ padding: "6px 10px", borderRadius: "6px", border: posGender === "MALE" ? "none" : "1px solid #cbd5e1", background: posGender === "MALE" ? "#3b82f6" : "white", color: posGender === "MALE" ? "white" : "#334155", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer" }}>Male</button>
                   </div>
-                  <div className="pos-search-wrapper">
-                    <input 
-                      placeholder={posTab === "billing" ? "Search Service" : "Search Product"} 
-                      value={posTab === "billing" ? serviceSearch : productSearch} 
-                      onChange={(e) => {
-                          const val = e.target.value;
-                          if (posTab === "billing") setServiceSearch(val);
-                          else setProductSearch(val);
-                        }} 
-                    />
-                    <svg className="pos-search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <div style={{ flex: "1 1 100%" }}>
+                    <input type="text" placeholder={`Search ${posTab === "billing" ? "Service" : "Product"}`} value={posTab === "billing" ? serviceSearch : productSearch} onChange={(e) => { const val = e.target.value; if (posTab === "billing") setServiceSearch(val); else setProductSearch(val); }} style={{ padding: "6px 12px", borderRadius: "20px", border: "1px solid #cbd5e1", width: "100%", fontSize: "0.75rem", outline: "none", boxSizing: "border-box" }} />
                   </div>
                 </div>
-                <div className="pos-topbar-right">
-                  <button className={`pos-top-tab ${posTab === "billing" ? "active" : ""}`} onClick={() => setPosTab("billing")}>Add Service</button>
-                  <button className={`pos-top-tab ${posTab === "products" ? "active" : ""}`} onClick={() => setPosTab("products")}>Add Product</button>
-                  <button className="pos-top-tab" onClick={() => { setPkgModalPkg(null); setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" }); setShowPkgModal(true); }}>Add Package</button>
-                  <button className="pos-top-tab" onClick={() => { setGcModalGc(null); setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) }); setShowGcModal(true); }}>Add GiftCard</button>
-                  <button className="pos-top-tab" onClick={() => { setMemModalMem(null); setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] }); setShowMemModal(true); }}>Add Membership</button>
+                
+                <div className="no-scrollbar" style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: "4px", whiteSpace: "nowrap" }}>
+                  <button onClick={() => { if (posTab === "billing") setServiceCategoryFilter(""); else setProductCategoryFilter(""); }} style={{ flexShrink: 0, padding: "6px 10px", borderRadius: "6px", border: !(posTab === "billing" ? serviceCategoryFilter : productCategoryFilter) ? "2px solid #3b82f6" : "1px solid #cbd5e1", background: !(posTab === "billing" ? serviceCategoryFilter : productCategoryFilter) ? "#eff6ff" : "white", color: !(posTab === "billing" ? serviceCategoryFilter : productCategoryFilter) ? "#1d4ed8" : "#334155", fontWeight: !(posTab === "billing" ? serviceCategoryFilter : productCategoryFilter) ? 700 : 600, fontSize: "0.7rem", cursor: "pointer" }}>ALL</button>
+                  {((posTab === "billing" ? posContext.serviceCategories : posContext.productCategories) || []).map(cat => {
+                    const isActive = posTab === "billing" ? (serviceCategoryFilter === cat.name) : (productCategoryFilter === (cat.id || cat.name));
+                    return (
+                      <button key={cat.id || cat.name} onClick={() => { if (posTab === "billing") setServiceCategoryFilter(cat.name); else setProductCategoryFilter(cat.id || cat.name); }} style={{ flexShrink: 0, padding: "6px 10px", borderRadius: "6px", border: isActive ? "2px solid #3b82f6" : "1px solid #cbd5e1", background: isActive ? "#eff6ff" : "white", color: isActive ? "#1d4ed8" : "#334155", fontWeight: isActive ? 700 : 600, fontSize: "0.7rem", cursor: "pointer" }}>{cat.name.toUpperCase()}</button>
+                    );
+                  })}
+                </div>
+
+                <div style={{ overflowY: "auto", flex: 1, paddingRight: "4px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {posTab === "billing" && serviceTileGroups.map((group) => (
+                    <div key={group.title}>
+                      <h4 style={{ margin: "0 0 8px 0", color: "#0f172a", fontSize: "0.8rem", fontWeight: 800 }}>{group.title}</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                        {group.items.map((service) => (
+                          <div key={service.id} onClick={() => addQuickService(service)} style={{ border: "1px solid #cbd5e1", borderRadius: "6px", padding: "6px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "6px", cursor: "pointer", background: "white", transition: "all 0.2s", boxShadow: "none" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; }}>
+                            <div style={{ fontWeight: 600, fontSize: "0.7rem", color: "#1e293b", lineHeight: "1.2" }}>{service.name}</div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                              <span style={{ color: "#16a34a", fontWeight: 700, fontSize: "0.75rem" }}>{Number(service.salesPrice || service.price || 0).toFixed(0)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {posTab === "billing" && serviceTileGroups.length === 0 && (
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "12px", textAlign: "center" }}>No services found.</div>
+                  )}
+
+                  {posTab === "products" && productTileGroups.map((group) => (
+                    <div key={group.title}>
+                      <h4 style={{ margin: "0 0 8px 0", color: "#0f172a", fontSize: "0.8rem", fontWeight: 800 }}>{group.title}</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                        {group.items.map((product) => (
+                          <div key={product.id} onClick={() => addQuickProduct(product)} style={{ border: "1px solid #cbd5e1", borderRadius: "6px", padding: "6px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "6px", cursor: "pointer", background: "white", position: "relative", transition: "all 0.2s", boxShadow: "none" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; }}>
+                            {Array.isArray(product.variations) && product.variations.length > 0 && <div style={{ position: "absolute", top: 4, left: 4, fontSize: 9, background: "#dbeafe", color: "#1d4ed8", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>Customisable</div>}
+                            <div style={{ fontWeight: 600, fontSize: "0.7rem", color: "#1e293b", lineHeight: "1.2", marginTop: Array.isArray(product.variations) && product.variations.length > 0 ? "14px" : "0" }}>{product.name}</div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                              <span style={{ color: "#16a34a", fontWeight: 700, fontSize: "0.75rem" }}>{Number(product.sellingPrice || product.price || 0).toFixed(0)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {posTab === "products" && productTileGroups.length === 0 && (
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "12px", textAlign: "center" }}>No products found.</div>
+                  )}
                 </div>
               </div>
 
-              <div className="pos-body" style={{ height: "calc(100% - 65px)" }}>
-                {/* LEFT SIDEBAR */}
-                <div className="pos-sidebar" style={{ opacity: isEditing ? 1 : 0.6, pointerEvents: isEditing ? "auto" : "none" }}>
-                  <div className="pos-cat-grid">
-                    {posTab === "products" ? (
-                      <>
-                        <button className={`pos-cat-btn ${!productCategoryFilter ? "active" : ""}`} onClick={() => setProductCategoryFilter("")}>ALL</button>
-                        {(posContext.productCategories || []).slice(0, 6).map(c => <button key={c.id || c.name} className={`pos-cat-btn ${productCategoryFilter === (c.id || c.name) ? "active" : ""}`} onClick={() => setProductCategoryFilter(c.id || c.name)}>{c.name}</button>)}
-                      </>
-                    ) : (
-                      <>
-                        <button className={`pos-cat-btn ${!serviceCategoryFilter ? "active" : ""}`} onClick={() => setServiceCategoryFilter("")}>ALL</button>
-                        {(posContext.serviceCategories || []).slice(0, 6).map(c => <button key={c.id} className={`pos-cat-btn ${serviceCategoryFilter === (c.name) ? "active" : ""}`} onClick={() => setServiceCategoryFilter(c.name)}>{c.name}</button>)}
-                      </>
-                    )}
-                  </div>
-
-                  <div className="pos-item-list-container">
-                    {posTab === "products" ? (
-                      productTileGroups.length > 0 ? (
-                        productTileGroups.map((group) => (
-                          <div key={group.title}>
-                            <div className="pos-group-header">{group.title}</div>
-                            <div className="pos-item-grid">
-                               {group.items.map((product) => (
-                                <button type="button" key={product.id} className="pos-item-card" onClick={() => addQuickProduct(product)}>
-                                  {Array.isArray(product.variations) && product.variations.length > 0 && <div style={{ position: "absolute", top: 4, left: 4, fontSize: 9, background: "#dbeafe", color: "#1d4ed8", padding: "1px 5px", borderRadius: 4, fontWeight: 700, lineHeight: "14px" }}>Customisable</div>}
-                                  <div className="pos-item-card-name">{product.name}</div>
-                                  <div className="pos-item-card-prices">
-                                    <span className="pos-item-card-price-new">{Number(product.sellingPrice || product.price || 0).toFixed(0)}</span>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8", fontSize: "0.9rem" }}>No products found.</div>
-                      )
-                    ) : (
-                      serviceTileGroups.length > 0 ? (
-                        serviceTileGroups.map((group) => (
-                          <div key={group.title}>
-                            <div className="pos-group-header">{group.title}</div>
-                            <div className="pos-item-grid">
-                              {group.items.map((service) => (
-                                <button type="button" key={service.id} className="pos-item-card" onClick={() => addQuickService(service)}>
-                                  <div className="pos-item-card-name">{service.name}</div>
-                                  <div className="pos-item-card-prices">
-                                    <span className="pos-item-card-price-new">{Number(service.salesPrice || service.price || 0).toFixed(0)}</span>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8", fontSize: "0.9rem" }}>No services found.</div>
-                      )
-                    )}
-                  </div>
+              {/* Right Panel - Cart & Checkout */}
+              <div className="pos-detail-right" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                
+                {/* Top Tabs */}
+                <div className="no-scrollbar" style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" }}>
+                  <button onClick={() => setPosTab("billing")} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: posTab === "billing" ? "2px solid #3b82f6" : "1px solid #e2e8f0", background: posTab === "billing" ? "#eff6ff" : "white", color: posTab === "billing" ? "#1d4ed8" : "#64748b", fontWeight: posTab === "billing" ? 700 : 600, fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}>Add Service</button>
+                  <button onClick={() => setPosTab("products")} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: posTab === "products" ? "2px solid #3b82f6" : "1px solid #e2e8f0", background: posTab === "products" ? "#eff6ff" : "white", color: posTab === "products" ? "#1d4ed8" : "#64748b", fontWeight: posTab === "products" ? 700 : 600, fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}>Add Product</button>
+                  <button onClick={() => { setPkgModalPkg(null); setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" }); setShowPkgModal(true); }} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "white", fontWeight: 600, color: "#1e293b", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; }}>Add Package</button>
+                  <button onClick={() => { setGcModalGc(null); setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) }); setShowGcModal(true); }} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "white", fontWeight: 600, color: "#1e293b", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; }}>Add GiftCard</button>
+                  <button onClick={() => { setMemModalMem(null); setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] }); setShowMemModal(true); }} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "white", fontWeight: 600, color: "#1e293b", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}>Add Membership</button>
                 </div>
-
-                <div className="pos-main" style={{ position: "relative" }}>
+                <div style={{ background: "white", borderRadius: "8px", border: "1px solid #e2e8f0", padding: "12px", display: "flex", flexDirection: "column", flex: 1, overflowY: "hidden", position: "relative" }}>
                   {!isEditing ? (
-                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", zIndex: 30, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", zIndex: 30, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)", borderRadius: "8px" }}>
                       <button className="btn-edit-shield" onClick={() => { setIsEditing(true); setPaymentDraft({ online: String(paidOnline), offline: String(paidOffline) }); }} style={{ padding: "10px 28px", borderRadius: 24, fontSize: "13px", fontWeight: 700, background: "#3b82f6", color: "#fff", boxShadow: "0 4px 12px rgba(59, 130, 246, 0.4)", border: "none", cursor: "pointer" }}>CLICK HERE TO EDIT</button>
                     </div>
                   ) : null}
-                  <div className="pos-invoice-section" style={{ height: "100%", overflowY: "auto", padding: "20px" }}>
-                    <div className="pos-invoice-header">
+                  <div className="pos-invoice-section" style={{ height: "100%", overflowY: "auto", padding: "8px" }}>
+                    <div className="pos-invoice-header" style={{ marginBottom: "12px" }}>
                       <h4>Invoice</h4>
                       <div className="pos-invoice-date">
                         {new Date(invoiceDetail?.createdAt || detail.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-")}
