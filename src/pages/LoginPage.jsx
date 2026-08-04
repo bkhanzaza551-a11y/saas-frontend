@@ -197,12 +197,10 @@ export default function LoginPage() {
         }
 
         .login-logo {
-          width: 72px;
-          height: 72px;
-          border-radius: 16px;
-          object-fit: cover;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-          border: 2px solid white;
+          max-width: 220px;
+          height: auto;
+          max-height: 80px;
+          object-fit: contain;
         }
 
         .login-title {
@@ -448,15 +446,17 @@ export default function LoginPage() {
                           />
                         </div>
 
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', margin: '20px 0', userSelect: 'none' }}>
-                          <input
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(event) => setRememberMe(event.target.checked)}
-                            style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#3b82f6', borderRadius: '4px' }}
-                          />
-                          <span style={{ fontSize: '0.9rem', color: '#475569', fontWeight: 500 }}>Keep me logged in</span>
-                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', margin: '20px 0' }}>
+                          <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none', margin: 0 }}>
+                            <input
+                              type="checkbox"
+                              checked={rememberMe}
+                              onChange={(event) => setRememberMe(event.target.checked)}
+                              style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#3b82f6', borderRadius: '4px', margin: 0 }}
+                            />
+                            <span style={{ fontSize: '0.9rem', color: '#475569', fontWeight: 500, margin: 0 }}>Keep me logged in</span>
+                          </label>
+                        </div>
 
                         {err && <div className="error-text" style={{ padding: '12px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '16px', fontWeight: 500 }}>{err}</div>}
 
