@@ -5,7 +5,7 @@ import { api } from "../../api/client";
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1600&fit=crop";
 
 export default function HomePage() {
-  const { salon } = useOutletContext();
+  const { salon, selectedBranchId } = useOutletContext();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,11 +20,12 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!salon?.slug) return;
-    api.get(`/public/salon/${salon.slug}/storefront-services`)
+    setLoading(true);
+    api.get(`/public/salon/${salon.slug}/storefront-services`, { params: { branchId: selectedBranchId } })
       .then(res => setServices(res.data?.services || []))
       .catch(() => setServices([]))
       .finally(() => setLoading(false));
-  }, [salon?.slug]);
+  }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
     document.title = `${salon.name} — Premium Salon Services`;
@@ -131,13 +132,34 @@ export default function HomePage() {
         );
 
       case "testimonials":
+        if (!config.testimonials || config.testimonials.length === 0) return null;
+        return (
+          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-surface)" }}>
+            <div className="sf-section-title">
+              <span>Client Reviews</span>
+              <h2>What Our Clients Say</h2>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+              {config.testimonials.map((t, i) => (
+                <div key={i} style={{ background: "#fff", padding: 32, borderRadius: "var(--sf-radius-md)", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                  <div style={{ color: "var(--sf-text-main)", marginBottom: 16 }}>
+                    {Array.from({ length: t.rating || 5 }).map((_, j) => (
+                      <span key={j}>★</span>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: "1.1rem", fontStyle: "italic", marginBottom: 24, lineHeight: 1.6 }}>"{t.text}"</p>
+                  <h4 style={{ fontSize: "1.1rem" }}>{t.author}</h4>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+
       case "contact":
       case "hours":
       case "social":
       case "banner":
       case "cta":
-        // For brevity and elegance in the premium layout, these sections are implemented cleanly
-        // if they contain data.
         return (
           <section key={sec.id} className="sf-section" style={{ background: sec.type === 'cta' ? "var(--sf-text-main)" : "transparent", color: sec.type === 'cta' ? "#fff" : "inherit" }}>
             <div className="sf-section-title">

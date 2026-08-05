@@ -17,21 +17,36 @@ function loadBookings() {
   } catch { return []; }
 }
 
+function loadBranch() {
+  try { return localStorage.getItem(BRANCH_KEY) || ""; } catch { return ""; }
+}
+
 export default function StorefrontLayout() {
   const { slug } = useParams();
   const [salon, setSalon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState(loadBookings);
   const [cartOpen, setCartOpen] = useState(false);
+  const [selectedBranchId, setSelectedBranchId] = useState(loadBranch);
 
   useEffect(() => {
     localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
   }, [bookings]);
 
   useEffect(() => {
+    localStorage.setItem(BRANCH_KEY, selectedBranchId);
+  }, [selectedBranchId]);
+
+  useEffect(() => {
     if (!slug) return;
     api.get(`/public/salon/${slug}`)
-      .then(res => setSalon(res.data.salon))
+      .then(res => {
+        const s = res.data.salon;
+        setSalon(s);
+        if (!selectedBranchId && s.branches && s.branches.length > 0) {
+          setSelectedBranchId(s.branches[0].id);
+        }
+      })
       .catch(() => setSalon(null))
       .finally(() => setLoading(false));
   }, [slug]);
@@ -49,6 +64,7 @@ export default function StorefrontLayout() {
         duration: service.durationMin,
         imageUrl: service.imageUrl,
         date, time, qty: 1,
+        branchId: selectedBranchId,
         createdAt: Date.now(),
       }];
     });
@@ -75,15 +91,31 @@ export default function StorefrontLayout() {
             <Link to={`/site/${slug}/services`}>Our Services</Link>
             <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
           </nav>
-          <button className="sf-btn-dark" onClick={() => setCartOpen(true)}>
-            Bookings ({bookings.length})
-          </button>
+          
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            {salon.branches && salon.branches.length > 0 && (
+              <select 
+                value={selectedBranchId} 
+                onChange={e => setSelectedBranchId(e.target.value)}
+                style={{ padding: "10px 16px", borderRadius: 100, border: "1px solid var(--sf-border)", background: "transparent", fontSize: "0.9rem", fontWeight: 500, outline: "none", cursor: "pointer" }}
+              >
+                <option value="">All Branches</option>
+                {salon.branches.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            )}
+            
+            <button className="sf-btn-dark" onClick={() => setCartOpen(true)}>
+              Bookings ({bookings.length})
+            </button>
+          </div>
         </div>
       </header>
 
       <main style={{ flex: 1 }}>
         <StorefrontErrorBoundary>
-          <Outlet context={{ salon, bookings, addBooking }} />
+          <Outlet context={{ salon, bookings, addBooking, selectedBranchId }} />
         </StorefrontErrorBoundary>
       </main>
 

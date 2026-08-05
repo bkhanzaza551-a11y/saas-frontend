@@ -3,21 +3,22 @@ import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
 
 export default function CollectionsPage() {
-  const { salon } = useOutletContext();
+  const { salon, selectedBranchId } = useOutletContext();
   const [allServices, setAllServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     if (!salon?.slug) return;
+    setLoading(true);
     api
-      .get(`/public/salon/${salon.slug}/storefront-services`)
+      .get(`/public/salon/${salon.slug}/storefront-services`, { params: { branchId: selectedBranchId } })
       .then(res => {
         setAllServices(res.data.services || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [salon?.slug]);
+  }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
     document.title = `Services — ${salon.name}`;
