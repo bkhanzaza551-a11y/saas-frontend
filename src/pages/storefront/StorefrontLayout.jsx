@@ -97,7 +97,7 @@ export default function StorefrontLayout() {
               <select 
                 value={selectedBranchId} 
                 onChange={e => setSelectedBranchId(e.target.value)}
-                style={{ padding: "10px 16px", borderRadius: 100, border: "1px solid var(--sf-border)", background: "transparent", fontSize: "0.9rem", fontWeight: 500, outline: "none", cursor: "pointer" }}
+                style={{ padding: "12px 20px", borderRadius: 100, border: "1px solid var(--sf-border)", background: "var(--sf-surface)", fontSize: "0.95rem", fontWeight: 500, outline: "none", cursor: "pointer" }}
               >
                 <option value="">All Branches</option>
                 {salon.branches.map(b => (
@@ -119,32 +119,32 @@ export default function StorefrontLayout() {
         </StorefrontErrorBoundary>
       </main>
 
-      <footer className="sf-footer" style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 80, paddingBottom: 40 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 60, textAlign: "left", marginBottom: 60 }}>
+      <footer className="sf-footer">
+        <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 60, textAlign: "left", marginBottom: 60 }}>
           <div>
-            <h3 style={{ fontSize: "1.8rem", marginBottom: 24 }}>{salon.name}</h3>
-            <p style={{ lineHeight: 1.8, color: "rgba(255,255,255,0.7)" }}>
+            <h3>{salon.name}</h3>
+            <p style={{ lineHeight: 1.8, color: "rgba(255,255,255,0.6)" }}>
               {salon.websiteConfig?.footerText || "Experience luxury and premium care at our salon. We are dedicated to bringing out your best self."}
             </p>
           </div>
           <div>
-            <h4 style={{ fontSize: "1.2rem", marginBottom: 24, textTransform: "uppercase", letterSpacing: "0.05em" }}>Quick Links</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <Link to={`/site/${slug}`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Home</Link>
-              <Link to={`/site/${slug}/services`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Our Services</Link>
-              <Link to={`/site/${slug}/my-bookings`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Track Bookings</Link>
+            <h4>Quick Links</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 20 }}>
+              <Link to={`/site/${slug}`} style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Home</Link>
+              <Link to={`/site/${slug}/services`} style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Our Services</Link>
+              <Link to={`/site/${slug}/my-bookings`} style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Track Bookings</Link>
             </div>
           </div>
           <div>
-            <h4 style={{ fontSize: "1.2rem", marginBottom: 24, textTransform: "uppercase", letterSpacing: "0.05em" }}>Contact Us</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>
+            <h4>Contact Us</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 20, color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
               <span>{salon.email || "contact@salon.com"}</span>
               <span>{salon.phone || "+1 234 567 8900"}</span>
               <span>{salon.address || "123 Premium Street, Beauty District"}</span>
             </div>
           </div>
         </div>
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 40, color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 40, color: "rgba(255,255,255,0.4)", fontSize: "0.95rem", textAlign: "center" }}>
           &copy; {new Date().getFullYear()} {salon.name}. All rights reserved.
         </div>
       </footer>
@@ -158,7 +158,7 @@ export default function StorefrontLayout() {
         </div>
         <div className="sf-drawer-body">
           {bookings.length === 0 ? (
-            <p style={{ color: "var(--sf-text-muted)" }}>No services selected yet.</p>
+            <p style={{ color: "var(--sf-text-muted)", fontSize: "1.1rem" }}>No services selected yet.</p>
           ) : (
             bookings.map((b, i) => (
               <div key={i} className="sf-cart-item">
@@ -168,8 +168,8 @@ export default function StorefrontLayout() {
                   <div className="sf-cart-item-meta">{new Date(b.date).toLocaleDateString()} at {b.time}</div>
                   <div className="sf-cart-item-meta">{b.duration} mins</div>
                   <div className="sf-cart-item-price" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    {salon.currency} {Number(b.price).toLocaleString()}
-                    <button onClick={() => removeBooking(i)} style={{ color: "#ef4444", fontSize: "0.9rem", textDecoration: "underline" }}>Remove</button>
+                    <span style={{ color: "var(--sf-luxury-gold)" }}>{salon.currency} {Number(b.price).toLocaleString()}</span>
+                    <button onClick={() => removeBooking(i)} style={{ color: "#ef4444", fontSize: "0.95rem", fontWeight: "500" }}>Remove</button>
                   </div>
                 </div>
               </div>
@@ -179,7 +179,7 @@ export default function StorefrontLayout() {
         <div className="sf-drawer-footer">
           <div className="sf-cart-total">
             <span>Total</span>
-            <span>{salon.currency} {cartTotal.toLocaleString()}</span>
+            <span style={{ color: "var(--sf-luxury-gold)" }}>{salon.currency} {cartTotal.toLocaleString()}</span>
           </div>
           <Link to={`/site/${slug}/checkout`} style={{ display: "block", textDecoration: "none" }}>
             <button className="sf-btn-block" disabled={bookings.length === 0} onClick={() => setCartOpen(false)}>

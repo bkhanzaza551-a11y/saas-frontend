@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1600&fit=crop";
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&fit=crop";
 
 export default function HomePage() {
   const { salon, selectedBranchId } = useOutletContext();
@@ -40,26 +40,22 @@ export default function HomePage() {
         return (
           <section key={sec.id} className="sf-hero sf-animate">
             <div className="sf-hero-content">
-              <h1 style={{ color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>{config.heroTitle || salon.name}</h1>
-              <p style={{ color: "rgba(255,255,255,0.9)", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>{config.heroSubtitle || "Discover premium salon services."}</p>
+              <h1>{config.heroTitle || salon.name}</h1>
+              <p>{config.heroSubtitle || "Elevate your style with our premium salon experience."}</p>
               <div className="sf-hero-actions">
-                <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark">Explore Services</Link>
+                <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">Explore Services</Link>
               </div>
             </div>
             
             <div style={{ position: "absolute", inset: 0, zIndex: 1, overflow: "hidden" }}>
               <video 
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                preload="auto"
+                autoPlay loop muted playsInline preload="auto"
                 poster={config.heroImage || FALLBACK_IMG}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               >
                 <source src="https://cdn.pixabay.com/video/2020/05/26/40141-424888200_large.mp4" type="video/mp4" />
               </video>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7))" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8))" }} />
             </div>
           </section>
         );
@@ -78,7 +74,7 @@ export default function HomePage() {
             ) : (
               <div className="sf-services-grid">
                 {services.slice(0, 6).map(service => (
-                  <Link to={`/site/${salon.slug}/service/${service.id}`} key={service.id} style={{ textDecoration: "none", color: "inherit" }}>
+                  <Link to={`/site/${salon.slug}/service/${service.id}`} key={service.id}>
                     <div className="sf-service-card">
                       <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} className="sf-service-img" />
                       <div className="sf-service-content">
@@ -98,8 +94,8 @@ export default function HomePage() {
               </div>
             )}
             {services.length > 6 && (
-              <div style={{ textAlign: "center", marginTop: 60 }}>
-                <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">View All Services</Link>
+              <div style={{ textAlign: "center", marginTop: 80 }}>
+                <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark">View All Services</Link>
               </div>
             )}
           </section>
@@ -108,13 +104,13 @@ export default function HomePage() {
       case "about":
         const aboutText = config.aboutText || "Welcome to our premium salon. We are dedicated to providing you with the highest quality of service and care in a relaxing environment.";
         return (
-          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-surface)", textAlign: "center" }}>
+          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-surface)", textAlign: "center", borderRadius: "var(--sf-radius-lg)", margin: "0 20px" }}>
             <div style={{ maxWidth: 800, margin: "0 auto" }}>
               <div className="sf-section-title" style={{ marginBottom: 40 }}>
                 <span>Our Story</span>
                 <h2>About {salon.name}</h2>
               </div>
-              <p style={{ fontSize: "1.2rem", color: "var(--sf-text-muted)", lineHeight: 1.8 }}>
+              <p style={{ fontSize: "1.25rem", color: "var(--sf-text-muted)", lineHeight: 1.8 }}>
                 {aboutText}
               </p>
             </div>
@@ -133,9 +129,9 @@ export default function HomePage() {
               <span>Portfolio</span>
               <h2>Our Work</h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
               {gallery.map((img, i) => (
-                <div key={i} style={{ borderRadius: "var(--sf-radius-md)", overflow: "hidden", height: 250 }}>
+                <div key={i} style={{ borderRadius: "var(--sf-radius-md)", overflow: "hidden", height: 350 }}>
                   <img src={img} alt={`Gallery ${i+1}`} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "var(--sf-transition)" }} className="sf-service-img" />
                 </div>
               ))}
@@ -150,48 +146,23 @@ export default function HomePage() {
           { text: "A truly luxurious experience from start to finish. I'll definitely be coming back.", author: "Emily R.", rating: 5 }
         ];
         return (
-          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-surface)" }}>
+          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-bg)" }}>
             <div className="sf-section-title">
               <span>Client Reviews</span>
               <h2>What Our Clients Say</h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32 }}>
               {testimonials.map((t, i) => (
-                <div key={i} style={{ background: "#fff", padding: 32, borderRadius: "var(--sf-radius-md)", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-                  <div style={{ color: "var(--sf-text-main)", marginBottom: 16 }}>
+                <div key={i} style={{ background: "#fff", padding: 40, borderRadius: "var(--sf-radius-lg)", boxShadow: "var(--sf-shadow-sm)" }}>
+                  <div style={{ color: "var(--sf-luxury-gold)", marginBottom: 20, fontSize: "1.2rem" }}>
                     {Array.from({ length: t.rating || 5 }).map((_, j) => (
                       <span key={j}>★</span>
                     ))}
                   </div>
-                  <p style={{ fontSize: "1.1rem", fontStyle: "italic", marginBottom: 24, lineHeight: 1.6 }}>"{t.text}"</p>
-                  <h4 style={{ fontSize: "1.1rem" }}>{t.author}</h4>
+                  <p style={{ fontSize: "1.1rem", fontStyle: "italic", marginBottom: 24, lineHeight: 1.7, color: "var(--sf-text-muted)" }}>"{t.text}"</p>
+                  <h4 style={{ fontSize: "1.2rem" }}>{t.author}</h4>
                 </div>
               ))}
-            </div>
-          </section>
-        );
-
-      case "contact":
-      case "hours":
-      case "social":
-      case "banner":
-      case "cta":
-        return (
-          <section key={sec.id} className="sf-section" style={{ background: sec.type === 'cta' ? "var(--sf-text-main)" : "transparent", color: sec.type === 'cta' ? "#fff" : "inherit" }}>
-            <div className="sf-section-title">
-              <h2 style={{ color: sec.type === 'cta' ? "#fff" : "inherit" }}>{sec.label}</h2>
-            </div>
-            <div style={{ textAlign: "center", color: sec.type === 'cta' ? "rgba(255,255,255,0.8)" : "var(--sf-text-muted)" }}>
-              {sec.type === "contact" ? (
-                 <p>{salon.email}<br/>{salon.phone}<br/>{salon.address}</p>
-              ) : sec.type === "cta" ? (
-                 <div>
-                   <p style={{ marginBottom: 32 }}>Book your premium experience today.</p>
-                   <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline" style={{ borderColor: "#fff", color: "#fff" }}>Book Appointment</Link>
-                 </div>
-              ) : (
-                 <p>Information coming soon.</p>
-              )}
             </div>
           </section>
         );
