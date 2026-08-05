@@ -53,6 +53,8 @@ export default function HomePage() {
                 loop 
                 muted 
                 playsInline
+                preload="auto"
+                poster={config.heroImage || FALLBACK_IMG}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               >
                 <source src="https://cdn.pixabay.com/video/2020/05/26/40141-424888200_large.mp4" type="video/mp4" />
