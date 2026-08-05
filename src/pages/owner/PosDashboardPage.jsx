@@ -1115,11 +1115,11 @@ export default function PosDashboardPage() {
                 
                 {/* Top Tabs */}
                 <div className="no-scrollbar" style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" }}>
-                  <button onClick={() => setPosTab("billing")} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: posTab === "billing" ? "2px solid #3b82f6" : "1px solid #e2e8f0", background: posTab === "billing" ? "#eff6ff" : "white", color: posTab === "billing" ? "#1d4ed8" : "#64748b", fontWeight: posTab === "billing" ? 700 : 600, fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}>Add Service</button>
-                  <button onClick={() => setPosTab("products")} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: posTab === "products" ? "2px solid #3b82f6" : "1px solid #e2e8f0", background: posTab === "products" ? "#eff6ff" : "white", color: posTab === "products" ? "#1d4ed8" : "#64748b", fontWeight: posTab === "products" ? 700 : 600, fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}>Add Product</button>
-                  <button onClick={() => { setPkgModalPkg(null); setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" }); setShowPkgModal(true); }} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "white", fontWeight: 600, color: "#1e293b", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; }}>Add Package</button>
-                  <button onClick={() => { setGcModalGc(null); setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) }); setShowGcModal(true); }} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "white", fontWeight: 600, color: "#1e293b", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; }}>Add GiftCard</button>
-                  <button onClick={() => { setMemModalMem(null); setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] }); setShowMemModal(true); }} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "white", fontWeight: 600, color: "#1e293b", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}>Add Membership</button>
+                  <button className={`pos-top-tab ${posTab === "billing" ? "active" : ""}`} onClick={() => setPosTab("billing")}>Add Service</button>
+                  <button className={`pos-top-tab ${posTab === "products" ? "active" : ""}`} onClick={() => setPosTab("products")}>Add Product</button>
+                  <button className="pos-top-tab" onClick={() => { setPkgModalPkg(null); setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" }); setShowPkgModal(true); }}>Add Package</button>
+                  <button className="pos-top-tab" onClick={() => { setGcModalGc(null); setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) }); setShowGcModal(true); }}>Add GiftCard</button>
+                  <button className="pos-top-tab" onClick={() => { setMemModalMem(null); setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] }); setShowMemModal(true); }}>Add Membership</button>
                 </div>
                 <div style={{ background: "white", borderRadius: "8px", border: "1px solid #e2e8f0", padding: "12px", display: "flex", flexDirection: "column", flex: 1, overflowY: "hidden", position: "relative" }}>
                   {!isEditing ? (
@@ -1145,18 +1145,18 @@ export default function PosDashboardPage() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Dates</span>
-                          <span>DOB: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.dateOfBirth ? new Date(detail.customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "NA"}</strong></span>
-                          <span>Anniv: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.anniversary ? new Date(detail.customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "NA"}</strong></span>
+                          <span>DOB: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.dateOfBirth ? new Date(detail.customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "-"}</strong></span>
+                          <span>Anniv: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.anniversary ? new Date(detail.customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "-"}</strong></span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Visits & Dues</span>
-                          <span>Last: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.lastVisitAt ? new Date(detail.customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "NA"}</strong></span>
-                          <span>Due Bal: <strong style={{ color: "#e2e8f0" }}>NA</strong></span>
+                          <span>Last: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.lastVisitAt ? new Date(detail.customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "-"}</strong></span>
+                          <span>Due Bal: <strong style={{ color: "#e2e8f0" }}>-</strong></span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Subscriptions</span>
-                          <span>Membership: <strong style={{ color: "#e2e8f0" }}>NA</strong></span>
-                          <span>Package: <strong style={{ color: "#e2e8f0" }}>NA</strong></span>
+                          <span>Membership: <strong style={{ color: "#e2e8f0" }}>-</strong></span>
+                          <span>Package: <strong style={{ color: "#e2e8f0" }}>-</strong></span>
                         </div>
                       </div>
                     </div>
@@ -1307,10 +1307,10 @@ export default function PosDashboardPage() {
                   <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                     <input type="text" placeholder="Add Order Instruction (Optional)" disabled={!isEditing} value={detailNote} onChange={(e) => setDetailNote(e.target.value)} style={{ flex: 1, padding: "8px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "12px", outline: "none" }} />
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button type="button" onClick={applyInvoiceLevelDiscount} disabled={!isEditing} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>Discount</button>
-                      <button type="button" onClick={() => { if (!isEditing) return; loadCustomerPackages(); }} disabled={!isEditing || loadingCustomerPkgs} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>{loadingCustomerPkgs ? "..." : "Package"}</button>
-                      <button type="button" onClick={() => { if (!isEditing) return; setGcRedemptionCode(""); setGcRedemptionResult(null); setShowApplyGcModal(true); }} disabled={!isEditing} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>Gift Card</button>
-                      <button type="button" onClick={() => { if (!isEditing) return; setShowTipModal(true); }} disabled={!isEditing} style={{ padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: "11px", fontWeight: 600, color: "#334155", cursor: "pointer" }}>Tip</button>
+                      <button type="button" onClick={applyInvoiceLevelDiscount} disabled={!isEditing} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>Discount</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; loadCustomerPackages(); }} disabled={!isEditing || loadingCustomerPkgs} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>{loadingCustomerPkgs ? "..." : "Package"}</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; setGcRedemptionCode(""); setGcRedemptionResult(null); setShowApplyGcModal(true); }} disabled={!isEditing} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>Gift Card</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; setShowTipModal(true); }} disabled={!isEditing} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>Tip</button>
                     </div>
                   </div>
 
@@ -1344,12 +1344,12 @@ export default function PosDashboardPage() {
 
                   {/* Bottom Row: Main Actions */}
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-                    <button type="button" onClick={() => { setIsEditing(false); closeDetail(); }} style={{ padding: "8px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#475569", cursor: "pointer" }}>Clear</button>
-                    <button type="button" onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }} style={{ padding: "8px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#ef4444", cursor: "pointer" }}>Cancel</button>
-                    <button type="button" onClick={openBillPreview} disabled={billLoading} style={{ padding: "8px 20px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#3b82f6", cursor: "pointer" }}>{billLoading ? "Loading..." : "View Bill"}</button>
-                    <button type="button" onClick={updateInvoice} disabled={!isEditing} style={{ padding: "8px 24px", background: "#3b82f6", border: "none", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#fff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.2)" }}>Update Bill</button>
+                    <button type="button" onClick={() => { setIsEditing(false); closeDetail(); }} className="pos-checkout-btn-clear" style={{ height: "36px !important", padding: "4px 16px !important" }}>Clear</button>
+                    <button type="button" onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }} className="pos-checkout-btn-clear" style={{ color: "#ef4444 !important", height: "36px !important", padding: "4px 16px !important" }}>Cancel</button>
+                    <button type="button" onClick={openBillPreview} disabled={billLoading} className="pos-action-btn" style={{ height: "36px !important", padding: "4px 16px !important" }}>{billLoading ? "Loading..." : "View Bill"}</button>
+                    <button type="button" onClick={updateInvoice} disabled={!isEditing} className="pos-checkout-btn-start" style={{ height: "36px !important", padding: "4px 16px !important", flex: "none" }}>Update Bill</button>
                     {(["STARTED", "UNPAID"].includes(invoiceDetail?.status || detailStatus || detail.status)) && (
-                      <button type="button" onClick={handleCompleteInvoice} disabled={completingInvoice} style={{ padding: "8px 24px", background: "#16a34a", border: "none", borderRadius: 8, fontSize: "12px", fontWeight: 700, color: "#fff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(22, 163, 74, 0.2)" }}>{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
+                      <button type="button" onClick={handleCompleteInvoice} disabled={completingInvoice} className="pos-checkout-btn-complete" style={{ height: "36px !important", padding: "4px 16px !important", flex: "none" }}>{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
                     )}
                   </div>
                 </div>
