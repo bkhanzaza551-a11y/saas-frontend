@@ -7,15 +7,12 @@ export default function HomePage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // New Extended Sections List
   const sections = [
     { id: "hero", type: "hero" },
     { id: "features", type: "features" },
     { id: "about", type: "about" },
     { id: "services", type: "services" },
-    { id: "team", type: "team" },
-    { id: "gallery", type: "gallery" },
-    { id: "cta", type: "cta" }
+    { id: "team", type: "team" }
   ];
 
   useEffect(() => {
@@ -28,7 +25,7 @@ export default function HomePage() {
   }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
-    document.title = `${salon?.name || "Premium Salon"} — Luxury Services`;
+    document.title = `${salon?.name || "Premium Salon"} — Professional Services`;
     window.scrollTo(0, 0);
   }, [salon?.name]);
 
@@ -37,7 +34,6 @@ export default function HomePage() {
       case "hero":
         return (
           <section key={sec.id} className="sf-hero">
-            {/* Professional Salon Background Video */}
             <video className="sf-hero-video" autoPlay loop muted playsInline>
               <source src="https://cdn.pixabay.com/video/2021/11/26/99351-651586567_large.mp4" type="video/mp4" />
             </video>
@@ -45,9 +41,9 @@ export default function HomePage() {
             
             <div className="sf-hero-content">
               <h1>Experience True Elegance</h1>
-              <p>Redefining beauty and grooming. Step into a world of luxury and let our expert stylists craft your perfect look.</p>
-              <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-                <Link to={`/site/${salon.slug}/services`} className="sf-btn-gold">Book Appointment</Link>
+              <p>Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look.</p>
+              <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
+                <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark">Book Appointment</Link>
                 <a href="#about" className="sf-btn-outline">Discover More</a>
               </div>
             </div>
@@ -56,7 +52,7 @@ export default function HomePage() {
 
       case "features":
         return (
-          <section key={sec.id} className="sf-section" style={{ background: "var(--surface)" }}>
+          <section key={sec.id} className="sf-section sf-section-surface">
             <div className="sf-section-title">
               <span>Why Choose Us</span>
               <h2>The Premium Standard</h2>
@@ -65,17 +61,17 @@ export default function HomePage() {
               <div className="sf-feature-card">
                 <div className="sf-feature-icon">✨</div>
                 <h3>Expert Stylists</h3>
-                <p>Our team consists of award-winning professionals dedicated to bringing your vision to life.</p>
+                <p>Our team consists of industry-leading professionals dedicated to bringing your vision to life.</p>
               </div>
               <div className="sf-feature-card">
                 <div className="sf-feature-icon">🌿</div>
                 <h3>Premium Products</h3>
-                <p>We only use top-tier, organic, and globally recognized products for your hair and skin.</p>
+                <p>We exclusively utilize top-tier, globally recognized products to ensure the health of your hair and skin.</p>
               </div>
               <div className="sf-feature-card">
-                <div className="sf-feature-icon">💎</div>
-                <h3>Luxury Ambiance</h3>
-                <p>Relax in our aesthetically designed VIP lounge while you receive your personalized treatment.</p>
+                <div className="sf-feature-icon">🤍</div>
+                <h3>Modern Ambiance</h3>
+                <p>Relax in our carefully designed minimalist lounge while receiving your personalized treatments.</p>
               </div>
             </div>
           </section>
@@ -88,24 +84,24 @@ export default function HomePage() {
               <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" alt="Salon Interior" />
             </div>
             <div className="sf-split-text">
-              <h2 style={{ fontSize: "36px", color: "var(--gold)", marginBottom: "20px" }}>The Art of Grooming</h2>
-              <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "30px", fontSize: "16px" }}>
-                At {salon.name}, we believe that self-care is an art form. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services. From precision haircuts to rejuvenating spa treatments, every detail is tailored to your unique style.
+              <h2 style={{ fontSize: "2.5rem", marginBottom: "20px" }}>The Art of Grooming</h2>
+              <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "32px", fontSize: "1.05rem" }}>
+                At {salon.name}, we approach self-care with precision and professionalism. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services. From precision haircuts to advanced skincare regimens, every detail is meticulously tailored to your requirements.
               </p>
-              <Link to={`/site/${salon.slug}/services`} className="sf-btn-gold">View Our Services</Link>
+              <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark">View Our Services</Link>
             </div>
           </section>
         );
 
       case "services":
         return (
-          <section key={sec.id} className="sf-section">
+          <section key={sec.id} className="sf-section sf-section-surface">
             <div className="sf-section-title">
               <span>Our Menu</span>
               <h2>Signature Services</h2>
             </div>
             {loading ? (
-              <div style={{ textAlign: "center", color: "var(--gold)" }}>Loading luxury services...</div>
+              <div style={{ textAlign: "center", padding: "40px" }}>Loading professional services...</div>
             ) : (
               <div className="sf-services-grid">
                 {services.slice(0, 6).map(service => (
@@ -114,9 +110,9 @@ export default function HomePage() {
                       <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800"} alt={service.name} className="sf-service-img" />
                       <div className="sf-service-content">
                         <h3>{service.name}</h3>
-                        <p className="sf-service-desc">{service.description || "Indulge in our premium signature treatment tailored just for you."}</p>
+                        <p className="sf-service-desc">{service.description || "Indulge in our premium signature treatment tailored precisely to your needs."}</p>
                         <div className="sf-service-footer">
-                          <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>🕒 {service.durationMin} MINS</span>
+                          <span style={{ color: "var(--text-muted)", fontSize: "0.85rem", fontWeight: "500" }}>{service.durationMin} MINS</span>
                           <span className="sf-service-price">{salon.currency} {Number(service.salePrice || service.price).toLocaleString()}</span>
                         </div>
                       </div>
@@ -125,7 +121,7 @@ export default function HomePage() {
                 ))}
               </div>
             )}
-            <div style={{ textAlign: "center", marginTop: "50px" }}>
+            <div style={{ textAlign: "center", marginTop: "48px" }}>
               <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">Explore All Services</Link>
             </div>
           </section>
@@ -133,10 +129,10 @@ export default function HomePage() {
 
       case "team":
         return (
-          <section key={sec.id} className="sf-section" style={{ background: "var(--surface)" }}>
+          <section key={sec.id} className="sf-section">
             <div className="sf-section-title">
-              <span>Meet The Masters</span>
-              <h2>Our Stylists</h2>
+              <span>Meet The Experts</span>
+              <h2>Our Professionals</h2>
             </div>
             <div className="sf-team-grid">
               <div className="sf-team-card">
@@ -154,21 +150,7 @@ export default function HomePage() {
                 <h4>Sarah Jenkins</h4>
                 <p>Color Specialist</p>
               </div>
-              <div className="sf-team-card">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600" alt="Stylist" />
-                <h4>Jessica Dawn</h4>
-                <p>Spa & Skincare Lead</p>
-              </div>
             </div>
-          </section>
-        );
-
-      case "cta":
-        return (
-          <section key={sec.id} className="sf-cta-banner">
-            <h2>Ready for a Transformation?</h2>
-            <p style={{ color: "var(--text-muted)", marginBottom: "30px", fontSize: "18px" }}>Secure your spot today and let us treat you like royalty.</p>
-            <Link to={`/site/${salon.slug}/services`} className="sf-btn-gold" style={{ fontSize: "18px", padding: "15px 40px" }}>Book Your Session Now</Link>
           </section>
         );
 

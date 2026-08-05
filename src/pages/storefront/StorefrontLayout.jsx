@@ -61,17 +61,15 @@ export default function StorefrontLayout() {
     setCartOpen(true);
   }, []);
 
-  if (loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#d4af37" }}>Loading VIP Experience...</div>;
-  if (!salon) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>Salon not found</div>;
+  if (loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading Storefront...</div>;
+  if (!salon) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Salon not found</div>;
 
   return (
     <div className="storefront-wrapper">
-      
-      {/* PROFESSIONAL NAVBAR */}
       <header className="sf-header">
         <div className="sf-nav-container">
           <Link to={`/site/${slug}`} className="sf-brand">
-            {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "40px" }} /> : salon.name}
+            {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "32px" }} /> : salon.name}
           </Link>
           
           <nav className="sf-nav-links">
@@ -80,20 +78,20 @@ export default function StorefrontLayout() {
             <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
           </nav>
           
-          <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
             {salon.branches?.length > 0 && (
               <select 
                 value={selectedBranchId} 
                 onChange={e => setSelectedBranchId(e.target.value)}
-                style={{ padding: "8px 15px", background: "transparent", border: "1px solid var(--gold)", color: "var(--gold)", borderRadius: "4px", outline: "none", cursor: "pointer" }}
+                style={{ padding: "10px 16px", background: "transparent", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", outline: "none", cursor: "pointer", fontSize: "0.85rem", fontWeight: "500" }}
               >
-                <option value="" style={{ background: "#000" }}>All Branches</option>
+                <option value="">All Branches</option>
                 {salon.branches.map(b => (
-                  <option key={b.id} value={b.id} style={{ background: "#000" }}>{b.name}</option>
+                  <option key={b.id} value={b.id}>{b.name}</option>
                 ))}
               </select>
             )}
-            <button className="sf-btn-gold" onClick={() => setCartOpen(true)}>
+            <button className="sf-btn-dark" onClick={() => setCartOpen(true)}>
               Cart ({bookings.length})
             </button>
           </div>
@@ -106,18 +104,17 @@ export default function StorefrontLayout() {
         </StorefrontErrorBoundary>
       </main>
 
-      {/* FOOTER */}
-      <footer style={{ background: "#050505", padding: "80px 40px", borderTop: "1px solid #222" }}>
+      <footer className="sf-footer">
         <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "40px" }}>
           <div>
-            <h3 style={{ color: "var(--gold)", fontSize: "24px", marginBottom: "20px" }}>{salon.name}</h3>
-            <p style={{ color: "var(--text-muted)", lineHeight: "1.6" }}>Luxury grooming and beauty services tailored for perfection. Experience the difference today.</p>
+            <h3 style={{ fontSize: "1.5rem", marginBottom: "16px" }}>{salon.name}</h3>
+            <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "0.95rem" }}>Providing professional grooming and beauty services with uncompromising standards.</p>
           </div>
           <div>
-            <h4 style={{ color: "#fff", marginBottom: "20px" }}>Contact</h4>
-            <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>Email: {salon.email}</p>
-            <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>Phone: {salon.phone}</p>
-            <p style={{ color: "var(--text-muted)" }}>Address: {salon.address}</p>
+            <h4 style={{ marginBottom: "16px" }}>Contact</h4>
+            <p style={{ color: "var(--text-muted)", marginBottom: "8px", fontSize: "0.95rem" }}>Email: {salon.email}</p>
+            <p style={{ color: "var(--text-muted)", marginBottom: "8px", fontSize: "0.95rem" }}>Phone: {salon.phone}</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>Address: {salon.address}</p>
           </div>
         </div>
       </footer>
