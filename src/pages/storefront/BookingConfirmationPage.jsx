@@ -73,7 +73,7 @@ export default function BookingConfirmationPage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "#999" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "#666" }}>
         Loading booking details...
       </div>
     );
@@ -87,7 +87,7 @@ export default function BookingConfirmationPage() {
         <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: 32 }}>
           {!orderNumber ? "No booking reference was provided." : "We couldn't find a booking with the reference you provided."}
         </p>
-        {orderNumber && <p style={{ color: "#999", marginBottom: 24 }}>Reference: <strong>{orderNumber}</strong></p>}
+        {orderNumber && <p style={{ color: "#666", marginBottom: 24 }}>Reference: <strong>{orderNumber}</strong></p>}
         <Link to={`/site/${slug}/my-bookings`} className="sf-btn sf-btn-secondary" style={{ padding: "14px 32px", marginRight: 12 }}>View My Bookings</Link>
         <Link to={`/site/${slug}`} className="sf-btn sf-btn-primary" style={{ padding: "14px 32px" }}>Back to Home</Link>
       </div>

@@ -82,7 +82,7 @@ export default function ServiceDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "#999" }}>
+      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "#666" }}>
         Loading service details...
       </div>
     );
@@ -90,7 +90,7 @@ export default function ServiceDetailPage() {
 
   if (!service) {
     return (
-      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "#999" }}>
+      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "#666" }}>
         <h2 style={{ fontFamily: "var(--sf-font-serif)", marginBottom: 16 }}>Service Not Found</h2>
         <Link to={`/site/${salon.slug}/collections`} className="sf-btn sf-btn-primary">
           Back to Services
@@ -238,7 +238,7 @@ export default function ServiceDetailPage() {
                       />
                       <div style={{ flex: 1 }}>
                         <p style={{ margin: 0, fontWeight: 600, fontSize: "1rem", color: "#1a1a1a" }}>{s.name}</p>
-                        <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "#999" }}>
+                        <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "#666" }}>
                           {selectedStaff?.id === s.id ? "Preferred stylist" : "Available for this service"}
                         </p>
                       </div>
@@ -265,7 +265,7 @@ export default function ServiceDetailPage() {
           </div>
 
           {/* Right: Booking Card */}
-          <div style={{ position: "sticky", top: 100, zIndex: 10 }}>
+          <div style={{ position: "sticky", top: 100, zIndex: 1001 }}>
             <div style={{
               background: "#fff",
               borderRadius: "var(--sf-radius-lg, 16px)",
@@ -280,7 +280,7 @@ export default function ServiceDetailPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {/* Date */}
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, fontWeight: 600 }}>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "#666", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, fontWeight: 600 }}>
                     Preferred Date
                   </label>
                   <input
@@ -303,8 +303,8 @@ export default function ServiceDetailPage() {
 
                 {/* Time */}
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, fontWeight: 600 }}>
-                    Preferred Time {loadingSlots && <span style={{ fontSize: "0.7rem", color: "#aaa" }}>(loading slots...)</span>}
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "#666", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, fontWeight: 600 }}>
+                    Preferred Time {loadingSlots && <span style={{ fontSize: "0.7rem", color: "#999" }}>(loading slots...)</span>}
                   </label>
                   {/* Mobile: dropdown */}
                   <div className="sf-mobile-time-select" style={{ display: "none" }}>
@@ -493,7 +493,7 @@ export default function ServiceDetailPage() {
         borderTop: "1px solid #e2e8f0",
         padding: "12px 20px",
         boxShadow: "0 -4px 20px rgba(0,0,0,0.08)",
-        zIndex: 998,
+        zIndex: 1001,
       }}>
         <div style={{ maxWidth: 1300, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
           <div>

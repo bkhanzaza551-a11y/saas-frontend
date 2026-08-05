@@ -83,11 +83,11 @@ export default function CollectionsPage() {
 
       <section className="sf-section">
         {loading ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#999" }}>Loading services...</div>
+          <div style={{ textAlign: "center", padding: 60, color: "#666" }}>Loading services...</div>
         ) : (
           <>
             {allServices.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 60, color: "#999" }}>
+              <div style={{ textAlign: "center", padding: 60, color: "#666" }}>
                 <p>No services available at this branch. Try selecting a different branch.</p>
               </div>
             ) : (
@@ -306,7 +306,7 @@ export default function CollectionsPage() {
                 })}
               </div>
             ) : (
-              <div style={{ textAlign: "center", padding: 60, color: "#999" }}>
+              <div style={{ textAlign: "center", padding: 60, color: "#666" }}>
                 <p>No services found in this category.</p>
               </div>
             )}

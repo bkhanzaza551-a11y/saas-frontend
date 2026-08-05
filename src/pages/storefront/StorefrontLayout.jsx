@@ -201,7 +201,7 @@ export default function StorefrontLayout() {
       </div>
     </div>
   );
-  if (!salon) return <div className="storefront-wrapper"><div className="sf-placeholder-img">Store Not Found</div></div>;
+  if (!salon) return <div className="storefront-wrapper"><div className="sf-placeholder-img" style={{ color: "#666" }}>Store Not Found</div></div>;
 
   return (
     <div className="storefront-wrapper">

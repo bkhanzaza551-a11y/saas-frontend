@@ -41,7 +41,7 @@ export default function CheckoutPage() {
     return (
       <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px', textAlign: 'center' }}>
         <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 24px' }}>Booking Checkout</h1>
-        <p style={{ color: '#999', marginBottom: 24 }}>You have no services in your booking summary.</p>
+        <p style={{ color: '#666', marginBottom: 24 }}>You have no services in your booking summary.</p>
         <Link to={`/site/${salon.slug}/services`} className="sf-btn sf-btn-primary" style={{ padding: '14px 32px' }}>Browse Services</Link>
       </div>
     );
@@ -155,10 +155,10 @@ export default function CheckoutPage() {
 
   return (
     <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px' }}>
-      <div className="sf-checkout-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 400px', gap: 60 }}>
+      <div className="sf-checkout-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr min(400px, 100%)', gap: 60 }}>
 
         <div>
-          <Link to={`/site/${salon.slug}/booking-summary`} style={{ color: '#999', textDecoration: 'none', marginBottom: 32, display: 'inline-block' }}>&larr; Back to Booking Summary</Link>
+          <Link to={`/site/${salon.slug}/booking-summary`} style={{ color: '#666', textDecoration: 'none', marginBottom: 32, display: 'inline-block' }}>&larr; Back to Booking Summary</Link>
           <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 32px' }}>Booking Checkout</h1>
 
           {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: 16, borderRadius: 8, marginBottom: 24, border: '1px solid #fecaca' }}>{error}</div>}
@@ -166,23 +166,23 @@ export default function CheckoutPage() {
           <div style={{ background: 'white', padding: 32, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
             <h2 style={{ fontSize: '1.2rem', marginBottom: 24, borderBottom: '1px solid #eee', paddingBottom: 16 }}>Contact Information</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 16 }}>
                 <div>
-                  <label htmlFor="co-firstname" style={{ display: 'block', fontSize: '0.78rem', color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>First Name *</label>
-                  <input id="co-firstname" type="text" placeholder="First Name" value={form.firstName} onChange={set('firstName')} required style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+                  <label htmlFor="co-firstname" style={{ display: 'block', fontSize: '0.78rem', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>First Name *</label>
+                  <input id="co-firstname" type="text" placeholder="First Name" value={form.firstName} onChange={set('firstName')} required style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, width: '100%', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label htmlFor="co-lastname" style={{ display: 'block', fontSize: '0.78rem', color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Last Name</label>
-                  <input id="co-lastname" type="text" placeholder="Last Name" value={form.lastName} onChange={set('lastName')} style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+                  <label htmlFor="co-lastname" style={{ display: 'block', fontSize: '0.78rem', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Last Name</label>
+                  <input id="co-lastname" type="text" placeholder="Last Name" value={form.lastName} onChange={set('lastName')} style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, width: '100%', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>
-                <label htmlFor="co-email" style={{ display: 'block', fontSize: '0.78rem', color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Email Address</label>
-                <input id="co-email" type="email" placeholder="Email Address (optional)" value={form.email} onChange={set('email')} style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+                  <label htmlFor="co-email" style={{ display: 'block', fontSize: '0.78rem', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Email Address</label>
+                  <input id="co-email" type="email" placeholder="Email Address (optional)" value={form.email} onChange={set('email')} style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, width: '100%', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label htmlFor="co-phone" style={{ display: 'block', fontSize: '0.78rem', color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Phone Number *</label>
-                <input id="co-phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={set('phone')} required style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+                  <label htmlFor="co-phone" style={{ display: 'block', fontSize: '0.78rem', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Phone Number *</label>
+                  <input id="co-phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={set('phone')} required style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, width: '100%', boxSizing: 'border-box' }} />
               </div>
             </div>
 
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
                 <span style={{ fontWeight: 600 }}>Pay Online (Razorpay)</span>
               </label>
               {form.paymentMode === "ONLINE" && razorpayLoading && (
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#999', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#666', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid #ccc', borderTopColor: 'var(--sf-accent, #c8a97e)', borderRadius: '50%', animation: 'sf-spin 0.6s linear infinite' }} />
                   Loading payment gateway...
                 </p>
@@ -205,8 +205,8 @@ export default function CheckoutPage() {
             </div>
 
             <div>
-              <label htmlFor="co-note" style={{ display: 'block', fontSize: '0.78rem', color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Special Requests</label>
-              <textarea id="co-note" placeholder="Special Requests (optional)" value={form.note} onChange={set('note')} rows={3} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, resize: 'vertical', boxSizing: 'border-box' }} />
+              <label htmlFor="co-note" style={{ display: 'block', fontSize: '0.78rem', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, fontWeight: 600 }}>Special Requests</label>
+              <textarea id="co-note" placeholder="Special Requests (optional)" value={form.note} onChange={set('note')} rows={3} style={{ width: '100%', padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
             </div>
 
             <button onClick={handlePlaceBooking} disabled={submitting || razorpayLoading} className="sf-btn sf-btn-primary" style={{ width: '100%', padding: 16, marginTop: 40, opacity: (submitting || razorpayLoading) ? 0.6 : 1, cursor: (submitting || razorpayLoading) ? 'not-allowed' : 'pointer' }}>
@@ -216,14 +216,14 @@ export default function CheckoutPage() {
         </div>
 
         <div>
-          <div style={{ position: 'sticky', top: 100, zIndex: 10, background: 'white', padding: 24, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
+          <div style={{ position: 'sticky', top: 100, zIndex: 1001, background: 'white', padding: 24, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
             <h3 style={{ margin: '0 0 24px', fontSize: '1.2rem' }}>Booking Summary ({bookings.length} {bookings.length === 1 ? 'service' : 'services'})</h3>
             {bookings.map((booking, idx) => (
               <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 20, paddingBottom: 20, borderBottom: idx < bookings.length - 1 ? '1px solid #eee' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ margin: 0, fontWeight: 600, fontSize: '0.95rem' }}>{booking.name}</p>
-                    {booking.qty > 1 && <p style={{ margin: 0, color: '#999', fontSize: '0.8rem' }}>Qty: {booking.qty}</p>}
+                    {booking.qty > 1 && <p style={{ margin: 0, color: '#666', fontSize: '0.8rem' }}>Qty: {booking.qty}</p>}
                   </div>
                   <div style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{formatPrice(Number(booking.price) * booking.qty, currency)}</div>
                 </div>

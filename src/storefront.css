@@ -1,19 +1,19 @@
 /* --- PREMIUM STOREFRONT --- */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 :root {
   --sf-primary: #111111;
-  --sf-accent: #c4a47c;
+  --sf-accent: #c8a97e;
   --sf-bg: #fdfdfd;
   --sf-surface: #ffffff;
   --sf-text: #333333;
-  --sf-text-light: #777777;
+  --sf-text-light: #666666;
   --sf-border: rgba(0, 0, 0, 0.08);
   --sf-radius-sm: 8px;
   --sf-radius-md: 16px;
   --sf-radius-lg: 24px;
   --sf-font-sans: 'Poppins', sans-serif;
-  --sf-font-serif: 'Poppins', sans-serif;
+  --sf-font-serif: 'Playfair Display', 'Georgia', serif;
   --sf-shadow: 0 10px 40px rgba(0,0,0,0.05);
 }
 
@@ -159,6 +159,12 @@ html, body {
   transform: translateY(-2px);
   box-shadow: 0 12px 24px rgba(0,0,0,0.15);
   background: var(--sf-accent);
+}
+
+.sf-btn-primary:focus-visible,
+.sf-btn-secondary:focus-visible {
+  outline: 2px solid var(--sf-accent);
+  outline-offset: 2px;
 }
 
 .sf-btn-secondary {
@@ -1011,7 +1017,10 @@ html, body {
     display: flex;
   }
   .sf-header-actions {
-    display: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
   }
   .sf-hero-visual {
     height: 400px;
@@ -1043,7 +1052,7 @@ html, body {
   }
   /* Prevent any long words from breaking the viewport */
   h1, h2, h3, h4, h5, h6, p, span {
-    overflow-wrap: anywhere !important;
+    overflow-wrap: break-word !important;
     word-break: break-word !important;
     max-width: 100%;
   }
@@ -1092,9 +1101,39 @@ html, body {
   }
 }
 
+@media (max-width: 768px) {
+  .sf-hero {
+    padding: 32px 16px;
+    gap: 32px;
+  }
+  .sf-hero-visual {
+    height: 300px;
+  }
+  .sf-section {
+    padding: 48px 16px;
+  }
+  .sf-section-header h2 {
+    font-size: 1.8rem;
+  }
+  .sf-hero-content h1 {
+    font-size: 2rem !important;
+  }
+  .sf-category-circle {
+    width: 100px;
+    height: 100px;
+  }
+  .sf-category-circle-title {
+    font-size: 0.85rem;
+  }
+  .sf-header-actions .sf-btn {
+    font-size: 0.78rem;
+    padding: 6px 12px;
+  }
+}
+
 @media (max-width: 480px) {
   .sf-hero-content h1 {
-    font-size: 3rem;
+    font-size: 1.8rem;
   }
   .sf-section-header h2 {
     font-size: 2.2rem;
@@ -1111,12 +1150,12 @@ html, body {
 /* Empty States & Placeholders */
 .sf-placeholder-img {
   width: 100%;
-  height: 100%;
+  min-height: 300px;
   background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #aaa;
+  color: #888;
   font-size: 2rem;
 }
 
@@ -1180,4 +1219,51 @@ html, body {
   overflow: visible;
   clip: auto;
   white-space: normal;
+}
+
+/* Consistent form inputs */
+.storefront-wrapper input[type="text"],
+.storefront-wrapper input[type="email"],
+.storefront-wrapper input[type="tel"],
+.storefront-wrapper input[type="date"],
+.storefront-wrapper input[type="number"],
+.storefront-wrapper textarea,
+.storefront-wrapper select {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.storefront-wrapper input:focus,
+.storefront-wrapper textarea:focus,
+.storefront-wrapper select:focus {
+  outline: none;
+  border-color: var(--sf-accent);
+  box-shadow: 0 0 0 3px rgba(200,169,126,0.15);
+}
+
+.storefront-wrapper input,
+.storefront-wrapper textarea,
+.storefront-wrapper select {
+  font-size: 0.95rem;
+}
+
+.storefront-wrapper label {
+  font-size: 0.78rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.storefront-wrapper a:focus-visible,
+.storefront-wrapper button:focus-visible,
+.storefront-wrapper select:focus-visible {
+  outline: 2px solid var(--sf-accent);
+  outline-offset: 2px;
+}
+
+.storefront-wrapper .sf-mobile-booking-bar {
+  z-index: 998;
 }

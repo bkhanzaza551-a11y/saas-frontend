@@ -68,9 +68,9 @@ export default function HomePage() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#999" }}>Loading services...</div>
+          <div style={{ textAlign: "center", padding: 60, color: "#666" }}>Loading services...</div>
         ) : services.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#999" }}>
+          <div style={{ textAlign: "center", padding: 60, color: "#666" }}>
             <p>No services available at this branch. Try a different branch from the menu above, or check back soon!</p>
           </div>
         ) : (

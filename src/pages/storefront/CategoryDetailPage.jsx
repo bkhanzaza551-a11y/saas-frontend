@@ -84,9 +84,9 @@ export default function CategoryDetailPage() {
           </div>
 
           {loading ? (
-            <div style={{ textAlign: "center", padding: 60, color: "#999" }}>Loading services...</div>
+            <div style={{ textAlign: "center", padding: 60, color: "#666" }}>Loading services...</div>
           ) : sorted.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 80, color: "#999" }}>
+            <div style={{ textAlign: "center", padding: 80, color: "#666" }}>
               <p style={{ fontSize: "1.1rem", margin: 0 }}>No services found in this category.</p>
             </div>
           ) : (

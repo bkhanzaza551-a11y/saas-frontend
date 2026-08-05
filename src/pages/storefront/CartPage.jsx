@@ -60,7 +60,7 @@ export default function CartPage() {
     return (
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "80px 20px", minHeight: "60vh", textAlign: "center" }}>
         <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "3rem", margin: "0 0 24px", color: "var(--sf-primary)" }}>Booking Summary</h1>
-        <p style={{ color: "#999", fontSize: "1.1rem", marginBottom: 32 }}>No services selected yet. Browse our services and book your appointment.</p>
+        <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: 32 }}>No services selected yet. Browse our services and book your appointment.</p>
         <Link to={`/site/${slug}/services`} className="sf-btn sf-btn-primary" style={{ padding: "14px 32px" }}>Browse Services</Link>
       </div>
     );
@@ -94,7 +94,7 @@ export default function CartPage() {
             <div style={{ flex: 1, minWidth: 200 }}>
               <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem" }}>{booking.name}</h3>
               {booking.duration ? (
-                <p style={{ margin: "4px 0 0", color: "#999", fontSize: "0.85rem" }}>
+                <p style={{ margin: "4px 0 0", color: "#666", fontSize: "0.85rem" }}>
                   Duration: {formatDuration(booking.duration)}
                 </p>
               ) : null}
@@ -107,7 +107,7 @@ export default function CartPage() {
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <label style={{ fontSize: "0.75rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.05em" }}>Date</label>
+                <label style={{ fontSize: "0.75rem", color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" }}>Date</label>
                 <input
                   type="date"
                   min={`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}-${String(new Date().getDate()).padStart(2,"0")}`}
@@ -124,7 +124,7 @@ export default function CartPage() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <label style={{ fontSize: "0.75rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.05em" }}>Time</label>
+                <label style={{ fontSize: "0.75rem", color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" }}>Time</label>
                 <select
                   value={booking.time || ""}
                   onChange={(e) => updateBookingTime(index, booking.date, e.target.value)}

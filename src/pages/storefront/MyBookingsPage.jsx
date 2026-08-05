@@ -45,7 +45,7 @@ function BookingCard({ booking, currency, onCancel, cancellingId }) {
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <p style={{ margin: 0, color: "#999", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 0.5 }}>Order Number</p>
+          <p style={{ margin: 0, color: "#666", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 0.5 }}>Order Number</p>
           <p style={{ margin: "4px 0 0", fontWeight: 700, fontSize: "1.15rem" }}>{booking.orderNumber}</p>
         </div>
         <StatusBadge status={booking.status} />
@@ -53,15 +53,15 @@ function BookingCard({ booking, currency, onCancel, cancellingId }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 16, marginBottom: 16 }}>
         <div>
-          <p style={{ margin: 0, color: "#999", fontSize: "0.8rem" }}>Service</p>
+          <p style={{ margin: 0, color: "#666", fontSize: "0.8rem" }}>Service</p>
           <p style={{ margin: "4px 0 0", fontWeight: 600 }}>{booking.serviceName}</p>
         </div>
         <div>
-          <p style={{ margin: 0, color: "#999", fontSize: "0.8rem" }}>Staff</p>
+          <p style={{ margin: 0, color: "#666", fontSize: "0.8rem" }}>Staff</p>
           <p style={{ margin: "4px 0 0", fontWeight: 600 }}>{booking.staffName || "Any available"}</p>
         </div>
         <div>
-          <p style={{ margin: 0, color: "#999", fontSize: "0.8rem" }}>Date</p>
+          <p style={{ margin: 0, color: "#666", fontSize: "0.8rem" }}>Date</p>
           <p style={{ margin: "4px 0 0", fontWeight: 600 }}>
             {booking.date
               ? new Date(booking.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
@@ -71,7 +71,7 @@ function BookingCard({ booking, currency, onCancel, cancellingId }) {
           </p>
         </div>
         <div>
-          <p style={{ margin: 0, color: "#999", fontSize: "0.8rem" }}>Time</p>
+          <p style={{ margin: 0, color: "#666", fontSize: "0.8rem" }}>Time</p>
           <p style={{ margin: "4px 0 0", fontWeight: 600 }}>
             {booking.time
               || (booking.startAt
@@ -286,7 +286,7 @@ export default function MyBookingsPage() {
 
       {/* Loading */}
       {loading && (
-        <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
+        <div style={{ textAlign: "center", padding: 40, color: "#666" }}>
           <p>Searching for your bookings...</p>
         </div>
       )}
@@ -297,7 +297,7 @@ export default function MyBookingsPage() {
           style={{
             textAlign: "center",
             padding: "60px 20px",
-            color: "#999",
+            color: "#666",
           }}
         >
           <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
@@ -310,7 +310,7 @@ export default function MyBookingsPage() {
 
       {/* Empty state — after search, no results */}
       {!loading && searched && bookings.length === 0 && !error && (
-        <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
+        <div style={{ textAlign: "center", padding: 40, color: "#666" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
           <h3 style={{ margin: "0 0 8px", color: "#555" }}>No bookings found</h3>
           <p style={{ margin: 0 }}>No appointments are associated with this phone number.</p>
