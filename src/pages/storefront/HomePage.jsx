@@ -166,7 +166,7 @@ export default function HomePage() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="sf-section" style={{ background: "#fafafa" }}>
+      <section className="sf-section" style={{ background: "var(--sf-bg, #fdfdfd)" }}>
         <div className="sf-section-header">
           <span style={{ color: "var(--sf-accent)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, fontSize: "0.8rem" }}>The {salon.name} Standard</span>
           <h2>Why Choose Us</h2>

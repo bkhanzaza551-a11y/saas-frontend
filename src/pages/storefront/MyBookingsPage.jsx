@@ -109,6 +109,7 @@ function BookingCard({ booking, currency, onCancel, cancellingId }) {
             <button
               onClick={() => onCancel(booking)}
               disabled={cancellingId === booking.orderNumber}
+              className="sf-cancel-btn"
               style={{
                 padding: "8px 16px",
                 fontSize: "0.85rem",
@@ -121,8 +122,6 @@ function BookingCard({ booking, currency, onCancel, cancellingId }) {
                 opacity: cancellingId === booking.orderNumber ? 0.6 : 1,
                 transition: "all 0.15s",
               }}
-              onMouseEnter={(e) => { if (cancellingId !== booking.orderNumber) e.target.style.background = "#fef2f2"; }}
-              onMouseLeave={(e) => { e.target.style.background = "white"; }}
             >
               {cancellingId === booking.orderNumber ? "Cancelling..." : "Cancel Booking"}
             </button>

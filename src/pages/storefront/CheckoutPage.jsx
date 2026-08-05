@@ -39,7 +39,7 @@ export default function CheckoutPage() {
 
   if (bookings.length === 0) {
     return (
-      <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px', textAlign: 'center' }}>
+      <div style={{ background: 'var(--sf-bg, #fdfdfd)', minHeight: '100vh', padding: '80px 20px', textAlign: 'center' }}>
         <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 24px' }}>Booking Checkout</h1>
         <p style={{ color: '#666', marginBottom: 24 }}>You have no services in your booking summary.</p>
         <Link to={`/site/${salon.slug}/services`} className="sf-btn sf-btn-primary" style={{ padding: '14px 32px' }}>Browse Services</Link>
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px' }}>
+    <div style={{ background: 'var(--sf-bg, #fdfdfd)', minHeight: '100vh', padding: '80px 20px' }}>
       <div className="sf-checkout-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr min(400px, 100%)', gap: 60 }}>
 
         <div>

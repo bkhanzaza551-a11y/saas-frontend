@@ -167,8 +167,8 @@ export default function ServiceDetailPage() {
       </div>
 
       {/* Main Content */}
-      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "48px 20px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 60, alignItems: "start" }}>
+      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "80px 20px" }}>
+        <div className="sf-service-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 60, alignItems: "start" }}>
 
           {/* Left: Service Info */}
           <div>
@@ -216,7 +216,10 @@ export default function ServiceDetailPage() {
                   {staff.map((s) => (
                     <div
                       key={s.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedStaff(s)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedStaff(s); } }}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -327,7 +330,7 @@ export default function ServiceDetailPage() {
                     </select>
                   </div>
                   {/* Desktop: grid */}
-                  <div className="sf-desktop-time-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, maxHeight: 200, overflowY: "auto", padding: 4, border: "1px solid #e2e8f0", borderRadius: 10 }}>
+                  <div className="sf-desktop-time-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, maxHeight: 200, overflowY: "auto", padding: 4, border: "1px solid #e2e8f0", borderRadius: 10 }}>
                     {getRelevantTimeSlots(service.durationMin || 30).map(t => {
                       const isBooked = bookedSlots.some(slot => {
                         const slotStart = new Date(slot.startAt).getTime();
@@ -506,15 +509,6 @@ export default function ServiceDetailPage() {
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 900px) {
-          div[style*="grid-template-columns: 1fr 420px"] { grid-template-columns: 1fr !important; }
-          div[style*="position: sticky"][style*="top: 100"] { position: static !important; }
-          .sf-mobile-booking-bar { display: flex !important; }
-          .sf-desktop-time-grid { display: none !important; }
-          .sf-mobile-time-select { display: block !important; }
-        }
-      `}</style>
     </div>
   );
 }
