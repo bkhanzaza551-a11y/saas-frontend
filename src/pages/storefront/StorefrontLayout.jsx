@@ -67,7 +67,7 @@ export default function StorefrontLayout() {
       <header className="sf-header sf-animate">
         <div className="sf-nav-container">
           <Link to={`/site/${slug}`} className="sf-brand">
-            {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} /> : <div style={{width: 32, height: 32, background: "#111", borderRadius: 4}}></div>}
+            {salon.websiteConfig?.logoUrl && <img src={salon.websiteConfig.logoUrl} alt={salon.name} />}
             {salon.name}
           </Link>
           <nav className="sf-nav-links">
