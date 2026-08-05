@@ -675,15 +675,13 @@ export default function WebsiteEditorPage() {
           )}
         </div>
         <div className={`we-preview-frame ${previewDevice === "mobile" ? "we-mobile-frame" : ""}`}>
-          {previewDevice === "mobile" && <div className="we-mobile-notch" />}
-          <div className={`we-preview-inner ${previewDevice === "mobile" ? "we-mobile-inner" : ""}`}>
+          <div className="we-preview-inner">
             {slug ? (
               <iframe key={iframeKey} src={`/site/${slug}`} className={`we-iframe ${previewDevice === "mobile" ? "we-iframe-mobile" : ""}`} title="Preview" />
             ) : (
               <div className="we-preview-empty">Configure your salon slug first</div>
             )}
           </div>
-          {previewDevice === "mobile" && <div className="we-mobile-bar" />}
         </div>
       </div>
     </div>
