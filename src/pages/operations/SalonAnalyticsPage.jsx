@@ -116,6 +116,8 @@ export default function SalonAnalyticsPage() {
         if (res.status !== "fulfilled" || !res.value) return [];
         if (Array.isArray(res.value.data)) return res.value.data;
         if (res.value.data && Array.isArray(res.value.data.data)) return res.value.data.data;
+        if (res.value.data && Array.isArray(res.value.data.products)) return res.value.data.products;
+        if (res.value.data && Array.isArray(res.value.data.orders)) return res.value.data.orders;
         return [];
       };
 

@@ -3,17 +3,17 @@ import { Outlet, Link, useParams, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import "../../storefront.css";
 
-const CART_KEY = "sf_cart";
+const BOOKINGS_KEY = "sf_bookings";
 
-function loadCart() {
+function loadBookings() {
   try {
-    const raw = localStorage.getItem(CART_KEY);
+    const raw = localStorage.getItem(BOOKINGS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
 
-function saveCart(items) {
-  try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch {}
+function saveBookings(items) {
+  try { localStorage.setItem(BOOKINGS_KEY, JSON.stringify(items)); } catch {}
 }
 
 export default function StorefrontLayout() {
@@ -21,38 +21,58 @@ export default function StorefrontLayout() {
   const location = useLocation();
   const [salon, setSalon] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState(loadCart);
+  const [bookings, setBookings] = useState(loadBookings);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => { saveCart(cart); }, [cart]);
+  useEffect(() => { saveBookings(bookings); }, [bookings]);
 
-  const addToCart = useCallback((item, qty = 1) => {
-    setCart(prev => {
-      const existing = prev.find(c => c.id === item.id);
+  const addBooking = useCallback((service, date, time) => {
+    setBookings(prev => {
+      const existing = prev.find(
+        b => b.serviceId === service.id && b.date === date && b.time === time
+      );
       if (existing) {
-        return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + qty } : c);
+        return prev.map(b =>
+          b.serviceId === service.id && b.date === date && b.time === time
+            ? { ...b, qty: b.qty + 1 }
+            : b
+        );
       }
-      return [...prev, { ...item, qty }];
+      return [...prev, {
+        serviceId: service.id,
+        name: service.name,
+        price: service.price,
+        duration: service.duration,
+        date,
+        time,
+        qty: 1,
+      }];
     });
   }, []);
 
-  const removeFromCart = useCallback((productId) => {
-    setCart(prev => prev.filter(c => c.id !== productId));
+  const removeBooking = useCallback((bookingIndex) => {
+    setBookings(prev => prev.filter((_, i) => i !== bookingIndex));
   }, []);
 
-  const updateCartQty = useCallback((productId, qty) => {
+  const updateBookingQty = useCallback((bookingIndex, qty) => {
     if (qty <= 0) {
-      setCart(prev => prev.filter(c => c.id !== productId));
+      setBookings(prev => prev.filter((_, i) => i !== bookingIndex));
     } else {
-      setCart(prev => prev.map(c => c.id === productId ? { ...c, qty } : c));
+      setBookings(prev => prev.map((b, i) => i === bookingIndex ? { ...b, qty } : b));
     }
   }, []);
 
-  const clearCart = useCallback(() => {
-    setCart([]);
+  const updateBookingTime = useCallback((bookingIndex, date, time) => {
+    setBookings(prev => prev.map((b, i) =>
+      i === bookingIndex ? { ...b, date, time } : b
+    ));
   }, []);
 
-  const cartCount = cart.reduce((sum, c) => sum + c.qty, 0);
+  const clearBookings = useCallback(() => {
+    setBookings([]);
+  }, []);
+
+  const bookingCount = bookings.reduce((sum, b) => sum + b.qty, 0);
 
   useEffect(() => {
     if (!slug) return;
@@ -107,17 +127,23 @@ export default function StorefrontLayout() {
           
           <nav className={`sf-nav-links ${mobileMenuOpen ? "sf-nav-open" : ""}`}>
             <Link to={`/site/${salon.slug}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
-            <Link to={`/site/${salon.slug}/collections`} onClick={() => setMobileMenuOpen(false)}>Collections</Link>
+            <Link to={`/site/${salon.slug}/services`} onClick={() => setMobileMenuOpen(false)}>Our Services</Link>
             <Link to={`/site/${salon.slug}/about`} onClick={() => setMobileMenuOpen(false)}>About Us</Link>
             <Link to={`/site/${salon.slug}/contact`} onClick={() => setMobileMenuOpen(false)}>Contact</Link>
           </nav>
           
           <div className="sf-header-actions">
-            <Link to={`/site/${salon.slug}/my-orders`} className="sf-btn sf-btn-secondary" style={{ fontSize: '0.85rem' }}>
-              My Orders
+            <Link to={`/site/${salon.slug}/my-bookings`} className="sf-btn sf-btn-secondary" style={{ fontSize: '0.85rem' }}>
+              My Bookings
             </Link>
-            <Link to={`/site/${salon.slug}/cart`} className="sf-btn sf-btn-secondary">
-              Cart ({cartCount})
+            <Link to={`/site/${salon.slug}/booking-summary`} className="sf-btn sf-btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Booking Summary ({bookingCount})
             </Link>
             <Link to={`/site/${salon.slug}/book`} className="sf-btn sf-btn-primary">
               Book Appointment
@@ -127,7 +153,7 @@ export default function StorefrontLayout() {
       </header>
       
       <main>
-        <Outlet context={{ salon, cart, addToCart, removeFromCart, updateCartQty, clearCart, cartCount }} />
+        <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount }} />
       </main>
       
       <footer style={{ padding: '60px 20px', background: '#111', color: 'white', textAlign: 'center', marginTop: 'auto' }}>

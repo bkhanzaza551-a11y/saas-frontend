@@ -35,7 +35,7 @@ export default function OrdersPage() {
         api.get("/owner/orders", { params: { ...branchParams, ...(filter ? { status: filter } : {}) } }),
         api.get("/owner/orders/reports/summary", { params: branchParams })
       ]);
-      setRows(ordersResponse.data || []);
+      setRows(ordersResponse.data?.orders || ordersResponse.data || []);
       setSummary(summaryResponse.data);
       if (params.id) {
         const detailResponse = await api.get(`/owner/orders/${params.id}`);

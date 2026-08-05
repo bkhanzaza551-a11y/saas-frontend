@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useOutletContext, useParams, useSearchParams } from "react-router-dom";
-import { api } from "../../api/client";
+import { api } from "../../../api/client";
 
 const generateIcsFile = (booking, salon) => {
   if (!booking) return;
@@ -11,7 +11,7 @@ const generateIcsFile = (booking, salon) => {
     `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
   const serviceName = booking.items?.[0]?.service?.name || booking.serviceName || "Service";
   const summary = `${serviceName} at ${salon?.name || "Salon"}`;
-  const description = `Booking Reference: ${booking.bookingNumber || booking.id}\nService: ${serviceName}\nPrice: ${booking.totalAmount || booking.total || ""}`;
+  const description = `Booking Reference: ${booking.bookingNumber || booking.id}\\nService: ${serviceName}\\nPrice: ${booking.totalAmount || booking.total || ""}`;
   const location = booking.branch?.address || salon?.address || "";
 
   const ics = [
@@ -19,8 +19,8 @@ const generateIcsFile = (booking, salon) => {
     "VERSION:2.0",
     "PRODID:-//Salon Booking//EN",
     "BEGIN:VEVENT",
-    `DTSTART;TZID=Asia/Kolkata:${formatDate(startAt)}`,
-    `DTEND;TZID=Asia/Kolkata:${formatDate(endAt)}`,
+    `DTSTART:${formatDate(startAt)}`,
+    `DTEND:${formatDate(endAt)}`,
     `SUMMARY:${summary}`,
     `DESCRIPTION:${description}`,
     `LOCATION:${location}`,
@@ -37,7 +37,7 @@ const generateIcsFile = (booking, salon) => {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  URL.revokeObjectURL(url);
 };
 
 export default function BookingConfirmationPage() {
@@ -54,22 +54,14 @@ export default function BookingConfirmationPage() {
       setLoading(false);
       return;
     }
-    const phone = (() => { try { return sessionStorage.getItem("sf_last_phone") || ""; } catch { return ""; } })();
-    const params = new URLSearchParams({ bookingNumber: orderNumber });
-    if (phone) params.set("phone", phone);
     api
-      .get(`/public/salon/${slug}/track-booking?${params.toString()}`)
+      .get(`/public/salon/${slug}/track-booking?bookingNumber=${orderNumber}`)
       .then((res) => {
         setBooking(res.data);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [slug, orderNumber]);
-
-  useEffect(() => {
-    document.title = booking ? `Booking ${booking.orderNumber || ""} — ${salon.name}` : `Booking — ${salon.name}`;
-    return () => { document.title = "ReSpark"; };
-  }, [booking, salon.name]);
 
   if (loading) {
     return (
@@ -84,11 +76,8 @@ export default function BookingConfirmationPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", fontSize: "2rem" }}>✕</div>
         <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "2.5rem", marginBottom: 16 }}>Booking Not Found</h1>
-        <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: 32 }}>
-          {!orderNumber ? "No booking reference was provided." : "We couldn't find a booking with the reference you provided."}
-        </p>
+        <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: 32 }}>We couldn't find a booking with the reference you provided.</p>
         {orderNumber && <p style={{ color: "#999", marginBottom: 24 }}>Reference: <strong>{orderNumber}</strong></p>}
-        <Link to={`/site/${slug}/my-bookings`} className="sf-btn sf-btn-secondary" style={{ padding: "14px 32px", marginRight: 12 }}>View My Bookings</Link>
         <Link to={`/site/${slug}`} className="sf-btn sf-btn-primary" style={{ padding: "14px 32px" }}>Back to Home</Link>
       </div>
     );
@@ -159,7 +148,7 @@ export default function BookingConfirmationPage() {
           {duration && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
               <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Duration</p>
-              <p style={{ margin: 0, fontWeight: 600 }}>{duration} {duration === 1 ? "minute" : "minutes"}</p>
+              <p style={{ margin: 0, fontWeight: 600 }}>{duration} minutes</p>
             </div>
           )}
 

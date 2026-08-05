@@ -103,8 +103,11 @@ const HomePage = lazyWithRetry(() => import("./pages/storefront/HomePage.jsx"));
 const CollectionsPage = lazyWithRetry(() => import("./pages/storefront/CollectionsPage.jsx"));
 const CategoryDetailPage = lazyWithRetry(() => import("./pages/storefront/CategoryDetailPage.jsx"));
 const ProductDetailPage = lazyWithRetry(() => import("./pages/storefront/ProductDetailPage.jsx"));
+const ServiceDetailPage = lazyWithRetry(() => import("./pages/storefront/ServiceDetailPage.jsx"));
 const CartPage = lazyWithRetry(() => import("./pages/storefront/CartPage.jsx"));
 const CheckoutPage = lazyWithRetry(() => import("./pages/storefront/CheckoutPage.jsx"));
+const BookingConfirmationPage = lazyWithRetry(() => import("./pages/storefront/BookingConfirmationPage.jsx"));
+const MyBookingsPage = lazyWithRetry(() => import("./pages/storefront/MyBookingsPage.jsx"));
 const LegalContentPage = lazyWithRetry(() => import("./pages/shared/LegalContentPage.jsx"));
 const WebsiteEditorPage = lazyWithRetry(() => import("./pages/owner/WebsiteEditorPage.jsx"));
 const ManagePage = lazyWithRetry(() => import("./pages/owner/ManagePage.jsx"));
@@ -434,6 +437,17 @@ const Home = () => {
   return <OwnerDashboard />;
 };
 
+function StorefrontNotFound() {
+  return (
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
+      <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", fontSize: "2rem" }}>?</div>
+      <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "2.5rem", marginBottom: 16 }}>Page Not Found</h1>
+      <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: 32 }}>The page you're looking for doesn't exist or has been moved.</p>
+      <a href={window.location.pathname.replace(/\/[^/]*$/, "")} className="sf-btn sf-btn-primary" style={{ padding: "14px 32px", textDecoration: "none" }}>Back to Home</a>
+    </div>
+  );
+}
+
 export default function App() {
   const location = useLocation();
 
@@ -466,14 +480,20 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="home" element={<HomePage />} />
           <Route path="collections" element={<CollectionsPage />} />
+          <Route path="services" element={<CollectionsPage />} />
           <Route path="category/:categoryId" element={<CategoryDetailPage />} />
           <Route path="product/:id" element={<ProductDetailPage />} />
+          <Route path="service/:id" element={<ServiceDetailPage />} />
           <Route path="cart" element={<CartPage />} />
+          <Route path="booking-summary" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="booking-confirmation" element={<BookingConfirmationPage />} />
+          <Route path="my-bookings" element={<MyBookingsPage />} />
           <Route path="terms" element={<LegalContentPage scope="salon" title="Terms & Conditions" contentKey="termsAndConditions" />} />
           <Route path="privacy" element={<LegalContentPage scope="salon" title="Privacy Policy" contentKey="privacyPolicy" />} />
-          <Route path="about" element={<HomePage />} /> {/* Placeholder */}
-          <Route path="book" element={<HomePage />} /> {/* Placeholder */}
+          <Route path="about" element={<HomePage />} />
+          <Route path="book" element={<Navigate to="collections" replace />} />
+          <Route path="*" element={<StorefrontNotFound />} />
         </Route>
 
         <Route path="/terms" element={<LegalContentPage scope="global" title="Terms & Conditions" contentKey="termsAndConditions" />} />

@@ -10,38 +10,62 @@ const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
   "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?w=400&h=300&fit=crop"
 ];
-const FALLBACK_PROD_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&fit=crop";
+
+function formatDuration(minutes) {
+  if (!minutes) return "";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
 
 export default function CollectionsPage() {
   const { salon } = useOutletContext();
-  const [categories, setCategories] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
+  const [allServices, setAllServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState("popular");
 
   useEffect(() => {
     if (!salon?.slug) return;
-    Promise.all([
-      api.get(`/public/salon/${salon.slug}/categories`).catch(() => ({ data: [] })),
-      api.get(`/public/salon/${salon.slug}/products`).catch(() => ({ data: [] }))
-    ]).then(([catRes, prodRes]) => {
-      setCategories(catRes.data || []);
-      setAllProducts(prodRes.data || []);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    api
+      .get(`/public/salon/${salon.slug}/storefront-services`)
+      .then(res => {
+        setAllServices(res.data.services || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [salon?.slug]);
 
   const currency = salon.currency || "INR";
 
-  const filteredProducts = activeTab === "all"
-    ? allProducts
-    : allProducts.filter(p => p.categoryId === activeTab);
+  const categoryTabs = (() => {
+    const map = {};
+    allServices.forEach(s => {
+      const name = s.category?.name;
+      if (name && !map[name]) map[name] = name;
+    });
+    return Object.values(map);
+  })();
 
-  const sorted = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "price-low") return Number(a.salePrice || a.sellingPrice) - Number(b.salePrice || b.sellingPrice);
-    if (sortBy === "price-high") return Number(b.salePrice || b.sellingPrice) - Number(a.salePrice || a.sellingPrice);
-    if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
+  const filteredServices =
+    activeTab === "all"
+      ? allServices
+      : allServices.filter(s => s.category?.name === activeTab);
+
+  const sorted = [...filteredServices].sort((a, b) => {
+    if (sortBy === "popular") {
+      if (a.isPopular && !b.isPopular) return -1;
+      if (!a.isPopular && b.isPopular) return 1;
+      return 0;
+    }
+    if (sortBy === "price-low")
+      return Number(a.salePrice || a.price) - Number(b.salePrice || b.price);
+    if (sortBy === "price-high")
+      return Number(b.salePrice || b.price) - Number(a.salePrice || a.price);
+    if (sortBy === "duration")
+      return (a.durationMin || 0) - (b.durationMin || 0);
     return 0;
   });
 
@@ -49,19 +73,21 @@ export default function CollectionsPage() {
     <div>
       {/* Header */}
       <div style={{ background: "#111", color: "white", padding: "80px 20px", textAlign: "center" }}>
-        <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "3.5rem", margin: 0 }}>All Collections</h1>
+        <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "3.5rem", margin: 0 }}>Our Services</h1>
         <p style={{ fontSize: "1.2rem", color: "#aaa", marginTop: 16 }}>
-          {allProducts.length > 0 ? `${allProducts.length} products across ${categories.length} categories` : "Browse our complete range of services and products."}
+          {allServices.length > 0
+            ? `${allServices.length} services across ${categoryTabs.length} categories`
+            : "Browse our professional services."}
         </p>
       </div>
 
       <section className="sf-section">
         {loading ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#999" }}>Loading collections...</div>
+          <div style={{ textAlign: "center", padding: 60, color: "#999" }}>Loading services...</div>
         ) : (
           <>
             {/* Category Tabs */}
-            {categories.length > 0 && (
+            {categoryTabs.length > 0 && (
               <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 32, flexWrap: "wrap" }}>
                 <button
                   onClick={() => setActiveTab("all")}
@@ -77,85 +103,221 @@ export default function CollectionsPage() {
                     transition: "all 0.2s"
                   }}
                 >
-                  All ({allProducts.length})
+                  All ({allServices.length})
                 </button>
-                {categories.map(cat => {
-                  const count = allProducts.filter(p => p.categoryId === cat.id).length;
+                {categoryTabs.map(name => {
+                  const count = allServices.filter(s => s.category?.name === name).length;
                   return (
                     <button
-                      key={cat.id}
-                      onClick={() => setActiveTab(cat.id)}
+                      key={name}
+                      onClick={() => setActiveTab(name)}
                       style={{
                         padding: "10px 24px",
                         borderRadius: 100,
                         border: "2px solid var(--sf-accent, #c8a97e)",
-                        background: activeTab === cat.id ? "var(--sf-accent, #c8a97e)" : "transparent",
-                        color: activeTab === cat.id ? "#fff" : "var(--sf-accent, #c8a97e)",
+                        background: activeTab === name ? "var(--sf-accent, #c8a97e)" : "transparent",
+                        color: activeTab === name ? "#fff" : "var(--sf-accent, #c8a97e)",
                         fontWeight: 600,
                         fontSize: "0.9rem",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
                     >
-                      {cat.name} ({count})
+                      {name} ({count})
                     </button>
                   );
                 })}
               </div>
             )}
 
-            {/* Sort + View */}
+            {/* Sort */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
               <span style={{ color: "#666", fontSize: "0.9rem" }}>
-                Showing {sorted.length} product{sorted.length !== 1 ? "s" : ""}
+                Showing {sorted.length} service{sorted.length !== 1 ? "s" : ""}
               </span>
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
                 style={{ padding: "8px 16px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: "0.9rem" }}
               >
-                <option value="newest">Newest First</option>
+                <option value="popular">Popular</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
+                <option value="duration">Duration: Short to Long</option>
               </select>
             </div>
 
-            {/* Product Grid */}
+            {/* Service Grid */}
             {sorted.length > 0 ? (
-              <div className="sf-grid">
-                {sorted.map(product => (
-                  <Link to={`/site/${salon.slug}/product/${product.id}`} key={product.id} style={{ textDecoration: "none", color: "inherit" }}>
-                    <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,.06)", transition: "all .2s", border: "1px solid #f1f5f9" }}>
-                      <div style={{ position: "relative" }}>
-                        <img src={product.imageUrl || FALLBACK_PROD_IMG} alt={product.name} style={{ width: "100%", height: 220, objectFit: "cover" }} />
-                        {product.salePrice && Number(product.salePrice) < Number(product.sellingPrice) && (
-                          <span style={{ position: "absolute", top: 12, left: 12, padding: "4px 10px", background: "#ef4444", color: "#fff", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
-                            {Math.round((1 - Number(product.salePrice) / Number(product.sellingPrice)) * 100)}% OFF
-                          </span>
-                        )}
-                        {product.currentStock !== undefined && product.currentStock <= 0 && (
-                          <span style={{ position: "absolute", top: 12, right: 12, padding: "4px 10px", background: "#000", color: "#fff", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
-                            Out of Stock
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+                  gap: 24
+                }}
+              >
+                {sorted.map(service => {
+                  const hasSalePrice =
+                    service.salePrice &&
+                    Number(service.salePrice) < Number(service.price);
+
+                  return (
+                    <div
+                      key={service.id}
+                      style={{
+                        background: "#fff",
+                        borderRadius: 16,
+                        overflow: "hidden",
+                        boxShadow: "0 2px 8px rgba(0,0,0,.06)",
+                        border: "1px solid #f1f5f9",
+                        transition: "all 0.3s ease",
+                        display: "flex",
+                        flexDirection: "column"
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,.12)";
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,.06)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }}
+                    >
+                      {/* Service Image */}
+                      <div style={{ position: "relative", height: 180, overflow: "hidden" }}>
+                        <img
+                          src={service.imageUrl || FALLBACK_IMAGES[Math.floor(Math.random() * FALLBACK_IMAGES.length)]}
+                          alt={service.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                        {service.category && (
+                          <span
+                            style={{
+                              position: "absolute",
+                              top: 12,
+                              left: 12,
+                              padding: "4px 12px",
+                              background: "rgba(0,0,0,0.6)",
+                              color: "#fff",
+                              borderRadius: 100,
+                              fontSize: "0.72rem",
+                              fontWeight: 600
+                            }}
+                          >
+                            {service.category.name}
                           </span>
                         )}
                       </div>
-                      <div style={{ padding: 16 }}>
-                        {product.category && <p style={{ margin: "0 0 4px", fontSize: "0.75rem", color: "#999", fontWeight: 600 }}>{product.category.name}</p>}
-                        <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 600 }}>{product.name}</h3>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontWeight: 700, color: "var(--sf-accent, #c8a97e)" }}>{currency} {Number(product.salePrice || product.sellingPrice).toFixed(2)}</span>
-                          {product.salePrice && Number(product.salePrice) < Number(product.sellingPrice) && (
-                            <span style={{ fontSize: "0.85rem", color: "#999", textDecoration: "line-through" }}>{currency} {Number(product.sellingPrice).toFixed(2)}</span>
-                          )}
+
+                      {/* Service Details */}
+                      <div style={{ padding: "16px 20px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                        <h3 style={{ margin: "0 0 6px", fontSize: "1.05rem", fontWeight: 600, color: "#1a1a1a" }}>
+                          {service.name}
+                        </h3>
+
+                        {service.description && (
+                          <p
+                            style={{
+                              margin: "0 0 12px",
+                              fontSize: "0.85rem",
+                              color: "#666",
+                              lineHeight: 1.5,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden"
+                            }}
+                          >
+                            {service.description}
+                          </p>
+                        )}
+
+                        {/* Duration + Price */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <span style={{ fontSize: "0.85rem", color: "#888", display: "flex", alignItems: "center", gap: 4 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                              </svg>
+                              {formatDuration(service.durationMin)}
+                            </span>
+                            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                              <span style={{ fontWeight: 700, color: "var(--sf-accent, #c8a97e)", fontSize: "1.1rem" }}>
+                                {currency} {Number(hasSalePrice ? service.salePrice : service.price).toFixed(0)}
+                              </span>
+                              {hasSalePrice && (
+                                <span style={{ fontSize: "0.82rem", color: "#999", textDecoration: "line-through" }}>
+                                  {currency} {Number(service.price).toFixed(0)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Staff Avatars */}
+                        {service.staffAssignments?.length > 0 && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+                            <div style={{ display: "flex", marginRight: 4 }}>
+                              {service.staffAssignments.slice(0, 3).map((assignment, i) => (
+                                <img
+                                  key={assignment.user?.name || i}
+                                  src={assignment.user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(assignment.user?.name || "")}&background=c8a97e&color=fff&size=28`}
+                                  alt={assignment.user?.name}
+                                  title={assignment.user?.name}
+                                  style={{
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: "50%",
+                                    border: "2px solid #fff",
+                                    objectFit: "cover",
+                                    marginLeft: i > 0 ? -8 : 0
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <span style={{ fontSize: "0.78rem", color: "#888" }}>
+                              {service.staffAssignments.length === 1
+                                ? service.staffAssignments[0].user?.name
+                                : `${service.staffAssignments.length} staff available`}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Book Now Button */}
+                        <div style={{ marginTop: "auto" }}>
+                          <Link
+                            to={`/site/${salon.slug}/service/${service.id}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <button
+                              style={{
+                                width: "100%",
+                                padding: "12px 0",
+                                background: "var(--sf-accent, #c8a97e)",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 10,
+                                fontWeight: 600,
+                                fontSize: "0.9rem",
+                                cursor: "pointer",
+                                transition: "all 0.2s"
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
+                              onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                            >
+                              Book Now
+                            </button>
+                          </Link>
                         </div>
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div style={{ textAlign: "center", padding: 60, color: "#999" }}>
-                <p>No products found in this category.</p>
+                <p>No services found in this category.</p>
               </div>
             )}
           </>

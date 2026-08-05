@@ -16,6 +16,7 @@ const emptyForm = {
   onlineBookingEnabled: false,
   isFeatured: false,
   isPopular: false,
+  showOnWebsite: false,
   imageUrl: ""
 };
 
@@ -112,6 +113,7 @@ export default function ServicesPage() {
       onlineBookingEnabled: Boolean(service.onlineBookingEnabled),
       isFeatured: Boolean(service.isFeatured),
       isPopular: Boolean(service.isPopular),
+      showOnWebsite: Boolean(service.showOnWebsite),
       imageUrl: service.imageUrl || ""
     });
   };
@@ -188,6 +190,7 @@ export default function ServicesPage() {
             <textarea style={{ gridColumn: "1 / -1" }} rows="4" placeholder="Description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
             <div className="badge-row" style={{ gridColumn: "1 / -1" }}>
               <label className="badge" style={{ gap: 8 }}><input type="checkbox" checked={form.onlineBookingEnabled} onChange={(event) => setForm({ ...form, onlineBookingEnabled: event.target.checked })} />Online booking</label>
+              <label className="badge" style={{ gap: 8 }}><input type="checkbox" checked={form.showOnWebsite} onChange={(event) => setForm({ ...form, showOnWebsite: event.target.checked })} />Show on Website</label>
               <label className="badge" style={{ gap: 8 }}><input type="checkbox" checked={form.isFeatured} onChange={(event) => setForm({ ...form, isFeatured: event.target.checked })} />Featured</label>
               <label className="badge" style={{ gap: 8 }}><input type="checkbox" checked={form.isPopular} onChange={(event) => setForm({ ...form, isPopular: event.target.checked })} />Popular</label>
             </div>
@@ -244,6 +247,7 @@ export default function ServicesPage() {
               </div>
             </div>
             <div className="badge-row">
+              {service.showOnWebsite && <span className="badge" style={{ background: "#dbeafe", color: "#1e40af" }}>🌐 Website</span>}
               {service.isFeatured && <span className="badge">Featured</span>}
               {service.isPopular && <span className="badge">Popular</span>}
             </div>

@@ -2,41 +2,28 @@ import { useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=100&fit=crop";
-
 export default function CheckoutPage() {
-  const { salon, cart, clearCart } = useOutletContext();
+  const { salon, bookings, clearBookings } = useOutletContext();
   const navigate = useNavigate();
   const currency = salon.currency || "INR";
-  const ecommerceSettings = salon.ecommerceSettings || {};
 
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
-    note: "", paymentMode: "PAY_AT_SALON", fulfillmentMethod: "PICKUP",
-    address: ""
+    note: "", paymentMode: "PAY_AT_SALON",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
-  const subtotal = cart.reduce((sum, item) => {
-    const price = item.salePrice && Number(item.salePrice) > 0 && Number(item.salePrice) < Number(item.sellingPrice)
-      ? Number(item.salePrice) : Number(item.sellingPrice);
-    return sum + price * item.qty;
-  }, 0);
+  const total = bookings.reduce((sum, b) => sum + Number(b.price) * b.qty, 0);
 
-  const taxPercent = Number(ecommerceSettings.taxPercent) || 0;
-  const deliveryFee = form.fulfillmentMethod === "DELIVERY" ? (Number(ecommerceSettings.deliveryFee) || 0) : 0;
-  const taxAmount = Math.round(subtotal * taxPercent / 100 * 100) / 100;
-  const total = Math.round((subtotal + taxAmount + deliveryFee) * 100) / 100;
-
-  if (cart.length === 0) {
+  if (bookings.length === 0) {
     return (
       <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 24px' }}>Checkout</h1>
-        <p style={{ color: '#999', marginBottom: 24 }}>Your cart is empty.</p>
-        <Link to={`/site/${salon.slug}/collections`} className="sf-btn sf-btn-primary" style={{ padding: '14px 32px' }}>Browse Collections</Link>
+        <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 24px' }}>Booking Checkout</h1>
+        <p style={{ color: '#999', marginBottom: 24 }}>You have no services in your booking summary.</p>
+        <Link to={`/site/${salon.slug}/services`} className="sf-btn sf-btn-primary" style={{ padding: '14px 32px' }}>Browse Services</Link>
       </div>
     );
   }
@@ -50,25 +37,30 @@ export default function CheckoutPage() {
     document.body.appendChild(s);
   });
 
-  const submitOrder = async (paymentDetails = null) => {
+  const submitBookings = async (paymentDetails = null) => {
     setSubmitting(true);
     setError("");
     try {
-      const payload = {
-        customerName: `${form.firstName} ${form.lastName}`.trim(),
-        customerPhone: form.phone,
-        customerEmail: form.email || undefined,
-        note: form.note || undefined,
-        paymentMode: form.paymentMode,
-        fulfillmentMethod: form.fulfillmentMethod,
-        deliveryAddress: form.fulfillmentMethod === "DELIVERY" ? form.address : undefined,
-        taxPercent,
-        deliveryFee: form.fulfillmentMethod === "DELIVERY" ? deliveryFee : 0,
-        items: cart.map(c => ({ productId: c.id, qty: c.qty }))
-      };
+      const customerName = `${form.firstName} ${form.lastName}`.trim();
+      const results = [];
 
-      const res = await api.post(`/public/salons/${salon.slug}/orders`, payload);
-      const order = res.data;
+      for (const booking of bookings) {
+        for (let i = 0; i < booking.qty; i++) {
+          const payload = {
+            serviceId: booking.serviceId,
+            customerName,
+            customerPhone: form.phone,
+            customerEmail: form.email || undefined,
+            preferredDate: booking.date,
+            preferredTime: booking.time,
+            staffId: null,
+            note: form.note || undefined,
+            paymentMode: form.paymentMode,
+          };
+          const res = await api.post(`/public/salon/${salon.slug}/service-bookings`, payload);
+          results.push(res.data);
+        }
+      }
 
       if (paymentDetails) {
         try {
@@ -80,37 +72,20 @@ export default function CheckoutPage() {
         } catch (e) { console.error("Payment verification failed:", e); }
       }
 
-      clearCart();
-      navigate(`/site/${salon.slug}/order-confirmation?orderNumber=${order.orderNumber}`);
+      clearBookings();
+      const orderNumber = results[0]?.orderNumber || `BK-${Date.now()}`;
+      navigate(`/site/${salon.slug}/booking-confirmation?orderNumber=${orderNumber}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to place order. Please try again.");
+      setError(err.response?.data?.message || "Failed to place booking. Please try again.");
       setSubmitting(false);
     }
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceBooking = async () => {
     if (!form.firstName || !form.phone) {
       setError("Please fill in your name and phone number.");
       return;
     }
-    if (form.fulfillmentMethod === "DELIVERY" && !form.address) {
-      setError("Please enter your delivery address.");
-      return;
-    }
-
-    // Validate stock before proceeding
-    setSubmitting(true);
-    setError("");
-    try {
-      await api.post(`/public/salons/${salon.slug}/cart/validate`, {
-        items: cart.map(c => ({ productId: c.id, qty: c.qty }))
-      });
-    } catch (err) {
-      setError(err.response?.data?.message || "Some items in your cart are no longer available. Please review your cart.");
-      setSubmitting(false);
-      return;
-    }
-    setSubmitting(false);
 
     if (form.paymentMode === "ONLINE") {
       const loaded = await loadRazorpay();
@@ -120,7 +95,7 @@ export default function CheckoutPage() {
         const orderRes = await api.post(`/public/salon/${salon.slug}/razorpay-order`, {
           amount: total,
           currency: "INR",
-          receipt: `order_${Date.now()}`
+          receipt: `booking_${Date.now()}`
         });
 
         const rzp = new window.Razorpay({
@@ -128,9 +103,9 @@ export default function CheckoutPage() {
           amount: orderRes.data.amount,
           currency: orderRes.data.currency,
           name: salon.name,
-          description: `Order - ${salon.name}`,
+          description: `Booking - ${salon.name}`,
           order_id: orderRes.data.orderId,
-          handler: function (response) { submitOrder(response); },
+          handler: function (response) { submitBookings(response); },
           prefill: { name: `${form.firstName} ${form.lastName}`, email: form.email, contact: form.phone },
           theme: { color: "var(--sf-accent, #c8a97e)" },
           modal: { ondismiss: () => { setSubmitting(false); setError("Payment was cancelled."); } }
@@ -142,18 +117,18 @@ export default function CheckoutPage() {
         setSubmitting(false);
       }
     } else {
-      await submitOrder();
+      await submitBookings();
     }
   };
 
   return (
     <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px' }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 400px', gap: 60 }}>
-        
+
         <div>
-          <Link to={`/site/${salon.slug}/cart`} style={{ color: '#999', textDecoration: 'none', marginBottom: 32, display: 'inline-block' }}>&larr; Back to Cart</Link>
-          <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 32px' }}>Checkout</h1>
-          
+          <Link to={`/site/${salon.slug}/booking-summary`} style={{ color: '#999', textDecoration: 'none', marginBottom: 32, display: 'inline-block' }}>&larr; Back to Booking Summary</Link>
+          <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 32px' }}>Booking Checkout</h1>
+
           {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: 16, borderRadius: 8, marginBottom: 24, border: '1px solid #fecaca' }}>{error}</div>}
 
           <div style={{ background: 'white', padding: 32, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
@@ -167,88 +142,49 @@ export default function CheckoutPage() {
               <input type="text" placeholder="Phone Number *" value={form.phone} onChange={set('phone')} required style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
             </div>
 
-            <h2 style={{ fontSize: '1.2rem', margin: '40px 0 24px', borderBottom: '1px solid #eee', paddingBottom: 16 }}>Fulfillment</h2>
-            <div style={{ display: 'flex', gap: 12 }}>
-              {ecommerceSettings.pickupEnabled !== false && (
-                <button onClick={() => setForm({ ...form, fulfillmentMethod: "PICKUP" })} style={{ flex: 1, padding: 14, border: `2px solid ${form.fulfillmentMethod === "PICKUP" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, background: form.fulfillmentMethod === "PICKUP" ? "var(--sf-accent, #c8a97e)11" : "white", cursor: 'pointer', fontWeight: 600, color: form.fulfillmentMethod === "PICKUP" ? "var(--sf-accent, #c8a97e)" : "#666" }}>
-                  Pickup
-                </button>
-              )}
-              {ecommerceSettings.deliveryEnabled && (
-                <button onClick={() => setForm({ ...form, fulfillmentMethod: "DELIVERY" })} style={{ flex: 1, padding: 14, border: `2px solid ${form.fulfillmentMethod === "DELIVERY" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, background: form.fulfillmentMethod === "DELIVERY" ? "var(--sf-accent, #c8a97e)11" : "white", cursor: 'pointer', fontWeight: 600, color: form.fulfillmentMethod === "DELIVERY" ? "var(--sf-accent, #c8a97e)" : "#666" }}>
-                  Delivery {deliveryFee > 0 ? `(+${currency} ${deliveryFee.toFixed(2)})` : "(Free)"}
-                </button>
-              )}
-            </div>
-            {form.fulfillmentMethod === "DELIVERY" && (
-              <textarea placeholder="Delivery Address *" value={form.address} onChange={set('address')} rows={3} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginTop: 16, resize: 'vertical', boxSizing: 'border-box' }} />
-            )}
-
             <h2 style={{ fontSize: '1.2rem', margin: '40px 0 24px', borderBottom: '1px solid #eee', paddingBottom: 16 }}>Payment</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {ecommerceSettings.allowPayAtSalon !== false && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "PAY_AT_SALON" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "PAY_AT_SALON" ? "var(--sf-accent, #c8a97e)11" : "white" }}>
-                  <input type="radio" name="payment" value="PAY_AT_SALON" checked={form.paymentMode === "PAY_AT_SALON"} onChange={set('paymentMode')} />
-                  <span style={{ fontWeight: 600 }}>Pay at Salon Counter</span>
-                </label>
-              )}
-              {ecommerceSettings.allowCod && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "COD" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "COD" ? "var(--sf-accent, #c8a97e)11" : "white" }}>
-                  <input type="radio" name="payment" value="COD" checked={form.paymentMode === "COD"} onChange={set('paymentMode')} />
-                  <span style={{ fontWeight: 600 }}>Cash on Delivery</span>
-                </label>
-              )}
-              {ecommerceSettings.allowOnlinePayment && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "ONLINE" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "ONLINE" ? "var(--sf-accent, #c8a97e)11" : "white" }}>
-                  <input type="radio" name="payment" value="ONLINE" checked={form.paymentMode === "ONLINE"} onChange={set('paymentMode')} />
-                  <span style={{ fontWeight: 600 }}>Pay Online (Razorpay)</span>
-                </label>
-              )}
+              <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "PAY_AT_SALON" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "PAY_AT_SALON" ? "var(--sf-accent, #c8a97e)11" : "white" }}>
+                <input type="radio" name="payment" value="PAY_AT_SALON" checked={form.paymentMode === "PAY_AT_SALON"} onChange={set('paymentMode')} />
+                <span style={{ fontWeight: 600 }}>Pay at Salon</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "ONLINE" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "ONLINE" ? "var(--sf-accent, #c8a97e)11" : "white" }}>
+                <input type="radio" name="payment" value="ONLINE" checked={form.paymentMode === "ONLINE"} onChange={set('paymentMode')} />
+                <span style={{ fontWeight: 600 }}>Pay Online (Razorpay)</span>
+              </label>
             </div>
 
-            <textarea placeholder="Order Notes (optional)" value={form.note} onChange={set('note')} rows={2} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginTop: 24, resize: 'vertical', boxSizing: 'border-box' }} />
+            <textarea placeholder="Special Requests (optional)" value={form.note} onChange={set('note')} rows={3} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginTop: 24, resize: 'vertical', boxSizing: 'border-box' }} />
 
-            <button onClick={handlePlaceOrder} disabled={submitting} className="sf-btn sf-btn-primary" style={{ width: '100%', padding: 16, marginTop: 40, opacity: submitting ? 0.6 : 1 }}>
-              {submitting ? "Processing..." : form.paymentMode === "ONLINE" ? `Pay ${currency} ${total.toFixed(2)}` : "Place Order"}
+            <button onClick={handlePlaceBooking} disabled={submitting} className="sf-btn sf-btn-primary" style={{ width: '100%', padding: 16, marginTop: 40, opacity: submitting ? 0.6 : 1 }}>
+              {submitting ? "Processing..." : form.paymentMode === "ONLINE" ? `Pay ${currency} ${total.toFixed(2)}` : "Confirm Booking"}
             </button>
           </div>
         </div>
 
         <div>
           <div style={{ position: 'sticky', top: 100, background: 'white', padding: 24, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
-            <h3 style={{ margin: '0 0 24px', fontSize: '1.2rem' }}>Order Summary ({cart.length} items)</h3>
-            {cart.map(item => {
-              const price = item.salePrice && Number(item.salePrice) > 0 && Number(item.salePrice) < Number(item.sellingPrice)
-                ? Number(item.salePrice) : Number(item.sellingPrice);
-              return (
-                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                  <img src={item.imageUrl || FALLBACK_IMG} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' }} alt={item.name} />
+            <h3 style={{ margin: '0 0 24px', fontSize: '1.2rem' }}>Booking Summary ({bookings.length} {bookings.length === 1 ? 'service' : 'services'})</h3>
+            {bookings.map((booking, idx) => (
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 20, paddingBottom: 20, borderBottom: idx < bookings.length - 1 ? '1px solid #eee' : 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</p>
-                    <p style={{ margin: 0, color: '#999', fontSize: '0.8rem' }}>Qty: {item.qty}</p>
+                    <p style={{ margin: 0, fontWeight: 600, fontSize: '0.95rem' }}>{booking.name}</p>
+                    {booking.qty > 1 && <p style={{ margin: 0, color: '#999', fontSize: '0.8rem' }}>Qty: {booking.qty}</p>}
                   </div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{currency} {(price * item.qty).toFixed(2)}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{currency} {(Number(booking.price) * booking.qty).toFixed(2)}</div>
                 </div>
-              );
-            })}
-
-            <div style={{ borderTop: '1px solid #eee', paddingTop: 16, marginTop: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#666' }}>
-                <span>Subtotal</span>
-                <span>{currency} {subtotal.toFixed(2)}</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: '0.8rem', color: '#666' }}>
+                  <span style={{ background: '#f3f4f6', padding: '3px 8px', borderRadius: 4 }}>
+                    {new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </span>
+                  <span style={{ background: '#f3f4f6', padding: '3px 8px', borderRadius: 4 }}>{booking.time}</span>
+                  {booking.duration && <span style={{ background: '#f3f4f6', padding: '3px 8px', borderRadius: 4 }}>{booking.duration} min</span>}
+                </div>
               </div>
-              {taxPercent > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#666' }}>
-                  <span>Tax ({taxPercent}%)</span>
-                  <span>{currency} {taxAmount.toFixed(2)}</span>
-                </div>
-              )}
-              {deliveryFee > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#666' }}>
-                  <span>Delivery Fee</span>
-                  <span>{currency} {deliveryFee.toFixed(2)}</span>
-                </div>
-              )}
+            ))}
+
+            <div style={{ borderTop: '1px solid #eee', paddingTop: 16, marginTop: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', fontSize: '1.3rem', fontWeight: 700 }}>
                 <span>Total</span>
                 <span>{currency} {total.toFixed(2)}</span>

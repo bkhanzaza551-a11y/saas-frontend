@@ -22,7 +22,7 @@ export default function WebsiteAnalyticsPage() {
       api.get("/owner/ecommerce/settings").catch(() => ({ data: {} }))
     ]).then(([ordersRes, summaryRes, prodRes, catRes, storeRes]) => {
       if (!active) return;
-      const allOrders = ordersRes.data || [];
+      const allOrders = ordersRes.data?.orders || ordersRes.data || [];
       setOrders(allOrders);
       setProducts(prodRes.data || []);
       setCategories(catRes.data || []);

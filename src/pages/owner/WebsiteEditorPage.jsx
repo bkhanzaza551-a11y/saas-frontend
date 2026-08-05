@@ -8,7 +8,7 @@ const DEFAULT_SECTIONS = [
   { id: "hero", type: "hero", label: "Hero Banner", icon: "\u{1F3A8}", enabled: true, locked: true },
   { id: "about", type: "about", label: "About Us", icon: "\u{2139}\uFE0F", enabled: true, locked: true },
   { id: "gallery", type: "gallery", label: "Gallery", icon: "\u{1F5BC}\uFE0F", enabled: true, locked: true },
-  { id: "services", type: "services", label: "Services & Products", icon: "\u{2728}", enabled: true, locked: true },
+  { id: "services", type: "services", label: "Featured Services", icon: "\u{2728}", enabled: true, locked: true },
   { id: "testimonials", type: "testimonials", label: "Client Reviews", icon: "\u{2B50}", enabled: true, locked: false },
   { id: "banner", type: "banner", label: "Promotional Banner", icon: "\u{1F4E3}", enabled: false, locked: false },
   { id: "cta", type: "cta", label: "Call to Action", icon: "\u{1F446}", enabled: false, locked: false },
@@ -45,7 +45,7 @@ const emptyConfig = {
   salonName: "", logoUrl: "",
   heroTitle: "Elevate Your Beauty Experience",
   heroSubtitle: "Discover premium salon services and exclusive products curated just for you.",
-  heroImage: "", heroBtn1Text: "Shop Collections", heroBtn1Link: "collections",
+  heroImage: "", heroBtn1Text: "Our Services", heroBtn1Link: "services",
   heroBtn2Text: "Book Appointment", heroBtn2Link: "book",
   aboutTitle: "", aboutDescription: "", aboutImage: "", aboutMission: "", aboutVision: "",
   galleryImages: [],
@@ -56,7 +56,7 @@ const emptyConfig = {
     { day: "Saturday", hours: "10:00 AM - 6:00 PM" },
     { day: "Sunday", hours: "Closed" }
   ],
-  ctaTitle: "Ready to Transform Your Look?", ctaSubtitle: "Book your appointment today and experience the difference.", ctaBtnText: "Book Now", ctaBtnLink: "book", ctaImage: "",
+  ctaTitle: "Ready to Transform Your Look?", ctaSubtitle: "Book your appointment today and experience the difference.", ctaBtnText: "Book Now", ctaBtnLink: "services", ctaImage: "",
   testimonials: [],
   primaryColor: "#c8a97e", secondaryColor: "#111111",
   bannerImage: "", bannerTitle: "", bannerSubtitle: "", bannerBtnText: "", bannerBtnLink: "",
@@ -210,13 +210,14 @@ function LivePreview({ config, sections, device }) {
 
   const renderServices = () => (
     <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", background: "#f9fafb" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Services & Products</h2>
+      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Featured Services</h2>
       <div style={{ display: "grid", gridTemplateColumns: device === "mobile" ? "1fr" : "repeat(3, 1fr)", gap: 12 }}>
         {[1, 2, 3].map(i => (
           <div key={i} style={{ background: "#fff", borderRadius: radius, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,.06)", textAlign: "center" }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${accent}22`, margin: "0 auto 12px" }} />
-            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Service {i}</div>
-            <div style={{ fontSize: 12, color: "#999" }}>Auto-populated</div>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${accent}22`, margin: "0 auto 12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: accent }}>{"\u2728"}</div>
+            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Service Name</div>
+            <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Duration: 1h</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: accent }}>From ₹999</div>
           </div>
         ))}
       </div>
@@ -425,8 +426,8 @@ export default function WebsiteEditorPage() {
             <Field label="Subtitle"><Textarea value={config.heroSubtitle} onChange={v => update("heroSubtitle", v)} placeholder="Your subtitle..." rows={2} /></Field>
             <ImageField label="Background Image" value={config.heroImage} onChange={v => update("heroImage", v)} hint="1920 x 800" />
             <div className="we-row-2">
-              <Field label="Button 1"><Input value={config.heroBtn1Text} onChange={v => update("heroBtn1Text", v)} placeholder="Shop Now" /></Field>
-              <Field label="Link"><Input value={config.heroBtn1Link} onChange={v => update("heroBtn1Link", v)} placeholder="collections" /></Field>
+              <Field label="Button 1"><Input value={config.heroBtn1Text} onChange={v => update("heroBtn1Text", v)} placeholder="Our Services" /></Field>
+              <Field label="Link"><Input value={config.heroBtn1Link} onChange={v => update("heroBtn1Link", v)} placeholder="services" /></Field>
             </div>
             <div className="we-row-2">
               <Field label="Button 2"><Input value={config.heroBtn2Text} onChange={v => update("heroBtn2Text", v)} placeholder="Book Now" /></Field>
@@ -471,8 +472,8 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "services")?.enabled && (
-          <SectionBlock icon="\u{2728}" title="Services & Products" badge="Auto" defaultOpen={false}>
-            <div className="we-info-box">Auto-populated from your POS and Inventory.</div>
+          <SectionBlock icon="\u{2728}" title="Featured Services" badge="Auto" defaultOpen={false}>
+            <div className="we-info-box">Auto-populated from services with 'Show on Website' enabled.</div>
           </SectionBlock>
         )}
 

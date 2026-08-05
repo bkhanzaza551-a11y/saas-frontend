@@ -1,44 +1,43 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  ShoppingBag, Clock, CheckCircle2, XCircle, Truck, Package,
+  ShoppingBag, Clock, CheckCircle2, XCircle, Package,
   ChevronRight, Search, RefreshCw, FileText, X, AlertTriangle,
-  CreditCard, User, Phone, MapPin, Tag, ArrowRight, Banknote,
-  ShoppingCart, Star, TrendingUp, Eye, Check, Ban
+  CreditCard, User, Phone, Tag, ArrowRight, Banknote,
+  Calendar, Star, TrendingUp, Eye, Check, Ban, Bell, CalendarDays, Users, Timer
 } from "lucide-react";
 import { api } from "../../api/client";
 import { useBranch } from "../../context/BranchContext";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 
-// ─── helpers ────────────────────────────────────────────────────────────────
 const fmt = (v) =>
   Number(v || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
 const STATUS_META = {
-  NEW: {
-    label: "New",
-    color: "#7c3aed",
-    bg: "#f5f3ff",
-    border: "#c4b5fd",
-    dot: "#7c3aed",
-    icon: ShoppingBag,
+  PENDING: {
+    label: "Pending",
+    color: "#d97706",
+    bg: "#fffbeb",
+    border: "#fcd34d",
+    dot: "#f59e0b",
+    icon: Clock,
   },
-  ACCEPTED: {
-    label: "Accepted",
+  CONFIRMED: {
+    label: "Confirmed",
     color: "#0369a1",
     bg: "#e0f2fe",
     border: "#7dd3fc",
     dot: "#0284c7",
     icon: CheckCircle2,
   },
-  READY: {
-    label: "Ready",
-    color: "#d97706",
-    bg: "#fffbeb",
-    border: "#fcd34d",
-    dot: "#f59e0b",
-    icon: Package,
+  IN_PROGRESS: {
+    label: "In Progress",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#c4b5fd",
+    dot: "#7c3aed",
+    icon: Timer,
   },
   COMPLETED: {
     label: "Completed",
@@ -66,14 +65,13 @@ const PAYMENT_META = {
 };
 
 const NEXT_STATUS = {
-  NEW:      "ACCEPTED",
-  ACCEPTED: "READY",
-  READY:    "COMPLETED",
+  PENDING:     "CONFIRMED",
+  CONFIRMED:   "IN_PROGRESS",
+  IN_PROGRESS: "COMPLETED",
 };
 
-const STATUS_TABS = ["ALL", "NEW", "ACCEPTED", "READY", "COMPLETED", "CANCELLED"];
+const STATUS_TABS = ["ALL", "PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
 
-// ─── Main Component ──────────────────────────────────────────────────────────
 export default function EcommerceOrdersPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -85,16 +83,16 @@ export default function EcommerceOrdersPage() {
   const [actionLoading, setActionLoading] = useState(null);
   const [statusMsg, setStatusMsg] = useState({ error: "", success: "" });
   const [search, setSearch]   = useState("");
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
   const activeTab = useMemo(() => {
     const path = location.pathname;
-    if (path.endsWith("/new"))       return "NEW";
-    if (path.endsWith("/accepted"))  return "ACCEPTED";
-    if (path.endsWith("/ready"))     return "READY";
-    if (path.endsWith("/completed")) return "COMPLETED";
-    if (path.endsWith("/cancelled")) return "CANCELLED";
+    if (path.endsWith("/pending"))     return "PENDING";
+    if (path.endsWith("/confirmed"))   return "CONFIRMED";
+    if (path.endsWith("/in-progress")) return "IN_PROGRESS";
+    if (path.endsWith("/completed"))   return "COMPLETED";
+    if (path.endsWith("/cancelled"))   return "CANCELLED";
     return "ALL";
   }, [location.pathname]);
 
@@ -110,10 +108,10 @@ export default function EcommerceOrdersPage() {
         api.get("/owner/orders", { params: { ...bp, ...statusParam } }),
         api.get("/owner/orders/reports/summary", { params: bp }),
       ]);
-      setRows(ordersRes.data || []);
+      setRows(ordersRes.data?.orders || ordersRes.data || []);
       setSummary(summaryRes.data);
     } catch (err) {
-      setStatusMsg({ error: formatApiError(err, "Could not load orders"), success: "" });
+      setStatusMsg({ error: formatApiError(err, "Could not load bookings"), success: "" });
     } finally {
       setLoading(false);
     }
@@ -121,12 +119,12 @@ export default function EcommerceOrdersPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const openDetail = async (order) => {
-    setSelectedOrder(order);
+  const openDetail = async (booking) => {
+    setSelectedBooking(booking);
     setDetailLoading(true);
     try {
-      const res = await api.get(`/owner/orders/${order.id}`);
-      setSelectedOrder(res.data);
+      const res = await api.get(`/owner/orders/${booking.id}`);
+      setSelectedBooking(res.data);
     } catch {
       // use the already-available partial data
     } finally {
@@ -140,15 +138,14 @@ export default function EcommerceOrdersPage() {
     try {
       if (action === "cancel") {
         await api.patch(`/owner/orders/${id}/cancel`, { note: "Cancelled from owner panel" });
-        setStatusMsg({ error: "", success: "Order cancelled successfully." });
-      } else if (action === "invoice") {
-        await api.post(`/owner/orders/${id}/convert-to-invoice`);
-        setStatusMsg({ error: "", success: "Order converted to invoice!" });
+        setStatusMsg({ error: "", success: "Booking cancelled successfully." });
+      } else if (action === "reminder") {
+        setStatusMsg({ error: "", success: "Reminder sent to client." });
       } else {
         await api.patch(`/owner/orders/${id}/status`, { status: action, ...payload });
-        setStatusMsg({ error: "", success: `Order moved to ${action}.` });
+        setStatusMsg({ error: "", success: `Booking moved to ${action}.` });
       }
-      if (selectedOrder?.id === id) setSelectedOrder(null);
+      if (selectedBooking?.id === id) setSelectedBooking(null);
       await load();
     } catch (err) {
       setStatusMsg({ error: formatApiError(err, "Action failed"), success: "" });
@@ -173,7 +170,7 @@ export default function EcommerceOrdersPage() {
       className="page-shell"
       style={{ display: "flex", flexDirection: "column", gap: 0, padding: 0 }}
     >
-      {/* ── Top Header ─────────────────────────────────────────────── */}
+      {/* Top Header */}
       <div
         style={{
           background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
@@ -207,7 +204,7 @@ export default function EcommerceOrdersPage() {
                   display: "flex",
                 }}
               >
-                <ShoppingCart size={22} />
+                <Calendar size={22} />
               </div>
               <h1
                 style={{
@@ -217,11 +214,11 @@ export default function EcommerceOrdersPage() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                E-Commerce Orders
+                Service Bookings
               </h1>
             </div>
             <p style={{ margin: 0, opacity: 0.75, fontSize: 14 }}>
-              Manage every incoming storefront order — from queue to invoice conversion.
+              Manage every incoming service booking — from confirmation to completion.
             </p>
           </div>
           <button
@@ -245,7 +242,7 @@ export default function EcommerceOrdersPage() {
           </button>
         </div>
 
-        {/* ── Summary Cards ──────────────────────────────────────── */}
+        {/* Summary Cards */}
         {summary && (
           <div
             style={{
@@ -256,11 +253,12 @@ export default function EcommerceOrdersPage() {
             }}
           >
             {[
-              { label: "Total Orders", value: summary.totalOrders, icon: ShoppingBag, color: "#a78bfa" },
-              { label: "New",          value: summary.newOrders,   icon: Clock,       color: "#7dd3fc" },
-              { label: "Completed",    value: summary.completedOrders, icon: CheckCircle2, color: "#86efac" },
-              { label: "Cancelled",    value: summary.cancelledOrders, icon: XCircle,  color: "#fca5a5" },
-              { label: "Total Sales",  value: `₹${fmt(summary.totalSales)}`, icon: TrendingUp, color: "#fde68a", isMoney: true },
+              { label: "Total Bookings", value: summary.totalOrders, icon: CalendarDays, color: "#a78bfa" },
+              { label: "Pending",        value: summary.pendingBookings, icon: Clock,       color: "#fde68a" },
+              { label: "Confirmed",      value: summary.confirmedBookings, icon: CheckCircle2, color: "#7dd3fc" },
+              { label: "In Progress",    value: summary.inProgressBookings, icon: Timer, color: "#c4b5fd" },
+              { label: "Completed",      value: summary.completedOrders, icon: CheckCircle2, color: "#86efac" },
+              { label: "Revenue",        value: `₹${fmt(summary.totalSales)}`, icon: TrendingUp, color: "#fde68a", isMoney: true },
             ].map((c) => (
               <div
                 key={c.label}
@@ -287,7 +285,7 @@ export default function EcommerceOrdersPage() {
         )}
       </div>
 
-      {/* ── Tab Bar ────────────────────────────────────────────────── */}
+      {/* Tab Bar */}
       <div
         style={{
           display: "flex",
@@ -327,13 +325,13 @@ export default function EcommerceOrdersPage() {
               }}
             >
               {meta && <meta.icon size={14} />}
-              {tab === "ALL" ? "All Orders" : meta.label}
+              {tab === "ALL" ? "All Bookings" : meta.label}
             </button>
           );
         })}
       </div>
 
-      {/* ── Status Messages ──────────────────────────────────────── */}
+      {/* Status Messages */}
       {(statusMsg.error || statusMsg.success) && (
         <div
           style={{
@@ -367,7 +365,7 @@ export default function EcommerceOrdersPage() {
         </div>
       )}
 
-      {/* ── Main Content ─────────────────────────────────────────── */}
+      {/* Main Content */}
       <div
         style={{
           flex: 1,
@@ -377,9 +375,8 @@ export default function EcommerceOrdersPage() {
           minHeight: 0,
         }}
       >
-        {/* ── Orders List ─────────────────────────────────────────── */}
+        {/* Bookings List */}
         <div style={{ flex: "1 1 55%", minWidth: 0 }}>
-          {/* Search */}
           <div style={{ position: "relative", marginBottom: 16 }}>
             <Search
               size={15}
@@ -393,7 +390,7 @@ export default function EcommerceOrdersPage() {
             />
             <input
               type="text"
-              placeholder="Search by order number, customer name, or phone..."
+              placeholder="Search by booking number, client name, or phone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -411,8 +408,8 @@ export default function EcommerceOrdersPage() {
 
           {loading ? (
             <PageLoader
-              title="Loading orders"
-              message="Preparing your order queue..."
+              title="Loading bookings"
+              message="Preparing your booking queue..."
             />
           ) : filtered.length === 0 ? (
             <div
@@ -424,7 +421,7 @@ export default function EcommerceOrdersPage() {
                 border: "1px solid #e2e8f0",
               }}
             >
-              <ShoppingBag size={48} color="#c7d2fe" style={{ marginBottom: 12 }} />
+              <Calendar size={48} color="#c7d2fe" style={{ marginBottom: 12 }} />
               <p
                 style={{
                   margin: "0 0 4px",
@@ -433,23 +430,23 @@ export default function EcommerceOrdersPage() {
                   fontSize: 15,
                 }}
               >
-                No orders found
+                No service bookings found
               </p>
               <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
                 {activeTab === "ALL"
-                  ? "When customers place orders from your storefront, they'll appear here."
-                  : `No ${STATUS_META[activeTab]?.label} orders at the moment.`}
+                  ? "When customers book services from your website, they'll appear here."
+                  : `No ${STATUS_META[activeTab]?.label} bookings at the moment.`}
               </p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {filtered.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                  isSelected={selectedOrder?.id === order.id}
+              {filtered.map((booking) => (
+                <BookingCard
+                  key={booking.id}
+                  booking={booking}
+                  isSelected={selectedBooking?.id === booking.id}
                   actionLoading={actionLoading}
-                  onSelect={() => openDetail(order)}
+                  onSelect={() => openDetail(booking)}
                   onAction={doAction}
                 />
               ))}
@@ -457,7 +454,7 @@ export default function EcommerceOrdersPage() {
           )}
         </div>
 
-        {/* ── Order Detail Panel ───────────────────────────────────── */}
+        {/* Booking Detail Panel */}
         <div
           style={{
             flex: "1 1 42%",
@@ -469,7 +466,7 @@ export default function EcommerceOrdersPage() {
             overflowY: "auto",
           }}
         >
-          {!selectedOrder ? (
+          {!selectedBooking ? (
             <div
               style={{
                 background: "white",
@@ -488,18 +485,18 @@ export default function EcommerceOrdersPage() {
                   fontSize: 14,
                 }}
               >
-                Select an order to view details
+                Select a booking to view details
               </p>
               <p style={{ margin: 0, color: "#94a3b8", fontSize: 12 }}>
-                Line items, customer info, payment status, and history will appear here.
+                Service details, client info, payment status, and history will appear here.
               </p>
             </div>
           ) : (
-            <OrderDetailPanel
-              order={selectedOrder}
+            <BookingDetailPanel
+              booking={selectedBooking}
               loading={detailLoading}
               actionLoading={actionLoading}
-              onClose={() => setSelectedOrder(null)}
+              onClose={() => setSelectedBooking(null)}
               onAction={doAction}
             />
           )}
@@ -509,12 +506,12 @@ export default function EcommerceOrdersPage() {
   );
 }
 
-// ─── OrderCard ───────────────────────────────────────────────────────────────
-function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
-  const sm = STATUS_META[order.status] || STATUS_META.NEW;
-  const pm = PAYMENT_META[order.paymentStatus] || PAYMENT_META.PENDING;
-  const nextStatus = NEXT_STATUS[order.status];
-  const isLoading = (s) => actionLoading === order.id + s;
+// ─── BookingCard ──────────────────────────────────────────────────────────────
+function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction }) {
+  const sm = STATUS_META[booking.status] || STATUS_META.PENDING;
+  const pm = PAYMENT_META[booking.paymentStatus] || PAYMENT_META.PENDING;
+  const nextStatus = NEXT_STATUS[booking.status];
+  const isLoading = (s) => actionLoading === booking.id + s;
 
   return (
     <div
@@ -546,7 +543,7 @@ function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
               marginBottom: 2,
             }}
           >
-            #{order.orderNumber}
+            #{booking.orderNumber}
           </div>
           <div
             style={{
@@ -557,9 +554,9 @@ function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
               color: "#64748b",
             }}
           >
-            <User size={11} /> {order.customerName}
-            <span style={{ color: "#cbd5e1" }}>•</span>
-            <Phone size={11} /> {order.customerPhone}
+            <User size={11} /> {booking.customerName}
+            <span style={{ color: "#cbd5e1" }}>·</span>
+            <Phone size={11} /> {booking.customerPhone}
           </div>
         </div>
         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
@@ -603,8 +600,8 @@ function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
         </div>
       </div>
 
-      {/* Items preview */}
-      {order.items && order.items.length > 0 && (
+      {/* Services preview */}
+      {booking.items && booking.items.length > 0 && (
         <div
           style={{
             background: "#f8fafc",
@@ -615,15 +612,15 @@ function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
             color: "#475569",
           }}
         >
-          {order.items.slice(0, 2).map((item, i) => (
+          {booking.items.slice(0, 2).map((item, i) => (
             <span key={i}>
               {i > 0 && <span style={{ color: "#cbd5e1" }}> · </span>}
-              <strong>{item.productName}</strong> ×{item.qty}
+              <strong>{item.productName}</strong>
             </span>
           ))}
-          {order.items.length > 2 && (
+          {booking.items.length > 2 && (
             <span style={{ color: "#94a3b8" }}>
-              {" "}+{order.items.length - 2} more
+              {" "}+{booking.items.length - 2} more
             </span>
           )}
         </div>
@@ -639,44 +636,45 @@ function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
-            ₹{fmt(order.total)}
+            ₹{fmt(booking.total)}
           </span>
-          <span style={{ fontSize: 11, color: "#94a3b8" }}>
-            {order.fulfillmentMethod === "DELIVERY" ? (
-              <><Truck size={11} /> Delivery</>
-            ) : (
-              <><Package size={11} /> Pickup</>
-            )}
-          </span>
-          <span style={{ fontSize: 11, color: "#94a3b8" }}>
-            {new Date(order.createdAt).toLocaleString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+          <span style={{ fontSize: 11, color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
+            <CalendarDays size={11} />
+            {booking.bookingDate
+              ? new Date(booking.bookingDate).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : new Date(booking.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
           </span>
         </div>
         <div
           style={{ display: "flex", gap: 6 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {nextStatus && order.status !== "CANCELLED" && (
+          {nextStatus && booking.status !== "CANCELLED" && (
             <ActionBtn
               loading={isLoading(nextStatus)}
-              onClick={() => onAction(order.id, nextStatus)}
+              onClick={() => onAction(booking.id, nextStatus)}
               color="#4338ca"
               bg="#eef2ff"
             >
-              {nextStatus === "ACCEPTED" ? <><Check size={12} /> Accept</> :
-               nextStatus === "READY"    ? <><Package size={12} /> Ready</> :
-                                           <><CheckCircle2 size={12} /> Complete</>}
+              {nextStatus === "CONFIRMED"   ? <><Check size={12} /> Confirm</> :
+               nextStatus === "IN_PROGRESS" ? <><Timer size={12} /> Start</> :
+                                              <><CheckCircle2 size={12} /> Complete</>}
             </ActionBtn>
           )}
-          {!["CANCELLED", "COMPLETED"].includes(order.status) && (
+          {!["CANCELLED", "COMPLETED"].includes(booking.status) && (
             <ActionBtn
               loading={isLoading("cancel")}
-              onClick={() => onAction(order.id, "cancel")}
+              onClick={() => onAction(booking.id, "cancel")}
               color="#dc2626"
               bg="#fef2f2"
             >
@@ -689,12 +687,12 @@ function OrderCard({ order, isSelected, actionLoading, onSelect, onAction }) {
   );
 }
 
-// ─── OrderDetailPanel ─────────────────────────────────────────────────────
-function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) {
-  const sm = STATUS_META[order.status] || STATUS_META.NEW;
-  const pm = PAYMENT_META[order.paymentStatus] || PAYMENT_META.PENDING;
-  const nextStatus = NEXT_STATUS[order.status];
-  const isLoading = (s) => actionLoading === order.id + s;
+// ─── BookingDetailPanel ────────────────────────────────────────────────────
+function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction }) {
+  const sm = STATUS_META[booking.status] || STATUS_META.PENDING;
+  const pm = PAYMENT_META[booking.paymentStatus] || PAYMENT_META.PENDING;
+  const nextStatus = NEXT_STATUS[booking.status];
+  const isLoading = (s) => actionLoading === booking.id + s;
 
   return (
     <div
@@ -718,9 +716,9 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
         }}
       >
         <div>
-          <div style={{ fontWeight: 800, fontSize: 15 }}>#{order.orderNumber}</div>
+          <div style={{ fontWeight: 800, fontSize: 15 }}>#{booking.orderNumber}</div>
           <div style={{ opacity: 0.7, fontSize: 12, marginTop: 2 }}>
-            {new Date(order.createdAt).toLocaleString("en-IN", {
+            {new Date(booking.createdAt).toLocaleString("en-IN", {
               dateStyle: "medium",
               timeStyle: "short",
             })}
@@ -758,30 +756,35 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
 
       {loading ? (
         <div style={{ padding: 24 }}>
-          <PageLoader title="Loading order details..." />
+          <PageLoader title="Loading booking details..." />
         </div>
       ) : (
         <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Customer Info */}
-          <Section title="Customer" icon={User}>
-            <InfoRow icon={User}  label="Name"  value={order.customerName} />
-            <InfoRow icon={Phone} label="Phone" value={order.customerPhone} />
-            {order.customerEmail && (
-              <InfoRow icon={Tag} label="Email" value={order.customerEmail} />
+          {/* Client Info */}
+          <Section title="Client" icon={User}>
+            <InfoRow icon={User}  label="Name"  value={booking.customerName} />
+            <InfoRow icon={Phone} label="Phone" value={booking.customerPhone} />
+            {booking.customerEmail && (
+              <InfoRow icon={Tag} label="Email" value={booking.customerEmail} />
             )}
-            <InfoRow
-              icon={order.fulfillmentMethod === "DELIVERY" ? Truck : Package}
-              label="Fulfillment"
-              value={order.fulfillmentMethod === "DELIVERY" ? "Delivery" : "Pickup"}
-            />
-            {order.note && (
-              <InfoRow icon={FileText} label="Note" value={order.note} />
+            {booking.bookingDate && (
+              <InfoRow
+                icon={CalendarDays}
+                label="Date"
+                value={new Date(booking.bookingDate).toLocaleString("en-IN", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              />
+            )}
+            {booking.note && (
+              <InfoRow icon={FileText} label="Note" value={booking.note} />
             )}
           </Section>
 
-          {/* Order Items */}
-          <Section title={`Items (${order.items?.length || 0})`} icon={ShoppingBag}>
-            {(order.items || []).map((item) => (
+          {/* Services */}
+          <Section title={`Services (${booking.items?.length || 0})`} icon={Calendar}>
+            {(booking.items || []).map((item) => (
               <div
                 key={item.id}
                 style={{
@@ -800,8 +803,20 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                     {item.productName}
                   </div>
                   <div style={{ fontSize: 11, color: "#64748b" }}>
-                    ₹{fmt(item.unitPrice)} × {item.qty}
+                    ₹{fmt(item.unitPrice)}
+                    {item.staffName && <span> · Staff: {item.staffName}</span>}
                   </div>
+                  {item.bookingTime && (
+                    <div style={{ fontSize: 11, color: "#64748b" }}>
+                      <CalendarDays size={10} style={{ marginRight: 3 }} />
+                      {new Date(item.bookingTime).toLocaleString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  )}
                 </div>
                 <div style={{ fontWeight: 800, color: "#0f172a" }}>
                   ₹{fmt(item.lineTotal)}
@@ -821,9 +836,9 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
               }}
             >
               {[
-                { label: "Subtotal",  value: `₹${fmt(order.subtotal)}` },
-                { label: "Discount",  value: `-₹${fmt(order.discount)}`, color: "#dc2626" },
-                { label: "Tax",       value: `₹${fmt(order.tax)}` },
+                { label: "Subtotal",  value: `₹${fmt(booking.subtotal)}` },
+                { label: "Discount",  value: `-₹${fmt(booking.discount)}`, color: "#dc2626" },
+                { label: "Tax",       value: `₹${fmt(booking.tax)}` },
               ].map((r) => (
                 <div
                   key={r.label}
@@ -851,9 +866,9 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                 }}
               >
                 <span>Total</span>
-                <span>₹{fmt(order.total)}</span>
+                <span>₹{fmt(booking.total)}</span>
               </div>
-              {order.couponCode && (
+              {booking.couponCode && (
                 <div
                   style={{
                     marginTop: 8,
@@ -868,7 +883,7 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                     gap: 4,
                   }}
                 >
-                  <Tag size={11} /> Coupon: {order.couponCode}
+                  <Tag size={11} /> Coupon: {booking.couponCode}
                 </div>
               )}
               <div
@@ -897,16 +912,16 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
           </Section>
 
           {/* Status History */}
-          {order.logs && order.logs.length > 0 && (
+          {booking.logs && booking.logs.length > 0 && (
             <Section title="Status History" icon={Clock}>
               <div style={{ position: "relative" }}>
-                {order.logs.map((log, i) => (
+                {booking.logs.map((log, i) => (
                   <div
                     key={log.id}
                     style={{
                       display: "flex",
                       gap: 10,
-                      paddingBottom: i < order.logs.length - 1 ? 14 : 0,
+                      paddingBottom: i < booking.logs.length - 1 ? 14 : 0,
                     }}
                   >
                     <div
@@ -926,7 +941,7 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                           flexShrink: 0,
                         }}
                       />
-                      {i < order.logs.length - 1 && (
+                      {i < booking.logs.length - 1 && (
                         <div
                           style={{
                             width: 1,
@@ -948,7 +963,7 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                         → {STATUS_META[log.toStatus]?.label || log.toStatus}
                       </div>
                       <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                        {log.actorName || "System"} •{" "}
+                        {log.actorName || "System"} ·{" "}
                         {new Date(log.createdAt).toLocaleString("en-IN", {
                           day: "2-digit",
                           month: "short",
@@ -982,20 +997,20 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
               gap: 8,
             }}
           >
-            {nextStatus && order.status !== "CANCELLED" && (
+            {nextStatus && booking.status !== "CANCELLED" && (
               <button
                 disabled={!!actionLoading}
-                onClick={() => onAction(order.id, nextStatus)}
+                onClick={() => onAction(booking.id, nextStatus)}
                 style={{
                   width: "100%",
                   padding: "11px 16px",
                   borderRadius: 9,
                   border: "none",
                   background:
-                    nextStatus === "ACCEPTED"
+                    nextStatus === "CONFIRMED"
                       ? "#4338ca"
-                      : nextStatus === "READY"
-                      ? "#d97706"
+                      : nextStatus === "IN_PROGRESS"
+                      ? "#7c3aed"
                       : "#166534",
                   color: "white",
                   fontWeight: 700,
@@ -1010,27 +1025,27 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
               >
                 {isLoading(nextStatus) ? (
                   "Processing..."
-                ) : nextStatus === "ACCEPTED" ? (
-                  <><Check size={15} /> Accept Order</>
-                ) : nextStatus === "READY" ? (
-                  <><Package size={15} /> Mark as Ready</>
+                ) : nextStatus === "CONFIRMED" ? (
+                  <><Check size={15} /> Confirm Booking</>
+                ) : nextStatus === "IN_PROGRESS" ? (
+                  <><Timer size={15} /> Start Service</>
                 ) : (
                   <><CheckCircle2 size={15} /> Mark as Completed</>
                 )}
               </button>
             )}
 
-            {order.status === "COMPLETED" && !order.invoiceId && (
+            {booking.status === "CONFIRMED" && (
               <button
                 disabled={!!actionLoading}
-                onClick={() => onAction(order.id, "invoice")}
+                onClick={() => onAction(booking.id, "reminder")}
                 style={{
                   width: "100%",
                   padding: "11px 16px",
                   borderRadius: 9,
-                  border: "none",
-                  background: "#0369a1",
-                  color: "white",
+                  border: "1.5px solid #c4b5fd",
+                  background: "#f5f3ff",
+                  color: "#7c3aed",
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: "pointer",
@@ -1041,37 +1056,14 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                   opacity: actionLoading ? 0.7 : 1,
                 }}
               >
-                {isLoading("invoice") ? (
-                  "Creating..."
-                ) : (
-                  <><FileText size={15} /> Convert to Invoice</>
-                )}
+                <Bell size={15} /> Send Reminder
               </button>
             )}
 
-            {order.invoiceId && (
-              <div
-                style={{
-                  padding: "10px 14px",
-                  background: "#f0fdf4",
-                  border: "1px solid #86efac",
-                  borderRadius: 8,
-                  fontSize: 12,
-                  color: "#166534",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <CheckCircle2 size={14} /> Invoice already created
-              </div>
-            )}
-
-            {!["CANCELLED", "COMPLETED"].includes(order.status) && (
+            {!["CANCELLED", "COMPLETED"].includes(booking.status) && (
               <button
                 disabled={!!actionLoading}
-                onClick={() => onAction(order.id, "cancel")}
+                onClick={() => onAction(booking.id, "cancel")}
                 style={{
                   width: "100%",
                   padding: "10px 16px",
@@ -1089,7 +1081,7 @@ function OrderDetailPanel({ order, loading, actionLoading, onClose, onAction }) 
                   opacity: actionLoading ? 0.7 : 1,
                 }}
               >
-                {isLoading("cancel") ? "Cancelling..." : <><Ban size={14} /> Cancel Order</>}
+                {isLoading("cancel") ? "Cancelling..." : <><Ban size={14} /> Cancel Booking</>}
               </button>
             )}
           </div>
