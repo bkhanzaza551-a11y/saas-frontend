@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, FlaskConical, Plus } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, FlaskConical, Plus, Search } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
@@ -2500,16 +2500,16 @@ export default function PosPage() {
       
       {/* ======= FULL ADD GIFTCARD MODAL ======= */}
       {showGcModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex:9000, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowGcModal(false)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex: 11000, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowGcModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,900px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "none", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
-              <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a" }}>Add Gift Card</div>
+              <div style={{ fontWeight:700, fontSize:"1rem", color:"#0f172a" }}>Add Gift Card</div>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ position:"relative" }}>
                   <input placeholder="Search For Card" value={gcSearch} onChange={e => setGcSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
-                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}>🔍</span>
+                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
+                <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -2635,16 +2635,16 @@ export default function PosPage() {
 
   {/* ======= FULL ADD PACKAGE MODAL ======= */}
       {showPkgModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.65)", zIndex:9000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }} onClick={() => setShowPkgModal(false)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.65)", zIndex: 11000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }} onClick={() => setShowPkgModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,1000px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"20px 28px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #e2e8f0", position:"sticky", top:0, background:"#fff", zIndex:10 }}>
               <div style={{ fontWeight:800, fontSize:"1.3rem", color:"#0f172a" }}>Add packages</div>
               <div style={{ display:"flex", alignItems:"center", gap:16 }}>
                 <div style={{ position:"relative" }}>
-                  <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"10px 14px", paddingRight:36, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:240, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
-                  <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}>🔍</span>
+                  <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:200, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                  <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}>&#x2715;</button>
+                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}><X size={20} /></button>
               </div>
             </div>
             
@@ -2721,7 +2721,7 @@ export default function PosPage() {
                     <label style={{ fontWeight:700, color:"#334155", fontSize:"0.9rem" }}>Add Services to Package</label>
                     <div style={{ position:"relative" }}>
                       <input placeholder="Search Service By Category Or Name..." value={pkgServiceSearch} onChange={e => setPkgServiceSearch(e.target.value)} style={{ width:"100%", padding:"12px 16px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
-                      <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}>🔍</span>
+                      <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}><Search size={16} /></span>
                       {pkgServiceSearch.trim() && (
                         <div style={{ position:"absolute", top:"100%", left:0, right:0, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, maxHeight:200, overflowY:"auto", marginTop:6, zIndex:20, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
                           {(context.services || []).filter(s => s.name.toLowerCase().includes(pkgServiceSearch.toLowerCase())).map(svc => (
@@ -2739,7 +2739,7 @@ export default function PosPage() {
                     <label style={{ fontWeight:700, color:"#334155", fontSize:"0.9rem" }}>Add Products to Package</label>
                     <div style={{ position:"relative" }}>
                       <input placeholder="Search Product By Category Or Name..." value={pkgProductSearch} onChange={e => setPkgProductSearch(e.target.value)} style={{ width:"100%", padding:"12px 16px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
-                      <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}>🔍</span>
+                      <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}><Search size={16} /></span>
                       {pkgProductSearch.trim() && (
                         <div style={{ position:"absolute", top:"100%", left:0, right:0, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, maxHeight:200, overflowY:"auto", marginTop:6, zIndex:20, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
                           {(context.products || []).filter(p => p.name.toLowerCase().includes(pkgProductSearch.toLowerCase())).map(prod => (
@@ -2899,8 +2899,8 @@ export default function PosPage() {
             </div>
 
             <div style={{ padding:"20px 28px", borderTop:"1px solid #e2e8f0", display:"flex", justifyContent:"flex-end", gap:16, background: "#f8fafc", position: "sticky", bottom: 0, borderRadius: "0 0 16px 16px", zIndex: 10 }}>
-              <button onClick={() => { setShowPkgModal(false); setStatus({ error: "", success: "" }); }} style={{ padding:"12px 28px", background:"#fff", border:"1px solid #cbd5e1", borderRadius:8, fontWeight:700, cursor:"pointer", color:"#475569", fontSize: "0.95rem", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background="#f1f5f9"; e.currentTarget.style.borderColor="#94a3b8"; }} onMouseLeave={e => { e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"; }}>Cancel</button>
-              <button onClick={handleAddPkgToCart} disabled={!pkgDraftCanSubmit || submittingPkg} style={{ padding:"12px 28px", background:"#10b981", color:"#fff", border:"none", borderRadius:8, fontWeight:800, cursor:(pkgDraftCanSubmit && !submittingPkg)?"pointer":"not-allowed", opacity:(pkgDraftCanSubmit && !submittingPkg)?1:0.6, fontSize: "0.95rem", boxShadow: "0 4px 6px -1px rgba(16, 185, 129, 0.3)", transition: "all 0.2s" }} onMouseEnter={e => { if(pkgDraftCanSubmit && !submittingPkg) { e.currentTarget.style.background="#059669"; e.currentTarget.style.transform="translateY(-1px)"; } }} onMouseLeave={e => { if(pkgDraftCanSubmit && !submittingPkg) { e.currentTarget.style.background="#10b981"; e.currentTarget.style.transform="translateY(0)"; } }}>
+              <button onClick={() => { setShowPkgModal(false); setStatus({ error: "", success: "" }); }} style={{ padding:"8px 20px", background:"#fff", border:"1px solid #cbd5e1", borderRadius:6, fontWeight:600, cursor:"pointer", color:"#475569", fontSize: "0.85rem", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background="#f1f5f9"; e.currentTarget.style.borderColor="#94a3b8"; }} onMouseLeave={e => { e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"; }}>Cancel</button>
+              <button onClick={handleAddPkgToCart} disabled={!pkgDraftCanSubmit || submittingPkg} style={{ padding:"8px 20px", background:"#10b981", color:"#fff", border:"none", borderRadius:6, fontWeight:700, cursor:(pkgDraftCanSubmit && !submittingPkg)?"pointer":"not-allowed", opacity:(pkgDraftCanSubmit && !submittingPkg)?1:0.6, fontSize: "0.85rem", boxShadow: "0 4px 6px -1px rgba(16, 185, 129, 0.3)", transition: "all 0.2s" }} onMouseEnter={e => { if(pkgDraftCanSubmit && !submittingPkg) { e.currentTarget.style.background="#059669"; e.currentTarget.style.transform="translateY(-1px)"; } }} onMouseLeave={e => { if(pkgDraftCanSubmit && !submittingPkg) { e.currentTarget.style.background="#10b981"; e.currentTarget.style.transform="translateY(0)"; } }}>
                 {submittingPkg ? "Processing..." : "Confirm Purchase"}
               </button>
             </div>
@@ -2914,7 +2914,7 @@ export default function PosPage() {
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,500px)", maxHeight:"80vh", overflowY:"auto", boxShadow:"0 25px 50px -12px rgba(0,0,0,0.25)" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
               <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a", textAlign:"center", flex:1 }}>Package Details</div>
-              <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
+              <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
             </div>
             <div style={{ padding:"20px 24px" }}>
               <div style={{ fontSize:"1rem", fontWeight:600, color:"#0f172a", marginBottom:16 }}>Guest Name: {context.customers.find(c => c.id === form.customerId)?.name || "N/A"}</div>
@@ -2983,16 +2983,16 @@ export default function PosPage() {
 
       {/* ======= FULL ADD MEMBERSHIP MODAL ======= */}
       {showMemModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex:9000, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowMemModal(false)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex: 11000, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowMemModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,900px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "none", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
               <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a" }}>Add membership</div>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ position:"relative" }}>
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
-                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}>🔍</span>
+                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
+                <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -3499,7 +3499,7 @@ export default function PosPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 420px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Discount:</strong>
-              <button type="button" onClick={() => setShowDiscountModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setShowDiscountModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
               <div style={{ flex: 1 }}>
@@ -3522,7 +3522,7 @@ export default function PosPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 560px)", maxHeight: "85vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Apply Packages</strong>
-              <button type="button" onClick={() => setShowApplyPkgRedemptionModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setShowApplyPkgRedemptionModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             {customerPackages.length === 0 ? (
               <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>No active packages found for this customer.</div>
@@ -3585,7 +3585,7 @@ export default function PosPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 440px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Apply Gift Card</strong>
-              <button type="button" onClick={() => setShowGcRedemptionModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setShowGcRedemptionModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             <div style={{ textAlign: "center", marginBottom: 16, color: "#475569" }}>Enter gift card number</div>
             <input type="text" value={gcRedemptionCode} onChange={e => setGcRedemptionCode(e.target.value)} placeholder="Gift card code" style={{ width: "100%", padding: "12px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "1rem", boxSizing: "border-box", marginBottom: 16, textAlign: "center", letterSpacing: 2 }} />
@@ -3613,7 +3613,7 @@ export default function PosPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 560px)", maxHeight: "85vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Tip</strong>
-              <button type="button" onClick={() => setShowTipModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setShowTipModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {tipEntries.map((entry, idx) => (
@@ -3622,7 +3622,7 @@ export default function PosPage() {
                   <span style={{ flex: 1, fontWeight: 600, color: "#0f172a" }}>{entry.staffName || (context.staffUsers || []).find(s => s.id === entry.staffId)?.user?.name || "Staff"}</span>
                   <span style={{ fontWeight: 600, color: "#16a34a" }}>{formatMoney(Number(entry.amount))}</span>
                   <span style={{ fontSize: "0.85rem", color: "#64748b" }}>{entry.paymentMode}</span>
-                  <button type="button" onClick={() => removeTipEntry(idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}>&#x2715;</button>
+                  <button type="button" onClick={() => removeTipEntry(idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}><X size={20} /></button>
                 </div>
               ))}
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 10, alignItems: "end", padding: "12px 14px", border: "1px solid #e2e8f0", borderRadius: 8 }}>
@@ -3663,7 +3663,7 @@ export default function PosPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 600px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Select Membership to Apply</strong>
-              <button type="button" onClick={() => setShowApplyMembershipModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setShowApplyMembershipModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 12 }}>
               {(context.customers.find(c => c.id === form.customerId)?.memberships || [])
@@ -3780,7 +3780,7 @@ export default function PosPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 480px)", padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Complimentary Remark</strong>
-              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             <p style={{ color: "#475569", fontSize: 14, marginBottom: 16 }}>Enter remark for <strong>{compModal.serviceName}</strong> as complimentary (Mandatory)</p>
             <input
