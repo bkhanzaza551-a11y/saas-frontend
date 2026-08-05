@@ -2,20 +2,20 @@ import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&fit=crop";
-
 export default function HomePage() {
   const { salon, selectedBranchId } = useOutletContext();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const config = salon?.websiteConfig || {};
-  const sections = config.sections && config.sections.length > 0 ? config.sections : [
-    { id: "hero", type: "hero", label: "Hero", enabled: true },
-    { id: "services", type: "services", label: "Services", enabled: true },
-    { id: "about", type: "about", label: "About", enabled: true },
-    { id: "gallery", type: "gallery", label: "Gallery", enabled: true },
-    { id: "testimonials", type: "testimonials", label: "Reviews", enabled: true }
+  // New Extended Sections List
+  const sections = [
+    { id: "hero", type: "hero" },
+    { id: "features", type: "features" },
+    { id: "about", type: "about" },
+    { id: "services", type: "services" },
+    { id: "team", type: "team" },
+    { id: "gallery", type: "gallery" },
+    { id: "cta", type: "cta" }
   ];
 
   useEffect(() => {
@@ -28,63 +28,95 @@ export default function HomePage() {
   }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
-    document.title = `${salon.name} — Premium Salon Services`;
+    document.title = `${salon?.name || "Premium Salon"} — Luxury Services`;
     window.scrollTo(0, 0);
-  }, [salon.name]);
+  }, [salon?.name]);
 
   const renderSection = (sec) => {
-    if (!sec.enabled) return null;
-
     switch (sec.type) {
       case "hero":
         return (
-          <section key={sec.id} className="sf-hero sf-animate">
+          <section key={sec.id} className="sf-hero">
+            {/* Professional Salon Background Video */}
+            <video className="sf-hero-video" autoPlay loop muted playsInline>
+              <source src="https://cdn.pixabay.com/video/2021/11/26/99351-651586567_large.mp4" type="video/mp4" />
+            </video>
+            <div className="sf-hero-overlay"></div>
+            
             <div className="sf-hero-content">
-              <h1>{config.heroTitle || salon.name}</h1>
-              <p>{config.heroSubtitle || "Elevate your style with our premium salon experience."}</p>
-              <div className="sf-hero-actions">
-                <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">Explore Services</Link>
+              <h1>Experience True Elegance</h1>
+              <p>Redefining beauty and grooming. Step into a world of luxury and let our expert stylists craft your perfect look.</p>
+              <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
+                <Link to={`/site/${salon.slug}/services`} className="sf-btn-gold">Book Appointment</Link>
+                <a href="#about" className="sf-btn-outline">Discover More</a>
               </div>
             </div>
-            
-            <div style={{ position: "absolute", inset: 0, zIndex: 1, overflow: "hidden" }}>
-              <video 
-                autoPlay loop muted playsInline preload="auto"
-                poster={config.heroImage || FALLBACK_IMG}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              >
-                <source src="https://cdn.pixabay.com/video/2020/05/26/40141-424888200_large.mp4" type="video/mp4" />
-              </video>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8))" }} />
+          </section>
+        );
+
+      case "features":
+        return (
+          <section key={sec.id} className="sf-section" style={{ background: "var(--surface)" }}>
+            <div className="sf-section-title">
+              <span>Why Choose Us</span>
+              <h2>The Premium Standard</h2>
+            </div>
+            <div className="sf-features">
+              <div className="sf-feature-card">
+                <div className="sf-feature-icon">✨</div>
+                <h3>Expert Stylists</h3>
+                <p>Our team consists of award-winning professionals dedicated to bringing your vision to life.</p>
+              </div>
+              <div className="sf-feature-card">
+                <div className="sf-feature-icon">🌿</div>
+                <h3>Premium Products</h3>
+                <p>We only use top-tier, organic, and globally recognized products for your hair and skin.</p>
+              </div>
+              <div className="sf-feature-card">
+                <div className="sf-feature-icon">💎</div>
+                <h3>Luxury Ambiance</h3>
+                <p>Relax in our aesthetically designed VIP lounge while you receive your personalized treatment.</p>
+              </div>
+            </div>
+          </section>
+        );
+
+      case "about":
+        return (
+          <section key={sec.id} id="about" className="sf-section sf-split-section">
+            <div className="sf-split-img">
+              <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" alt="Salon Interior" />
+            </div>
+            <div className="sf-split-text">
+              <h2 style={{ fontSize: "36px", color: "var(--gold)", marginBottom: "20px" }}>The Art of Grooming</h2>
+              <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "30px", fontSize: "16px" }}>
+                At {salon.name}, we believe that self-care is an art form. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services. From precision haircuts to rejuvenating spa treatments, every detail is tailored to your unique style.
+              </p>
+              <Link to={`/site/${salon.slug}/services`} className="sf-btn-gold">View Our Services</Link>
             </div>
           </section>
         );
 
       case "services":
         return (
-          <section key={sec.id} className="sf-section sf-animate">
+          <section key={sec.id} className="sf-section">
             <div className="sf-section-title">
-              <span>Our Selection</span>
+              <span>Our Menu</span>
               <h2>Signature Services</h2>
             </div>
             {loading ? (
-              <div style={{ textAlign: "center", padding: 100 }}>Loading exclusive services...</div>
-            ) : services.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 100, color: "var(--sf-text-muted)" }}>No services currently available. Check back soon.</div>
+              <div style={{ textAlign: "center", color: "var(--gold)" }}>Loading luxury services...</div>
             ) : (
               <div className="sf-services-grid">
                 {services.slice(0, 6).map(service => (
                   <Link to={`/site/${salon.slug}/service/${service.id}`} key={service.id}>
                     <div className="sf-service-card">
-                      <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} className="sf-service-img" />
+                      <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800"} alt={service.name} className="sf-service-img" />
                       <div className="sf-service-content">
                         <h3>{service.name}</h3>
-                        <p className="sf-service-desc">{service.description || "Experience the ultimate care with our professional staff."}</p>
+                        <p className="sf-service-desc">{service.description || "Indulge in our premium signature treatment tailored just for you."}</p>
                         <div className="sf-service-footer">
-                          <span className="sf-service-duration">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                            {service.durationMin} min
-                          </span>
+                          <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>🕒 {service.durationMin} MINS</span>
                           <span className="sf-service-price">{salon.currency} {Number(service.salePrice || service.price).toLocaleString()}</span>
                         </div>
                       </div>
@@ -93,88 +125,56 @@ export default function HomePage() {
                 ))}
               </div>
             )}
-            {services.length > 6 && (
-              <div style={{ textAlign: "center", marginTop: 80 }}>
-                <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark">View All Services</Link>
-              </div>
-            )}
-          </section>
-        );
-
-      case "about":
-        const aboutText = config.aboutText || "Welcome to our premium salon. We are dedicated to providing you with the highest quality of service and care in a relaxing environment.";
-        return (
-          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-surface)", textAlign: "center", borderRadius: "var(--sf-radius-lg)", margin: "0 20px" }}>
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
-              <div className="sf-section-title" style={{ marginBottom: 40 }}>
-                <span>Our Story</span>
-                <h2>About {salon.name}</h2>
-              </div>
-              <p style={{ fontSize: "1.25rem", color: "var(--sf-text-muted)", lineHeight: 1.8 }}>
-                {aboutText}
-              </p>
+            <div style={{ textAlign: "center", marginTop: "50px" }}>
+              <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">Explore All Services</Link>
             </div>
           </section>
         );
 
-      case "gallery":
-        const gallery = config.gallery && config.gallery.length > 0 ? config.gallery : [
-          "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&fit=crop",
-          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&fit=crop",
-          "https://images.unsplash.com/photo-1516975080661-46b080516bdc?w=800&fit=crop"
-        ];
+      case "team":
         return (
-          <section key={sec.id} className="sf-section">
+          <section key={sec.id} className="sf-section" style={{ background: "var(--surface)" }}>
             <div className="sf-section-title">
-              <span>Portfolio</span>
-              <h2>Our Work</h2>
+              <span>Meet The Masters</span>
+              <h2>Our Stylists</h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
-              {gallery.map((img, i) => (
-                <div key={i} style={{ borderRadius: "var(--sf-radius-md)", overflow: "hidden", height: 350 }}>
-                  <img src={img} alt={`Gallery ${i+1}`} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "var(--sf-transition)" }} className="sf-service-img" />
-                </div>
-              ))}
+            <div className="sf-team-grid">
+              <div className="sf-team-card">
+                <img src="https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?w=600" alt="Stylist" />
+                <h4>Elena Roberts</h4>
+                <p>Senior Hair Director</p>
+              </div>
+              <div className="sf-team-card">
+                <img src="https://images.unsplash.com/photo-1616858557342-6323cf13be87?w=600" alt="Stylist" />
+                <h4>Michael Chang</h4>
+                <p>Master Barber</p>
+              </div>
+              <div className="sf-team-card">
+                <img src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=600" alt="Stylist" />
+                <h4>Sarah Jenkins</h4>
+                <p>Color Specialist</p>
+              </div>
+              <div className="sf-team-card">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600" alt="Stylist" />
+                <h4>Jessica Dawn</h4>
+                <p>Spa & Skincare Lead</p>
+              </div>
             </div>
           </section>
         );
 
-      case "testimonials":
-        const testimonials = config.testimonials && config.testimonials.length > 0 ? config.testimonials : [
-          { text: "Absolutely wonderful experience. The staff was professional and the service was top-notch.", author: "Sarah M.", rating: 5 },
-          { text: "I've never felt more pampered. I highly recommend this salon to anyone looking for premium care.", author: "Jessica T.", rating: 5 },
-          { text: "A truly luxurious experience from start to finish. I'll definitely be coming back.", author: "Emily R.", rating: 5 }
-        ];
+      case "cta":
         return (
-          <section key={sec.id} className="sf-section" style={{ background: "var(--sf-bg)" }}>
-            <div className="sf-section-title">
-              <span>Client Reviews</span>
-              <h2>What Our Clients Say</h2>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32 }}>
-              {testimonials.map((t, i) => (
-                <div key={i} style={{ background: "#fff", padding: 40, borderRadius: "var(--sf-radius-lg)", boxShadow: "var(--sf-shadow-sm)" }}>
-                  <div style={{ color: "var(--sf-luxury-gold)", marginBottom: 20, fontSize: "1.2rem" }}>
-                    {Array.from({ length: t.rating || 5 }).map((_, j) => (
-                      <span key={j}>★</span>
-                    ))}
-                  </div>
-                  <p style={{ fontSize: "1.1rem", fontStyle: "italic", marginBottom: 24, lineHeight: 1.7, color: "var(--sf-text-muted)" }}>"{t.text}"</p>
-                  <h4 style={{ fontSize: "1.2rem" }}>{t.author}</h4>
-                </div>
-              ))}
-            </div>
+          <section key={sec.id} className="sf-cta-banner">
+            <h2>Ready for a Transformation?</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "30px", fontSize: "18px" }}>Secure your spot today and let us treat you like royalty.</p>
+            <Link to={`/site/${salon.slug}/services`} className="sf-btn-gold" style={{ fontSize: "18px", padding: "15px 40px" }}>Book Your Session Now</Link>
           </section>
         );
 
-      default:
-        return null;
+      default: return null;
     }
   };
 
-  return (
-    <>
-      {sections.map(sec => renderSection(sec))}
-    </>
-  );
+  return <>{sections.map(sec => renderSection(sec))}</>;
 }
