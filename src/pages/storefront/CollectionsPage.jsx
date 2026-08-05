@@ -253,7 +253,7 @@ export default function CollectionsPage() {
                                 {formatPrice(getServicePrice(service), currency)}
                               </span>
                               {hasSale && (
-                                <span style={{ fontSize: "0.82rem", color: "#999", textDecoration: "line-through" }}>
+                                <span style={{ fontSize: "0.82rem", color: "#888", textDecoration: "line-through" }}>
                                   {formatPrice(service.price, currency)}
                                 </span>
                               )}

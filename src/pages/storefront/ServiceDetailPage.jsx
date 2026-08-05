@@ -177,7 +177,7 @@ export default function ServiceDetailPage() {
               <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--sf-accent, #c8a97e)" }}>
                 {formatPrice(price, currency)}
                 {hasSale && (
-                  <span style={{ fontSize: "1rem", color: "#999", textDecoration: "line-through", marginLeft: 8 }}>
+                  <span style={{ fontSize: "1rem", color: "#888", textDecoration: "line-through", marginLeft: 8 }}>
                     {formatPrice(originalPrice, currency)}
                   </span>
                 )}
@@ -304,7 +304,7 @@ export default function ServiceDetailPage() {
                 {/* Time */}
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", color: "#666", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6, fontWeight: 600 }}>
-                    Preferred Time {loadingSlots && <span style={{ fontSize: "0.7rem", color: "#999" }}>(loading slots...)</span>}
+                    Preferred Time {loadingSlots && <span style={{ fontSize: "0.7rem", color: "#888" }}>(loading slots...)</span>}
                   </label>
                   {/* Mobile: dropdown */}
                   <div className="sf-mobile-time-select" style={{ display: "none" }}>
@@ -374,7 +374,7 @@ export default function ServiceDetailPage() {
                       style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover" }}
                     />
                     <div>
-                      <p style={{ margin: 0, fontSize: "0.82rem", color: "#999" }}>Preferred Stylist</p>
+                      <p style={{ margin: 0, fontSize: "0.82rem", color: "#888" }}>Preferred Stylist</p>
                       <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "#1a1a1a" }}>{selectedStaff.name}</p>
                     </div>
                   </div>
@@ -465,7 +465,7 @@ export default function ServiceDetailPage() {
                           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                             <span style={{ fontWeight: 700, color: "var(--sf-accent, #c8a97e)" }}>{formatPrice(sPrice, currency)}</span>
                             {sHasSale && (
-                              <span style={{ fontSize: "0.82rem", color: "#999", textDecoration: "line-through" }}>{formatPrice(s.price, currency)}</span>
+                              <span style={{ fontSize: "0.82rem", color: "#888", textDecoration: "line-through" }}>{formatPrice(s.price, currency)}</span>
                             )}
                           </div>
                           {s.durationMin && (
@@ -498,7 +498,7 @@ export default function ServiceDetailPage() {
         <div style={{ maxWidth: 1300, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
           <div>
             <p style={{ margin: 0, fontWeight: 700, fontSize: "1.1rem", color: "var(--sf-accent, #c8a97e)" }}>{formatPrice(price, currency)}</p>
-            {service.durationMin && <p style={{ margin: 0, fontSize: "0.8rem", color: "#999" }}>{formatDuration(service.durationMin)}</p>}
+            {service.durationMin && <p style={{ margin: 0, fontSize: "0.8rem", color: "#888" }}>{formatDuration(service.durationMin)}</p>}
           </div>
           <button onClick={handleBookNow} className="sf-btn sf-btn-primary" style={{ padding: "12px 32px" }}>
             Book Now

@@ -144,7 +144,7 @@ export default function CategoryDetailPage() {
                     {/* Service Details */}
                     <div style={{ padding: "16px 20px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
                       {service.category && (
-                        <p style={{ margin: "0 0 4px", fontSize: "0.75rem", color: "#999", fontWeight: 600 }}>
+                        <p style={{ margin: "0 0 4px", fontSize: "0.75rem", color: "#888", fontWeight: 600 }}>
                           {service.category.name}
                         </p>
                       )}
@@ -184,7 +184,7 @@ export default function CategoryDetailPage() {
                               {formatPrice(displayPrice, currency)}
                             </span>
                             {hasSale && (
-                              <span style={{ fontSize: "0.82rem", color: "#999", textDecoration: "line-through" }}>
+                              <span style={{ fontSize: "0.82rem", color: "#888", textDecoration: "line-through" }}>
                                 {formatPrice(service.price, currency)}
                               </span>
                             )}

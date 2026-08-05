@@ -129,11 +129,11 @@ export default function BookingConfirmationPage() {
       <div style={{ background: "white", padding: 32, borderRadius: 16, boxShadow: "0 2px 8px rgba(0,0,0,.06)", marginBottom: 32 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Booking Reference</p>
+            <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Booking Reference</p>
             <p style={{ margin: 0, fontWeight: 700, fontSize: "1.2rem" }}>{booking.bookingNumber || booking.orderNumber || booking.id}</p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Payment Status</p>
+            <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Payment Status</p>
             <span style={{ display: "inline-block", padding: "4px 12px", background: badgeStyle.bg, color: badgeStyle.color, borderRadius: 100, fontSize: "0.8rem", fontWeight: 600 }}>{paymentStatus}</span>
           </div>
         </div>
@@ -141,31 +141,31 @@ export default function BookingConfirmationPage() {
         <div style={{ borderTop: "1px solid #eee", paddingTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Service</p>
+              <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Service</p>
               <p style={{ margin: 0, fontWeight: 600, fontSize: "1.05rem" }}>{serviceName}</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Price</p>
+              <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Price</p>
               <p style={{ margin: 0, fontWeight: 700, fontSize: "1.15rem", color: "var(--sf-accent)" }}>{currency} {Number(servicePrice).toFixed(2)}</p>
             </div>
           </div>
 
           <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
-            <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Date & Time</p>
+            <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Date & Time</p>
             <p style={{ margin: 0, fontWeight: 600 }}>{dateStr}</p>
             <p style={{ margin: 0, color: "#555" }}>{timeStr}</p>
           </div>
 
           {duration && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
-              <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Duration</p>
+              <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Duration</p>
               <p style={{ margin: 0, fontWeight: 600 }}>{duration} {duration === 1 ? "minute" : "minutes"}</p>
             </div>
           )}
 
           {booking.branch && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
-              <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Location</p>
+              <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Location</p>
               <p style={{ margin: 0, fontWeight: 600 }}>{booking.branch.name || salon?.name}</p>
               {booking.branch.address && <p style={{ margin: 0, color: "#555", fontSize: "0.9rem" }}>{booking.branch.address}</p>}
             </div>
@@ -173,14 +173,14 @@ export default function BookingConfirmationPage() {
 
           {booking.staffName && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
-              <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Staff</p>
+              <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Staff</p>
               <p style={{ margin: 0, fontWeight: 600 }}>{booking.staffName}</p>
             </div>
           )}
 
           {(booking.customerName || booking.customerPhone) && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
-              <p style={{ margin: 0, color: "#999", fontSize: "0.85rem" }}>Customer</p>
+              <p style={{ margin: 0, color: "#888", fontSize: "0.85rem" }}>Customer</p>
               <p style={{ margin: 0, fontWeight: 600 }}>{booking.customerName || ""}</p>
               {booking.customerPhone && <p style={{ margin: 0, color: "#555", fontSize: "0.9rem" }}>{booking.customerPhone}</p>}
               {booking.customerEmail && <p style={{ margin: 0, color: "#555", fontSize: "0.9rem" }}>{booking.customerEmail}</p>}
