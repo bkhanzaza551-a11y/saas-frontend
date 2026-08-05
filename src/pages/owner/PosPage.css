@@ -518,34 +518,57 @@ button.pos-item-card:hover {
   background: #93c5fd;
   color: white;
   border: none;
-  padding: 6px 14px;
-  border-radius: 4px;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.85rem !important;
   cursor: pointer;
-  min-height: unset;
+  min-height: 0 !important;
+  height: auto !important;
 }
 .pos-btn-create {
   background: #60a5fa;
   color: white;
   border: none;
-  padding: 6px 14px;
-  border-radius: 4px;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.85rem !important;
   cursor: pointer;
-  min-height: unset;
+  min-height: 0 !important;
+  height: auto !important;
 }
 .pos-btn-complete {
   background: #3b82f6;
   color: white;
   border: none;
-  padding: 6px 14px;
-  border-radius: 4px;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.85rem !important;
   cursor: pointer;
-  min-height: unset;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+.pos-add-guest-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+  font-size: 0.85rem !important;
+  cursor: pointer;
+  min-height: 0 !important;
+  height: auto !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 150ms ease;
+}
+.pos-add-guest-btn:hover {
+  opacity: 0.9;
 }
 
 /* MOBILE RESPONSIVE STYLES */
