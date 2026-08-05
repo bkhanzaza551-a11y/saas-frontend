@@ -2164,7 +2164,8 @@ export default function PosPage() {
                   type="button"
                   onClick={applyCoupon}
                   disabled={couponValidating || !couponCodeInput.trim()}
-                  style={{ padding: "8px 16px", background: "var(--button-bg-solid, #0f172a)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: couponValidating || !couponCodeInput.trim() ? "not-allowed" : "pointer", opacity: couponValidating || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: "nowrap" }}
+                  className="pos-action-btn"
+                  style={{ cursor: couponValidating || !couponCodeInput.trim() ? "not-allowed" : "pointer", opacity: couponValidating || !couponCodeInput.trim() ? 0.6 : 1 }}
                 >
                   {couponValidating ? "Checking..." : "Apply Coupon"}
                 </button>
@@ -2231,7 +2232,7 @@ export default function PosPage() {
                   </div>
                 )}
                 <div className="pos-payment-input">
-                  <label><svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> Online</label>
+                  <label><svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" /></svg> Online</label>
                   <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "ONLINE")?.amount || ""} onFocus={() => {
                     setForm((current) => {
                       const fixedTotal = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
@@ -2293,7 +2294,7 @@ export default function PosPage() {
                       const newBalance = remaining;
                       if (newOnline > 0) fixedPayments.push({ mode: "ONLINE", amount: newOnline, note: "" });
                       if (targetAmt > 0) fixedPayments.push({ mode: "CASH", amount: targetAmt, note: "" });
-                      if (newBalance > 0) fixedPayments.push({ mode: "BALANCE", amount: newBalance, note: "" });
+                      if (newBalance > 0) fixedPayments.push({ mode: "BALANCE", amount: targetAmt, note: "" });
                       return { ...current, payments: fixedPayments };
                     });
                   }} />
@@ -2340,7 +2341,7 @@ export default function PosPage() {
                   return (
                     <div className="pos-payment-input">
                       <label style={{ color: "#10b981" }} title={`Available advance: ${formatMoney(adv)}`}>
-                        <svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                         Advance ({formatMoney(adv)})
                       </label>
                       <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "ADVANCE")?.amount || ""} onFocus={() => {
@@ -2475,19 +2476,19 @@ export default function PosPage() {
             <p style={{ color: "#64748b", fontSize: "14px", marginBottom: 24 }}>Invoice #{createdInvoice.invoiceNumber} {createdInvoice.status === "STARTED" ? "is now in progress." : "has been generated successfully."}</p>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <button onClick={() => navigate(`/admin/invoices/${createdInvoice.id}`)} style={{ padding: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <button onClick={() => navigate(`/admin/invoices/${createdInvoice.id}`)} className="pos-action-btn" style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                 View Invoice
               </button>
-              <button onClick={() => downloadFromApi(`/owner/invoices/${createdInvoice.id}/pdf`, { fallbackFilename: `invoice-${createdInvoice.invoiceNumber}.pdf` })} style={{ padding: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <button onClick={() => downloadFromApi(`/owner/invoices/${createdInvoice.id}/pdf`, { fallbackFilename: `invoice-${createdInvoice.invoiceNumber}.pdf` })} className="pos-action-btn" style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 Download PDF
               </button>
-              <button onClick={() => downloadFromApi(`/owner/invoices/${createdInvoice.id}/receipt`, { fallbackFilename: `receipt-${createdInvoice.invoiceNumber}.html` })} style={{ padding: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <button onClick={() => downloadFromApi(`/owner/invoices/${createdInvoice.id}/receipt`, { fallbackFilename: `receipt-${createdInvoice.invoiceNumber}.html` })} className="pos-action-btn" style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                 Download Receipt
               </button>
-              <button type="button" onClick={() => { setShowSuccessModal(false); setCreatedInvoice(null); setStatus({ error: "", success: "" }); }} style={{ padding: "12px", background: "var(--button-bg-solid, #3b82f6)", color: "white", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600, marginTop: 8 }}>
+              <button type="button" onClick={() => { setShowSuccessModal(false); setCreatedInvoice(null); setStatus({ error: "", success: "" }); }} className="pos-action-btn-solid">
                 Start New Sale
               </button>
             </div>

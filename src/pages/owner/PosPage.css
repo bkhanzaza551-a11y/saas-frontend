@@ -105,21 +105,22 @@
 }
 
 .pos-top-tab {
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 4px;
-  border: 1px solid #cbd5e1;
-  background: white;
-  color: #64748b;
-  font-weight: 600;
-  font-size: 0.72rem;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
   cursor: pointer;
   white-space: nowrap;
-  min-height: unset;
+  min-height: unset !important;
 }
 .pos-top-tab.active {
-  color: #0ea5e9;
-  border-color: #0ea5e9;
+  color: #ffffff !important;
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
 }
 
 /* BODY */
@@ -335,17 +336,18 @@ button.pos-item-card:hover {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #ffffff;
-  background: #3b82f6;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.75rem;
+  color: #ffffff !important;
+  background: #3b82f6 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
   cursor: pointer;
-  padding: 6px 10px;
-  box-shadow: 0 2px 4px rgba(59,130,246,0.2);
+  padding: 6px 12px !important;
+  box-shadow: 0 2px 4px rgba(59,130,246,0.2) !important;
   transition: all 0.2s;
   white-space: nowrap;
+  height: 36px !important;
 }
 .pos-add-guest-btn:hover {
   background: #2563eb;
@@ -604,4 +606,82 @@ button.pos-item-card:hover {
   .pos-footer-bar button {
     flex: 1;
   }
+}
+
+/* Action Buttons */
+.pos-action-btn {
+  padding: 6px 16px !important;
+  background: #ffffff !important;
+  border: 1px solid #3b82f6 !important;
+  border-radius: 20px !important;
+  cursor: pointer;
+  font-weight: 600 !important;
+  color: #3b82f6 !important;
+  font-size: 0.8rem !important;
+  white-space: nowrap;
+  height: 32px !important;
+}
+.pos-action-btn:hover {
+  background: #eff6ff !important;
+}
+
+.pos-action-btn-solid {
+  padding: 6px 16px !important;
+  background: #3b82f6 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  font-size: 0.8rem !important;
+  white-space: nowrap;
+  height: 32px !important;
+}
+.pos-action-btn-solid:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pos-checkout-actions {
+  display: flex;
+  gap: 12px;
+  padding: 0 24px;
+}
+.pos-checkout-btn-clear {
+  padding: 10px 16px !important;
+  background: #f8fafc !important;
+  color: #64748b !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  flex: 1;
+  font-size: 0.9rem !important;
+  height: 42px !important;
+}
+.pos-checkout-btn-start {
+  padding: 10px 16px !important;
+  background: #2563eb !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  flex: 1;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3) !important;
+  font-size: 0.9rem !important;
+  height: 42px !important;
+}
+.pos-checkout-btn-complete {
+  padding: 10px 16px !important;
+  background: #16a34a !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  flex: 2;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.3) !important;
+  font-size: 0.9rem !important;
+  height: 42px !important;
 }
