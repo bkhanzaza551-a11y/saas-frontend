@@ -119,9 +119,34 @@ export default function StorefrontLayout() {
         </StorefrontErrorBoundary>
       </main>
 
-      <footer className="sf-footer">
-        <h2>{salon.name}</h2>
-        <p>{salon.websiteConfig?.footerText || "Premium Salon Services. All rights reserved."}</p>
+      <footer className="sf-footer" style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 80, paddingBottom: 40 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 60, textAlign: "left", marginBottom: 60 }}>
+          <div>
+            <h3 style={{ fontSize: "1.8rem", marginBottom: 24 }}>{salon.name}</h3>
+            <p style={{ lineHeight: 1.8, color: "rgba(255,255,255,0.7)" }}>
+              {salon.websiteConfig?.footerText || "Experience luxury and premium care at our salon. We are dedicated to bringing out your best self."}
+            </p>
+          </div>
+          <div>
+            <h4 style={{ fontSize: "1.2rem", marginBottom: 24, textTransform: "uppercase", letterSpacing: "0.05em" }}>Quick Links</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <Link to={`/site/${slug}`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Home</Link>
+              <Link to={`/site/${slug}/services`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Our Services</Link>
+              <Link to={`/site/${slug}/my-bookings`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Track Bookings</Link>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ fontSize: "1.2rem", marginBottom: 24, textTransform: "uppercase", letterSpacing: "0.05em" }}>Contact Us</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>
+              <span>{salon.email || "contact@salon.com"}</span>
+              <span>{salon.phone || "+1 234 567 8900"}</span>
+              <span>{salon.address || "123 Premium Street, Beauty District"}</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 40, color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>
+          &copy; {new Date().getFullYear()} {salon.name}. All rights reserved.
+        </div>
       </footer>
 
       {/* Cart Drawer */}

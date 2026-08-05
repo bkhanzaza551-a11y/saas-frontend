@@ -43,15 +43,21 @@ export default function HomePage() {
               <h1 style={{ color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>{config.heroTitle || salon.name}</h1>
               <p style={{ color: "rgba(255,255,255,0.9)", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>{config.heroSubtitle || "Discover premium salon services."}</p>
               <div className="sf-hero-actions">
-                <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark" style={{ background: "#fff", color: "#000" }}>Explore Services</Link>
+                <Link to={`/site/${salon.slug}/services`} className="sf-btn-dark">Explore Services</Link>
               </div>
             </div>
-            <div style={{
-              position: "absolute", inset: 0, zIndex: 1,
-              backgroundImage: `url(${config.heroImage || FALLBACK_IMG})`,
-              backgroundSize: "cover", backgroundPosition: "center"
-            }}>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))" }} />
+            
+            <div style={{ position: "absolute", inset: 0, zIndex: 1, overflow: "hidden" }}>
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src="https://cdn.pixabay.com/video/2020/05/26/40141-424888200_large.mp4" type="video/mp4" />
+              </video>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7))" }} />
             </div>
           </section>
         );
@@ -115,9 +121,9 @@ export default function HomePage() {
 
       case "gallery":
         const gallery = config.gallery && config.gallery.length > 0 ? config.gallery : [
-          "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop"
+          "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&fit=crop",
+          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&fit=crop",
+          "https://images.unsplash.com/photo-1516975080661-46b080516bdc?w=800&fit=crop"
         ];
         return (
           <section key={sec.id} className="sf-section">
