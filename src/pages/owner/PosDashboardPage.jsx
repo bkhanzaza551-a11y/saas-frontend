@@ -53,6 +53,7 @@ export default function PosDashboardPage() {
   const [rows, setRows] = useState([]);
   const [detail, setDetail] = useState(null);
   const [invoiceDetail, setInvoiceDetail] = useState(null);
+  const [fullCustomer, setFullCustomer] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [billLoading, setBillLoading] = useState(false);
@@ -307,6 +308,15 @@ export default function PosDashboardPage() {
     void load();
     void loadPosContext();
   }, [load, loadPosContext]);
+
+  useEffect(() => {
+    const customerId = invoiceDetail?.customerId || detail?.customerId;
+    if (customerId) {
+      api.get(`/owner/customers/${customerId}`).then(res => setFullCustomer(res.data)).catch(console.error);
+    } else {
+      setFullCustomer(null);
+    }
+  }, [invoiceDetail?.customerId, detail?.customerId]);
 
   useEffect(() => {
     const sourceItems = invoiceDetail?.items || detail?.items || [];
@@ -1140,23 +1150,23 @@ export default function PosDashboardPage() {
                       <div style={{ display: "flex", gap: "24px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Guest</span>
-                          <strong style={{ color: "#fff", fontSize: "13px" }}>{detail.customer?.name || "Walk-in"}</strong>
-                          <span>{detail.customer?.phone || "No phone"}</span>
+                          <strong style={{ color: "#fff", fontSize: "13px" }}>{fullCustomer?.name || detail.customer?.name || "Walk-in"}</strong>
+                          <span>{fullCustomer?.phone || detail.customer?.phone || "No phone"}</span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Dates</span>
-                          <span>DOB: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.dateOfBirth ? new Date(detail.customer.dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "-"}</strong></span>
-                          <span>Anniv: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.anniversary ? new Date(detail.customer.anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "-"}</strong></span>
+                          <span>DOB: <strong style={{ color: "#e2e8f0" }}>{(fullCustomer || detail.customer)?.dateOfBirth ? new Date((fullCustomer || detail.customer).dateOfBirth).toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) : "-"}</strong></span>
+                          <span>Anniv: <strong style={{ color: "#e2e8f0" }}>{(fullCustomer || detail.customer)?.anniversary ? new Date((fullCustomer || detail.customer).anniversary).toLocaleDateString("en-GB", {month:"short", year:"2-digit"}) : "-"}</strong></span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Visits & Dues</span>
-                          <span>Last: <strong style={{ color: "#e2e8f0" }}>{detail.customer?.lastVisitAt ? new Date(detail.customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "-"}</strong></span>
-                          <span>Due Bal: <strong style={{ color: "#e2e8f0" }}>-</strong></span>
+                          <span>Last: <strong style={{ color: "#e2e8f0" }}>{(fullCustomer || detail.customer)?.lastVisitAt ? new Date((fullCustomer || detail.customer).lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "-"}</strong></span>
+                          <span>Due Bal: <strong style={{ color: "#e2e8f0" }}>{fullCustomer?.invoices ? formatMoney(fullCustomer.invoices.filter(inv => inv.status === 'UNPAID' || inv.status === 'PARTIAL').reduce((sum, inv) => sum + Number(inv.balanceAmount || 0), 0)) : "-"}</strong></span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Subscriptions</span>
-                          <span>Membership: <strong style={{ color: "#e2e8f0" }}>-</strong></span>
-                          <span>Package: <strong style={{ color: "#e2e8f0" }}>-</strong></span>
+                          <span>Membership: <strong style={{ color: "#e2e8f0" }}>{fullCustomer?.memberships?.some(m => m.status === 'ACTIVE' && new Date(m.endsAt) > new Date()) ? "Active" : "-"}</strong></span>
+                          <span>Package: <strong style={{ color: "#e2e8f0" }}>{fullCustomer?.packages?.some(p => p.status === 'ACTIVE') ? "Active" : "-"}</strong></span>
                         </div>
                       </div>
                     </div>
