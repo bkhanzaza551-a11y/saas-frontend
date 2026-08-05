@@ -73,7 +73,9 @@
 .btn-clear,
 .btn-view-bill,
 .btn-edit-shield {
-  padding: 4px 10px;
+  padding: 4px 10px !important;
+  height: auto !important;
+  min-height: 0 !important;
 }
 
 .pos-dash-filter-pill {
