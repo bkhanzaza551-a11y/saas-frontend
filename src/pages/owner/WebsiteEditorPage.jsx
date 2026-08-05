@@ -5,24 +5,16 @@ import { formatApiError } from "../../utils/apiError";
 import "./WebsiteEditorPage.css";
 
 const DEFAULT_SECTIONS = [
-  { id: "hero", type: "hero", label: "Hero Banner", icon: "\u{1F3A8}", enabled: true, locked: true },
-  { id: "about", type: "about", label: "About Us", icon: "\u{2139}\uFE0F", enabled: true, locked: true },
-  { id: "gallery", type: "gallery", label: "Gallery", icon: "\u{1F5BC}\uFE0F", enabled: true, locked: true },
-  { id: "services", type: "services", label: "Featured Services", icon: "\u{2728}", enabled: true, locked: true },
-  { id: "testimonials", type: "testimonials", label: "Client Reviews", icon: "\u{2B50}", enabled: true, locked: false },
-  { id: "banner", type: "banner", label: "Promotional Banner", icon: "\u{1F4E3}", enabled: false, locked: false },
-  { id: "cta", type: "cta", label: "Call to Action", icon: "\u{1F446}", enabled: false, locked: false },
-  { id: "contact", type: "contact", label: "Contact Info", icon: "\u{1F4DE}", enabled: false, locked: false },
-  { id: "hours", type: "hours", label: "Business Hours", icon: "\u{23F0}", enabled: false, locked: false },
-  { id: "social", type: "social", label: "Social Links", icon: "\u{1F310}", enabled: false, locked: false }
-];
-
-const ADDABLE_TYPES = [
-  { type: "banner", label: "Promotional Banner", icon: "\u{1F4E3}" },
-  { type: "cta", label: "Call to Action", icon: "\u{1F446}" },
-  { type: "contact", label: "Contact Info", icon: "\u{1F4DE}" },
-  { type: "hours", label: "Business Hours", icon: "\u{23F0}" },
-  { type: "social", label: "Social Links", icon: "\u{1F310}" }
+  { id: "hero", type: "hero", label: "Hero Banner", icon: "🎨", enabled: true, locked: true },
+  { id: "about", type: "about", label: "About Us", icon: "ℹ️", enabled: true, locked: true },
+  { id: "gallery", type: "gallery", label: "Gallery", icon: "🖼️", enabled: true, locked: true },
+  { id: "services", type: "services", label: "Featured Services", icon: "✨", enabled: true, locked: true },
+  { id: "testimonials", type: "testimonials", label: "Client Reviews", icon: "⭐", enabled: true, locked: false },
+  { id: "banner", type: "banner", label: "Promotional Banner", icon: "📢", enabled: false, locked: false },
+  { id: "cta", type: "cta", label: "Call to Action", icon: "👆", enabled: false, locked: false },
+  { id: "contact", type: "contact", label: "Contact Info", icon: "📞", enabled: false, locked: false },
+  { id: "hours", type: "hours", label: "Business Hours", icon: "⏰", enabled: false, locked: false },
+  { id: "social", type: "social", label: "Social Links", icon: "🌐", enabled: false, locked: false }
 ];
 
 const COLOR_PRESETS = [
@@ -392,14 +384,6 @@ export default function WebsiteEditorPage() {
 
   const toggleSection = (id) => setSections(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s));
 
-  const addSection = (type) => {
-    if (sections.find(s => s.type === type)) return;
-    const info = ADDABLE_TYPES.find(t => t.type === type);
-    setSections(prev => [...prev, { id: `${type}-${Date.now()}`, type, label: info?.label || type, icon: info?.icon || "\u{1F4D6}", enabled: true, locked: false }]);
-  };
-
-  const removeSection = (id) => setSections(prev => prev.filter(s => s.id !== id));
-
   const handleDragStart = (idx) => { dragItem.current = idx; };
   const handleDragEnter = (idx) => { dragOverItem.current = idx; };
   const handleDragEnd = () => {
@@ -603,17 +587,7 @@ export default function WebsiteEditorPage() {
                     <button className={`we-toggle ${sec.enabled ? "on" : ""}`} onClick={() => toggleSection(sec.id)}>
                       <span className="we-toggle-knob" />
                     </button>
-                    {!sec.locked && <button className="we-remove-btn" onClick={() => removeSection(sec.id)}>&times;</button>}
                   </div>
-                ))}
-              </div>
-
-              <div className="we-add-section-header">Add Section</div>
-              <div className="we-add-section-grid">
-                {ADDABLE_TYPES.filter(t => !sections.find(s => s.type === t.type)).map(t => (
-                  <button key={t.type} className="we-add-section-btn" onClick={() => addSection(t.type)}>
-                    <span>{t.icon}</span> {t.label}
-                  </button>
                 ))}
               </div>
 
@@ -621,31 +595,22 @@ export default function WebsiteEditorPage() {
 
               {renderSectionEditor()}
 
-              <SectionBlock icon="\u{1F4DD}" title="Footer" defaultOpen={false}>
+              <SectionBlock icon="📝" title="Footer" defaultOpen={false}>
                 <Field label="Footer Text"><Textarea value={config.footerText} onChange={v => update("footerText", v)} rows={2} placeholder="All rights reserved..." /></Field>
               </SectionBlock>
             </div>
           ) : (
             <div className="we-tab-content">
-              <SectionBlock icon="\u{1F3A8}" title="Colors & Branding">
+              <SectionBlock icon="🎨" title="Colors & Branding">
                 <div className="we-color-grid">
                   <ColorField label="Accent / Buttons" value={config.primaryColor} onChange={v => update("primaryColor", v)} />
                   <ColorField label="Text / Headings" value={config.secondaryColor} onChange={v => update("secondaryColor", v)} />
                 </div>
               </SectionBlock>
 
-              <SectionBlock icon="\u{25A0}" title="Card Style" defaultOpen={false}>
-                <div className="we-shape-grid">
-                  {CARD_SHAPES.map(shape => (
-                    <button key={shape.id} className={`we-shape-btn ${config.cardShape === shape.id ? "selected" : ""}`} onClick={() => update("cardShape", shape.id)}>
-                      <div className="we-shape-preview" style={{ borderRadius: shape.radius, background: config.primaryColor || "#c8a97e" }} />
-                      <span>{shape.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </SectionBlock>
 
-              <SectionBlock icon="\u{1F3E2}" title="Salon Identity" defaultOpen={false}>
+
+              <SectionBlock icon="🏢" title="Salon Identity" defaultOpen={false}>
                 <Field label="Salon Name"><Input value={config.salonName} onChange={v => update("salonName", v)} placeholder="Your Salon" /></Field>
                 <ImageField label="Logo" value={config.logoUrl} onChange={v => update("logoUrl", v)} hint="200 x 200" />
               </SectionBlock>
