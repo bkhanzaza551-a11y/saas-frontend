@@ -468,16 +468,30 @@ export default function LoginPage() {
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', margin: '20px 0' }}>
-                          <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none', margin: 0 }}>
-                            <input
-                              type="checkbox"
-                              checked={rememberMe}
-                              onChange={(event) => setRememberMe(event.target.checked)}
-                              style={{ cursor: 'pointer', margin: 0 }}
-                            />
-                            <span style={{ fontSize: '0.9rem', color: '#475569', fontWeight: 500, margin: 0 }}>Keep me logged in</span>
-                          </label>
+                        <div 
+                          onClick={() => setRememberMe(!rememberMe)}
+                          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none', margin: '20px 0' }}
+                        >
+                          <div
+                            style={{
+                              width: '20px',
+                              height: '20px',
+                              border: rememberMe ? 'none' : '2px solid #cbd5e1',
+                              background: rememberMe ? 'var(--sf-accent, #4f46e5)' : 'white',
+                              borderRadius: '6px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            {rememberMe && (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            )}
+                          </div>
+                          <span style={{ fontSize: '0.9rem', color: '#475569', fontWeight: 500 }}>Keep me logged in</span>
                         </div>
 
                         {err && <div className="error-text" style={{ padding: '12px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '16px', fontWeight: 500 }}>{err}</div>}
