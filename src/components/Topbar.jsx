@@ -255,7 +255,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           align-items: center;
           gap: 8px;
           width: 100%;
-          border: 0;
+          border: none !important;
           background: transparent;
           text-align: left;
           padding: 9px 12px;

@@ -170,17 +170,6 @@ const Protected = () => {
           ].filter(Boolean)
         },
 
-
-
-        can("couponsGiftCards") && enabled("couponsGiftCards") && {
-          label: "Coupons & Gift Cards",
-          hint: "Promotions & vouchers",
-          items: [
-            { label: "Coupons", to: "/admin/coupons" },
-            { label: "Gift Cards", to: "/admin/gift-cards" },
-            { label: "Referral Program", to: "/admin/referral-coupons" }
-          ]
-        },
         {
           label: "Website",
           hint: "Storefront & Portal",
