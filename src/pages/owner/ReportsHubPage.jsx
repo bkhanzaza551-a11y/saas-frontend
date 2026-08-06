@@ -1683,9 +1683,9 @@ export default function ReportsHubPage() {
           .rpt-search-input:focus { border-color: #3b82f6; background: #fff; }
           .rpt-search-wrap { position: relative; }
           .rpt-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-          .rpt-nav-item { width: calc(100% - 16px); margin: 2px 8px; text-align: left; padding: 7px 12px !important; border: none !important; background: transparent !important; font-size: 0.75rem; color: #475569 !important; cursor: pointer; min-height: unset !important; box-shadow: none !important; font-weight: 500; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); line-height: 1.3; border-radius: 8px !important; }
-          .rpt-nav-item:hover { background: #f1f5f9 !important; color: #0f172a !important; transform: translateX(4px) !important; }
-          .rpt-nav-item.active { background: #0f172a !important; color: #ffffff !important; font-weight: 600 !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12) !important; }
+          .rpt-nav-item { width: calc(100% - 12px); margin: 1px 6px; text-align: left; padding: 5px 10px !important; border: none !important; background: transparent !important; font-size: 0.68rem; color: #475569 !important; cursor: pointer; min-height: unset !important; box-shadow: none !important; font-weight: 500; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); line-height: 1.3; border-radius: 6px !important; }
+          .rpt-nav-item:hover { background: #f1f5f9 !important; color: #0f172a !important; transform: translateX(3px) !important; }
+          .rpt-nav-item.active { background: #0f172a !important; color: #ffffff !important; font-weight: 600 !important; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important; }
           .rpt-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #f8fafc; }
           .rpt-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
             @media (max-width: 768px) {

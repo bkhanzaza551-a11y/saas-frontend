@@ -24,9 +24,9 @@ const PERIODS = [
 ];
 
 const TABS = [
-  { key: "pnl", label: "Profit & Loss", icon: <Activity size={16} /> },
-  { key: "cashflow", label: "Cash Flow", icon: <Wallet size={16} /> },
-  { key: "gst", label: "Tax & GST", icon: <Building size={16} /> },
+  { key: "pnl", label: "Profit & Loss", icon: <Activity size={14} /> },
+  { key: "cashflow", label: "Cash Flow", icon: <Wallet size={14} /> },
+  { key: "gst", label: "Tax & GST", icon: <Building size={14} /> },
 ];
 
 const fmt = (value) => {
@@ -167,15 +167,15 @@ export default function FinancialReportsPage() {
           display: flex;
           background: #e2e8f0;
           border-radius: 8px;
-          padding: 4px;
-          gap: 6px;
+          padding: 3px;
+          gap: 4px;
         }
         .period-btn {
-          padding: 6px 14px;
+          padding: 4px 10px;
           border-radius: 6px;
           border: none;
           background: transparent;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 600;
           color: #64748b;
           cursor: pointer;
@@ -239,14 +239,14 @@ export default function FinancialReportsPage() {
 
         .tab-segment {
           display: inline-flex;
-          gap: 4px;
+          gap: 2px;
           margin-bottom: 16px;
           border-bottom: 1px solid #e2e8f0;
           width: 100%;
         }
         .tab-btn {
-          padding: 10px 16px;
-          font-size: 13px;
+          padding: 7px 12px;
+          font-size: 12px;
           font-weight: 600;
           color: #64748b;
           border: none;
@@ -256,7 +256,7 @@ export default function FinancialReportsPage() {
           margin-bottom: -1px;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
           transition: all 0.2s;
         }
         .tab-btn.active {
