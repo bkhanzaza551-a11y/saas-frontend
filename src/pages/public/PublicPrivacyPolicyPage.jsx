@@ -3,16 +3,17 @@ import { Link } from "react-router-dom";
 
 export default function PublicPrivacyPolicyPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "inherit" }}>
+    <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       {/* Header */}
-      <header style={{ background: "white", padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #0f766e, #0ea5e9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800, fontSize: 16 }}>R</div>
-          <Link to="/" style={{ textDecoration: "none", color: "#0f172a", fontSize: "1.2rem", fontWeight: 800 }}>SalonNest</Link>
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)", borderBottom: "1px solid #f1f5f9" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72 }}>
+          <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+            <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
+          </Link>
+          <Link to="/" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 6 }}>
+            ← Back to Home
+          </Link>
         </div>
-        <Link to="/" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 6 }}>
-          ← Back to Home
-        </Link>
       </header>
 
       {/* Content */}
@@ -215,8 +216,17 @@ export default function PublicPrivacyPolicyPage() {
       </div>
 
       {/* Footer */}
-      <footer style={{ textAlign: "center", padding: "40px 24px", color: "#94a3b8", fontSize: "0.85rem", borderTop: "1px solid #e2e8f0" }}>
-        © {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.
+      <footer style={{ padding: "40px 24px", background: "#fff", borderTop: "1px solid #e2e8f0" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img src="/logo.jfif" alt="Salon Nest" style={{ height: 32 }} />
+          </div>
+          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+            <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Terms</Link>
+            <Link to="/privacy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
+          </div>
+          <div style={{ fontSize: 13, color: "#94a3b8" }}>© {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.</div>
+        </div>
       </footer>
     </div>
   );
