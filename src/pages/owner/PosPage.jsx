@@ -884,8 +884,8 @@ export default function PosPage() {
         productId: product.id,
         unitPrice: toAmount(product.sellingPrice),
         originalUnitPrice: toAmount(product.sellingPrice),
-        discountPct: 0,
-        discountAmt: 0,
+        discountPct: product.discountType === 'PERCENT' ? Number(product.discountValue || 0) : 0,
+        discountAmt: product.discountType === 'FLAT' ? Number(product.discountValue || 0) : 0,
         taxPct: product.taxPct || product.taxRate || 0
       }];
       return next;
@@ -903,8 +903,8 @@ export default function PosPage() {
         productName: `${product.name} (${variation.name})`,
         unitPrice: variation.price != null ? variation.price : toAmount(product.sellingPrice),
         originalUnitPrice: variation.price != null ? variation.price : toAmount(product.sellingPrice),
-        discountPct: 0,
-        discountAmt: 0,
+        discountPct: product.discountType === 'PERCENT' ? Number(product.discountValue || 0) : 0,
+        discountAmt: product.discountType === 'FLAT' ? Number(product.discountValue || 0) : 0,
         taxPct: product.taxPct || product.taxRate || 0,
         variationName: variation.name || ""
       }];
