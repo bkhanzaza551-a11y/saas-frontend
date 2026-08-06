@@ -1683,9 +1683,9 @@ export default function ReportsHubPage() {
           .rpt-search-input:focus { border-color: #3b82f6; background: #fff; }
           .rpt-search-wrap { position: relative; }
           .rpt-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-          .rpt-nav-item { width: 100%; text-align: left; padding: 6px 10px !important; border: none; background: none; font-size: 0.72rem; color: #475569; cursor: pointer; border-left: 3px solid transparent; min-height: unset; box-shadow: none; font-weight: 500; transition: background 140ms, color 140ms; line-height: 1.3; }
-          .rpt-nav-item:hover { background: #f8fafc; color: #0f172a; transform: none; filter: none; }
-          .rpt-nav-item.active { background: #f0f9ff; color: #0284c7; border-left-color: #0284c7; font-weight: 700; }
+          .rpt-nav-item { width: 100%; text-align: left; padding: 6px 10px !important; border: none !important; border-left: 3px solid transparent !important; background: transparent !important; font-size: 0.72rem; color: #475569 !important; cursor: pointer; min-height: unset !important; box-shadow: none !important; font-weight: 500; transition: background 140ms, color 140ms; line-height: 1.3; border-radius: 0 !important; }
+          .rpt-nav-item:hover { background: #f8fafc !important; color: #0f172a !important; transform: none !important; filter: none !important; }
+          .rpt-nav-item.active { background: #f0f9ff !important; color: #0284c7 !important; border-left-color: #0284c7 !important; font-weight: 700 !important; }
           .rpt-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #f8fafc; }
           .rpt-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
             @media (max-width: 768px) {
