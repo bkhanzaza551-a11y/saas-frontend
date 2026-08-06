@@ -305,17 +305,19 @@ export default function AttendanceManagementPage() {
                         </td>
                         <td style={{ padding: "10px 14px", textAlign: "right" }}>
                           {row.type === "ABSENT" && (
-                            <button type="button" onClick={() => adminCheckIn(row.userSalonId, row.branchId)} disabled={busyId === row.userSalonId} style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, background: "#ecfdf5", color: "#065f46", border: "none", borderRadius: 6, cursor: "pointer" }}>
+                            <button type="button" onClick={() => adminCheckIn(row.userSalonId, row.branchId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px 12px", fontSize: 11, fontWeight: 700, background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }}>
                               {busyId === row.userSalonId ? "..." : "Check In"}
                             </button>
                           )}
                           {row.type === "ATTENDANCE" && isWorking && (
-                            <button type="button" onClick={() => adminCheckOut(row.userSalonId)} disabled={busyId === row.userSalonId} style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, background: "#fef2f2", color: "#991b1b", border: "none", borderRadius: 6, cursor: "pointer" }}>
+                            <button type="button" onClick={() => adminCheckOut(row.userSalonId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px 12px", fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }}>
                               {busyId === row.userSalonId ? "..." : "Check Out"}
                             </button>
                           )}
                           {row.attendanceId && (
-                            <button type="button" onClick={() => setDetailRecord(row)} style={{ padding: "4px 8px", fontSize: 11, background: "none", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer", marginLeft: 4 }} title="View Details"><Eye size={13} /></button>
+                            <button type="button" onClick={() => setDetailRecord(row)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 6, cursor: "pointer", marginLeft: 6, transition: "all 0.2s" }} title="View Details">
+                              <Eye size={15} />
+                            </button>
                           )}
                         </td>
                       </tr>
@@ -380,9 +382,13 @@ export default function AttendanceManagementPage() {
                           </div>
                         </td>
                         <td style={{ padding: "10px 14px", textAlign: "right" }}>
-                          <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                            <button type="button" onClick={() => setDetailRecord(r)} style={{ padding: "4px 8px", fontSize: 11, background: "none", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer" }} title="View"><Eye size={13} /></button>
-                            <button type="button" onClick={() => openEditModal(r)} style={{ padding: "4px 8px", fontSize: 11, background: "none", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer" }} title="Edit"><Edit2 size={13} /></button>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            <button type="button" onClick={() => setDetailRecord(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }} title="View">
+                              <Eye size={15} />
+                            </button>
+                            <button type="button" onClick={() => openEditModal(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px", background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }} title="Edit">
+                              <Edit2 size={15} />
+                            </button>
                           </div>
                         </td>
                       </tr>
