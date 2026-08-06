@@ -768,37 +768,6 @@ export default function ServiceCategoriesPage() {
                             setServiceForm({...serviceForm, consumables: ni});
                           }} style={{ background: "#fee2e2", border: "none", borderRadius: 6, padding: "8px 10px", cursor: "pointer", color: "#dc2626", marginBottom: 0, display: "flex", alignItems: "center", height: 38 }}>✕</button>
                         </div>
-                        {/* Variation rows */}
-                        <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-                          {["short", "medium", "long"].map(v => {
-                            const existing = group.variants.find(x => x.variation === v);
-                            const isActive = !!existing;
-                            return (
-                              <button key={v} type="button" onClick={() => {
-                                const ni = [...consumables];
-                                if (isActive) {
-                                  ni.splice(existing._idx, 1);
-                                } else {
-                                  ni.push({ productId: prod.productId, productName: prod.productName || "", reqdQty: 0, variation: v });
-                                }
-                                setServiceForm({...serviceForm, consumables: ni});
-                              }} style={{ padding: "4px 10px", borderRadius: 6, border: isActive ? "1.5px solid #6366f1" : "1px solid #e2e8f0", background: isActive ? "#eef2ff" : "#f8fafc", color: isActive ? "#4f46e5" : "#64748b", fontSize: 11, fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>
-                                {v} {isActive ? "✓" : "+"}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {group.variants.length > 0 && (
-                          <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
-                            {group.variants.sort((a,b) => ["short","medium","long"].indexOf(a.variation) - ["short","medium","long"].indexOf(b.variation)).map((v) => (
-                              <div key={v._idx} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "4px 8px" }}>
-                                <span style={{ fontSize: 11, fontWeight: 600, color: "#6366f1", textTransform: "capitalize", minWidth: 50 }}>{v.variation}</span>
-                                <input type="number" min="0" value={v.reqdQty} onChange={e => { const ni = [...consumables]; ni[v._idx] = {...ni[v._idx], reqdQty: e.target.value}; setServiceForm({...serviceForm, consumables: ni}); }} style={{ border: "none", outline: "none", padding: "4px 6px", fontSize: 12, width: 60, background: "transparent", textAlign: "center" }} />
-                                <span style={{ fontSize: 10, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.secondaryUnit || products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     );
                   });

@@ -633,7 +633,7 @@ export default function ServiceHubPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                   <div>
                     <span style={{ fontSize: 14, fontWeight: 500, color: "#0f172a" }}>Consumables</span>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1 }}>Default qty unless a variation (Short/Medium/Long) is selected</div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1 }}>Quantity consumed per service</div>
                   </div>
                   <button type="button" onClick={() => setSrvForm({...srvForm, consumables: [...srvForm.consumables, { productId: '', reqdQty: 0, productName: '', variation: '' }]})} style={{ background: "#2563eb", color: "white", border: "none", borderRadius: "50%", width: 28, height: 28, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                 </div>
@@ -677,33 +677,6 @@ export default function ServiceHubPage() {
                             setSrvForm({...srvForm, consumables: ni});
                           }} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 20, padding: "4px 8px", lineHeight: 1 }}>✕</button>
                         </div>
-                        <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
-                          {["short", "medium", "long"].map(v => {
-                            const existing = group.variants.find(x => x.variation === v);
-                            const isActive = !!existing;
-                            return (
-                              <button key={v} type="button" onClick={() => {
-                                const ni = [...consumables];
-                                if (isActive) ni.splice(existing._idx, 1);
-                                else ni.push({ productId: prod.productId, productName: prod.productName || "", reqdQty: 0, variation: v });
-                                setSrvForm({...srvForm, consumables: ni});
-                              }} style={{ padding: "2px 8px", borderRadius: 5, border: isActive ? "1.5px solid #2563eb" : "1px solid #e2e8f0", background: isActive ? "#eff6ff" : "#fff", color: isActive ? "#2563eb" : "#64748b", fontSize: 10, fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>
-                                {v} {isActive ? "✓" : "+"}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {group.variants.length > 0 && (
-                          <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                            {group.variants.sort((a,b) => ["short","medium","long"].indexOf(a.variation) - ["short","medium","long"].indexOf(b.variation)).map((v) => (
-                              <div key={v._idx} style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 6, padding: "3px 6px" }}>
-                                <span style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textTransform: "capitalize", minWidth: 42 }}>{v.variation}</span>
-                                <input type="number" min="0" value={v.reqdQty} onChange={e => { const ni = [...consumables]; ni[v._idx] = {...ni[v._idx], reqdQty: e.target.value}; setSrvForm({...srvForm, consumables: ni}); }} style={{ border: "none", outline: "none", padding: "2px 4px", fontSize: 11, width: 50, background: "transparent", textAlign: "center" }} />
-                                <span style={{ fontSize: 9, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.secondaryUnit || products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     );
                   });
