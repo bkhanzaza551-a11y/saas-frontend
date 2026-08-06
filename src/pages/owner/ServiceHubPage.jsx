@@ -667,7 +667,7 @@ export default function ServiceHubPage() {
                           <div style={{ flex: 1, minWidth: 70 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                               <input type="number" min="0" className="hub-input" value={prod.reqdQty} onChange={e => { const ni = [...consumables]; ni[prodIdx] = {...ni[prodIdx], reqdQty: e.target.value}; setSrvForm({...srvForm, consumables: ni}); }} style={{ flex: 1, minWidth: 0 }} />
-                              <span style={{ fontSize: 11, color: "#64748b", flexShrink: 0 }}>{products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
+                              <span style={{ fontSize: 11, color: "#64748b", flexShrink: 0 }}>{products.find(p => p.id === prod.productId)?.secondaryUnit || products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
                             </div>
                           </div>
                           <button type="button" onClick={() => {
@@ -699,7 +699,7 @@ export default function ServiceHubPage() {
                               <div key={v._idx} style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 6, padding: "3px 6px" }}>
                                 <span style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textTransform: "capitalize", minWidth: 42 }}>{v.variation}</span>
                                 <input type="number" min="0" value={v.reqdQty} onChange={e => { const ni = [...consumables]; ni[v._idx] = {...ni[v._idx], reqdQty: e.target.value}; setSrvForm({...srvForm, consumables: ni}); }} style={{ border: "none", outline: "none", padding: "2px 4px", fontSize: 11, width: 50, background: "transparent", textAlign: "center" }} />
-                                <span style={{ fontSize: 9, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
+                                <span style={{ fontSize: 9, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.secondaryUnit || products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
                               </div>
                             ))}
                           </div>

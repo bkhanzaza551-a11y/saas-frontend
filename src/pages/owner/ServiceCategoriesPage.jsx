@@ -758,7 +758,7 @@ export default function ServiceCategoriesPage() {
                             <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Default</label>
                             <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", background: "#fff", height: 38, boxSizing: "border-box" }}>
                               <input type="number" min="0" value={prod.reqdQty} onChange={e => { const ni = [...consumables]; ni[prodIdx] = {...ni[prodIdx], reqdQty: e.target.value}; setServiceForm({...serviceForm, consumables: ni}); }} style={{ border: "none", outline: "none", padding: "8px 10px", fontSize: 13, flex: 1, minWidth: 0, width: "100%", background: "transparent" }} />
-                              <span style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", padding: "0 8px", borderLeft: "1px solid #cbd5e1", flexShrink: 0, height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600 }}>{products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
+                              <span style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", padding: "0 8px", borderLeft: "1px solid #cbd5e1", flexShrink: 0, height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600 }}>{products.find(p => p.id === prod.productId)?.secondaryUnit || products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
                             </div>
                           </div>
                           <button type="button" onClick={() => {
@@ -794,7 +794,7 @@ export default function ServiceCategoriesPage() {
                               <div key={v._idx} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "4px 8px" }}>
                                 <span style={{ fontSize: 11, fontWeight: 600, color: "#6366f1", textTransform: "capitalize", minWidth: 50 }}>{v.variation}</span>
                                 <input type="number" min="0" value={v.reqdQty} onChange={e => { const ni = [...consumables]; ni[v._idx] = {...ni[v._idx], reqdQty: e.target.value}; setServiceForm({...serviceForm, consumables: ni}); }} style={{ border: "none", outline: "none", padding: "4px 6px", fontSize: 12, width: 60, background: "transparent", textAlign: "center" }} />
-                                <span style={{ fontSize: 10, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
+                                <span style={{ fontSize: 10, color: "#94a3b8" }}>{products.find(p => p.id === prod.productId)?.secondaryUnit || products.find(p => p.id === prod.productId)?.unit || 'pcs'}</span>
                               </div>
                             ))}
                           </div>

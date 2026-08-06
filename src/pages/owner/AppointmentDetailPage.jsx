@@ -226,7 +226,7 @@ export default function AppointmentDetailPage() {
                         {item.service.consumables.map((cons) => (
                           <span key={cons.id} style={{ fontSize: 12, background: "#fff", border: "1px solid #e2e8f0", color: "#475569", padding: "4px 10px", borderRadius: 6, fontWeight: 500, display: "flex", alignItems: "center", gap: 6 }}>
                             <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />
-                            {cons.product?.name || "Product"}: <strong>{Number(cons.reqdQty)} {cons.product?.unit || "pcs"}</strong>
+                            {cons.product?.name || "Product"}: <strong>{Number(cons.reqdQty)} {cons.product?.secondaryUnit || cons.product?.unit || "pcs"}</strong>
                           </span>
                         ))}
                       </div>
@@ -382,7 +382,7 @@ export default function AppointmentDetailPage() {
                         <div style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Consumables Used</div>
                         {consumables.map((cons) => {
                           const key = `${item.serviceId}:${cons.productId}`;
-                          const unit = cons.product?.unit || "pcs";
+                          const unit = cons.product?.secondaryUnit || cons.product?.unit || "pcs";
                           const defaultQty = Number(cons.reqdQty || 0);
                           const currentQty = consumableOverrides[key] ?? defaultQty;
                           const changed = currentQty !== defaultQty;
