@@ -3,43 +3,77 @@ import { createContext, useContext, useState } from "react";
 import { api, setAuthSessionHandlers, setToken, unblockSession } from "../api/client";
 
 const AuthCtx = createContext(null);
-const STORAGE_KEY = "salonnest_auth";
+const STORAGE_KEY_PERSIST = "salonnest_auth";
+const STORAGE_KEY_SESSION = "salonnest_auth_session";
+
+const getStorageKey = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PERSIST);
+    if (raw) return STORAGE_KEY_PERSIST;
+  } catch {}
+  return STORAGE_KEY_SESSION;
+};
+
+const readAuth = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PERSIST) || sessionStorage.getItem(STORAGE_KEY_SESSION);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+const writeAuth = (state, rememberMe) => {
+  const key = rememberMe ? STORAGE_KEY_PERSIST : STORAGE_KEY_SESSION;
+  const other = rememberMe ? STORAGE_KEY_SESSION : STORAGE_KEY_PERSIST;
+  if (state) {
+    localStorage.setItem(key, JSON.stringify(state));
+  }
+  try { sessionStorage.removeItem(other); } catch {}
+  try { localStorage.removeItem(other); } catch {}
+};
+
+const removeAuth = () => {
+  try { localStorage.removeItem(STORAGE_KEY_PERSIST); } catch {}
+  try { sessionStorage.removeItem(STORAGE_KEY_SESSION); } catch {}
+};
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    setToken(parsed.accessToken);
+    const parsed = readAuth();
+    if (parsed) {
+      setToken(parsed.accessToken);
+    }
     return parsed;
   });
 
-  const persistState = (state) => {
+  const persistState = (state, rememberMe = true) => {
     setAuth(state);
     if (state) {
       setToken(state.accessToken);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      writeAuth(state, rememberMe);
     } else {
       setToken(null);
-      localStorage.removeItem(STORAGE_KEY);
+      removeAuth();
     }
   };
 
   const login = async (payload) => {
     const { data } = await api.post("/auth/login", payload);
     if (!data.requireOtp) {
-      const state = { ...data, salonId: data.membership?.salonId || null };
+      const state = { ...data, salonId: data.membership?.salonId || null, rememberMe: payload.rememberMe };
       unblockSession();
-      persistState(state);
+      persistState(state, payload.rememberMe);
     }
     return data;
   };
 
-  const verifyOtp = async (payload) => {
+  const verifyOtp = async (payload, rememberMe = false) => {
     const { data } = await api.post("/auth/verify-otp", payload);
-    const state = { ...data, salonId: data.membership?.salonId || null };
+    const state = { ...data, salonId: data.membership?.salonId || null, rememberMe };
     unblockSession();
-    persistState(state);
+    persistState(state, rememberMe);
     return data;
   };
 
@@ -53,7 +87,7 @@ export const AuthProvider = ({ children }) => {
       if (!current) return current;
       const nextState = { ...current, accessToken: nextAccessToken, ...(nextRefreshToken ? { refreshToken: nextRefreshToken } : {}) };
       setToken(nextAccessToken);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+      writeAuth(nextState, current.rememberMe !== false);
       return nextState;
     });
   };
@@ -75,8 +109,7 @@ export const AuthProvider = ({ children }) => {
 
   setAuthSessionHandlers({
     getCurrentSession: () => {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
+      return readAuth();
     },
     onRefreshSuccess: refreshSession,
     onAuthFailure: clearSession

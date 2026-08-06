@@ -104,7 +104,7 @@ export default function LoginPage() {
         tempToken,
         otp
       };
-      const res = await verifyOtp(payload);
+      const res = await verifyOtp(payload, rememberMe);
       if (res?.user?.systemRole === "SUPER_ADMIN") {
         nav("/super-admin/dashboard");
       } else {
