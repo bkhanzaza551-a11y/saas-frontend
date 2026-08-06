@@ -1185,7 +1185,7 @@ export default function CustomersPage() {
           .crm-search { display:flex; align-items:center; background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:5px 12px; width:260px; box-shadow: none; }
           .crm-search input { border:none; outline:none; margin-left:6px; font-size:0.8rem; width:100%; color:#334155; background:transparent; min-height:unset; }
           .crm-actions { display:flex; gap:8px; flex-wrap:wrap; }
-          .crm-btn { display:flex; align-items:center; gap:5px; background:#3b82f6; color:#fff; border:none; padding:7px 12px; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer; box-shadow: none; min-height:unset; }
+          .crm-btn { display:flex; align-items:center; gap:5px; background:#3b82f6; color:#fff; border:none; padding:7px 12px !important; border-radius:6px; font-size:0.78rem !important; font-weight:600; cursor:pointer; box-shadow: none; min-height:unset !important; height:auto !important; }
           .crm-btn:hover { background:#2563eb; transform:none; filter:none; }
           .crm-btn-light { background:#f8fafc; color:#2563eb; border:1px solid #bfdbfe; box-shadow:none; }
           .crm-btn-light:hover { background:#eff6ff; }

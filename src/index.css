@@ -38,11 +38,11 @@ body {
 }
 
 input, button:not([class*="we-"]), select, textarea {
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: 1px solid #cbd5e1;
   font: inherit;
-  min-height: 44px;
+  min-height: 36px;
   transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
 }
 
