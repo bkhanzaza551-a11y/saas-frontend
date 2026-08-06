@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { api } from "../../api/client";
+import { api } from "../../../api/client";
 
 export default function ContactPage() {
   const { salon } = useOutletContext();
@@ -37,7 +37,7 @@ export default function ContactPage() {
       </div>
 
       <section className="sf-section">
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+        <div className="sf-contact-grid" style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
           {/* Contact Info */}
           <div>
             <h2 style={{ fontSize: "2rem", marginBottom: 24 }}>Get In Touch</h2>

@@ -27,6 +27,7 @@ export default function StorefrontLayout() {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState(loadBookings);
   const [cartOpen, setCartOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState(loadBranch);
 
   useEffect(() => { localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings)); }, [bookings]);
@@ -61,10 +62,30 @@ export default function StorefrontLayout() {
     setCartOpen(true);
   }, []);
 
+  const removeBooking = useCallback((bookingIndex) => {
+    setBookings(prev => prev.filter((_, i) => i !== bookingIndex));
+  }, []);
+
+  const updateBookingQty = useCallback((bookingIndex, qty) => {
+    if (qty <= 0) {
+      setBookings(prev => prev.filter((_, i) => i !== bookingIndex));
+    } else {
+      setBookings(prev => prev.map((b, i) => i === bookingIndex ? { ...b, qty } : b));
+    }
+  }, []);
+
+  const updateBookingTime = useCallback((bookingIndex, date, time) => {
+    setBookings(prev => prev.map((b, i) =>
+      i === bookingIndex ? { ...b, date, time } : b
+    ));
+  }, []);
+
   const clearBookings = useCallback(() => {
     setBookings([]);
     localStorage.removeItem(BOOKINGS_KEY);
   }, []);
+
+  const bookingCount = bookings.reduce((sum, b) => sum + b.qty, 0);
 
   if (loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading Storefront...</div>;
   if (!salon) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Salon not found</div>;
@@ -76,16 +97,22 @@ export default function StorefrontLayout() {
           <Link to={`/site/${slug}`} className="sf-brand">
             {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "32px" }} /> : salon.name}
           </Link>
-          
-          <nav className="sf-nav-links">
-            <Link to={`/site/${slug}`}>Home</Link>
-            <Link to={`/site/${slug}/services`}>Services</Link>
-            <Link to={`/site/${slug}/about`}>About</Link>
-            <Link to={`/site/${slug}/contact`}>Contact</Link>
-            <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
+
+          <button className="sf-hamburger" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Menu">
+            <span className={`sf-hamburger-line ${mobileMenuOpen ? "open" : ""}`} />
+            <span className={`sf-hamburger-line ${mobileMenuOpen ? "open" : ""}`} />
+            <span className={`sf-hamburger-line ${mobileMenuOpen ? "open" : ""}`} />
+          </button>
+
+          <nav className={`sf-nav-links ${mobileMenuOpen ? "sf-nav-open" : ""}`}>
+            <Link to={`/site/${slug}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            <Link to={`/site/${slug}/services`} onClick={() => setMobileMenuOpen(false)}>Services</Link>
+            <Link to={`/site/${slug}/about`} onClick={() => setMobileMenuOpen(false)}>About</Link>
+            <Link to={`/site/${slug}/contact`} onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+            <Link to={`/site/${slug}/my-bookings`} onClick={() => setMobileMenuOpen(false)}>My Bookings</Link>
           </nav>
           
-          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div className="sf-header-actions" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
             {salon.branches?.length > 0 && (
               <select 
                 value={selectedBranchId} 
@@ -112,7 +139,7 @@ export default function StorefrontLayout() {
 
       <main style={{ flex: 1 }}>
         <StorefrontErrorBoundary>
-          <Outlet context={{ salon, bookings, addBooking, clearBookings, selectedBranchId }} />
+          <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId }} />
         </StorefrontErrorBoundary>
       </main>
 

@@ -18,7 +18,7 @@ export default function AboutPage() {
       {/* Mission & Vision */}
       {(config.aboutMission || config.aboutVision) && (
         <section className="sf-section" style={{ background: "#fafafa" }}>
-          <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+          <div className="sf-about-grid" style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
             {config.aboutMission && (
               <div>
                 <span style={{ color: "var(--sf-accent)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, fontSize: "0.8rem" }}>Our Mission</span>
