@@ -21,12 +21,13 @@ const defaultProductForm = {
   salePrice: 0,
   currentStock: 0,
   nonDiscountable: false,
+  discountType: null,
+  discountValue: null,
   onFloor: 0,
   netWeight: "",
   sku: "",
   productType: "RETAIL",
   description: "",
-  videoLink: "",
   benefits: "",
   ingredients: "",
   usageInstructions: "",
@@ -145,12 +146,13 @@ export default function ProductCategoriesPage() {
       salePrice: Number(p.salePrice) || 0,
       currentStock: Number(p.currentStock) || 0,
       nonDiscountable: Boolean(p.nonDiscountable),
+      discountType: p.discountType || null,
+      discountValue: p.discountValue != null ? Number(p.discountValue) : null,
       onFloor: Number(p.onFloor) || 0,
       netWeight: p.netWeight != null ? Number(p.netWeight) : "",
       sku: p.sku || "",
       productType: p.productType || "RETAIL",
       description: p.description || "",
-      videoLink: p.videoLink || "",
       benefits: p.benefits || "",
       ingredients: p.ingredients || "",
       usageInstructions: p.usageInstructions || "",
@@ -185,8 +187,9 @@ export default function ProductCategoriesPage() {
         targetGroup: productForm.targetGroup || "BOTH",
         hideFromCatalogue: Boolean(productForm.hideFromCatalogue),
         nonDiscountable: Boolean(productForm.nonDiscountable),
+        discountType: productForm.discountType || null,
+        discountValue: productForm.discountValue ?? null,
         description: productForm.description || null,
-        videoLink: productForm.videoLink || null,
         benefits: productForm.benefits || null,
         ingredients: productForm.ingredients || null,
         usageInstructions: productForm.usageInstructions || null,
@@ -619,6 +622,27 @@ export default function ProductCategoriesPage() {
                   </div>
                 </div>
 
+                {/* Discount */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
+                  <div className="hub-form-group">
+                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Discount Type</label>
+                    <select className="hub-input" value={productForm.discountType || ""} onChange={e => setProductForm({...productForm, discountType: e.target.value || null, discountValue: e.target.value ? productForm.discountValue || 0 : null})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff" }}>
+                      <option value="">No Discount</option>
+                      <option value="FIX">Flat (₹)</option>
+                      <option value="PERCENT">Percentage (%)</option>
+                    </select>
+                  </div>
+                  {productForm.discountType && (
+                    <div className="hub-form-group">
+                      <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Discount Value {productForm.discountType === "PERCENT" ? "(%)" : `(₹)`}</label>
+                      <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", background: "#fff" }}>
+                        <span style={{ padding: "10px 12px", background: "#f8fafc", borderRight: "1px solid #e2e8f0", fontSize: 14, fontWeight: 600, color: "#64748b" }}>{productForm.discountType === "PERCENT" ? "%" : currencySymbol}</span>
+                        <input type="number" min="0" max={productForm.discountType === "PERCENT" ? 100 : undefined} className="hub-input" value={productForm.discountValue ?? ""} onChange={e => setProductForm({...productForm, discountValue: e.target.value === "" ? null : parseFloat(e.target.value) || 0})} placeholder={productForm.discountType === "PERCENT" ? "e.g. 10" : "e.g. 50"} style={{ border: "none", flex: 1, padding: "10px", fontSize: 14, fontWeight: 600 }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Store SKU + Retail */}
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
                   <div className="hub-form-group">
@@ -690,8 +714,6 @@ export default function ProductCategoriesPage() {
                     <textarea className="hub-input" value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} placeholder="Detailed product description..." rows={4} style={{ width: "100%", resize: "vertical", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
                   </div>
                   <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Video Link <span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 11 }}>(Optional)</span></label>
-                    <input type="text" className="hub-input" value={productForm.videoLink} onChange={e => setProductForm({...productForm, videoLink: e.target.value})} placeholder="https://youtube.com/..." style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", marginBottom: 16 }} />
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Benefits <span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 11 }}>(Optional)</span></label>
                     <textarea className="hub-input" value={productForm.benefits} onChange={e => setProductForm({...productForm, benefits: e.target.value})} placeholder="Key benefits..." rows={2} style={{ width: "100%", resize: "vertical", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
                   </div>
@@ -711,7 +733,14 @@ export default function ProductCategoriesPage() {
 
                 {/* Display Images */}
                 <div style={{ padding: "20px", border: "1px dashed #cbd5e1", borderRadius: 12, background: "#f8fafc" }}>
-                  <label style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "block" }}>Display Images</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <label style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Display Images</label>
+                    <div style={{ display: "flex", gap: 12, fontSize: 11, color: "#64748b" }}>
+                      <span style={{ background: "#f1f5f9", padding: "3px 8px", borderRadius: 6 }}>Max Size: <b style={{ color: "#0f172a" }}>2MB</b></span>
+                      <span style={{ background: "#f1f5f9", padding: "3px 8px", borderRadius: 6 }}>Min Dimensions: <b style={{ color: "#0f172a" }}>500 x 500 px</b></span>
+                      <span style={{ background: "#f1f5f9", padding: "3px 8px", borderRadius: 6 }}>Format: <b style={{ color: "#0f172a" }}>JPG, PNG, WEBP</b></span>
+                    </div>
+                  </div>
                   <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
                     {(productForm.displayImages || []).map((img, idx) => (
                       <div key={idx} style={{ position: "relative", width: 100, height: 100, borderRadius: 12, overflow: "hidden", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>

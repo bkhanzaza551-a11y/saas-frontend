@@ -240,15 +240,28 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           position: absolute;
           top: calc(100% + 8px);
           left: 0;
-          min-width: 200px;
+          min-width: 220px;
           max-height: 320px;
           overflow-y: auto;
           background: white;
           border: 1px solid #e2e8f0;
-          border-radius: 10px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+          border-radius: 12px;
+          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
           z-index: 120;
           padding: 6px;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar {
+          width: 6px;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 8px;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
         }
         .salonnest-branch-option {
           display: flex;
@@ -258,19 +271,26 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           border: none !important;
           background: transparent;
           text-align: left;
-          padding: 9px 12px;
+          padding: 8px 10px;
           border-radius: 8px;
           cursor: pointer;
-          font-size: 0.83rem;
+          font-size: 0.82rem;
           color: #334155;
-          transition: background 0.12s;
+          font-weight: 500;
+          transition: all 0.15s ease;
+          margin-bottom: 2px;
+          white-space: nowrap;
+        }
+        .salonnest-branch-option:last-child {
+          margin-bottom: 0;
         }
         .salonnest-branch-option:hover {
-          background: #eff6ff;
+          background: #f1f5f9;
+          color: #0f172a;
         }
         .salonnest-branch-option.active {
-          background: #dbeafe;
-          color: #1d4ed8;
+          background: #eff6ff;
+          color: #2563eb;
           font-weight: 600;
         }
         .salonnest-branch-option-check {

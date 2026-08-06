@@ -798,7 +798,7 @@ export default function PosPage() {
 
   const productCategories = useMemo(() => {
     const cats = new Map();
-    (context.products || []).forEach(p => {
+    (context.products || []).filter(p => p.productType !== "CONSUMABLE").forEach(p => {
       const key = normalizeProductCategoryId(p);
       if (!key) return;
       cats.set(key, p.category?.id ? p.category : { id: key, name: p.category?.name || key });
@@ -807,7 +807,7 @@ export default function PosPage() {
   }, [context.products]);
 
   const productTileGroups = useMemo(() => {
-    let list = context.products || [];
+    let list = (context.products || []).filter(p => p.productType !== "CONSUMABLE");
     if (posGender) {
       list = list.filter(p => genderMatches(p, posGender));
     }
@@ -2742,7 +2742,7 @@ export default function PosPage() {
                       <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}><Search size={16} /></span>
                       {pkgProductSearch.trim() && (
                         <div style={{ position:"absolute", top:"100%", left:0, right:0, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, maxHeight:200, overflowY:"auto", marginTop:6, zIndex:20, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
-                          {(context.products || []).filter(p => p.name.toLowerCase().includes(pkgProductSearch.toLowerCase())).map(prod => (
+                          {(context.products || []).filter(p => p.productType !== "CONSUMABLE" && p.name.toLowerCase().includes(pkgProductSearch.toLowerCase())).map(prod => (
                             <div key={prod.id} onClick={() => { if(!pkgDraft.customProducts.find(c=>c.id===prod.id)) { const newProd = [...pkgDraft.customProducts, {id:prod.id, name:prod.name, price: prod.sellingPrice || prod.salesPrice || prod.price || 0, qty:1}]; const svcTotal = pkgDraft.customServices.reduce((acc,s)=>acc+(Number(s.price||0)*Number(s.qty||1)),0); const prodTotal = newProd.reduce((acc,p)=>acc+(Number(p.price||0)*Number(p.qty||1)),0); setPkgDraft(d=>({...d, customProducts: newProd, price: pkgModalPkg?.id==="CUSTOM"?String(svcTotal+prodTotal):d.price})); } setPkgProductSearch(""); }} style={{ padding:"8px 12px", cursor:"pointer", fontSize:"0.85rem", color:"#334155", borderBottom:"1px solid #f1f5f9" }} onMouseEnter={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#334155"; }}>
                               {prod.name}
                             </div>
@@ -3288,7 +3288,7 @@ export default function PosPage() {
                 {consumableSearch && (
                   <div style={{ position: 'absolute', top: '70px', left: 24, right: 24, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: 200, overflowY: 'auto', zIndex: 1010 }}>
                     {(context.products || [])
-                      .filter(p => (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase()))
+                      .filter(p => p.productType === "CONSUMABLE" && (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase()))
                       .slice(0, 10)
                       .map(p => (
                         <div
@@ -3302,7 +3302,7 @@ export default function PosPage() {
                           <span style={{ fontSize: 11, color: '#64748b' }}>{p.productType || "PRODUCT"}</span>
                         </div>
                       ))}
-                    {(context.products || []).filter(p => (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase())).length === 0 && (
+                    {(context.products || []).filter(p => p.productType === "CONSUMABLE" && (p.name || "").toLowerCase().includes(consumableSearch.toLowerCase())).length === 0 && (
                       <div style={{ padding: '12px 14px', color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>No products found</div>
                     )}
                   </div>
