@@ -109,6 +109,7 @@ const CheckoutPage = lazyWithRetry(() => import("./pages/storefront/CheckoutPage
 const BookingConfirmationPage = lazyWithRetry(() => import("./pages/storefront/BookingConfirmationPage.jsx"));
 const MyBookingsPage = lazyWithRetry(() => import("./pages/storefront/MyBookingsPage.jsx"));
 const LegalContentPage = lazyWithRetry(() => import("./pages/shared/LegalContentPage.jsx"));
+const PublicPrivacyPolicyPage = lazyWithRetry(() => import("./pages/public/PublicPrivacyPolicyPage.jsx"));
 const WebsiteEditorPage = lazyWithRetry(() => import("./pages/owner/WebsiteEditorPage.jsx"));
 const ManagePage = lazyWithRetry(() => import("./pages/owner/ManagePage.jsx"));
 const EcommerceOrdersPage = lazyWithRetry(() => import("./pages/owner/EcommerceOrdersPage.jsx"));
@@ -487,8 +488,8 @@ export default function App() {
 
         <Route path="/terms" element={<LegalContentPage scope="global" title="Terms & Conditions" contentKey="termsAndConditions" />} />
         <Route path="/terms-and-conditions" element={<LegalContentPage scope="global" title="Terms & Conditions" contentKey="termsAndConditions" />} />
-        <Route path="/privacy" element={<LegalContentPage scope="global" title="Privacy Policy" contentKey="privacyPolicy" />} />
-        <Route path="/privacy-policy" element={<LegalContentPage scope="global" title="Privacy Policy" contentKey="privacyPolicy" />} />
+        <Route path="/privacy" element={<PublicPrivacyPolicyPage />} />
+        <Route path="/privacy-policy" element={<PublicPrivacyPolicyPage />} />
 
         <Route path="/" element={<MarketingHomePage />} />
         <Route path="/features" element={<MarketingHomePage />} />
