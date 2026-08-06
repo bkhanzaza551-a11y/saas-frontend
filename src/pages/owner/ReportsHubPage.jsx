@@ -1683,9 +1683,9 @@ export default function ReportsHubPage() {
           .rpt-search-input:focus { border-color: #3b82f6; background: #fff; }
           .rpt-search-wrap { position: relative; }
           .rpt-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-          .rpt-nav-item { width: calc(100% - 12px); margin: 1px 6px; text-align: left; padding: 5px 10px !important; border: none !important; background: transparent !important; font-size: 0.68rem; color: #475569 !important; cursor: pointer; min-height: unset !important; box-shadow: none !important; font-weight: 500; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); line-height: 1.3; border-radius: 6px !important; }
-          .rpt-nav-item:hover { background: #f1f5f9 !important; color: #0f172a !important; transform: translateX(3px) !important; }
-          .rpt-nav-item.active { background: #0f172a !important; color: #ffffff !important; font-weight: 600 !important; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important; }
+          .rpt-nav-item { width: 100% !important; text-align: left !important; padding: 10px 12px !important; background: transparent !important; border: none !important; border-bottom: 1px solid #e2e8f0 !important; border-radius: 0 !important; font-size: 0.82rem !important; color: #475569 !important; cursor: pointer !important; min-height: unset !important; height: auto !important; box-shadow: none !important; margin: 0 !important; display: block !important; transition: background 0.15s, color 0.15s !important; line-height: normal !important; }
+          .rpt-nav-item:hover { background: #f1f5f9 !important; color: #0f172a !important; transform: none !important; }
+          .rpt-nav-item.active { background: #fff !important; color: #0f766e !important; font-weight: 700 !important; border-left: 3px solid #0f766e !important; border-bottom: 1px solid #e2e8f0 !important; box-shadow: none !important; }
           .rpt-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #f8fafc; }
           .rpt-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
             @media (max-width: 768px) {
