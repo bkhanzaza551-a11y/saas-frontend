@@ -1855,7 +1855,7 @@ export default function PosPage() {
               const lastVisited = customer.lastVisitAt ? new Date(customer.lastVisitAt).toLocaleDateString("en-GB", {month:"short", day:"2-digit"}) : "NA";
               
               return (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", padding: "12px 16px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "16px", fontSize: "12px", color: "#334155" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", padding:"8px 12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "16px", fontSize: "12px", color: "#334155" }}>
                   <div style={{display: "flex", gap: "24px", width: "100%", justifyContent: "space-between"}}>
                     <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
                       <div><strong style={{color:"#0f172a"}}>Guest :</strong> {customer.name}</div>
@@ -2453,7 +2453,7 @@ export default function PosPage() {
       )}
 
       {activeServiceInvoice && (
-        <div style={{ position: "fixed", top: 80, right: 24, zIndex: 1299, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 10, padding: "12px 16px", maxWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+        <div style={{ position: "fixed", top: 80, right: 24, zIndex: 1299, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 10, padding:"8px 12px", maxWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontWeight: 700, color: "#1d4ed8", fontSize: 13 }}>{activeServiceInvoice.invoiceNumber}</span>
             <span style={{ fontSize: 10, padding: "2px 6px", background: "#dbeafe", color: "#1d4ed8", borderRadius: 4, fontWeight: 700 }}>IN PROGRESS</span>
@@ -2509,7 +2509,7 @@ export default function PosPage() {
                   <input placeholder="Search For Card" value={gcSearch} onChange={e => setGcSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
+                <button onClick={() => setShowGcModal(false)} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -2627,7 +2627,7 @@ export default function PosPage() {
 
              <div style={{ padding:"16px 24px", borderTop:"1px solid #f1f5f9", display:"flex", justifyContent:"flex-end", gap:12 }}>
                <button onClick={() => setShowGcModal(false)} style={{ padding:"10px 24px", background:"#fff", border:"1px solid #cbd5e1", borderRadius:8, fontWeight:600, cursor:"pointer", color:"#475569" }}>Cancel</button>
-               <button onClick={handleAddGiftCard} disabled={!gcModalGc || !gcDraft.staffId || submittingGc} style={{ padding:"10px 24px", background:"#2563eb", color:"#fff", border:"none", borderRadius:8, fontWeight:700, cursor:(gcModalGc && gcDraft.staffId && !submittingGc)?"pointer":"not-allowed", opacity:(gcModalGc && gcDraft.staffId && !submittingGc)?1:0.6 }}>{submittingGc ? "Processing..." : "Create Invoice"}</button>
+               <button onClick={handleAddGiftCard} disabled={!gcModalGc || !gcDraft.staffId || submittingGc} style={{ padding:"8px 20px", background:"#2563eb", color:"#fff", border:"none", borderRadius:6, fontWeight:600, cursor:(gcModalGc && gcDraft.staffId && !submittingGc)?"pointer":"not-allowed", opacity:(gcModalGc && gcDraft.staffId && !submittingGc)?1:0.6, fontSize:"0.85rem" }}>{submittingGc ? "Processing..." : "Create Invoice"}</button>
              </div>
           </div>
         </div>
@@ -2720,12 +2720,12 @@ export default function PosPage() {
                   <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                     <label style={{ fontWeight:700, color:"#334155", fontSize:"0.9rem" }}>Add Services to Package</label>
                     <div style={{ position:"relative" }}>
-                      <input placeholder="Search Service By Category Or Name..." value={pkgServiceSearch} onChange={e => setPkgServiceSearch(e.target.value)} style={{ width:"100%", padding:"12px 16px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                      <input placeholder="Search Service By Category Or Name..." value={pkgServiceSearch} onChange={e => setPkgServiceSearch(e.target.value)} style={{ width:"100%", padding:"8px 12px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                       <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}><Search size={16} /></span>
                       {pkgServiceSearch.trim() && (
                         <div style={{ position:"absolute", top:"100%", left:0, right:0, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, maxHeight:200, overflowY:"auto", marginTop:6, zIndex:20, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
                           {(context.services || []).filter(s => s.name.toLowerCase().includes(pkgServiceSearch.toLowerCase())).map(svc => (
-                            <div key={svc.id} onClick={() => { if(!pkgDraft.customServices.find(c=>c.id===svc.id)) { const newSvc = [...pkgDraft.customServices, {id:svc.id, name:svc.name, price: svc.salesPrice || svc.price || 0, qty:1}]; const newTotal = newSvc.reduce((acc,s)=>acc+(Number(s.price||0)*Number(s.qty||1)),0); setPkgDraft(d=>({...d, customServices: newSvc, price: pkgModalPkg?.id==="CUSTOM"?String(newTotal):d.price})); } setPkgServiceSearch(""); }} style={{ padding:"12px 16px", cursor:"pointer", fontSize:"0.95rem", color:"#334155", borderBottom:"1px solid #f1f5f9" }} onMouseEnter={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#334155"; }}>
+                            <div key={svc.id} onClick={() => { if(!pkgDraft.customServices.find(c=>c.id===svc.id)) { const newSvc = [...pkgDraft.customServices, {id:svc.id, name:svc.name, price: svc.salesPrice || svc.price || 0, qty:1}]; const newTotal = newSvc.reduce((acc,s)=>acc+(Number(s.price||0)*Number(s.qty||1)),0); setPkgDraft(d=>({...d, customServices: newSvc, price: pkgModalPkg?.id==="CUSTOM"?String(newTotal):d.price})); } setPkgServiceSearch(""); }} style={{ padding:"8px 12px", cursor:"pointer", fontSize:"0.85rem", color:"#334155", borderBottom:"1px solid #f1f5f9" }} onMouseEnter={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#334155"; }}>
                               {svc.name}
                             </div>
                           ))}
@@ -2738,12 +2738,12 @@ export default function PosPage() {
                   <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                     <label style={{ fontWeight:700, color:"#334155", fontSize:"0.9rem" }}>Add Products to Package</label>
                     <div style={{ position:"relative" }}>
-                      <input placeholder="Search Product By Category Or Name..." value={pkgProductSearch} onChange={e => setPkgProductSearch(e.target.value)} style={{ width:"100%", padding:"12px 16px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                      <input placeholder="Search Product By Category Or Name..." value={pkgProductSearch} onChange={e => setPkgProductSearch(e.target.value)} style={{ width:"100%", padding:"8px 12px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                       <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}><Search size={16} /></span>
                       {pkgProductSearch.trim() && (
                         <div style={{ position:"absolute", top:"100%", left:0, right:0, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, maxHeight:200, overflowY:"auto", marginTop:6, zIndex:20, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
                           {(context.products || []).filter(p => p.name.toLowerCase().includes(pkgProductSearch.toLowerCase())).map(prod => (
-                            <div key={prod.id} onClick={() => { if(!pkgDraft.customProducts.find(c=>c.id===prod.id)) { const newProd = [...pkgDraft.customProducts, {id:prod.id, name:prod.name, price: prod.sellingPrice || prod.salesPrice || prod.price || 0, qty:1}]; const svcTotal = pkgDraft.customServices.reduce((acc,s)=>acc+(Number(s.price||0)*Number(s.qty||1)),0); const prodTotal = newProd.reduce((acc,p)=>acc+(Number(p.price||0)*Number(p.qty||1)),0); setPkgDraft(d=>({...d, customProducts: newProd, price: pkgModalPkg?.id==="CUSTOM"?String(svcTotal+prodTotal):d.price})); } setPkgProductSearch(""); }} style={{ padding:"12px 16px", cursor:"pointer", fontSize:"0.95rem", color:"#334155", borderBottom:"1px solid #f1f5f9" }} onMouseEnter={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#334155"; }}>
+                            <div key={prod.id} onClick={() => { if(!pkgDraft.customProducts.find(c=>c.id===prod.id)) { const newProd = [...pkgDraft.customProducts, {id:prod.id, name:prod.name, price: prod.sellingPrice || prod.salesPrice || prod.price || 0, qty:1}]; const svcTotal = pkgDraft.customServices.reduce((acc,s)=>acc+(Number(s.price||0)*Number(s.qty||1)),0); const prodTotal = newProd.reduce((acc,p)=>acc+(Number(p.price||0)*Number(p.qty||1)),0); setPkgDraft(d=>({...d, customProducts: newProd, price: pkgModalPkg?.id==="CUSTOM"?String(svcTotal+prodTotal):d.price})); } setPkgProductSearch(""); }} style={{ padding:"8px 12px", cursor:"pointer", fontSize:"0.85rem", color:"#334155", borderBottom:"1px solid #f1f5f9" }} onMouseEnter={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#0f172a"; }} onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#334155"; }}>
                               {prod.name}
                             </div>
                           ))}
@@ -2797,7 +2797,7 @@ export default function PosPage() {
                     <select
                       value={pkgDraft.staffId}
                       onChange={e => setPkgDraft(d => ({ ...d, staffId: e.target.value }))}
-                      style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", backgroundColor: "#fff", cursor: "pointer", transition: "border-color 0.2s" }}
+                      style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", backgroundColor: "#fff", cursor: "pointer", transition: "border-color 0.2s" }}
                       onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"}
                     >
                       <option value="">Select Staff</option>
@@ -2820,7 +2820,7 @@ export default function PosPage() {
                       value={pkgDraft.purchaseDate}
                       onChange={e => setPkgDraft(d => ({ ...d, purchaseDate: e.target.value }))}
                       max={new Date().toISOString().slice(0, 10)}
-                      style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }}
+                      style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }}
                       onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"}
                     />
                   </div>
@@ -2831,7 +2831,7 @@ export default function PosPage() {
                       min="1"
                       value={pkgDraft.validityDays}
                       onChange={e => setPkgDraft(d => ({ ...d, validityDays: String(Math.max(1, Number(e.target.value) || 1)) }))}
-                      style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }}
+                      style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }}
                       onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"}
                     />
                   </div>
@@ -2850,18 +2850,18 @@ export default function PosPage() {
                       <input type="number" min="0" step="0.01" inputMode="decimal" max={pkgPaymentTotal} placeholder="0.0" value={pkgDraft.online} onFocus={() => {
                         const total = Math.max(0, Number(pkgDraft.price || pkgModalPkg?.price || 0));
                         setPkgDraft(d => ({ ...d, online: String(total), offline: "", balance: "0" }));
-                      }} onChange={e=>setPkgDraft(d=>{ const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); const offline = Math.max(0, Number(d.offline || 0)); const online = clampMoneyInput(e.target.value, Math.max(0, total - offline)); const nextBalance = Math.max(0, Number((total - Number(online || 0) - offline).toFixed(2))); return { ...d, online, balance: String(nextBalance) }; })} style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"1rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                      }} onChange={e=>setPkgDraft(d=>{ const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); const offline = Math.max(0, Number(d.offline || 0)); const online = clampMoneyInput(e.target.value, Math.max(0, total - offline)); const nextBalance = Math.max(0, Number((total - Number(online || 0) - offline).toFixed(2))); return { ...d, online, balance: String(nextBalance) }; })} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                     </div>
                     <div>
                       <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Offline / Cash (💵)</label>
                       <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, pkgPaymentTotal - pkgPaymentOnline)} placeholder="0.0" value={pkgDraft.offline} onFocus={() => {
                         const total = Math.max(0, Number(pkgDraft.price || pkgModalPkg?.price || 0));
                         setPkgDraft(d => ({ ...d, offline: String(total), online: "", balance: "0" }));
-                      }} onChange={e=>setPkgDraft(d=>{ const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); const online = Math.max(0, Number(d.online || 0)); const offline = clampMoneyInput(e.target.value, Math.max(0, total - online)); const nextBalance = Math.max(0, Number((total - online - Number(offline || 0)).toFixed(2))); return { ...d, offline, balance: String(nextBalance) }; })} style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"1rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                      }} onChange={e=>setPkgDraft(d=>{ const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); const online = Math.max(0, Number(d.online || 0)); const offline = clampMoneyInput(e.target.value, Math.max(0, total - online)); const nextBalance = Math.max(0, Number((total - online - Number(offline || 0)).toFixed(2))); return { ...d, offline, balance: String(nextBalance) }; })} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                     </div>
                     <div>
                       <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Remaining Balance</label>
-                      <input type="number" placeholder="0.0" value={pkgPaymentBalance.toFixed(2)} readOnly style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"1rem", boxSizing:"border-box", background:"#f1f5f9", color: "#64748b", outline: "none" }} />
+                      <input type="number" placeholder="0.0" value={pkgPaymentBalance.toFixed(2)} readOnly style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", background:"#f1f5f9", color: "#64748b", outline: "none" }} />
                     </div>
                   </div>
                 </div>
@@ -2869,7 +2869,7 @@ export default function PosPage() {
                 {/* Remark */}
                 <div style={{ marginTop:16 }}>
                   <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Internal Remark <span style={{ fontWeight: 400, color: "#94a3b8" }}>(Optional)</span></label>
-                  <textarea placeholder="Add any notes about this package purchase..." value={pkgDraft.remark} onChange={e=>setPkgDraft(d=>({...d,remark:e.target.value}))} rows={2} style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", resize:"vertical", outline: "none", transition: "border-color 0.2s", fontFamily: "inherit" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                  <textarea placeholder="Add any notes about this package purchase..." value={pkgDraft.remark} onChange={e=>setPkgDraft(d=>({...d,remark:e.target.value}))} rows={2} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", resize:"vertical", outline: "none", transition: "border-color 0.2s", fontFamily: "inherit" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                 </div>
 
                 {/* Warning / Error details */}
@@ -2914,7 +2914,7 @@ export default function PosPage() {
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,500px)", maxHeight:"80vh", overflowY:"auto", boxShadow:"0 25px 50px -12px rgba(0,0,0,0.25)" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
               <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a", textAlign:"center", flex:1 }}>Package Details</div>
-              <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
+              <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
             </div>
             <div style={{ padding:"20px 24px" }}>
               <div style={{ fontSize:"1rem", fontWeight:600, color:"#0f172a", marginBottom:16 }}>Guest Name: {context.customers.find(c => c.id === form.customerId)?.name || "N/A"}</div>
@@ -2992,7 +2992,7 @@ export default function PosPage() {
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
+                <button onClick={() => setShowMemModal(false)} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -3081,7 +3081,7 @@ export default function PosPage() {
                     <div style={{ fontWeight:600, color:"#64748b", fontSize:"0.9rem", marginBottom:4 }}>Selected services</div>
                     <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                       {memDraft.customServices.map((svc, idx) => (
-                        <div key={idx} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 16px", border:"1px solid #e2e8f0", borderRadius:8, background:"#fff" }}>
+                        <div key={idx} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 12px", border:"1px solid #e2e8f0", borderRadius:8, background:"#fff" }}>
                           <span style={{ fontSize:"0.9rem", color:"#0f172a", fontWeight:500 }}>{svc.name}</span>
                           <span style={{ fontSize:"0.9rem", color:"#64748b" }}>Qty: {svc.qty}</span>
                         </div>
@@ -3530,7 +3530,7 @@ export default function PosPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 {customerPackages.map((cp) => (
                   <div key={cp.id} style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden" }}>
-                    <div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                    <div style={{ padding:"8px 12px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                       <div style={{ fontWeight: 700, color: "#1e40af", fontSize: "1rem" }}>{cp.package?.name || "CUSTOM"}</div>
                       <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Valid Till: {cp.endsAt ? new Date(cp.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "N/A"}</div>
                     </div>
@@ -3590,7 +3590,7 @@ export default function PosPage() {
             <div style={{ textAlign: "center", marginBottom: 16, color: "#475569" }}>Enter gift card number</div>
             <input type="text" value={gcRedemptionCode} onChange={e => setGcRedemptionCode(e.target.value)} placeholder="Gift card code" style={{ width: "100%", padding: "12px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "1rem", boxSizing: "border-box", marginBottom: 16, textAlign: "center", letterSpacing: 2 }} />
             {gcRedemptionResult && (
-              <div style={{ padding: "12px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, marginBottom: 16 }}>
+              <div style={{ padding:"8px 12px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, marginBottom: 16 }}>
                 <div style={{ fontWeight: 600, color: "#166534" }}>Gift Card Found</div>
                 <div style={{ color: "#15803d", fontSize: "0.9rem" }}>Balance: {formatMoney(Number(gcRedemptionResult.balanceAmount || 0))}</div>
                 <div style={{ color: "#15803d", fontSize: "0.85rem" }}>Expires: {gcRedemptionResult.expiresAt ? new Date(gcRedemptionResult.expiresAt).toLocaleDateString("en-GB") : "No expiry"}</div>
@@ -3696,7 +3696,7 @@ export default function PosPage() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Select Items For Membership</strong>
             </div>
-            <div style={{ marginBottom: 20, padding: "12px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, color: "#166534", fontWeight: 600 }}>
+            <div style={{ marginBottom: 20, padding:"8px 12px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, color: "#166534", fontWeight: 600 }}>
               Available Balance: {formatMoney(Number(selectedMembershipForApply.remainingWalletValue || 0))}
             </div>
 
