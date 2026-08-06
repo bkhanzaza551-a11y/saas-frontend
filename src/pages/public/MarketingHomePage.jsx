@@ -566,7 +566,7 @@ export default function MarketingHomePage() {
             <Link to="/pricing" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Pricing</Link>
             <Link to="/platform" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Platform</Link>
             <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Terms</Link>
-            <Link to="/privacy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
+            <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
           </div>
           <div style={{ fontSize: 13, color: "#94a3b8" }}>© {new Date().getFullYear()} {settings?.systemName || "Salon Nest"}. All rights reserved.</div>
         </div>

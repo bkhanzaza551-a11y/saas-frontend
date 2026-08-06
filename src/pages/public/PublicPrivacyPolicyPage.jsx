@@ -16,15 +16,25 @@ export default function PublicPrivacyPolicyPage() {
         </div>
       </header>
 
-      {/* Content */}
-      <div style={{ maxWidth: 800, margin: "40px auto", padding: "48px 56px", background: "white", borderRadius: 16, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01)", border: "1px solid rgba(226,232,240,0.8)" }}>
-        <h1 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 16px", letterSpacing: "-0.02em" }}>Privacy Policy</h1>
-        <p style={{ color: "#64748b", fontSize: "0.95rem", margin: "0 0 32px" }}>
-          <strong>Effective Date:</strong> 06 August 2026<br/>
-          <strong>Last Updated:</strong> 06 August 2026
+      {/* Hero */}
+      <div style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%)", padding: "80px 24px 100px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", padding: "6px 16px", borderRadius: 100, fontSize: "0.85rem", fontWeight: 600, color: "#0369a1", marginBottom: 24, boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
+          <span>🔒</span> Legal & Compliance
+        </div>
+        <h1 style={{ fontSize: "3.5rem", fontWeight: 900, color: "#0f172a", margin: "0 0 20px", letterSpacing: "-0.04em" }}>Privacy Policy</h1>
+        <p style={{ color: "#475569", fontSize: "1.2rem", margin: "0 auto", maxWidth: 600, lineHeight: 1.6 }}>
+          We value your privacy and are committed to protecting your personal information. Here is how we handle your data.
         </p>
+      </div>
 
-        <div style={{ color: "#334155", lineHeight: 1.8, fontSize: "0.95rem" }}>
+      {/* Content */}
+      <div style={{ maxWidth: 860, margin: "-60px auto 80px", padding: "56px 72px", background: "white", borderRadius: 24, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.1)", border: "1px solid rgba(226,232,240,0.8)", position: "relative", zIndex: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 24, borderBottom: "1px solid #f1f5f9", marginBottom: 40 }}>
+          <p style={{ color: "#64748b", fontSize: "0.95rem", margin: 0 }}><strong>Effective Date:</strong> 06 August 2026</p>
+          <p style={{ color: "#64748b", fontSize: "0.95rem", margin: 0 }}><strong>Last Updated:</strong> 06 August 2026</p>
+        </div>
+
+        <div style={{ color: "#334155", lineHeight: 1.9, fontSize: "1.05rem" }}>
           <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#0f172a", margin: "32px 0 12px" }}>1. Introduction</h2>
           <p style={{ marginBottom: 16 }}>Welcome to Salon Nest ("Salon Nest", "we", "our", or "us"), a SaaS platform owned and operated by PROPCORP ADVERTISING (OPC) PRIVATE LIMITED.</p>
           <p style={{ marginBottom: 16 }}>We value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, store, disclose, and protect your information when you use our website, applications, and services available through https://salonnest.in.</p>
@@ -223,7 +233,7 @@ export default function PublicPrivacyPolicyPage() {
           </div>
           <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
             <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Terms</Link>
-            <Link to="/privacy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
+            <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
           </div>
           <div style={{ fontSize: 13, color: "#94a3b8" }}>© {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.</div>
         </div>
