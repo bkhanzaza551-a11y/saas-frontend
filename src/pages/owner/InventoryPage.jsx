@@ -888,6 +888,10 @@ export default function InventoryPage() {
                     </button>
                   );
                 })}
+                <button
+                  onClick={() => { /* open create modal */ }}
+                  style={{
+                    display: "inline-flex",
                     alignItems: "center",
                     gap: 6,
                     padding: "8px 16px",
