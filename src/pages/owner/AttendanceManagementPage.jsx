@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
+import { useBranch } from "../../context/BranchContext";
 import { Calendar, Clock, Users, UserCheck, UserX, AlertTriangle, Briefcase, CheckCircle2, Filter, Download, Settings, ChevronDown, ChevronUp, Eye, Edit2, MapPin, Camera, FileText, RefreshCw } from "lucide-react";
 
 const STATUS_COLORS = {
@@ -20,8 +21,7 @@ const STATUS_OPTIONS = ["", "PRESENT", "LATE", "HALF_DAY", "ABSENT", "LEAVE", "W
 export default function AttendanceManagementPage() {
   const [tab, setTab] = useState("today");
   const [loading, setLoading] = useState(true);
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState("");
+  const { selectedBranchId: selectedBranch } = useBranch();
   const [summary, setSummary] = useState(null);
   const [daySheet, setDaySheet] = useState([]);
   const [records, setRecords] = useState([]);
@@ -39,12 +39,7 @@ export default function AttendanceManagementPage() {
   const [editForm, setEditForm] = useState({});
   const [reportPeriod, setReportPeriod] = useState("daily");
 
-  const loadBranches = async () => {
-    try {
-      const res = await api.get("/owner/branches");
-      setBranches(res.data || []);
-    } catch { }
-  };
+
 
   const loadSummary = async () => {
     try {
@@ -88,7 +83,7 @@ export default function AttendanceManagementPage() {
     setLoading(true);
     setFeedback({ error: "", success: "" });
     try {
-      await Promise.all([loadBranches(), loadSummary(), loadDaySheet(), loadRecords(), loadSettings()]);
+      await Promise.all([loadSummary(), loadDaySheet(), loadRecords(), loadSettings()]);
     } catch (err) {
       setFeedback({ error: formatApiError(err, "Failed to load attendance data."), success: "" });
     }
@@ -223,10 +218,6 @@ export default function AttendanceManagementPage() {
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>Track staff check-ins, manage attendance, and configure settings.</p>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <select value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, background: "white", minWidth: 160 }}>
-              <option value="">All Branches</option>
-              {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
           </div>
         </div>
