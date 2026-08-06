@@ -3864,7 +3864,7 @@ pre {
   gap: 10px;
   padding: 8px 8px 6px;
   background: transparent;
-  border: none;
+  border: none !important;
   cursor: pointer;
   box-shadow: none;
   color: #64748b;
@@ -4042,7 +4042,7 @@ pre {
   gap: 8px;
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid #fee2e2;
+  border: 1px solid #fee2e2 !important;
   background: #fef2f2;
   color: #dc2626;
   font-weight: 700;
