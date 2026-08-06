@@ -1189,7 +1189,7 @@ export default function CustomersPage() {
           .crm-btn:hover { background:#2563eb; transform:none; filter:none; }
           .crm-btn-light { background:#f8fafc; color:#2563eb; border:1px solid #bfdbfe; box-shadow:none; }
           .crm-btn-light:hover { background:#eff6ff; }
-          .crm-table-container { background:#fff; border-radius:8px; box-shadow: none; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+          .crm-table-container { background:#fff; border-radius:8px; box-shadow: none; overflow-x:auto; -webkit-overflow-scrolling:touch; min-height:350px; }
           .crm-table { width:100%; border-collapse:collapse; white-space:nowrap; table-layout:auto; min-width:900px; }
           .crm-table th { background:#f8fafc; color:#475569; font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 8px; text-align:left; border-bottom:2px solid #e2e8f0; }
           .crm-table td { padding:6px 8px; font-size:0.76rem; color:#334155; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
@@ -1227,7 +1227,7 @@ export default function CustomersPage() {
           .crm-row-action { position:relative; overflow:visible; }
           .crm-row-action-trigger { width:32px; height:32px; border-radius:6px; border:1px solid #e2e8f0; background:#f8fafc; color:#475569; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; min-height:unset; box-shadow:none; }
           .crm-row-action-trigger:hover { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; transform:none; filter:none; }
-          .crm-row-menu { position:absolute; top:calc(100% + 4px); right:0; min-width:170px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow: none; padding:6px; z-index:3000; }
+          .crm-row-menu { position:absolute; top:calc(100% + 4px); right:0; min-width:170px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding:6px; z-index:3000; }
           .crm-row-menu button { width:100%; border:none; background:#fff; border-radius:8px; display:flex; align-items:center; gap:8px; padding:9px 12px; font-size:0.82rem; color:#0f172a; cursor:pointer; margin-bottom:4px; min-height:unset; box-shadow:none; }
           .crm-row-menu button:last-child { margin-bottom:0; }
           .crm-row-menu button:hover { background:#f8fafc; transform:none; filter:none; }
