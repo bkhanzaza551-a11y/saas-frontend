@@ -61,6 +61,11 @@ export default function StorefrontLayout() {
     setCartOpen(true);
   }, []);
 
+  const clearBookings = useCallback(() => {
+    setBookings([]);
+    localStorage.removeItem(BOOKINGS_KEY);
+  }, []);
+
   if (loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading Storefront...</div>;
   if (!salon) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Salon not found</div>;
 
@@ -75,6 +80,8 @@ export default function StorefrontLayout() {
           <nav className="sf-nav-links">
             <Link to={`/site/${slug}`}>Home</Link>
             <Link to={`/site/${slug}/services`}>Services</Link>
+            <Link to={`/site/${slug}/about`}>About</Link>
+            <Link to={`/site/${slug}/contact`}>Contact</Link>
             <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
           </nav>
           
@@ -91,8 +98,13 @@ export default function StorefrontLayout() {
                 ))}
               </select>
             )}
-            <button className="sf-btn-dark" onClick={() => setCartOpen(true)}>
-              Cart ({bookings.length})
+            <button className="sf-btn-dark" onClick={() => setCartOpen(true)} style={{ position: "relative" }}>
+              Cart
+              {bookings.length > 0 && (
+                <span style={{ position: "absolute", top: -8, right: -8, background: "var(--sf-accent, #c8a97e)", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700 }}>
+                  {bookings.reduce((sum, b) => sum + b.qty, 0)}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -100,7 +112,7 @@ export default function StorefrontLayout() {
 
       <main style={{ flex: 1 }}>
         <StorefrontErrorBoundary>
-          <Outlet context={{ salon, bookings, addBooking, selectedBranchId }} />
+          <Outlet context={{ salon, bookings, addBooking, clearBookings, selectedBranchId }} />
         </StorefrontErrorBoundary>
       </main>
 
@@ -108,13 +120,29 @@ export default function StorefrontLayout() {
         <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "40px" }}>
           <div>
             <h3 style={{ fontSize: "1.5rem", marginBottom: "16px" }}>{salon.name}</h3>
-            <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "0.95rem" }}>Providing professional grooming and beauty services with uncompromising standards.</p>
+            <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "0.95rem" }}>{salon.websiteConfig?.aboutDescription || "Providing professional grooming and beauty services with uncompromising standards."}</p>
+          </div>
+          <div>
+            <h4 style={{ marginBottom: "16px" }}>Quick Links</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <Link to={`/site/${slug}/services`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>Services</Link>
+              <Link to={`/site/${slug}/about`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>About Us</Link>
+              <Link to={`/site/${slug}/contact`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>Contact</Link>
+              <Link to={`/site/${slug}/my-bookings`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>My Bookings</Link>
+            </div>
           </div>
           <div>
             <h4 style={{ marginBottom: "16px" }}>Contact</h4>
             <p style={{ color: "var(--text-muted)", marginBottom: "8px", fontSize: "0.95rem" }}>Email: {salon.email}</p>
             <p style={{ color: "var(--text-muted)", marginBottom: "8px", fontSize: "0.95rem" }}>Phone: {salon.phone}</p>
             <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>Address: {salon.address}</p>
+          </div>
+        </div>
+        <div style={{ maxWidth: 1400, margin: "40px auto 0", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>&copy; {new Date().getFullYear()} {salon.name}. All rights reserved.</p>
+          <div style={{ display: "flex", gap: "24px" }}>
+            <Link to={`/site/${slug}/terms`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.85rem" }}>Terms</Link>
+            <Link to={`/site/${slug}/privacy`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.85rem" }}>Privacy</Link>
           </div>
         </div>
       </footer>

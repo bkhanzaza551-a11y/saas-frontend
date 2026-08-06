@@ -108,6 +108,8 @@ const CartPage = lazyWithRetry(() => import("./pages/storefront/CartPage.jsx"));
 const CheckoutPage = lazyWithRetry(() => import("./pages/storefront/CheckoutPage.jsx"));
 const BookingConfirmationPage = lazyWithRetry(() => import("./pages/storefront/BookingConfirmationPage.jsx"));
 const MyBookingsPage = lazyWithRetry(() => import("./pages/storefront/MyBookingsPage.jsx"));
+const StorefrontAboutPage = lazyWithRetry(() => import("./pages/storefront/storefront/AboutPage.jsx"));
+const StorefrontContactPage = lazyWithRetry(() => import("./pages/storefront/storefront/ContactPage.jsx"));
 const LegalContentPage = lazyWithRetry(() => import("./pages/shared/LegalContentPage.jsx"));
 const PublicPrivacyPolicyPage = lazyWithRetry(() => import("./pages/public/PublicPrivacyPolicyPage.jsx"));
 const WebsiteEditorPage = lazyWithRetry(() => import("./pages/owner/WebsiteEditorPage.jsx"));
@@ -481,7 +483,8 @@ export default function App() {
           <Route path="my-bookings" element={<MyBookingsPage />} />
           <Route path="terms" element={<LegalContentPage scope="salon" title="Terms & Conditions" contentKey="termsAndConditions" />} />
           <Route path="privacy" element={<LegalContentPage scope="salon" title="Privacy Policy" contentKey="privacyPolicy" />} />
-          <Route path="about" element={<HomePage />} />
+          <Route path="about" element={<StorefrontAboutPage />} />
+          <Route path="contact" element={<StorefrontContactPage />} />
           <Route path="book" element={<Navigate to="collections" replace />} />
           <Route path="*" element={<StorefrontNotFound />} />
         </Route>
