@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Filter, Plus, Download, Upload, MoreVertical, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor } from "lucide-react";
+import { Search, Filter, Plus, Download, Upload, MoreVertical, MoreHorizontal, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor } from "lucide-react";
 import { api } from "../../api/client";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -1226,8 +1226,8 @@ export default function CustomersPage() {
           .filter-options { flex:1; padding:16px; overflow-y:auto; display:grid; gap:12px; }
           .sidebar-modal-footer { padding:12px 18px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:8px; }
           .crm-row-action { position:relative; overflow:visible; }
-          .crm-row-action-trigger { width:32px; height:32px; border-radius:6px; border:1px solid #e2e8f0; background:#f8fafc; color:#475569; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; min-height:unset; box-shadow:none; }
-          .crm-row-action-trigger:hover { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; transform:none; filter:none; }
+          .crm-row-action-trigger { width:32px !important; height:32px !important; border-radius:6px !important; border:1px solid #e2e8f0 !important; background:#f8fafc !important; color:#475569 !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; cursor:pointer !important; min-height:unset !important; box-shadow:none !important; padding:0 !important; margin:0 !important; }
+          .crm-row-action-trigger:hover { background:#eff6ff !important; color:#2563eb !important; border-color:#bfdbfe !important; transform:none !important; filter:none !important; }
           .crm-row-menu { position:absolute; top:calc(100% + 4px); right:0; min-width:170px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding:6px; z-index:3000; }
           .crm-row-menu button { width:100%; border:none; background:#fff; border-radius:8px; display:flex; align-items:center; gap:8px; padding:9px 12px; font-size:0.82rem; color:#0f172a; cursor:pointer; margin-bottom:4px; min-height:unset; box-shadow:none; }
           .crm-row-menu button:last-child { margin-bottom:0; }
@@ -1542,7 +1542,7 @@ export default function CustomersPage() {
                     <td>{formatCompactDate(row.dateOfBirth, false)}</td>
                     <td className="crm-row-action" onClick={(e) => e.stopPropagation()}>
                       <button className="crm-row-action-trigger" onClick={(e) => { e.stopPropagation(); setActiveMenuRowId((current) => current === row.id ? "" : row.id); }}>
-                        <MoreVertical size={18} />
+                        <MoreHorizontal size={18} />
                       </button>
                       {activeMenuRowId === row.id && (
                         <div className="crm-row-menu" ref={actionMenuRef}>
