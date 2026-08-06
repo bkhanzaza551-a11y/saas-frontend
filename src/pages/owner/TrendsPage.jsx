@@ -174,10 +174,10 @@ export default function TrendsPage() {
     <div className="page-shell" style={{ paddingBottom: 48 }}>
       <style>{`
         .trend-pill-btn {
-            display: inline-flex; align-items: center; gap: 7px;
-            padding: 9px 20px; border-radius: 40px; border: 1.5px solid #e2e8f0;
-            font-size: 13px; font-weight: 500; cursor: pointer;
-            transition: all 0.18s; background: white; color: #64748b;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px !important; border-radius: 40px; border: 1.5px solid #e2e8f0 !important;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.18s; background: white !important; color: #64748b !important; min-height: unset !important;
           }
           @media (max-width: 900px) {
             .trends-header { flex-direction: column !important; gap: 16px !important; }
@@ -194,16 +194,16 @@ export default function TrendsPage() {
           .trends-tabs::-webkit-scrollbar-track { background: transparent; }
           .trends-tabs::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .trend-pill-btn.active {
-          background: linear-gradient(135deg, #6366f1, #4f46e5);
-          border-color: #6366f1; color: white;
-          box-shadow: none;
+          background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+          border-color: #6366f1 !important; color: white !important;
+          box-shadow: none !important;
         }
-        .trend-pill-btn:hover:not(.active) { background: #f8fafc; border-color: #cbd5e1; }
+        .trend-pill-btn:hover:not(.active) { background: #f8fafc !important; border-color: #cbd5e1 !important; }
         .range-chip {
-          padding: 5px 12px; border-radius: 8px; border: none; font-size: 12px;
-          font-weight: 600; cursor: pointer; transition: all 0.15s; background: #f1f5f9; color: #64748b;
+          padding: 4px 10px !important; border-radius: 8px; border: none !important; font-size: 12px;
+          font-weight: 600; cursor: pointer; transition: all 0.15s; background: #f1f5f9 !important; color: #64748b !important; min-height: unset !important;
         }
-        .range-chip.active { background: #6366f1; color: white; box-shadow: none; }
+        .range-chip.active { background: #6366f1 !important; color: white !important; box-shadow: none !important; }
         .chart-card {
           background: white; border-radius: 20px; padding: 24px;
           border: 1px solid #e2e8f0; box-shadow: none;
