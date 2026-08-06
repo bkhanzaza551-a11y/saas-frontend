@@ -1253,9 +1253,9 @@ export default function CustomersPage() {
           .cust-detail-field-label { font-size:0.6rem; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
           .cust-detail-field-val { font-size:0.8rem; color:#cbd5e1; font-weight:500; }
           .cust-detail-sidebar-nav { display:flex; flex-direction:column; gap:2px; padding:8px; }
-          .cust-detail-nav-btn { display:flex; align-items:center; gap:10px; padding:12px 16px; border:none; background:transparent; color:#94a3b8; font-size:0.82rem; font-weight:600; cursor:pointer; border-radius:8px; transition:all .15s; text-align:left; width:100%; }
-          .cust-detail-nav-btn:hover { background:rgba(255,255,255,0.05); color:#e2e8f0; }
-          .cust-detail-nav-btn.active { background:rgba(59,130,246,0.2); color:#60a5fa; }
+          .cust-detail-nav-btn { display:flex; align-items:center; gap:8px; padding:8px 12px; border:none; background:transparent !important; color:#94a3b8 !important; font-size:0.82rem; font-weight:600; cursor:pointer; border-radius:8px; transition:all .15s; text-align:left; width:100%; }
+          .cust-detail-nav-btn:hover { background:rgba(255,255,255,0.05) !important; color:#e2e8f0 !important; }
+          .cust-detail-nav-btn.active { background:rgba(59,130,246,0.2) !important; color:#60a5fa !important; }
           .cust-detail-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
           .cust-detail-content-header { padding:16px 20px; border-bottom:1px solid #e2e8f0; font-size:1.1rem; font-weight:700; color:#0f172a; display:flex; justify-content:space-between; align-items:center; background:#fff; flex-shrink:0; }
           .cust-detail-close { background:none; border:none; color:#94a3b8; cursor:pointer; padding:6px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
@@ -1739,7 +1739,7 @@ export default function CustomersPage() {
                               setPartnerForm({ discountValue: 10, partnerCreditValue: 5, title: "" });
                               setShowMakePartnerModal(true);
                             }}
-                            style={{ marginTop: 12, fontSize: 12, border: "1px solid #6366f1", color: "#6366f1", width: "100%" }}
+                            style={{ marginTop: 12, fontSize: 12, border: "1px solid #6366f1", background: "transparent", color: "#6366f1", width: "100%" }}
                           >
                             Make Affiliate Partner
                           </button>
@@ -2197,20 +2197,20 @@ export default function CustomersPage() {
                                 <div style={{ padding: "12px 14px", borderRadius: 8, background: "linear-gradient(135deg, #16a34a22, #16a34a08)", border: "1px solid #16a34a33" }}>
                                   <div style={{ fontSize: 11, color: "#94a3b8" }}>Balance</div>
                                   <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#16a34a", marginTop: 4 }}>
-                                    {Number(customerAffiliateWallet.wallet.balance ?? 0)} cr
+                                    {Number(customerAffiliateWallet.wallet.balance ?? 0)} Credits
                                   </div>
                                   <div style={{ fontSize: 10, color: "#64748b" }}>Service: {formatMoney(Number(customerAffiliateWallet.wallet.balance ?? 0))}</div>
                                 </div>
                                 <div style={{ padding: "12px 14px", borderRadius: 8, background: "linear-gradient(135deg, #6366f122, #6366f108)", border: "1px solid #6366f133" }}>
                                   <div style={{ fontSize: 11, color: "#94a3b8" }}>Total Earned</div>
                                   <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#6366f1", marginTop: 4 }}>
-                                    {Number(customerAffiliateWallet.wallet.totalEarned ?? 0)} cr
+                                    {Number(customerAffiliateWallet.wallet.totalEarned ?? 0)} Credits
                                   </div>
                                 </div>
                                 <div style={{ padding: "12px 14px", borderRadius: 8, background: "linear-gradient(135deg, #f59e0b22, #f59e0b08)", border: "1px solid #f59e0b33" }}>
                                   <div style={{ fontSize: 11, color: "#94a3b8" }}>Total Redeemed</div>
                                   <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#f59e0b", marginTop: 4 }}>
-                                    {Number(customerAffiliateWallet.wallet.totalRedeemed ?? 0)} cr
+                                    {Number(customerAffiliateWallet.wallet.totalRedeemed ?? 0)} Credits
                                   </div>
                                 </div>
                               </div>
@@ -2230,7 +2230,7 @@ export default function CustomersPage() {
                                       </div>
                                       <div style={{ textAlign: "right" }}>
                                         <div style={{ fontSize: 13, fontWeight: 700, color: t.type === "EARN" || t.type === "MANUAL_ADJUSTMENT" ? "#16a34a" : "#ef4444" }}>
-                                          {t.type === "EARN" || t.type === "MANUAL_ADJUSTMENT" ? "+" : "-"}{Number(t.amount ?? 0)} cr
+                                          {t.type === "EARN" || t.type === "MANUAL_ADJUSTMENT" ? "+" : "-"}{Number(t.amount ?? 0)} Credits
                                         </div>
                                         {t.invoiceId && (
                                           <div style={{ fontSize: 10, color: "#64748b" }}>{t.invoice?.invoiceNumber || ""}</div>

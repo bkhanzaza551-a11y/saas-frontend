@@ -37,7 +37,7 @@
 .cart-table-row,
 .pos-detail-mid-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -61,7 +61,7 @@
   color: #1e293b;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.65rem !important;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
@@ -79,14 +79,14 @@
 .btn-clear,
 .btn-view-bill,
 .btn-edit-shield {
-  padding: 4px 10px !important;
+  padding: 3px 6px !important;
   height: auto !important;
   min-height: 0 !important;
 }
 
 .pos-dash-filter-pill {
   display: inline-flex;
-  gap: 10px;
+  gap: 4px;
   align-items: center;
 }
 
@@ -664,30 +664,6 @@
   overflow-y: auto;
   padding: 12px 8px;
 }
-.pos-cat-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.pos-cat-btn {
-  background: transparent;
-  border: none;
-  padding: 8px 10px;
-  text-align: left;
-  border-radius: 8px;
-  color: #475569;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.pos-cat-btn:hover {
-  background: #f1f5f9;
-}
-.pos-cat-btn.active {
-  background: #eff6ff;
-  color: #3b82f6;
-  font-weight: 700;
-}
 .pos-item-list-container {
   flex: 1;
   padding: 16px;
@@ -786,8 +762,6 @@
   width: 240px;
   padding: 12px;
 }
-
-.pos-edit-modal-wrapper .pos-cat-grid,
 .pos-edit-modal-wrapper .pos-item-grid {
   gap: 4px;
 }

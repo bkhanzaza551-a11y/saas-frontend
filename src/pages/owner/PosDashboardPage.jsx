@@ -966,7 +966,7 @@ export default function PosDashboardPage() {
           {rows.map((row) => {
             const dateStr = new Date(row.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
             const timeStr = new Date(row.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-            const startedStr = row.startedAt ? new Date(row.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : (row.createdAt ? new Date(row.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null);
+            const startedStr = row.startedAt ? new Date(row.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
             const completedStr = row.completedAt ? new Date(row.completedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null;
             const apptStatus = row.appointment?.status || null;
             const isAppt = row.isScheduledAppt;
@@ -1521,7 +1521,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"10px 14px", paddingRight:36, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:240, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                   <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}>🔍</span>
                 </div>
-                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}>&#x2715;</button>
+                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, minHeight:36, padding:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}>&#x2715;</button>
               </div>
             </div>
             

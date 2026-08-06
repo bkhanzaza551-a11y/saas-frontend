@@ -2644,7 +2644,7 @@ export default function PosPage() {
                   <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:200, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                   <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}><X size={20} /></button>
+                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, minHeight:32, padding:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}><X size={20} /></button>
               </div>
             </div>
             
