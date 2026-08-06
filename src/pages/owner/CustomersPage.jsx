@@ -1220,8 +1220,9 @@ export default function CustomersPage() {
           .sidebar-modal-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #f1f5f9; }
           .sidebar-modal-body { flex:1; display:flex; overflow:hidden; }
           .filter-categories { width:180px; background:#f8fafc; border-right:1px solid #f1f5f9; overflow-y:auto; }
-          .filter-category-btn { width:100%; text-align:left; padding:10px 12px; background:none; border:none; font-size:0.82rem; color:#475569; cursor:pointer; border-bottom:1px solid #e2e8f0; min-height:unset; }
-          .filter-category-btn.active { background:#fff; color:#0f766e; font-weight:700; border-left:3px solid #0f766e; }
+          .filter-category-btn { width:100%; text-align:left; padding:10px 12px !important; background:transparent !important; border:none !important; border-bottom:1px solid #e2e8f0 !important; border-radius:0 !important; font-size:0.82rem !important; color:#475569 !important; cursor:pointer; min-height:unset !important; height:auto !important; box-shadow:none !important; margin:0 !important; display:block !important; }
+          .filter-category-btn:hover { background:#f1f5f9 !important; color:#0f172a !important; }
+          .filter-category-btn.active { background:#fff !important; color:#0f766e !important; font-weight:700 !important; border-left:3px solid #0f766e !important; border-bottom:1px solid #e2e8f0 !important; }
           .filter-options { flex:1; padding:16px; overflow-y:auto; display:grid; gap:12px; }
           .sidebar-modal-footer { padding:12px 18px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:8px; }
           .crm-row-action { position:relative; overflow:visible; }
