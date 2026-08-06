@@ -1205,9 +1205,10 @@ export default function CustomersPage() {
           .modal-close { background:none; border:none; cursor:pointer; color:#64748b; min-height:unset; box-shadow:none; padding:4px; }
           .modal-body { padding:16px 18px; display:grid; gap:12px; }
           .modal-footer { padding:12px 18px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:8px; }
-          .form-group { display:flex; flex-direction:column; gap:4px; }
-          .form-group label { font-size:0.8rem; font-weight:600; color:#475569; }
-          .form-group input, .form-group select { padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; background:#fff; min-height:unset; }
+          .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:4px; }
+          .form-group label { font-size:0.75rem; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:0.04em; }
+          .form-group input, .form-group select { padding:10px 14px !important; border:1px solid #e2e8f0 !important; border-radius:8px !important; font-size:0.85rem !important; background:#f8fafc !important; min-height:40px !important; color:#0f172a !important; transition:all 0.2s !important; box-shadow:none !important; outline:none !important; width:100% !important; box-sizing:border-box !important; }
+          .form-group input:focus, .form-group select:focus { border-color:#94a3b8 !important; background:#fff !important; box-shadow:0 0 0 3px rgba(148,163,184,0.15) !important; }
           .radio-group { display:flex; gap:12px; align-items:center; }
           .radio-group label, .radio-column label { display:flex; align-items:center; gap:6px; font-weight:500; cursor:pointer; font-size:0.8rem; }
           .radio-column { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
@@ -1259,8 +1260,8 @@ export default function CustomersPage() {
           .cust-detail-nav-btn.active { background:rgba(59,130,246,0.2) !important; color:#60a5fa !important; }
           .cust-detail-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
           .cust-detail-content-header { padding:16px 20px; border-bottom:1px solid #e2e8f0; font-size:1.1rem; font-weight:700; color:#0f172a; display:flex; justify-content:space-between; align-items:center; background:#fff; flex-shrink:0; }
-          .cust-detail-close { background:none; border:none; color:#94a3b8; cursor:pointer; padding:6px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-          .cust-detail-close:hover { color:#dc2626; background:#fee2e2; }
+          .cust-detail-close { background:transparent !important; border:none !important; color:#94a3b8 !important; cursor:pointer !important; padding:6px !important; border-radius:8px !important; display:flex !important; align-items:center !important; justify-content:center !important; transition:all .15s !important; min-height:unset !important; width:32px !important; height:32px !important; box-shadow:none !important; }
+          .cust-detail-close:hover { color:#dc2626 !important; background:#fee2e2 !important; }
           .cust-detail-content-body { flex:1; overflow-y:auto; padding:16px 20px; background:#fff; }
           .cust-detail-content-body::-webkit-scrollbar { width:4px; }
           .cust-detail-content-body::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
@@ -1301,10 +1302,10 @@ export default function CustomersPage() {
           .cust-advance-card { background:#f8fafc; border-radius:10px; padding:14px; margin-bottom:10px; border:1px solid #e2e8f0; }
           .cust-due-card { background:#fef2f2; border-radius:10px; padding:14px; margin-bottom:10px; border:1px solid #fecaca; }
           .cust-empty-state { color:#64748b; font-size:0.85rem; text-align:center; padding:40px 20px; }
-          .cust-assign-btn { background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; margin-top:12px; display:inline-flex; align-items:center; gap:6px; transition:all .15s; }
-          .cust-assign-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,0.3); }
-          .cust-add-btn { background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .15s; }
-          .cust-add-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,0.3); }
+          .cust-assign-btn { background:#0f172a !important; color:#fff !important; border:1px solid #0f172a !important; padding:10px 20px !important; border-radius:8px !important; font-size:0.85rem !important; font-weight:600 !important; cursor:pointer !important; margin-top:12px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; transition:all .2s !important; min-height:unset !important; height:auto !important; box-shadow:none !important; }
+          .cust-assign-btn:hover { background:#1e293b !important; border-color:#1e293b !important; transform:translateY(-1px) !important; box-shadow:0 4px 12px rgba(15,23,42,0.15) !important; }
+          .cust-add-btn { background:#0f172a !important; color:#fff !important; border:1px solid #0f172a !important; padding:10px 20px !important; border-radius:8px !important; font-size:0.85rem !important; font-weight:600 !important; cursor:pointer !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; transition:all .2s !important; min-height:unset !important; height:auto !important; box-shadow:none !important; }
+          .cust-add-btn:hover { background:#1e293b !important; border-color:#1e293b !important; transform:translateY(-1px) !important; box-shadow:0 4px 12px rgba(15,23,42,0.15) !important; }
           /* Membership modal plan cards */
           /* Advance paymode toggle */
           .cust-paymode-toggle { display:flex; gap:0; border-radius:8px; overflow:hidden; border:1px solid #e2e8f0; }
