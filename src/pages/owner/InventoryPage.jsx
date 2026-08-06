@@ -11,7 +11,7 @@ import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, Arr
 import "./InventoryPage.css";
 
 const emptyCategory = { name: "", description: "", imageUrl: "", sortOrder: 0, isPublicVisible: true };
-const emptyProduct = { branchId: "", categoryId: "", name: "", productType: "RETAIL", costPrice: 0, sellingPrice: 0, currentStock: 0, minStock: 0, sku: "", barcode: "", imageUrl: "", unit: "", unitConversion: "", favourite: false };
+const emptyProduct = { branchId: "", categoryId: "", name: "", productType: "RETAIL", costPrice: 0, sellingPrice: 0, currentStock: 0, minStock: 0, sku: "", barcode: "", imageUrl: "", unit: "", secondaryUnit: "", unitConversion: "", favourite: false };
 const emptyMovement = { productId: "", branchId: "", movementType: "STOCK_IN", quantity: 1, note: "" };
 const emptyVendor = { name: "", phone: "", email: "", address: "", notes: "" };
 const createEmptyPoItem = () => ({ productId: "", quantityOrdered: 1, unitCost: 0 });
@@ -429,6 +429,7 @@ export default function InventoryPage() {
         currentStock: Number(productForm.currentStock), 
         minStock: Number(productForm.minStock), 
         unit: productForm.unit || null,
+        secondaryUnit: productForm.secondaryUnit || null,
         unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null,
         favourite: Boolean(productForm.favourite) 
       });
@@ -1550,16 +1551,23 @@ export default function InventoryPage() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div className="sp-group">
-                    <label className="sp-label">Unit</label>
+                    <label className="sp-label">Primary Unit</label>
                     <select className="sp-input" value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})}>
                       <option value="">None</option>
                       {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
                   </div>
                   <div className="sp-group">
-                    <label className="sp-label">Unit Conversion</label>
-                    <input type="number" className="sp-input" value={productForm.unitConversion} onChange={e => setProductForm({...productForm, unitConversion: e.target.value})} placeholder="e.g. 12 (1 box = 12 pcs)" min="0" />
+                    <label className="sp-label">Secondary Unit <span style={{ color: "#94a3b8", fontWeight: 400, fontSize: 11 }}>(consumption)</span></label>
+                    <select className="sp-input" value={productForm.secondaryUnit} onChange={e => setProductForm({...productForm, secondaryUnit: e.target.value})}>
+                      <option value="">None</option>
+                      {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
                   </div>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Unit Conversion</label>
+                  <input type="number" className="sp-input" value={productForm.unitConversion} onChange={e => setProductForm({...productForm, unitConversion: e.target.value})} placeholder="e.g. 12 (1 box = 12 pcs)" min="0" />
                 </div>
                 <div className="sp-group">
                   <label className="sp-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
