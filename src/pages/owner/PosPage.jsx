@@ -2535,17 +2535,17 @@ export default function PosPage() {
                            <div key={idx} onClick={() => {
                              setGcModalGc({ id: `tpl-${idx}`, name: gc.name });
                              setGcDraft({ staffId: gcDraft.staffId || "", price: String(gc.amount || ""), validityDays: String(gc.validityDays || 30), purchaseDate: new Date().toISOString().slice(0,10), code: "" });
-                           }} style={{ background: isSelected?"#fdf4ff":"#f8fafc", border: isSelected?"2px solid #e879f9":"1px solid #e2e8f0", borderRadius:12, padding:16, cursor:"pointer", transition:"all 0.2s" }}>
-                             <div style={{ fontSize:"0.95rem", fontWeight:700, color: "var(--accent, #3b82f6)", marginBottom:8, textTransform:"uppercase" }}>{gc.name || "GIFT CARD"}</div>
-                             <div style={{ fontSize:"0.85rem", color:"#475569", marginBottom:4 }}>Amount: {formatMoney(Number(gc.amount || 0))}</div>
-                             <div style={{ fontSize:"0.85rem", color:"#475569", marginBottom:4 }}>Validity: {gc.validityDays || 30} Days</div>
+                           }} style={{ background: isSelected?"#fdf4ff":"#f8fafc", border: isSelected?"2px solid #e879f9":"1px solid #e2e8f0", borderRadius:12, padding:12, cursor:"pointer", transition:"all 0.2s" }}>
+                             <div style={{ fontSize:"0.85rem", fontWeight:700, color: "var(--accent, #3b82f6)", marginBottom:4, textTransform:"uppercase" }}>{gc.name || "GIFT CARD"}</div>
+                             <div style={{ fontSize:"0.75rem", color:"#475569", marginBottom:2 }}>Amount: {formatMoney(Number(gc.amount || 0))}</div>
+                             <div style={{ fontSize:"0.75rem", color:"#475569", marginBottom:2 }}>Validity: {gc.validityDays || 30} Days</div>
                            </div>
                          );
                        })}
                        <div onClick={() => {
                          setGcModalGc({ id: "CUSTOM", name: "Custom Gift Card" });
                          setGcDraft({ staffId: gcDraft.staffId || "", price: "", validityDays: "365", purchaseDate: new Date().toISOString().slice(0,10), code: "" });
-                       }} style={{ background: gcModalGc?.id === "CUSTOM"?"#eff6ff":"#f8fafc", border: gcModalGc?.id === "CUSTOM"?"2px solid #3b82f6":"1px solid #e2e8f0", borderRadius:12, padding:16, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", minHeight:80, transition:"all 0.2s" }}>
+                       }} style={{ background: gcModalGc?.id === "CUSTOM"?"#eff6ff":"#f8fafc", border: gcModalGc?.id === "CUSTOM"?"2px solid #3b82f6":"1px solid #e2e8f0", borderRadius:12, padding:12, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", minHeight:80, transition:"all 0.2s" }}>
                          <div style={{ fontSize:"1rem", fontWeight:700, color:"#2563eb", textTransform:"uppercase" }}>CUSTOM GIFT CARD</div>
                        </div>
                      </>
@@ -2657,22 +2657,22 @@ export default function PosPage() {
                     <div key={pkg.id} onClick={() => {
                       setPkgModalPkg(pkg);
                       setPkgDraft({ staffId: "", price: String(pkg.price||0), validityDays: String(pkg.validityDays||30), purchaseDate: new Date().toISOString().slice(0,10), customServices: (pkg.services||[]).map(s=>({id:s.service?.id||s.serviceId,name:s.service?.name, price: s.service?.salesPrice || s.service?.price || 0, qty:s.sessions||1})), customProducts: [], balance: "", online: "", offline: "", remark: "" });
-                    }} style={{ background: isSelected?"#fdf4ff":"#ffffff", border: isSelected?"2px solid #e879f9":"1px solid #e2e8f0", borderRadius:12, padding:"20px", cursor:"pointer", transition:"all 0.2s", boxShadow: isSelected ? "0 4px 6px -1px rgba(232, 121, 249, 0.1)" : "0 1px 3px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column" }} onMouseEnter={e => { if(!isSelected) e.currentTarget.style.borderColor="#cbd5e1" }} onMouseLeave={e => { if(!isSelected) e.currentTarget.style.borderColor="#e2e8f0" }}>
-                      <div style={{ fontSize:"1.05rem", fontWeight:800, color:"#4a044e", marginBottom:12, textTransform:"uppercase", letterSpacing:"0.5px" }}>{pkg.name}</div>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, paddingBottom: 12, borderBottom: "1px dashed #e2e8f0" }}>
+                    }} style={{ background: isSelected?"#fdf4ff":"#ffffff", border: isSelected?"2px solid #e879f9":"1px solid #e2e8f0", borderRadius:12, padding:"14px", cursor:"pointer", transition:"all 0.2s", boxShadow: isSelected ? "0 4px 6px -1px rgba(232, 121, 249, 0.1)" : "0 1px 3px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column" }} onMouseEnter={e => { if(!isSelected) e.currentTarget.style.borderColor="#cbd5e1" }} onMouseLeave={e => { if(!isSelected) e.currentTarget.style.borderColor="#e2e8f0" }}>
+                      <div style={{ fontSize:"0.9rem", fontWeight:800, color:"#4a044e", marginBottom:8, textTransform:"uppercase", letterSpacing:"0.5px" }}>{pkg.name}</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, paddingBottom: 8, borderBottom: "1px dashed #e2e8f0" }}>
                         <div style={{ display: "flex", flexDirection: "column" }}>
                           <span style={{ fontSize:"0.75rem", color:"#64748b", textTransform:"uppercase", fontWeight:700 }}>Fee</span>
-                          <span style={{ fontSize:"0.95rem", fontWeight:700, color:"#0f172a" }}>{formatMoney(Number(pkg.price||0))}</span>
+                          <span style={{ fontSize:"0.85rem", fontWeight:700, color:"#0f172a" }}>{formatMoney(Number(pkg.price||0))}</span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                           <span style={{ fontSize:"0.75rem", color:"#64748b", textTransform:"uppercase", fontWeight:700 }}>Validity</span>
-                          <span style={{ fontSize:"0.95rem", fontWeight:700, color:"#0f172a" }}>{pkg.validityDays} Days</span>
+                          <span style={{ fontSize:"0.85rem", fontWeight:700, color:"#0f172a" }}>{pkg.validityDays} Days</span>
                         </div>
                       </div>
-                      <div style={{ fontSize:"0.8rem", fontWeight:700, color:"#475569", marginBottom:8, textTransform:"uppercase" }}>Included Services</div>
+                      <div style={{ fontSize:"0.75rem", fontWeight:700, color:"#475569", marginBottom:4, textTransform:"uppercase" }}>Included Services</div>
                       <div style={{ display:"flex", flexDirection:"column", gap:6, flex: 1 }}>
                         {(pkg.services||[]).map((s,i) => (
-                          <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems: "center", fontSize:"0.85rem", color:"#334155", background: "#f8fafc", padding: "6px 10px", borderRadius: 6 }}>
+                          <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems: "center", fontSize:"0.85rem", color:"#334155", background: "#f8fafc", padding: "4px 8px", borderRadius: 6 }}>
                             <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "80%" }}>{s.service?.name}</span>
                             <span style={{ fontWeight:700, color: "#0f172a", background: "#e2e8f0", padding: "2px 8px", borderRadius: 12, fontSize: "0.75rem" }}>x{s.sessions||1}</span>
                           </div>
@@ -2684,10 +2684,10 @@ export default function PosPage() {
                 <div onClick={() => {
                   setPkgModalPkg({ id: "CUSTOM", name: "CUSTOM PACKAGE" });
                   setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" });
-                }} style={{ background: pkgModalPkg?.id==="CUSTOM"?"#eff6ff":"#f8fafc", border: pkgModalPkg?.id==="CUSTOM"?"2px solid #3b82f6":"1px dashed #cbd5e1", borderRadius:12, padding:20, cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:200, transition:"all 0.2s" }} onMouseEnter={e => { if(pkgModalPkg?.id!=="CUSTOM") e.currentTarget.style.borderColor="#94a3b8" }} onMouseLeave={e => { if(pkgModalPkg?.id!=="CUSTOM") e.currentTarget.style.borderColor="#cbd5e1" }}>
-                  <div style={{ width: 48, height: 48, borderRadius: "50%", background: pkgModalPkg?.id==="CUSTOM"?"#dbeafe":"#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, color: pkgModalPkg?.id==="CUSTOM"?"#2563eb":"#64748b", fontSize: "1.5rem" }}>+</div>
-                  <div style={{ fontSize:"1.05rem", fontWeight:800, color:pkgModalPkg?.id==="CUSTOM"?"#2563eb":"#475569", textTransform:"uppercase", letterSpacing:"0.5px" }}>Create Custom</div>
-                  <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 8, textAlign: "center" }}>Build a package from scratch</div>
+                }} style={{ background: pkgModalPkg?.id==="CUSTOM"?"#eff6ff":"#f8fafc", border: pkgModalPkg?.id==="CUSTOM"?"2px solid #3b82f6":"1px dashed #cbd5e1", borderRadius:12, padding:14, cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:160, transition:"all 0.2s" }} onMouseEnter={e => { if(pkgModalPkg?.id!=="CUSTOM") e.currentTarget.style.borderColor="#94a3b8" }} onMouseLeave={e => { if(pkgModalPkg?.id!=="CUSTOM") e.currentTarget.style.borderColor="#cbd5e1" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: pkgModalPkg?.id==="CUSTOM"?"#dbeafe":"#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10, color: pkgModalPkg?.id==="CUSTOM"?"#2563eb":"#64748b", fontSize: "1.2rem" }}>+</div>
+                  <div style={{ fontSize:"0.9rem", fontWeight:800, color:pkgModalPkg?.id==="CUSTOM"?"#2563eb":"#475569", textTransform:"uppercase", letterSpacing:"0.5px" }}>Create Custom</div>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 4, textAlign: "center" }}>Build a package from scratch</div>
                 </div>
               </div>
 
@@ -3041,9 +3041,7 @@ export default function PosPage() {
                       style={{
                         background: isSelected ? "#eff6ff" : "#ffffff",
                         border: isSelected ? "2px solid #2563eb" : "1px solid #e2e8f0",
-                        borderRadius: 16,
-                        padding: 20,
-                        cursor: "pointer",
+                        borderRadius: 12, padding: 14, cursor: "pointer",
                         transition: "all 0.2s",
                         display: "flex",
                         flexDirection: "column",
@@ -3051,10 +3049,10 @@ export default function PosPage() {
                         boxShadow: isSelected ? "0 4px 12px rgba(37, 99, 235, 0.1)" : "0 1px 3px rgba(0, 0, 0, 0.02)"
                       }}
                     >
-                      <div style={{ fontSize: "1.05rem", fontWeight: 800, color: isSelected ? "#1e40af" : "#0f172a", textTransform: "uppercase" }}>
+                      <div style={{ fontSize: "0.9rem", fontWeight: 800, color: isSelected ? "#1e40af" : "#0f172a", textTransform: "uppercase" }}>
                         {mem.name}
                       </div>
-                      <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500, lineHeight: "1.4" }}>
+                      <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, lineHeight: "1.3" }}>
                         {dealText}
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4, borderTop: "1px solid #f1f5f9", paddingTop: 8 }}>
