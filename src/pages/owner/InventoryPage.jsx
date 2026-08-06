@@ -687,7 +687,6 @@ export default function InventoryPage() {
 
             {/* Summary Cards Row */}
             <div className="inventory-summary-cards">
-            <div className="inventory-summary-cards">
               <div style={{ background: "white", borderRadius: 10, border: "1px solid #e2e8f0", padding: "16px", textAlign: "center" }}>
                 <h3 style={{ margin: "0 0 12px 0", fontSize: "0.85rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 700 }}>Inventory Summary</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -857,7 +856,7 @@ export default function InventoryPage() {
               </div>
 
               {/* Right Side: Status Tabs and New Button */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", flex: 1, paddingBottom: 4 }}>
                 {[
                   { label: "Placed", count: poCounts.Placed },
                   { label: "Approved", count: poCounts.Approved },
@@ -871,46 +870,24 @@ export default function InventoryPage() {
                   return (
                     <button
                       key={btn.label}
+                      className="po-status-btn"
                       onClick={() => setPoFilterStatus(btn.label)}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        padding: "8px 16px",
-                        borderRadius: 6,
                         border: isActive ? "none" : "1px solid #cbd5e1",
                         background: isActive ? "#3b82f6" : "white",
-                        color: isActive ? "white" : "#475569",
-                        fontWeight: 600,
-                        fontSize: "0.85rem",
-                        cursor: "pointer",
-                        transition: "all 0.2s"
+                        color: isActive ? "white" : "#475569"
                       }}
                     >
                       {btn.label.replace("_", " ")}
-                      <span style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "2px 6px",
-                        minWidth: 20,
-                        borderRadius: "10px",
+                      <span className="po-status-count" style={{
                         background: isActive ? "rgba(255,255,255,0.2)" : "#f1f5f9",
-                        color: isActive ? "white" : "#64748b",
-                        fontSize: "0.75rem",
-                        fontWeight: 700
+                        color: isActive ? "white" : "#64748b"
                       }}>
                         {btn.count}
                       </span>
                     </button>
                   );
                 })}
-
-                {/* New + button */}
-                <button
-                  onClick={() => navigate("/admin/purchases/orders/create")}
-                  style={{
-                    display: "flex",
                     alignItems: "center",
                     gap: 6,
                     padding: "8px 16px",
