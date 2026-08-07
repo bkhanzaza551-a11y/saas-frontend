@@ -31,6 +31,7 @@ body {
   color: var(--text-main);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 #root {
@@ -3388,6 +3389,10 @@ pre {
   display: flex;
   flex-direction: column;
   background: #f8fafc;
+}
+
+html, body {
+  overflow-x: hidden;
 }
 
 @media (max-width: 1024px) {
