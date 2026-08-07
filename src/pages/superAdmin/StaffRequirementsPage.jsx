@@ -3,7 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Clock, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle, ArrowRight, X, ExternalLink, Calendar, Users, Briefcase } from "lucide-react";
 
 const statusConfig = {
   OPEN: { label: "Open", color: "#f59e0b", bg: "#fef3c7", icon: Clock },
@@ -24,6 +24,7 @@ export default function SuperAdminStaffRequirementsPage() {
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [updatingId, setUpdatingId] = useState(null);
+  const [selectedReq, setSelectedReq] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -45,6 +46,9 @@ export default function SuperAdminStaffRequirementsPage() {
     try {
       await api.patch(`/super-admin/staff-requirements/${id}`, { status });
       load();
+      if (selectedReq && selectedReq.id === id) {
+        setSelectedReq({ ...selectedReq, status });
+      }
     } catch (err) {
       alert(formatApiError(err, "Failed to update status"));
     } finally {
@@ -125,23 +129,13 @@ export default function SuperAdminStaffRequirementsPage() {
                       Submitted: {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>
                   </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {req.status === "OPEN" && (
-                      <button disabled={updatingId === req.id} onClick={() => updateStatus(req.id, "IN_PROGRESS")} style={{
-                        padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer",
-                        background: "#3b82f6", color: "#fff", opacity: updatingId === req.id ? 0.6 : 1
-                      }}>
-                        <ArrowRight size={14} style={{ marginRight: 4, verticalAlign: "middle" }} />Start Processing
-                      </button>
-                    )}
-                    {req.status === "IN_PROGRESS" && (
-                      <button disabled={updatingId === req.id} onClick={() => updateStatus(req.id, "CLOSED")} style={{
-                        padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer",
-                        background: "#10b981", color: "#fff", opacity: updatingId === req.id ? 0.6 : 1
-                      }}>
-                        <CheckCircle size={14} style={{ marginRight: 4, verticalAlign: "middle" }} />Mark Closed
-                      </button>
-                    )}
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-start" }}>
+                    <button onClick={() => setSelectedReq(req)} style={{
+                      padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: "1px solid #cbd5e1", cursor: "pointer",
+                      background: "#fff", color: "#475569", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s"
+                    }}>
+                      <ExternalLink size={14} /> View Details
+                    </button>
                   </div>
                 </div>
               </div>
@@ -149,6 +143,114 @@ export default function SuperAdminStaffRequirementsPage() {
           })}
         </div>
       )}
+
+      {/* View Detail Modal */}
+      {selectedReq && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)" }} onClick={() => setSelectedReq(null)} />
+          <div style={{ background: "#fff", width: "100%", maxWidth: 650, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", position: "relative", zIndex: 1, display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
+            
+            {/* Modal Header */}
+            <div style={{ padding: "24px 32px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "#f8fafc", borderRadius: "16px 16px 0 0" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+                  <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>{selectedReq.title}</h2>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: statusConfig[selectedReq.status]?.color || "#475569", background: statusConfig[selectedReq.status]?.bg || "#f1f5f9" }}>
+                    {statusConfig[selectedReq.status] && React.createElement(statusConfig[selectedReq.status].icon, { size: 14 })}
+                    {statusConfig[selectedReq.status]?.label}
+                  </span>
+                  <span style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, color: urgencyColors[selectedReq.urgency] || "#64748b", background: "#f1f5f9", border: `1px solid ${urgencyColors[selectedReq.urgency] || "#cbd5e1"}` }}>
+                    {selectedReq.urgency}
+                  </span>
+                </div>
+                {selectedReq.salon && (
+                  <p style={{ margin: 0, fontSize: 14, color: "#64748b", display: "flex", alignItems: "center", gap: 6 }}>
+                    <Users size={14} /> Salon: <span style={{ fontWeight: 600, color: "#334155" }}>{selectedReq.salon.name}</span>
+                  </p>
+                )}
+              </div>
+              <button onClick={() => setSelectedReq(null)} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: 4, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: "24px 32px", overflowY: "auto", flex: 1 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
+                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
+                  <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Briefcase size={14} /> Job Details
+                  </h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Department:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.department || "N/A"}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Position:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.position || "N/A"}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Shift:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.shift || "N/A"}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Count:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.count || 1}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Salary Range:</span><span style={{ fontWeight: 600, color: "#10b981", fontSize: 13 }}>{selectedReq.salary || "N/A"}</span></div>
+                  </div>
+                </div>
+
+                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
+                  <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Calendar size={14} /> Timeline & Info
+                  </h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Submitted On:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{new Date(selectedReq.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Current Status:</span><span style={{ fontWeight: 600, color: statusConfig[selectedReq.status]?.color || "#0f172a", fontSize: 13 }}>{statusConfig[selectedReq.status]?.label}</span></div>
+                  </div>
+                </div>
+              </div>
+
+              {selectedReq.description && (
+                <div style={{ marginBottom: 24 }}>
+                  <h4 style={{ margin: "0 0 8px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700 }}>Description</h4>
+                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, fontSize: 14, color: "#334155", lineHeight: 1.6, border: "1px solid #f1f5f9" }}>
+                    {selectedReq.description}
+                  </div>
+                </div>
+              )}
+
+              {selectedReq.skills && (
+                <div>
+                  <h4 style={{ margin: "0 0 8px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700 }}>Required Skills</h4>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {selectedReq.skills.split(",").map((skill, i) => (
+                      <span key={i} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1px solid #e2e8f0" }}>
+                        {skill.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer (Action Area) */}
+            <div style={{ padding: "20px 32px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", borderRadius: "0 0 16px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500, marginRight: 12 }}>Change Status:</span>
+                <select 
+                  value={selectedReq.status} 
+                  onChange={(e) => updateStatus(selectedReq.id, e.target.value)}
+                  disabled={updatingId === selectedReq.id}
+                  style={{ 
+                    padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, fontWeight: 600, outline: "none", 
+                    color: "#0f172a", background: "#fff", minWidth: 140, cursor: "pointer"
+                  }}
+                >
+                  <option value="OPEN">Open</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="CLOSED">Closed</option>
+                </select>
+                {updatingId === selectedReq.id && <span style={{ marginLeft: 12, fontSize: 12, color: "#3b82f6", fontWeight: 600 }}>Updating...</span>}
+              </div>
+              <button onClick={() => setSelectedReq(null)} style={{ padding: "10px 24px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
