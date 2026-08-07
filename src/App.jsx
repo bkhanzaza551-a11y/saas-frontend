@@ -49,7 +49,6 @@ const AttendanceManagementPage = lazyWithRetry(() => import("./pages/owner/Atten
 const PublicDemoLeadPage = lazyWithRetry(() => import("./pages/public/DemoLeadPage.jsx"));
 const DemoCheckoutPage = lazyWithRetry(() => import("./pages/public/DemoCheckoutPage.jsx"));
 const MarketingHomePage = lazyWithRetry(() => import("./pages/public/MarketingHomePage.jsx"));
-const ContactUsPage = lazyWithRetry(() => import("./pages/public/ContactUsPage.jsx"));
 
 const SuperAdminDashboard = lazyWithRetry(() => import("./pages/superAdmin/Dashboard.jsx"));
 const SuperAdminSalonsPage = lazyWithRetry(() => import("./pages/superAdmin/SalonsPage.jsx"));
@@ -496,7 +495,7 @@ export default function App() {
         <Route path="/terms-and-conditions" element={<LegalContentPage scope="global" title="Terms & Conditions" contentKey="termsAndConditions" />} />
         <Route path="/privacy" element={<PublicPrivacyPolicyPage />} />
         <Route path="/privacy-policy" element={<PublicPrivacyPolicyPage />} />
-        <Route path="/contact" element={<ContactUsPage />} />
+        <Route path="/contact" element={<MarketingHomePage />} />
 
         <Route path="/" element={<MarketingHomePage />} />
         <Route path="/features" element={<MarketingHomePage />} />

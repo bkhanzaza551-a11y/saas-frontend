@@ -3,10 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
 import {
+import { Link, useLocation } from "react-router-dom";
+import { api } from "../../api/client";
+import PublicMobileMenu from "../../components/PublicMobileMenu";
+import {
   LayoutDashboard, Calendar, Users, CreditCard, BarChart3, Package, Settings, Shield,
   Store, ShoppingCart, FileText, UserCheck, Gift, MessageSquare, Megaphone, Star,
   Clock, MapPin, Bell, HeadphonesIcon, Globe, Repeat, Wallet, TrendingUp,
-  ClipboardList, Tags, PieChart, Truck, Check
+  ClipboardList, Tags, PieChart, Truck, Check, Mail, Phone, Briefcase
 } from "lucide-react";
 
 const navLinks = [
@@ -14,7 +18,7 @@ const navLinks = [
   { label: "Features", to: "/features" },
   { label: "Pricing", to: "/pricing" },
   { label: "Platform", to: "/platform" },
-  { label: "Request Demo", to: "/book-demo" }
+  { label: "Contact", to: "/contact" }
 ];
 
 const salonImages = {
@@ -191,9 +195,10 @@ export default function MarketingHomePage() {
   const isFeatures = location.pathname === "/features";
   const isPricing = location.pathname === "/pricing";
   const isPlatform = location.pathname === "/platform";
+  const isContact = location.pathname === "/contact";
 
   useEffect(() => {
-    const titles = { "/": "Salon Nest - Salon ERP Platform", "/features": "Features | Salon Nest", "/pricing": "Pricing | Salon Nest", "/platform": "Platform | Salon Nest" };
+    const titles = { "/": "Salon Nest - Salon ERP Platform", "/features": "Features | Salon Nest", "/pricing": "Pricing | Salon Nest", "/platform": "Platform | Salon Nest", "/contact": "Contact Us | Salon Nest" };
     document.title = titles[location.pathname] || "Salon Nest";
   }, [location.pathname]);
 
@@ -552,6 +557,68 @@ export default function MarketingHomePage() {
             </div>
           </div>
         </section>
+        {/* ============ CONTACT US PAGE ============ */}
+        {isContact && (
+          <section style={{ padding: "80px 24px", background: "#f8fafc", minHeight: "calc(100vh - 72px - 300px)" }}>
+            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+              <div style={{ textAlign: "center", marginBottom: 48 }}>
+                <h1 style={{ fontSize: "3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 16px", letterSpacing: "-1px" }}>Get in Touch</h1>
+                <p style={{ fontSize: "1.15rem", color: "#64748b", margin: 0 }}>We're here to help you scale your salon business.</p>
+              </div>
+
+              <div style={{ background: "#fff", borderRadius: 24, padding: "48px", border: "1px solid #e2e8f0", boxShadow: "0 20px 40px -15px rgba(0,0,0,0.05)" }}>
+                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a", margin: "0 0 32px", display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#f0fdfa", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d9488" }}>
+                    <Briefcase size={20} />
+                  </div>
+                  Company Details
+                </h2>
+                
+                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                      <MapPin size={24} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Head Office</div>
+                      <div style={{ fontSize: 16, color: "#334155", lineHeight: 1.6, fontWeight: 500 }}>
+                        <strong style={{ color: "#0f172a" }}>PROPCORP ADVERTISING (OPC) PRIVATE LIMITED</strong><br/>
+                        PLOT NO G-49 MADHURA NAGAR,<br/>
+                        HYDERABAD, Telangana,<br/>
+                        India - 500003
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                      <Phone size={24} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Direct Line</div>
+                      <div style={{ fontSize: 18, fontWeight: 600 }}>
+                        <a href="tel:9493952587" style={{ color: "#0f172a", textDecoration: "none" }}>9493952587</a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                      <Mail size={24} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Email Support</div>
+                      <div style={{ fontSize: 18, fontWeight: 600 }}>
+                        <a href="mailto:govardhan@salonnest.in" style={{ color: "#0d9488", textDecoration: "none" }}>govardhan@salonnest.in</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
       </main>
 
       {/* FOOTER */}
