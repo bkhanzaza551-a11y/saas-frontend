@@ -265,7 +265,7 @@ const Protected = () => {
 
   const superAdminGroups = [
     {
-      label: "Platform Command",
+      label: "Platform",
       hint: "SaaS control deck",
       items: [
         { label: "Dashboard", to: "/super-admin/dashboard" },

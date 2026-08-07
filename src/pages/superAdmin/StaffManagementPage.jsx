@@ -13,7 +13,7 @@ const emptyForm = {
 };
 
 const PAGE_GROUP_LABELS = {
-  "Platform Command": ["dashboard", "salons", "branches", "plans", "subscriptions"],
+  "Platform": ["dashboard", "salons", "branches", "plans", "subscriptions"],
   "Operations": ["demo-leads", "support-tickets", "traffic", "global-dashboard", "financial-reports", "staff-requirements", "product-requirements", "salon-analytics"],
   "System": ["settings", "audit-logs", "staff"]
 };
