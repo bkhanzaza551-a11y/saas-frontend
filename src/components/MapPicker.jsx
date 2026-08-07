@@ -6,6 +6,10 @@ import "./MapPicker.css";
 
 const DEFAULT_CENTER = [77.209, 28.6139];
 const DEFAULT_ZOOM = 11;
+const INDIA_BOUNDS = { minLat: 6.5, maxLat: 37.5, minLng: 68.0, maxLng: 97.5 };
+const isInsideIndia = (lat, lng) =>
+  lat >= INDIA_BOUNDS.minLat && lat <= INDIA_BOUNDS.maxLat &&
+  lng >= INDIA_BOUNDS.minLng && lng <= INDIA_BOUNDS.maxLng;
 const OPENFREE_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 const NOMINATIM_BASE_URL = import.meta.env.VITE_NOMINATIM_BASE_URL || "https://nominatim.openstreetmap.org";
 const PHOTON_BASE_URL = import.meta.env.VITE_PHOTON_BASE_URL || "https://photon.komoot.io";
@@ -253,6 +257,10 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
   const [selectedCoordinates, setSelectedCoordinates] = useState(initialCoordinates);
   const [selectedAddress, setSelectedAddress] = useState(initialCoordinates ? address?.trim() || "" : "");
   const [confirmed, setConfirmed] = useState(Boolean(initialCoordinates));
+  const [countryWarning, setCountryWarning] = useState(() => {
+    if (!initialCoordinates) return "";
+    return isInsideIndia(initialCoordinates.lat, initialCoordinates.lng) ? "" : "This location appears to be outside India. Please verify the coordinates are correct.";
+  });
 
   const cancelAutocomplete = useCallback(() => {
     autocompleteRequestIdRef.current += 1;
@@ -300,6 +308,12 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
     setSearchResults([]);
     cancelAutocomplete();
     placeMarker(nextCoordinates.lat, nextCoordinates.lng);
+
+    if (isInsideIndia(nextCoordinates.lat, nextCoordinates.lng)) {
+      setCountryWarning("");
+    } else {
+      setCountryWarning("This location appears to be outside India. Please verify the coordinates are correct. Incorrect coordinates will cause attendance distance errors.");
+    }
 
     if (moveMap && mapRef.current) {
       mapRef.current.easeTo({
@@ -513,6 +527,15 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
   const confirmLocation = () => {
     if (!selectedCoordinates || reverseGeocoding) return;
 
+    if (countryWarning) {
+      const confirmedAnyway = window.confirm(
+        "WARNING: This location appears to be outside India.\n\n" +
+        "Saving incorrect coordinates will cause staff attendance geofencing to fail with 1000+ km distance errors.\n\n" +
+        "Are you sure you want to confirm this location?"
+      );
+      if (!confirmedAnyway) return;
+    }
+
     onChange?.({
       latitude: selectedCoordinates.lat.toFixed(6),
       longitude: selectedCoordinates.lng.toFixed(6)
@@ -555,6 +578,12 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
           {locating ? "Locating" : "Current location"}
         </button>
       </form>
+
+      {countryWarning && (
+        <div className="map-picker__feedback map-picker__feedback--warning" role="alert" style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fbbf24" }}>
+          ⚠️ {countryWarning}
+        </div>
+      )}
 
       {feedback && (
         <div className={`map-picker__feedback map-picker__feedback--${feedback.type}`} role="status">
