@@ -43,6 +43,13 @@ export default function PublicDemoLeadPage() {
   const submit = async (e) => {
     e.preventDefault();
     setState({ error: "", success: "" });
+
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 8) {
+      setState({ error: "Please enter a valid phone number.", success: "" });
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.post("/public/demo-leads", form);
@@ -139,30 +146,28 @@ export default function PublicDemoLeadPage() {
                   <button onClick={() => setState({ error: "", success: "" })} style={{ padding: "12px 28px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer", color: "#334155" }}>Submit Another Request</button>
                 </div>
               ) : (
-                <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
                     <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Your Name *</label>
-                      <input value={form.name} placeholder="Full name" required onChange={e => setForm({ ...form, name: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 14, outline: "none", transition: "border 0.2s" }} onFocus={e => e.target.style.borderColor = "#0d9488"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} />
+                      <label className="demo-label">Your Name *</label>
+                      <input className="demo-input" value={form.name} placeholder="Full name" required onChange={e => setForm({ ...form, name: e.target.value })} />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Work Email *</label>
-                      <input value={form.email} type="email" placeholder="name@company.com" required onChange={e => setForm({ ...form, email: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 14, outline: "none", transition: "border 0.2s" }} onFocus={e => e.target.style.borderColor = "#0d9488"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} />
-                    </div>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Phone Number *</label>
-                      <input value={form.phone} placeholder="+91 99999 99999" required onChange={e => setForm({ ...form, phone: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 14, outline: "none", transition: "border 0.2s" }} onFocus={e => e.target.style.borderColor = "#0d9488"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} />
+                      <label className="demo-label">Work Email *</label>
+                      <input className="demo-input" value={form.email} type="email" placeholder="name@company.com" required onChange={e => setForm({ ...form, email: e.target.value })} />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Salon Name *</label>
-                      <input value={form.company} placeholder="Salon / Studio name" required onChange={e => setForm({ ...form, company: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 14, outline: "none", transition: "border 0.2s" }} onFocus={e => e.target.style.borderColor = "#0d9488"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} />
+                      <label className="demo-label">Phone Number *</label>
+                      <input className="demo-input" value={form.phone} type="tel" placeholder="+91 99999 99999" required onChange={e => setForm({ ...form, phone: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="demo-label">Salon Name *</label>
+                      <input className="demo-input" value={form.company} placeholder="Salon / Studio name" required onChange={e => setForm({ ...form, company: e.target.value })} />
                     </div>
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>How can we help? (Optional)</label>
-                    <textarea rows={4} value={form.message} placeholder="Tell us about your branch count, team size, or what you want to see." onChange={e => setForm({ ...form, message: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 14, outline: "none", resize: "none", transition: "border 0.2s" }} onFocus={e => e.target.style.borderColor = "#0d9488"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} />
+                    <label className="demo-label">How can we help? (Optional)</label>
+                    <textarea className="demo-input" rows={4} value={form.message} placeholder="Tell us about your branch count, team size, or what you want to see." onChange={e => setForm({ ...form, message: e.target.value })} style={{ resize: "vertical" }} />
                   </div>
 
                   {state.error && <p style={{ color: "#ef4444", fontSize: 13, margin: 0 }}>{state.error}</p>}
