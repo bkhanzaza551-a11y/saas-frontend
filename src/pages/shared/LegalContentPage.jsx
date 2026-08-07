@@ -11,7 +11,7 @@ export default function LegalContentPage({ scope = "global", title, contentKey }
     const load = async () => {
       try {
         let content = "";
-        let businessName = "Skillify";
+        let businessName = "Salon Nest";
         let supportEmail = "";
 
         if (scope === "salon" && slug) {
@@ -19,14 +19,14 @@ export default function LegalContentPage({ scope = "global", title, contentKey }
           const response = await api.get(`/public/salon/${slug}`);
           const legalContent = response.data?.legalContent || {};
           content = legalContent[contentKey] || "";
-          businessName = response.data?.salon?.name || "Skillify";
+          businessName = response.data?.salon?.name || "Salon Nest";
           supportEmail = response.data?.salon?.email || "";
         } else {
           // Global legal content from salon settings
           const response = await api.get(`/public/legal${slug ? `?slug=${slug}` : ""}`);
           const data = response.data || {};
           content = data[contentKey] || "";
-          businessName = data.businessName || "Skillify";
+          businessName = data.businessName || "Salon Nest";
           supportEmail = data.supportEmail || "";
         }
 

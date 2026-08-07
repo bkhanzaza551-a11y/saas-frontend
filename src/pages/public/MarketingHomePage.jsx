@@ -622,8 +622,8 @@ export default function MarketingHomePage() {
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #0d9488, #14b8a6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>R</div>
-              <span style={{ fontWeight: 700, color: "#0f172a" }}>{settings?.systemName || "Salon Nest"}</span>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #0d9488, #14b8a6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>S</div>
+              <span style={{ fontWeight: 700, color: "#0f172a" }}>Salon Nest</span>
             </div>
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
               <Link to="/features" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Features</Link>

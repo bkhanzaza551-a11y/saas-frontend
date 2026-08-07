@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { createPortal } from "react-dom";
 
 export default function PublicMobileMenu({
-  brand = { label: "Skillify", sublabel: "Salon ERP Platform", logo: "/logo-salonnest.svg", to: "/" },
+  brand = { label: "Salon Nest", sublabel: "Salon ERP Platform", logo: "/logo.jfif", to: "/" },
   items = [],
   cta = null
 }) {
