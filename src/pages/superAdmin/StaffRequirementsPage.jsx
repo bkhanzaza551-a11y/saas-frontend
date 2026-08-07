@@ -118,12 +118,12 @@ export default function SuperAdminStaffRequirementsPage() {
                     )}
                     {req.description && <p style={{ fontSize: 14, color: "#475569", margin: "8px 0" }}>{req.description}</p>}
                     <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginTop: 8 }}>
-                      {req.department && <span>Dept: <b style={{ color: "#334155" }}>{req.department}</b></span>}
-                      {req.position && <span>Position: <b style={{ color: "#334155" }}>{req.position}</b></span>}
-                      {req.salary && <span>Salary: <b style={{ color: "#334155" }}>{req.salary}</b></span>}
-                      {req.shift && <span>Shift: <b style={{ color: "#334155" }}>{req.shift}</b></span>}
-                      {req.count > 1 && <span>Count: <b style={{ color: "#334155" }}>{req.count}</b></span>}
-                      {req.skills && <span>Skills: <b style={{ color: "#334155" }}>{req.skills}</b></span>}
+                      <span>Dept: <b style={{ color: "#334155" }}>{req.department || "N/A"}</b></span>
+                      <span>Position: <b style={{ color: "#334155" }}>{req.position || "N/A"}</b></span>
+                      <span>Salary: <b style={{ color: "#334155" }}>{req.salary || "N/A"}</b></span>
+                      <span>Shift: <b style={{ color: "#334155" }}>{req.shift || "N/A"}</b></span>
+                      <span>Count: <b style={{ color: "#334155" }}>{req.count || 1}</b></span>
+                      <span>Skills: <b style={{ color: "#334155" }}>{req.skills || "N/A"}</b></span>
                     </div>
                     <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>
                       Submitted: {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
@@ -155,10 +155,15 @@ export default function SuperAdminStaffRequirementsPage() {
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
                   <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>{selectedReq.title}</h2>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: statusConfig[selectedReq.status]?.color || "#475569", background: statusConfig[selectedReq.status]?.bg || "#f1f5f9" }}>
-                    {statusConfig[selectedReq.status] && React.createElement(statusConfig[selectedReq.status].icon, { size: 14 })}
-                    {statusConfig[selectedReq.status]?.label}
-                  </span>
+                  {(() => {
+                    const status = statusConfig[selectedReq.status] || statusConfig.OPEN;
+                    const StatusIcon = status.icon;
+                    return (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: status.color, background: status.bg }}>
+                        <StatusIcon size={14} /> {status.label}
+                      </span>
+                    );
+                  })()}
                   <span style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, color: urgencyColors[selectedReq.urgency] || "#64748b", background: "#f1f5f9", border: `1px solid ${urgencyColors[selectedReq.urgency] || "#cbd5e1"}` }}>
                     {selectedReq.urgency}
                   </span>
@@ -225,23 +230,40 @@ export default function SuperAdminStaffRequirementsPage() {
             </div>
 
             {/* Modal Footer (Action Area) */}
-            <div style={{ padding: "20px 32px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", borderRadius: "0 0 16px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500, marginRight: 12 }}>Change Status:</span>
-                <select 
-                  value={selectedReq.status} 
-                  onChange={(e) => updateStatus(selectedReq.id, e.target.value)}
-                  disabled={updatingId === selectedReq.id}
-                  style={{ 
-                    padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, fontWeight: 600, outline: "none", 
-                    color: "#0f172a", background: "#fff", minWidth: 140, cursor: "pointer"
-                  }}
-                >
-                  <option value="OPEN">Open</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="CLOSED">Closed</option>
-                </select>
-                {updatingId === selectedReq.id && <span style={{ marginLeft: 12, fontSize: 12, color: "#3b82f6", fontWeight: 600 }}>Updating...</span>}
+            <div style={{ padding: "20px 32px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", borderRadius: "0 0 16px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Update Status:</span>
+                <div style={{ display: "flex", background: "#e2e8f0", borderRadius: 8, padding: 4 }}>
+                  {[
+                    { val: "OPEN", label: "Open" },
+                    { val: "IN_PROGRESS", label: "In Progress" },
+                    { val: "CLOSED", label: "Closed" }
+                  ].map(st => {
+                    const isActive = selectedReq.status === st.val;
+                    return (
+                      <button
+                        key={st.val}
+                        disabled={updatingId === selectedReq.id}
+                        onClick={() => updateStatus(selectedReq.id, st.val)}
+                        style={{
+                          padding: "6px 12px",
+                          border: "none",
+                          borderRadius: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          background: isActive ? "#fff" : "transparent",
+                          color: isActive ? "#0f172a" : "#64748b",
+                          boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {st.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {updatingId === selectedReq.id && <span style={{ fontSize: 12, color: "#3b82f6", fontWeight: 600 }}>Saving...</span>}
               </div>
               <button onClick={() => setSelectedReq(null)} style={{ padding: "10px 24px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
                 Close
