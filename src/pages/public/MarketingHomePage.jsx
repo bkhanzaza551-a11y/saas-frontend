@@ -3,10 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
 import {
-import { Link, useLocation } from "react-router-dom";
-import { api } from "../../api/client";
-import PublicMobileMenu from "../../components/PublicMobileMenu";
-import {
   LayoutDashboard, Calendar, Users, CreditCard, BarChart3, Package, Settings, Shield,
   Store, ShoppingCart, FileText, UserCheck, Gift, MessageSquare, Megaphone, Star,
   Clock, MapPin, Bell, HeadphonesIcon, Globe, Repeat, Wallet, TrendingUp,
