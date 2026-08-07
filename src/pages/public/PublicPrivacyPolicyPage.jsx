@@ -226,16 +226,34 @@ export default function PublicPrivacyPolicyPage() {
       </div>
 
       {/* Footer */}
+      {/* Footer */}
       <footer style={{ padding: "40px 24px", background: "#fff", borderTop: "1px solid #e2e8f0" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/logo.jfif" alt="Salon Nest" style={{ height: 32 }} />
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #0d9488, #14b8a6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>R</div>
+              <span style={{ fontWeight: 700, color: "#0f172a" }}>Salon Nest</span>
+            </div>
+            <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+              <Link to="/features" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Features</Link>
+              <Link to="/pricing" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Pricing</Link>
+              <Link to="/platform" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Platform</Link>
+              <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Terms</Link>
+              <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
+              <Link to="/contact" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Contact Us</Link>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-            <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Terms</Link>
-            <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
+          
+          <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
+              <strong style={{ color: "#0f172a" }}>PROPCORP ADVERTISING (OPC) PRIVATE LIMITED</strong><br/>
+              PLOT NO G-49 MADHURA NAGAR , HYDERABAD, Telangana, India - 500003<br/>
+              Ph: 9493952587 | Email: <a href="mailto:govardhan@salonnest.in" style={{color: "#3b82f6", textDecoration: "none"}}>govardhan@salonnest.in</a>
+            </div>
+            <div style={{ fontSize: 13, color: "#94a3b8" }}>
+              © {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.
+            </div>
           </div>
-          <div style={{ fontSize: 13, color: "#94a3b8" }}>© {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.</div>
         </div>
       </footer>
     </div>

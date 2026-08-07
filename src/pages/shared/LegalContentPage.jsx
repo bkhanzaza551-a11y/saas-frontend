@@ -110,18 +110,31 @@ export default function LegalContentPage({ scope = "global", title, contentKey }
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
-          {state.supportEmail && (
-            <p style={{ margin: "0 0 8px" }}>
-              Questions? Contact us at{" "}
-              <a href={`mailto:${state.supportEmail}`} style={{ color: "#3b82f6", textDecoration: "none", fontWeight: 600 }}>
-                {state.supportEmail}
-              </a>
-            </p>
+        <div style={{ textAlign: "center", color: "#94a3b8", fontSize: 13, lineHeight: 1.6 }}>
+          {scope === "global" ? (
+            <>
+              <strong style={{ color: "#64748b" }}>PROPCORP ADVERTISING (OPC) PRIVATE LIMITED</strong><br/>
+              PLOT NO G-49 MADHURA NAGAR , HYDERABAD, Telangana, India - 500003<br/>
+              Ph: 9493952587 | Email: <a href="mailto:govardhan@salonnest.in" style={{color: "#3b82f6", textDecoration: "none"}}>govardhan@salonnest.in</a>
+              <p style={{ margin: "16px 0 0 0" }}>
+                © {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.
+              </p>
+            </>
+          ) : (
+            <>
+              {state.supportEmail && (
+                <p style={{ margin: "0 0 8px" }}>
+                  Questions? Contact us at{" "}
+                  <a href={`mailto:${state.supportEmail}`} style={{ color: "#3b82f6", textDecoration: "none", fontWeight: 600 }}>
+                    {state.supportEmail}
+                  </a>
+                </p>
+              )}
+              <p style={{ margin: 0 }}>
+                © {new Date().getFullYear()} {state.businessName}. All rights reserved.
+              </p>
+            </>
           )}
-          <p style={{ margin: 0 }}>
-            © {new Date().getFullYear()} {state.businessName}. All rights reserved.
-          </p>
         </div>
       </div>
 
