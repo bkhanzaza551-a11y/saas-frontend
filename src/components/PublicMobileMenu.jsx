@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 
 export default function PublicMobileMenu({
   brand = { label: "Skillify", sublabel: "Salon ERP Platform", logo: "/logo-salonnest.svg", to: "/" },
@@ -38,9 +39,11 @@ export default function PublicMobileMenu({
         </button>
       </div>
 
-      <div className={`surface-overlay ${open ? "active" : ""}`} onClick={() => setOpen(false)} aria-hidden={!open} />
+      {createPortal(
+        <>
+          <div className={`surface-overlay ${open ? "active" : ""}`} onClick={() => setOpen(false)} aria-hidden={!open} />
 
-      <aside className={`surface-drawer public-surface-drawer ${open ? "active" : ""}`} aria-hidden={!open}>
+          <aside className={`surface-drawer public-surface-drawer ${open ? "active" : ""}`} aria-hidden={!open}>
         <div className="surface-drawer-header">
           <Link to={brand.to || "/"} className="brand-mark" onClick={() => setOpen(false)}>
             <img src={brand.logo} alt={brand.label} className="brand-logo" />
@@ -74,6 +77,9 @@ export default function PublicMobileMenu({
           </div>
         ) : null}
       </aside>
+    </>,
+    document.body
+  )}
     </>
   );
 }
