@@ -193,24 +193,24 @@ export default function WhatsAppCreditsPage() {
                               borderRadius: 4, 
                               fontSize: "0.75rem", 
                               fontWeight: "600",
-                              background: txn.type === "PURCHASE" ? "#dcfce7" : (txn.type === "USAGE" ? "#fef9c3" : "#f1f5f9"),
-                              color: txn.type === "PURCHASE" ? "#166534" : (txn.type === "USAGE" ? "#854d0e" : "#334155")
+                              background: txn.packageName === "MANUAL_ADD" ? "#dcfce7" : (txn.packageName === "USAGE" ? "#fef9c3" : "#f1f5f9"),
+                              color: txn.packageName === "MANUAL_ADD" ? "#166534" : (txn.packageName === "USAGE" ? "#854d0e" : "#334155")
                             }}>
-                              {txn.type}
+                              {txn.packageName}
                             </span>
                           </td>
-                          <td style={{ fontWeight: "600", color: txn.type === "USAGE" ? "#ef4444" : "#10b981" }}>
-                            {txn.type === "USAGE" ? "-" : "+"}{txn.amount}
+                          <td style={{ fontWeight: "600", color: txn.packageName === "USAGE" ? "#ef4444" : "#10b981" }}>
+                            {txn.packageName === "USAGE" ? "-" : "+"}{txn.credits}
                           </td>
-                          <td>{txn.currency} {txn.price}</td>
+                          <td>₹ {txn.amountPaidPaise ? (txn.amountPaidPaise / 100).toFixed(2) : "0.00"}</td>
                           <td>
                             <span style={{ 
                               padding: "4px 8px", 
                               borderRadius: 4, 
                               fontSize: "0.75rem", 
                               fontWeight: "600",
-                              background: txn.status === "SUCCESS" ? "#dcfce7" : (txn.status === "FAILED" ? "#fee2e2" : "#fef3c7"),
-                              color: txn.status === "SUCCESS" ? "#166534" : (txn.status === "FAILED" ? "#991b1b" : "#92400e")
+                              background: txn.status === "COMPLETED" ? "#dcfce7" : (txn.status === "FAILED" ? "#fee2e2" : "#fef3c7"),
+                              color: txn.status === "COMPLETED" ? "#166534" : (txn.status === "FAILED" ? "#991b1b" : "#92400e")
                             }}>
                               {txn.status}
                             </span>
