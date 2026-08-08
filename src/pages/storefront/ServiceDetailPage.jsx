@@ -274,6 +274,7 @@ export default function ServiceDetailPage() {
                              cursor: booked ? "not-allowed" : "pointer",
                              fontWeight: 500,
                              fontSize: "0.9rem",
+                             borderRadius: "8px",
                              transition: "var(--transition)"
                            }}
                          >

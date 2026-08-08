@@ -95,26 +95,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Roller */}
-      <section className="sf-marquee-container">
-        <div className="sf-marquee-track">
-          {[1, 2].map(cycle => (
-            <span key={cycle}>
-              {[
-                { text: "Absolutely phenomenal service. The attention to detail is unmatched. I left feeling completely revitalized.", author: "Sarah Jenkins" },
-                { text: "A truly premium experience from start to finish. The ambiance and expert stylists make this my go-to salon.", author: "Michael Chang" },
-                { text: "I've never felt more pampered. The products they use are top-tier and the results speak for themselves.", author: "Elena Rodriguez" },
-                { text: "Sophisticated, clean, and highly professional. Best haircut and styling I've had in years.", author: "David Smith" }
-              ].map((testimonial, i) => (
-                <div key={`${cycle}-${i}`} className="sf-testimonial-card">
-                  <div className="sf-testimonial-text">"{testimonial.text}"</div>
-                  <div className="sf-testimonial-author">— {testimonial.author}</div>
-                </div>
-              ))}
-            </span>
-          ))}
-        </div>
-      </section>
+
 
       {/* Featured Services */}
       <section className="sf-section">
@@ -153,6 +134,49 @@ export default function HomePage() {
             </div>
           </>
         )}
+      </section>
+
+      {/* Testimonials Roller */}
+      <section className="sf-marquee-container" style={{ padding: '60px 0' }}>
+        <div className="sf-section-title" style={{ marginBottom: 40 }}>
+          <h2>What Our Clients Say</h2>
+        </div>
+        <div className="sf-marquee-track">
+          {[1, 2].map(cycle => (
+            <span key={cycle}>
+              {[
+                { text: "Absolutely phenomenal service. The attention to detail is unmatched. ✨", author: "Sarah Jenkins", dp: "SJ" },
+                { text: "A truly premium experience from start to finish. Highly recommend! 🌟", author: "Michael Chang", dp: "MC" },
+                { text: "I've never felt more pampered. Best salon I've ever visited! 💖", author: "Elena Rodriguez", dp: "ER" },
+                { text: "Sophisticated, clean, and highly professional. Best styling in years. 💇‍♀️", author: "David Smith", dp: "DS" },
+                { text: "Their facial treatments are absolutely divine. My skin is glowing! 🧖‍♀️", author: "Jessica Lee", dp: "JL" },
+                { text: "Incredible staff and such a relaxing atmosphere. A perfect 10/10. 🏆", author: "Robert Wilson", dp: "RW" },
+                { text: "I always leave feeling like a million bucks. They never disappoint! 💅", author: "Amanda Brown", dp: "AB" },
+                { text: "The premium products they use make such a huge difference. Love it! 💫", author: "Christopher Davis", dp: "CD" },
+                { text: "Professional, punctual, and extremely talented stylists. ✂️", author: "Olivia Miller", dp: "OM" },
+                { text: "My go-to place for self-care. The ambiance is just perfect. 🧘‍♀️", author: "William Taylor", dp: "WT" },
+                { text: "They completely transformed my look. I've gotten so many compliments! 😍", author: "Sophia Anderson", dp: "SA" },
+                { text: "Every visit is a luxurious escape from reality. Highly recommended. 👑", author: "Daniel Thomas", dp: "DT" },
+                { text: "The attention to detail here is second to none. Amazing service. 💯", author: "Isabella Martinez", dp: "IM" },
+                { text: "Top-notch facilities and incredibly skilled professionals. 🌟", author: "James Jackson", dp: "JJ" },
+                { text: "I wouldn't trust anyone else with my hair. Simply the best. ❤️", author: "Mia White", dp: "MW" }
+              ].map((t, i) => (
+                <div key={`${cycle}-${i}`} className="sf-testimonial-card" style={{ display: 'inline-flex', flexDirection: 'column', padding: '32px', borderRadius: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: '1.2rem', flexShrink: 0 }}>
+                      {t.dp}
+                    </div>
+                    <div>
+                      <div className="sf-testimonial-author" style={{ margin: 0 }}>{t.author}</div>
+                      <div style={{ color: '#fbbf24', fontSize: '1rem', marginTop: 4 }}>★★★★★</div>
+                    </div>
+                  </div>
+                  <div className="sf-testimonial-text" style={{ margin: 0, fontStyle: 'normal', color: 'var(--text-muted)' }}>"{t.text}"</div>
+                </div>
+              ))}
+            </span>
+          ))}
+        </div>
       </section>
 
       {/* Contact Section */}
