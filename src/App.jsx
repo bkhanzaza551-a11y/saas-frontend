@@ -187,11 +187,6 @@ const Protected = () => {
             { label: "View Live Site", to: `/site/${auth?.membership?.salon?.slug || "demo-salon"}` }
           ].filter(Boolean)
         },
-          {
-            label: "Support",
-            to: "/admin/support-tickets",
-            hint: "Tickets & assistance"
-          },
         {
           label: "System",
           hint: "Help and config",
@@ -207,6 +202,11 @@ const Protected = () => {
           label: "Manage",
           to: "/admin/manage",
           hint: "Salon lifecycle hub"
+        },
+        {
+          label: "Support",
+          to: "/admin/support-tickets",
+          hint: "Tickets & assistance"
         }
       ].filter((group) => group.to || (Array.isArray(group?.items) && group.items.length > 0));
 
