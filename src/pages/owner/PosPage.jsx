@@ -2913,7 +2913,7 @@ export default function PosPage() {
 
                 {/* Remark */}
                 <div style={{ marginTop:16 }}>
-                  <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Poppinsnal Remark <span style={{ fontWeight: 400, color: "#94a3b8" }}>(Optional)</span></label>
+                  <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Internal Remark <span style={{ fontWeight: 400, color: "#94a3b8" }}>(Optional)</span></label>
                   <textarea placeholder="Add any notes about this package purchase..." value={pkgDraft.remark} onChange={e=>setPkgDraft(d=>({...d,remark:e.target.value}))} rows={2} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", resize:"vertical", outline: "none", transition: "border-color 0.2s", fontFamily: "inherit" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                 </div>
 

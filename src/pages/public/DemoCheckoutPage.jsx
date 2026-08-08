@@ -168,7 +168,7 @@ export default function DemoCheckoutPage() {
       rzp.on("payment.failed", function (response) {
         setSubmitting(false);
         const desc = response?.error?.description || "";
-        if (desc.includes("Poppinsnational")) {
+        if (desc.includes("International")) {
           setError("This card is not supported. Please use a UPI ID, Netbanking, or an Indian debit/credit card.");
         } else if (desc) {
           setError(`Payment failed: ${desc}. Please try another payment method.`);

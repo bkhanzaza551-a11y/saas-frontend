@@ -50,9 +50,9 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
     };
 
     fetchNotifications();
-    const notifPoppinsval = setPoppinsval(fetchNotifications, 120000); // 2 minutes
+    const notifInterval = setInterval(fetchNotifications, 120000); // 2 minutes
 
-    return () => { active = false; clearPoppinsval(notifPoppinsval); };
+    return () => { active = false; clearInterval(notifInterval); };
   }, [canNotifications, canPos, auth?.user?.systemRole]);
 
   useEffect(() => {

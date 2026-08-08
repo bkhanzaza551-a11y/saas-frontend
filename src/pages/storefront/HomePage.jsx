@@ -61,7 +61,7 @@ export default function HomePage() {
       <section className="sf-section" style={{ background: 'var(--surface)', maxWidth: '100%' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 60, alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: 300 }}>
-            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" alt="Salon Poppinsior" style={{ width: '100%', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)' }} />
+            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" alt="Salon Interior" style={{ width: '100%', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)' }} />
           </div>
           <div style={{ flex: 1, minWidth: 300 }}>
             <h2 style={{ fontSize: "2.5rem", marginBottom: "24px", letterSpacing: '-0.5px' }}>The Art of Grooming</h2>

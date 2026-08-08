@@ -29,12 +29,12 @@ export default function LoginPage() {
   useEffect(() => {
     let interval = null;
     if (otpMode && resendTimer > 0) {
-      interval = setPoppinsval(() => {
+      interval = setInterval(() => {
         setResendTimer((prev) => prev - 1);
       }, 1000);
     }
     return () => {
-      if (interval) clearPoppinsval(interval);
+      if (interval) clearInterval(interval);
     };
   }, [otpMode, resendTimer]);
 

@@ -24,7 +24,7 @@ const ALL_REPORTS = [
   { key: "staff_attendance", label: "Staff Attendance" },
   { key: "memberships", label: "Membership Sold" },
   { key: "membership_redemption", label: "Membership Redemption" },
-  { key: "inter_store_membership", label: "Poppins-Store Membership Report" },
+  { key: "inter_store_membership", label: "Inter-Store Membership Report" },
   { key: "packages", label: "Packages Sold" },
   { key: "package_redemption", label: "Package Redemption" },
   { key: "gift_card_sold", label: "Gift Card Sold Report" },
@@ -87,7 +87,7 @@ const COLUMNS = {
   minimum_stock: ["SR. NO.", "CATEGORY NAME", "ITEM NAME", "VARIATION NAME", "STORE SKU", "CURRENT STOCK", "MINIMUM QUANTITY"],
   reconcile_stock: ["Product", "System Stock", "Physical Count", "Variance", "Date", "Staff"],
   consumable_tracking: ["Product", "Service", "Qty Used Per Service", "Total Used", "Cost"],
-  total_consumed: ["Product", "Category", "Total Quantity Consumed", "Value"],
+  total_consumed: ["Product", "Category", "Quantity Consumed", "Sec. Unit", "Value", "Remaining Stock", "Pri. Unit"],
   purchase_order: ["PO #", "Date", "Vendor", "Products", "Amount", "Status", "Received On"],
   inventory_transaction: ["Date", "Product", "Type", "Qty", "Reference", "Branch", "Staff"],
 };

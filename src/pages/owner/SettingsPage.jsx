@@ -5222,7 +5222,7 @@ export default function SettingsPage() {
             {/* Live Preview Card */}
             <div className="settings-panel-card" style={{ padding: 0, overflow: "hidden", border: "1px solid #cbd5e1", borderRadius: 12 }}>
               <div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#475569" }}>Live Poppinsactive Preview</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#475569" }}>Live Interactive Preview</span>
                 <span style={{ fontSize: 10, background: "#dbeafe", color: "#2563eb", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>Active</span>
               </div>
 

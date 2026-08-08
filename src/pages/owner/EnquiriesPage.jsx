@@ -379,7 +379,7 @@ export default function EnquiriesPage() {
                       <th>Client Name</th>
                       <th>Mobile</th>
                       <th>Email</th>
-                      <th>Service Poppinsested</th>
+                      <th>Service Interested</th>
                       <th>Priority</th>
                       <th>Status</th>
                       <th>Actions</th>

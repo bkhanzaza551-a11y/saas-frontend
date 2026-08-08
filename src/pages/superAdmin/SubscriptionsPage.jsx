@@ -403,7 +403,7 @@ export default function SubscriptionsPage() {
               </label>
               <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Notes</span>
-                <textarea rows="3" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Poppinsnal notes..." />
+                <textarea rows="3" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Internal notes..." />
               </label>
               <div style={{ gridColumn: "1 / -1", marginTop: 12 }}>
                 <button type="submit" style={{ width: "100%", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.95rem", borderRadius: 12, padding: "14px 24px", minHeight: 48, cursor: "pointer", border: "none" }} disabled={busyId === "create"}>{busyId === "create" ? "Creating..." : "Onboard Client"}</button>
@@ -452,7 +452,7 @@ export default function SubscriptionsPage() {
               </label>
               <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                 <span>Notes</span>
-                <textarea rows="3" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Poppinsnal notes..." />
+                <textarea rows="3" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Internal notes..." />
               </label>
               <div style={{ gridColumn: "1 / -1", marginTop: 12 }}>
                 <button type="submit" style={{ width: "100%", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.95rem", borderRadius: 12, padding: "14px 24px", minHeight: 48, cursor: "pointer", border: "none" }} disabled={busyId === "edit"}>{busyId === "edit" ? "Saving..." : "Save Changes"}</button>

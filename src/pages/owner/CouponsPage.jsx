@@ -487,7 +487,7 @@ export default function CouponsPage() {
                 </label>
                 <label>
                   <span className="cpn-label">Note (Optional)</span>
-                  <input className="cpn-input" placeholder="Poppinsnal note" value={giftCardForm.note} onChange={(e) => setGiftCardForm({ ...giftCardForm, note: e.target.value })} />
+                  <input className="cpn-input" placeholder="Internal note" value={giftCardForm.note} onChange={(e) => setGiftCardForm({ ...giftCardForm, note: e.target.value })} />
                 </label>
               </div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
