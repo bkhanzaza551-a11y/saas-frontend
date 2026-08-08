@@ -41,11 +41,19 @@ export default function CollectionsPage() {
 
   return (
     <div className="storefront-wrapper">
-      <div style={{ background: "var(--accent)", color: "white", padding: "120px 40px 80px", textAlign: "center" }}>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4rem", margin: 0, letterSpacing: '-1px' }}>Our Services</h1>
-        <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.8)", marginTop: 24, maxWidth: 600, margin: '24px auto 0' }}>
-          Discover our full range of premium treatments meticulously crafted for your well-being.
-        </p>
+      <div style={{ 
+        position: 'relative',
+        background: "linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1600&q=80') center/cover", 
+        color: "white", 
+        padding: "140px 40px 100px", 
+        textAlign: "center" 
+      }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", margin: 0, letterSpacing: '-1px', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>Our Services</h1>
+          <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.9)", marginTop: 24, maxWidth: 600, margin: '24px auto 0', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+            Discover our full range of premium treatments meticulously crafted for your well-being.
+          </p>
+        </div>
       </div>
 
       <section className="sf-section">

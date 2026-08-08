@@ -104,7 +104,7 @@ export default function WhatsAppCreditsPage() {
     <div className="page-shell">
       <div className="page-header" style={{ marginBottom: "2rem" }}>
         <div>
-          <h1 className="page-title">WhatsApp & SMS Credits</h1>
+          <h1 className="page-title">WhatsApp Credits</h1>
           <p className="page-subtitle">Manage your messaging balance to send automated reminders and invoices</p>
         </div>
       </div>
@@ -113,44 +113,49 @@ export default function WhatsAppCreditsPage() {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "2rem" }}>
         {/* Left Side: Balance & Packages */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div className="panel-card" style={{ padding: "2rem", textAlign: "center", background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)", borderColor: "#bfdbfe" }}>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
-              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
-                <MessageSquare size={32} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <div className="panel-card" style={{ padding: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between", background: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)", color: "white", borderRadius: "12px", border: "none", boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.4)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(255, 255, 255, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
+                <MessageSquare size={28} />
+              </div>
+              <div>
+                <h2 style={{ fontSize: "1.1rem", color: "#e0e7ff", fontWeight: "500", margin: 0, marginBottom: "4px" }}>Available Credits</h2>
+                <div style={{ fontSize: "2.2rem", fontWeight: "800", lineHeight: 1 }}>{balance}</div>
               </div>
             </div>
-            <h2 style={{ fontSize: "1.25rem", color: "#1e40af", fontWeight: "600", marginBottom: "0.5rem" }}>Available Credits</h2>
-            <div style={{ fontSize: "3rem", fontWeight: "bold", color: "#1e3a8a", lineHeight: 1 }}>{balance}</div>
-            <p style={{ color: "#3b82f6", marginTop: "0.5rem", fontSize: "0.9rem" }}>1 credit = 1 WhatsApp / SMS message</p>
           </div>
 
           <div>
             <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1rem", color: "#334155" }}>Purchase Packages</h3>
-            <div style={{ display: "grid", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               {packages.map((pkg) => (
-                <div key={pkg.id} className="panel-card" style={{ padding: "1.5rem", border: "2px solid transparent", transition: "all 0.2s", cursor: "pointer", position: "relative", overflow: "hidden" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#3b82f6"} onMouseLeave={(e) => e.currentTarget.style.borderColor = "transparent"}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-                    <div>
-                      <h4 style={{ fontWeight: "600", color: "#0f172a", fontSize: "1.1rem" }}>{pkg.name}</h4>
-                      <div style={{ color: "#64748b", fontSize: "0.85rem", marginTop: 4 }}>{pkg.credits} Credits</div>
+                <div key={pkg.id} className="panel-card" style={{ padding: "1.25rem", border: "1px solid #e2e8f0", borderRadius: "10px", transition: "all 0.2s", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.boxShadow = "none"; }}>
+                  <div style={{ marginBottom: "1.2rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                      <h4 style={{ fontWeight: "700", color: "#0f172a", fontSize: "1rem", margin: 0, lineHeight: 1.2, paddingRight: "8px" }}>{pkg.name}</h4>
+                      <div style={{ fontWeight: "800", fontSize: "1.1rem", color: "#16a34a", whiteSpace: "nowrap" }}>
+                        {formatCurrency(pkg.price)}
+                      </div>
                     </div>
-                    <div style={{ fontWeight: "bold", fontSize: "1.25rem", color: "#16a34a" }}>
-                      {formatCurrency(pkg.price)}
+                    <div style={{ color: "#64748b", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                       <MessageSquare size={14} /> {pkg.credits} Credits
                     </div>
                   </div>
                   <button 
                     onClick={() => handlePurchase(pkg)} 
                     disabled={purchasing}
-                    style={{ width: "100%", padding: "0.75rem", background: "#3b82f6", color: "white", borderRadius: 8, border: "none", fontWeight: "600", cursor: purchasing ? "not-allowed" : "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}
+                    style={{ width: "100%", padding: "0.6rem", background: "#f8fafc", color: "#3b82f6", borderRadius: "6px", border: "1px solid #bfdbfe", fontWeight: "600", cursor: purchasing ? "not-allowed" : "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", fontSize: "0.85rem", transition: "background 0.2s" }}
+                    onMouseEnter={(e) => { if(!purchasing) { e.currentTarget.style.background = "#eff6ff"; } }}
+                    onMouseLeave={(e) => { if(!purchasing) { e.currentTarget.style.background = "#f8fafc"; } }}
                   >
-                    <PlusCircle size={18} />
+                    <PlusCircle size={16} />
                     {purchasing ? "Processing..." : "Buy Now"}
                   </button>
                 </div>
               ))}
               {packages.length === 0 && (
-                <div style={{ textAlign: "center", padding: "2rem", color: "#64748b", background: "#f8fafc", borderRadius: 8 }}>
+                <div style={{ textAlign: "center", padding: "2rem", color: "#64748b", background: "#f8fafc", borderRadius: 8, gridColumn: "1 / -1" }}>
                   No packages available at the moment.
                 </div>
               )}
