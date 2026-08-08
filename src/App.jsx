@@ -105,7 +105,6 @@ const CollectionsPage = lazyWithRetry(() => import("./pages/storefront/Collectio
 const CategoryDetailPage = lazyWithRetry(() => import("./pages/storefront/CategoryDetailPage.jsx"));
 const ProductDetailPage = lazyWithRetry(() => import("./pages/storefront/ProductDetailPage.jsx"));
 const ServiceDetailPage = lazyWithRetry(() => import("./pages/storefront/ServiceDetailPage.jsx"));
-const CartPage = lazyWithRetry(() => import("./pages/storefront/CartPage.jsx"));
 const CheckoutPage = lazyWithRetry(() => import("./pages/storefront/CheckoutPage.jsx"));
 const BookingConfirmationPage = lazyWithRetry(() => import("./pages/storefront/BookingConfirmationPage.jsx"));
 const MyBookingsPage = lazyWithRetry(() => import("./pages/storefront/MyBookingsPage.jsx"));
@@ -483,8 +482,8 @@ export default function App() {
           <Route path="category/:categoryId" element={<CategoryDetailPage />} />
           <Route path="product/:id" element={<ProductDetailPage />} />
           <Route path="service/:id" element={<ServiceDetailPage />} />
-          <Route path="cart" element={<CartPage />} />
-          <Route path="booking-summary" element={<CartPage />} />
+          <Route path="cart" element={<CheckoutPage />} />
+          <Route path="booking-summary" element={<CheckoutPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="booking-confirmation" element={<BookingConfirmationPage />} />
           <Route path="my-bookings" element={<MyBookingsPage />} />

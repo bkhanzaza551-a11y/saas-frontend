@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Outlet, Link, useParams } from "react-router-dom";
-import { CalendarCheck } from "lucide-react";
+import { CalendarCheck, Menu, X } from "lucide-react";
 import { api } from "../../api/client";
 import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
 import "../../storefront.css";
@@ -29,6 +29,16 @@ export default function StorefrontLayout() {
   const [bookings, setBookings] = useState(loadBookings);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState(loadBranch);
+  const [scrolled, setScrolled] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => { localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings)); }, [bookings]);
   useEffect(() => { sessionStorage.setItem(BRANCH_KEY, selectedBranchId); }, [selectedBranchId]);
@@ -44,7 +54,10 @@ export default function StorefrontLayout() {
         }
       })
       .catch(() => setSalon(null))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => setInitialLoading(false), 800); // 800ms minimum preloader time for polish
+      });
   }, [slug]);
 
   const addBooking = useCallback((service, date, time) => {
@@ -86,11 +99,17 @@ export default function StorefrontLayout() {
 
   const bookingCount = bookings.reduce((sum, b) => sum + b.qty, 0);
 
-  if (loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading Storefront...</div>;
-  if (!salon) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Salon not found</div>;
+  // Derive display name for preloader (use slug if salon not loaded yet)
+  const displaySalonName = salon ? salon.name : (slug || "").split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  if (!salon && !loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Salon not found</div>;
 
   return (
     <div className="storefront-wrapper">
+      {/* Premium Preloader */}
+      <div className={`sf-preloader ${!initialLoading && !loading ? 'sf-preloader-hidden' : ''}`}>
+        <div className="sf-preloader-text">{displaySalonName}</div>
+      </div>
       {/* Branch Selection Modal */}
       {salon.branches?.length > 1 && !selectedBranchId && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(6px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
@@ -121,7 +140,16 @@ export default function StorefrontLayout() {
         </div>
       )}
 
-      <header className="sf-header">
+      {/* Mobile Menu Drawer */}
+      <div className={`sf-mobile-drawer ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="sf-mobile-nav-links">
+          <Link to={`/site/${slug}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
+          <Link to={`/site/${slug}/services`} onClick={() => setMobileMenuOpen(false)}>Services</Link>
+          <Link to={`/site/${slug}/my-bookings`} onClick={() => setMobileMenuOpen(false)}>My Bookings</Link>
+        </div>
+      </div>
+
+      <header className={`sf-header ${scrolled ? 'scrolled' : ''}`}>
         <div className="sf-nav-container">
           <Link to={`/site/${slug}`} className="sf-brand">
             {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "32px", borderRadius: 4 }} /> : salon.name}
@@ -155,6 +183,10 @@ export default function StorefrontLayout() {
                 </span>
               )}
             </Link>
+            
+            <button className="sf-mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ zIndex: 999 }}>
+              {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
         </div>
       </header>
