@@ -44,7 +44,7 @@ export default function CollectionsPage() {
     <div className="storefront-wrapper">
       {/* Hero Section */}
       <div className="sf-page-header" style={{
-        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1600&q=80') center/cover no-repeat fixed`,
+        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1600&q=80') center/cover no-repeat`,
         color: "white"
       }}>
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", margin: 0, fontWeight: 500, color: 'white' }}>Our Services</h1>
