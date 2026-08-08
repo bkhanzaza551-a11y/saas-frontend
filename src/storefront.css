@@ -193,6 +193,7 @@ a {
   text-align: center;
   overflow: hidden;
   padding-top: 80px;
+  background-color: #333333; /* Fallback */
 }
 
 .sf-hero::after {
@@ -535,7 +536,7 @@ a {
 
 /* Footer */
 .sf-footer {
-  background: var(--accent);
+  background: #111111;
   color: #ffffff;
   padding: 100px 32px 40px;
   margin-top: auto;

@@ -5,7 +5,7 @@ import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
 import "../../storefront.css";
 
 const BOOKINGS_KEY = "sf_bookings";
-const BRANCH_KEY = "sf_branch";
+const BRANCH_KEY = "sf_branch_session";
 
 function loadBookings() {
   try {
@@ -18,7 +18,7 @@ function loadBookings() {
 }
 
 function loadBranch() {
-  try { return localStorage.getItem(BRANCH_KEY) || ""; } catch { return ""; }
+  try { return sessionStorage.getItem(BRANCH_KEY) || ""; } catch { return ""; }
 }
 
 export default function StorefrontLayout() {
@@ -30,7 +30,7 @@ export default function StorefrontLayout() {
   const [selectedBranchId, setSelectedBranchId] = useState(loadBranch);
 
   useEffect(() => { localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings)); }, [bookings]);
-  useEffect(() => { localStorage.setItem(BRANCH_KEY, selectedBranchId); }, [selectedBranchId]);
+  useEffect(() => { sessionStorage.setItem(BRANCH_KEY, selectedBranchId); }, [selectedBranchId]);
 
   useEffect(() => {
     if (!slug) return;

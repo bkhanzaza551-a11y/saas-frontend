@@ -28,7 +28,7 @@ export default function HomePage() {
     <div className="storefront-wrapper">
       {/* Premium Hero Section */}
       <section className="sf-hero" style={{
-        background: `url('https://images.unsplash.com/photo-1521590832167-7bfcbaa63749?w=1600&q=80') center/cover no-repeat fixed`,
+        background: `url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80') center/cover no-repeat`,
       }}>
         <div className="sf-hero-content">
           <h1>Experience True Elegance</h1>
@@ -103,7 +103,7 @@ export default function HomePage() {
             <p>Discover our most popular treatments curated just for you.</p>
           </div>
           <div className="sf-services-grid">
-            {services.slice(0, 6).map(service => (
+            {services.map(service => (
               <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
                 <div className="sf-service-img-wrapper">
                   <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"} alt={service.name} className="sf-service-img" />
