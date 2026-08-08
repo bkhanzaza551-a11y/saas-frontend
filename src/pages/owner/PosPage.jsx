@@ -148,6 +148,11 @@ export default function PosPage() {
   const [compModal, setCompModal] = useState({ open: false, index: null, serviceName: "", remark: "" });
 
   const [couponValidating, setCouponValidating] = useState(false);
+  
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState(null);
+  
   const [couponValidation, setCouponValidation] = useState(null);
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [affiliateWallet, setAffiliateWallet] = useState(null);
@@ -1935,39 +1940,7 @@ export default function PosPage() {
                               {couponValidation.coupon.code}
                             </span>
                           )}
-                          {item.itemType === 'SERVICE' && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4 }}>
-                              {(serviceLookup[item.serviceId]?.consumables || baseObj.consumables || [])?.map((c, ci) => {
-                                const overrideKey = `${item.serviceId}:${c.productId}`;
-                                const currentVal = consumableOverrides[overrideKey] !== undefined ? consumableOverrides[overrideKey] : c.reqdQty;
-                                const unit = c.product?.secondaryUnit || c.product?.unit || 'pcs';
-                                return (
-                                  <div key={ci} style={{ fontSize: 11, color: "#334155", display: "flex", alignItems: "center", gap: 4, background: "#f1f5f9", padding: "2px 6px", borderRadius: 4, width: "fit-content" }}>
-                                    <span style={{ color: "#2563eb", fontWeight: 600 }}>🧪 {c.product?.name || "Consumable"}:</span>
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      value={currentVal}
-                                      onChange={(e) => {
-                                        const val = e.target.value;
-                                        setConsumableOverrides(prev => ({ ...prev, [overrideKey]: val }));
-                                      }}
-                                      onClick={(e) => e.stopPropagation()}
-                                      style={{ width: 44, padding: "1px 3px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 11, textAlign: "center", fontWeight: 700, background: "#fff" }}
-                                      title="Edit quantity of consumable used for this client"
-                                    />
-                                    <span style={{ fontWeight: 600, color: "#64748b" }}>{unit}</span>
-                                  </div>
-                                );
-                              })}
-                              {item.consumableItems?.map((ci, cidx) => (
-                                <div key={`extra-${cidx}`} style={{ fontSize: 11, color: "#16a34a", display: "flex", alignItems: "center", gap: 4, background: "#f0fdf4", padding: "2px 6px", borderRadius: 4, width: "fit-content" }}>
-                                  <span style={{ fontWeight: 600 }}>➕ {ci.name}:</span>
-                                  <span style={{ fontWeight: 700 }}>{ci.qty} {ci.unit || 'pcs'}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+
                         </td>
                         <td>
                           {item.itemType === "SERVICE" || item.itemType === "PACKAGE" || item.itemType === "MEMBERSHIP" || item.itemType === "GIFT_CARD" ? (
@@ -2480,6 +2453,10 @@ export default function PosPage() {
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                 View Invoice
               </button>
+              <button onClick={() => setShowShareModal(true)} className="pos-action-btn" style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                Share Invoice
+              </button>
               <button onClick={() => downloadFromApi(`/owner/invoices/${createdInvoice.id}/pdf`, { fallbackFilename: `invoice-${createdInvoice.invoiceNumber}.pdf` })} className="pos-action-btn" style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 Download PDF
@@ -2495,6 +2472,74 @@ export default function PosPage() {
           </div>
         </div>
       )}
+
+      {showShareModal && createdInvoice && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "white", padding: "0px", borderRadius: 12, width: 450, boxShadow: "none", overflow: "hidden" }}>
+            {shareError && (
+              <div style={{ background: "#ff5c5c", color: "white", padding: "20px", display: "flex", alignItems: "flex-start", gap: "16px", position: "relative" }}>
+                <div style={{ flexShrink: 0, marginTop: "2px" }}>
+                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: "16px", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                    Error
+                  </div>
+                  <div style={{ fontSize: "14px", lineHeight: "1.4" }}>{shareError}</div>
+                </div>
+                <button onClick={() => setShareError(null)} style={{ background: "transparent", border: "none", color: "white", cursor: "pointer", padding: "4px", position: "absolute", top: "16px", right: "16px" }}>
+                  <X size={20} />
+                </button>
+              </div>
+            )}
+            
+            <div style={{ padding: 32 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px", fontWeight: 700 }}>Share Invoice</h3>
+                <button onClick={() => { setShowShareModal(false); setShareError(null); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p style={{ color: "#64748b", fontSize: "14px", marginBottom: 24 }}>Choose how you want to share invoice #{createdInvoice.invoiceNumber}.</p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <button onClick={() => {
+                  const text = encodeURIComponent(`Hello! Here is your invoice from ${context.settings?.salonName || 'our salon'}. Amount: ${formatMoney(createdInvoice.total)}`);
+                  const phone = createdInvoice.customer?.phone ? `+91${createdInvoice.customer.phone.replace(/\D/g, '')}` : '';
+                  window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${text}`, '_blank');
+                }} className="pos-action-btn" style={{ background: "#25d366", border: "none", color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 600 }}>
+                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                  Share via WhatsApp Web
+                </button>
+                
+                <button onClick={async () => {
+                  setShareLoading(true);
+                  setShareError(null);
+                  try {
+                    await api.post(`/owner/invoices/${createdInvoice.id}/share-whatsapp`);
+                    setToastMessage({ type: "success", title: "WhatsApp Sent", message: "Invoice sent via WhatsApp successfully." });
+                    setShowShareModal(false);
+                  } catch (err) {
+                    if (err.response?.status === 402) {
+                      setShareError(err.response.data.message || "Insufficient credits");
+                    } else {
+                      setShareError(err.response?.data?.message || "Failed to send WhatsApp message");
+                    }
+                  } finally {
+                    setShareLoading(false);
+                  }
+                }} disabled={shareLoading} className="pos-action-btn" style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: shareLoading ? 0.7 : 1 }}>
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  {shareLoading ? "Sending..." : "Send using WhatsApp API"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       
       
@@ -2868,7 +2913,7 @@ export default function PosPage() {
 
                 {/* Remark */}
                 <div style={{ marginTop:16 }}>
-                  <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Internal Remark <span style={{ fontWeight: 400, color: "#94a3b8" }}>(Optional)</span></label>
+                  <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Poppinsnal Remark <span style={{ fontWeight: 400, color: "#94a3b8" }}>(Optional)</span></label>
                   <textarea placeholder="Add any notes about this package purchase..." value={pkgDraft.remark} onChange={e=>setPkgDraft(d=>({...d,remark:e.target.value}))} rows={2} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", resize:"vertical", outline: "none", transition: "border-color 0.2s", fontFamily: "inherit" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                 </div>
 

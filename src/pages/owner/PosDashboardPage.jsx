@@ -892,9 +892,15 @@ export default function PosDashboardPage() {
     if (!invoiceId) return;
     try {
       setCompletingInvoice(true);
-      await api.patch(`/owner/invoices/${invoiceId}/complete`, {});
+      const res = await api.patch(`/owner/invoices/${invoiceId}/complete`, {});
       await loadInvoiceDetail(invoiceId);
       setStatus({ error: "", success: "Invoice completed successfully." });
+      
+      if (res.data.whatsappFailedReason === "INSUFFICIENT_CREDITS") {
+        setTimeout(() => {
+          alert("WhatsApp Failed: Your credits is 0, send invoice by WhatsApp web or purchase more credits.");
+        }, 500);
+      }
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not complete invoice"), success: "" });
     } finally {

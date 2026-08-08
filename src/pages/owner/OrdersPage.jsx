@@ -85,7 +85,7 @@ export default function OrdersPage() {
   return (
     <div className="page-shell">
       <ModuleTabs
-        title="Online Orders"
+        title="Orders"
         description="Manage new, accepted, ready, completed, and cancelled online orders."
         tabs={[
           { label: "All Orders", to: "/admin/orders", hint: "Queue" },
@@ -99,7 +99,7 @@ export default function OrdersPage() {
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div>
-            <h1 style={{ marginTop: 0 }}>Online Orders</h1>
+            <h1 style={{ marginTop: 0 }}>Orders</h1>
             <p style={{ marginBottom: 0 }}>Monitor every incoming storefront order from queue to invoice conversion with clean status control.</p>
           </div>
           <div className="badge-row">

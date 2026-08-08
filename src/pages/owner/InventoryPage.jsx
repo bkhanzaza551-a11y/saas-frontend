@@ -1684,7 +1684,7 @@ export default function InventoryPage() {
                 </div>
                 <div className="sp-group">
                   <label className="sp-label">Notes</label>
-                  <textarea className="sp-input" rows="3" value={vendorForm.notes} onChange={e => setVendorForm({ ...vendorForm, notes: e.target.value })} placeholder="Internal notes" />
+                  <textarea className="sp-input" rows="3" value={vendorForm.notes} onChange={e => setVendorForm({ ...vendorForm, notes: e.target.value })} placeholder="Poppinsnal notes" />
                 </div>
               </div>
               <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>

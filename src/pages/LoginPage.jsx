@@ -29,12 +29,12 @@ export default function LoginPage() {
   useEffect(() => {
     let interval = null;
     if (otpMode && resendTimer > 0) {
-      interval = setInterval(() => {
+      interval = setPoppinsval(() => {
         setResendTimer((prev) => prev - 1);
       }, 1000);
     }
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) clearPoppinsval(interval);
     };
   }, [otpMode, resendTimer]);
 
@@ -123,7 +123,7 @@ export default function LoginPage() {
         .login-page-container {
           display: flex;
           min-height: 100vh;
-          font-family: 'Inter', system-ui, sans-serif;
+          font-family: 'Poppins', system-ui, sans-serif;
           background: #ffffff;
           position: relative;
           overflow: hidden;

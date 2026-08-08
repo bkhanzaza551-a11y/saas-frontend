@@ -20,10 +20,12 @@ export default function CheckoutPage() {
 
   if (bookings.length === 0) {
     return (
-      <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 24px' }}>Booking Checkout</h1>
-        <p style={{ color: '#999', marginBottom: 24 }}>You have no services in your booking summary.</p>
-        <Link to={`/site/${salon.slug}/services`} className="sf-btn sf-btn-primary" style={{ padding: '14px 32px' }}>Browse Services</Link>
+      <div className="storefront-wrapper" style={{ justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: 24, letterSpacing: '-1px' }}>Booking Checkout</h1>
+          <p style={{ color: 'var(--text-muted)', marginBottom: 32, fontSize: '1.1rem' }}>You have no services in your booking summary.</p>
+          <Link to={`/site/${salon.slug}/services`} className="sf-btn-primary">Browse Services</Link>
+        </div>
       </div>
     );
   }
@@ -82,8 +84,13 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceBooking = async () => {
-    if (!form.firstName || !form.phone) {
-      setError("Please fill in your name and phone number.");
+    if (!form.firstName.trim() || !form.phone.trim()) {
+      setError("Please fill in your first name and phone number.");
+      return;
+    }
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 8) {
+      setError("Please enter a valid phone number.");
       return;
     }
 
@@ -107,7 +114,7 @@ export default function CheckoutPage() {
           order_id: orderRes.data.orderId,
           handler: function (response) { submitBookings(response); },
           prefill: { name: `${form.firstName} ${form.lastName}`, email: form.email, contact: form.phone },
-          theme: { color: "var(--sf-accent, #c8a97e)" },
+          theme: { color: "var(--accent)" },
           modal: { ondismiss: () => { setSubmitting(false); setError("Payment was cancelled."); } }
         });
         rzp.open();
@@ -122,77 +129,100 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div style={{ background: '#fafafa', minHeight: '100vh', padding: '60px 20px' }}>
-      <div className="sf-checkout-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 400px', gap: 60 }}>
-
+    <div className="sf-section" style={{ background: 'var(--surface)', minHeight: '100vh', paddingTop: 120 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 380px', gap: 60, alignItems: 'start' }}>
+        
+        {/* LEFT COLUMN: FORM */}
         <div>
-          <Link to={`/site/${salon.slug}/booking-summary`} style={{ color: '#999', textDecoration: 'none', marginBottom: 32, display: 'inline-block' }}>&larr; Back to Booking Summary</Link>
-          <h1 style={{ fontFamily: 'var(--sf-font-serif)', fontSize: '2.5rem', margin: '0 0 32px' }}>Booking Checkout</h1>
+          <Link to={`/site/${salon.slug}/cart`} style={{ color: 'var(--text-muted)', display: 'inline-block', marginBottom: 32, fontWeight: 500 }}>&larr; Back to Cart</Link>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: 32, letterSpacing: '-1px' }}>Checkout</h1>
 
-          {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: 16, borderRadius: 8, marginBottom: 24, border: '1px solid #fecaca' }}>{error}</div>}
+          {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: '16px 20px', borderRadius: 'var(--radius-sm)', marginBottom: 24, border: '1px solid #fecaca', fontWeight: 500 }}>{error}</div>}
 
-          <div style={{ background: 'white', padding: 32, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
-            <h2 style={{ fontSize: '1.2rem', marginBottom: 24, borderBottom: '1px solid #eee', paddingBottom: 16 }}>Contact Information</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <input type="text" placeholder="First Name *" value={form.firstName} onChange={set('firstName')} required style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
-                <input type="text" placeholder="Last Name" value={form.lastName} onChange={set('lastName')} style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+          <div style={{ background: 'var(--bg-main)', padding: 40, borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border)' }}>
+            <h2 style={{ fontSize: '1.4rem', marginBottom: 32, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>Contact Information</h2>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+              <div className="sf-form-group" style={{ marginBottom: 0 }}>
+                <label className="sf-form-label">First Name *</label>
+                <input type="text" className="sf-form-input" placeholder="e.g. Sara" value={form.firstName} onChange={set('firstName')} required />
               </div>
-              <input type="email" placeholder="Email Address (optional)" value={form.email} onChange={set('email')} style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
-              <input type="text" placeholder="Phone Number *" value={form.phone} onChange={set('phone')} required style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+              <div className="sf-form-group" style={{ marginBottom: 0 }}>
+                <label className="sf-form-label">Last Name</label>
+                <input type="text" className="sf-form-input" placeholder="e.g. Khan" value={form.lastName} onChange={set('lastName')} />
+              </div>
             </div>
 
-            <h2 style={{ fontSize: '1.2rem', margin: '40px 0 24px', borderBottom: '1px solid #eee', paddingBottom: 16 }}>Payment</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "PAY_AT_SALON" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "PAY_AT_SALON" ? "rgba(200,169,126,0.07)" : "white" }}>
-                <input type="radio" name="payment" value="PAY_AT_SALON" checked={form.paymentMode === "PAY_AT_SALON"} onChange={set('paymentMode')} />
-                <span style={{ fontWeight: 600 }}>Pay at Salon</span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: `2px solid ${form.paymentMode === "ONLINE" ? "var(--sf-accent, #c8a97e)" : "#ddd"}`, borderRadius: 8, cursor: 'pointer', background: form.paymentMode === "ONLINE" ? "rgba(200,169,126,0.07)" : "white" }}>
-                <input type="radio" name="payment" value="ONLINE" checked={form.paymentMode === "ONLINE"} onChange={set('paymentMode')} />
-                <span style={{ fontWeight: 600 }}>Pay Online (Razorpay)</span>
-              </label>
+            <div className="sf-form-group">
+              <label className="sf-form-label">Phone Number *</label>
+              <input type="tel" className="sf-form-input" placeholder="e.g. 999 999 9999" value={form.phone} onChange={set('phone')} required />
             </div>
 
-            <textarea placeholder="Special Requests (optional)" value={form.note} onChange={set('note')} rows={3} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginTop: 24, resize: 'vertical', boxSizing: 'border-box' }} />
+            <div className="sf-form-group">
+              <label className="sf-form-label">Email Address (Optional)</label>
+              <input type="email" className="sf-form-input" placeholder="sara@example.com" value={form.email} onChange={set('email')} />
+            </div>
 
-            <button onClick={handlePlaceBooking} disabled={submitting} className="sf-btn sf-btn-primary" style={{ width: '100%', padding: 16, marginTop: 40, opacity: submitting ? 0.6 : 1 }}>
-              {submitting ? "Processing..." : form.paymentMode === "ONLINE" ? `Pay ${currency} ${total.toFixed(2)}` : "Confirm Booking"}
+            <div className="sf-form-group" style={{ marginBottom: 40 }}>
+              <label className="sf-form-label">Special Notes (Optional)</label>
+              <textarea className="sf-form-input" placeholder="Any specific instructions for your booking..." rows={3} value={form.note} onChange={set('note')} style={{ resize: 'vertical' }}></textarea>
+            </div>
+
+            <h2 style={{ fontSize: '1.4rem', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>Payment Method</h2>
+            
+            <div style={{ display: 'flex', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
+              <label style={{ flex: 1, minWidth: 200, padding: 20, border: form.paymentMode === 'PAY_AT_SALON' ? '2px solid var(--accent)' : '1px solid var(--border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', transition: 'var(--transition)', background: form.paymentMode === 'PAY_AT_SALON' ? 'var(--surface)' : 'var(--bg-main)' }}>
+                <input type="radio" name="payment" value="PAY_AT_SALON" checked={form.paymentMode === 'PAY_AT_SALON'} onChange={set('paymentMode')} style={{ display: 'none' }} />
+                <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: 4 }}>Pay at Salon</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Pay with cash or card after your service</div>
+              </label>
+
+              {salon.config?.razorpayEnabled && (
+                <label style={{ flex: 1, minWidth: 200, padding: 20, border: form.paymentMode === 'ONLINE' ? '2px solid var(--accent)' : '1px solid var(--border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', transition: 'var(--transition)', background: form.paymentMode === 'ONLINE' ? 'var(--surface)' : 'var(--bg-main)' }}>
+                  <input type="radio" name="payment" value="ONLINE" checked={form.paymentMode === 'ONLINE'} onChange={set('paymentMode')} style={{ display: 'none' }} />
+                  <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: 4 }}>Pay Online Now</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Securely pay via Razorpay</div>
+                </label>
+              )}
+            </div>
+
+            <button 
+              className="sf-btn-primary" 
+              style={{ width: '100%', padding: '18px 0', fontSize: '1.1rem' }} 
+              onClick={handlePlaceBooking} 
+              disabled={submitting}
+            >
+              {submitting ? 'Processing...' : (form.paymentMode === 'ONLINE' ? 'Proceed to Payment' : 'Confirm Booking')}
             </button>
           </div>
         </div>
 
-        <div>
-          <div style={{ position: 'sticky', top: 100, background: 'white', padding: 24, borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
-            <h3 style={{ margin: '0 0 24px', fontSize: '1.2rem' }}>Booking Summary ({bookings.length} {bookings.length === 1 ? 'service' : 'services'})</h3>
-            {bookings.map((booking, idx) => (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 20, paddingBottom: 20, borderBottom: idx < bookings.length - 1 ? '1px solid #eee' : 'none' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontWeight: 600, fontSize: '0.95rem' }}>{booking.name}</p>
-                    {booking.qty > 1 && <p style={{ margin: 0, color: '#999', fontSize: '0.8rem' }}>Qty: {booking.qty}</p>}
+        {/* RIGHT COLUMN: SUMMARY */}
+        <div style={{ background: 'var(--bg-main)', padding: 32, borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border)', position: 'sticky', top: 100 }}>
+          <h2 style={{ fontSize: '1.4rem', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>Order Summary</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32 }}>
+            {bookings.map((b, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1, paddingRight: 16 }}>
+                  <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: 4 }}>{b.name} <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>x{b.qty}</span></div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
                   </div>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{currency} {(Number(booking.price) * booking.qty).toFixed(2)}</div>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: '0.8rem', color: '#666' }}>
-                  <span style={{ background: '#f3f4f6', padding: '3px 8px', borderRadius: 4 }}>
-                    {new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                  </span>
-                  <span style={{ background: '#f3f4f6', padding: '3px 8px', borderRadius: 4 }}>{booking.time}</span>
-                  {booking.duration && <span style={{ background: '#f3f4f6', padding: '3px 8px', borderRadius: 4 }}>{booking.duration} min</span>}
-                </div>
+                <div style={{ fontWeight: 600, color: 'var(--text-main)', whiteSpace: 'nowrap' }}>{currency} {Number(b.price) * b.qty}</div>
               </div>
             ))}
+          </div>
 
-            <div style={{ borderTop: '1px solid #eee', paddingTop: 16, marginTop: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', fontSize: '1.3rem', fontWeight: 700 }}>
-                <span>Total</span>
-                <span>{currency} {total.toFixed(2)}</span>
-              </div>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 20, fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            <span>Total</span>
+            <span>{currency} {total}</span>
+          </div>
+          
+          <div style={{ marginTop: 24, textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            By confirming your booking, you agree to the salon's cancellation policy.
           </div>
         </div>
-
       </div>
     </div>
   );

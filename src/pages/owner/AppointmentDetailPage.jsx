@@ -186,7 +186,7 @@ export default function AppointmentDetailPage() {
               </div>
 
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Internal Notes</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Poppinsnal Notes</div>
                 <p style={{ margin: 0, fontSize: 14, color: appointment.notes ? "#334155" : "#94a3b8", lineHeight: 1.5, padding: "12px", background: "#f8fafc", borderRadius: 8, fontStyle: appointment.notes ? "normal" : "italic" }}>
                   {appointment.notes || "No notes added for this booking."}
                 </p>

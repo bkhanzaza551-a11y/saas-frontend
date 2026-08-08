@@ -287,7 +287,7 @@ export default function SuperAdminSupportTicketsPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Internal Support Notes</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Poppinsnal Support Notes</label>
                   <textarea
                     rows="1"
                     value={notes[selectedTicket.id] || ""}

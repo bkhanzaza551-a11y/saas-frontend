@@ -98,7 +98,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
           <title>Print Receipt</title>
           <style>
             * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { background: white !important; display: flex !important; justify-content: center !important; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; }
+            body { background: white !important; display: flex !important; justify-content: center !important; font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif; }
             .no-print { display: none !important; }
             ${thermalCSS}
           </style>
@@ -149,7 +149,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
     position: "relative", width: fmt.width, maxWidth: "100%", maxHeight: "92vh", overflowY: "auto",
     background: "#fff", borderRadius: isThermal ? 8 : 16,
     boxShadow: "0 25px 60px -12px rgba(0,0,0,0.35)",
-    fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", paddingBottom: 0
+    fontFamily: "'Poppins', 'Segoe UI', system-ui, sans-serif", paddingBottom: 0
   };
 
   return (
@@ -170,7 +170,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
         <div style={{ padding: isThermal ? "8px 10px" : "0 24px 24px" }}>
           {/* Header */}
           <div style={{ textAlign: "center", padding: isThermal ? "8px 0 2px" : "20px 0 4px" }}>
-            <div style={{ fontSize: isThermal ? 14 : 26, fontWeight: 900, letterSpacing: isThermal ? 1 : 3, color: "#0f172a", margin: 0, lineHeight: 1, fontFamily: "'Inter', system-ui, sans-serif" }}>{displaySalonName.toUpperCase()}</div>
+            <div style={{ fontSize: isThermal ? 14 : 26, fontWeight: 900, letterSpacing: isThermal ? 1 : 3, color: "#0f172a", margin: 0, lineHeight: 1, fontFamily: "'Poppins', system-ui, sans-serif" }}>{displaySalonName.toUpperCase()}</div>
             {!isThermal && <div style={{ fontSize: 9, letterSpacing: 3.5, color: "#94a3b8", marginTop: 4, textTransform: "uppercase", fontWeight: 600 }}>Hair - Lifestyle - Care</div>}
             {displayAddress && <div style={{ fontSize: isThermal ? 9 : 11, color: "#64748b", textAlign: "center", marginTop: 6, lineHeight: 1.6 }}>{displayAddress}{displayPhone && <><br />{displayPhone}</>}</div>}
           </div>

@@ -26,7 +26,6 @@ export default function StorefrontLayout() {
   const [salon, setSalon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState(loadBookings);
-  const [cartOpen, setCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState(loadBranch);
 
@@ -39,7 +38,7 @@ export default function StorefrontLayout() {
       .then(res => {
         const s = res.data.salon;
         setSalon(s);
-        if (!selectedBranchId && s.branches && s.branches.length > 0) {
+        if (!selectedBranchId && s.branches && s.branches.length === 1) {
           setSelectedBranchId(s.branches[0].id);
         }
       })
@@ -59,8 +58,7 @@ export default function StorefrontLayout() {
         branchId: selectedBranchId, createdAt: Date.now(),
       }];
     });
-    setCartOpen(true);
-  }, []);
+  }, [selectedBranchId]);
 
   const removeBooking = useCallback((bookingIndex) => {
     setBookings(prev => prev.filter((_, i) => i !== bookingIndex));
@@ -92,32 +90,54 @@ export default function StorefrontLayout() {
 
   return (
     <div className="storefront-wrapper">
+      {/* Branch Selection Modal */}
+      {salon.branches?.length > 1 && !selectedBranchId && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(6px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <div style={{ background: "var(--bg-main)", borderRadius: "var(--radius-lg)", padding: "48px 40px", maxWidth: 600, width: "100%", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2.5rem", marginBottom: 16, color: "var(--text-main)", letterSpacing: "-0.5px" }}>Welcome to {salon.name}</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "1.1rem", marginBottom: 40, lineHeight: 1.6 }}>Please select a branch location to view available services and book your appointment.</p>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {salon.branches.map(b => (
+                <div 
+                  key={b.id} 
+                  onClick={() => setSelectedBranchId(b.id)} 
+                  style={{ padding: "20px 24px", borderRadius: "var(--radius-md)", border: "2px solid var(--border)", cursor: "pointer", transition: "var(--transition)", background: "var(--surface)", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent)"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
+                >
+                  <div>
+                    <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "var(--text-main)", fontWeight: 600 }}>{b.name}</h3>
+                    {b.address && <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.4 }}>{b.address}</p>}
+                  </div>
+                  <div style={{ color: "var(--accent)" }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="sf-header">
         <div className="sf-nav-container">
           <Link to={`/site/${slug}`} className="sf-brand">
-            {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "32px" }} /> : salon.name}
+            {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "32px", borderRadius: 4 }} /> : salon.name}
           </Link>
 
-          <button className="sf-hamburger" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Menu">
-            <span className={`sf-hamburger-line ${mobileMenuOpen ? "open" : ""}`} />
-            <span className={`sf-hamburger-line ${mobileMenuOpen ? "open" : ""}`} />
-            <span className={`sf-hamburger-line ${mobileMenuOpen ? "open" : ""}`} />
-          </button>
-
-          <nav className={`sf-nav-links ${mobileMenuOpen ? "sf-nav-open" : ""}`}>
-            <Link to={`/site/${slug}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
-            <Link to={`/site/${slug}/services`} onClick={() => setMobileMenuOpen(false)}>Services</Link>
-            <Link to={`/site/${slug}/about`} onClick={() => setMobileMenuOpen(false)}>About</Link>
-            <Link to={`/site/${slug}/contact`} onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-            <Link to={`/site/${slug}/my-bookings`} onClick={() => setMobileMenuOpen(false)}>My Bookings</Link>
+          <nav className="sf-nav-links">
+            <Link to={`/site/${slug}`}>Home</Link>
+            <Link to={`/site/${slug}/services`}>Services</Link>
+            <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
           </nav>
           
-          <div className="sf-header-actions" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div className="sf-header-actions" style={{ display: "flex", gap: "24px", alignItems: "center" }}>
             {salon.branches?.length > 0 && (
               <select 
                 value={selectedBranchId} 
                 onChange={e => setSelectedBranchId(e.target.value)}
-                style={{ padding: "10px 16px", background: "transparent", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", outline: "none", cursor: "pointer", fontSize: "0.85rem", fontWeight: "500" }}
+                style={{ padding: "8px 12px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", outline: "none", cursor: "pointer", fontSize: "0.9rem", fontWeight: "500", fontFamily: 'inherit' }}
               >
                 <option value="">All Branches</option>
                 {salon.branches.map(b => (
@@ -125,51 +145,51 @@ export default function StorefrontLayout() {
                 ))}
               </select>
             )}
-            <button className="sf-btn-dark" onClick={() => setCartOpen(true)} style={{ position: "relative" }}>
+            <Link to={`/site/${slug}/cart`} className="sf-btn-dark" style={{ position: "relative", padding: '10px 24px' }}>
               Cart
-              {bookings.length > 0 && (
-                <span style={{ position: "absolute", top: -8, right: -8, background: "var(--sf-accent, #c8a97e)", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700 }}>
-                  {bookings.reduce((sum, b) => sum + b.qty, 0)}
+              {bookingCount > 0 && (
+                <span style={{ position: "absolute", top: -8, right: -8, background: "#ef4444", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, border: '2px solid var(--bg-main)' }}>
+                  {bookingCount}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
         </div>
       </header>
 
       <main style={{ flex: 1 }}>
         <StorefrontErrorBoundary>
-          <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId }} />
+          <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId, setSelectedBranchId }} />
         </StorefrontErrorBoundary>
       </main>
 
       <footer className="sf-footer">
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "40px" }}>
+        <div className="sf-footer-grid">
           <div>
-            <h3 style={{ fontSize: "1.5rem", marginBottom: "16px" }}>{salon.name}</h3>
-            <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "0.95rem" }}>{salon.websiteConfig?.aboutDescription || "Providing professional grooming and beauty services with uncompromising standards."}</p>
+            <h3 style={{ fontSize: "1.5rem", marginBottom: "16px", fontFamily: 'var(--font-serif)' }}>{salon.name}</h3>
+            <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "1rem" }}>{salon.websiteConfig?.aboutDescription || "Providing professional grooming and beauty services with uncompromising standards."}</p>
           </div>
           <div>
-            <h4 style={{ marginBottom: "16px" }}>Quick Links</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Quick Links</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <Link to={`/site/${slug}/services`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>Services</Link>
-              <Link to={`/site/${slug}/about`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>About Us</Link>
-              <Link to={`/site/${slug}/contact`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>Contact</Link>
               <Link to={`/site/${slug}/my-bookings`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>My Bookings</Link>
             </div>
           </div>
           <div>
-            <h4 style={{ marginBottom: "16px" }}>Contact</h4>
-            <p style={{ color: "var(--text-muted)", marginBottom: "8px", fontSize: "0.95rem" }}>Email: {salon.email}</p>
-            <p style={{ color: "var(--text-muted)", marginBottom: "8px", fontSize: "0.95rem" }}>Phone: {salon.phone}</p>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>Address: {salon.address}</p>
+            <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Contact</h4>
+            <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Email:</strong> {salon.email}</p>
+            <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Phone:</strong> {salon.phone}</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}><strong>Address:</strong> {salon.address}</p>
           </div>
         </div>
-        <div style={{ maxWidth: 1400, margin: "40px auto 0", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>&copy; {new Date().getFullYear()} {salon.name}. All rights reserved.</p>
-          <div style={{ display: "flex", gap: "24px" }}>
-            <Link to={`/site/${slug}/terms`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.85rem" }}>Terms</Link>
-            <Link to={`/site/${slug}/privacy`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.85rem" }}>Privacy</Link>
+        <div className="sf-footer-bottom">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+            <p style={{ margin: 0 }}>&copy; {new Date().getFullYear()} {salon.name}. All rights reserved.</p>
+            <div style={{ display: "flex", gap: "24px" }}>
+              <span style={{ cursor: 'pointer', transition: 'var(--transition)' }}>Terms of Service</span>
+              <span style={{ cursor: 'pointer', transition: 'var(--transition)' }}>Privacy Policy</span>
+            </div>
           </div>
         </div>
       </footer>

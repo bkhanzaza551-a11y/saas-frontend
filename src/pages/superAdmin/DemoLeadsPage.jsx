@@ -541,7 +541,7 @@ export default function DemoLeadsPage() {
                     )}
                     {row.leadNotes && (
                       <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 10, padding: "12px 14px" }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#075985", textTransform: "uppercase", marginBottom: 5 }}>Internal Notes</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#075985", textTransform: "uppercase", marginBottom: 5 }}>Poppinsnal Notes</div>
                         <p style={{ margin: 0, fontSize: 13, color: "#0c4a6e" }}>{row.leadNotes}</p>
                       </div>
                     )}
@@ -686,7 +686,7 @@ export default function DemoLeadsPage() {
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Initial Inquiry Message / Request</label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Interested in multi-branch billing & POS demo..."
+                  placeholder="e.g. Poppinsested in multi-branch billing & POS demo..."
                   value={leadForm.message}
                   onChange={e => setLeadForm({ ...leadForm, message: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
@@ -694,10 +694,10 @@ export default function DemoLeadsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Internal Staff Notes</label>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Poppinsnal Staff Notes</label>
                 <textarea
                   rows={2}
-                  placeholder="Internal notes about lead requirements or callback instructions..."
+                  placeholder="Poppinsnal notes about lead requirements or callback instructions..."
                   value={leadForm.leadNotes}
                   onChange={e => setLeadForm({ ...leadForm, leadNotes: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}

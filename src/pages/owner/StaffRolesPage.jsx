@@ -304,7 +304,7 @@ export default function StaffRolesPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        .srp-container { display:flex; height:calc(100vh - 108px); background:#f1f5f9; font-family:'Inter',system-ui,sans-serif; }
+        .srp-container { display:flex; height:calc(100vh - 108px); background:#f1f5f9; font-family:'Poppins',system-ui,sans-serif; }
         .srp-sidebar { width:280px; background:white; border-right:1px solid #e2e8f0; display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0; }
         .srp-sidebar-header { padding:24px 20px 16px; border-bottom:1px solid #f1f5f9; }
         .srp-sidebar-header h2 { margin:0; font-size:17px; font-weight:700; color:#0f172a; }

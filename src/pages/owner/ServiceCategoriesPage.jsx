@@ -398,7 +398,7 @@ export default function ServiceCategoriesPage() {
   const labelStyle = { display: "block", marginBottom: 6, fontWeight: 700, color: "#475569", fontSize: 13 };
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh", fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+    <div style={{ background: "#f8fafc", minHeight: "100vh", fontFamily: "'Poppins','Segoe UI',sans-serif" }}>
       {/* Toast Notifications */}
       {status.error && (
         <div style={{ position: "fixed", top: 80, right: 24, background: "#fef2f2", color: "#dc2626", padding: "12px 20px", borderRadius: 10, fontSize: 14, zIndex: 99999, boxShadow: "0 4px 20px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", gap: 12, fontWeight: 600, maxWidth: 380 }}>

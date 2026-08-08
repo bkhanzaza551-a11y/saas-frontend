@@ -386,8 +386,8 @@ export default function SalonsPage() {
                   <input type="date" value={form.trialEndsAt} onChange={(e) => setForm({ ...form, trialEndsAt: e.target.value })} />
                 </label>
                 <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Internal Notes</span>
-                  <textarea rows="2" placeholder="Internal notes about client..." value={form.internalNote} onChange={(e) => setForm({ ...form, internalNote: e.target.value })} />
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Poppinsnal Notes</span>
+                  <textarea rows="2" placeholder="Poppinsnal notes about client..." value={form.internalNote} onChange={(e) => setForm({ ...form, internalNote: e.target.value })} />
                 </label>
 
                 {!editingId && (

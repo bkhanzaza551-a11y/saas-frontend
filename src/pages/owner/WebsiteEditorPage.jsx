@@ -147,7 +147,7 @@ function LivePreview({ config, sections, device }) {
   const enabledSections = sections.filter(s => s.enabled);
 
   const previewStyle = useMemo(() => ({
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, sans-serif",
     color: textColor,
     background: "#ffffff",
     margin: 0,

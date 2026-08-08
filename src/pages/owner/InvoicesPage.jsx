@@ -372,7 +372,7 @@ export default function InvoicesPage() {
                       />
                     </div>
                     <div style={{ flex: 2, minWidth: '160px' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Internal Note <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span></div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Poppinsnal Note <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span></div>
                       <input 
                         value={paymentForm.note} 
                         onChange={(event) => setPaymentForm({ ...paymentForm, note: event.target.value })} 

@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
         .login-page-container {
           display: flex;
           min-height: 100vh;
-          font-family: 'Inter', system-ui, sans-serif;
+          font-family: 'Poppins', system-ui, sans-serif;
           background: #ffffff;
           position: relative;
           overflow: hidden;

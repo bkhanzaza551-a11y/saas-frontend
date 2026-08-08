@@ -119,6 +119,9 @@ const EcommerceOrdersPage = lazyWithRetry(() => import("./pages/owner/EcommerceO
 const ProductsRequirementPage = lazyWithRetry(() => import("./pages/owner/ProductsRequirementPage.jsx"));
 const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffRequirementsPage.jsx"));
 
+const WhatsAppCreditsPage = lazyWithRetry(() => import("./pages/owner/WhatsAppCreditsPage.jsx"));
+const ManageCreditsPage = lazyWithRetry(() => import("./pages/superadmin/ManageCreditsPage.jsx"));
+
 const RouteFallback = () => (
   <div className="page-shell">
     <div className="panel-card">
@@ -180,7 +183,7 @@ const Protected = () => {
           items: [
             can("settings", "edit") && { label: "Website Editor", to: "/admin/website-editor" },
             can("settings", "view") && enabled("catalogAnalytics") && { label: "Website Analytics", to: "/admin/website-analytics" },
-            can("orders", "view") && enabled("onlineOrders") && { label: "Online Orders", to: "/admin/order-dashboard" },
+            can("orders", "view") && enabled("onlineOrders") && { label: "Orders", to: "/admin/order-dashboard" },
             { label: "View Live Site", to: `/site/${auth?.membership?.salon?.slug || "demo-salon"}` }
           ].filter(Boolean)
         },
@@ -255,6 +258,7 @@ const Protected = () => {
         { label: "Referral Program", to: "/admin/referral-coupons", children: [{ label: "Coupons", to: "/admin/referral-coupons" }, { label: "Partners", to: "/admin/referral-coupons" }, { label: "Wallets", to: "/admin/referral-coupons" }] },
 
         { label: "Payments", to: "/admin/payments" },
+        { label: "WhatsApp Credits", to: "/admin/whatsapp-credits" },
         { label: "Campaigns", to: "/admin/campaigns" },
         { label: "Reports Hub", to: "/admin/reports-hub" },
         { label: "Inventory", to: "/admin/inventory" },
@@ -272,6 +276,7 @@ const Protected = () => {
         { label: "Salons Control", to: "/super-admin/salons" },
 
         { label: "Plans Catalog", to: "/super-admin/plans" },
+        { label: "WhatsApp Credits", to: "/super-admin/credits" },
         { label: "Customer Management", to: "/super-admin/subscriptions" },
         { label: "Staff Management", to: "/super-admin/staff" }
       ]
@@ -576,6 +581,7 @@ export default function App() {
           <Route path="/admin/enquiries" element={<OwnerRoute moduleKey="enquiries" featureKey="enquiries" element={<EnquiriesPage />} />} />
           <Route path="/admin/enquiries/follow-ups" element={<OwnerRoute moduleKey="enquiries" featureKey="enquiries" element={<EnquiriesPage />} />} />
           <Route path="/admin/enquiries/reports" element={<OwnerRoute moduleKey="enquiries" featureKey="enquiries" element={<EnquiriesPage />} />} />
+          <Route path="/admin/whatsapp-credits" element={<WhatsAppCreditsPage />} />
           <Route path="/admin/expenses" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
           <Route path="/admin/expenses/dashboard" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
           <Route path="/admin/expenses/types" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
@@ -652,6 +658,7 @@ export default function App() {
           <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />
           <Route path="/super-admin/support-tickets" element={<SuperAdminRoute pageKey="supportTickets" element={<SuperAdminSupportTicketsPage />} />} />
           <Route path="/super-admin/settings" element={<SuperAdminRoute pageKey="settings" element={<SuperAdminSettingsPage />} />} />
+          <Route path="/super-admin/credits" element={<SuperAdminRoute pageKey="credits" element={<ManageCreditsPage />} />} />
           <Route path="/super-admin/audit-logs" element={<SuperAdminRoute pageKey="auditLogs" element={<SuperAdminAuditLogsPage />} />} />
           <Route path="/super-admin/traffic" element={<SuperAdminRoute pageKey="traffic" element={<SuperAdminTrafficAnalyticsPage />} />} />
           <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />

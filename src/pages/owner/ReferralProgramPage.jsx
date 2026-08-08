@@ -438,7 +438,7 @@ export default function ReferralProgramPage() {
                   </div>
                 </div>
 
-                <div style={{ gridColumn: "1 / -1" }}><label className="cpn-label">Internal Notes</label><input className="cpn-input" value={couponForm.notes} onChange={(e) => setCouponForm(prev => ({ ...prev, notes: e.target.value }))} placeholder="Optional notes for staff..." style={{ marginTop: 4 }} /></div>
+                <div style={{ gridColumn: "1 / -1" }}><label className="cpn-label">Poppinsnal Notes</label><input className="cpn-input" value={couponForm.notes} onChange={(e) => setCouponForm(prev => ({ ...prev, notes: e.target.value }))} placeholder="Optional notes for staff..." style={{ marginTop: 4 }} /></div>
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 30, paddingTop: 20, borderTop: "1px solid #e2e8f0" }}>
                 <button type="button" onClick={() => { setShowCouponForm(false); setEditingCoupon(null); setPartnerSearchInput(""); }} className="cpn-btn cpn-btn-secondary" style={{ minWidth: 100 }}>Cancel</button>

@@ -24,7 +24,7 @@ const ALL_REPORTS = [
   { key: "staff_attendance", label: "Staff Attendance" },
   { key: "memberships", label: "Membership Sold" },
   { key: "membership_redemption", label: "Membership Redemption" },
-  { key: "inter_store_membership", label: "Inter-Store Membership Report" },
+  { key: "inter_store_membership", label: "Poppins-Store Membership Report" },
   { key: "packages", label: "Packages Sold" },
   { key: "package_redemption", label: "Package Redemption" },
   { key: "gift_card_sold", label: "Gift Card Sold Report" },
