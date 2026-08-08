@@ -502,12 +502,14 @@ a {
   padding: 40px;
   background: var(--bg-main);
   border: 1px solid var(--border);
-  transition: var(--transition);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateY(0);
 }
 
 .sf-feature-item:hover {
-  box-shadow: var(--shadow-sm);
-  border-color: var(--accent-light);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+  border-color: var(--text-main);
+  transform: translateY(-8px);
 }
 
 .sf-feature-icon {
@@ -517,7 +519,12 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
+  color: var(--text-main);
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sf-feature-item:hover .sf-feature-icon {
+  transform: scale(1.1) translateY(-4px);
 }
 
 .sf-feature-item h3 {
