@@ -2506,7 +2506,18 @@ export default function PosPage() {
               
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <button onClick={() => {
-                  const text = encodeURIComponent(`Hello! Here is your invoice from ${context.settings?.salonName || 'our salon'}. Amount: ${formatMoney(createdInvoice.total)}`);
+                  let invoiceDetails = `Hello ${createdInvoice.customer?.name || 'Valued Customer'}!\nThank you for visiting ${context.settings?.salonName || 'our salon'}.\n\n*Invoice Details*\nInvoice #: ${createdInvoice.invoiceNumber || 'N/A'}\n\n*Items:*\n`;
+                  if (createdInvoice.items && Array.isArray(createdInvoice.items)) {
+                    createdInvoice.items.forEach(item => {
+                      invoiceDetails += `- ${item.qty || 1}x ${item.itemName} @ ${formatMoney(item.price)}\n`;
+                    });
+                  }
+                  invoiceDetails += `\nSubtotal: ${formatMoney(createdInvoice.subtotal)}\n`;
+                  if (Number(createdInvoice.discount) > 0) invoiceDetails += `Discount: -${formatMoney(createdInvoice.discount)}\n`;
+                  if (Number(createdInvoice.tax) > 0) invoiceDetails += `Tax: ${formatMoney(createdInvoice.tax)}\n`;
+                  invoiceDetails += `*Grand Total: ${formatMoney(createdInvoice.total)}*\n\nWe hope to see you again soon!`;
+                  
+                  const text = encodeURIComponent(invoiceDetails);
                   const phone = createdInvoice.customer?.phone ? `+91${createdInvoice.customer.phone.replace(/\D/g, '')}` : '';
                   window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${text}`, '_blank');
                 }} className="pos-action-btn" style={{ background: "#25d366", border: "none", color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 600 }}>
