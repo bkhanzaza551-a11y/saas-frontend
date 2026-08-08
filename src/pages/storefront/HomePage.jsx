@@ -137,6 +137,31 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Gallery Section */}
+      <section className="sf-section">
+        <div className="sf-section-title">
+          <h2>Signature Styles</h2>
+          <p>A glimpse into our world of precision styling and premium care.</p>
+        </div>
+        <div className="sf-gallery-grid">
+          <div className="sf-gallery-item sf-gallery-main">
+            <img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=800&q=80" alt="Gallery 1" />
+          </div>
+          <div className="sf-gallery-item">
+            <img src="https://images.unsplash.com/photo-1521590832167-7bfc17484d20?w=600&q=80" alt="Gallery 2" />
+          </div>
+          <div className="sf-gallery-item">
+            <img src="https://images.unsplash.com/photo-1620331311520-246422fd82f9?w=600&q=80" alt="Gallery 3" />
+          </div>
+          <div className="sf-gallery-item">
+            <img src="https://images.unsplash.com/photo-1516975080661-46bd8dc0713b?w=600&q=80" alt="Gallery 4" />
+          </div>
+          <div className="sf-gallery-item">
+            <img src="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&q=80" alt="Gallery 5" />
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials Roller */}
       <section className="sf-marquee-container" style={{ padding: '60px 0' }}>
         <div className="sf-section-title" style={{ marginBottom: 40 }}>
