@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Outlet, Link, useParams } from "react-router-dom";
+import { CalendarCheck } from "lucide-react";
 import { api } from "../../api/client";
 import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
 import "../../storefront.css";
@@ -145,10 +146,11 @@ export default function StorefrontLayout() {
                 ))}
               </select>
             )}
-            <Link to={`/site/${slug}/cart`} className="sf-btn-dark" style={{ position: "relative", padding: '10px 24px' }}>
-              Cart
+            <Link to={`/site/${slug}/cart`} style={{ position: "relative", padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, color: 'var(--text-main)', textDecoration: 'none' }}>
+              <CalendarCheck size={20} />
+              <span style={{ display: 'none' }}>Booking</span>
               {bookingCount > 0 && (
-                <span style={{ position: "absolute", top: -8, right: -8, background: "#ef4444", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, border: '2px solid var(--bg-main)' }}>
+                <span style={{ position: "absolute", top: -4, right: -4, background: "#ef4444", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, border: '2px solid var(--bg-main)' }}>
                   {bookingCount}
                 </span>
               )}
