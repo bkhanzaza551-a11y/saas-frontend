@@ -211,13 +211,12 @@ export default function ManageCreditsPage() {
                 <div>
                   <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>
                     <MessageCircle size={16} color="#25d366" />
-                    WhatsApp Cost <span style={{ color: "#94a3b8", fontWeight: 400 }}>(INR / Credits per message)</span>
+                    WhatsApp Cost <span style={{ color: "#94a3b8", fontWeight: 400 }}>(Credits per message)</span>
                   </label>
                   <div style={{ position: "relative" }}>
-                    <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontWeight: 600 }}>₹</div>
                     <input 
-                      type="number" required min="1" step="0.01"
-                      style={{ ...inputStyle, paddingLeft: "32px", fontSize: "1rem", fontWeight: 600 }}
+                      type="number" required min="0.01" step="0.01"
+                      style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1rem", fontWeight: 600 }}
                       value={costs.whatsappCreditCost} onChange={e => setCosts({...costs, whatsappCreditCost: e.target.value})} 
                     />
                   </div>
