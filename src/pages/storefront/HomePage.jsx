@@ -77,7 +77,7 @@ export default function HomePage() {
       <section className="sf-section-alt">
         <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: '320px', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100%', height: '100%', border: '1px solid var(--accent)', zIndex: 0 }}></div>
+            <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100%', height: '100%', border: '1px solid #111', zIndex: 0 }}></div>
             <img 
               src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" 
               alt="Salon Interior" 
