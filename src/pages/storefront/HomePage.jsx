@@ -73,29 +73,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="sf-section-alt">
-        <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px', alignItems: 'center' }}>
-          <div style={{ flex: 1, minWidth: '320px', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100%', height: '100%', border: '1px solid #111', zIndex: 0 }}></div>
-            <img 
-              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" 
-              alt="Salon Interior" 
-              style={{ width: '100%', position: 'relative', zIndex: 1, display: 'block' }} 
-            />
-          </div>
-          <div style={{ flex: 1, minWidth: '320px' }}>
-            <h2 style={{ fontSize: "3rem", marginBottom: "30px", fontWeight: 500 }}>The Art of Grooming</h2>
-            <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "40px", fontSize: "1.1rem", fontWeight: 300 }}>
-              At {salon?.name || "our salon"}, we approach self-care with precision and professionalism. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services. From precision haircuts to advanced skincare regimens, every detail is meticulously tailored to your requirements.
-            </p>
-            <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">
-              View Our Services
-            </Link>
-          </div>
-        </div>
-      </section>
-
 
 
       {/* Featured Services */}
@@ -135,6 +112,29 @@ export default function HomePage() {
             </div>
           </>
         )}
+      </section>
+
+      {/* About Section */}
+      <section className="sf-section-alt">
+        <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px', alignItems: 'center' }}>
+          <div style={{ flex: 1, minWidth: '320px', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100%', height: '100%', border: '1px solid #111', zIndex: 0 }}></div>
+            <img 
+              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" 
+              alt="Salon Interior" 
+              style={{ width: '100%', position: 'relative', zIndex: 1, display: 'block' }} 
+            />
+          </div>
+          <div style={{ flex: 1, minWidth: '320px' }}>
+            <h2 style={{ fontSize: "3rem", marginBottom: "30px", fontWeight: 500 }}>The Art of Grooming</h2>
+            <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "40px", fontSize: "1.1rem", fontWeight: 300 }}>
+              At {salon?.name || "our salon"}, we approach self-care with precision and professionalism. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services. From precision haircuts to advanced skincare regimens, every detail is meticulously tailored to your requirements.
+            </p>
+            <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">
+              View Our Services
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Testimonials Roller */}
