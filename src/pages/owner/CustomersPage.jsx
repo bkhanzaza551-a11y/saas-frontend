@@ -1229,11 +1229,12 @@ export default function CustomersPage() {
           .crm-row-action { position:relative; overflow:visible; }
           .crm-row-action-trigger { width:32px !important; height:32px !important; border-radius:6px !important; border:1px solid #e2e8f0 !important; background:#f8fafc !important; color:#475569 !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; cursor:pointer !important; min-height:unset !important; box-shadow:none !important; padding:0 !important; margin:0 !important; }
           .crm-row-action-trigger:hover { background:#eff6ff !important; color:#2563eb !important; border-color:#bfdbfe !important; transform:none !important; filter:none !important; }
-          .crm-row-menu { position:absolute; top:calc(100% + 4px); right:0; min-width:170px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding:6px; z-index:3000; }
-          .crm-row-menu button { width:100%; border:none; background:#fff; border-radius:8px; display:flex; align-items:center; gap:8px; padding:9px 12px; font-size:0.82rem; color:#0f172a; cursor:pointer; margin-bottom:4px; min-height:unset; box-shadow:none; }
-          .crm-row-menu button:last-child { margin-bottom:0; }
-          .crm-row-menu button:hover { background:#f8fafc; transform:none; filter:none; }
-          .crm-row-menu .danger { color:#dc2626; }
+          .crm-row-menu { position:absolute; top:calc(100% + 4px); right:0; min-width:160px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); padding:6px; z-index:3000; }
+          .crm-row-menu .crm-action-btn { width:100%; border:none !important; background:#fff !important; border-radius:6px; display:flex; align-items:center; gap:8px; padding:6px 10px !important; font-size:0.82rem !important; font-weight: 500 !important; color:#334155 !important; cursor:pointer; margin-bottom:2px; min-height:unset; box-shadow:none !important; justify-content: flex-start; }
+          .crm-row-menu .crm-action-btn:last-child { margin-bottom:0; }
+          .crm-row-menu .crm-action-btn:hover { background:#f1f5f9 !important; color:#0f172a !important; transform:none !important; filter:none !important; }
+          .crm-row-menu .crm-action-btn.danger { color:#dc2626 !important; }
+          .crm-row-menu .crm-action-btn.danger:hover { background: #fee2e2 !important; color: #b91c1c !important; }
           .crm-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:22px; padding:2px 7px; border-radius:999px; background:#eff6ff; color:#2563eb; font-weight:700; font-size:0.72rem; }
           /* Customer Detail Slide-out Panel – Two-column layout */
           .cust-detail-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.25); backdrop-filter:blur(2px); z-index:2000; }
@@ -1547,16 +1548,16 @@ export default function CustomersPage() {
                       </button>
                       {activeMenuRowId === row.id && (
                         <div className="crm-row-menu" ref={actionMenuRef}>
-                          <button onClick={(e) => { e.stopPropagation(); setActiveMenuRowId(""); openCustomerDetail(row, "updateprofile"); }}>
+                          <button className="crm-action-btn" onClick={(e) => { e.stopPropagation(); setActiveMenuRowId(""); openCustomerDetail(row, "updateprofile"); }}>
                             <Edit3 size={16} /> Edit
                           </button>
-                          <button className="danger" onClick={(e) => { e.stopPropagation(); handleDeleteCustomer(row); }} disabled={actionBusy === row.id}>
+                          <button className="crm-action-btn danger" onClick={(e) => { e.stopPropagation(); handleDeleteCustomer(row); }} disabled={actionBusy === row.id}>
                             <Trash2 size={16} /> {actionBusy === row.id ? "Working..." : "Delete"}
                           </button>
-                          <button onClick={(e) => { e.stopPropagation(); setMergeSourceRow(row); setMergeTargetId(""); setActiveMenuRowId(""); }}>
+                          <button className="crm-action-btn" onClick={(e) => { e.stopPropagation(); setMergeSourceRow(row); setMergeTargetId(""); setActiveMenuRowId(""); }}>
                             <GitMerge size={16} /> Merge
                           </button>
-                          <button onClick={(e) => { e.stopPropagation(); openWhatsAppForCustomer(row); }}>
+                          <button className="crm-action-btn" onClick={(e) => { e.stopPropagation(); openWhatsAppForCustomer(row); }}>
                             <MessageCircle size={16} /> Whatsapp
                           </button>
                         </div>

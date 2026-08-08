@@ -138,11 +138,11 @@ export default function ManageCreditsPage() {
       {/* Header */}
       <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 800, margin: "0 0 8px 0", color: "#0f172a", display: "flex", alignItems: "center", gap: "12px" }}>
+          <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#0f172a", margin: "0 0 4px", display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ background: "#eff6ff", color: "#3b82f6", padding: "10px", borderRadius: "12px" }}>
               <CreditCard size={28} />
             </div>
-            WhatsApp & SMS Credits
+            WhatsApp Credits
           </h1>
           <p style={{ margin: 0, color: "#64748b", fontSize: "15px" }}>Professional management of salon communication credits and pricing</p>
         </div>
