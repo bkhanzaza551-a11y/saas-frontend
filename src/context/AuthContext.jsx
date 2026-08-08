@@ -16,7 +16,9 @@ const getStorageKey = () => {
 
 const readAuth = () => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_PERSIST) || sessionStorage.getItem(STORAGE_KEY_SESSION);
+    const raw = localStorage.getItem(STORAGE_KEY_PERSIST) || 
+                sessionStorage.getItem(STORAGE_KEY_SESSION) ||
+                localStorage.getItem(STORAGE_KEY_SESSION); // Fallback for previous buggy version
     if (!raw) return null;
     return JSON.parse(raw);
   } catch {
@@ -28,7 +30,12 @@ const writeAuth = (state, rememberMe) => {
   const key = rememberMe ? STORAGE_KEY_PERSIST : STORAGE_KEY_SESSION;
   const other = rememberMe ? STORAGE_KEY_SESSION : STORAGE_KEY_PERSIST;
   if (state) {
-    localStorage.setItem(key, JSON.stringify(state));
+    if (rememberMe) {
+      localStorage.setItem(key, JSON.stringify(state));
+    } else {
+      sessionStorage.setItem(key, JSON.stringify(state));
+      try { localStorage.removeItem(key); } catch {} // Cleanup legacy bug
+    }
   }
   try { sessionStorage.removeItem(other); } catch {}
   try { localStorage.removeItem(other); } catch {}

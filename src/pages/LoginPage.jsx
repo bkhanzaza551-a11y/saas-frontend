@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [otpMode, setOtpMode] = useState(false);
   const [otp, setOtp] = useState("");
   const [tempToken, setTempToken] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [sandboxOtp, setSandboxOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
   const [resendMsg, setResendMsg] = useState("");
