@@ -34,7 +34,7 @@ export default function HomePage() {
           <h1>Experience True Elegance</h1>
           <p>Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look with absolute precision.</p>
           <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-            <Link to={`/site/${salon.slug}/services`} className="sf-btn-primary" style={{ background: '#ffffff', color: '#111111' }}>
+            <Link to={`/site/${salon.slug}/services`} className="sf-btn-white">
               Book Appointment
             </Link>
           </div>

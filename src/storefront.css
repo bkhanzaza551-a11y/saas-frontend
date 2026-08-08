@@ -127,7 +127,7 @@ a {
   justify-content: center;
   gap: 10px;
   background: var(--accent);
-  color: #ffffff !important;
+  color: #ffffff;
   padding: 16px 36px;
   font-weight: 500;
   font-size: 0.95rem;
@@ -142,7 +142,31 @@ a {
 
 .sf-btn-primary:hover {
   background: var(--bg-main);
-  color: var(--accent) !important;
+  color: var(--accent);
+}
+
+.sf-btn-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #ffffff;
+  color: #111111;
+  padding: 16px 36px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: 1px solid #ffffff;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sf-btn-white:hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #111111;
 }
 
 .sf-btn-outline {
