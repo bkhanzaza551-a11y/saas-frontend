@@ -219,10 +219,15 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
           /* Full Expanded Sidebar Mode */
           <>
             {/* Brand Row */}
-            <div className="sidebar-brand-row">
-              <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start", width: "100%", paddingLeft: "4px" }}>
+            <div className="sidebar-brand-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: "4px" }}>
                 <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
               </Link>
+              {mobileOpen && (
+                <button type="button" onClick={closeMobile} style={{ background: "transparent", border: "none", color: "#64748b", padding: "8px", cursor: "pointer", display: "flex", alignItems: "center" }}>
+                  <X size={24} />
+                </button>
+              )}
             </div>
 
             {/* User Account Profile Avatar Card */}

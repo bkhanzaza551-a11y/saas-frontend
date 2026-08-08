@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
+import { Check, CalendarDays, ArrowRight } from "lucide-react";
 
 export default function BookingConfirmationPage() {
   const { slug } = useParams();
@@ -20,10 +21,9 @@ export default function BookingConfirmationPage() {
 
   if (loading) {
     return (
-      <div className="storefront-wrapper" style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <div className="storefront-wrapper" style={{ justifyContent: 'center', alignItems: 'center', minHeight: '80vh', background: 'var(--surface)' }}>
         <div style={{ textAlign: "center", padding: "120px 20px" }}>
-          <div style={{ width: 48, height: 48, border: "4px solid var(--border)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 24px" }} />
-          <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>Loading booking details...</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "1.2rem", fontWeight: 300 }}>Confirming your reservation...</p>
         </div>
       </div>
     );
@@ -31,38 +31,50 @@ export default function BookingConfirmationPage() {
 
   if (!orderNumber) {
     return (
-      <div className="storefront-wrapper" style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ textAlign: "center", padding: "120px 20px" }}>
-          <h2 style={{ fontSize: "2rem", marginBottom: 16 }}>Invalid Access</h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: 32 }}>No booking information found.</p>
-          <Link to={`/site/${slug}`} className="sf-btn-primary">Back to Home</Link>
+      <div className="storefront-wrapper" style={{ justifyContent: 'center', alignItems: 'center', minHeight: '80vh', background: 'var(--surface)' }}>
+        <div style={{ textAlign: "center", padding: "120px 20px", maxWidth: 600, margin: '0 auto' }}>
+          <h2 style={{ fontSize: "2.5rem", marginBottom: 24, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>Invalid Access</h2>
+          <p style={{ color: "var(--text-muted)", marginBottom: 40, fontSize: '1.1rem', fontWeight: 300 }}>No booking information found.</p>
+          <Link to={`/site/${slug}`} className="sf-btn-primary">Return to Home</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="sf-section" style={{ background: 'var(--surface)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ maxWidth: 640, margin: '0 auto', background: 'var(--bg-main)', padding: '60px 40px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border)', textAlign: 'center' }}>
-        <div style={{ width: 88, height: 88, background: "rgba(22, 163, 74, 0.1)", color: "#16a34a", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px" }}>
-          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <div className="storefront-wrapper" style={{ background: 'var(--surface)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px' }}>
+      <div style={{ maxWidth: 700, width: '100%', margin: '0 auto', background: 'var(--bg-main)', padding: '80px 48px', border: '1px solid var(--border)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* Decorative Top Accent */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, background: 'var(--accent)' }} />
+
+        <div style={{ width: 80, height: 80, background: "var(--accent)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 40px", boxShadow: '0 12px 32px rgba(0,0,0,0.1)' }}>
+          <Check size={36} strokeWidth={2.5} />
         </div>
         
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', margin: '0 0 24px', letterSpacing: '-1px' }}>Booking Confirmed!</h1>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3.5rem', margin: '0 0 24px', fontWeight: 500 }}>Reservation Confirmed</h1>
         
         {error ? (
-          <p style={{ color: '#ef4444', marginBottom: 40, lineHeight: 1.6, fontSize: '1.1rem', background: '#fef2f2', padding: 16, borderRadius: 'var(--radius-sm)' }}>{error}</p>
+          <p style={{ color: '#be123c', marginBottom: 48, lineHeight: 1.8, fontSize: '1.1rem', background: '#fff1f2', padding: '24px', borderLeft: '4px solid #be123c', fontWeight: 500 }}>{error}</p>
         ) : (
-          <div style={{ color: 'var(--text-muted)', marginBottom: 48, lineHeight: 1.8, fontSize: '1.1rem' }}>
-            <p style={{ marginBottom: 16 }}>Thank you for your booking. Your booking reference is <strong style={{ color: 'var(--text-main)', fontSize: '1.2rem', padding: '4px 12px', background: 'var(--surface)', borderRadius: 'var(--radius-sm)', marginLeft: 8 }}>{orderNumber}</strong>.</p>
-            {booking?.startAt && <p>Your appointment is on <strong style={{ color: 'var(--text-main)' }}>{new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong> at <strong style={{ color: 'var(--text-main)' }}>{new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</strong>.</p>}
-            <p style={{ marginTop: 24, fontSize: '0.95rem' }}>We will send you a confirmation email shortly. You can track your booking status anytime using your reference number.</p>
+          <div style={{ color: 'var(--text-muted)', marginBottom: 60, lineHeight: 1.8, fontSize: '1.1rem', fontWeight: 300 }}>
+            <p style={{ marginBottom: 24 }}>Thank you for your reservation. Your booking reference is <br/><strong style={{ color: 'var(--text-main)', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', display: 'inline-block', marginTop: 12, padding: '8px 24px', border: '1px solid var(--border)', background: 'var(--surface)' }}>{orderNumber}</strong></p>
+            
+            {booking?.startAt && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'var(--surface)', padding: '16px 32px', border: '1px solid var(--border)', marginTop: 8 }}>
+                <CalendarDays size={20} style={{ color: 'var(--accent)' }} />
+                <span>
+                  <strong style={{ color: 'var(--text-main)', fontWeight: 500 }}>{new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</strong> at <strong style={{ color: 'var(--text-main)', fontWeight: 500 }}>{new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</strong>
+                </span>
+              </div>
+            )}
+            <p style={{ marginTop: 40, fontSize: '1rem', borderTop: '1px solid var(--border)', paddingTop: 40 }}>We look forward to seeing you. You can track your booking status anytime using your reference number.</p>
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to={`/site/${slug}/my-bookings`} className="sf-btn-primary" style={{ padding: '16px 32px', fontSize: '1.05rem' }}>Track My Booking</Link>
-          <Link to={`/site/${slug}/services`} className="sf-btn-outline" style={{ padding: '16px 32px', fontSize: '1.05rem' }}>Book Another Service</Link>
+        <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link to={`/site/${slug}/my-bookings`} className="sf-btn-primary">Track Reservation <ArrowRight size={16} /></Link>
+          <Link to={`/site/${slug}/services`} className="sf-btn-outline">Book Another Service</Link>
         </div>
       </div>
     </div>

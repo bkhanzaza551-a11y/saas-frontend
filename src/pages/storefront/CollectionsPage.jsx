@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
+import { ArrowRight } from "lucide-react";
 
 export default function CollectionsPage() {
   const { salon, selectedBranchId } = useOutletContext();
@@ -21,9 +22,9 @@ export default function CollectionsPage() {
   }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
-    document.title = `Services — ${salon.name}`;
+    document.title = `Services — ${salon?.name || "Premium Salon"}`;
     window.scrollTo(0, 0);
-  }, [salon.name]);
+  }, [salon?.name]);
 
   const categoryTabs = (() => {
     const map = {};
@@ -41,29 +42,27 @@ export default function CollectionsPage() {
 
   return (
     <div className="storefront-wrapper">
-      <div style={{ 
-        position: 'relative',
-        background: "linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1600&q=80') center/cover", 
-        color: "white", 
-        padding: "140px 40px 100px", 
-        textAlign: "center" 
+      {/* Hero Section */}
+      <div className="sf-page-header" style={{
+        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1600&q=80') center/cover no-repeat fixed`,
+        color: "white"
       }}>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", margin: 0, letterSpacing: '-1px', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>Our Services</h1>
-          <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.9)", marginTop: 24, maxWidth: 600, margin: '24px auto 0', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
-            Discover our full range of premium treatments meticulously crafted for your well-being.
-          </p>
-        </div>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", margin: 0, fontWeight: 500, color: 'white' }}>Our Services</h1>
+        <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.9)", marginTop: 24, maxWidth: 600, margin: '24px auto 0', fontWeight: 300 }}>
+          Discover our full range of premium treatments meticulously crafted for your well-being.
+        </p>
       </div>
 
       <section className="sf-section">
         {loading ? (
-          <div style={{ textAlign: "center", padding: 60, color: "var(--text-muted)" }}>Loading services...</div>
+          <div style={{ textAlign: "center", padding: 120, color: "var(--text-muted)" }}>
+             <p style={{ fontSize: '1.2rem', fontWeight: 300 }}>Curating our premium services...</p>
+          </div>
         ) : (
           <>
             {allServices.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 60, color: "var(--text-muted)" }}>
-                <p>No services currently available. Please check back later.</p>
+              <div style={{ textAlign: "center", padding: 120, color: "var(--text-muted)" }}>
+                <p style={{ fontSize: '1.2rem', fontWeight: 300 }}>No services currently available. Please check back later.</p>
               </div>
             ) : (
               <>
@@ -73,17 +72,18 @@ export default function CollectionsPage() {
                       onClick={() => setActiveTab("all")}
                       style={{
                         padding: "12px 28px",
-                        borderRadius: 100,
                         border: "1px solid var(--accent)",
                         background: activeTab === "all" ? "var(--accent)" : "transparent",
                         color: activeTab === "all" ? "#fff" : "var(--accent)",
-                        fontWeight: 600,
+                        fontWeight: 500,
                         fontSize: '0.95rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
                         cursor: 'pointer',
                         transition: "var(--transition)"
                       }}
                     >
-                      All Services
+                      All
                     </button>
                     {categoryTabs.map(cat => (
                       <button
@@ -91,12 +91,13 @@ export default function CollectionsPage() {
                         onClick={() => setActiveTab(cat)}
                         style={{
                           padding: "12px 28px",
-                          borderRadius: 100,
                           border: "1px solid var(--accent)",
                           background: activeTab === cat ? "var(--accent)" : "transparent",
                           color: activeTab === cat ? "#fff" : "var(--accent)",
-                          fontWeight: 600,
+                          fontWeight: 500,
                           fontSize: '0.95rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
                           cursor: 'pointer',
                           transition: "var(--transition)"
                         }}
@@ -109,14 +110,16 @@ export default function CollectionsPage() {
 
                 <div className="sf-services-grid">
                   {filteredServices.map(service => (
-                    <div key={service.id} className="sf-service-card">
-                      <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"} alt={service.name} className="sf-service-img" />
+                    <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
+                      <div className="sf-service-img-wrapper">
+                        <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"} alt={service.name} className="sf-service-img" />
+                      </div>
                       <div className="sf-service-content">
                         <h3>{service.name}</h3>
                         <p className="sf-service-desc">{service.description || "A premium service tailored for your needs."}</p>
                         <div className="sf-service-footer">
                           <span className="sf-service-price">{salon.currency || "INR"} {service.salePrice || service.price}</span>
-                          <Link to={`/site/${salon.slug}/service/${service.id}`} className="sf-btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>View Details</Link>
+                          <span className="sf-service-btn">Details <ArrowRight size={16} /></span>
                         </div>
                       </div>
                     </div>

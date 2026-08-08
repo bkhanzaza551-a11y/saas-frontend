@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
+import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&fit=crop";
 
@@ -25,7 +26,7 @@ export default function ServiceDetailPage() {
   const { salon, addBooking, selectedBranchId, setSelectedBranchId } = useOutletContext();
   const { id } = useParams();
   const navigate = useNavigate();
-  const currency = salon.currency || "INR";
+  const currency = salon?.currency || "INR";
 
   const [service, setService] = useState(null);
   const [allServices, setAllServices] = useState([]);
@@ -69,18 +70,17 @@ export default function ServiceDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "120px 20px", textAlign: "center", color: "var(--text-muted)" }}>
-        <div style={{ width: 40, height: 40, border: "3px solid var(--border)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
-        Loading service details...
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "180px 32px", textAlign: "center", color: "var(--text-muted)" }}>
+        <p style={{ fontSize: '1.2rem', fontWeight: 300 }}>Preparing service details...</p>
       </div>
     );
   }
 
   if (!service) {
     return (
-      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "120px 20px", textAlign: "center", color: "var(--text-muted)" }}>
-        <h2 style={{ fontFamily: "var(--font-serif)", marginBottom: 16 }}>Service Not Found</h2>
-        <Link to={`/site/${salon.slug}/collections`} className="sf-btn-primary">
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "180px 32px", textAlign: "center", color: "var(--text-muted)" }}>
+        <h2 style={{ fontFamily: "var(--font-serif)", marginBottom: 24, fontSize: '2.5rem' }}>Service Not Found</h2>
+        <Link to={`/site/${salon.slug}/collections`} className="sf-btn-outline">
           Back to Services
         </Link>
       </div>
@@ -93,7 +93,7 @@ export default function ServiceDetailPage() {
   const staff = service.staffAssignments?.map(sa => sa.user).filter(Boolean) || [];
   const relatedServices = allServices.filter(
     s => String(s.id) !== String(service.id) && s.category?.id === service.category?.id
-  ).slice(0, 4);
+  ).slice(0, 3);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -129,83 +129,88 @@ export default function ServiceDetailPage() {
   };
 
   return (
-    <div className="storefront-wrapper" style={{ paddingBottom: 60 }}>
+    <div className="storefront-wrapper" style={{ paddingBottom: 100, background: 'var(--surface)' }}>
       <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 900px) {
           .sf-detail-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
           .sf-detail-sticky { position: static !important; }
         }
       `}</style>
 
-      <div style={{ position: "relative", height: '60vh', minHeight: 400, overflow: "hidden", background: 'var(--surface)' }}>
+      {/* Hero Banner */}
+      <div style={{ position: "relative", height: '65vh', minHeight: 500, overflow: "hidden" }}>
         <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(15, 23, 42, 0.8) 0%, transparent 60%)" }} />
-        <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          <Link to={`/site/${salon.slug}/collections`} style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "0.95rem", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            &larr; Back to Services
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }} />
+        
+        <div style={{ position: "absolute", bottom: 80, left: 0, right: 0, maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
+          <Link to={`/site/${salon.slug}/collections`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: "0.95rem", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24, textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <ArrowLeft size={16} /> Back to Services
           </Link>
           {service.category && (
-            <div style={{ marginBottom: 12 }}>
-              <span style={{ display: "inline-block", padding: "6px 16px", background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)", color: "#fff", borderRadius: 100, fontSize: "0.85rem", fontWeight: 600 }}>
+            <div style={{ marginBottom: 16 }}>
+              <span style={{ display: "inline-block", color: "var(--accent-light)", fontSize: "0.9rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
                 {service.category.name}
               </span>
             </div>
           )}
-          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4rem", color: "#fff", margin: 0, lineHeight: 1.1, letterSpacing: '-1px' }}>
+          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", color: "#fff", margin: 0, lineHeight: 1.1, fontWeight: 500 }}>
             {service.name}
           </h1>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px" }}>
-        <div className="sf-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 80, alignItems: "start" }}>
+      {/* Main Content */}
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "80px 32px" }}>
+        <div className="sf-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 80, alignItems: "start" }}>
+          
+          {/* Left Column: Details */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 40, flexWrap: "wrap", paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
-              <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--text-main)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 32, marginBottom: 48, flexWrap: "wrap", paddingBottom: 32, borderBottom: '1px solid var(--border)' }}>
+              <div style={{ fontSize: "2.5rem", fontWeight: 500, color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>
                 {currency} {price.toFixed(2)}
-                {hasSale && <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", textDecoration: "line-through", marginLeft: 12 }}>{currency} {originalPrice.toFixed(2)}</span>}
+                {hasSale && <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", textDecoration: "line-through", marginLeft: 16, fontFamily: 'var(--font-sans)', fontWeight: 400 }}>{currency} {originalPrice.toFixed(2)}</span>}
               </div>
-              {hasSale && <span style={{ padding: "6px 16px", background: "var(--accent)", color: "#fff", borderRadius: 100, fontSize: "0.85rem", fontWeight: 700 }}>{Math.round((1 - Number(service.salePrice) / originalPrice) * 100)}% OFF</span>}
+              {hasSale && <span style={{ padding: "6px 12px", background: "var(--accent)", color: "#fff", fontSize: "0.85rem", fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase' }}>{Math.round((1 - Number(service.salePrice) / originalPrice) * 100)}% OFF</span>}
+              
               {service.durationMin && (
-                <span style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", fontSize: "1.1rem", borderLeft: '1px solid var(--border)', paddingLeft: 24 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                <span style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text-muted)", fontSize: "1.1rem", borderLeft: '1px solid var(--border)', paddingLeft: 32, fontWeight: 300 }}>
+                  <Clock size={20} />
                   {formatDuration(service.durationMin)}
                 </span>
               )}
             </div>
 
             {service.description && (
-              <div style={{ marginBottom: 48 }}>
-                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.8rem", marginBottom: 16, color: "var(--text-main)" }}>About This Service</h2>
-                <p style={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.1rem", margin: 0, whiteSpace: "pre-line" }}>{service.description}</p>
+              <div style={{ marginBottom: 60 }}>
+                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", marginBottom: 24, fontWeight: 500 }}>About This Treatment</h2>
+                <p style={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.1rem", margin: 0, whiteSpace: "pre-line", fontWeight: 300 }}>{service.description}</p>
               </div>
             )}
 
             {staff.length > 0 && (
-              <div style={{ marginBottom: 48 }}>
-                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.8rem", marginBottom: 24, color: "var(--text-main)" }}>Select Specialist</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ marginBottom: 60 }}>
+                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", marginBottom: 32, fontWeight: 500 }}>Select Specialist</h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   {staff.map((s) => (
                     <div key={s.id} onClick={() => setSelectedStaff(s)} style={{
-                      display: "flex", alignItems: "center", gap: 20, padding: "20px 24px",
-                      border: selectedStaff?.id === s.id ? "2px solid var(--accent)" : "1px solid var(--border)",
-                      borderRadius: 'var(--radius-md)', cursor: "pointer",
-                      background: selectedStaff?.id === s.id ? "var(--surface)" : "var(--bg-main)",
+                      display: "flex", alignItems: "center", gap: 24, padding: "24px",
+                      border: selectedStaff?.id === s.id ? "1px solid var(--accent)" : "1px solid var(--border)",
+                      background: "var(--bg-main)",
+                      cursor: "pointer",
                       transition: "var(--transition)",
+                      boxShadow: selectedStaff?.id === s.id ? "var(--shadow-sm)" : "none"
                     }}>
-                      <img src={s.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name || "")}&background=random&color=fff&size=64`} alt={s.name} style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--surface)" }} />
+                      <img src={s.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name || "")}&background=random&color=fff&size=80`} alt={s.name} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover" }} />
                       <div style={{ flex: 1 }}>
-                        <p style={{ margin: 0, fontWeight: 600, fontSize: "1.1rem", color: "var(--text-main)" }}>{s.name}</p>
-                        <p style={{ margin: "4px 0 0", fontSize: "0.9rem", color: "var(--text-muted)" }}>{selectedStaff?.id === s.id ? "Preferred specialist" : "Available for this service"}</p>
+                        <p style={{ margin: 0, fontWeight: 500, fontSize: "1.2rem", color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>{s.name}</p>
+                        <p style={{ margin: "6px 0 0", fontSize: "0.95rem", color: "var(--text-muted)", fontWeight: 300 }}>{selectedStaff?.id === s.id ? "Preferred specialist" : "Available specialist"}</p>
                       </div>
-                      <button style={{
-                        padding: "10px 24px", borderRadius: 100,
-                        border: selectedStaff?.id === s.id ? "none" : "1px solid var(--accent)",
-                        background: selectedStaff?.id === s.id ? "var(--accent)" : "transparent",
-                        color: selectedStaff?.id === s.id ? "#fff" : "var(--text-main)",
-                        fontWeight: 600, fontSize: "0.95rem", cursor: "pointer", transition: "var(--transition)",
-                      }}>{selectedStaff?.id === s.id ? "Selected" : "Select"}</button>
+                      <div style={{
+                        width: 24, height: 24, borderRadius: '50%', border: `1px solid ${selectedStaff?.id === s.id ? 'var(--accent)' : 'var(--border)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', background: selectedStaff?.id === s.id ? 'var(--accent)' : 'transparent'
+                      }}>
+                        {selectedStaff?.id === s.id && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -213,10 +218,12 @@ export default function ServiceDetailPage() {
             )}
           </div>
 
+          {/* Right Column: Booking Widget */}
           <div className="sf-detail-sticky" style={{ position: "sticky", top: 120 }}>
-            <div style={{ background: "var(--bg-main)", borderRadius: 'var(--radius-lg)', border: "1px solid var(--border)", boxShadow: "var(--shadow-md)", padding: 40 }}>
-              <h3 style={{ margin: "0 0 32px", fontSize: "1.5rem", fontFamily: "var(--font-serif)", color: "var(--text-main)", paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>Book This Service</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ background: "var(--bg-main)", border: "1px solid var(--border)", padding: 48 }}>
+              <h3 style={{ margin: "0 0 32px", fontSize: "1.8rem", fontFamily: "var(--font-serif)", fontWeight: 500, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>Reserve Appointment</h3>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 
                 {salon.branches?.length > 1 && (
                   <div className="sf-form-group" style={{ marginBottom: 0 }}>
@@ -228,7 +235,7 @@ export default function ServiceDetailPage() {
                         setSelectedTime("");
                       }}
                       className="sf-form-input" 
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: "pointer", appearance: 'none', background: 'var(--surface) url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 16px top 50%', backgroundSize: '10px' }}
                     >
                       <option value="">Select a branch</option>
                       {salon.branches.map(b => (
@@ -239,96 +246,100 @@ export default function ServiceDetailPage() {
                 )}
 
                 <div className="sf-form-group" style={{ marginBottom: 0 }}>
-                  <label className="sf-form-label">Preferred Date</label>
+                  <label className="sf-form-label">Date</label>
                   <input type="date" min={today} value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setSelectedTime(""); }}
                     className="sf-form-input" />
                 </div>
+
                 <div className="sf-form-group" style={{ marginBottom: 0 }}>
-                  <label className="sf-form-label">
-                    Preferred Time {checkingSlots && <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(checking...)</span>}
+                  <label className="sf-form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Time</span>
+                    {checkingSlots && <span style={{ color: "var(--text-muted)", fontWeight: 300, textTransform: 'none', letterSpacing: 'normal' }}>Checking...</span>}
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 10, marginTop: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 12, marginTop: 12 }}>
                     {TIME_OPTIONS.map(t => {
                       const booked = isSlotBooked(t);
                       return (
-                        <button
-                          key={t}
-                          disabled={booked}
-                          onClick={() => setSelectedTime(t)}
-                          title={booked ? "Already booked" : "Available"}
-                          style={{
-                            padding: "10px 0",
-                            textAlign: "center",
-                            borderRadius: "var(--radius-sm)",
-                            border: selectedTime === t ? "2px solid var(--accent)" : "1px solid var(--border)",
-                            background: booked ? "#f1f5f9" : (selectedTime === t ? "var(--surface)" : "#fff"),
-                            color: booked ? "#94a3b8" : "var(--text-main)",
-                            cursor: booked ? "not-allowed" : "pointer",
-                            fontWeight: selectedTime === t ? 700 : 500,
-                            fontSize: "0.9rem",
-                            transition: "all 0.2s"
-                          }}
-                        >
-                          {t}
-                        </button>
+                         <button
+                           key={t}
+                           disabled={booked}
+                           onClick={() => setSelectedTime(t)}
+                           title={booked ? "Already booked" : "Available"}
+                           style={{
+                             padding: "12px 0",
+                             textAlign: "center",
+                             border: selectedTime === t ? "1px solid var(--accent)" : "1px solid var(--border)",
+                             background: booked ? "#f3f4f6" : (selectedTime === t ? "var(--accent)" : "var(--surface)"),
+                             color: booked ? "#9ca3af" : (selectedTime === t ? "#fff" : "var(--text-main)"),
+                             cursor: booked ? "not-allowed" : "pointer",
+                             fontWeight: 500,
+                             fontSize: "0.9rem",
+                             transition: "var(--transition)"
+                           }}
+                         >
+                           {t}
+                         </button>
                       );
                     })}
                   </div>
                 </div>
                 
                 {selectedStaff && (
-                  <div style={{ padding: "16px", background: "var(--surface)", borderRadius: 'var(--radius-sm)', display: "flex", alignItems: "center", gap: 12, border: '1px solid var(--border)' }}>
-                    <img src={selectedStaff.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStaff.name || "")}&background=random&color=fff&size=40`} alt={selectedStaff.name} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }} />
+                  <div style={{ padding: "20px", background: "var(--surface)", border: '1px solid var(--border)', display: "flex", alignItems: "center", gap: 16 }}>
+                    <img src={selectedStaff.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStaff.name || "")}&background=random&color=fff&size=48`} alt={selectedStaff.name} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
                     <div>
-                      <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>Specialist</p>
-                      <p style={{ margin: 0, fontSize: "1rem", fontWeight: 600, color: "var(--text-main)" }}>{selectedStaff.name}</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)", textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>With Specialist</p>
+                      <p style={{ margin: "4px 0 0", fontSize: "1.1rem", fontWeight: 500, fontFamily: 'var(--font-serif)', color: "var(--text-main)" }}>{selectedStaff.name}</p>
                     </div>
                   </div>
                 )}
                 
-                <div style={{ padding: "24px 0", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", margin: "8px 0" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                    <span style={{ color: "var(--text-muted)", fontSize: "1rem" }}>Service</span>
-                    <span style={{ fontWeight: 600, fontSize: "1rem" }}>{service.name}</span>
+                <div style={{ padding: "32px 0 0", borderTop: "1px solid var(--border)", marginTop: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                    <span style={{ color: "var(--text-muted)", fontSize: "1.05rem", fontWeight: 300 }}>Service</span>
+                    <span style={{ fontWeight: 500, fontSize: "1.05rem" }}>{service.name}</span>
                   </div>
                   {service.durationMin && (
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                      <span style={{ color: "var(--text-muted)", fontSize: "1rem" }}>Duration</span>
-                      <span style={{ fontWeight: 600, fontSize: "1rem" }}>{formatDuration(service.durationMin)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                      <span style={{ color: "var(--text-muted)", fontSize: "1.05rem", fontWeight: 300 }}>Duration</span>
+                      <span style={{ fontWeight: 500, fontSize: "1.05rem" }}>{formatDuration(service.durationMin)}</span>
                     </div>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center', marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
-                    <span style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>Total Price</span>
-                    <span style={{ fontWeight: 800, fontSize: "1.5rem", color: "var(--text-main)" }}>{currency} {price.toFixed(2)}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center', marginTop: 32, paddingTop: 32, borderTop: '1px solid var(--border)' }}>
+                    <span style={{ color: "var(--text-muted)", fontSize: "1.1rem", textTransform: 'uppercase', letterSpacing: '1px' }}>Total</span>
+                    <span style={{ fontWeight: 500, fontSize: "2rem", color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>{currency} {price.toFixed(2)}</span>
                   </div>
                 </div>
-                <button onClick={handleBookNow} className="sf-btn-primary" style={{ width: "100%", padding: "18px 24px", fontSize: "1.1rem" }}>
-                  Add to Cart
+                
+                <button onClick={handleBookNow} className="sf-btn-primary" style={{ width: "100%", padding: "20px" }}>
+                  Add to Booking
                 </button>
-                <p style={{ textAlign: "center", margin: 0, fontSize: "0.9rem", color: "var(--text-muted)" }}>You will not be charged yet.</p>
               </div>
             </div>
           </div>
         </div>
 
+        {/* Related Services */}
         {relatedServices.length > 0 && (
-          <section style={{ marginTop: 100, paddingTop: 60, borderTop: "1px solid var(--border)" }}>
-            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2.5rem", marginBottom: 40, color: "var(--text-main)" }}>More Like This</h2>
+          <section style={{ marginTop: 120, paddingTop: 80, borderTop: "1px solid var(--border)" }}>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2.5rem", marginBottom: 48, fontWeight: 500, textAlign: 'center' }}>Explore More</h2>
             <div className="sf-services-grid">
               {relatedServices.map(s => {
                 const sPrice = Number(s.salePrice && Number(s.salePrice) < Number(s.price) ? s.salePrice : s.price);
                 const sHasSale = s.salePrice && Number(s.salePrice) < Number(s.price);
                 return (
-                  <div key={s.id} className="sf-service-card">
-                    <img src={s.imageUrl || FALLBACK_IMG} alt={s.name} className="sf-service-img" />
+                  <div key={s.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${s.id}`}>
+                    <div className="sf-service-img-wrapper">
+                      <img src={s.imageUrl || FALLBACK_IMG} alt={s.name} className="sf-service-img" />
+                    </div>
                     <div className="sf-service-content">
-                      <h3 style={{ fontSize: '1.25rem' }}>{s.name}</h3>
+                      <h3 style={{ fontSize: '1.3rem' }}>{s.name}</h3>
                       <div className="sf-service-footer">
                         <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                           <span className="sf-service-price">{currency} {sPrice.toFixed(2)}</span>
                           {sHasSale && <span style={{ fontSize: "0.9rem", color: "var(--text-muted)", textDecoration: "line-through" }}>{currency} {Number(s.price).toFixed(2)}</span>}
                         </div>
-                        <Link to={`/site/${salon.slug}/service/${s.id}`} className="sf-btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>View Details</Link>
+                        <span className="sf-service-btn">Details <ArrowRight size={16} /></span>
                       </div>
                     </div>
                   </div>

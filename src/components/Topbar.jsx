@@ -220,17 +220,17 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           display: flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 12px !important;
+          padding: 4px 10px !important;
           background: #f8fafc;
           border: 1px solid #e2e8f0 !important;
-          border-radius: 8px !important;
+          border-radius: 6px !important;
           cursor: pointer;
-          font-size: 0.85rem !important;
+          font-size: 0.78rem !important;
           color: #475569 !important;
           font-weight: 500 !important;
           white-space: nowrap;
           transition: all 0.15s;
-          height: 36px !important;
+          height: 30px !important;
         }
         .salonnest-branch-btn:hover {
           background: #e2e8f0;

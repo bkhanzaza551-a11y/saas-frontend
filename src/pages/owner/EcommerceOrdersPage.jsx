@@ -4,7 +4,7 @@ import {
   ShoppingBag, Clock, CheckCircle2, XCircle, Package,
   ChevronRight, Search, RefreshCw, FileText, X, AlertTriangle,
   CreditCard, User, Phone, Tag, ArrowRight, Banknote,
-  Calendar, Star, TrendingUp, Eye, Check, Ban, Bell, CalendarDays, Users, Timer
+  Calendar, Star, TrendingUp, Eye, Check, Ban, Bell, CalendarDays, Users, Timer, Info
 } from "lucide-react";
 import { api } from "../../api/client";
 import { useBranch } from "../../context/BranchContext";
@@ -58,7 +58,7 @@ const STATUS_META = {
 };
 
 const PAYMENT_META = {
-  PENDING: { label: "Pending", color: "#d97706", bg: "#fffbeb" },
+  PENDING: { label: "Pay at Salon", color: "#6366f1", bg: "#e0e7ff" }, // Most storefront bookings will be this
   PAID:    { label: "Paid",    color: "#166534", bg: "#dcfce7" },
   FAILED:  { label: "Failed",  color: "#991b1b", bg: "#fee2e2" },
   REFUNDED:{ label: "Refunded",color: "#4338ca", bg: "#e0e7ff" },
@@ -168,14 +168,15 @@ export default function EcommerceOrdersPage() {
   return (
     <div
       className="page-shell"
-      style={{ display: "flex", flexDirection: "column", gap: 0, padding: 0 }}
+      style={{ display: "flex", flexDirection: "column", gap: 0, padding: 0, background: '#f8fafc', minHeight: '100vh' }}
     >
-      {/* Top Header */}
+      {/* Premium Header */}
       <div
         style={{
-          background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
-          padding: "28px 32px 24px",
+          background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+          padding: "32px 40px",
           color: "white",
+          boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)'
         }}
       >
         <div
@@ -183,8 +184,10 @@ export default function EcommerceOrdersPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            gap: 16,
+            gap: 24,
             flexWrap: "wrap",
+            maxWidth: 1600,
+            margin: '0 auto'
           }}
         >
           <div>
@@ -192,33 +195,34 @@ export default function EcommerceOrdersPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                marginBottom: 6,
+                gap: 12,
+                marginBottom: 8,
               }}
             >
               <div
                 style={{
-                  background: "rgba(255,255,255,0.18)",
-                  borderRadius: 10,
-                  padding: 8,
+                  background: "rgba(255,255,255,0.15)",
+                  borderRadius: 12,
+                  padding: 10,
                   display: "flex",
+                  boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.2)'
                 }}
               >
-                <Calendar size={22} />
+                <CalendarDays size={24} color="#fff" />
               </div>
               <h1
                 style={{
                   margin: 0,
-                  fontSize: "1.7rem",
-                  fontWeight: 800,
+                  fontSize: "2rem",
+                  fontWeight: 700,
                   letterSpacing: "-0.5px",
                 }}
               >
-                Service Bookings
+                Storefront Bookings
               </h1>
             </div>
-            <p style={{ margin: 0, opacity: 0.75, fontSize: 14 }}>
-              Manage every incoming service booking — from confirmation to completion.
+            <p style={{ margin: 0, opacity: 0.9, fontSize: 15, fontWeight: 300, maxWidth: 600, lineHeight: 1.5 }}>
+              Manage online service reservations from your storefront. Approve, track, and complete appointments seamlessly.
             </p>
           </div>
           <button
@@ -226,19 +230,22 @@ export default function EcommerceOrdersPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              background: "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.25)",
+              gap: 8,
+              background: "white",
+              border: "none",
               borderRadius: 8,
-              color: "white",
-              padding: "8px 14px",
+              color: "#4f46e5",
+              padding: "10px 20px",
               cursor: "pointer",
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: 600,
-              transition: "background 0.2s",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'; }}
           >
-            <RefreshCw size={14} /> Refresh
+            <RefreshCw size={16} /> Sync Bookings
           </button>
         </div>
 
@@ -247,35 +254,40 @@ export default function EcommerceOrdersPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-              gap: 12,
-              marginTop: 20,
+              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+              gap: 16,
+              marginTop: 32,
+              maxWidth: 1600,
+              margin: '32px auto 0'
             }}
           >
             {[
-              { label: "Total Bookings", value: summary.totalOrders, icon: CalendarDays, color: "#a78bfa" },
+              { label: "Total Bookings", value: summary.totalOrders, icon: Calendar, color: "#fff" },
               { label: "Pending",        value: summary.pendingBookings, icon: Clock,       color: "#fde68a" },
-              { label: "Confirmed",      value: summary.confirmedBookings, icon: CheckCircle2, color: "#7dd3fc" },
-              { label: "In Progress",    value: summary.inProgressBookings, icon: Timer, color: "#c4b5fd" },
-              { label: "Completed",      value: summary.completedOrders, icon: CheckCircle2, color: "#86efac" },
-              { label: "Revenue",        value: `₹${fmt(summary.totalSales)}`, icon: TrendingUp, color: "#fde68a", isMoney: true },
+              { label: "Confirmed",      value: summary.confirmedBookings, icon: CheckCircle2, color: "#bae6fd" },
+              { label: "In Progress",    value: summary.inProgressBookings, icon: Timer, color: "#ddd6fe" },
+              { label: "Completed",      value: summary.completedOrders, icon: CheckCircle2, color: "#bbf7d0" },
+              { label: "Revenue",        value: `₹${fmt(summary.totalSales)}`, icon: TrendingUp, color: "#fff", isMoney: true },
             ].map((c) => (
               <div
                 key={c.label}
                 style={{
                   background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  border: "1px solid rgba(255,255,255,0.2)",
                   borderRadius: 12,
-                  padding: "14px 16px",
+                  padding: "16px",
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
+                  gap: 16,
+                  backdropFilter: 'blur(10px)'
                 }}
               >
-                <c.icon size={18} color={c.color} />
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: 10, borderRadius: 10, display: 'flex' }}>
+                  <c.icon size={20} color={c.color} />
+                </div>
                 <div>
-                  <div style={{ fontSize: 11, opacity: 0.7, fontWeight: 600 }}>{c.label}</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: c.color }}>
+                  <div style={{ fontSize: 12, opacity: 0.9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: c.color, marginTop: 4 }}>
                     {c.value}
                   </div>
                 </div>
@@ -289,79 +301,86 @@ export default function EcommerceOrdersPage() {
       <div
         style={{
           display: "flex",
-          gap: 0,
-          borderBottom: "2px solid #e2e8f0",
+          gap: 8,
+          borderBottom: "1px solid #e2e8f0",
           background: "white",
-          padding: "0 24px",
+          padding: "0 40px",
           overflowX: "auto",
         }}
       >
-        {STATUS_TABS.map((tab) => {
-          const meta = STATUS_META[tab];
-          const isActive = activeTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => navigate(tabPath(tab))}
-              style={{
-                padding: "14px 18px",
-                border: "none",
-                borderBottom: isActive
-                  ? `3px solid ${tab === "ALL" ? "#4338ca" : meta.dot}`
-                  : "3px solid transparent",
-                background: "transparent",
-                cursor: "pointer",
-                fontWeight: isActive ? 700 : 500,
-                color: isActive
-                  ? tab === "ALL" ? "#4338ca" : meta.color
-                  : "#64748b",
-                fontSize: 13,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                whiteSpace: "nowrap",
-                transition: "all 0.15s",
-                marginBottom: -2,
-              }}
-            >
-              {meta && <meta.icon size={14} />}
-              {tab === "ALL" ? "All Bookings" : meta.label}
-            </button>
-          );
-        })}
+        <div style={{ display: 'flex', maxWidth: 1600, margin: '0 auto', width: '100%', gap: 32 }}>
+          {STATUS_TABS.map((tab) => {
+            const meta = STATUS_META[tab];
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => navigate(tabPath(tab))}
+                style={{
+                  padding: "16px 8px",
+                  border: "none",
+                  borderBottom: isActive
+                    ? `3px solid ${tab === "ALL" ? "#4f46e5" : meta.color}`
+                    : "3px solid transparent",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontWeight: isActive ? 600 : 500,
+                  color: isActive
+                    ? tab === "ALL" ? "#4f46e5" : meta.color
+                    : "#64748b",
+                  fontSize: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  whiteSpace: "nowrap",
+                  transition: "all 0.2s",
+                  marginBottom: -1,
+                }}
+              >
+                {meta && <meta.icon size={16} />}
+                {tab === "ALL" ? "All Bookings" : meta.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Status Messages */}
       {(statusMsg.error || statusMsg.success) && (
-        <div
-          style={{
-            margin: "16px 24px 0",
-            padding: "12px 16px",
-            borderRadius: 8,
-            background: statusMsg.error ? "#fef2f2" : "#f0fdf4",
-            color: statusMsg.error ? "#991b1b" : "#166534",
-            fontSize: 13,
-            fontWeight: 600,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            border: `1px solid ${statusMsg.error ? "#fca5a5" : "#86efac"}`,
-          }}
-        >
-          <span>{statusMsg.error || statusMsg.success}</span>
-          <button
-            onClick={() => setStatusMsg({ error: "", success: "" })}
+        <div style={{ maxWidth: 1600, margin: '24px auto 0', width: 'calc(100% - 80px)' }}>
+          <div
             style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "inherit",
-              fontSize: 16,
-              lineHeight: 1,
+              padding: "16px 20px",
+              borderRadius: 8,
+              background: statusMsg.error ? "#fef2f2" : "#f0fdf4",
+              color: statusMsg.error ? "#991b1b" : "#166534",
+              fontSize: 14,
+              fontWeight: 500,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              border: `1px solid ${statusMsg.error ? "#fca5a5" : "#86efac"}`,
             }}
           >
-            ×
-          </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {statusMsg.error ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
+              <span>{statusMsg.error || statusMsg.success}</span>
+            </div>
+            <button
+              onClick={() => setStatusMsg({ error: "", success: "" })}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "inherit",
+                fontSize: 18,
+                padding: 4,
+                display: 'flex'
+              }}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
       )}
 
@@ -369,20 +388,24 @@ export default function EcommerceOrdersPage() {
       <div
         style={{
           flex: 1,
-          padding: "20px 24px",
+          padding: "32px 40px",
           display: "flex",
-          gap: 20,
+          gap: 32,
           minHeight: 0,
+          maxWidth: 1600,
+          margin: '0 auto',
+          width: '100%',
+          boxSizing: 'border-box'
         }}
       >
         {/* Bookings List */}
         <div style={{ flex: "1 1 55%", minWidth: 0 }}>
-          <div style={{ position: "relative", marginBottom: 16 }}>
+          <div style={{ position: "relative", marginBottom: 24 }}>
             <Search
-              size={15}
+              size={18}
               style={{
                 position: "absolute",
-                left: 12,
+                left: 16,
                 top: "50%",
                 transform: "translateY(-50%)",
                 color: "#94a3b8",
@@ -395,14 +418,18 @@ export default function EcommerceOrdersPage() {
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 width: "100%",
-                padding: "10px 12px 10px 36px",
+                padding: "14px 16px 14px 44px",
                 border: "1px solid #cbd5e1",
-                borderRadius: 8,
-                fontSize: 13,
+                borderRadius: 12,
+                fontSize: 14,
                 outline: "none",
                 boxSizing: "border-box",
                 background: "white",
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                transition: 'border-color 0.2s'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#4f46e5'}
+              onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
             />
           </div>
 
@@ -415,31 +442,31 @@ export default function EcommerceOrdersPage() {
             <div
               style={{
                 textAlign: "center",
-                padding: "60px 20px",
+                padding: "80px 24px",
                 background: "white",
-                borderRadius: 12,
-                border: "1px solid #e2e8f0",
+                borderRadius: 16,
+                border: "1px dashed #cbd5e1",
               }}
             >
-              <Calendar size={48} color="#c7d2fe" style={{ marginBottom: 12 }} />
+              <CalendarDays size={56} color="#e2e8f0" style={{ marginBottom: 16 }} />
               <p
                 style={{
-                  margin: "0 0 4px",
-                  fontWeight: 700,
-                  color: "#0f172a",
-                  fontSize: 15,
+                  margin: "0 0 8px",
+                  fontWeight: 600,
+                  color: "#1e293b",
+                  fontSize: 18,
                 }}
               >
                 No service bookings found
               </p>
-              <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
+              <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
                 {activeTab === "ALL"
-                  ? "When customers book services from your website, they'll appear here."
+                  ? "When customers book services from your storefront, they'll appear here."
                   : `No ${STATUS_META[activeTab]?.label} bookings at the moment.`}
               </p>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {filtered.map((booking) => (
                 <BookingCard
                   key={booking.id}
@@ -457,37 +484,44 @@ export default function EcommerceOrdersPage() {
         {/* Booking Detail Panel */}
         <div
           style={{
-            flex: "1 1 42%",
-            minWidth: 320,
+            flex: "1 1 45%",
+            minWidth: 360,
             position: "sticky",
-            top: 20,
+            top: 32,
             alignSelf: "flex-start",
-            maxHeight: "calc(100vh - 200px)",
+            maxHeight: "calc(100vh - 100px)",
             overflowY: "auto",
+            borderRadius: 16,
+            scrollbarWidth: 'none'
           }}
         >
           {!selectedBooking ? (
             <div
               style={{
                 background: "white",
-                border: "2px dashed #e2e8f0",
+                border: "1px dashed #cbd5e1",
                 borderRadius: 16,
-                padding: "60px 24px",
+                padding: "80px 32px",
                 textAlign: "center",
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
               }}
             >
-              <Eye size={40} color="#c7d2fe" style={{ marginBottom: 12 }} />
+              <Eye size={48} color="#e2e8f0" style={{ marginBottom: 16 }} />
               <p
                 style={{
-                  margin: "0 0 4px",
-                  fontWeight: 700,
-                  color: "#475569",
-                  fontSize: 14,
+                  margin: "0 0 8px",
+                  fontWeight: 600,
+                  color: "#1e293b",
+                  fontSize: 16,
                 }}
               >
                 Select a booking to view details
               </p>
-              <p style={{ margin: 0, color: "#94a3b8", fontSize: 12 }}>
+              <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
                 Service details, client info, payment status, and history will appear here.
               </p>
             </div>
@@ -518,84 +552,80 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction })
       onClick={onSelect}
       style={{
         background: "white",
-        border: `1.5px solid ${isSelected ? "#4338ca" : "#e2e8f0"}`,
-        borderRadius: 12,
-        padding: 16,
+        border: `1px solid ${isSelected ? "#4f46e5" : "#e2e8f0"}`,
+        borderRadius: 16,
+        padding: 20,
         cursor: "pointer",
-        transition: "all 0.15s",
-        boxShadow: isSelected ? "0 0 0 3px #e0e7ff" : "none",
+        transition: "all 0.2s",
+        boxShadow: isSelected ? "0 4px 12px rgba(79, 70, 229, 0.1)" : "0 1px 3px rgba(0,0,0,0.05)",
       }}
+      onMouseOver={(e) => { if(!isSelected) e.currentTarget.style.borderColor = '#cbd5e1'; }}
+      onMouseOut={(e) => { if(!isSelected) e.currentTarget.style.borderColor = '#e2e8f0'; }}
     >
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: 10,
+          marginBottom: 16,
         }}
       >
         <div>
           <div
             style={{
-              fontSize: 13,
-              fontWeight: 800,
+              fontSize: 15,
+              fontWeight: 700,
               color: "#0f172a",
-              marginBottom: 2,
+              marginBottom: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
             }}
           >
             #{booking.orderNumber}
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 100,
+                background: pm.bg,
+                color: pm.color,
+              }}
+            >
+              {pm.label}
+            </span>
           </div>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              fontSize: 12,
-              color: "#64748b",
+              gap: 8,
+              fontSize: 13,
+              color: "#475569",
             }}
           >
-            <User size={11} /> {booking.customerName}
-            <span style={{ color: "#cbd5e1" }}>·</span>
-            <Phone size={11} /> {booking.customerPhone}
+            <User size={13} color="#94a3b8" /> <span style={{ fontWeight: 500 }}>{booking.customerName}</span>
+            <span style={{ color: "#cbd5e1" }}>•</span>
+            <Phone size={13} color="#94a3b8" /> {booking.customerPhone}
           </div>
         </div>
-        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
           <span
             style={{
-              fontSize: 11,
-              fontWeight: 700,
-              padding: "3px 8px",
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "4px 10px",
               borderRadius: 100,
               background: sm.bg,
               color: sm.color,
-              border: `1px solid ${sm.border}`,
               display: "flex",
               alignItems: "center",
-              gap: 4,
+              gap: 6,
             }}
           >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: sm.dot,
-                display: "inline-block",
-              }}
-            />
+            <sm.icon size={12} />
             {sm.label}
-          </span>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              padding: "3px 8px",
-              borderRadius: 100,
-              background: pm.bg,
-              color: pm.color,
-            }}
-          >
-            {pm.label}
           </span>
         </div>
       </div>
@@ -606,21 +636,22 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction })
           style={{
             background: "#f8fafc",
             borderRadius: 8,
-            padding: "8px 10px",
-            marginBottom: 10,
-            fontSize: 12,
+            padding: "10px 14px",
+            marginBottom: 16,
+            fontSize: 13,
             color: "#475569",
+            border: '1px solid #f1f5f9'
           }}
         >
           {booking.items.slice(0, 2).map((item, i) => (
             <span key={i}>
-              {i > 0 && <span style={{ color: "#cbd5e1" }}> · </span>}
-              <strong>{item.productName}</strong>
+              {i > 0 && <span style={{ color: "#cbd5e1", margin: '0 6px' }}>•</span>}
+              <strong style={{ fontWeight: 500, color: '#334155' }}>{item.productName}</strong>
             </span>
           ))}
           {booking.items.length > 2 && (
-            <span style={{ color: "#94a3b8" }}>
-              {" "}+{booking.items.length - 2} more
+            <span style={{ color: "#64748b", marginLeft: 4 }}>
+              +{booking.items.length - 2} more
             </span>
           )}
         </div>
@@ -632,53 +663,53 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction })
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          borderTop: '1px solid #f1f5f9',
+          paddingTop: 16
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
-            ₹{fmt(booking.total)}
-          </span>
-          <span style={{ fontSize: 11, color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
-            <CalendarDays size={11} />
-            {booking.bookingDate
-              ? new Date(booking.bookingDate).toLocaleString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : new Date(booking.createdAt).toLocaleString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-          </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Total</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>
+              ₹{fmt(booking.total)}
+            </span>
+          </div>
+          <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Date & Time</span>
+            <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, display: "flex", alignItems: "center", gap: 6 }}>
+              <CalendarDays size={13} color="#94a3b8" />
+              {booking.bookingDate
+                ? new Date(booking.bookingDate).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : new Date(booking.createdAt).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+            </span>
+          </div>
         </div>
         <div
-          style={{ display: "flex", gap: 6 }}
+          style={{ display: "flex", gap: 8 }}
           onClick={(e) => e.stopPropagation()}
         >
           {nextStatus && booking.status !== "CANCELLED" && (
             <ActionBtn
               loading={isLoading(nextStatus)}
               onClick={() => onAction(booking.id, nextStatus)}
-              color="#4338ca"
-              bg="#eef2ff"
+              color="#fff"
+              bg="#4f46e5"
+              hoverBg="#4338ca"
             >
-              {nextStatus === "CONFIRMED"   ? <><Check size={12} /> Confirm</> :
-               nextStatus === "IN_PROGRESS" ? <><Timer size={12} /> Start</> :
-                                              <><CheckCircle2 size={12} /> Complete</>}
-            </ActionBtn>
-          )}
-          {!["CANCELLED", "COMPLETED"].includes(booking.status) && (
-            <ActionBtn
-              loading={isLoading("cancel")}
-              onClick={() => onAction(booking.id, "cancel")}
-              color="#dc2626"
-              bg="#fef2f2"
-            >
-              <Ban size={12} />
+              {nextStatus === "CONFIRMED"   ? <><Check size={14} /> Confirm</> :
+               nextStatus === "IN_PROGRESS" ? <><Timer size={14} /> Start Service</> :
+                                              <><CheckCircle2 size={14} /> Complete</>}
             </ActionBtn>
           )}
         </div>
@@ -698,27 +729,27 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
     <div
       style={{
         background: "white",
-        border: "1.5px solid #e2e8f0",
+        border: "1px solid #e2e8f0",
         borderRadius: 16,
         overflow: "hidden",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
       }}
     >
       {/* Header */}
       <div
         style={{
-          background: "linear-gradient(135deg, #1e1b4b, #312e81)",
-          padding: "16px 20px",
-          color: "white",
+          background: "white",
+          padding: "24px",
+          borderBottom: '1px solid #e2e8f0',
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
         <div>
-          <div style={{ fontWeight: 800, fontSize: 15 }}>#{booking.orderNumber}</div>
-          <div style={{ opacity: 0.7, fontSize: 12, marginTop: 2 }}>
-            {new Date(booking.createdAt).toLocaleString("en-IN", {
+          <div style={{ fontWeight: 700, fontSize: 20, color: '#0f172a', marginBottom: 4 }}>#{booking.orderNumber}</div>
+          <div style={{ color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Clock size={12} /> Booked on {new Date(booking.createdAt).toLocaleString("en-IN", {
               dateStyle: "medium",
               timeStyle: "short",
             })}
@@ -727,364 +758,163 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span
             style={{
-              fontSize: 11,
-              fontWeight: 700,
-              padding: "4px 10px",
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "4px 12px",
               borderRadius: 100,
               background: sm.bg,
               color: sm.color,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4
             }}
           >
+            <sm.icon size={12} />
             {sm.label}
           </span>
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255,255,255,0.15)",
+              background: "#f1f5f9",
               border: "none",
-              borderRadius: 6,
-              color: "white",
+              borderRadius: 100,
+              color: "#475569",
               cursor: "pointer",
-              padding: "4px 6px",
+              padding: "8px",
               display: "flex",
+              transition: 'background 0.2s'
             }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#e2e8f0'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#f1f5f9'}
           >
-            <X size={14} />
+            <X size={16} />
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 40 }}>
           <PageLoader title="Loading booking details..." />
         </div>
       ) : (
-        <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Action Banner */}
+          {nextStatus && booking.status !== "CANCELLED" && (
+            <div style={{ display: 'flex', gap: 12, padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ background: 'white', padding: 8, borderRadius: 8, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                  <Info size={20} color="#4f46e5" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>Action Required</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>Please update the booking status.</div>
+                </div>
+              </div>
+              <ActionBtn
+                loading={isLoading(nextStatus)}
+                onClick={() => onAction(booking.id, nextStatus)}
+                color="#fff"
+                bg="#4f46e5"
+                hoverBg="#4338ca"
+              >
+                {nextStatus === "CONFIRMED"   ? <><Check size={16} /> Confirm Booking</> :
+                 nextStatus === "IN_PROGRESS" ? <><Timer size={16} /> Start Service</> :
+                                                <><CheckCircle2 size={16} /> Complete Booking</>}
+              </ActionBtn>
+            </div>
+          )}
+
           {/* Client Info */}
-          <Section title="Client" icon={User}>
-            <InfoRow icon={User}  label="Name"  value={booking.customerName} />
-            <InfoRow icon={Phone} label="Phone" value={booking.customerPhone} />
+          <Section title="Client Information" icon={User}>
+            <InfoRow icon={User}  label="Full Name"  value={booking.customerName} />
+            <InfoRow icon={Phone} label="Phone Number" value={booking.customerPhone} />
             {booking.customerEmail && (
-              <InfoRow icon={Tag} label="Email" value={booking.customerEmail} />
+              <InfoRow icon={Tag} label="Email Address" value={booking.customerEmail} />
             )}
-            {booking.bookingDate && (
-              <InfoRow
-                icon={CalendarDays}
-                label="Date"
-                value={new Date(booking.bookingDate).toLocaleString("en-IN", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              />
+          </Section>
+
+          {/* Booking Info */}
+          <Section title="Booking Schedule" icon={CalendarDays}>
+            {booking.bookingDate ? (
+              <div style={{ display: 'flex', background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', gap: 24 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px', marginBottom: 4 }}>Date</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{new Date(booking.bookingDate).toLocaleDateString("en-IN", { weekday: 'short', day: "numeric", month: "short", year: 'numeric' })}</div>
+                </div>
+                <div style={{ width: 1, background: '#e2e8f0' }} />
+                <div>
+                  <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px', marginBottom: 4 }}>Time</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{new Date(booking.bookingDate).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ color: '#64748b', fontSize: 14 }}>No scheduled date provided.</div>
             )}
             {booking.note && (
-              <InfoRow icon={FileText} label="Note" value={booking.note} />
+              <div style={{ marginTop: 12, padding: 12, background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: 8, fontSize: 13, color: '#92400e' }}>
+                <strong style={{ display: 'block', marginBottom: 4 }}>Special Request:</strong>
+                {booking.note}
+              </div>
             )}
           </Section>
 
           {/* Services */}
-          <Section title={`Services (${booking.items?.length || 0})`} icon={Calendar}>
-            {(booking.items || []).map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "8px 10px",
-                  background: "#f8fafc",
-                  borderRadius: 8,
-                  marginBottom: 6,
-                  fontSize: 13,
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 700, color: "#0f172a" }}>
-                    {item.productName}
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>
-                    ₹{fmt(item.unitPrice)}
-                    {item.staffName && <span> · Staff: {item.staffName}</span>}
-                  </div>
-                  {item.bookingTime && (
-                    <div style={{ fontSize: 11, color: "#64748b" }}>
-                      <CalendarDays size={10} style={{ marginRight: 3 }} />
-                      {new Date(item.bookingTime).toLocaleString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  )}
-                </div>
-                <div style={{ fontWeight: 800, color: "#0f172a" }}>
-                  ₹{fmt(item.lineTotal)}
-                </div>
-              </div>
-            ))}
-          </Section>
-
-          {/* Payment Summary */}
-          <Section title="Payment" icon={CreditCard}>
-            <div
-              style={{
-                background: "#f8fafc",
-                borderRadius: 10,
-                padding: 12,
-                fontSize: 13,
-              }}
-            >
-              {[
-                { label: "Subtotal",  value: `₹${fmt(booking.subtotal)}` },
-                { label: "Discount",  value: `-₹${fmt(booking.discount)}`, color: "#dc2626" },
-                { label: "Tax",       value: `₹${fmt(booking.tax)}` },
-              ].map((r) => (
+          <Section title={`Requested Services (${booking.items?.length || 0})`} icon={ShoppingBag}>
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+              {(booking.items || []).map((item, idx) => (
                 <div
-                  key={r.label}
+                  key={item.id}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    marginBottom: 6,
-                    color: r.color || "#475569",
+                    alignItems: "center",
+                    padding: "12px 16px",
+                    background: "white",
+                    borderBottom: idx !== booking.items.length - 1 ? '1px solid #e2e8f0' : 'none',
+                    fontSize: 14,
                   }}
                 >
-                  <span>{r.label}</span>
-                  <span>{r.value}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontWeight: 600, fontSize: 12 }}>
+                      {item.qty}x
+                    </div>
+                    <span style={{ fontWeight: 500, color: '#1e293b' }}>{item.productName}</span>
+                  </div>
+                  <span style={{ fontWeight: 600, color: '#0f172a' }}>₹{fmt(item.lineTotal)}</span>
                 </div>
               ))}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontWeight: 800,
-                  fontSize: 15,
-                  color: "#0f172a",
-                  paddingTop: 8,
-                  borderTop: "1px solid #e2e8f0",
-                  marginTop: 4,
-                }}
-              >
-                <span>Total</span>
-                <span>₹{fmt(booking.total)}</span>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, padding: '16px 20px', background: '#f8fafc', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Total Amount</span>
+                <span style={{ fontSize: 12, color: pm.color, fontWeight: 600, marginTop: 4 }}>{pm.label}</span>
               </div>
-              {booking.couponCode && (
-                <div
-                  style={{
-                    marginTop: 8,
-                    padding: "4px 8px",
-                    background: "#fef3c7",
-                    color: "#92400e",
-                    borderRadius: 6,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  <Tag size={11} /> Coupon: {booking.couponCode}
-                </div>
-              )}
-              <div
-                style={{
-                  marginTop: 10,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ fontSize: 12, color: "#64748b" }}>Payment Status</span>
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: "3px 10px",
-                    borderRadius: 100,
-                    background: pm.bg,
-                    color: pm.color,
-                  }}
-                >
-                  {pm.label}
-                </span>
-              </div>
+              <span style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{fmt(booking.total)}</span>
             </div>
           </Section>
 
-          {/* Status History */}
-          {booking.logs && booking.logs.length > 0 && (
-            <Section title="Status History" icon={Clock}>
-              <div style={{ position: "relative" }}>
-                {booking.logs.map((log, i) => (
-                  <div
-                    key={log.id}
-                    style={{
-                      display: "flex",
-                      gap: 10,
-                      paddingBottom: i < booking.logs.length - 1 ? 14 : 0,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          background: STATUS_META[log.toStatus]?.dot || "#94a3b8",
-                          marginTop: 4,
-                          flexShrink: 0,
-                        }}
-                      />
-                      {i < booking.logs.length - 1 && (
-                        <div
-                          style={{
-                            width: 1,
-                            flex: 1,
-                            background: "#e2e8f0",
-                            marginTop: 3,
-                          }}
-                        />
-                      )}
-                    </div>
-                    <div style={{ paddingBottom: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: STATUS_META[log.toStatus]?.color || "#475569",
-                        }}
-                      >
-                        → {STATUS_META[log.toStatus]?.label || log.toStatus}
-                      </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                        {log.actorName || "System"} ·{" "}
-                        {new Date(log.createdAt).toLocaleString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      {log.note && (
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color: "#64748b",
-                            fontStyle: "italic",
-                          }}
-                        >
-                          {log.note}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Section>
+          {/* Danger Zone */}
+          {!["CANCELLED", "COMPLETED"].includes(booking.status) && (
+            <div style={{ marginTop: 16, paddingTop: 24, borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+              <button
+                onClick={() => { if(window.confirm("Are you sure you want to cancel this booking?")) onAction(booking.id, "cancel"); }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#dc2626',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                <Ban size={16} /> Cancel Booking
+              </button>
+            </div>
           )}
-
-          {/* Actions */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            {nextStatus && booking.status !== "CANCELLED" && (
-              <button
-                disabled={!!actionLoading}
-                onClick={() => onAction(booking.id, nextStatus)}
-                style={{
-                  width: "100%",
-                  padding: "11px 16px",
-                  borderRadius: 9,
-                  border: "none",
-                  background:
-                    nextStatus === "CONFIRMED"
-                      ? "#4338ca"
-                      : nextStatus === "IN_PROGRESS"
-                      ? "#7c3aed"
-                      : "#166534",
-                  color: "white",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  opacity: actionLoading ? 0.7 : 1,
-                }}
-              >
-                {isLoading(nextStatus) ? (
-                  "Processing..."
-                ) : nextStatus === "CONFIRMED" ? (
-                  <><Check size={15} /> Confirm Booking</>
-                ) : nextStatus === "IN_PROGRESS" ? (
-                  <><Timer size={15} /> Start Service</>
-                ) : (
-                  <><CheckCircle2 size={15} /> Mark as Completed</>
-                )}
-              </button>
-            )}
-
-            {booking.status === "CONFIRMED" && (
-              <button
-                disabled={!!actionLoading}
-                onClick={() => onAction(booking.id, "reminder")}
-                style={{
-                  width: "100%",
-                  padding: "11px 16px",
-                  borderRadius: 9,
-                  border: "1.5px solid #c4b5fd",
-                  background: "#f5f3ff",
-                  color: "#7c3aed",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  opacity: actionLoading ? 0.7 : 1,
-                }}
-              >
-                <Bell size={15} /> Send Reminder
-              </button>
-            )}
-
-            {!["CANCELLED", "COMPLETED"].includes(booking.status) && (
-              <button
-                disabled={!!actionLoading}
-                onClick={() => onAction(booking.id, "cancel")}
-                style={{
-                  width: "100%",
-                  padding: "10px 16px",
-                  borderRadius: 9,
-                  border: "1.5px solid #fca5a5",
-                  background: "#fef2f2",
-                  color: "#dc2626",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  opacity: actionLoading ? 0.7 : 1,
-                }}
-              >
-                {isLoading("cancel") ? "Cancelling..." : <><Ban size={14} /> Cancel Booking</>}
-              </button>
-            )}
-          </div>
         </div>
       )}
     </div>
@@ -1092,24 +922,13 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
 function Section({ title, icon: Icon, children }) {
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          marginBottom: 8,
-          fontSize: 12,
-          fontWeight: 700,
-          color: "#64748b",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-        }}
-      >
-        <Icon size={12} />
-        {title}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, color: "#1e293b" }}>
+        <Icon size={16} color="#64748b" />
+        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>{title}</h3>
       </div>
       {children}
     </div>
@@ -1117,42 +936,40 @@ function Section({ title, icon: Icon, children }) {
 }
 
 function InfoRow({ icon: Icon, label, value }) {
+  if (!value) return null;
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "flex-start",
-        gap: 8,
-        marginBottom: 6,
-        fontSize: 13,
-      }}
-    >
-      <Icon size={13} color="#94a3b8" style={{ marginTop: 1, flexShrink: 0 }} />
-      <span style={{ color: "#64748b", minWidth: 56 }}>{label}</span>
-      <span style={{ color: "#0f172a", fontWeight: 600 }}>{value}</span>
+    <div style={{ display: "flex", marginBottom: 12, fontSize: 14, alignItems: 'center' }}>
+      <div style={{ width: 140, color: "#64748b", display: "flex", alignItems: "center", gap: 8 }}>
+        {label}
+      </div>
+      <div style={{ color: "#0f172a", fontWeight: 500 }}>{value}</div>
     </div>
   );
 }
 
-function ActionBtn({ onClick, loading, color, bg, children }) {
+function ActionBtn({ loading, onClick, color, bg, hoverBg, children }) {
+  const [hover, setHover] = useState(false);
   return (
     <button
-      disabled={loading}
-      onClick={onClick}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
+        background: hover && hoverBg ? hoverBg : bg,
+        color,
+        border: "none",
+        padding: "8px 16px",
+        borderRadius: 8,
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: "pointer",
         display: "flex",
         alignItems: "center",
-        gap: 4,
-        padding: "5px 10px",
-        borderRadius: 6,
-        border: "none",
-        background: bg,
-        color,
-        fontWeight: 700,
-        fontSize: 11,
-        cursor: "pointer",
-        opacity: loading ? 0.6 : 1,
-        whiteSpace: "nowrap",
+        gap: 6,
+        transition: "all 0.2s",
+        opacity: loading ? 0.7 : 1,
+        pointerEvents: loading ? "none" : "auto",
+        boxShadow: hover ? '0 2px 6px rgba(0,0,0,0.1)' : 'none'
       }}
     >
       {loading ? "..." : children}
