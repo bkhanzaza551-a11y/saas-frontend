@@ -188,7 +188,7 @@ const Protected = () => {
           ].filter(Boolean)
         },
           {
-            label: "Support & Help",
+            label: "Support",
             to: "/admin/support-tickets",
             hint: "Tickets & assistance"
           },
