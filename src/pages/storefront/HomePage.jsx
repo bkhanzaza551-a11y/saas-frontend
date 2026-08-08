@@ -95,37 +95,65 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Services */}
-      {services.length > 0 && (
-        <section className="sf-section">
-          <div className="sf-section-title">
-            <h2>Featured Services</h2>
-            <p>Discover our most popular treatments curated just for you.</p>
-          </div>
-          <div className="sf-services-grid">
-            {services.map(service => (
-              <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
-                <div className="sf-service-img-wrapper">
-                  <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"} alt={service.name} className="sf-service-img" />
+      {/* Testimonials Roller */}
+      <section className="sf-marquee-container">
+        <div className="sf-marquee-track">
+          {[1, 2].map(cycle => (
+            <span key={cycle}>
+              {[
+                { text: "Absolutely phenomenal service. The attention to detail is unmatched. I left feeling completely revitalized.", author: "Sarah Jenkins" },
+                { text: "A truly premium experience from start to finish. The ambiance and expert stylists make this my go-to salon.", author: "Michael Chang" },
+                { text: "I've never felt more pampered. The products they use are top-tier and the results speak for themselves.", author: "Elena Rodriguez" },
+                { text: "Sophisticated, clean, and highly professional. Best haircut and styling I've had in years.", author: "David Smith" }
+              ].map((testimonial, i) => (
+                <div key={`${cycle}-${i}`} className="sf-testimonial-card">
+                  <div className="sf-testimonial-text">"{testimonial.text}"</div>
+                  <div className="sf-testimonial-author">— {testimonial.author}</div>
                 </div>
-                <div className="sf-service-content">
-                  <h3>{service.name}</h3>
-                  <p className="sf-service-desc">{service.description || "A premium service tailored for your needs."}</p>
-                  <div className="sf-service-footer">
-                    <span className="sf-service-price">{currency} {service.salePrice || service.price}</span>
-                    <span className="sf-service-btn">Details <ArrowRight size={16} /></span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured Services */}
+      <section className="sf-section">
+        <div className="sf-section-title">
+          <h2>Featured Services</h2>
+          <p>Discover our most popular treatments curated just for you.</p>
+        </div>
+        
+        {services.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-muted)", fontSize: "1.2rem", fontWeight: 300, border: "1px dashed var(--border)" }}>
+            Our premium services menu is currently being updated. Please check back soon!
+          </div>
+        ) : (
+          <>
+            <div className="sf-services-grid">
+              {services.map(service => (
+                <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
+                  <div className="sf-service-img-wrapper">
+                    <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"} alt={service.name} className="sf-service-img" />
+                  </div>
+                  <div className="sf-service-content">
+                    <h3>{service.name}</h3>
+                    <p className="sf-service-desc">{service.description || "A premium service tailored for your needs."}</p>
+                    <div className="sf-service-footer">
+                      <span className="sf-service-price">{currency} {service.salePrice || service.price}</span>
+                      <span className="sf-service-btn">Details <ArrowRight size={16} /></span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '80px' }}>
-            <Link to={`/site/${salon.slug}/services`} className="sf-btn-primary">
-              View All Services
-            </Link>
-          </div>
-        </section>
-      )}
+              ))}
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '80px' }}>
+              <Link to={`/site/${salon.slug}/services`} className="sf-btn-primary">
+                View All Services
+              </Link>
+            </div>
+          </>
+        )}
+      </section>
 
       {/* Contact Section */}
       <section className="sf-section-alt" style={{ background: '#111111', color: '#ffffff' }}>
