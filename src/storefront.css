@@ -220,11 +220,40 @@ a {
   background-color: #333333; /* Fallback */
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleBg {
+  from { transform: scale(1.05); }
+  to { transform: scale(1); }
+}
+
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-delay-1 { animation-delay: 0.2s; }
+.animate-delay-2 { animation-delay: 0.4s; }
+.animate-delay-3 { animation-delay: 0.6s; }
+
+.sf-hero-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  animation: scaleBg 10s ease-out forwards;
+  z-index: 0;
+}
+
 .sf-hero::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);
+  background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%);
   z-index: 1;
 }
 
@@ -232,32 +261,28 @@ a {
   z-index: 2;
   max-width: 900px;
   padding: 0 32px;
-  animation: fadeUp 1s ease-out;
+  position: relative;
 }
 
 .sf-hero h1 {
-  font-size: 4.5rem;
+  font-size: 5rem;
   margin-bottom: 24px;
   line-height: 1.1;
   color: #ffffff;
   font-weight: 500;
   font-style: italic;
+  letter-spacing: -1px;
 }
 
 .sf-hero p {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   color: rgba(255,255,255,0.9);
   margin-bottom: 48px;
   line-height: 1.7;
-  max-width: 600px;
+  max-width: 650px;
   margin-left: auto;
   margin-right: auto;
   font-weight: 300;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Sections */

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
-import { Scissors, Sparkles, Star, Clock, MapPin, Phone, ArrowRight } from "lucide-react";
+import { Scissors, Sparkles, Star, Clock, MapPin, Phone, ArrowRight, User } from "lucide-react";
 
 export default function HomePage() {
   const { salon, selectedBranchId } = useOutletContext();
@@ -27,13 +27,14 @@ export default function HomePage() {
   return (
     <div className="storefront-wrapper">
       {/* Premium Hero Section */}
-      <section className="sf-hero" style={{
-        background: `url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80') center/cover no-repeat`,
-      }}>
+      <section className="sf-hero" style={{ overflow: "hidden" }}>
+        <div className="sf-hero-bg" style={{
+          background: `url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80') center/cover no-repeat`,
+        }}></div>
         <div className="sf-hero-content">
-          <h1>Experience True Elegance</h1>
-          <p>Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look with absolute precision.</p>
-          <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
+          <h1 className="animate-fade-up">Experience True Elegance</h1>
+          <p className="animate-fade-up animate-delay-1">Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look with absolute precision.</p>
+          <div className="animate-fade-up animate-delay-2" style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
             <Link to={`/site/${salon.slug}/services`} className="sf-btn-white">
               Book Appointment
             </Link>
@@ -145,30 +146,32 @@ export default function HomePage() {
           {[1, 2].map(cycle => (
             <span key={cycle}>
               {[
-                { text: "Absolutely phenomenal service. The attention to detail is unmatched. ✨", author: "Sarah Jenkins", dp: "SJ" },
-                { text: "A truly premium experience from start to finish. Highly recommend! 🌟", author: "Michael Chang", dp: "MC" },
-                { text: "I've never felt more pampered. Best salon I've ever visited! 💖", author: "Elena Rodriguez", dp: "ER" },
-                { text: "Sophisticated, clean, and highly professional. Best styling in years. 💇‍♀️", author: "David Smith", dp: "DS" },
-                { text: "Their facial treatments are absolutely divine. My skin is glowing! 🧖‍♀️", author: "Jessica Lee", dp: "JL" },
-                { text: "Incredible staff and such a relaxing atmosphere. A perfect 10/10. 🏆", author: "Robert Wilson", dp: "RW" },
-                { text: "I always leave feeling like a million bucks. They never disappoint! 💅", author: "Amanda Brown", dp: "AB" },
-                { text: "The premium products they use make such a huge difference. Love it! 💫", author: "Christopher Davis", dp: "CD" },
-                { text: "Professional, punctual, and extremely talented stylists. ✂️", author: "Olivia Miller", dp: "OM" },
-                { text: "My go-to place for self-care. The ambiance is just perfect. 🧘‍♀️", author: "William Taylor", dp: "WT" },
-                { text: "They completely transformed my look. I've gotten so many compliments! 😍", author: "Sophia Anderson", dp: "SA" },
-                { text: "Every visit is a luxurious escape from reality. Highly recommended. 👑", author: "Daniel Thomas", dp: "DT" },
-                { text: "The attention to detail here is second to none. Amazing service. 💯", author: "Isabella Martinez", dp: "IM" },
-                { text: "Top-notch facilities and incredibly skilled professionals. 🌟", author: "James Jackson", dp: "JJ" },
-                { text: "I wouldn't trust anyone else with my hair. Simply the best. ❤️", author: "Mia White", dp: "MW" }
+                { text: "Absolutely phenomenal service. The attention to detail is unmatched.", author: "Sarah Jenkins" },
+                { text: "A truly premium experience from start to finish. Highly recommend!", author: "Michael Chang" },
+                { text: "I've never felt more pampered. Best salon I've ever visited!", author: "Elena Rodriguez" },
+                { text: "Sophisticated, clean, and highly professional. Best styling in years.", author: "David Smith" },
+                { text: "Their treatments are absolutely divine. My skin is glowing!", author: "Jessica Lee" },
+                { text: "Incredible staff and such a relaxing atmosphere. A perfect 10/10.", author: "Robert Wilson" },
+                { text: "I always leave feeling like a million bucks. They never disappoint!", author: "Amanda Brown" },
+                { text: "The premium products they use make such a huge difference. Love it!", author: "Christopher Davis" },
+                { text: "Professional, punctual, and extremely talented stylists.", author: "Olivia Miller" },
+                { text: "My go-to place for self-care. The ambiance is just perfect.", author: "William Taylor" },
+                { text: "They completely transformed my look. I've gotten so many compliments!", author: "Sophia Anderson" },
+                { text: "Every visit is a luxurious escape from reality. Highly recommended.", author: "Daniel Thomas" },
+                { text: "The attention to detail here is second to none. Amazing service.", author: "Isabella Martinez" },
+                { text: "Top-notch facilities and incredibly skilled professionals.", author: "James Jackson" },
+                { text: "I wouldn't trust anyone else with my hair. Simply the best.", author: "Mia White" }
               ].map((t, i) => (
                 <div key={`${cycle}-${i}`} className="sf-testimonial-card" style={{ display: 'inline-flex', flexDirection: 'column', padding: '32px', borderRadius: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: '1.2rem', flexShrink: 0 }}>
-                      {t.dp}
+                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--surface-alt)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)', flexShrink: 0 }}>
+                      <User size={24} strokeWidth={1.5} />
                     </div>
                     <div>
                       <div className="sf-testimonial-author" style={{ margin: 0 }}>{t.author}</div>
-                      <div style={{ color: '#fbbf24', fontSize: '1rem', marginTop: 4 }}>★★★★★</div>
+                      <div style={{ color: '#fbbf24', fontSize: '1rem', marginTop: 4, display: 'flex', gap: 2 }}>
+                        {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}
+                      </div>
                     </div>
                   </div>
                   <div className="sf-testimonial-text" style={{ margin: 0, fontStyle: 'normal', color: 'var(--text-muted)' }}>"{t.text}"</div>
