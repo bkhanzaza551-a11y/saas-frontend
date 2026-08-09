@@ -217,7 +217,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
           </div>
         ) : (
           /* Full Expanded Sidebar Mode */
-          <div className="sidebar-expanded-container" style={{ position: 'relative' }}>
+          <div className="sidebar-expanded-container" style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
             {/* Mobile Close Button */}
             {mobileOpen && (
               <button
