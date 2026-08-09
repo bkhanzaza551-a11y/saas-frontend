@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
 
 export default function CollectionsPage() {
   const { salon, selectedBranchId } = useOutletContext();
@@ -135,16 +135,22 @@ export default function CollectionsPage() {
                 <div className="sf-services-grid">
                   {filteredServices.map(service => (
                     <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
-                      <div className="sf-service-img-wrapper">
-                        <img src={service.imageUrl || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"} alt={service.name} className="sf-service-img" />
-                      </div>
-                      <div className="sf-service-content">
-                        <h3>{service.name}</h3>
-                        <p className="sf-service-desc">{service.description || "A premium service tailored for your needs."}</p>
-                        <div className="sf-service-footer">
-                          <span className="sf-service-price">{salon.currency || "INR"} {service.salePrice || service.price}</span>
-                          <span className="sf-service-btn">Details <ArrowRight size={16} /></span>
+                      {service.imageUrl ? (
+                        <img src={service.imageUrl} alt={service.name} style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', marginBottom: 24, border: '1px solid var(--border)' }} />
+                      ) : (
+                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-main)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, color: 'var(--text-muted)' }}>
+                          <Sparkles size={20} />
                         </div>
+                      )}
+                      <h3 style={{ margin: '0 0 12px', fontSize: '1.4rem', color: 'var(--text-main)', fontWeight: 500 }}>{service.name}</h3>
+                      <p className="sf-service-desc" style={{ flex: 1, margin: '0 0 24px', fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: 1.6, fontWeight: 300 }}>
+                        {service.description || "A premium service tailored for your needs."}
+                      </p>
+                      <div className="sf-service-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+                        <span className="sf-service-price" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', color: 'var(--text-main)' }}>{salon.currency || "INR"} {service.salePrice || service.price}</span>
+                        <span className="sf-service-btn" style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          Details <ArrowRight size={16} />
+                        </span>
                       </div>
                     </div>
                   ))}

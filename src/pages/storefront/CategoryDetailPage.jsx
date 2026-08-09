@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatDuration, formatPrice, getServicePrice } from "./storefrontUtils";
+import { Sparkles } from "lucide-react";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&fit=crop";
 
@@ -117,29 +118,28 @@ export default function CategoryDetailPage() {
                       e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    {/* Service Image */}
-                    <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
-                      <img
-                        src={service.imageUrl || FALLBACK_IMG}
-                        alt={service.name}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                      {hasSale && (
-                        <span style={{
-                          position: "absolute",
-                          top: 12,
-                          left: 12,
-                          padding: "4px 10px",
-                          background: "#ef4444",
-                          color: "#fff",
-                          borderRadius: 100,
-                          fontSize: "0.72rem",
-                          fontWeight: 700
-                        }}>
-                          {Math.round((1 - Number(service.salePrice) / Number(service.price)) * 100)}% OFF
-                        </span>
-                      )}
-                    </div>
+                    {/* Service Icon/Avatar */}
+                    {service.imageUrl ? (
+                      <div style={{ padding: '24px 24px 0', position: 'relative' }}>
+                        <img src={service.imageUrl} alt={service.name} style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
+                        {hasSale && (
+                          <span style={{ position: "absolute", top: 24, right: 24, padding: "4px 10px", background: "#ef4444", color: "#fff", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
+                            {Math.round((1 - Number(service.salePrice) / Number(service.price)) * 100)}% OFF
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ padding: '24px 24px 0', position: 'relative' }}>
+                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                          <Sparkles size={20} />
+                        </div>
+                        {hasSale && (
+                          <span style={{ position: "absolute", top: 24, right: 24, padding: "4px 10px", background: "#ef4444", color: "#fff", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
+                            {Math.round((1 - Number(service.salePrice) / Number(service.price)) * 100)}% OFF
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Service Details */}
                     <div style={{ padding: "16px 20px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
