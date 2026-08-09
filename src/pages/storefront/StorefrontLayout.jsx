@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Outlet, Link, useParams } from "react-router-dom";
+import { Outlet, Link, useParams, useLocation } from "react-router-dom";
 import { CalendarCheck, Menu, X } from "lucide-react";
 import { api } from "../../api/client";
 import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
@@ -32,6 +32,15 @@ export default function StorefrontLayout() {
   const [scrolled, setScrolled] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showBranchModal, setShowBranchModal] = useState(false);
+  const [pageTransitioning, setPageTransitioning] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Show preloader on subpage navigation for 1.5 seconds
+    setPageTransitioning(true);
+    const timer = setTimeout(() => setPageTransitioning(false), 1500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +75,7 @@ export default function StorefrontLayout() {
       .catch(() => setSalon(null))
       .finally(() => {
         setLoading(false);
-        setTimeout(() => setInitialLoading(false), 800); // 800ms minimum preloader time for polish
+        setTimeout(() => setInitialLoading(false), 2000); // 2000ms minimum preloader time
       });
   }, [slug]);
 
@@ -117,7 +126,7 @@ export default function StorefrontLayout() {
   return (
     <div className="storefront-wrapper">
       {/* Premium Preloader */}
-      <div className={`sf-preloader ${!initialLoading && !loading ? 'sf-preloader-hidden' : ''}`}>
+      <div className={`sf-preloader ${!initialLoading && !loading && !pageTransitioning ? 'sf-preloader-hidden' : ''}`}>
         <div className="sf-preloader-text">{displaySalonName}</div>
       </div>
 
