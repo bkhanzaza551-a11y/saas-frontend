@@ -15,11 +15,13 @@ export default function CategoryDetailPage() {
 
   useEffect(() => {
     if (!salon?.slug) return;
+    const params = { categoryId };
+    if (selectedBranchId) params.branchId = selectedBranchId;
     Promise.all([
-      api.get(`/public/salon/${salon.slug}/products`, { params: { categoryId } }).catch(() => ({ data: [] })),
+      api.get(`/public/salon/${salon.slug}/products`, { params }).catch(() => ({ data: { products: [] } })),
       api.get(`/public/salon/${salon.slug}/categories`).catch(() => ({ data: [] }))
     ]).then(([prodRes, catRes]) => {
-      setProducts(prodRes.data || []);
+      setProducts(prodRes.data?.products || prodRes.data || []);
       setCategories(catRes.data || []);
       setCategory((catRes.data || []).find(c => c.id === categoryId) || null);
       setLoading(false);
