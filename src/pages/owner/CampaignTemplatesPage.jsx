@@ -7,6 +7,8 @@ import ModuleTabs from "../../components/ModuleTabs";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptyForm = {
   name: "",
   title: "",
@@ -133,10 +135,10 @@ export default function CampaignTemplatesPage() {
           <form className="form-grid" onSubmit={save}>
             <input placeholder="Template name" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
             <input placeholder="Display title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
-            <select value={form.tier} onChange={(event) => setForm((current) => ({ ...current, tier: event.target.value }))}>
+            <CustomSelect value={form.tier} onChange={(event) => setForm((current) => ({ ...current, tier: event.target.value }))}>
               <option value="FREE">Free</option>
               <option value="PREMIUM">Premium</option>
-            </select>
+            </CustomSelect>
             <input placeholder="Category" value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))} />
             <input placeholder="Background color" value={form.backgroundColor} onChange={(event) => setForm((current) => ({ ...current, backgroundColor: event.target.value }))} />
             <input placeholder="Text color" value={form.textColor} onChange={(event) => setForm((current) => ({ ...current, textColor: event.target.value }))} />

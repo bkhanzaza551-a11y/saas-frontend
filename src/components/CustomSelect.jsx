@@ -1,42 +1,128 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 import "./CustomSelect.css";
+
+const extractOptionsFromChildren = (children) => {
+  const extracted = [];
+  
+  const processChild = (child) => {
+    if (!child) return;
+    
+    if (Array.isArray(child)) {
+      child.forEach(processChild);
+      return;
+    }
+    
+    if (!React.isValidElement(child)) return;
+    
+    if (child.type === React.Fragment) {
+      if (child.props && child.props.children) {
+        React.Children.forEach(child.props.children, processChild);
+      }
+      return;
+    }
+    
+    if (child.type === 'option') {
+      extracted.push({
+        label: child.props.children,
+        value: child.props.value !== undefined ? child.props.value : child.props.children
+      });
+    } else if (child.type === 'optgroup') {
+      const groupOptions = [];
+      const processGroupChild = (optChild) => {
+        if (!optChild) return;
+        if (Array.isArray(optChild)) {
+          optChild.forEach(processGroupChild);
+          return;
+        }
+        if (React.isValidElement(optChild) && optChild.type === 'option') {
+          groupOptions.push({
+            label: optChild.props.children,
+            value: optChild.props.value !== undefined ? optChild.props.value : optChild.props.children
+          });
+        } else if (React.isValidElement(optChild) && optChild.type === React.Fragment) {
+            if (optChild.props && optChild.props.children) {
+                React.Children.forEach(optChild.props.children, processGroupChild);
+            }
+        }
+      };
+      
+      React.Children.forEach(child.props.children, processGroupChild);
+      
+      if (groupOptions.length > 0) {
+        extracted.push({
+          groupLabel: child.props.label,
+          options: groupOptions
+        });
+      }
+    }
+  };
+  
+  React.Children.forEach(children, processChild);
+  return extracted;
+};
 
 /**
  * CustomSelect
  * 
  * @param {Array} options - Array of objects { label, value } or array of strings.
+ * @param {ReactNode} children - Support for native <option> and <optgroup> passing.
  * @param {String|Number} value - The currently selected value.
  * @param {Function} onChange - Callback receiving the new value, or event object mimicking native select (e.target.value).
  * @param {String} placeholder - Text when nothing is selected.
  * @param {Boolean} disabled - If true, select is disabled.
  * @param {Object} style - Optional inline styles for the container.
+ * @param {String} className - Optional classes.
+ * @param {String} id - Optional id.
  * @param {Boolean} required - Required form field flag.
  */
 export default function CustomSelect({
   options = [],
+  children,
   value,
   onChange,
   placeholder = "Select...",
   disabled = false,
   style = {},
-  required = false
+  className = "",
+  id,
+  required = false,
+  ...rest
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({});
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
   
-  // Normalize options to { label, value }
-  const normalizedOptions = options.map(opt => {
-    if (typeof opt === "string" || typeof opt === "number") {
-      return { label: opt, value: opt };
+  const normalizedOptions = useMemo(() => {
+    let opts = [];
+    if (children) {
+      opts = extractOptionsFromChildren(children);
+    } else if (options && options.length > 0) {
+      opts = options.map(opt => {
+        if (typeof opt === "string" || typeof opt === "number") {
+          return { label: opt, value: opt };
+        }
+        return opt;
+      });
     }
-    return opt;
-  });
+    return opts;
+  }, [options, children]);
 
-  const selectedOption = normalizedOptions.find(opt => opt.value === value);
+  const findSelectedOption = () => {
+    for (const opt of normalizedOptions) {
+      if (opt.groupLabel) {
+        const found = opt.options.find(o => o.value == value); // loose equality for string/number mixing
+        if (found) return found;
+      } else {
+        if (opt.value == value) return opt;
+      }
+    }
+    return null;
+  };
+
+  const selectedOption = findSelectedOption();
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -61,7 +147,6 @@ export default function CustomSelect({
     };
   }, [isOpen]);
 
-  // Update dropdown position on open or window resize/scroll
   const updatePosition = () => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -76,7 +161,7 @@ export default function CustomSelect({
     if (isOpen) {
       updatePosition();
       window.addEventListener("resize", updatePosition);
-      window.addEventListener("scroll", updatePosition, true); // true to catch scroll in scrollable containers
+      window.addEventListener("scroll", updatePosition, true);
     }
     return () => {
       window.removeEventListener("resize", updatePosition);
@@ -92,7 +177,6 @@ export default function CustomSelect({
   const handleSelect = (val) => {
     setIsOpen(false);
     if (onChange) {
-      // Mimic standard native event object to support e.target.value pattern
       onChange({ target: { value: val } });
     }
   };
@@ -115,17 +199,38 @@ export default function CustomSelect({
             </div>
           ) : (
             normalizedOptions.map((opt, i) => {
-              const isSelected = opt.value === value;
-              return (
-                <div
-                  key={`${opt.value}-${i}`}
-                  className={`custom-select-option ${isSelected ? "selected" : ""}`}
-                  onClick={() => handleSelect(opt.value)}
-                >
-                  <span>{opt.label}</span>
-                  {isSelected && <Check size={14} className="custom-select-option-check" />}
-                </div>
-              );
+              if (opt.groupLabel) {
+                return (
+                  <div key={`group-${i}`}>
+                    <div className="custom-select-optgroup-label">{opt.groupLabel}</div>
+                    {opt.options.map((subOpt, j) => {
+                      const isSelected = subOpt.value == value;
+                      return (
+                        <div
+                          key={`${subOpt.value}-${j}`}
+                          className={`custom-select-option ${isSelected ? "selected" : ""}`}
+                          onClick={() => handleSelect(subOpt.value)}
+                        >
+                          <span>{subOpt.label}</span>
+                          {isSelected && <Check size={14} className="custom-select-option-check" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              } else {
+                const isSelected = opt.value == value;
+                return (
+                  <div
+                    key={`${opt.value}-${i}`}
+                    className={`custom-select-option ${isSelected ? "selected" : ""}`}
+                    onClick={() => handleSelect(opt.value)}
+                  >
+                    <span>{opt.label}</span>
+                    {isSelected && <Check size={14} className="custom-select-option-check" />}
+                  </div>
+                );
+              }
             })
           )}
         </div>
@@ -136,9 +241,11 @@ export default function CustomSelect({
 
   return (
     <div 
-      className="custom-select-container" 
+      className={`custom-select-container ${className}`} 
       ref={containerRef}
       style={style}
+      id={id}
+      {...rest}
     >
       <div 
         className={`custom-select-trigger ${isOpen ? "custom-select-open" : ""} ${disabled ? "custom-select-disabled" : ""}`}
@@ -157,7 +264,6 @@ export default function CustomSelect({
         <ChevronDown size={16} className={`custom-select-icon ${isOpen ? "open" : ""}`} />
       </div>
       
-      {/* Hidden input for form submission & native 'required' validation if wrapped in a <form> */}
       <input 
         type="hidden" 
         value={value ?? ""} 

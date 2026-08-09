@@ -4,6 +4,8 @@ import { X, Plus, Trash2, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const statusConfig = {
   OPEN: { label: "Open", color: "#f59e0b", bg: "#fef3c7", icon: Clock },
   IN_PROGRESS: { label: "In Progress", color: "#3b82f6", bg: "#dbeafe", icon: AlertCircle },
@@ -159,12 +161,12 @@ export default function StaffRequirementsPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Urgency</label>
-                  <select value={form.urgency} onChange={e => setForm({...form, urgency: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}>
+                  <CustomSelect value={form.urgency} onChange={e => setForm({...form, urgency: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}>
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
                     <option value="HIGH">High</option>
                     <option value="URGENT">Urgent</option>
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Count</label>

@@ -6,6 +6,8 @@ import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const statusColor = (status) => {
   switch (status) {
     case "PRESENT": return { bg: "rgba(34,197,94,0.12)", text: "#166534", border: "rgba(34,197,94,0.25)" };
@@ -136,7 +138,7 @@ export default function MyAttendanceHistoryPage() {
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "flex", alignItems: "center", gap: 4 }}><Filter size={13} /> Status</label>
-                <select value={filter.status} onChange={(e) => setFilter((f) => ({ ...f, status: e.target.value }))} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
+                <CustomSelect value={filter.status} onChange={(e) => setFilter((f) => ({ ...f, status: e.target.value }))} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
                   <option value="">All</option>
                   <option value="PRESENT">Present</option>
                   <option value="LATE">Late</option>
@@ -145,18 +147,18 @@ export default function MyAttendanceHistoryPage() {
                   <option value="LEAVE">Leave</option>
                   <option value="WORKING">Working</option>
                   <option value="COMPLETED_SHIFT">Completed Shift</option>
-                </select>
+                </CustomSelect>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "flex", alignItems: "center", gap: 4 }}><CalendarDays size={13} /> Month</label>
-                <select value={filter.month} onChange={(e) => setFilter((f) => ({ ...f, month: e.target.value }))} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
+                <CustomSelect value={filter.month} onChange={(e) => setFilter((f) => ({ ...f, month: e.target.value }))} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
                   <option value="">All</option>
                   {months.map((m) => {
                     const [y, mo] = m.split("-");
                     const label = new Date(Number(y), Number(mo) - 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
                     return <option key={m} value={m}>{label}</option>;
                   })}
-                </select>
+                </CustomSelect>
               </div>
               {(filter.status || filter.month) && (
                 <button type="button" className="secondary-button" onClick={() => setFilter({ status: "", month: "" })} style={{ fontSize: 12, padding: "5px 10px" }}>

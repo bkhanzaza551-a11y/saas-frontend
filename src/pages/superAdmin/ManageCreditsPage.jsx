@@ -21,6 +21,16 @@ export default function ManageCreditsPage() {
   const [addCreditsModalOpen, setAddCreditsModalOpen] = useState(false);
   const [creditForm, setCreditForm] = useState({ salonId: "", amount: "", note: "" });
 
+  // Custom API modal
+  const [customApiModalOpen, setCustomApiModalOpen] = useState(false);
+  const [customApiForm, setCustomApiForm] = useState({
+    salonId: "",
+    customWhatsappEnabled: false,
+    customWhatsappToken: "",
+    customWhatsappPhoneId: "",
+    customWhatsappAccountId: ""
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -95,6 +105,23 @@ export default function ManageCreditsPage() {
       alert("Failed to update costs");
     } finally {
       setSavingCosts(false);
+    }
+  };
+
+  const handleSaveCustomApi = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/super-admin/credits/salons/${customApiForm.salonId}/whatsapp-api`, {
+        customWhatsappEnabled: customApiForm.customWhatsappEnabled,
+        customWhatsappToken: customApiForm.customWhatsappToken,
+        customWhatsappPhoneId: customApiForm.customWhatsappPhoneId,
+        customWhatsappAccountId: customApiForm.customWhatsappAccountId
+      });
+      setCustomApiModalOpen(false);
+      showAlert("Custom API configured successfully");
+      fetchData();
+    } catch (err) {
+      alert("Failed to save custom API configuration");
     }
   };
 
@@ -285,7 +312,7 @@ export default function ManageCreditsPage() {
                         {Number(salon.credits || 0).toLocaleString()}
                       </span>
                     </td>
-                    <td style={{ padding: "16px 24px", textAlign: "center" }}>
+                    <td style={{ padding: "16px 24px", textAlign: "center", display: "flex", gap: "8px", justifyContent: "center" }}>
                       <button 
                         style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#334155", borderRadius: "8px", padding: "6px 14px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }} 
                         onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "" }); setAddCreditsModalOpen(true); }}
@@ -293,6 +320,24 @@ export default function ManageCreditsPage() {
                         onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.background = "#fff"; }}
                       >
                         Adjust
+                      </button>
+                      <button 
+                        style={{ background: salon.customWhatsappEnabled ? "#ecfdf5" : "#fff", border: `1px solid ${salon.customWhatsappEnabled ? '#10b981' : '#cbd5e1'}`, color: salon.customWhatsappEnabled ? "#047857" : "#334155", borderRadius: "8px", padding: "6px 14px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }} 
+                        onClick={() => {
+                          setCustomApiForm({
+                            salonId: salon.id,
+                            customWhatsappEnabled: salon.customWhatsappEnabled || false,
+                            customWhatsappToken: salon.customWhatsappToken || "",
+                            customWhatsappPhoneId: salon.customWhatsappPhoneId || "",
+                            customWhatsappAccountId: salon.customWhatsappAccountId || ""
+                          });
+                          setCustomApiModalOpen(true);
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.background = salon.customWhatsappEnabled ? "#d1fae5" : "#f8fafc"; }}
+                        onMouseOut={(e) => { e.currentTarget.style.background = salon.customWhatsappEnabled ? "#ecfdf5" : "#fff"; }}
+                        title="Configure Custom WhatsApp API"
+                      >
+                        API Settings
                       </button>
                     </td>
                   </tr>
@@ -376,6 +421,60 @@ export default function ManageCreditsPage() {
                 </button>
                 <button type="submit" style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#2563eb", color: "#fff", fontWeight: 600, fontSize: "0.95rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 12px rgba(37, 99, 235, 0.2)" }} onMouseOver={(e) => e.currentTarget.style.background = "#1d4ed8"} onMouseOut={(e) => e.currentTarget.style.background = "#2563eb"}>
                   Apply Adjustment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom WhatsApp API Modal */}
+      {customApiModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" }}>
+          <div style={{ background: "#fff", borderRadius: "20px", width: "100%", maxWidth: "520px", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", overflow: "hidden" }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: "#0f172a" }}>Custom WhatsApp API</h2>
+              <button type="button" onClick={() => setCustomApiModalOpen(false)} style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", padding: "4px", borderRadius: "50%" }} onMouseOver={(e) => e.currentTarget.style.background = "#e2e8f0"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveCustomApi} style={{ padding: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", padding: "16px", background: customApiForm.customWhatsappEnabled ? "#ecfdf5" : "#f1f5f9", borderRadius: "12px", border: `1px solid ${customApiForm.customWhatsappEnabled ? "#10b981" : "#cbd5e1"}` }}>
+                <label style={{ display: "flex", alignItems: "center", cursor: "pointer", gap: "12px", flex: 1, margin: 0 }}>
+                  <div style={{ position: "relative", width: "44px", height: "24px", background: customApiForm.customWhatsappEnabled ? "#10b981" : "#cbd5e1", borderRadius: "12px", transition: "background 0.3s" }}>
+                    <div style={{ position: "absolute", top: "2px", left: customApiForm.customWhatsappEnabled ? "22px" : "2px", width: "20px", height: "20px", background: "#fff", borderRadius: "50%", transition: "left 0.3s" }}></div>
+                  </div>
+                  <input type="checkbox" style={{ display: "none" }} checked={customApiForm.customWhatsappEnabled} onChange={e => setCustomApiForm({...customApiForm, customWhatsappEnabled: e.target.checked})} />
+                  <div>
+                    <div style={{ fontWeight: 700, color: customApiForm.customWhatsappEnabled ? "#065f46" : "#334155", fontSize: "1rem" }}>Bypass Credit System</div>
+                    <div style={{ fontSize: "0.85rem", color: customApiForm.customWhatsappEnabled ? "#047857" : "#64748b" }}>Use salon's own WhatsApp credentials</div>
+                  </div>
+                </label>
+              </div>
+
+              {customApiForm.customWhatsappEnabled && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px", animation: "fadeIn 0.3s" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Meta Access Token</label>
+                    <input type="text" required value={customApiForm.customWhatsappToken} onChange={e => setCustomApiForm({...customApiForm, customWhatsappToken: e.target.value})} placeholder="EAA..." style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Phone Number ID</label>
+                    <input type="text" required value={customApiForm.customWhatsappPhoneId} onChange={e => setCustomApiForm({...customApiForm, customWhatsappPhoneId: e.target.value})} placeholder="e.g. 123456789012345" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Business Account ID (Optional)</label>
+                    <input type="text" value={customApiForm.customWhatsappAccountId} onChange={e => setCustomApiForm({...customApiForm, customWhatsappAccountId: e.target.value})} placeholder="e.g. 123456789012345" style={inputStyle} />
+                  </div>
+                </div>
+              )}
+
+              <div style={{ marginTop: "32px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+                <button type="button" onClick={() => setCustomApiModalOpen(false)} style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontWeight: 600, fontSize: "0.95rem", cursor: "pointer" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "#fff"}>
+                  Cancel
+                </button>
+                <button type="submit" style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#0f172a", color: "#fff", fontWeight: 600, fontSize: "0.95rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }} onMouseOver={(e) => e.currentTarget.style.background = "#1e293b"} onMouseOut={(e) => e.currentTarget.style.background = "#0f172a"}>
+                  <Save size={18} /> Save Config
                 </button>
               </div>
             </form>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Clock3, Download, FileText, Gift, ScissorsLineDashed, TicketPercent, Trash2, X, FlaskConical, Plus } from "lucide-react";
+import { Clock3, Download, FileText, Gift, ScissorsLineDashed, TicketPercent, Trash2, X, FlaskConical, Plus, Search } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -14,6 +14,8 @@ import { formatApiError } from "../../utils/apiError";
 import AppointmentCheckoutModal from "./AppointmentCheckoutModal";
 import "./PosDashboard.css";
 import "./PosPage.css";
+import CustomSelect from "../../components/CustomSelect";
+
 const invoiceLabel = (item) => item?.serviceName || item?.productName || item?.name || "Item";
 const invoiceStatusClass = (status) => {
   const normalized = String(status || "").toUpperCase();
@@ -882,6 +884,8 @@ export default function PosDashboardPage() {
       setStatus({ error: "", success: "Invoice updated successfully." });
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not update invoice"), success: "" });
+    } finally {
+      setBillLoading(false);
     }
   };
 
@@ -892,17 +896,34 @@ export default function PosDashboardPage() {
     if (!invoiceId) return;
     try {
       setCompletingInvoice(true);
-      const res = await api.patch(`/owner/invoices/${invoiceId}/complete`, {});
+      
+      // Send the payment draft mode if available, fallback to CASH
+      const hasOnline = Number(paymentDraft.online || 0) > 0;
+      const mode = hasOnline ? "ONLINE" : "CASH";
+      
+      // Use an abort controller to prevent infinite hangs
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+      
+      const res = await api.patch(`/owner/invoices/${invoiceId}/complete`, { mode }, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
       await loadInvoiceDetail(invoiceId);
       setStatus({ error: "", success: "Invoice completed successfully." });
       
-      if (res.data.whatsappFailedReason === "INSUFFICIENT_CREDITS") {
+      if (res?.data?.whatsappFailedReason === "INSUFFICIENT_CREDITS") {
         setTimeout(() => {
           alert("WhatsApp Failed: Your credits is 0, send invoice by WhatsApp web or purchase more credits.");
         }, 500);
       }
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not complete invoice"), success: "" });
+      if (error.name === "CanceledError" || error.message?.includes("aborted")) {
+         setStatus({ error: "Request timed out. The server took too long to respond. Please try again or check your connection.", success: "" });
+      } else {
+         setStatus({ error: formatApiError(error, "Could not complete invoice"), success: "" });
+      }
     } finally {
       setCompletingInvoice(false);
     }
@@ -1253,12 +1274,12 @@ export default function PosDashboardPage() {
                             ) : null}
                           </div>
                           <div>
-                            <select value={item.staffUserSalonId || ""} onChange={(event) => updateItem(index, { staffUserSalonId: event.target.value })} style={{ width: "100%", padding: 4, borderRadius: 4, border: "1px solid #cbd5e1" }} disabled={!isEditing}>
+                            <CustomSelect value={item.staffUserSalonId || ""} onChange={(event) => updateItem(index, { staffUserSalonId: event.target.value })} style={{ width: "100%", padding: 4, borderRadius: 4, border: "1px solid #cbd5e1" }} disabled={!isEditing}>
                               <option value="">Select Staff</option>
                               {(posContext.staffUsers || []).map((userSalon) => (
                                 <option key={userSalon.id} value={userSalon.id}>{userSalon.user?.name}</option>
                               ))}
-                            </select>
+                            </CustomSelect>
                           </div>
                           <div>
                             <input type="number" min="1" value={item.qty} onChange={(event) => updateItem(index, { qty: Number(event.target.value || 1) })} style={{ width: 52, padding: 4, borderRadius: 4, border: "1px solid #cbd5e1" }} disabled={!isEditing} />
@@ -1454,7 +1475,7 @@ export default function PosDashboardPage() {
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ position:"relative" }}>
                   <input placeholder="Search For Card" value={gcSearch} onChange={e => setGcSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
-                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}>🔍</span>
+                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
                 <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
               </div>
@@ -1500,10 +1521,10 @@ export default function PosDashboardPage() {
                 </div>
                 <div style={{ flex:1.2, minWidth:150 }}>
                   <label style={{ fontSize:"0.82rem", fontWeight:600, color:"#475569", display:"block", marginBottom:6 }}>Staff</label>
-                  <select value={gcDraft.staffId} onChange={e=>setGcDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
+                  <CustomSelect value={gcDraft.staffId} onChange={e=>setGcDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
                     <option value="">Select Staff</option>
                     {(posContext.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
             </div>
@@ -1525,7 +1546,7 @@ export default function PosDashboardPage() {
               <div style={{ display:"flex", alignItems:"center", gap:16 }}>
                 <div style={{ position:"relative" }}>
                   <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"10px 14px", paddingRight:36, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:240, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
-                  <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}>🔍</span>
+                  <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}><Search size={18} /></span>
                 </div>
                 <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, minHeight:36, padding:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}>&#x2715;</button>
               </div>
@@ -1602,7 +1623,7 @@ export default function PosDashboardPage() {
                   <label style={{ fontWeight:700, color:"#334155", fontSize:"0.9rem" }}>Add Services to Package</label>
                   <div style={{ position:"relative" }}>
                     <input placeholder="Search Service By Category Or Name..." value={pkgServiceSearch} onChange={e => setPkgServiceSearch(e.target.value)} style={{ width:"100%", padding:"12px 16px", paddingRight:40, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
-                    <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}>🔍</span>
+                    <span style={{ position:"absolute", right:14, top:12, color:"#94a3b8", fontWeight:700 }}><Search size={18} /></span>
                     {pkgServiceSearch.trim() && (
                       <div style={{ position:"absolute", top:"100%", left:0, right:0, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, maxHeight:200, overflowY:"auto", marginTop:6, zIndex:20, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
                         {(posContext.services || []).filter(s => s.name.toLowerCase().includes(pkgServiceSearch.toLowerCase())).map(svc => (
@@ -1631,7 +1652,7 @@ export default function PosDashboardPage() {
                 <div style={{ display:"flex", gap:20, alignItems:"flex-end", marginTop:16, flexWrap:"wrap" }}>
                   <div style={{ flex:1.5, minWidth:200 }}>
                     <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Assign Staff <span style={{color: "#ef4444"}}>*</span></label>
-                    <select
+                    <CustomSelect
                       value={pkgDraft.staffId}
                       onChange={e => setPkgDraft(d => ({ ...d, staffId: e.target.value }))}
                       style={{ width:"100%", padding:"12px 16px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.95rem", boxSizing:"border-box", outline: "none", backgroundColor: "#fff", cursor: "pointer", transition: "border-color 0.2s" }}
@@ -1639,7 +1660,7 @@ export default function PosDashboardPage() {
                     >
                       <option value="">Select Staff</option>
                       {(posContext.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                    </select>
+                    </CustomSelect>
                   </div>
                   <div style={{ flex:1, minWidth:160 }}>
                     <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Purchase Date</label>
@@ -1684,7 +1705,7 @@ export default function PosDashboardPage() {
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ position:"relative" }}>
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
-                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}>🔍</span>
+                  <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
                 <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
               </div>
@@ -1743,10 +1764,10 @@ export default function PosDashboardPage() {
                   </div>
                   <div style={{ flex:1.2, minWidth:150 }}>
                     <label style={{ fontSize:"0.82rem", fontWeight:600, color:"#475569", display:"block", marginBottom:6 }}>Staff</label>
-                    <select value={memDraft.staffId} onChange={e=>setMemDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
+                    <CustomSelect value={memDraft.staffId} onChange={e=>setMemDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
                       <option value="">Select Staff</option>
                       {(posContext.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                    </select>
+                    </CustomSelect>
                   </div>
                   <div style={{ flex:1, minWidth:140 }}>
                     <label style={{ fontSize:"0.82rem", fontWeight:600, color:"#475569", display:"block", marginBottom:6 }}>Purchase date</label>
@@ -1895,10 +1916,10 @@ export default function PosDashboardPage() {
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 10, alignItems: "end", padding: "12px 14px", border: "1px solid #e2e8f0", borderRadius: 8 }}>
                 <label style={{ display: "grid", gap: 4 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Staff</span>
-                  <select value={tipDraft.staffId} onChange={e => setTipDraft(d => ({ ...d, staffId: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
+                  <CustomSelect value={tipDraft.staffId} onChange={e => setTipDraft(d => ({ ...d, staffId: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
                     <option value="">Select staff</option>
                     {(posContext.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                  </select>
+                  </CustomSelect>
                 </label>
                 <label style={{ display: "grid", gap: 4 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Amount</span>
@@ -1906,12 +1927,12 @@ export default function PosDashboardPage() {
                 </label>
                 <label style={{ display: "grid", gap: 4 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Payment</span>
-                  <select value={tipDraft.paymentMode} onChange={e => setTipDraft(d => ({ ...d, paymentMode: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
+                  <CustomSelect value={tipDraft.paymentMode} onChange={e => setTipDraft(d => ({ ...d, paymentMode: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
                     <option value="CASH">Cash</option>
                     <option value="ONLINE">Online</option>
                     <option value="UPI">UPI</option>
                     <option value="CARD">Card</option>
-                  </select>
+                  </CustomSelect>
                 </label>
                 <button type="button" onClick={addTipEntry} style={{ padding: "8px 12px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 6, fontWeight: 600, cursor: "pointer", fontSize: "0.85rem", whiteSpace: "nowrap" }}>Add</button>
               </div>

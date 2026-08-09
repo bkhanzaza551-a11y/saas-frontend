@@ -9,12 +9,7 @@ const DEFAULT_SECTIONS = [
   { id: "about", type: "about", label: "About Us", icon: "ℹ️", enabled: true, locked: true },
   { id: "gallery", type: "gallery", label: "Gallery", icon: "🖼️", enabled: true, locked: true },
   { id: "services", type: "services", label: "Featured Services", icon: "✨", enabled: true, locked: true },
-  { id: "testimonials", type: "testimonials", label: "Client Reviews", icon: "⭐", enabled: true, locked: false },
-  { id: "banner", type: "banner", label: "Promotional Banner", icon: "📢", enabled: false, locked: false },
-  { id: "cta", type: "cta", label: "Call to Action", icon: "👆", enabled: false, locked: false },
-  { id: "contact", type: "contact", label: "Contact Info", icon: "📞", enabled: false, locked: false },
-  { id: "hours", type: "hours", label: "Business Hours", icon: "⏰", enabled: false, locked: false },
-  { id: "social", type: "social", label: "Social Links", icon: "🌐", enabled: false, locked: false }
+  { id: "testimonials", type: "testimonials", label: "Client Reviews", icon: "⭐", enabled: true, locked: false }
 ];
 
 const COLOR_PRESETS = [
@@ -640,12 +635,8 @@ export default function WebsiteEditorPage() {
           )}
         </div>
         <div className={`we-preview-frame ${previewDevice === "mobile" ? "we-mobile-frame" : ""}`}>
-          <div className="we-preview-inner">
-            {slug ? (
-              <iframe key={iframeKey} src={`/site/${slug}`} className={`we-iframe ${previewDevice === "mobile" ? "we-iframe-mobile" : ""}`} title="Preview" />
-            ) : (
-              <div className="we-preview-empty">Configure your salon slug first</div>
-            )}
+          <div className="we-preview-inner" style={{ height: "100%", width: "100%", position: "relative" }}>
+            <LivePreview config={config} sections={sections} device={previewDevice} />
           </div>
         </div>
       </div>

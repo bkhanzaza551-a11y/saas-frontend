@@ -18,6 +18,8 @@ import { formatApiError } from "../../utils/apiError";
 import { isValidIndianPhone } from "../../utils/phone";
 import { ensureSingleFaceInImage, loadFaceVerificationModels } from "../../utils/faceVerification";
 import {
+import CustomSelect from "../../components/CustomSelect";
+
   clonePermissions,
   countGrantedActions,
   countGrantedModules,
@@ -714,7 +716,7 @@ export default function UsersPage() {
                             + Create New Role
                           </button>
                         </div>
-                        <select
+                        <CustomSelect
                           className="hub-input"
                           style={{ width: '100%', background: 'white', fontSize: 14, fontWeight: 600 }}
                           value={form.customRoleId || ""}
@@ -729,7 +731,7 @@ export default function UsersPage() {
                               {role.name}{role.description ? ` — ${role.description}` : ""}
                             </option>
                           ))}
-                        </select>
+                        </CustomSelect>
                         {form.customRoleId && (() => {
                           const sel = customRoles.find((r) => r.id === form.customRoleId);
                           if (!sel) return null;
@@ -746,9 +748,9 @@ export default function UsersPage() {
                       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                         <div className="hub-form-group">
                           <label>System role (fallback) <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>— auto-set when access role picked</span></label>
-                          <select className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={form.customRoleId ? { background: '#f1f5f9', cursor: 'not-allowed' } : undefined}>
+                          <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={form.customRoleId ? { background: '#f1f5f9', cursor: 'not-allowed' } : undefined}>
                             {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
-                          </select>
+                          </CustomSelect>
                         </div>
                         <div className="hub-form-group">
                           <label>Role title (Visible designation)</label>
@@ -865,10 +867,10 @@ export default function UsersPage() {
                         </div>
                         <div className="hub-form-group">
                           <label>Reporting To</label>
-                          <select className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })}>
+                          <CustomSelect className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })}>
                             <option value="">None / Self</option>
                             {rows.map((r) => r.id !== selectedRow?.id && <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
-                          </select>
+                          </CustomSelect>
                         </div>
                       </div>
                     </div>
@@ -944,7 +946,7 @@ export default function UsersPage() {
                     Access Role
                     <span style={{ background: '#2563eb', color: 'white', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, letterSpacing: 0.5 }}>FROM ACCESS CONTROL</span>
                   </label>
-                  <select className="hub-input" value={form.customRoleId || ""} onChange={e => applyCustomRole(e.target.value)}>
+                  <CustomSelect className="hub-input" value={form.customRoleId || ""} onChange={e => applyCustomRole(e.target.value)}>
                     <option value="">— Select access role —</option>
                     {customRoles.length === 0 && (
                       <option value="" disabled>No custom roles yet — create one in Settings → Access Control</option>
@@ -952,7 +954,7 @@ export default function UsersPage() {
                     {customRoles.map(role => (
                       <option key={role.id} value={role.id}>{role.name}{role.description ? ` — ${role.description}` : ""}</option>
                     ))}
-                  </select>
+                  </CustomSelect>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
                     <span style={{ fontSize: 11, color: '#64748b' }}>Roles from Settings → Access Control</span>
                     <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}>+ Create role</button>
@@ -1065,10 +1067,10 @@ export default function UsersPage() {
                   </div>
                   <div className="hub-form-group" style={{ marginBottom: 16 }}>
                     <label>Reporting To</label>
-                    <select className="hub-input" value={form.reportingToId} onChange={e => setForm({ ...form, reportingToId: e.target.value })}>
+                    <CustomSelect className="hub-input" value={form.reportingToId} onChange={e => setForm({ ...form, reportingToId: e.target.value })}>
                       <option value="">None / Self</option>
                       {rows.map((r) => <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
-                    </select>
+                    </CustomSelect>
                   </div>
                 </div>
 

@@ -8,6 +8,8 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import AppointmentCheckoutModal from "./AppointmentCheckoutModal";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const APPOINTMENT_START_HOUR = 9;
 const APPOINTMENT_END_HOUR = 21;
 const APPOINTMENT_SLOT_MINUTES = 15;
@@ -955,33 +957,37 @@ export default function AppointmentsPage() {
           font-size: 0.85rem;
         }
         .nav-btn {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 5px;
-          padding: 4px 8px;
+          background: white !important;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 6px !important;
+          padding: 2px 10px !important;
           cursor: pointer;
           display: flex;
           align-items: center;
-          color: #3b82f6;
+          color: #475569 !important;
           font-weight: 600;
-          font-size: 0.78rem;
-          min-height: unset;
-          box-shadow: none;
-          transition: background 150ms;
+          font-size: 0.75rem !important;
+          min-height: 28px !important;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+          transition: all 150ms !important;
         }
-        .nav-btn:hover { background: #eff6ff; transform: none; filter: none; }
+        .nav-btn:hover { background: #f8fafc !important; border-color: #cbd5e1 !important; }
         .nav-icon {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 5px;
-          padding: 4px;
+          background: white !important;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 6px !important;
+          padding: 4px !important;
           cursor: pointer;
-          color: #475569;
+          color: #475569 !important;
           display: flex;
-          min-height: unset;
-          box-shadow: none;
+          align-items: center;
+          justify-content: center;
+          min-height: 28px !important;
+          min-width: 28px !important;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+          transition: all 150ms !important;
         }
-        .nav-icon:hover { background: #f8fafc; transform: none; filter: none; }
+        .nav-icon:hover { background: #f8fafc !important; border-color: #cbd5e1 !important; }
         .counters-row {
           display: flex;
           gap: 6px;
@@ -1129,25 +1135,26 @@ export default function AppointmentsPage() {
         }
         .sp-header h3 {
           margin: 0;
-          font-size: 0.92rem;
-          color: #ef4444;
-          font-weight: 600;
+          font-size: 1.05rem;
+          color: #0f172a;
+          font-weight: 700;
         }
         .sp-close {
-          background: transparent;
-          border: none;
-          border-radius: 6px;
-          padding: 4px;
+          background: transparent !important;
+          border: none !important;
+          border-radius: 6px !important;
+          padding: 6px !important;
           cursor: pointer;
-          color: #64748b;
+          color: #64748b !important;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.2s;
+          transition: all 0.2s !important;
+          box-shadow: none !important;
         }
         .sp-close:hover {
-          background: #f1f5f9;
-          color: #0f172a;
+          background: #f1f5f9 !important;
+          color: #0f172a !important;
         }
         .sp-body {
           flex-grow: 1;
@@ -1175,125 +1182,67 @@ export default function AppointmentsPage() {
         }
         .sp-input-group {
           position: relative;
-          margin-bottom: 10px;
+          margin-bottom: 14px;
         }
         .sp-input {
           width: 100%;
-          padding: 6px 10px;
+          padding: 10px 14px;
           border: 1px solid #cbd5e1;
-          border-radius: 6px;
-          font-size: 0.82rem;
+          border-radius: 8px;
+          font-size: 0.92rem;
           box-sizing: border-box;
           background: white;
-          min-height: unset;
+          color: #1e293b;
         }
         .sp-input:focus { border-color: #3b82f6; outline: none; }
         .sp-select {
           width: 100%;
-          padding: 6px 10px;
+          padding: 10px 14px;
           border: 1px solid #cbd5e1;
-          border-radius: 6px;
-          font-size: 0.82rem;
+          border-radius: 8px;
+          font-size: 0.92rem;
           appearance: none;
           background: white;
           box-sizing: border-box;
-          min-height: unset;
-        }
-        .sp-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-        .sp-grid-2 > * { min-width: 0; }
-        .sp-time-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
-        .sp-time-grid > * { min-width: 0; }
-        .sp-footer {
-          padding: 10px 16px;
-          background: white;
-          border-top: 1px solid #e2e8f0;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          flex-shrink: 0;
-        }
-        .sp-footer-checks {
-          display: flex;
-          gap: 16px;
-          align-items: center;
-          justify-content: flex-start;
-          font-size: 0.78rem;
-          font-weight: 500;
-          color: #0f172a;
-          flex-wrap: wrap;
-        }
-        .sp-btn-primary {
-          width: 100%;
-          padding: 9px;
-          background: #3b82f6;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-size: 0.88rem;
-          font-weight: 600;
-          cursor: pointer;
-          min-height: unset;
-          box-shadow: none;
-        }
-        .sp-btn-primary:hover { background: #2563eb; transform: none; filter: none; }
-        .sp-input-group {
-          position: relative;
-          margin-bottom: 16px;
-        }
-        .sp-input {
-          width: 100%;
-          padding: 10px 12px;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          box-sizing: border-box;
-          background: white;
-        }
-        .sp-input:focus { border-color: #3b82f6; outline: none; }
-        .sp-select {
-          width: 100%;
-          padding: 10px 12px;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          appearance: none;
-          background: white;
-          box-sizing: border-box;
+          color: #1e293b;
         }
         .sp-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .sp-grid-2 > * { min-width: 0; }
         .sp-time-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .sp-time-grid > * { min-width: 0; }
         .sp-footer {
-          padding: 16px 24px;
+          padding: 16px 20px;
           background: white;
           border-top: 1px solid #e2e8f0;
           display: flex;
           flex-direction: column;
           gap: 12px;
+          flex-shrink: 0;
         }
         .sp-footer-checks {
           display: flex;
-          gap: 16px;
+          gap: 20px;
           align-items: center;
           justify-content: center;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-weight: 500;
-          color: #0f172a;
+          color: #334155;
           flex-wrap: wrap;
         }
         .sp-btn-primary {
-          width: 100%;
-          padding: 14px;
-          background: #3b82f6;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 1.05rem;
-          font-weight: 600;
-          cursor: pointer;
+          width: 100% !important;
+          padding: 12px !important;
+          background: #3b82f6 !important;
+          color: white !important;
+          border: none !important;
+          border-radius: 8px !important;
+          font-size: 1rem !important;
+          font-weight: 600 !important;
+          cursor: pointer !important;
+          box-shadow: none !important;
+          min-height: unset !important;
         }
-        .sp-btn-primary:hover { background: #2563eb; }
+        .sp-btn-primary:hover { background: #2563eb !important; transform: none !important; filter: none !important; }
         @media (max-width: 900px) {
           .slide-panel {
             width: 100vw;
@@ -1317,35 +1266,38 @@ export default function AppointmentsPage() {
           }
         }
         .add-link {
-          color: #3b82f6;
-          text-decoration: none;
-          font-size: 0.85rem;
+          color: #3b82f6 !important;
+          text-decoration: none !important;
+          font-size: 0.85rem !important;
           font-weight: 600;
           cursor: pointer;
-          background: transparent;
-          border: none;
-          padding: 0;
+          background: transparent !important;
+          border: none !important;
+          padding: 0 !important;
+          box-shadow: none !important;
         }
+        .add-link:hover { text-decoration: underline !important; }
         .gender-chip {
-          border: 1px solid #cbd5e1;
-          background: white;
-          color: #334155;
-          border-radius: 999px;
-          padding: 8px 16px;
-          font-size: 0.85rem;
+          border: 1px solid #cbd5e1 !important;
+          background: white !important;
+          color: #334155 !important;
+          border-radius: 999px !important;
+          padding: 6px 14px !important;
+          font-size: 0.8rem !important;
           font-weight: 600;
           text-transform: lowercase;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.2s ease !important;
+          box-shadow: none !important;
         }
         .gender-chip[data-active="true"] {
-          background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-          color: #fff;
-          border-color: #2563eb;
-          box-shadow: none;
+          background: #eff6ff !important;
+          color: #2563eb !important;
+          border-color: #3b82f6 !important;
+          box-shadow: none !important;
         }
         .gender-chip:hover {
-          transform: translateY(-1px);
+          transform: translateY(-1px) !important;
         }
         .context-menu-backdrop {
           position: fixed;
@@ -1739,7 +1691,7 @@ export default function AppointmentsPage() {
                     <div key={idx} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: "1px dashed #e2e8f0" }}>
                       <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Service {idx + 1}</label>
                       <div className="sp-input-group">
-                        <select className="sp-select" value={item.serviceId} onChange={(event) => handleUpdateItem(idx, "serviceId", event.target.value)} required>
+                        <CustomSelect className="sp-select" value={item.serviceId} onChange={(event) => handleUpdateItem(idx, "serviceId", event.target.value)} required>
                           <option value="">Select Service</option>
                           {serviceGroups.map((group) => (
                             <optgroup key={group.title} label={`${group.title} ${serviceGenderFilter !== "ALL" ? `(${serviceGenderFilter === "MALE" ? "M" : "F"})` : ""}`}>
@@ -1750,12 +1702,12 @@ export default function AppointmentsPage() {
                               ))}
                             </optgroup>
                           ))}
-                        </select>
+                        </CustomSelect>
                       </div>
 
                       <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Expert {idx + 1}</label>
                       <div className="sp-input-group">
-                        <select className="sp-select" value={item.staffUserIds[0] || ""} onChange={(event) => handleUpdateItem(idx, "staffUserIds", [event.target.value])} required>
+                        <CustomSelect className="sp-select" value={item.staffUserIds[0] || ""} onChange={(event) => handleUpdateItem(idx, "staffUserIds", [event.target.value])} required>
                           <option value="">Select Expert</option>
                           {filteredStaffUsers
                             .filter((staff) => {
@@ -1764,14 +1716,14 @@ export default function AppointmentsPage() {
                               return assignedServiceIds.length === 0 || assignedServiceIds.includes(item.serviceId);
                             })
                             .map((staff) => <option key={staff.id} value={staff.id}>{staff.user?.name}</option>)}
-                        </select>
+                        </CustomSelect>
                       </div>
 
                       <div className="add-link" style={{ margin: "12px 0", cursor: "pointer" }} onClick={() => { const nextItems = [...form.items]; const nextItem = { ...nextItems[idx], staffUserIds: [...(nextItems[idx].staffUserIds || []), ""] }; nextItems[idx] = nextItem; setForm((current) => ({ ...current, items: nextItems })); }}>Add more staff +</div>
                       <div className="sp-time-grid">
                         <div>
                           <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>From Time</label>
-                          <select className="sp-input" value={item.startAt ? formatTimeForSelect(item.startAt) : ""} onChange={(event) => handleUpdateItem(idx, "startAt", combineDateAndTime(currentDate, event.target.value))} required>
+                          <CustomSelect className="sp-input" value={item.startAt ? formatTimeForSelect(item.startAt) : ""} onChange={(event) => handleUpdateItem(idx, "startAt", combineDateAndTime(currentDate, event.target.value))} required>
                             <option value="">Select Time</option>
                             {TIME_SLOTS.filter(slot => {
                               if (!item.endAt) return true;
@@ -1779,11 +1731,11 @@ export default function AppointmentsPage() {
                               const slotIdx = TIME_SLOT_INDEX.get(slot) ?? 0;
                               return slotIdx < endIdx;
                             }).map(slot => <option key={slot} value={slot}>{slot}</option>)}
-                          </select>
+                          </CustomSelect>
                         </div>
                         <div>
                           <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>To Time</label>
-                          <select className="sp-input" value={item.endAt ? formatTimeForSelect(item.endAt) : ""} onChange={(event) => handleUpdateItem(idx, "endAt", combineDateAndTime(currentDate, event.target.value))} required disabled={!item.startAt}>
+                          <CustomSelect className="sp-input" value={item.endAt ? formatTimeForSelect(item.endAt) : ""} onChange={(event) => handleUpdateItem(idx, "endAt", combineDateAndTime(currentDate, event.target.value))} required disabled={!item.startAt}>
                             <option value="">Select Time</option>
                             {TIME_SLOTS.filter(slot => {
                               if (!item.startAt) return true;
@@ -1793,7 +1745,7 @@ export default function AppointmentsPage() {
                               if (slotIdx > startIdx + 8) return false;
                               return true;
                             }).map(slot => <option key={slot} value={slot}>{slot}</option>)}
-                          </select>
+                          </CustomSelect>
                         </div>
                       </div>
                     </div>
@@ -1802,7 +1754,7 @@ export default function AppointmentsPage() {
                   <button
                     type="button"
                     className="add-link"
-                    style={{ textAlign: "center", display: "block", width: "100%", padding: 12, border: "1px solid #e2e8f0", borderRadius: 8, marginTop: 8 }}
+                    style={{ textAlign: "center", display: "block", width: "100%", marginTop: 8 }}
                     onClick={() => setForm({ ...form, items: [...form.items, emptyItem] })}
                   >
                     Add New Service +
@@ -1828,12 +1780,12 @@ export default function AppointmentsPage() {
               <div className="sp-footer">
                 {!editMode && (
                   <div className="sp-footer-checks">
-                    <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: "0.8rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" className="styled-checkbox" checked={form.smsToGuest} onChange={(event) => setForm({ ...form, smsToGuest: event.target.checked })} />
+                    <label style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
+                      <input type="checkbox" className="styled-checkbox" checked={form.smsToGuest} onChange={(event) => setForm({ ...form, smsToGuest: event.target.checked })} style={{ margin: 0 }} />
                       Confirmation Email
                     </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: "0.8rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" className="styled-checkbox" checked={form.smsToOwner} onChange={(event) => setForm({ ...form, smsToOwner: event.target.checked })} />
+                    <label style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
+                      <input type="checkbox" className="styled-checkbox" checked={form.smsToOwner} onChange={(event) => setForm({ ...form, smsToOwner: event.target.checked })} style={{ margin: 0 }} />
                       Email To Owner
                     </label>
                   </div>

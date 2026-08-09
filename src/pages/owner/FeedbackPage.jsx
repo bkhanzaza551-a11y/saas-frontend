@@ -8,6 +8,8 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import { Star, User, MessageCircle, Calendar, CheckCircle, Mail, AlertCircle, Clock, Trash2, MailPlus, Check } from "lucide-react";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const statusColors = {
   NEW: "#3b82f6",
   REVIEWED: "#eab308",
@@ -168,7 +170,7 @@ export default function FeedbackPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", padding: "6px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>Filter Status:</span>
-                <select 
+                <CustomSelect 
                   value={filters.status} 
                   onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
                   style={{ border: "none", outline: "none", fontSize: 13, fontWeight: 700, color: "#0f172a", background: "transparent", cursor: "pointer" }}
@@ -178,7 +180,7 @@ export default function FeedbackPage() {
                   <option value="REVIEWED">Reviewed</option>
                   <option value="CONTACTED">Contacted</option>
                   <option value="RESOLVED">Resolved</option>
-                </select>
+                </CustomSelect>
               </div>
               {filters.status && (
                 <button type="button" onClick={() => setFilters({ status: "" })} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 13, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Clear</button>

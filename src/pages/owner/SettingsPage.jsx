@@ -13,6 +13,8 @@ import { readSalonSettingsCache, writeSalonSettingsCache } from "../../utils/sal
 import { SETTINGS_WORKSPACE_SECTIONS, getSettingsSection } from "./settingsWorkspaceConfig";
 import "./SettingsPage.css";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const WEEK_DAYS = [
   { key: "sun", label: "Sun", dayOfWeekValue: 0 },
   { key: "mon", label: "Mon", dayOfWeekValue: 1 },
@@ -2222,7 +2224,7 @@ export default function SettingsPage() {
             {/* Template Selection */}
             <div>
               <label style={{ display: "block", fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Template</label>
-              <select
+              <CustomSelect
                 disabled={!rosterModuleEnabled}
                 value={roster.useShiftId}
                 onChange={(event) => updateAdvancedObject("rosterManagement", { useShiftId: event.target.value })}
@@ -2230,7 +2232,7 @@ export default function SettingsPage() {
               >
                 <option value="">Select template...</option>
                 {shifts.filter((shift) => shift.active !== false).map((shift) => <option key={shift.id} value={shift.id}>{shift.name || "Unnamed Shift"}</option>)}
-              </select>
+              </CustomSelect>
             </div>
           </div>
           
@@ -3668,11 +3670,11 @@ export default function SettingsPage() {
         <div className="settings-form-grid">
           <label className="settings-input-group">
             <span className="muted">Gateway provider</span>
-            <select value={form.smsSettings.gatewayProvider} onChange={(event) => setForm((current) => ({ ...current, smsSettings: { ...current.smsSettings, gatewayProvider: event.target.value } }))}>
+            <CustomSelect value={form.smsSettings.gatewayProvider} onChange={(event) => setForm((current) => ({ ...current, smsSettings: { ...current.smsSettings, gatewayProvider: event.target.value } }))}>
               <option value="TWILIO_PLACEHOLDER">Twilio</option>
               <option value="MSG91_PLACEHOLDER">Msg91</option>
               <option value="GUPSHUP_PLACEHOLDER">Gupshup</option>
-            </select>
+            </CustomSelect>
           </label>
           <label className="settings-input-group">
             <span className="muted">Sender ID</span>
@@ -3710,7 +3712,7 @@ export default function SettingsPage() {
                 <label className="settings-input-group"><span className="muted">Description</span><input value={segment.description} onChange={(event) => updateSegment(segment.id, { description: event.target.value })} /></label>
                 <label className="settings-input-group">
                   <span className="muted">Audience rule</span>
-                  <select value={segment.filterType || "ALL_CUSTOMERS"} onChange={(event) => updateSegment(segment.id, { filterType: event.target.value, serviceId: event.target.value === "SERVICE_BASED_CUSTOMERS" ? segment.serviceId || "" : "" })}>
+                  <CustomSelect value={segment.filterType || "ALL_CUSTOMERS"} onChange={(event) => updateSegment(segment.id, { filterType: event.target.value, serviceId: event.target.value === "SERVICE_BASED_CUSTOMERS" ? segment.serviceId || "" : "" })}>
                     <option value="ALL_CUSTOMERS">All customers</option>
                     <option value="BIRTHDAY_CUSTOMERS">Birthday customers</option>
                     <option value="ANNIVERSARY_CUSTOMERS">Anniversary customers</option>
@@ -3719,15 +3721,15 @@ export default function SettingsPage() {
                     <option value="MEMBERSHIP_CUSTOMERS">Membership customers</option>
                     <option value="PACKAGE_CUSTOMERS">Package customers</option>
                     <option value="SERVICE_BASED_CUSTOMERS">Service-based customers</option>
-                  </select>
+                  </CustomSelect>
                 </label>
                 {(segment.filterType || "ALL_CUSTOMERS") === "SERVICE_BASED_CUSTOMERS" ? (
                   <label className="settings-input-group">
                     <span className="muted">Service</span>
-                    <select value={segment.serviceId || ""} onChange={(event) => updateSegment(segment.id, { serviceId: event.target.value })}>
+                    <CustomSelect value={segment.serviceId || ""} onChange={(event) => updateSegment(segment.id, { serviceId: event.target.value })}>
                       <option value="">Select service</option>
                       {summary.services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
-                    </select>
+                    </CustomSelect>
                   </label>
                 ) : null}
                 <ToggleRow checked={segment.active} label="Active" onChange={(value) => updateSegment(segment.id, { active: value })} />
@@ -4293,14 +4295,14 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Type</label>
-                    <select
+                    <CustomSelect
                       value={draftPnlCategory.type || "Expense"}
                       onChange={(event) => setDraftPnlCategory({ ...draftPnlCategory, type: event.target.value })}
                       style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", backgroundColor: "#fff" }}
                     >
                       <option value="INCOME">Income</option>
                       <option value="EXPENSE">Expense</option>
-                    </select>
+                    </CustomSelect>
                   </div>
                 </div>
 

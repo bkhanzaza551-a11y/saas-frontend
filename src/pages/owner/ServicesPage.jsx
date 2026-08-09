@@ -5,6 +5,8 @@ import PageLoader from "../../components/PageLoader";
 import { useBranch } from "../../context/BranchContext";
 import { formatApiError } from "../../utils/apiError";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptyForm = {
   name: "",
   price: 0,
@@ -171,12 +173,12 @@ export default function ServicesPage() {
             </div>
             <input placeholder="Service name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
             <input type="number" min="0" placeholder="Price" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} />
-            <select value={form.durationMin} onChange={(event) => setForm({ ...form, durationMin: event.target.value })}>
+            <CustomSelect value={form.durationMin} onChange={(event) => setForm({ ...form, durationMin: event.target.value })}>
               {DURATION_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
-            </select>
-            <select value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>
+            </CustomSelect>
+            <CustomSelect value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>
               <option value="">No Category</option>
               {(categories || []).flatMap(cat => [
                 <option key={cat.id} value={cat.id} style={{ fontWeight: 700 }}>{cat.name}</option>,
@@ -184,7 +186,7 @@ export default function ServicesPage() {
                   <option key={sub.id} value={sub.id}>&nbsp;&nbsp;{cat.name} / {sub.name}</option>
                 ))
               ])}
-            </select>
+            </CustomSelect>
             <input type="number" min="0" placeholder="Tax rate %" value={form.taxRate} onChange={(event) => setForm({ ...form, taxRate: event.target.value })} />
             <input type="number" min="0" placeholder="Commission %" value={form.commissionPct} onChange={(event) => setForm({ ...form, commissionPct: event.target.value })} />
             <textarea style={{ gridColumn: "1 / -1" }} rows="4" placeholder="Description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />

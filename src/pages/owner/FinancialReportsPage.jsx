@@ -171,23 +171,27 @@ export default function FinancialReportsPage() {
           gap: 4px;
         }
         .period-btn {
-          padding: 4px 10px;
-          border-radius: 6px;
-          border: none;
-          background: transparent;
-          font-size: 11px;
-          font-weight: 600;
-          color: #64748b;
-          cursor: pointer;
-          transition: all 0.2s ease;
+          padding: 4px 10px !important;
+          border-radius: 6px !important;
+          border: none !important;
+          background: transparent !important;
+          font-size: 11px !important;
+          font-weight: 600 !important;
+          color: #64748b !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          min-height: unset !important;
+          box-shadow: none !important;
         }
         .period-btn.active {
-          background: #ffffff;
-          color: #0f172a;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          background: #ffffff !important;
+          color: #0f172a !important;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
         }
         .period-btn:not(.active):hover {
-          color: #334155;
+          color: #334155 !important;
+          transform: none !important;
+          filter: none !important;
         }
 
         .summary-grid {
@@ -245,26 +249,30 @@ export default function FinancialReportsPage() {
           width: 100%;
         }
         .tab-btn {
-          padding: 7px 12px;
-          font-size: 12px;
-          font-weight: 600;
-          color: #64748b;
-          border: none;
-          background: transparent;
-          cursor: pointer;
-          border-bottom: 2px solid transparent;
-          margin-bottom: -1px;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          transition: all 0.2s;
+          padding: 7px 12px !important;
+          font-size: 12px !important;
+          font-weight: 600 !important;
+          background: transparent !important;
+          border: none !important;
+          border-bottom: 2px solid transparent !important;
+          border-radius: 0 !important;
+          color: #64748b !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          min-height: unset !important;
+          box-shadow: none !important;
+          transition: all 0.2s ease !important;
+        }
+        .tab-btn:hover {
+          color: #334155 !important;
+          transform: none !important;
+          filter: none !important;
         }
         .tab-btn.active {
-          color: #2563eb;
-          border-bottom-color: #2563eb;
-        }
-        .tab-btn:not(.active):hover {
-          color: #0f172a;
+          color: #2563eb !important;
+          border-bottom-color: #2563eb !important;
         }
 
         .data-panel {

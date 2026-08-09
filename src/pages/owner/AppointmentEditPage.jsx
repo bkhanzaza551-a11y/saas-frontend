@@ -7,6 +7,8 @@ import EmptyState from "../../components/EmptyState";
 import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
 
+import CustomSelect from "../../components/CustomSelect";
+
 export default function AppointmentEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -130,16 +132,16 @@ export default function AppointmentEditPage() {
         <div className="panel-card">
           <form onSubmit={submit} style={{ display: "grid", gap: 12 }}>
             <div className="form-grid">
-              <select value={form.customerId} onChange={(event) => setForm((current) => ({ ...current, customerId: event.target.value }))}>
+              <CustomSelect value={form.customerId} onChange={(event) => setForm((current) => ({ ...current, customerId: event.target.value }))}>
                 <option value="">Select customer</option>
                 {context.customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}
-              </select>
-              <select value={form.bookingChannel} onChange={(event) => setForm((current) => ({ ...current, bookingChannel: event.target.value }))}>
+              </CustomSelect>
+              <CustomSelect value={form.bookingChannel} onChange={(event) => setForm((current) => ({ ...current, bookingChannel: event.target.value }))}>
                 <option value="MANUAL">Manual</option>
                 <option value="WALK_IN">Walk-in</option>
                 <option value="PHONE">Phone</option>
                 <option value="ONLINE_PLACEHOLDER">Online Placeholder</option>
-              </select>
+              </CustomSelect>
               <input value={form.title} placeholder="Appointment title" onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
               <label><span className="muted">Appointment start</span><input type="datetime-local" min={nowStr} value={form.startAt} onChange={(event) => setForm((current) => ({ ...current, startAt: event.target.value }))} /></label>
               <label><span className="muted">Appointment end</span><input type="datetime-local" min={nowStr} value={form.endAt} onChange={(event) => setForm((current) => ({ ...current, endAt: event.target.value }))} /></label>
@@ -166,10 +168,10 @@ export default function AppointmentEditPage() {
               {form.items.map((item, index) => (
                 <div key={`appointment-edit-${index}`} className="list-item">
                   <div className="form-grid">
-                    <select value={item.serviceId} onChange={(event) => updateItem(index, { serviceId: event.target.value })}>
+                    <CustomSelect value={item.serviceId} onChange={(event) => updateItem(index, { serviceId: event.target.value })}>
                       <option value="">Select service</option>
                       {context.services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
-                    </select>
+                    </CustomSelect>
                     <label><span className="muted">Service start time</span><input type="datetime-local" min={nowStr} value={item.startAt} onChange={(event) => updateItem(index, { startAt: event.target.value })} /></label>
                     <label><span className="muted">Service end time</span><input type="datetime-local" min={nowStr} value={item.endAt} onChange={(event) => updateItem(index, { endAt: event.target.value })} /></label>
                   </div>

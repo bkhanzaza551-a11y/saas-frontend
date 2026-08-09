@@ -28,7 +28,13 @@ export default function AttendanceManagementPage() {
   const [recordsMeta, setRecordsMeta] = useState({ total: 0, page: 1, totalPages: 1 });
   const [settings, setSettings] = useState(null);
   const [settingsForm, setSettingsForm] = useState({});
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [page, setPage] = useState(1);

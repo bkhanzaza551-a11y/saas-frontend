@@ -9,6 +9,8 @@ import EmptyState from "../../components/EmptyState";
 import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptyForm = {
   name: "",
   type: "WHATSAPP",
@@ -257,28 +259,28 @@ export default function CampaignsPage() {
             </label>
             <label>
               <span className="muted">Channel</span>
-              <select value={form.type} onChange={(event) => setForm((current) => ({ ...current, type: event.target.value }))}>
+              <CustomSelect value={form.type} onChange={(event) => setForm((current) => ({ ...current, type: event.target.value }))}>
               <option value="WHATSAPP">WhatsApp</option>
               <option value="SMS">SMS</option>
               <option value="EMAIL">Email</option>
               <option value="SOCIAL_BANNER">Social Banner</option>
               <option value="CATALOG_BANNER">Catalog Banner</option>
-            </select>
+            </CustomSelect>
             </label>
             <label>
               <span className="muted">Apply campaign template</span>
-              <select defaultValue="" onChange={(event) => applyTemplate(event.target.value)}>
+              <CustomSelect defaultValue="" onChange={(event) => applyTemplate(event.target.value)}>
               <option value="">Apply campaign template</option>
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>
                   {template.title || template.name} | {template.tier}
                 </option>
               ))}
-            </select>
+            </CustomSelect>
             </label>
             <label>
               <span className="muted">Customers</span>
-              <select value={form.audienceFilter} onChange={(event) => setForm((current) => ({ ...current, audienceFilter: event.target.value }))}>
+              <CustomSelect value={form.audienceFilter} onChange={(event) => setForm((current) => ({ ...current, audienceFilter: event.target.value }))}>
               <option value="ALL_CUSTOMERS">All customers</option>
               <option value="BIRTHDAY_CUSTOMERS">Birthday customers</option>
               <option value="ANNIVERSARY_CUSTOMERS">Anniversary customers</option>
@@ -287,15 +289,15 @@ export default function CampaignsPage() {
               <option value="MEMBERSHIP_CUSTOMERS">Membership customers</option>
               <option value="PACKAGE_CUSTOMERS">Package customers</option>
               <option value="SERVICE_BASED_CUSTOMERS">Service-based customers</option>
-            </select>
+            </CustomSelect>
             </label>
             {form.audienceFilter === "SERVICE_BASED_CUSTOMERS" ? (
               <label>
               <span className="muted">Service</span>
-              <select value={form.audienceMeta?.serviceId || ""} onChange={(event) => setForm((current) => ({ ...current, audienceMeta: { ...(current.audienceMeta || {}), serviceId: event.target.value } }))}>
+              <CustomSelect value={form.audienceMeta?.serviceId || ""} onChange={(event) => setForm((current) => ({ ...current, audienceMeta: { ...(current.audienceMeta || {}), serviceId: event.target.value } }))}>
                 <option value="">Select service</option>
                 {services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
-              </select>
+              </CustomSelect>
             </label>
             ) : <div className="summary-box"><strong>Audience source</strong><p className="item-meta">This filter will use live CRM, invoice, appointment, package, and membership data.</p></div>}
             <label><span className="muted">Scheduled For</span><input type="datetime-local" min={nowStr} value={form.scheduledFor} onChange={(event) => setForm((current) => ({ ...current, scheduledFor: event.target.value }))} /></label>
@@ -327,27 +329,27 @@ export default function CampaignsPage() {
             </label>
             <label>
               <span className="muted">Statuses</span>
-              <select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
+              <CustomSelect value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
               <option value="">All statuses</option>
               <option value="DRAFT">Draft</option>
               <option value="SCHEDULED">Scheduled</option>
               <option value="SENT">Sent</option>
-            </select>
+            </CustomSelect>
             </label>
             <label>
               <span className="muted">Types</span>
-              <select value={filters.type} onChange={(event) => setFilters((current) => ({ ...current, type: event.target.value }))}>
+              <CustomSelect value={filters.type} onChange={(event) => setFilters((current) => ({ ...current, type: event.target.value }))}>
               <option value="">All types</option>
               <option value="WHATSAPP">WhatsApp</option>
               <option value="SMS">SMS</option>
               <option value="EMAIL">Email</option>
               <option value="SOCIAL_BANNER">Social Banner</option>
               <option value="CATALOG_BANNER">Catalog Banner</option>
-            </select>
+            </CustomSelect>
             </label>
             <label>
               <span className="muted">Audiences</span>
-              <select value={filters.audienceFilter} onChange={(event) => setFilters((current) => ({ ...current, audienceFilter: event.target.value }))}>
+              <CustomSelect value={filters.audienceFilter} onChange={(event) => setFilters((current) => ({ ...current, audienceFilter: event.target.value }))}>
               <option value="">All audiences</option>
               <option value="ALL_CUSTOMERS">All customers</option>
               <option value="BIRTHDAY_CUSTOMERS">Birthday customers</option>
@@ -357,7 +359,7 @@ export default function CampaignsPage() {
               <option value="MEMBERSHIP_CUSTOMERS">Membership customers</option>
               <option value="PACKAGE_CUSTOMERS">Package customers</option>
               <option value="SERVICE_BASED_CUSTOMERS">Service-based customers</option>
-            </select>
+            </CustomSelect>
             </label>
             <button type="button" className="secondary-button" onClick={() => setFilters({ q: "", status: "", type: "", audienceFilter: "" })}>Reset</button>
           </div>
@@ -411,10 +413,10 @@ export default function CampaignsPage() {
                 <div className="form-grid" style={{ marginTop: 16 }}>
                   <label>
               <span className="muted">Link coupon to campaign</span>
-              <select defaultValue={detail.linkedCouponId || ""} onChange={(event) => linkCoupon(detail.id, event.target.value)}>
+              <CustomSelect defaultValue={detail.linkedCouponId || ""} onChange={(event) => linkCoupon(detail.id, event.target.value)}>
                     <option value="">Link coupon to campaign</option>
                     {coupons.map((coupon) => <option key={coupon.id} value={coupon.id}>{coupon.code} - {coupon.title}</option>)}
-                  </select>
+                  </CustomSelect>
             </label>
                   <button type="button" className="secondary-button" onClick={() => uploadToCatalog(detail.id)}>Upload Banner To Catalog</button>
                 </div>

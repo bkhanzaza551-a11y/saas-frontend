@@ -454,7 +454,8 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           background: #f8fafc;
         }
         .notif-header h4 { margin: 0; font-size: 0.95rem; color: #0f172a; }
-        .notif-header button { background: none; border: none; color: #3b82f6; font-size: 0.8rem; cursor: pointer; font-weight: 500; }
+        .notif-header button { background: none !important; border: none !important; color: #3b82f6 !important; font-size: 0.8rem !important; cursor: pointer; font-weight: 600; padding: 0 !important; box-shadow: none !important; min-height: unset !important; }
+        .notif-header button:hover { text-decoration: underline !important; transform: none !important; filter: none !important; }
         .notif-body { max-height: 300px; overflow-y: auto; }
         .notif-item { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; gap: 12px; transition: background 0.2s; }
         .notif-item:hover { background: #f8fafc; }

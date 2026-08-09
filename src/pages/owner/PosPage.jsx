@@ -12,6 +12,8 @@ import PageLoader from "../../components/PageLoader";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import './PosPage.css';
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptyServiceItem = { itemType: "SERVICE", serviceId: "", staffUserId: "", qty: 1, taxPct: 0, consumableItems: [], complimentaryRemark: "" };
 const emptyProductItem = { itemType: "PRODUCT", productId: "", qty: 1, taxPct: 0, batchNumber: "", variationName: "" };
 const emptyMembershipItem = { itemType: "MEMBERSHIP", membershipPlanId: "", staffUserId: "", qty: 1, taxPct: 0 };
@@ -1944,10 +1946,10 @@ export default function PosPage() {
                         </td>
                         <td>
                           {item.itemType === "SERVICE" || item.itemType === "PACKAGE" || item.itemType === "MEMBERSHIP" || item.itemType === "GIFT_CARD" ? (
-                            <select className="pos-cart-select" value={item.staffUserSalonId || item.staffUserId || ""} onChange={(e) => updateItem(index, { staffUserSalonId: e.target.value, staffUserId: e.target.value })}>
+                            <CustomSelect className="pos-cart-select" value={item.staffUserSalonId || item.staffUserId || ""} onChange={(e) => updateItem(index, { staffUserSalonId: e.target.value, staffUserId: e.target.value })}>
                               <option value="">Assign staff</option>
                               {getEligibleStaffUsers(item).map((u) => <option key={u.id} value={u.id}>{u.user?.name}</option>)}
-                            </select>
+                            </CustomSelect>
                           ) : (
                             <span style={{ color: "#94a3b8" }}>N/A</span>
                           )}
@@ -2399,11 +2401,11 @@ export default function PosPage() {
                 inputStyle={{ padding: "10px" }}
               />
               <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} type="email" placeholder="Email (Optional)" value={newGuestForm.email} onChange={e => setNewGuestForm(c => ({ ...c, email: e.target.value }))} />
-              <select style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} value={newGuestForm.gender} onChange={e => setNewGuestForm(c => ({ ...c, gender: e.target.value }))}>
+              <CustomSelect style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} value={newGuestForm.gender} onChange={e => setNewGuestForm(c => ({ ...c, gender: e.target.value }))}>
                 <option value="FEMALE">Female</option>
                 <option value="MALE">Male</option>
                 <option value="UNISEX">Other</option>
-              </select>
+              </CustomSelect>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.75rem", color: "#475569", marginBottom: 4, fontWeight: 600 }}>Date of Birth</label>
@@ -2651,10 +2653,10 @@ export default function PosPage() {
                  </div>
                  <div style={{ flex:1.2, minWidth:150 }}>
                    <label style={{ fontSize:"0.82rem", fontWeight:600, color:"#475569", display:"block", marginBottom:6 }}>Staff</label>
-                   <select value={gcDraft.staffId} onChange={e=>setGcDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
+                   <CustomSelect value={gcDraft.staffId} onChange={e=>setGcDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
                      <option value="">Select Staff</option>
                      {(context.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                   </select>
+                   </CustomSelect>
                  </div>
                </div>
              </div>
@@ -2850,7 +2852,7 @@ export default function PosPage() {
                 <div style={{ display:"flex", gap:20, alignItems:"flex-end", marginTop:16, flexWrap:"wrap" }}>
                   <div style={{ flex:1.5, minWidth:200 }}>
                     <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Assign Staff <span style={{color: "#ef4444"}}>*</span></label>
-                    <select
+                    <CustomSelect
                       value={pkgDraft.staffId}
                       onChange={e => setPkgDraft(d => ({ ...d, staffId: e.target.value }))}
                       style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", backgroundColor: "#fff", cursor: "pointer", transition: "border-color 0.2s" }}
@@ -2862,7 +2864,7 @@ export default function PosPage() {
                           {staffUser.user?.name || staffUser.user?.email || staffUser.id}
                         </option>
                       ))}
-                    </select>
+                    </CustomSelect>
                     {!packageStaffUsers.length ? (
                       <div style={{ marginTop:8, fontSize:"0.8rem", color:"#dc2626", fontWeight: 500 }}>
                         No active staff found for the selected branch.
@@ -3160,10 +3162,10 @@ export default function PosPage() {
                   </div>
                   <div style={{ flex:1.2, minWidth:150 }}>
                     <label style={{ fontSize:"0.82rem", fontWeight:600, color:"#475569", display:"block", marginBottom:6 }}>Staff</label>
-                    <select value={memDraft.staffId} onChange={e=>setMemDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
+                    <CustomSelect value={memDraft.staffId} onChange={e=>setMemDraft(d=>({...d,staffId:e.target.value}))} style={{ width:"100%", padding:"10px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", boxSizing:"border-box" }}>
                       <option value="">Select Staff</option>
                       {(context.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                    </select>
+                    </CustomSelect>
                   </div>
                   <div style={{ flex:1, minWidth:140 }}>
                     <label style={{ fontSize:"0.82rem", fontWeight:600, color:"#475569", display:"block", marginBottom:6 }}>Purchase date</label>
@@ -3385,14 +3387,14 @@ export default function PosPage() {
                     onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, qty: e.target.value }))}
                     style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff' }}
                   />
-                  <select
+                  <CustomSelect
                     value={manualConsumableDraft.unit}
                     onChange={(e) => setManualConsumableDraft(prev => ({ ...prev, unit: e.target.value }))}
                     style={{ width: 80, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: '#fff', appearance: 'none', backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
                   >
                     <option value="">Unit</option>
                     {["mg","gm","kg","oz","ltr","ml","sachet","ox","can","pcs","carton","roll","pkt","box","unit","btl","jar","cane"].map(u => <option key={u} value={u}>{u}</option>)}
-                  </select>
+                  </CustomSelect>
                   <button
                     type="button"
                     onClick={() => addManualConsumableItem()}
@@ -3682,10 +3684,10 @@ export default function PosPage() {
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 10, alignItems: "end", padding: "12px 14px", border: "1px solid #e2e8f0", borderRadius: 8 }}>
                 <label style={{ display: "grid", gap: 4 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Staff</span>
-                  <select value={tipDraft.staffId} onChange={e => setTipDraft(d => ({ ...d, staffId: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
+                  <CustomSelect value={tipDraft.staffId} onChange={e => setTipDraft(d => ({ ...d, staffId: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
                     <option value="">Select staff</option>
                     {(context.staffUsers || []).map(s => <option key={s.id} value={s.id}>{s.user?.name || s.user?.email || s.id}</option>)}
-                  </select>
+                  </CustomSelect>
                 </label>
                 <label style={{ display: "grid", gap: 4 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Amount</span>
@@ -3693,12 +3695,12 @@ export default function PosPage() {
                 </label>
                 <label style={{ display: "grid", gap: 4 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Payment</span>
-                  <select value={tipDraft.paymentMode} onChange={e => setTipDraft(d => ({ ...d, paymentMode: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
+                  <CustomSelect value={tipDraft.paymentMode} onChange={e => setTipDraft(d => ({ ...d, paymentMode: e.target.value }))} style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem" }}>
                     <option value="CASH">Cash</option>
                     <option value="ONLINE">Online</option>
                     <option value="UPI">UPI</option>
                     <option value="CARD">Card</option>
-                  </select>
+                  </CustomSelect>
                 </label>
                 <button type="button" onClick={addTipEntry} style={{ padding: "8px 12px", background: "var(--button-bg-solid, #2563eb)", color: "#fff", border: "none", borderRadius: 6, fontWeight: 600, cursor: "pointer", fontSize: "0.85rem", whiteSpace: "nowrap" }}>Add</button>
               </div>

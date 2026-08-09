@@ -6,6 +6,8 @@ import { formatApiError } from "../../utils/apiError";
 import { useAuth } from "../../context/AuthContext";
 import { LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, XCircle, Send, Paperclip, AlertTriangle, HelpCircle, Shield, Sparkles } from "lucide-react";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const formatAttachmentValue = (value) => String(value || "").trim();
 const isAttachmentLink = (value) => /^https?:\/\//i.test(formatAttachmentValue(value));
 
@@ -204,7 +206,7 @@ export default function SupportTicketsPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Category</label>
-                  <select
+                  <CustomSelect
                     value={form.category}
                     onChange={e => setForm({ ...form, category: e.target.value })}
                     style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
@@ -215,12 +217,12 @@ export default function SupportTicketsPage() {
                     <option value="Appointments">Appointments & Booking</option>
                     <option value="Staff & Payroll">Staff & Payroll</option>
                     <option value="Technical Issue">Technical Bug</option>
-                  </select>
+                  </CustomSelect>
                 </div>
 
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Priority</label>
-                  <select
+                  <CustomSelect
                     value={form.priority}
                     onChange={e => setForm({ ...form, priority: e.target.value })}
                     style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
@@ -229,7 +231,7 @@ export default function SupportTicketsPage() {
                     <option value="MEDIUM">Medium</option>
                     <option value="HIGH">High</option>
                     <option value="URGENT">Urgent</option>
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
 
@@ -306,7 +308,7 @@ export default function SupportTicketsPage() {
               />
             </div>
 
-            <select
+            <CustomSelect
               value={filters.status}
               onChange={e => setFilters({ ...filters, status: e.target.value })}
               style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, background: "white" }}
@@ -316,9 +318,9 @@ export default function SupportTicketsPage() {
               <option value="PENDING">Pending</option>
               <option value="RESOLVED">Resolved</option>
               <option value="CLOSED">Closed</option>
-            </select>
+            </CustomSelect>
 
-            <select
+            <CustomSelect
               value={filters.priority}
               onChange={e => setFilters({ ...filters, priority: e.target.value })}
               style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, background: "white" }}
@@ -328,7 +330,7 @@ export default function SupportTicketsPage() {
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
               <option value="URGENT">Urgent</option>
-            </select>
+            </CustomSelect>
 
             <button
               type="button"

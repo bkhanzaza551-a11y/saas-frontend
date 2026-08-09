@@ -7,6 +7,8 @@ import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { downloadFromApi } from "../../utils/download";
 import PosReceipt from "../../components/PosReceipt";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const toAmount = (value, fallback = 0) => {
   const next = Number(value);
   return Number.isFinite(next) ? next : fallback;
@@ -667,7 +669,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                             {item.itemType === 'PRODUCT' ? (
                               <span style={{ color: "#94a3b8" }}>N/A</span>
                             ) : (
-                              <select 
+                              <CustomSelect 
                                 value={item.staffUserSalonId || ""} 
                                 onChange={(e) => updateItemStaff(index, e.target.value)}
                                 style={{ width: "100%", padding: "4px", borderRadius: "4px", border: item.staffUserSalonId ? "1px solid #cbd5e1" : "1px solid #ef4444", fontSize: "0.7rem", outline: "none", background: item.staffUserSalonId ? "white" : "#fef2f2" }}
@@ -676,7 +678,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                                 {posContext.staffUsers.map(staff => (
                                   <option key={staff.id} value={staff.id}>{staff.user?.name}</option>
                                 ))}
-                              </select>
+                              </CustomSelect>
                             )}
                           </div>
 
@@ -835,7 +837,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
               <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "4px 8px" }}>
                   <input type="text" placeholder="Search For Card" value={gcSearch} onChange={(e) => setGcSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
-                  <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>🔍</span>
+                  <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
                 <button onClick={() => setShowGcModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
               </div>
@@ -884,10 +886,10 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                 </div>
                 <div>
                   <div style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600, marginBottom: "4px" }}>Staff</div>
-                  <select value={gcDraft.staffId} onChange={(e) => setGcDraft({...gcDraft, staffId: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.75rem", outline: "none", height: "36px", boxSizing: "border-box", background: "white" }}>
+                  <CustomSelect value={gcDraft.staffId} onChange={(e) => setGcDraft({...gcDraft, staffId: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.75rem", outline: "none", height: "36px", boxSizing: "border-box", background: "white" }}>
                     <option value="" disabled>Select Staff</option>
                     {posContext.staffUsers.map(s => <option key={s.id} value={s.id}>{s.user?.name}</option>)}
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
 
@@ -936,7 +938,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
               <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "4px 8px" }}>
                   <input type="text" placeholder="Search For Membership" value={membershipSearch} onChange={(e) => setMembershipSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
-                  <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>🔍</span>
+                  <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
                 <button onClick={() => setShowMembershipModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
               </div>
@@ -996,10 +998,10 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                 </div>
                 <div>
                   <div style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600, marginBottom: "4px" }}>Staff</div>
-                  <select value={membershipDraft.staffId} onChange={(e) => setMembershipDraft({...membershipDraft, staffId: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.75rem", outline: "none", height: "36px", boxSizing: "border-box", background: "white" }}>
+                  <CustomSelect value={membershipDraft.staffId} onChange={(e) => setMembershipDraft({...membershipDraft, staffId: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.75rem", outline: "none", height: "36px", boxSizing: "border-box", background: "white" }}>
                     <option value="" disabled>Select Staff</option>
                     {posContext.staffUsers.map(s => <option key={s.id} value={s.id}>{s.user?.name}</option>)}
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div>
                   <div style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600, marginBottom: "4px" }}>Purchase date</div>
@@ -1061,7 +1063,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
               <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "4px 8px" }}>
                   <input type="text" placeholder="Search For Package" value={packageSearch} onChange={(e) => setPackageSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
-                  <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>🔍</span>
+                  <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
                 <button onClick={() => setShowPackageModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
               </div>
@@ -1129,10 +1131,10 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                 </div>
                 <div>
                   <div style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600, marginBottom: "4px" }}>Staff</div>
-                  <select value={packageDraft.staffId} onChange={(e) => setPackageDraft({...packageDraft, staffId: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.75rem", outline: "none", height: "36px", boxSizing: "border-box", background: "white" }}>
+                  <CustomSelect value={packageDraft.staffId} onChange={(e) => setPackageDraft({...packageDraft, staffId: e.target.value})} style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.75rem", outline: "none", height: "36px", boxSizing: "border-box", background: "white" }}>
                     <option value="" disabled>Select Staff</option>
                     {posContext.staffUsers.map(s => <option key={s.id} value={s.id}>{s.user?.name}</option>)}
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div>
                   <div style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600, marginBottom: "4px" }}>Purchase date</div>
@@ -1176,7 +1178,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <span style={{ fontSize: "0.8rem", color: "#475569", fontWeight: 600, width: "100px" }}>Add services</span>
                   <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "8px 12px", flex: 1 }}>
                     <input type="text" value={pkgServiceSearch} onChange={e => setPkgServiceSearch(e.target.value)} placeholder="Search Service By Category Or Name" style={{ border: "none", outline: "none", width: "100%", fontSize: "0.75rem", background: "transparent" }} />
-                    <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>🔍</span>
+                    <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                   </div>
                   {pkgServiceSearch.trim().length > 0 && (
                     <div style={{ position: "absolute", top: "100%", left: "112px", right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: "6px", zIndex: 10, maxHeight: "200px", overflowY: "auto", boxShadow: "none" }}>
@@ -1204,7 +1206,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <span style={{ fontSize: "0.8rem", color: "#475569", fontWeight: 600, width: "100px" }}>Add products</span>
                   <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "8px 12px", flex: 1 }}>
                     <input type="text" value={pkgProductSearch} onChange={e => setPkgProductSearch(e.target.value)} placeholder="Search Product By Category Or Name" style={{ border: "none", outline: "none", width: "100%", fontSize: "0.75rem", background: "transparent" }} />
-                    <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>🔍</span>
+                    <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                   </div>
                   {pkgProductSearch.trim().length > 0 && (
                     <div style={{ position: "absolute", top: "100%", left: "112px", right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: "6px", zIndex: 10, maxHeight: "200px", overflowY: "auto", boxShadow: "none" }}>

@@ -7,6 +7,8 @@ import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
 import { Clock, User, Calendar, MapPin, Tag, CheckCircle, Edit, FileText, XCircle, AlertCircle, RefreshCw } from "lucide-react";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const statusOptions = ["PENDING", "CONFIRMED", "CHECKED_IN", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"];
 
 function formatMoney(val) {
@@ -279,9 +281,9 @@ export default function AppointmentDetailPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#475569", marginBottom: 6 }}>Status</label>
-                  <select value={statusValue} onChange={(event) => setStatusValue(event.target.value)} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", color: "#0f172a", backgroundColor: "#fff" }}>
+                  <CustomSelect value={statusValue} onChange={(event) => setStatusValue(event.target.value)} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", color: "#0f172a", backgroundColor: "#fff" }}>
                     {statusOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#475569", marginBottom: 6 }}>Note (Optional)</label>

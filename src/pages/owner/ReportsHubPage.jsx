@@ -6,6 +6,8 @@ import { useBranch } from '../../context/BranchContext';
 import SalonAnalyticsPage from "../operations/SalonAnalyticsPage";
 import FinancialReportsPage from "./FinancialReportsPage";
 import {
+import CustomSelect from "../../components/CustomSelect";
+
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, Line, ComposedChart
 } from "recharts";
@@ -1874,9 +1876,9 @@ export default function ReportsHubPage() {
                       style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: "5px", fontSize: "0.72rem", minWidth: 130 }}
                     />
                   ) : (
-                    <select value={value} onChange={(e) => setReportFilters((current) => ({ ...current, [f.key]: e.target.value }))}>
+                    <CustomSelect value={value} onChange={(e) => setReportFilters((current) => ({ ...current, [f.key]: e.target.value }))}>
                       {opts.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
+                    </CustomSelect>
                   )}
                 </div>
               );

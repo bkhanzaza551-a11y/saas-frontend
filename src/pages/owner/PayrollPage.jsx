@@ -9,6 +9,8 @@ import { normalizeImageUrl } from "../../utils/imageUrl";
 import PageLoader from "../../components/PageLoader";
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Download, Edit3, Eye, FileText, History, LogIn, LogOut, MapPin, PlusCircle, Printer, RotateCcw, Save, Timer, User, UserPlus, Users, XCircle, Activity, List } from "lucide-react";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptyAttendanceSettings = {
   officeStartTime: "09:00",
   officeEndTime: "18:00",
@@ -743,11 +745,11 @@ export default function PayrollPage() {
           <div className="form-grid" style={{ marginTop: 16 }}>
             <label>
               <span className="muted">Report Period</span>
-              <select value={attendanceReportPeriod} onChange={(e) => setAttendanceReportPeriod(e.target.value)}>
+              <CustomSelect value={attendanceReportPeriod} onChange={(e) => setAttendanceReportPeriod(e.target.value)}>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
-              </select>
+              </CustomSelect>
             </label>
             <div className="stats-grid" style={{ gridColumn: "1 / -1" }}>
               <div className="stat-card"><div className="stat-label">Rows</div><div className="stat-value">{attendanceReport.summary?.totalRows || 0}</div></div>
@@ -804,7 +806,7 @@ export default function PayrollPage() {
           <form className="form-grid" onSubmit={saveManualCreate} style={{ background: "#f8fafc", padding: 20, borderRadius: 12, border: "1px solid #e2e8f0" }}>
             <label>
               <span className="muted">Staff member</span>
-              <select required value={manualCreate.userSalonId} onChange={(e) => {
+              <CustomSelect required value={manualCreate.userSalonId} onChange={(e) => {
                 const val = e.target.value;
                 setManualCreate((current) => ({ ...current, userSalonId: val }));
                 fetchExistingAttendance(val, manualCreate.attendanceDate);
@@ -813,7 +815,7 @@ export default function PayrollPage() {
                 {staffUsers.map((row) => (
                   <option key={row.id} value={row.id}>{row.user?.name || row.name || row.id}</option>
                 ))}
-              </select>
+              </CustomSelect>
             </label>
             <label>
               <span className="muted">Attendance date</span>
@@ -833,7 +835,7 @@ export default function PayrollPage() {
             </label>
             <label>
               <span className="muted">Status override</span>
-              <select value={manualCreate.status} onChange={(e) => setManualCreate((current) => ({ ...current, status: e.target.value }))}>
+              <CustomSelect value={manualCreate.status} onChange={(e) => setManualCreate((current) => ({ ...current, status: e.target.value }))}>
                 <option value="">Auto-calculate</option>
                 <option value="PRESENT">Present</option>
                 <option value="LATE">Late</option>
@@ -842,7 +844,7 @@ export default function PayrollPage() {
                 <option value="ABSENT">Absent</option>
                 <option value="WORKING">Working</option>
                 <option value="COMPLETED_SHIFT">Completed Shift</option>
-              </select>
+              </CustomSelect>
             </label>
             <label>
               <span className="muted">Note</span>
@@ -870,7 +872,7 @@ export default function PayrollPage() {
               </label>
               <label>
                 <span className="muted">Status</span>
-                <select value={filters.attendanceStatus} onChange={(e) => setFilters((current) => ({ ...current, attendanceStatus: e.target.value }))}>
+                <CustomSelect value={filters.attendanceStatus} onChange={(e) => setFilters((current) => ({ ...current, attendanceStatus: e.target.value }))}>
                   <option value="">All statuses</option>
                   <option value="PRESENT">Present</option>
                   <option value="LATE">Late</option>
@@ -879,7 +881,7 @@ export default function PayrollPage() {
                   <option value="LEAVE">Leave</option>
                   <option value="WORKING">Working</option>
                   <option value="COMPLETED_SHIFT">Completed Shift</option>
-                </select>
+                </CustomSelect>
               </label>
               <label>
                 <span className="muted">Attendance date</span>
@@ -969,7 +971,7 @@ export default function PayrollPage() {
                   <input type="date" value={manualEdit.attendanceDate} onChange={(e) => setManualEdit((current) => ({ ...current, attendanceDate: e.target.value }))} />
                   <input type="datetime-local" value={manualEdit.checkInAt} onChange={(e) => setManualEdit((current) => ({ ...current, checkInAt: e.target.value }))} />
                   <input type="datetime-local" value={manualEdit.checkOutAt} onChange={(e) => setManualEdit((current) => ({ ...current, checkOutAt: e.target.value }))} />
-                  <select value={manualEdit.status} onChange={(e) => setManualEdit((current) => ({ ...current, status: e.target.value }))}>
+                  <CustomSelect value={manualEdit.status} onChange={(e) => setManualEdit((current) => ({ ...current, status: e.target.value }))}>
                     <option value="">Auto-calculate status</option>
                     <option value="PRESENT">Present</option>
                     <option value="LATE">Late</option>
@@ -978,7 +980,7 @@ export default function PayrollPage() {
                     <option value="LEAVE">Leave</option>
                     <option value="WORKING">Working</option>
                     <option value="COMPLETED_SHIFT">Completed Shift</option>
-                  </select>
+                  </CustomSelect>
                   <input value={manualEdit.note} placeholder="Attendance note" onChange={(e) => setManualEdit((current) => ({ ...current, note: e.target.value }))} />
                   <textarea rows={2} value={manualEdit.adminRemark} placeholder="Admin remark" onChange={(e) => setManualEdit((current) => ({ ...current, adminRemark: e.target.value }))} />
                   <textarea rows={2} required value={manualEdit.reason} placeholder="Reason for manual correction (minimum 3 characters)" onChange={(e) => setManualEdit((current) => ({ ...current, reason: e.target.value }))} />

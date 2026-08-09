@@ -7,6 +7,8 @@ import PageLoader from "../../components/PageLoader";
 import PasswordStrengthMeter from "../../components/PasswordStrengthMeter";
 import { formatApiError } from "../../utils/apiError";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptyForm = {
   name: "",
   email: "",
@@ -153,7 +155,7 @@ export default function ExpertsPage() {
                 <PasswordStrengthMeter password={form.password} />
               </div>
             )}
-            <select value={form.customRoleId || ""} onChange={(event) => {
+            <CustomSelect value={form.customRoleId || ""} onChange={(event) => {
               const roleId = event.target.value;
               const role = customRoles.find((r) => r.id === roleId);
               setForm((current) => ({
@@ -166,7 +168,7 @@ export default function ExpertsPage() {
               <option value="">— Select access role —</option>
               {customRoles.length === 0 && <option value="" disabled>Create roles in Settings → Access Control</option>}
               {customRoles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
-            </select>
+            </CustomSelect>
             <input value={form.roleTitle} placeholder="Visible title" onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} />
             <IndianPhoneInput value={form.phone} onChange={(phone) => setForm({ ...form, phone })} />
             <input value={form.avatarUrl} placeholder="Avatar URL" onChange={(event) => setForm({ ...form, avatarUrl: event.target.value })} />

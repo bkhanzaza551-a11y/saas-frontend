@@ -9,6 +9,8 @@ import { formatApiError } from "../../utils/apiError";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import "./ServiceHubPage.css";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const DURATION_OPTIONS = [
   { value: 15, label: "15 min" },
   { value: 30, label: "30 min" },
@@ -665,12 +667,12 @@ export default function ServiceCategoriesPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>Branch</label>
-                  <select value={serviceForm.branchId || ""} onChange={e => setServiceForm(c => ({ ...c, branchId: e.target.value }))} style={inputStyle}>
+                  <CustomSelect value={serviceForm.branchId || ""} onChange={e => setServiceForm(c => ({ ...c, branchId: e.target.value }))} style={inputStyle}>
                     <option value="">Global (All Branches)</option>
                     {branches.filter(b => b.isActive).map(b => (
                       <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
 
@@ -682,11 +684,11 @@ export default function ServiceCategoriesPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>Gender</label>
-                  <select value={serviceForm.gender} onChange={e => setServiceForm(c => ({ ...c, gender: e.target.value }))} style={inputStyle}>
+                  <CustomSelect value={serviceForm.gender} onChange={e => setServiceForm(c => ({ ...c, gender: e.target.value }))} style={inputStyle}>
                     <option value="UNISEX">Unisex</option>
                     <option value="FEMALE">Female</option>
                     <option value="MALE">Male</option>
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
 
@@ -698,9 +700,9 @@ export default function ServiceCategoriesPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>Duration</label>
-                  <select value={serviceForm.durationMin} onChange={e => setServiceForm(c => ({ ...c, durationMin: e.target.value }))} style={inputStyle}>
+                  <CustomSelect value={serviceForm.durationMin} onChange={e => setServiceForm(c => ({ ...c, durationMin: e.target.value }))} style={inputStyle}>
                     {DURATION_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
 
@@ -748,7 +750,7 @@ export default function ServiceCategoriesPage() {
                         <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
                           <div style={{ flex: "2 1 120px" }}>
                             <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Product</label>
-                            <select value={prod.productId} onChange={e => {
+                            <CustomSelect value={prod.productId} onChange={e => {
                               const ni = [...consumables];
                               const pr = products.find(p => p.id === e.target.value);
                               ni[prodIdx] = {...ni[prodIdx], productId: e.target.value, productName: pr?.name || ""};
@@ -757,7 +759,7 @@ export default function ServiceCategoriesPage() {
                             }} style={{ ...inputStyle, padding: "8px 12px", fontSize: 13 }}>
                               <option value="">Select product</option>
                               {products.filter(p => p.isActive && p.productType === "CONSUMABLE").map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                            </select>
+                            </CustomSelect>
                           </div>
                           <div style={{ flex: "1 1 80px", minWidth: 80 }}>
                             <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Default</label>

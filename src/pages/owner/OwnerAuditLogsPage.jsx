@@ -6,6 +6,8 @@ import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
 import { downloadFromApi } from "../../utils/download";
 
+import CustomSelect from "../../components/CustomSelect";
+
 export default function OwnerAuditLogsPage() {
   const [rows, setRows] = useState([]);
   const [filters, setFilters] = useState({ q: "", module: "", action: "" });
@@ -73,17 +75,17 @@ export default function OwnerAuditLogsPage() {
           </label>
           <label style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: 6 }}>
             <span className="muted" style={{ fontSize: 13, fontWeight: 500 }}>Modules</span>
-            <select style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }} value={filters.module} onChange={(event) => setFilters((current) => ({ ...current, module: event.target.value }))}>
+            <CustomSelect style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }} value={filters.module} onChange={(event) => setFilters((current) => ({ ...current, module: event.target.value }))}>
               <option value="">All modules</option>
               {modules.map((value) => <option key={value} value={value}>{value}</option>)}
-            </select>
+            </CustomSelect>
           </label>
           <label style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: 6 }}>
             <span className="muted" style={{ fontSize: 13, fontWeight: 500 }}>Actions</span>
-            <select style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }} value={filters.action} onChange={(event) => setFilters((current) => ({ ...current, action: event.target.value }))}>
+            <CustomSelect style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }} value={filters.action} onChange={(event) => setFilters((current) => ({ ...current, action: event.target.value }))}>
               <option value="">All actions</option>
               {actions.map((value) => <option key={value} value={value}>{value}</option>)}
-            </select>
+            </CustomSelect>
           </label>
           <button type="button" className="secondary-button" style={{ padding: "8px 16px", height: 38 }} onClick={() => setFilters({ q: "", module: "", action: "" })}>Reset</button>
         </div>

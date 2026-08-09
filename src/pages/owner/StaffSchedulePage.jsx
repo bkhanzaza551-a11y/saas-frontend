@@ -4,6 +4,8 @@ import { useBranch } from "../../context/BranchContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const emptySchedule = { userSalonId: "", weekday: 1, startTime: "09:00", endTime: "18:00", isOffDay: false };
 const emptyBreak = { userSalonId: "", weekday: 1, startTime: "13:00", endTime: "14:00" };
 
@@ -91,10 +93,10 @@ export default function StaffSchedulePage() {
               setSavingSchedule(false);
             }
           }} style={{ display: "grid", gap: 10 }}>
-            <select value={scheduleForm.userSalonId} onChange={(event) => setScheduleForm((current) => ({ ...current, userSalonId: event.target.value }))}>
+            <CustomSelect value={scheduleForm.userSalonId} onChange={(event) => setScheduleForm((current) => ({ ...current, userSalonId: event.target.value }))}>
               <option value="">Select staff</option>
               {staff.map((item) => <option key={item.id} value={item.id}>{item.user?.name}</option>)}
-            </select>
+            </CustomSelect>
             <input type="number" min="0" max="6" value={scheduleForm.weekday} onChange={(event) => setScheduleForm((current) => ({ ...current, weekday: event.target.value }))} />
             <input type="time" value={scheduleForm.startTime} onChange={(event) => setScheduleForm((current) => ({ ...current, startTime: event.target.value }))} />
             <input type="time" value={scheduleForm.endTime} onChange={(event) => setScheduleForm((current) => ({ ...current, endTime: event.target.value }))} />
@@ -118,10 +120,10 @@ export default function StaffSchedulePage() {
               setSavingBreak(false);
             }
           }} style={{ display: "grid", gap: 10 }}>
-            <select value={breakForm.userSalonId} onChange={(event) => setBreakForm((current) => ({ ...current, userSalonId: event.target.value }))}>
+            <CustomSelect value={breakForm.userSalonId} onChange={(event) => setBreakForm((current) => ({ ...current, userSalonId: event.target.value }))}>
               <option value="">Select staff</option>
               {staff.map((item) => <option key={item.id} value={item.id}>{item.user?.name}</option>)}
-            </select>
+            </CustomSelect>
             <input type="number" min="0" max="6" value={breakForm.weekday} onChange={(event) => setBreakForm((current) => ({ ...current, weekday: event.target.value }))} />
             <input type="time" value={breakForm.startTime} onChange={(event) => setBreakForm((current) => ({ ...current, startTime: event.target.value }))} />
             <input type="time" value={breakForm.endTime} onChange={(event) => setBreakForm((current) => ({ ...current, endTime: event.target.value }))} />

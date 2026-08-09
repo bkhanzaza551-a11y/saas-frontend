@@ -10,6 +10,8 @@ import PageLoader from "../../components/PageLoader";
 import SalonAnalyticsPage from "../operations/SalonAnalyticsPage";
 import FinancialReportsPage from "./FinancialReportsPage";
 
+import CustomSelect from "../../components/CustomSelect";
+
 const reportSections = [
   { key: "overview", label: "Overview", to: "/admin/reports", hint: "KPIs" },
   { key: "operations", label: "Operations", to: "/admin/reports/appointments", hint: "Service Ops" },
@@ -279,9 +281,9 @@ export default function ReportsPage() {
           <>
             <label>
               <span className="muted">Select Option</span>
-              <select value={reportView} onChange={(event) => jumpToReport(event.target.value)}>
+              <CustomSelect value={reportView} onChange={(event) => jumpToReport(event.target.value)}>
               {reportSections.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
-            </select>
+            </CustomSelect>
             </label>
             <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
               {QUICK_RANGES.map((qr) => (
