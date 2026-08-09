@@ -217,7 +217,26 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
           </div>
         ) : (
           /* Full Expanded Sidebar Mode */
-          <>
+          <div className="sidebar-expanded-container" style={{ position: 'relative' }}>
+            {/* Mobile Close Button */}
+            {mobileOpen && (
+              <button
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: 24,
+                  right: 24,
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#475569',
+                  cursor: 'pointer',
+                  zIndex: 50
+                }}
+              >
+                <X size={24} />
+              </button>
+            )}
+
             {/* Brand Row */}
             <div className="sidebar-brand-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: "4px" }}>
@@ -368,7 +387,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
                 Sign Out
               </button>
             </div>
-          </>
+          </div>
         )}
       </aside>
     </>
