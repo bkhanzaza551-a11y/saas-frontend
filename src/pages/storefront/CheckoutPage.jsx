@@ -139,18 +139,18 @@ export default function CheckoutPage() {
             </div>
             
             <div className="sf-form-group" style={{ marginBottom: 20 }}>
-              <label className="sf-form-label"><Phone size={14} style={{ display: 'inline', marginRight: 4 }} /> Phone Number *</label>
+              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left' }}><Phone size={14} /> Phone Number *</label>
               <input type="tel" className="sf-form-input" placeholder="e.g. 999 999 9999" value={form.phone} onChange={set("phone")} style={{ background: 'var(--surface)' }} />
             </div>
 
             <div className="sf-form-group" style={{ marginBottom: 20 }}>
-              <label className="sf-form-label"><Mail size={14} style={{ display: 'inline', marginRight: 4 }} /> Email Address (Optional)</label>
+              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left' }}><Mail size={14} /> Email Address (Optional)</label>
               <input type="email" className="sf-form-input" placeholder="sara@example.com" value={form.email} onChange={set("email")} style={{ background: 'var(--surface)' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 40, background: 'var(--bg-main)', padding: 40, borderRadius: 12, border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500, textAlign: 'left' }}>
               <FileText size={24} style={{ color: 'var(--accent)' }} /> Special Notes (Optional)
             </h2>
             <textarea 
