@@ -31,6 +31,7 @@ export default function StorefrontLayout() {
   const [selectedBranchId, setSelectedBranchId] = useState(loadBranch);
   const [scrolled, setScrolled] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [showBranchModal, setShowBranchModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,8 +50,17 @@ export default function StorefrontLayout() {
       .then(res => {
         const s = res.data.salon;
         setSalon(s);
-        if (!selectedBranchId && s.branches && s.branches.length === 1) {
+        
+        let validBranch = selectedBranchId;
+        if (selectedBranchId && s.branches && !s.branches.find(b => b.id === selectedBranchId)) {
+          validBranch = "";
+          setSelectedBranchId("");
+        }
+
+        if (!validBranch && s.branches && s.branches.length === 1) {
           setSelectedBranchId(s.branches[0].id);
+        } else if (!validBranch && s.branches && s.branches.length > 1) {
+          setShowBranchModal(true);
         }
       })
       .catch(() => setSalon(null))
@@ -114,9 +124,14 @@ export default function StorefrontLayout() {
       {salon && (
         <>
           {/* Branch Selection Modal */}
-          {salon.branches?.length > 1 && !selectedBranchId && (
+          {showBranchModal && salon.branches?.length > 1 && (
             <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(6px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-              <div style={{ background: "var(--bg-main)", borderRadius: "var(--radius-lg)", padding: "48px 40px", maxWidth: 600, width: "100%", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+              <div style={{ background: "var(--bg-main)", borderRadius: "var(--radius-lg)", padding: "48px 40px", maxWidth: 600, width: "100%", boxShadow: "var(--shadow-lg)", textAlign: "center", position: "relative" }}>
+                {selectedBranchId && (
+                  <button onClick={() => setShowBranchModal(false)} style={{ position: "absolute", top: 20, right: 20, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}>
+                    <X size={24} />
+                  </button>
+                )}
                 <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2.5rem", marginBottom: 16, color: "var(--text-main)", letterSpacing: "-0.5px" }}>Welcome to {salon.name}</h2>
                 <p style={{ color: "var(--text-muted)", fontSize: "1.1rem", marginBottom: 40, lineHeight: 1.6 }}>Please select a branch location to view available services and book your appointment.</p>
                 
@@ -124,16 +139,16 @@ export default function StorefrontLayout() {
                   {salon.branches.map(b => (
                     <div 
                       key={b.id} 
-                      onClick={() => setSelectedBranchId(b.id)} 
-                      style={{ padding: "20px 24px", borderRadius: "var(--radius-md)", border: "2px solid var(--border)", cursor: "pointer", transition: "var(--transition)", background: "var(--surface)", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent)"}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
+                      onClick={() => { setSelectedBranchId(b.id); setShowBranchModal(false); }} 
+                      style={{ padding: "20px 24px", borderRadius: "var(--radius-md)", border: "2px solid", borderColor: selectedBranchId === b.id ? "var(--accent)" : "var(--border)", cursor: "pointer", transition: "var(--transition)", background: "var(--surface)", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                      onMouseEnter={e => { if (selectedBranchId !== b.id) e.currentTarget.style.borderColor = "var(--text-muted)"; }}
+                      onMouseLeave={e => { if (selectedBranchId !== b.id) e.currentTarget.style.borderColor = "var(--border)"; }}
                     >
                       <div>
-                        <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "var(--text-main)", fontWeight: 600 }}>{b.name}</h3>
+                        <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "var(--text-main)", fontWeight: 600 }}>{b.name} {selectedBranchId === b.id && <span style={{ fontSize: "0.8rem", color: "var(--accent)", marginLeft: 8 }}>(Current)</span>}</h3>
                         {b.address && <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.4 }}>{b.address}</p>}
                       </div>
-                      <div style={{ color: "var(--accent)" }}>
+                      <div style={{ color: selectedBranchId === b.id ? "var(--accent)" : "var(--text-muted)" }}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                       </div>
                     </div>
@@ -149,6 +164,14 @@ export default function StorefrontLayout() {
               <Link to={`/site/${slug}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
               <Link to={`/site/${slug}/services`} onClick={() => setMobileMenuOpen(false)}>Services</Link>
               <Link to={`/site/${slug}/my-bookings`} onClick={() => setMobileMenuOpen(false)}>My Bookings</Link>
+              {salon.branches?.length > 1 && (
+                <button 
+                  onClick={() => { setMobileMenuOpen(false); setShowBranchModal(true); }}
+                  style={{ background: "none", border: "none", padding: "12px 0", textAlign: "left", fontSize: "1.5rem", fontFamily: "var(--font-serif)", color: "var(--text-main)", cursor: "pointer", borderTop: "1px solid var(--border)", marginTop: "16px", paddingTop: "24px" }}
+                >
+                  Change Branch
+                </button>
+              )}
             </div>
           </div>
 
