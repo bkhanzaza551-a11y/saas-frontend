@@ -121,13 +121,19 @@ const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffReq
 const WhatsAppCreditsPage = lazyWithRetry(() => import("./pages/owner/WhatsAppCreditsPage.jsx"));
 const ManageCreditsPage = lazyWithRetry(() => import("./pages/superAdmin/ManageCreditsPage.jsx"));
 
-const RouteFallback = () => (
-  <div className="page-shell">
-    <div className="panel-card">
-      <PageLoader title="Loading workspace" message="We are preparing the right panel, modules, and live data for you." />
+const RouteFallback = () => {
+  const isStorefront = window.location.pathname.startsWith("/site/");
+  if (isStorefront) {
+    return <div style={{ height: "100vh", background: "#0f172a" }}></div>;
+  }
+  return (
+    <div className="page-shell">
+      <div className="panel-card">
+        <PageLoader title="Loading workspace" message="We are preparing the right panel, modules, and live data for you." />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Protected = () => {
   const { auth, logout } = useAuth();
