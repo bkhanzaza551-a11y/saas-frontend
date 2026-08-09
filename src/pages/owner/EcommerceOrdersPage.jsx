@@ -15,7 +15,7 @@ const fmt = (v) =>
   Number(v || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
 const STATUS_META = {
-  PENDING: {
+  NEW: {
     label: "Pending",
     color: "#d97706",
     bg: "#fffbeb",
@@ -23,7 +23,7 @@ const STATUS_META = {
     dot: "#f59e0b",
     icon: Clock,
   },
-  CONFIRMED: {
+  ACCEPTED: {
     label: "Confirmed",
     color: "#0369a1",
     bg: "#e0f2fe",
@@ -31,7 +31,7 @@ const STATUS_META = {
     dot: "#0284c7",
     icon: CheckCircle2,
   },
-  IN_PROGRESS: {
+  READY: {
     label: "In Progress",
     color: "#7c3aed",
     bg: "#f5f3ff",
@@ -65,12 +65,12 @@ const PAYMENT_META = {
 };
 
 const NEXT_STATUS = {
-  PENDING:     "CONFIRMED",
-  CONFIRMED:   "IN_PROGRESS",
-  IN_PROGRESS: "COMPLETED",
+  NEW:     "ACCEPTED",
+  ACCEPTED:   "READY",
+  READY: "COMPLETED",
 };
 
-const STATUS_TABS = ["ALL", "PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+const STATUS_TABS = ["ALL", "NEW", "ACCEPTED", "READY", "COMPLETED", "CANCELLED"];
 
 export default function EcommerceOrdersPage() {
   const location = useLocation();
@@ -88,16 +88,23 @@ export default function EcommerceOrdersPage() {
 
   const activeTab = useMemo(() => {
     const path = location.pathname;
-    if (path.endsWith("/pending"))     return "PENDING";
-    if (path.endsWith("/confirmed"))   return "CONFIRMED";
-    if (path.endsWith("/in-progress")) return "IN_PROGRESS";
+    if (path.endsWith("/pending"))     return "NEW";
+    if (path.endsWith("/confirmed"))   return "ACCEPTED";
+    if (path.endsWith("/in-progress")) return "READY";
     if (path.endsWith("/completed"))   return "COMPLETED";
     if (path.endsWith("/cancelled"))   return "CANCELLED";
     return "ALL";
   }, [location.pathname]);
 
-  const tabPath = (t) =>
-    t === "ALL" ? "/admin/order-dashboard" : `/admin/order-dashboard/${t.toLowerCase()}`;
+  const tabPath = (t) => {
+    if (t === "ALL") return "/admin/order-dashboard";
+    if (t === "NEW") return "/admin/order-dashboard/pending";
+    if (t === "ACCEPTED") return "/admin/order-dashboard/confirmed";
+    if (t === "READY") return "/admin/order-dashboard/in-progress";
+    if (t === "COMPLETED") return "/admin/order-dashboard/completed";
+    if (t === "CANCELLED") return "/admin/order-dashboard/cancelled";
+    return "/admin/order-dashboard";
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -263,9 +270,9 @@ export default function EcommerceOrdersPage() {
           >
             {[
               { label: "Total Bookings", value: summary.totalOrders, icon: Calendar, color: "#fff" },
-              { label: "Pending",        value: summary.pendingBookings, icon: Clock,       color: "#fde68a" },
-              { label: "Confirmed",      value: summary.confirmedBookings, icon: CheckCircle2, color: "#bae6fd" },
-              { label: "In Progress",    value: summary.inProgressBookings, icon: Timer, color: "#ddd6fe" },
+              { label: "Pending",        value: summary.newOrders || 0, icon: Clock,       color: "#fde68a" },
+              { label: "Confirmed",      value: summary.acceptedOrders || 0, icon: CheckCircle2, color: "#bae6fd" },
+              { label: "In Progress",    value: summary.readyOrders || 0, icon: Timer, color: "#ddd6fe" },
               { label: "Completed",      value: summary.completedOrders, icon: CheckCircle2, color: "#bbf7d0" },
               { label: "Revenue",        value: `₹${fmt(summary.totalSales)}`, icon: TrendingUp, color: "#fff", isMoney: true },
             ].map((c) => (
