@@ -111,6 +111,20 @@ export default function WhatsAppCreditsPage() {
 
       {error && <div className="alert-error" style={{ marginBottom: 16 }}>{error}</div>}
 
+            {customApiEnabled && (
+        <div style={{ background: '#ecfdf5', border: '1px solid #10b981', borderRadius: '12px', padding: '20px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+          <div style={{ background: '#10b981', color: '#fff', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <MessageSquare size={20} />
+          </div>
+          <div>
+            <h3 style={{ margin: '0 0 8px 0', color: '#065f46', fontSize: '1.1rem', fontWeight: 700 }}>Custom WhatsApp API Active</h3>
+            <p style={{ margin: 0, color: '#047857', lineHeight: '1.5' }}>
+              Your salon is configured to use its own dedicated Meta WhatsApp API credentials. Messages sent by your salon will <strong>bypass the platform credit system</strong> and will not deduct from your balance. You do not need to purchase credits here.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "2rem" }}>
         {/* Left Side: Balance & Packages */}
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
@@ -126,8 +140,9 @@ export default function WhatsAppCreditsPage() {
             </div>
           </div>
 
-          <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1rem", color: "#334155" }}>Purchase Packages</h3>
+                    {!customApiEnabled && (
+            <div>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1rem", color: "#334155" }}>Purchase Packages</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               {packages.map((pkg) => (
                 <div key={pkg.id} className="panel-card" style={{ padding: "1.25rem", border: "1px solid #e2e8f0", borderRadius: "10px", transition: "all 0.2s", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3b82f6"; e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.boxShadow = "none"; }}>
@@ -154,13 +169,14 @@ export default function WhatsAppCreditsPage() {
                   </button>
                 </div>
               ))}
-              {packages.length === 0 && (
+                            {packages.length === 0 && (
                 <div style={{ textAlign: "center", padding: "2rem", color: "#64748b", background: "#f8fafc", borderRadius: 8, gridColumn: "1 / -1" }}>
                   No packages available at the moment.
                 </div>
               )}
             </div>
           </div>
+          )}
         </div>
 
         {/* Right Side: Transactions History */}
@@ -233,3 +249,4 @@ export default function WhatsAppCreditsPage() {
     </div>
   );
 }
+
