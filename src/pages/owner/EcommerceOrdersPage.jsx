@@ -173,10 +173,10 @@ export default function EcommerceOrdersPage() {
       {/* Premium Header */}
       <div
         style={{
-          background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+          background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
           padding: "32px 40px",
           color: "white",
-          boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)'
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
         }}
       >
         <div
