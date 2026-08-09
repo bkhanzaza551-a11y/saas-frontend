@@ -5,6 +5,7 @@ import EmptyState from '../../components/EmptyState';
 import { formatApiError } from '../../utils/apiError';
 import { useBranch } from '../../context/BranchContext';
 import PageLoader from '../../components/PageLoader';
+import ToggleSwitch from "../../components/ToggleSwitch";
 import './ServiceHubPage.css';
 
 const DURATION_OPTIONS = [
@@ -510,7 +511,7 @@ export default function ServiceHubPage() {
                 </div>
                 <div className="hub-form-group" style={{ flex: 1, display: "flex", alignItems: "end", gap: 12 }}>
                   <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#334155", cursor: "pointer", whiteSpace: "nowrap" }}>
-                    <input type="checkbox" checked={srvForm.isActive} onChange={e => setSrvForm({...srvForm, isActive: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
+                    <ToggleSwitch checked={srvForm.isActive} onChange={val => setSrvForm({...srvForm, isActive: val})} />
                     Active
                   </label>
                 </div>
@@ -556,7 +557,7 @@ export default function ServiceHubPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid #f1f5f9", marginBottom: 8 }}>
                 <span style={{ fontSize: 14, fontWeight: 500, color: "#0f172a" }}>Group</span>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#334155", cursor: "pointer" }}>
-                  <input type="checkbox" checked={srvForm.hideFromCatalogue} onChange={e => setSrvForm({...srvForm, hideFromCatalogue: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
+                  <ToggleSwitch checked={srvForm.hideFromCatalogue} onChange={val => setSrvForm({...srvForm, hideFromCatalogue: val})} />
                   Hide from catalogue
                 </label>
               </div>
@@ -581,7 +582,7 @@ export default function ServiceHubPage() {
                 </div>
                 <div className="hub-form-group" style={{ flex: 1, display: "flex", alignItems: "end", paddingBottom: 2 }}>
                   <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#334155", cursor: "pointer", whiteSpace: "nowrap" }}>
-                    <input type="checkbox" checked={srvForm.nonDiscountable} onChange={e => setSrvForm({...srvForm, nonDiscountable: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
+                    <ToggleSwitch checked={srvForm.nonDiscountable} onChange={val => setSrvForm({...srvForm, nonDiscountable: val})} />
                     Non Discountable
                   </label>
                 </div>
@@ -719,15 +720,15 @@ export default function ServiceHubPage() {
               {/* Toggle Row */}
               <div className="hub-form-row" style={{ marginTop: 8, flexWrap: 'wrap', borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
                 <div className="hub-toggle-group">
-                  <input type="checkbox" checked={srvForm.onlineBookingEnabled} onChange={e => setSrvForm({...srvForm, onlineBookingEnabled: e.target.checked})} />
+                  <ToggleSwitch checked={srvForm.onlineBookingEnabled} onChange={val => setSrvForm({...srvForm, onlineBookingEnabled: val})} />
                   <span>Enable Online Booking</span>
                 </div>
                 <div className="hub-toggle-group">
-                  <input type="checkbox" checked={srvForm.isFeatured} onChange={e => setSrvForm({...srvForm, isFeatured: e.target.checked})} />
+                  <ToggleSwitch checked={srvForm.isFeatured} onChange={val => setSrvForm({...srvForm, isFeatured: val})} />
                   <span>Featured</span>
                 </div>
                 <div className="hub-toggle-group">
-                  <input type="checkbox" checked={srvForm.isPopular} onChange={e => setSrvForm({...srvForm, isPopular: e.target.checked})} />
+                  <ToggleSwitch checked={srvForm.isPopular} onChange={val => setSrvForm({...srvForm, isPopular: val})} />
                   <span>Popular</span>
                 </div>
               </div>

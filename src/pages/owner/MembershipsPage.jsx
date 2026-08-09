@@ -9,6 +9,7 @@ import { formatApiError } from "../../utils/apiError";
 import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
 import "./MembershipsPage.css";
+import ToggleSwitch from "../../components/ToggleSwitch";
 
 const emptyMembership = {
   membershipType: "Fixed", // 'Fixed' or 'Percentage'

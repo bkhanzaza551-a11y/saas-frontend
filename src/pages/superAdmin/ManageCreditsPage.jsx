@@ -3,8 +3,10 @@ import { PlusCircle, Search, Edit2, ShieldAlert, MessageCircle, MessageSquare, C
 import { api } from "../../api/client";
 import { formatCurrency } from "../../utils/currency.js";
 import PageLoader from "../../components/PageLoader.jsx";
+import { useAlert } from "../../context/AlertContext.jsx";
 
 export default function ManageCreditsPage() {
+  const { showAlert } = useAlert();
   const [salons, setSalons] = useState([]);
   const [packages, setPackages] = useState([]);
   const [costs, setCosts] = useState({ whatsappCreditCost: 1, smsCreditCost: 1 });
@@ -64,7 +66,7 @@ export default function ManageCreditsPage() {
       setPkgModalOpen(false);
       fetchData();
     } catch (err) {
-      alert("Failed to save package");
+      showAlert("Failed to save package");
     }
   };
 

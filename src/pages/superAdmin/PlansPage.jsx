@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Trash2, Edit2, Plus, CheckCircle2, XCircle } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
+import { useAlert } from "../../context/AlertContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 
@@ -53,6 +55,7 @@ const emptyForm = {
 };
 
 export default function PlansPage() {
+  const { showAlert, showConfirm } = useAlert();
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
@@ -153,15 +156,16 @@ export default function PlansPage() {
   };
 
   const deletePlan = async (planId, planName) => {
-    if (!window.confirm(`Delete "${planName}"? This cannot be undone.`)) return;
-    setStatus({ error: "", success: "" });
-    try {
-      await api.delete(`/super-admin/plans/${planId}`);
-      setStatus({ error: "", success: "Plan deleted." });
-      await load();
-    } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not delete plan"), success: "" });
-    }
+    showConfirm(`Delete "${planName}"? This cannot be undone.`, async () => {
+      setStatus({ error: "", success: "" });
+      try {
+        await api.delete(`/super-admin/plans/${planId}`);
+        setStatus({ error: "", success: "Plan deleted." });
+        await load();
+      } catch (error) {
+        setStatus({ error: formatApiError(error, "Could not delete plan"), success: "" });
+      }
+    });
   };
 
   const numInput = (key, opts = {}) => ({

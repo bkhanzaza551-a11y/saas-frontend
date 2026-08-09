@@ -812,6 +812,7 @@ export default function CustomersPage() {
         await load();
       } catch (err) {
         alert(formatApiError(err, "Could not import CSV"));
+import ToggleSwitch from "../../components/ToggleSwitch";
       } finally {
         setSaving(false);
       }

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { X, Trash2, Edit2, Search, Plus, Package, ClipboardList } from "lucide-react";
+import ToggleSwitch from "../../components/ToggleSwitch";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -549,20 +550,20 @@ export default function ProductCategoriesPage() {
                     )}
                   </div>
                   <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" checked={productForm.featured} onChange={e => setProductForm({...productForm, featured: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#f59e0b" }} />
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", whiteSpace: "nowrap" }}>
+                      <ToggleSwitch checked={productForm.featured} onChange={val => setProductForm({...productForm, featured: val})} />
                       Featured
                     </label>
                   </div>
                   <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" checked={productForm.isActive} onChange={e => setProductForm({...productForm, isActive: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", whiteSpace: "nowrap" }}>
+                      <ToggleSwitch checked={productForm.isActive} onChange={val => setProductForm({...productForm, isActive: val})} />
                       Active
                     </label>
                   </div>
                   <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" checked={productForm.favourite} onChange={e => setProductForm({...productForm, favourite: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#ec4899" }} />
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", whiteSpace: "nowrap" }}>
+                      <ToggleSwitch checked={productForm.favourite} onChange={val => setProductForm({...productForm, favourite: val})} />
                       Favourite
                     </label>
                   </div>
@@ -585,8 +586,8 @@ export default function ProductCategoriesPage() {
                       ))}
                     </div>
                   </div>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                    <input type="checkbox" checked={productForm.hideFromCatalogue} onChange={e => setProductForm({...productForm, hideFromCatalogue: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", paddingBottom: 6 }}>
+                    <ToggleSwitch checked={productForm.hideFromCatalogue} onChange={val => setProductForm({...productForm, hideFromCatalogue: val})} />
                     Hide from catalogue
                   </label>
                 </div>
@@ -615,9 +616,9 @@ export default function ProductCategoriesPage() {
                     </div>
                   </div>
                   <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" checked={productForm.nonDiscountable} onChange={e => setProductForm({...productForm, nonDiscountable: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
-                      No Discount
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", paddingBottom: 4 }}>
+                      <ToggleSwitch checked={productForm.nonDiscountable} onChange={val => setProductForm({...productForm, nonDiscountable: val})} />
+                      Non Discountable
                     </label>
                   </div>
                 </div>
@@ -650,9 +651,9 @@ export default function ProductCategoriesPage() {
                     <input type="text" className="hub-input" value={productForm.sku} onChange={e => setProductForm({...productForm, sku: e.target.value})} placeholder="e.g. SHAMP-001" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontFamily: "monospace" }} />
                   </div>
                   <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" checked={productForm.productType === "RETAIL"} onChange={e => setProductForm({...productForm, productType: e.target.checked ? "RETAIL" : "CONSUMABLE"})} style={{ width: 18, height: 18, accentColor: "#2563eb" }} />
-                      Retail Product
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", paddingBottom: 4 }}>
+                      <ToggleSwitch checked={productForm.productType === "RETAIL"} onChange={val => setProductForm({...productForm, productType: val ? "RETAIL" : "CONSUMABLE"})} />
+                      Available for retail sale
                     </label>
                   </div>
                 </div>

@@ -6,6 +6,7 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import { useBranch } from "../../context/BranchContext";
 import { formatApiError } from "../../utils/apiError";
+import ToggleSwitch from "../../components/ToggleSwitch";
 import "./ServiceHubPage.css";
 
 const DURATION_OPTIONS = [
@@ -297,6 +298,10 @@ export default function ServiceCategoriesPage() {
     }
     if (!serviceForm.categoryId) {
       setError("Save the service under a subcategory.");
+      return;
+    }
+    if (!serviceForm.imageUrl) {
+      setError("Service image is required to save.");
       return;
     }
     const payload = {
@@ -825,16 +830,19 @@ export default function ServiceCategoriesPage() {
 
               {/* Toggles */}
               <div style={{ display: "flex", gap: 24, flexWrap: "wrap", padding: "12px 0", borderTop: "1px solid #f1f5f9" }}>
-                {[
-                  { key: "onlineBookingEnabled", label: "Enable Online Booking" },
-                  { key: "isFeatured", label: "Featured" },
-                  { key: "isPopular", label: "Popular" }
-                ].map(({ key, label }) => (
-                  <label key={key} style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 600, color: "#334155", fontSize: 14, cursor: "pointer" }}>
-                    <input type="checkbox" checked={serviceForm[key]} onChange={e => setServiceForm(c => ({ ...c, [key]: e.target.checked }))} style={{ width: 16, height: 16, accentColor: "#2563eb" }} />
-                    {label}
-                  </label>
-                ))}
+                {["onlineBookingEnabled", "isFeatured", "isPopular"].map((key) => (
+                    <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: "120px" }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>
+                        {key === "onlineBookingEnabled" ? "Enable Online Booking" : key === "isFeatured" ? "Featured" : "Popular"}
+                      </span>
+                      <div style={{ marginTop: 4 }}>
+                        <ToggleSwitch
+                          checked={serviceForm[key]}
+                          onChange={val => setServiceForm(c => ({ ...c, [key]: val }))}
+                        />
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
 
