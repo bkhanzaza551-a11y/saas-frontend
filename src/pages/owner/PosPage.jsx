@@ -3820,7 +3820,7 @@ export default function PosPage() {
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{v.name}</div>
                     {v.storeSku && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>SKU: {v.storeSku}</div>}
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{currencySymbol}{Number(v.price || 0).toFixed(0)}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{formatMoney(Number(v.price || 0))}</div>
                 </button>
               ))}
             </div>
