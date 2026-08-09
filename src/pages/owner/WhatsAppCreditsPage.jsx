@@ -56,15 +56,15 @@ export default function WhatsAppCreditsPage() {
 
       // Create Order on backend
       const orderRes = await api.post("/owner/credits/create-order", { packageId: pkg.id });
-      const { order, razorpayKey } = orderRes.data;
+      const { orderId, amount, currency, key: razorpayKey } = orderRes.data;
 
       const options = {
         key: razorpayKey,
-        amount: order.amount,
-        currency: order.currency,
+        amount: amount,
+        currency: currency,
         name: "Salon App Credits",
         description: `Purchase ${pkg.name}`,
-        order_id: order.id,
+        order_id: orderId,
         handler: async (response) => {
           try {
             await api.post("/owner/credits/verify-payment", {
