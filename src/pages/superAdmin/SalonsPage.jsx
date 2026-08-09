@@ -4,6 +4,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import { useAlert } from "../../context/AlertContext";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import CustomSelect from "../../components/CustomSelect";
 import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Landmark, Globe, Clock, CreditCard } from "lucide-react";
@@ -33,6 +34,7 @@ const emptyForm = {
 };
 
 export default function SalonsPage() {
+  const { showConfirm } = useAlert();
   const [salons, setSalons] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -159,19 +161,6 @@ export default function SalonsPage() {
     }
   };
 
-  const updateStatus = async (salonId, nextStatus) => {
-    const label = nextStatus === "SUSPENDED" ? "suspend" : "activate";
-    if (!window.confirm(`Are you sure you want to ${label} this salon?`)) return;
-    setBusyId(salonId);
-    try {
-      await api.patch(`/super-admin/salons/${salonId}/status`, { status: nextStatus });
-      setStatus({ error: "", success: `Salon ${label}d successfully.` });
-      setSalons(prev => prev.map(s => s.id === salonId ? { ...s, status: nextStatus } : s));
-      if (selectedSalon?.id === salonId) setSelectedSalon(prev => ({ ...prev, status: nextStatus }));
-    } catch (err) {
-      setStatus({ error: formatApiError(err, `Could not ${label} salon`), success: "" });
-    } finally {
-      setBusyId("");
     }
   };
 

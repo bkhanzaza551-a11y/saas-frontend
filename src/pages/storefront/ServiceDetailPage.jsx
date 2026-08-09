@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
+import { useAlert } from "../../context/AlertContext";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&fit=crop";
 
@@ -23,6 +24,7 @@ function formatDuration(minutes) {
 }
 
 export default function ServiceDetailPage() {
+  const { showAlert } = useAlert();
   const { salon, addBooking, selectedBranchId, setSelectedBranchId } = useOutletContext();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -109,9 +111,9 @@ export default function ServiceDetailPage() {
   };
 
   const handleBookNow = () => {
-    if (!selectedDate) { alert("Please select a date."); return; }
-    if (!selectedTime) { alert("Please select a time."); return; }
-    if (isSlotBooked(selectedTime)) { alert("This time slot is no longer available. Please choose another."); return; }
+    if (!selectedDate) { showAlert("Please select a date."); return; }
+    if (!selectedTime) { showAlert("Please select a time."); return; }
+    if (isSlotBooked(selectedTime)) { showAlert("This time slot is no longer available. Please choose another."); return; }
     addBooking(
       {
         id: service.id,
@@ -180,12 +182,12 @@ export default function ServiceDetailPage() {
               )}
             </div>
 
-            {service.description && (
-              <div style={{ marginBottom: 60 }}>
-                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", marginBottom: 24, fontWeight: 500 }}>About This Treatment</h2>
-                <p style={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.1rem", margin: 0, whiteSpace: "pre-line", fontWeight: 300 }}>{service.description}</p>
-              </div>
-            )}
+            <div style={{ marginBottom: 60 }}>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", marginBottom: 24, fontWeight: 500 }}>About This Treatment</h2>
+              <p style={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.1rem", margin: 0, whiteSpace: "pre-line", fontWeight: 300 }}>
+                {service.description || "Experience a premium service tailored specifically to your needs. Our professionals ensure the highest quality of care and attention to detail."}
+              </p>
+            </div>
 
             {staff.length > 0 && (
               <div style={{ marginBottom: 60 }}>

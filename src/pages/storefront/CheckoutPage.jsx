@@ -44,7 +44,7 @@ export default function CheckoutPage() {
       for (const booking of bookings) {
         for (let i = 0; i < booking.qty; i++) {
           const payload = {
-            serviceId: booking.id,
+            serviceId: booking.serviceId || booking.id, // Fixed mapping
             customerName,
             customerPhone: form.phone,
             customerEmail: form.email || undefined,
@@ -52,7 +52,7 @@ export default function CheckoutPage() {
             preferredTime: booking.time,
             staffId: booking.staffId || null,
             note: form.note || undefined,
-            paymentMode: form.paymentMode, // Always PAY_AT_SALON
+            paymentMode: form.paymentMode, 
           };
           const res = await api.post(`/public/salon/${salon.slug}/service-bookings`, payload);
           results.push(res.data);
@@ -102,36 +102,45 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          <div style={{ background: 'var(--bg-main)', padding: 48, border: '1px solid var(--border)' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: 40, paddingBottom: 24, borderBottom: '1px solid var(--border)', fontFamily: 'var(--font-serif)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <User size={24} style={{ color: 'var(--text-muted)' }} /> Your Information
+          {/* Personal Info */}
+          <div style={{ marginBottom: 40, background: 'var(--bg-main)', padding: 40, borderRadius: 12, border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>
+              <User size={24} style={{ color: 'var(--accent)' }} /> Your Information
             </h2>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 28 }}>
-              <div className="sf-form-group" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+              <div className="sf-form-group">
                 <label className="sf-form-label">First Name *</label>
-                <input type="text" className="sf-form-input" placeholder="e.g. Sara" value={form.firstName} onChange={set('firstName')} required />
+                <input type="text" className="sf-form-input" placeholder="e.g. Sara" value={form.firstName} onChange={set("firstName")} style={{ background: 'var(--surface)' }} />
               </div>
-              <div className="sf-form-group" style={{ marginBottom: 0 }}>
+              <div className="sf-form-group">
                 <label className="sf-form-label">Last Name</label>
-                <input type="text" className="sf-form-input" placeholder="e.g. Khan" value={form.lastName} onChange={set('lastName')} />
+                <input type="text" className="sf-form-input" placeholder="e.g. Khan" value={form.lastName} onChange={set("lastName")} style={{ background: 'var(--surface)' }} />
               </div>
             </div>
-
-            <div className="sf-form-group" style={{ marginBottom: 28 }}>
-              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Phone size={14} /> Phone Number *</label>
-              <input type="tel" className="sf-form-input" placeholder="e.g. 999 999 9999" value={form.phone} onChange={set('phone')} required />
+            
+            <div className="sf-form-group" style={{ marginBottom: 20 }}>
+              <label className="sf-form-label"><Phone size={14} style={{ display: 'inline', marginRight: 4 }} /> Phone Number *</label>
+              <input type="tel" className="sf-form-input" placeholder="e.g. 999 999 9999" value={form.phone} onChange={set("phone")} style={{ background: 'var(--surface)' }} />
             </div>
 
-            <div className="sf-form-group" style={{ marginBottom: 28 }}>
-              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Mail size={14} /> Email Address (Optional)</label>
-              <input type="email" className="sf-form-input" placeholder="sara@example.com" value={form.email} onChange={set('email')} />
+            <div className="sf-form-group" style={{ marginBottom: 20 }}>
+              <label className="sf-form-label"><Mail size={14} style={{ display: 'inline', marginRight: 4 }} /> Email Address (Optional)</label>
+              <input type="email" className="sf-form-input" placeholder="sara@example.com" value={form.email} onChange={set("email")} style={{ background: 'var(--surface)' }} />
             </div>
+          </div>
 
-            <div className="sf-form-group" style={{ marginBottom: 48 }}>
-              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={14} /> Special Notes (Optional)</label>
-              <textarea className="sf-form-input" placeholder="Any specific instructions for your booking..." rows={4} value={form.note} onChange={set('note')} style={{ resize: 'vertical' }}></textarea>
-            </div>
+          <div style={{ marginBottom: 40, background: 'var(--bg-main)', padding: 40, borderRadius: 12, border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>
+              <FileText size={24} style={{ color: 'var(--accent)' }} /> Special Notes (Optional)
+            </h2>
+            <textarea 
+              className="sf-form-input" 
+              placeholder="Any specific instructions for your booking..." 
+              value={form.note} onChange={set("note")} 
+              rows={4}
+              style={{ resize: 'vertical', background: 'var(--surface)' }}
+            />
+          </div>
 
             <h2 style={{ fontSize: '1.5rem', marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--border)', fontFamily: 'var(--font-serif)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 12 }}>
               Payment Method
@@ -159,28 +168,21 @@ export default function CheckoutPage() {
         </div>
 
         {/* RIGHT COLUMN: SUMMARY */}
-        <div style={{ background: 'var(--bg-main)', padding: 40, border: '1px solid var(--border)', position: 'sticky', top: 120 }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border)', fontFamily: 'var(--font-serif)', fontWeight: 500 }}>Summary</h2>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 40 }}>
-            {bookings.map((b, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1, paddingRight: 16 }}>
-                  <div style={{ fontWeight: 500, color: 'var(--text-main)', marginBottom: 8, fontSize: '1.05rem' }}>{b.name} <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 400 }}>x{b.qty}</span></div>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 300, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Calendar size={12} /> {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
+        <div style={{ position: 'sticky', top: 120 }}>
+          <div style={{ background: 'var(--bg-main)', padding: 40, border: '1px solid var(--border)' }}>
+            <h3 style={{ fontSize: '1.6rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>Summary</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {bookings.map((b, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ flex: 1, paddingRight: 16 }}>
+                    <p style={{ margin: '0 0 8px', fontWeight: 500, fontSize: '1.1rem', color: 'var(--text-main)' }}>
+                      {b.name} <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.9rem' }}>x{b.qty}</span>
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 300 }}>
+                      <Calendar size={14} /> {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
+                    </p>
                   </div>
-                  {b.staffName && (
-                    <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 300, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                      <User size={12} /> With {b.staffName}
-                    </div>
-                  )}
-                </div>
-                <div style={{ fontWeight: 500, color: 'var(--text-main)', whiteSpace: 'nowrap', fontFamily: 'var(--font-serif)', fontSize: '1.1rem' }}>{currency} {Number(b.price) * b.qty}</div>
-              </div>
-            ))}
-          </div>
-
           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 24, fontSize: '1.4rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)' }}>
             <span>Total</span>
             <span>{currency} {total}</span>
