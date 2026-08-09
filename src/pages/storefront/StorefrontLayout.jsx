@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { Outlet, Link, useParams, useLocation } from "react-router-dom";
 import { CalendarCheck, Menu, X } from "lucide-react";
 import { api } from "../../api/client";
@@ -271,7 +271,9 @@ export default function StorefrontLayout() {
 
           <main style={{ flex: 1 }}>
             <StorefrontErrorBoundary>
-              <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId, setSelectedBranchId }} />
+              <Suspense fallback={null}>
+                <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId, setSelectedBranchId }} />
+              </Suspense>
             </StorefrontErrorBoundary>
           </main>
 
