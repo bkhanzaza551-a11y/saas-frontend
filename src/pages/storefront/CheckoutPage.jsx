@@ -87,7 +87,27 @@ export default function CheckoutPage() {
 
   return (
     <div className="sf-section" style={{ background: 'var(--surface)', minHeight: '100vh', paddingTop: 140 }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 420px', gap: 60, alignItems: 'start' }}>
+      <style>{`
+        .sf-checkout-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 420px;
+          gap: 60px;
+          align-items: start;
+        }
+        @media (max-width: 900px) {
+          .sf-checkout-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+          .sf-checkout-sticky {
+            position: static !important;
+          }
+          .sf-checkout-form-row {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
+      <div className="sf-checkout-grid" style={{ maxWidth: 1100, margin: '0 auto' }}>
         
         {/* LEFT COLUMN: FORM */}
         <div>
@@ -107,7 +127,7 @@ export default function CheckoutPage() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>
               <User size={24} style={{ color: 'var(--accent)' }} /> Your Information
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+            <div className="sf-checkout-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
               <div className="sf-form-group">
                 <label className="sf-form-label">First Name *</label>
                 <input type="text" className="sf-form-input" placeholder="e.g. Sara" value={form.firstName} onChange={set("firstName")} style={{ background: 'var(--surface)' }} />
@@ -168,7 +188,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* RIGHT COLUMN: SUMMARY */}
-        <div style={{ position: 'sticky', top: 120 }}>
+        <div className="sf-checkout-sticky" style={{ position: 'sticky', top: 120 }}>
           <div style={{ background: 'var(--bg-main)', padding: 40, border: '1px solid var(--border)' }}>
             <h3 style={{ fontSize: '1.6rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>Summary</h3>
             
