@@ -5,8 +5,8 @@ import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
 import SalonAnalyticsPage from "../operations/SalonAnalyticsPage";
 import FinancialReportsPage from "./FinancialReportsPage";
-import {
 import CustomSelect from "../../components/CustomSelect";
+import {
 
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, Line, ComposedChart
@@ -1918,4 +1918,5 @@ export default function ReportsHubPage() {
     </div>
   );
 }
+
 

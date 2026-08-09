@@ -151,40 +151,62 @@ export default function ServiceDetailPage() {
           
           {/* Left Column: Details */}
           <div>
-            {/* Title & Image Section */}
-            <div style={{ marginBottom: 48 }}>
+            {/* Image Section */}
+            <div style={{ position: "relative", marginBottom: 40, borderRadius: "24px", overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.08)", background: "var(--surface)", height: 500 }}>
+              <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              
+              {/* Badges Overlay */}
+              <div style={{ position: "absolute", top: 24, left: 24, display: "flex", gap: 12 }}>
+                {service.isFeatured && (
+                  <span style={{ background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)", color: "var(--accent)", padding: "8px 16px", borderRadius: "30px", fontSize: "0.85rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>★ Featured</span>
+                )}
+                {service.isPopular && (
+                  <span style={{ background: "var(--accent)", color: "#fff", padding: "8px 16px", borderRadius: "30px", fontSize: "0.85rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>🔥 Popular</span>
+                )}
+              </div>
+            </div>
+
+            {/* Title & Meta Section */}
+            <div style={{ marginBottom: 48, borderBottom: '1px solid var(--border)', paddingBottom: 40 }}>
               {service.category && (
-                <div style={{ marginBottom: 12 }}>
-                  <span style={{ display: "inline-block", color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '2px' }}>
+                <div style={{ marginBottom: 16 }}>
+                  <span style={{ display: "inline-block", color: "var(--text-muted)", fontSize: "0.95rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
                     {service.category.name}
                   </span>
                 </div>
               )}
-              <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "3.5rem", color: "var(--text-main)", margin: "0 0 32px", lineHeight: 1.1, fontWeight: 500 }}>
+              <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4rem", color: "var(--text-main)", margin: "0 0 24px", lineHeight: 1.1, fontWeight: 500, letterSpacing: '-1px' }}>
                 {service.name}
               </h1>
-              <div style={{ width: "100%", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)", background: "var(--bg-main)" }}>
-                <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "450px", objectFit: "cover", display: "block" }} />
-              </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 32, marginBottom: 48, flexWrap: "wrap", paddingBottom: 32, borderBottom: '1px solid var(--border)' }}>
-              <div style={{ fontSize: "2.5rem", fontWeight: 500, color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>
-                {currency} {price.toFixed(2)}
-                {hasSale && <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", textDecoration: "line-through", marginLeft: 16, fontFamily: 'var(--font-sans)', fontWeight: 400 }}>{currency} {originalPrice.toFixed(2)}</span>}
-              </div>
-              {hasSale && <span style={{ padding: "6px 12px", background: "var(--accent)", color: "#fff", fontSize: "0.85rem", fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase' }}>{Math.round((1 - Number(service.salePrice) / originalPrice) * 100)}% OFF</span>}
               
-              {service.durationMin && (
-                <span style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text-muted)", fontSize: "1.1rem", borderLeft: '1px solid var(--border)', paddingLeft: 32, fontWeight: 300 }}>
-                  <Clock size={20} />
-                  {formatDuration(service.durationMin)}
-                </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 32, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+                  <span style={{ fontSize: "2.5rem", fontWeight: 500, color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>
+                    {currency} {price.toFixed(2)}
+                  </span>
+                  {hasSale && <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", textDecoration: "line-through", fontFamily: 'var(--font-sans)', fontWeight: 400 }}>{currency} {originalPrice.toFixed(2)}</span>}
+                </div>
+                
+                {hasSale && <span style={{ padding: "6px 12px", background: "var(--accent)", color: "#fff", fontSize: "0.85rem", fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase', borderRadius: '4px' }}>{Math.round((1 - Number(service.salePrice) / originalPrice) * 100)}% OFF</span>}
+                
+                {service.durationMin && (
+                  <span style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text-muted)", fontSize: "1.1rem", borderLeft: '1px solid var(--border)', paddingLeft: 32, fontWeight: 400 }}>
+                    <Clock size={20} />
+                    {formatDuration(service.durationMin)}
+                  </span>
+                )}
+              </div>
+              
+              {service.taxRate > 0 && (
+                <div style={{ marginTop: 16, fontSize: "0.9rem", color: "var(--text-muted)", fontStyle: "italic" }}>
+                  * Price is exclusive of {service.taxRate}% tax.
+                </div>
               )}
             </div>
 
             <div style={{ marginBottom: 60 }}>
               <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", marginBottom: 24, fontWeight: 500 }}>About This Treatment</h2>
-              <p style={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.1rem", margin: 0, whiteSpace: "pre-line", fontWeight: 300 }}>
+              <p style={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.15rem", margin: 0, whiteSpace: "pre-line", fontWeight: 300 }}>
                 {service.description || "Experience a premium service tailored specifically to your needs. Our professionals ensure the highest quality of care and attention to detail."}
               </p>
             </div>

@@ -7,8 +7,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useBranch } from "../../context/BranchContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { formatApiError } from "../../utils/apiError";
-import { 
 import CustomSelect from "../../components/CustomSelect";
+import {
 
   Receipt, Wallet, Search, Filter, FolderKanban, PlusCircle, 
   Calendar, CheckCircle2, Clock, AlertCircle, XCircle, LayoutDashboard,
@@ -1613,3 +1613,4 @@ export default function ExpensesPage() {
     </div>
   );
 }
+
