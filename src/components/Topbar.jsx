@@ -219,18 +219,18 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         .salonnest-branch-btn {
           display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 4px 10px !important;
+          gap: 4px;
+          padding: 2px 8px !important;
           background: #f8fafc;
           border: 1px solid #e2e8f0 !important;
-          border-radius: 6px !important;
+          border-radius: 4px !important;
           cursor: pointer;
-          font-size: 0.78rem !important;
+          font-size: 0.7rem !important;
           color: #475569 !important;
-          font-weight: 500 !important;
+          font-weight: 600 !important;
           white-space: nowrap;
           transition: all 0.15s;
-          height: 30px !important;
+          height: 26px !important;
         }
         .salonnest-branch-btn:hover {
           background: #e2e8f0;
@@ -673,9 +673,9 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           {auth?.user?.systemRole !== "SUPER_ADMIN" && (
             <div className="salonnest-branch-wrap">
               <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
-                <Building2 size={14} color="#64748b" />
+                <Building2 size={12} color="#64748b" />
                 {selectedBranchName}
-                <ChevronDown size={14} color="#64748b" />
+                <ChevronDown size={12} color="#64748b" />
               </button>
               {isBranchOpen && (
                 <div className="salonnest-branch-dropdown" onClick={e => e.stopPropagation()}>
