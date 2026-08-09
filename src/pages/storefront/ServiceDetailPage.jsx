@@ -139,34 +139,34 @@ export default function ServiceDetailPage() {
         }
       `}</style>
 
-      {/* Hero Banner */}
-      <div style={{ position: "relative", height: '65vh', minHeight: 500, overflow: "hidden" }}>
-        <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }} />
-        
-        <div style={{ position: "absolute", bottom: 80, left: 0, right: 0, maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
-          <Link to={`/site/${salon.slug}/collections`} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: "0.95rem", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24, textTransform: 'uppercase', letterSpacing: '1px' }}>
-            <ArrowLeft size={16} /> Back to Services
-          </Link>
-          {service.category && (
-            <div style={{ marginBottom: 16 }}>
-              <span style={{ display: "inline-block", color: "var(--accent-light)", fontSize: "0.9rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
-                {service.category.name}
-              </span>
-            </div>
-          )}
-          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", color: "#fff", margin: 0, lineHeight: 1.1, fontWeight: 500 }}>
-            {service.name}
-          </h1>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "80px 32px" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "60px 32px 80px" }}>
+        
+        {/* Breadcrumb */}
+        <Link to={`/site/${salon.slug}/collections`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 40, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>
+          <ArrowLeft size={16} /> Back to Services
+        </Link>
+        
         <div className="sf-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 80, alignItems: "start" }}>
           
           {/* Left Column: Details */}
           <div>
+            {/* Title & Image Section */}
+            <div style={{ marginBottom: 48 }}>
+              {service.category && (
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ display: "inline-block", color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '2px' }}>
+                    {service.category.name}
+                  </span>
+                </div>
+              )}
+              <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "3.5rem", color: "var(--text-main)", margin: "0 0 32px", lineHeight: 1.1, fontWeight: 500 }}>
+                {service.name}
+              </h1>
+              <div style={{ width: "100%", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)", background: "var(--bg-main)" }}>
+                <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "450px", objectFit: "cover", display: "block" }} />
+              </div>
+            </div>
             <div style={{ display: "flex", alignItems: "center", gap: 32, marginBottom: 48, flexWrap: "wrap", paddingBottom: 32, borderBottom: '1px solid var(--border)' }}>
               <div style={{ fontSize: "2.5rem", fontWeight: 500, color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>
                 {currency} {price.toFixed(2)}

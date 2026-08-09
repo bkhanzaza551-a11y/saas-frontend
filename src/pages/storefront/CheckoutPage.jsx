@@ -86,134 +86,163 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="sf-section" style={{ background: 'var(--surface)', minHeight: '100vh', paddingTop: 140 }}>
+    <div className="sf-section" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingTop: 140 }}>
       <style>{`
         .sf-checkout-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 420px;
-          gap: 60px;
+          grid-template-columns: minmax(0, 1fr) 480px;
+          gap: 80px;
           align-items: start;
+        }
+        .sf-checkout-input {
+          width: 100%;
+          padding: 16px 0;
+          border: none;
+          border-bottom: 1px solid var(--border);
+          background: transparent;
+          font-family: var(--font-sans);
+          font-size: 1.1rem;
+          color: var(--text-main);
+          transition: border-color 0.3s;
+          border-radius: 0;
+        }
+        .sf-checkout-input:focus {
+          outline: none;
+          border-bottom-color: var(--accent);
+        }
+        .sf-checkout-input::placeholder {
+          color: #a3a3a3;
+          font-weight: 300;
         }
         @media (max-width: 900px) {
           .sf-checkout-grid {
             grid-template-columns: 1fr !important;
-            gap: 40px !important;
+            gap: 60px !important;
           }
           .sf-checkout-sticky {
             position: static !important;
           }
-          .sf-checkout-form-row {
-            grid-template-columns: 1fr !important;
-          }
         }
       `}</style>
-      <div className="sf-checkout-grid" style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div className="sf-checkout-grid" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
         
         {/* LEFT COLUMN: FORM */}
         <div>
-          <Link to={`/site/${salon.slug}/cart`} style={{ color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 32, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem' }}>
-            <ArrowLeft size={16} /> Back to Cart
+          <Link to={`/site/${salon.slug}/cart`} style={{ color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 40, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>
+            <ArrowLeft size={16} /> Back to Services
           </Link>
-          <h1 style={{ fontSize: '3rem', marginBottom: 40, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>Final Details</h1>
+          <h1 style={{ fontSize: '3.5rem', marginBottom: 60, fontFamily: 'var(--font-serif)', fontWeight: 500, letterSpacing: '-1px' }}>Checkout</h1>
 
           {error && (
-            <div style={{ background: '#fff1f2', color: '#be123c', padding: '20px 24px', marginBottom: 32, borderLeft: '4px solid #be123c', fontWeight: 500, fontSize: '1.05rem' }}>
+            <div style={{ background: '#fff1f2', color: '#be123c', padding: '20px 24px', marginBottom: 40, borderLeft: '4px solid #be123c', fontWeight: 500, fontSize: '1.05rem' }}>
               {error}
             </div>
           )}
 
           {/* Personal Info */}
-          <div style={{ marginBottom: 40, background: 'var(--bg-main)', padding: 40, borderRadius: 12, border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500 }}>
-              <User size={24} style={{ color: 'var(--accent)' }} /> Your Information
+          <div style={{ marginBottom: 60 }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
+              1. Contact Information
             </h2>
-            <div className="sf-checkout-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-              <div className="sf-form-group">
-                <label className="sf-form-label">First Name *</label>
-                <input type="text" className="sf-form-input" placeholder="e.g. Sara" value={form.firstName} onChange={set("firstName")} style={{ background: 'var(--surface)' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 32 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>First Name *</label>
+                <input type="text" className="sf-checkout-input" placeholder="Sara" value={form.firstName} onChange={set("firstName")} />
               </div>
-              <div className="sf-form-group">
-                <label className="sf-form-label">Last Name</label>
-                <input type="text" className="sf-form-input" placeholder="e.g. Khan" value={form.lastName} onChange={set("lastName")} style={{ background: 'var(--surface)' }} />
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Last Name</label>
+                <input type="text" className="sf-checkout-input" placeholder="Khan" value={form.lastName} onChange={set("lastName")} />
               </div>
             </div>
             
-            <div className="sf-form-group" style={{ marginBottom: 20 }}>
-              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left' }}><Phone size={14} /> Phone Number *</label>
-              <input type="tel" className="sf-form-input" placeholder="e.g. 999 999 9999" value={form.phone} onChange={set("phone")} style={{ background: 'var(--surface)' }} />
-            </div>
-
-            <div className="sf-form-group" style={{ marginBottom: 20 }}>
-              <label className="sf-form-label" style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left' }}><Mail size={14} /> Email Address (Optional)</label>
-              <input type="email" className="sf-form-input" placeholder="sara@example.com" value={form.email} onChange={set("email")} style={{ background: 'var(--surface)' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Phone Number *</label>
+                <input type="tel" className="sf-checkout-input" placeholder="+1 (555) 000-0000" value={form.phone} onChange={set("phone")} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Email Address</label>
+                <input type="email" className="sf-checkout-input" placeholder="sara@example.com" value={form.email} onChange={set("email")} />
+              </div>
             </div>
           </div>
 
-          <div style={{ marginBottom: 40, background: 'var(--bg-main)', padding: 40, borderRadius: 12, border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--font-serif)', fontWeight: 500, textAlign: 'left' }}>
-              <FileText size={24} style={{ color: 'var(--accent)' }} /> Special Notes (Optional)
+          <div style={{ marginBottom: 60 }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
+              2. Additional Notes
             </h2>
             <textarea 
-              className="sf-form-input" 
-              placeholder="Any specific instructions for your booking..." 
+              className="sf-checkout-input" 
+              placeholder="Any specific requests or requirements for your stylist..." 
               value={form.note} onChange={set("note")} 
-              rows={4}
-              style={{ resize: 'vertical', background: 'var(--surface)' }}
+              rows={3}
+              style={{ resize: 'vertical' }}
             />
           </div>
 
-            <h2 style={{ fontSize: '1.5rem', marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--border)', fontFamily: 'var(--font-serif)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 12 }}>
-              Payment Method
+          <div style={{ marginBottom: 60 }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
+              3. Payment Method
             </h2>
             
-            <div style={{ marginBottom: 48 }}>
-              <div style={{ padding: 24, border: '1px solid var(--accent)', background: 'var(--surface)', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                <CheckCircle2 size={24} style={{ color: 'var(--accent)', marginTop: 2 }} />
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: 8 }}>Pay at Salon</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 300 }}>Your booking will be confirmed instantly. You can pay with cash or card when you visit.</div>
-                </div>
+            <div style={{ padding: 24, border: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'flex-start', gap: 20 }}>
+              <CheckCircle2 size={24} style={{ color: 'var(--accent)', marginTop: 2 }} />
+              <div>
+                <div style={{ fontWeight: 500, fontSize: '1.1rem', marginBottom: 8 }}>Pay at Salon</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '1rem', fontWeight: 300, lineHeight: 1.6 }}>Your booking will be confirmed instantly. Please pay at the front desk when you arrive for your appointment.</div>
               </div>
             </div>
-
-            <button 
-              className="sf-btn-primary" 
-              style={{ width: '100%', padding: '20px 0', fontSize: '1.1rem' }} 
-              onClick={handlePlaceBooking} 
-              disabled={submitting}
-            >
-              {submitting ? 'Confirming Appointment...' : 'Confirm Appointment'}
-            </button>
           </div>
         </div>
 
         {/* RIGHT COLUMN: SUMMARY */}
         <div className="sf-checkout-sticky" style={{ position: 'sticky', top: 120 }}>
-          <div style={{ background: 'var(--bg-main)', padding: 40, border: '1px solid var(--border)' }}>
-            <h3 style={{ fontSize: '1.6rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>Summary</h3>
+          <div style={{ background: 'var(--surface-alt)', padding: 48, borderRadius: 'var(--radius-lg)' }}>
+            <h3 style={{ fontSize: '1.8rem', marginBottom: 40, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>Order Summary</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32, marginBottom: 40 }}>
               {bookings.map((b, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
-                  <div style={{ flex: 1, paddingRight: 16 }}>
-                    <p style={{ margin: '0 0 8px', fontWeight: 500, fontSize: '1.1rem', color: 'var(--text-main)' }}>
-                      {b.name} <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.9rem' }}>x{b.qty}</span>
-                    </p>
+                <div key={i} style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+                  {b.imageUrl ? (
+                    <img src={b.imageUrl} alt={b.name} style={{ width: 64, height: 64, borderRadius: '8px', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: 64, height: 64, borderRadius: '8px', background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Calendar size={24} color="var(--text-muted)" />
+                    </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <p style={{ margin: 0, fontWeight: 500, fontSize: '1.1rem', color: 'var(--text-main)' }}>{b.name}</p>
+                      <span style={{ fontWeight: 500, color: 'var(--text-main)', fontFamily: 'var(--font-serif)', fontSize: '1.1rem' }}>{currency} {Number(b.price) * b.qty}</span>
+                    </div>
                     <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 300 }}>
-                      <Calendar size={14} /> {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
+                      {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
                     </p>
+                    {b.qty > 1 && <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Qty: {b.qty}</p>}
                   </div>
-                  <div style={{ fontWeight: 500, color: 'var(--text-main)', whiteSpace: 'nowrap', fontFamily: 'var(--font-serif)', fontSize: '1.1rem' }}>{currency} {Number(b.price) * b.qty}</div>
                 </div>
               ))}
             </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 24, fontSize: '1.4rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)' }}>
-            <span>Total</span>
-            <span>{currency} {total}</span>
-          </div>
-          
-          <div style={{ marginTop: 32, textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 300, lineHeight: 1.6 }}>
-            By confirming your booking, you agree to our salon's cancellation and rescheduling policies.
+            
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 32, marginBottom: 40 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.6rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)', fontWeight: 500 }}>
+                <span>Total</span>
+                <span>{currency} {total}</span>
+              </div>
+            </div>
+
+            <button 
+              className="sf-btn-primary" 
+              style={{ width: '100%', padding: '24px 0', fontSize: '1.1rem', borderRadius: '4px' }} 
+              onClick={handlePlaceBooking} 
+              disabled={submitting}
+            >
+              {submitting ? 'Confirming...' : 'Confirm Appointment'}
+            </button>
+            
+            <div style={{ marginTop: 24, textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 300, lineHeight: 1.6 }}>
+              By confirming your booking, you agree to our salon's cancellation policies.
+            </div>
           </div>
         </div>
       </div>

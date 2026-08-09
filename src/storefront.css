@@ -442,17 +442,21 @@ a {
 .sf-service-card {
   background: var(--bg-main);
   border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
   transition: var(--transition);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
 }
 
 .sf-service-card:hover {
   transform: translateY(-8px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--text-main);
 }
 
 .sf-service-img-wrapper {

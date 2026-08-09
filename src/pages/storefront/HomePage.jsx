@@ -92,10 +92,10 @@ export default function HomePage() {
               {services.map(service => (
                 <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
                   {service.imageUrl ? (
-                    <img src={service.imageUrl} alt={service.name} style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', marginBottom: 24, border: '1px solid var(--border)' }} />
+                    <img src={service.imageUrl} alt={service.name} style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', marginBottom: 24, border: '1px solid var(--border)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} />
                   ) : (
-                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-main)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, color: 'var(--text-muted)' }}>
-                      <Sparkles size={20} />
+                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, color: 'var(--accent)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                      <Sparkles size={24} strokeWidth={1.5} />
                     </div>
                   )}
                   <h3 style={{ margin: '0 0 12px', fontSize: '1.4rem', color: 'var(--text-main)', fontWeight: 500 }}>{service.name}</h3>
