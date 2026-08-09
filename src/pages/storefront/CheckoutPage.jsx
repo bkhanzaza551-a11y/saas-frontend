@@ -203,6 +203,10 @@ export default function CheckoutPage() {
                       <Calendar size={14} /> {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
                     </p>
                   </div>
+                  <div style={{ fontWeight: 500, color: 'var(--text-main)', whiteSpace: 'nowrap', fontFamily: 'var(--font-serif)', fontSize: '1.1rem' }}>{currency} {Number(b.price) * b.qty}</div>
+                </div>
+              ))}
+            </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 24, fontSize: '1.4rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)' }}>
             <span>Total</span>
             <span>{currency} {total}</span>

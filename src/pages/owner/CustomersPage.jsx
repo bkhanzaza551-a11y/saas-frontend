@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Filter, Plus, Download, Upload, MoreVertical, MoreHorizontal, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor } from "lucide-react";
+import ToggleSwitch from "../../components/ToggleSwitch";
 import { api } from "../../api/client";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -812,7 +813,6 @@ export default function CustomersPage() {
         await load();
       } catch (err) {
         alert(formatApiError(err, "Could not import CSV"));
-import ToggleSwitch from "../../components/ToggleSwitch";
       } finally {
         setSaving(false);
       }

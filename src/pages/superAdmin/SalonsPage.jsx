@@ -161,9 +161,6 @@ export default function SalonsPage() {
     }
   };
 
-    }
-  };
-
   const toggleFeature = async (salonId, key) => {
     let nextFlags;
     let previousFlags;
