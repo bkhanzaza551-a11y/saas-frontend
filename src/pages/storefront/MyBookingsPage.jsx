@@ -5,7 +5,7 @@ import { CalendarSearch } from "lucide-react";
 
 export default function MyBookingsPage() {
   const { salon } = useOutletContext();
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(() => localStorage.getItem("sf_customer_phone") || "");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -16,9 +16,19 @@ export default function MyBookingsPage() {
     window.scrollTo(0, 0);
   }, [salon.name]);
 
+  // Auto-search if phone is found in localStorage
+  useEffect(() => {
+    if (phone && !searched && salon.slug) {
+      handleSearch();
+    }
+  }, [salon.slug]);
+
   const handleSearch = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!phone) return;
+    
+    // Save to localStorage for future visits
+    localStorage.setItem("sf_customer_phone", phone);
     setLoading(true);
     setError("");
     try {
