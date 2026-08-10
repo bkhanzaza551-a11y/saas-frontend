@@ -244,6 +244,36 @@ export default function SalonsPage() {
     })
   };
 
+  const handleExportCustomers = async () => {
+    try {
+      const res = await api.get("/super-admin/export-customers", { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `customers_export_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setStatus({ error: "Failed to export customers", success: "" });
+    }
+  };
+
+  const handleExportInventory = async () => {
+    try {
+      const res = await api.get("/super-admin/export-inventory", { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `inventory_export_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setStatus({ error: "Failed to export inventory", success: "" });
+    }
+  };
+
   return (
     <div className="page-shell super-admin-page">
       <style>{`
@@ -265,7 +295,9 @@ export default function SalonsPage() {
             <h1 style={{ marginTop: 0 }}>Salons</h1>
             <p style={{ marginBottom: 0 }}>Create, activate, suspend, and inspect every tenant from one control surface.</p>
           </div>
-          <div className="badge-row">
+          <div className="badge-row" style={{ display: "flex", gap: 10 }}>
+            <button type="button" onClick={handleExportCustomers} style={{ background: "#4f46e5", color: "white", padding: "6px 12px", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Export Customers</button>
+            <button type="button" onClick={handleExportInventory} style={{ background: "#10b981", color: "white", padding: "6px 12px", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Export Inventory</button>
             <span className="badge">Total {salons.length}</span>
           </div>
         </div>

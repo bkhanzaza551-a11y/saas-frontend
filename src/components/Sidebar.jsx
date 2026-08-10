@@ -249,21 +249,23 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
               )}
             </div>
 
-            {/* User Account Profile Avatar Card */}
-            <div className="sidebar-profile-card">
-              <div className="sidebar-avatar-wrapper">
-                {auth?.user?.name ? (
-                  <div className="sidebar-avatar-initials">
-                    {auth.user.name.charAt(0).toUpperCase()}
-                  </div>
-                ) : (
-                  <User size={18} />
-                )}
+            {/* User Account Profile Avatar Card - Removed for Super Admin as per Phase 1 */}
+            {!isSuperAdmin && (
+              <div className="sidebar-profile-card">
+                <div className="sidebar-avatar-wrapper">
+                  {auth?.user?.name ? (
+                    <div className="sidebar-avatar-initials">
+                      {auth.user.name.charAt(0).toUpperCase()}
+                    </div>
+                  ) : (
+                    <User size={18} />
+                  )}
+                </div>
+                <div className="sidebar-profile-info">
+                  <div className="sidebar-profile-name">{auth?.user?.name || "Admin User"}</div>
+                </div>
               </div>
-              <div className="sidebar-profile-info">
-                <div className="sidebar-profile-name">{auth?.user?.name || "Admin User"}</div>
-              </div>
-            </div>
+            )}
 
             {/* Subscription Plan Badge */}
             {subscription?.active && subscription?.plan && (

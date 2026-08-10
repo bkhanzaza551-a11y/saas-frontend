@@ -274,34 +274,19 @@ const Protected = () => {
 
   const superAdminGroups = [
     {
-      label: "Platform",
-      hint: "SaaS control deck",
+      label: "Navigation",
+      hint: "Super Admin Workspace",
       items: [
         { label: "Dashboard", to: "/super-admin/dashboard" },
-        { label: "Salons Control", to: "/super-admin/salons" },
-
-        { label: "Plans Catalog", to: "/super-admin/plans" },
-        { label: "WhatsApp Credits", to: "/super-admin/credits" },
-        { label: "Customer Management", to: "/super-admin/subscriptions" },
-        { label: "Staff Management", to: "/super-admin/staff" }
-      ]
-    },
-      {
-        label: "Operations",
-        hint: "Leads, tickets, requirements & analytics",
-        items: [
-          { label: "Demo Pipeline", to: "/super-admin/demo-leads" },
-          { label: "Support Queue", to: "/super-admin/support-tickets" },
-          { label: "Traffic Analytics", to: "/super-admin/traffic" },
-          { label: "Staff Requirements", to: "/super-admin/staff-requirements" }
-        ]
-      },
-    {
-      label: "System",
-      hint: "Configuration & logs",
-      items: [
-        { label: "Global Settings", to: "/super-admin/settings" },
-        { label: "Platform Logs", to: "/super-admin/audit-logs" }
+        { label: "Sales Pipeline", to: "/super-admin/sales-pipeline" },
+        { label: "Salon Management", to: "/super-admin/salons" },
+        { label: "Subscription", to: "/super-admin/subscriptions" },
+        { label: "Product Requests", to: "/super-admin/product-requests" },
+        { label: "Staff Requests", to: "/super-admin/staff-requests" },
+        { label: "Support", to: "/super-admin/support-tickets" },
+        { label: "Finance", to: "/super-admin/finance" },
+        { label: "Team & Roles", to: "/super-admin/staff" },
+        { label: "Platform", to: "/super-admin/settings" }
       ]
     }
   ];
@@ -657,18 +642,17 @@ export default function App() {
 
           <Route path="/super-admin/dashboard" element={<SuperAdminRoute pageKey="dashboard" element={<SuperAdminDashboard />} />} />
           <Route path="/super-admin/salons" element={<SuperAdminRoute pageKey="salons" element={<SuperAdminSalonsPage />} />} />
-
-          <Route path="/super-admin/plans" element={<SuperAdminRoute pageKey="plans" element={<SuperAdminPlansPage />} />} />
-          <Route path="/super-admin/demo-leads" element={<SuperAdminRoute pageKey="demoLeads" element={<SuperAdminDemoLeadsPage />} />} />
+          <Route path="/super-admin/sales-pipeline" element={<SuperAdminRoute pageKey="sales-pipeline" element={<SuperAdminDemoLeadsPage />} />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />
-          <Route path="/super-admin/support-tickets" element={<SuperAdminRoute pageKey="supportTickets" element={<SuperAdminSupportTicketsPage />} />} />
-          <Route path="/super-admin/settings" element={<SuperAdminRoute pageKey="settings" element={<SuperAdminSettingsPage />} />} />
-          <Route path="/super-admin/credits" element={<SuperAdminRoute pageKey="credits" element={<ManageCreditsPage />} />} />
-          <Route path="/super-admin/audit-logs" element={<SuperAdminRoute pageKey="auditLogs" element={<SuperAdminAuditLogsPage />} />} />
-          <Route path="/super-admin/traffic" element={<SuperAdminRoute pageKey="traffic" element={<SuperAdminTrafficAnalyticsPage />} />} />
+          
+          {/* Temporary mappings for new modules being built in later phases */}
+          <Route path="/super-admin/product-requests" element={<SuperAdminRoute pageKey="product-requests" element={<SuperAdminDashboard />} />} />
+          
+          <Route path="/super-admin/staff-requests" element={<SuperAdminRoute pageKey="staff-requests" element={<SuperAdminStaffRequirementsPage />} />} />
+          <Route path="/super-admin/support-tickets" element={<SuperAdminRoute pageKey="support-tickets" element={<SuperAdminSupportTicketsPage />} />} />
+          <Route path="/super-admin/finance" element={<SuperAdminRoute pageKey="finance" element={<SuperAdminFinancialReportsPage />} />} />
           <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />
-          <Route path="/super-admin/financial-reports" element={<SuperAdminRoute pageKey="financialReports" element={<SuperAdminFinancialReportsPage />} />} />
-          <Route path="/super-admin/staff-requirements" element={<SuperAdminRoute pageKey="staffRequirements" element={<SuperAdminStaffRequirementsPage />} />} />
+          <Route path="/super-admin/settings" element={<SuperAdminRoute pageKey="settings" element={<SuperAdminSettingsPage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
           <Route path="/customers" element={<Navigate to="/admin/customers" replace />} />

@@ -317,8 +317,17 @@ export default function DemoLeadsPage() {
     setBusyId(leadId);
     setFeedback({ error: "", success: "" });
     const draft = draftsById[leadId];
+    if (!draft.lostReason) {
+      setFeedback({ error: "Please select a reason for marking as lost.", success: "" });
+      setBusyId("");
+      return;
+    }
     try {
-      await api.post(`/super-admin/demo-leads/${leadId}/reject`, { reviewNote: draft.reviewNote });
+      await api.post(`/super-admin/demo-leads/${leadId}/reject`, { 
+        reviewNote: draft.reviewNote,
+        lostReason: draft.lostReason,
+        lostNotes: draft.lostNotes
+      });
       setFeedback({ error: "", success: "Lead marked as Canceled." });
       await load();
     } catch (error) {
@@ -341,7 +350,7 @@ export default function DemoLeadsPage() {
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 800, color: "#0f172a" }}>Demo Pipeline</h1>
+            <h1 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 800, color: "#0f172a" }}>Sales Pipeline</h1>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Track lead sources, schedule Google Meet demos, and manage workspace conversions.</p>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
@@ -597,12 +606,19 @@ export default function DemoLeadsPage() {
                         </div>
                       </div>
                       <button type="button" onClick={() => approveLead(row.id)} disabled={isBusy || row.status === "CONVERTED"} style={{ padding: "9px 12px", background: row.status === "CONVERTED" ? "#d1fae5" : "#10b981", color: row.status === "CONVERTED" ? "#065f46" : "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: row.status === "CONVERTED" ? "not-allowed" : "pointer" }}>
-                        {row.status === "CONVERTED" ? "✓ Already Converted" : "Approve & Create Workspace"}
+                        {row.status === "CONVERTED" ? "✓ Already Converted" : "Convert & Create Salon"}
                       </button>
-                      <div style={{ display: "flex", gap: 8 }}>
                         <button type="button" onClick={() => sendPurchaseLink(row.id)} disabled={isBusy} style={{ flex: 1, padding: "9px 10px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Send Pay Link</button>
-                        <button type="button" onClick={() => rejectLead(row.id)} disabled={isBusy || row.status === "CANCELED"} style={{ flex: 1, padding: "9px 10px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Cancel Lead</button>
                       </div>
+                      
+                      {row.status !== "CANCELED" && row.status !== "CONVERTED" && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10, padding: 12, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
+                          <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{label: "Select Reason...", value: ""}, {label: "Too Expensive", value: "PRICE"}, {label: "Missing Features", value: "FEATURES"}, {label: "Went with Competitor", value: "COMPETITOR"}, {label: "Not Interested", value: "NOT_INTERESTED"}]} />
+                          <textarea rows={2} placeholder="Optional notes on why we lost this lead..." value={draft.lostNotes || ""} onChange={e => updateDraft(row.id, "lostNotes", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box" }} />
+                          <button type="button" onClick={() => rejectLead(row.id)} disabled={isBusy} style={{ padding: "9px 10px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Mark as Lost</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

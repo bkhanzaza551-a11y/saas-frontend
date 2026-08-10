@@ -762,7 +762,10 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
             {isProfileOpen && (
               <div className="profile-dropdown" onClick={e => e.stopPropagation()}>
                 <div className="profile-dropdown-name">{auth?.user?.name || "Admin"}</div>
-                <div className="profile-dropdown-role">{salonName}</div>
+                <div className="profile-dropdown-role" style={{ marginBottom: 4 }}>{auth?.user?.email || "admin@example.com"}</div>
+                <div className="profile-dropdown-role" style={{ fontWeight: 600, color: "#3b82f6", marginBottom: 16 }}>
+                  {auth?.user?.systemRole === "SUPER_ADMIN" ? (auth?.user?.role?.name || "Master Admin") : salonName}
+                </div>
                 {subscription?.plan && (
                   <div
                     onClick={() => { setIsProfileOpen(false); navigate("/admin/settings/subscription"); }}
@@ -777,6 +780,16 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                     </div>
                   </div>
                 )}
+                
+                {auth?.user?.systemRole === "SUPER_ADMIN" && (
+                  <button 
+                    className="profile-dropdown-btn secondary" 
+                    onClick={() => { setIsProfileOpen(false); navigate("/super-admin/settings"); }}
+                  >
+                    Profile / Account Settings
+                  </button>
+                )}
+                
                 <button 
                   className="profile-dropdown-btn primary" 
                   onClick={() => { setIsProfileOpen(false); if(onLogout) onLogout(); }}
@@ -795,7 +808,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                   </button>
                 )}
                 <div className="profile-dropdown-version">
-                  Salon Nest ERP v1.0.0
+                  Respark SaaS v1.0.0
                 </div>
               </div>
             )}
