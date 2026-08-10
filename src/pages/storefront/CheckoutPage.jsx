@@ -61,7 +61,7 @@ export default function CheckoutPage() {
 
       clearBookings();
       localStorage.setItem("sf_customer_phone", form.phone);
-      const orderNumber = results[0]?.orderNumber || `BK-${Date.now()}`;
+      const orderNumber = results[0]?.order?.orderNumber || results[0]?.orderNumber || `BK-${Date.now()}`;
       navigate(`/site/${salon.slug}/booking-confirmation?orderNumber=${orderNumber}`);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to place booking. Please try again.");
