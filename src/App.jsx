@@ -56,13 +56,14 @@ const SuperAdminSalon360ProfilePage = lazyWithRetry(() => import("./pages/superA
 const SuperAdminPlansPage = lazyWithRetry(() => import("./pages/superAdmin/PlansPage.jsx"));
 const SuperAdminDemoLeadsPage = lazyWithRetry(() => import("./pages/superAdmin/DemoLeadsPage.jsx"));
 const SuperAdminSubscriptionsPage = lazyWithRetry(() => import("./pages/superAdmin/SubscriptionsPage.jsx"));
+const SuperAdminStaffRequirementsPage = lazyWithRetry(() => import("./pages/superAdmin/StaffRequirementsPage.jsx"));
+const SuperAdminProductsRequirementPage = lazyWithRetry(() => import("./pages/superAdmin/ProductsRequirementPage.jsx"));
 const SuperAdminSupportTicketsPage = lazyWithRetry(() => import("./pages/superAdmin/SupportTicketsPage.jsx"));
 const SuperAdminSettingsPage = lazyWithRetry(() => import("./pages/superAdmin/SettingsPage.jsx"));
 const SuperAdminAuditLogsPage = lazyWithRetry(() => import("./pages/superAdmin/AuditLogsPage.jsx"));
 const SuperAdminTrafficAnalyticsPage = lazyWithRetry(() => import("./pages/superAdmin/TrafficAnalyticsPage.jsx"));
 const SuperAdminStaffPage = lazyWithRetry(() => import("./pages/superAdmin/StaffManagementPage.jsx"));
 const SuperAdminFinancialReportsPage = lazyWithRetry(() => import("./pages/superAdmin/FinancialReportsPage.jsx"));
-const SuperAdminStaffRequirementsPage = lazyWithRetry(() => import("./pages/superAdmin/StaffRequirementsPage.jsx"));
 
 const InventoryPage = lazyWithRetry(() => import("./pages/owner/InventoryPage.jsx"));
 const ProductCategoriesPage = lazyWithRetry(() => import("./pages/owner/ProductCategoriesPage.jsx"));
@@ -647,9 +648,7 @@ export default function App() {
           <Route path="/super-admin/sales-pipeline" element={<SuperAdminRoute pageKey="sales-pipeline" element={<SuperAdminDemoLeadsPage />} />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />
           
-          {/* Temporary mappings for new modules being built in later phases */}
-          <Route path="/super-admin/product-requests" element={<SuperAdminRoute pageKey="product-requests" element={<SuperAdminDashboard />} />} />
-          
+          <Route path="/super-admin/product-requests" element={<SuperAdminRoute pageKey="product-requests" element={<SuperAdminProductsRequirementPage />} />} />
           <Route path="/super-admin/staff-requests" element={<SuperAdminRoute pageKey="staff-requests" element={<SuperAdminStaffRequirementsPage />} />} />
           <Route path="/super-admin/support-tickets" element={<SuperAdminRoute pageKey="support-tickets" element={<SuperAdminSupportTicketsPage />} />} />
           <Route path="/super-admin/finance" element={<SuperAdminRoute pageKey="finance" element={<SuperAdminFinancialReportsPage />} />} />

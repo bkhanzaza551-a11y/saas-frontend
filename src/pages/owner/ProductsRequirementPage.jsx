@@ -10,6 +10,8 @@ const emptyForm = {
   productName: "",
   description: "",
   category: "",
+  brand: "",
+  packSize: "",
   quantity: "1",
   unitPrice: "",
   priority: "MEDIUM",
@@ -146,7 +148,7 @@ export default function ProductsRequirementPage() {
                     </div>
                     <div style={{ minWidth: 100 }}>
                       <div style={{ fontSize: "0.85rem", color: "#475569" }}>{r.category || "-"}</div>
-                      <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>x{r.quantity || 1}</div>
+                      <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>x{r.quantity || 1} {r.packSize && `(${r.packSize})`}</div>
                     </div>
                     <div style={{ fontSize: "0.85rem", color: "#64748b" }}>{r.unitPrice ? "\u20B9" + fmt(r.unitPrice) : "-"}</div>
                     <div style={{ fontSize: "0.85rem", color: "#64748b" }}>{r.vendor || "-"}</div>
@@ -197,6 +199,29 @@ export default function ProductsRequirementPage() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
                 />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Brand (Optional)</label>
+                  <input
+                    type="text"
+                    value={form.brand}
+                    placeholder="e.g. L'Oreal, Dyson"
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Pack Size (Optional)</label>
+                  <input
+                    type="text"
+                    value={form.packSize}
+                    placeholder="e.g. 500ml, 1kg"
+                    onChange={(e) => setForm({ ...form, packSize: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                  />
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>

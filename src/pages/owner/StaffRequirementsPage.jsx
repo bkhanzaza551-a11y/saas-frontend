@@ -24,7 +24,7 @@ export default function StaffRequirementsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", department: "", position: "", salary: "", shift: "", urgency: "MEDIUM", skills: "", count: "1", priority: "MEDIUM" });
+  const [form, setForm] = useState({ title: "", department: "", salary: "", experience: "" });
 
   const fetchRequirements = async () => {
     try {
@@ -45,7 +45,7 @@ export default function StaffRequirementsPage() {
     setSaving(true);
     try {
       await api.post("/owner/staff-requirements", form);
-      setForm({ title: "", description: "", department: "", position: "", salary: "", shift: "", urgency: "MEDIUM", skills: "", count: "1", priority: "MEDIUM" });
+      setForm({ title: "", department: "", salary: "", experience: "" });
       setShowModal(false);
       fetchRequirements();
     } catch (err) {
@@ -101,11 +101,8 @@ export default function StaffRequirementsPage() {
                   {req.description && <p style={{ fontSize: 14, color: "#475569", margin: "4px 0 8px" }}>{req.description}</p>}
                   <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap" }}>
                     {req.department && <span>Dept: <b style={{ color: "#334155" }}>{req.department}</b></span>}
-                    {req.position && <span>Position: <b style={{ color: "#334155" }}>{req.position}</b></span>}
                     {req.salary && <span>Salary: <b style={{ color: "#334155" }}>{req.salary}</b></span>}
-                    {req.shift && <span>Shift: <b style={{ color: "#334155" }}>{req.shift}</b></span>}
-                    {req.count > 1 && <span>Count: <b style={{ color: "#334155" }}>{req.count}</b></span>}
-                    {req.skills && <span>Skills: <b style={{ color: "#334155" }}>{req.skills}</b></span>}
+                    {req.experience && <span>Experience: <b style={{ color: "#334155" }}>{req.experience}</b></span>}
                   </div>
                   <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>
                     Submitted: {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
@@ -135,18 +132,8 @@ export default function StaffRequirementsPage() {
                 <input type="text" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Senior Hair Stylist" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Description</label>
-                <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Job description and requirements..." rows={3} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Department</label>
-                  <input type="text" value={form.department} onChange={e => setForm({...form, department: e.target.value})} placeholder="e.g. Styling" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Position</label>
-                  <input type="text" value={form.position} onChange={e => setForm({...form, position: e.target.value})} placeholder="e.g. Hair Stylist" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Department</label>
+                <input type="text" value={form.department} onChange={e => setForm({...form, department: e.target.value})} placeholder="e.g. Styling" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
@@ -154,28 +141,9 @@ export default function StaffRequirementsPage() {
                   <input type="text" value={form.salary} onChange={e => setForm({...form, salary: e.target.value})} placeholder="e.g. ₹15,000 - ₹25,000" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Shift</label>
-                  <input type="text" value={form.shift} onChange={e => setForm({...form, shift: e.target.value})} placeholder="e.g. Morning" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Experience</label>
+                  <input type="text" value={form.experience} onChange={e => setForm({...form, experience: e.target.value})} placeholder="e.g. 2+ Years" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
                 </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Urgency</label>
-                  <CustomSelect value={form.urgency} onChange={e => setForm({...form, urgency: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}>
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </CustomSelect>
-                </div>
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Count</label>
-                  <input type="number" min="1" value={form.count} onChange={e => setForm({...form, count: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Skills</label>
-                <input type="text" value={form.skills} onChange={e => setForm({...form, skills: e.target.value})} placeholder="e.g. Coloring, Cutting, Styling" style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569" }}>Cancel</button>
