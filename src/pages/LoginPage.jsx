@@ -13,7 +13,7 @@ export default function LoginPage() {
   });
   const [err, setErr] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, verifyOtp, resendOtp } = useAuth();
+  const { login, verifyOtp, resendOtp, auth } = useAuth();
   const nav = useNavigate();
 
   // OTP and persistent login states
@@ -25,6 +25,16 @@ export default function LoginPage() {
   const [resendTimer, setResendTimer] = useState(60);
   const [resendMsg, setResendMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (auth) {
+      if (auth.user?.systemRole === "SUPER_ADMIN") {
+        nav("/super-admin/dashboard");
+      } else {
+        nav("/admin/dashboard");
+      }
+    }
+  }, [auth, nav]);
 
   useEffect(() => {
     let interval = null;
