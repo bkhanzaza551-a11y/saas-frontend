@@ -79,7 +79,7 @@ export default function CollectionsPage() {
           
           .sf-services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 40px;
           }
           
@@ -109,6 +109,11 @@ export default function CollectionsPage() {
             transform: scale(1.05);
           }
           
+          @media (max-width: 1024px) {
+            .sf-services-grid {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
           @media (max-width: 768px) {
             .sf-services-grid {
               grid-template-columns: 1fr;
