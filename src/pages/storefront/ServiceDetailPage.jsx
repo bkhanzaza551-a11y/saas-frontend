@@ -34,7 +34,7 @@ export default function ServiceDetailPage() {
   const [allServices, setAllServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStaff, setSelectedStaff] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [selectedTime, setSelectedTime] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
   const [checkingSlots, setCheckingSlots] = useState(false);
