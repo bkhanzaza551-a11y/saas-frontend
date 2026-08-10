@@ -624,7 +624,6 @@ export default function DemoLeadsPage() {
                 </div>
               </div>
             </div>
-          </div>
         );
       })()}
 
