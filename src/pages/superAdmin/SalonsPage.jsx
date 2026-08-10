@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
@@ -28,14 +28,14 @@ const defaultFlags = {
   auditLogs: true, advancedReports: true, staffRequirements: false, productRequirements: false
 };
 const emptyForm = {
-  name: "", slug: "", businessType: "Salon", email: "", phone: "", address: "",
-  taxRate: 0, trialStartsAt: "", trialEndsAt: "", internalNote: "",
-  ownerName: "", ownerEmail: "", ownerPassword: ""
+  name: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: ""
 };
 
 export default function SalonsPage() {
+  const navigate = useNavigate();
   const { showConfirm } = useAlert();
   const [salons, setSalons] = useState([]);
+  const [plans, setPlans] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const setQuery = (val) => {
@@ -48,7 +48,6 @@ export default function SalonsPage() {
   const [selectedSalon, setSelectedSalon] = useState(null);
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState(emptyForm);
-  const [featureFlags, setFeatureFlags] = useState(defaultFlags);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -65,6 +64,8 @@ export default function SalonsPage() {
         params: { ...(nextQuery ? { q: nextQuery } : {}), ...(nextStatus ? { status: nextStatus } : {}) }
       });
       setSalons(res.data);
+      const plansRes = await api.get("/super-admin/plans");
+      setPlans(plansRes.data);
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not load salons."), success: "" });
     } finally {
@@ -78,7 +79,6 @@ export default function SalonsPage() {
 
   const resetForm = () => {
     setForm(emptyForm);
-    setFeatureFlags(defaultFlags);
     setEditingId("");
     setIsModalOpen(false);
   };
@@ -90,23 +90,15 @@ export default function SalonsPage() {
       return;
     }
     if (!editingId) {
-      const hasAnyOwner = form.ownerName || form.ownerEmail || form.ownerPassword;
-      const hasAllOwner = form.ownerName && form.ownerEmail && form.ownerPassword;
-      if (hasAnyOwner && !hasAllOwner) {
-        setStatus({ error: "Owner name, email, and password are all required. Fill in all three or leave all empty.", success: "" });
+      if (!form.ownerName || !form.ownerEmail || !form.ownerPhone || !form.planId) {
+        setStatus({ error: "All fields are required.", success: "" });
         return;
       }
     }
     setStatus({ error: "", success: "" });
     setSaving(true);
     try {
-      const finalSlug = form.slug?.trim() || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
-      if (finalSlug.length < 2) {
-        setStatus({ error: "Salon name must be at least 2 characters to generate a valid URL slug.", success: "" });
-        setSaving(false);
-        return;
-      }
-      const payload = { ...form, slug: finalSlug, taxRate: Number(form.taxRate || 0), featureFlags };
+      const payload = { ...form };
       if (editingId) {
         await api.patch(`/super-admin/salons/${editingId}`, payload);
         setStatus({ error: "", success: "Salon updated successfully." });
@@ -126,16 +118,7 @@ export default function SalonsPage() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const openDetail = async (salonId) => {
-    setDetailLoading(true);
-    setIsViewModalOpen(true);
-    try {
-      const res = await api.get(`/super-admin/salons/${salonId}`);
-      setSelectedSalon(res.data);
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load salon detail."), success: "" });
-    } finally {
-      setDetailLoading(false);
-    }
+    navigate(`/super-admin/salons/${salonId}`);
   };
 
   const startEdit = async (salon) => {
@@ -145,14 +128,9 @@ export default function SalonsPage() {
       const full = res.data;
       setEditingId(full.id);
       setForm({
-        name: full.name || "", slug: full.slug || "", businessType: full.businessType || "Salon",
-        email: full.email || "", phone: full.phone || "", address: full.address || "",
-        taxRate: Number(full.taxRate || 0),
-        trialStartsAt: full.trialStartsAt ? new Date(full.trialStartsAt).toISOString().slice(0, 10) : "",
-        trialEndsAt: full.trialEndsAt ? new Date(full.trialEndsAt).toISOString().slice(0, 10) : "",
-        internalNote: full.internalNote || "", ownerName: "", ownerEmail: "", ownerPassword: ""
+        name: full.name || "",
+        ownerName: "", ownerEmail: "", ownerPhone: "", planId: ""
       });
-      setFeatureFlags({ ...defaultFlags, ...(full.featureFlags || {}) });
       setIsModalOpen(true);
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not load salon details for editing."), success: "" });
@@ -359,98 +337,39 @@ export default function SalonsPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Salon Name *</span>
-                  <input placeholder="Salon name" value={form.name} required onChange={(e) => {
-                    const val = e.target.value;
-                    setForm({ ...form, name: val, slug: val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "") });
-                  }} />
+                  <input placeholder="Salon name" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>URL Slug *</span>
-                  <input placeholder="salon-slug" value={form.slug} required onChange={(e) => setForm({ ...form, slug: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Business Type</span>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Plan *</span>
                   <CustomSelect 
-                    value={form.businessType} 
-                    onChange={(e) => setForm({ ...form, businessType: e.target.value })}
-                    options={businessTypes.map(t => ({ label: t, value: t }))}
-                    placeholder="Select Business Type"
+                    value={form.planId} 
+                    onChange={(e) => setForm({ ...form, planId: e.target.value })}
+                    options={plans.map(p => ({ label: p.name, value: p.id }))}
+                    placeholder="Select Plan"
                   />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Business Email</span>
-                  <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Business Phone</span>
-                  <IndianPhoneInput 
-                    value={form.phone} 
-                    onChange={(phone) => setForm((prev) => ({ ...prev, phone }))} 
-                    className="indian-phone-field"
-                    style={{ minHeight: 48, borderRadius: 14 }}
-                  />
-                </label>
-
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Tax Rate (%)</span>
-                  <input type="number" min="0" step="0.1" value={form.taxRate} onChange={(e) => setForm({ ...form, taxRate: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Trial Start Date</span>
-                  <input type="date" value={form.trialStartsAt} onChange={(e) => setForm({ ...form, trialStartsAt: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Trial End Date</span>
-                  <input type="date" value={form.trialEndsAt} onChange={(e) => setForm({ ...form, trialEndsAt: e.target.value })} />
-                </label>
-                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Internal Notes</span>
-                  <textarea rows="2" placeholder="Internal notes about client..." value={form.internalNote} onChange={(e) => setForm({ ...form, internalNote: e.target.value })} />
                 </label>
 
                 {!editingId && (
                   <>
                     <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Owner Full Name</span>
-                      <input placeholder="Owner name" value={form.ownerName} onChange={(e) => setForm({ ...form, ownerName: e.target.value })} />
+                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Owner Full Name *</span>
+                      <input placeholder="Owner name" value={form.ownerName} required onChange={(e) => setForm({ ...form, ownerName: e.target.value })} />
                     </label>
                     <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Owner Email</span>
-                      <input type="email" placeholder="Owner email" value={form.ownerEmail} onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })} />
+                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Owner Email *</span>
+                      <input type="email" placeholder="Owner email" value={form.ownerEmail} required onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })} />
                     </label>
                     <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
-                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Owner Password</span>
-                      <input type="password" placeholder="Owner password" value={form.ownerPassword} onChange={(e) => setForm({ ...form, ownerPassword: e.target.value })} />
+                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Owner Phone *</span>
+                      <IndianPhoneInput 
+                        value={form.ownerPhone} 
+                        onChange={(phone) => setForm((prev) => ({ ...prev, ownerPhone: phone }))} 
+                        className="indian-phone-field"
+                        style={{ minHeight: 48, borderRadius: 14 }}
+                      />
                     </label>
                   </>
                 )}
-              </div>
-
-              {/* Feature Flags Selector in Edit Modal */}
-              <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "#0f172a", display: "block" }}>Feature Access Control (Multi-Select)</span>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button type="button" onClick={() => { const all = {}; featureFlagKeys.forEach(k => all[k] = true); setFeatureFlags(all); }} style={{ background: "#10b981", color: "white", border: "none", padding: "4px 12px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}>Select All</button>
-                    <button type="button" onClick={() => { const none = {}; featureFlagKeys.forEach(k => none[k] = false); setFeatureFlags(none); }} style={{ background: "#ef4444", color: "white", border: "none", padding: "4px 12px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}>Clear All</button>
-                  </div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px 14px", background: "#f8fafc", padding: 14, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-                  {featureFlagKeys.map((key) => {
-                    const checked = featureFlags[key] !== false;
-                    return (
-                      <label key={key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#334155", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={(e) => setFeatureFlags(prev => ({ ...prev, [key]: e.target.checked }))}
-                          style={{ width: 16, height: 16, accentColor: "#4f46e5" }}
-                        />
-                        <span style={{ textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, " $1")}</span>
-                      </label>
-                    );
-                  })}
-                </div>
               </div>
 
               <div style={{ marginTop: 8 }}>

@@ -52,6 +52,7 @@ const MarketingHomePage = lazyWithRetry(() => import("./pages/public/MarketingHo
 
 const SuperAdminDashboard = lazyWithRetry(() => import("./pages/superAdmin/Dashboard.jsx"));
 const SuperAdminSalonsPage = lazyWithRetry(() => import("./pages/superAdmin/SalonsPage.jsx"));
+const SuperAdminSalon360ProfilePage = lazyWithRetry(() => import("./pages/superAdmin/Salon360ProfilePage.jsx"));
 const SuperAdminPlansPage = lazyWithRetry(() => import("./pages/superAdmin/PlansPage.jsx"));
 const SuperAdminDemoLeadsPage = lazyWithRetry(() => import("./pages/superAdmin/DemoLeadsPage.jsx"));
 const SuperAdminSubscriptionsPage = lazyWithRetry(() => import("./pages/superAdmin/SubscriptionsPage.jsx"));
@@ -642,6 +643,7 @@ export default function App() {
 
           <Route path="/super-admin/dashboard" element={<SuperAdminRoute pageKey="dashboard" element={<SuperAdminDashboard />} />} />
           <Route path="/super-admin/salons" element={<SuperAdminRoute pageKey="salons" element={<SuperAdminSalonsPage />} />} />
+          <Route path="/super-admin/salons/:id" element={<SuperAdminRoute pageKey="salons" element={<SuperAdminSalon360ProfilePage />} />} />
           <Route path="/super-admin/sales-pipeline" element={<SuperAdminRoute pageKey="sales-pipeline" element={<SuperAdminDemoLeadsPage />} />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />
           
