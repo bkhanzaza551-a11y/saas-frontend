@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { Outlet, Link, useParams, useLocation } from "react-router-dom";
-import { CalendarCheck, Menu, X, MapPin, ArrowRight } from "lucide-react";
+import { CalendarCheck, Menu, X, MapPin, ArrowRight, ChevronDown } from "lucide-react";
 import { api } from "../../api/client";
 import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
 import "../../storefront.css";
@@ -33,6 +33,8 @@ export default function StorefrontLayout() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [pageTransitioning, setPageTransitioning] = useState(false);
+  const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
+  const branchDropdownRef = useRef(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -41,6 +43,16 @@ export default function StorefrontLayout() {
     const timer = setTimeout(() => setPageTransitioning(false), 1500);
     return () => clearTimeout(timer);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (branchDropdownRef.current && !branchDropdownRef.current.contains(event.target)) {
+        setBranchDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -295,16 +307,40 @@ export default function StorefrontLayout() {
               
               <div className="sf-header-actions" style={{ display: "flex", gap: "24px", alignItems: "center" }}>
                 {salon.branches?.length > 0 && (
-                  <select 
-                    value={selectedBranchId} 
-                    onChange={e => setSelectedBranchId(e.target.value)}
-                    style={{ padding: "8px 12px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", outline: "none", cursor: "pointer", fontSize: "0.9rem", fontWeight: "500", fontFamily: 'inherit' }}
-                  >
-                    <option value="">All Branches</option>
-                    {salon.branches.map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
+                  <div ref={branchDropdownRef} style={{ position: "relative" }}>
+                    <button 
+                      onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "100px", outline: "none", cursor: "pointer", fontSize: "0.95rem", fontWeight: 500, fontFamily: 'inherit', color: "var(--text-main)", transition: "all 0.2s" }}
+                    >
+                      <MapPin size={16} color="var(--text-muted)" />
+                      {selectedBranchId ? salon.branches.find(b => b.id === selectedBranchId)?.name || "All Branches" : "All Branches"}
+                      <ChevronDown size={16} color="var(--text-muted)" style={{ transform: branchDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                    </button>
+
+                    {branchDropdownOpen && (
+                      <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 8, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "16px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", minWidth: 200, zIndex: 1000, overflow: "hidden", animation: "slideUpFade 0.2s ease" }}>
+                        <div 
+                          onClick={() => { setSelectedBranchId(""); setBranchDropdownOpen(false); }}
+                          style={{ padding: "12px 16px", cursor: "pointer", transition: "background 0.2s", background: selectedBranchId === "" ? "var(--bg-main)" : "transparent", fontWeight: selectedBranchId === "" ? 600 : 400, color: selectedBranchId === "" ? "var(--text-main)" : "var(--text-muted)", borderBottom: "1px solid var(--border)" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-main)"}
+                          onMouseLeave={e => e.currentTarget.style.background = selectedBranchId === "" ? "var(--bg-main)" : "transparent"}
+                        >
+                          All Branches
+                        </div>
+                        {salon.branches.map(b => (
+                          <div 
+                            key={b.id}
+                            onClick={() => { setSelectedBranchId(b.id); setBranchDropdownOpen(false); }}
+                            style={{ padding: "12px 16px", cursor: "pointer", transition: "background 0.2s", background: selectedBranchId === b.id ? "var(--bg-main)" : "transparent", fontWeight: selectedBranchId === b.id ? 600 : 400, color: selectedBranchId === b.id ? "var(--text-main)" : "var(--text-muted)", borderBottom: "1px solid var(--border)" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "var(--bg-main)"}
+                            onMouseLeave={e => e.currentTarget.style.background = selectedBranchId === b.id ? "var(--bg-main)" : "transparent"}
+                          >
+                            {b.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
                 <Link to={`/site/${slug}/cart`} style={{ position: "relative", padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, color: 'var(--text-main)', textDecoration: 'none' }}>
                   <CalendarCheck size={20} />
