@@ -3,14 +3,10 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Shield, Plus, Pencil, Trash2, Eye, EyeOff, Mail, User } from "lucide-react";
+import { Shield, Plus, Pencil, Trash2, Mail, User, Check, X } from "lucide-react";
 
-const emptyForm = {
-  name: "",
-  email: "",
-  password: "",
-  pagePermissions: []
-};
+const emptyUserForm = { email: "", name: "", adminRoleId: "", department: "" };
+const emptyRoleForm = { name: "", description: "", permissions: [] };
 
 const PAGE_GROUP_LABELS = {
   "Platform": ["dashboard", "salons", "branches", "plans", "subscriptions"],
@@ -19,177 +15,154 @@ const PAGE_GROUP_LABELS = {
 };
 
 export default function StaffManagementPage() {
+  const [activeTab, setActiveTab] = useState("team");
   const [staff, setStaff] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [availablePages, setAvailablePages] = useState([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState("");
   const [status, setStatus] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  const load = async () => {
+  // User Modal State
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [userForm, setUserForm] = useState(emptyUserForm);
+  const [editingUserId, setEditingUserId] = useState("");
+  const [savingUser, setSavingUser] = useState(false);
+
+  // Role Modal State
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [roleForm, setRoleForm] = useState(emptyRoleForm);
+  const [editingRoleId, setEditingRoleId] = useState("");
+  const [savingRole, setSavingRole] = useState(false);
+
+  const loadData = async () => {
     setLoading(true);
     try {
-      const [staffData, pagesData] = await Promise.all([
-        api.get("/super-admin/staff"),
+      const [staffRes, rolesRes, pagesRes] = await Promise.all([
+        api.get("/super-admin/team"),
+        api.get("/super-admin/roles"),
         api.get("/super-admin/available-pages")
       ]);
-      setStaff(staffData.data);
-      setAvailablePages(pagesData.data);
+      setStaff(staffRes.data);
+      setRoles(rolesRes.data);
+      setAvailablePages(pagesRes.data);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load staff."), success: "" });
+      setStatus({ error: formatApiError(err, "Could not load team data."), success: "" });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId("");
-    setIsModalOpen(false);
-    setShowPassword(false);
-  };
-
-  const submit = async (event) => {
-    event.preventDefault();
-    if (!form.name.trim()) {
-      setStatus({ error: "Name is required.", success: "" });
-      return;
-    }
-    if (!editingId && !form.email.trim()) {
-      setStatus({ error: "Email is required.", success: "" });
-      return;
-    }
-    if (!editingId && !form.password.trim()) {
-      setStatus({ error: "Password is required.", success: "" });
-      return;
-    }
-    if (form.pagePermissions.length === 0) {
-      setStatus({ error: "Select at least one page access.", success: "" });
-      return;
-    }
+  // --- USER LOGIC ---
+  const submitUser = async (e) => {
+    e.preventDefault();
+    if (!userForm.name || !userForm.adminRoleId) return setStatus({ error: "Name and Role are required.", success: "" });
+    if (!editingUserId && !userForm.email) return setStatus({ error: "Email is required for new invites.", success: "" });
 
     setStatus({ error: "", success: "" });
-    setSaving(true);
+    setSavingUser(true);
     try {
-      const payload = {
-        name: form.name.trim(),
-        pagePermissions: form.pagePermissions
-      };
-      if (!editingId) {
-        payload.email = form.email.trim();
-        payload.password = form.password;
-      } else if (form.password.trim()) {
-        payload.password = form.password;
-      }
-
-      if (editingId) {
-        await api.patch(`/super-admin/staff/${editingId}`, payload);
-        setStatus({ error: "", success: "Staff updated successfully." });
+      if (editingUserId) {
+        await api.patch(`/super-admin/team/${editingUserId}/role`, { adminRoleId: userForm.adminRoleId });
+        setStatus({ error: "", success: "User updated successfully." });
       } else {
-        await api.post("/super-admin/staff", payload);
-        setStatus({ error: "", success: "Staff created. A password setup email has been sent to " + form.email.trim() + "." });
+        const res = await api.post("/super-admin/team/invite", userForm);
+        setStatus({ error: "", success: "Invite sent successfully. Setup Token (Dev Only): " + res.data.devToken });
       }
-      resetForm();
-      await load();
+      setIsUserModalOpen(false);
+      setUserForm(emptyUserForm);
+      setEditingUserId("");
+      await loadData();
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not save staff member"), success: "" });
+      setStatus({ error: formatApiError(error, "Could not save user"), success: "" });
     } finally {
-      setSaving(false);
+      setSavingUser(false);
     }
   };
 
-  const startEdit = (row) => {
-    setEditingId(row.id);
-    setForm({
-      name: row.name,
-      email: row.email,
-      password: "",
-      pagePermissions: row.pagePermissions || []
-    });
-    setIsModalOpen(true);
-  };
-
-  const deleteStaff = async (id, name) => {
-    if (!window.confirm(`Delete staff "${name}"? This cannot be undone.`)) return;
+  const toggleUserActive = async (id, isActive) => {
     setStatus({ error: "", success: "" });
     try {
-      await api.delete(`/super-admin/staff/${id}`);
-      setStatus({ error: "", success: "Staff deleted." });
-      await load();
-    } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not delete staff member"), success: "" });
-    }
-  };
-
-  const sendVerificationLink = async (email) => {
-    setStatus({ error: "", success: "" });
-    try {
-      const res = await api.post("/auth/forgot-password", { email });
-      setStatus({ error: "", success: res.data.message });
-      if (res.data.verificationLink) {
-        alert(`Verification Link Generated:\n${res.data.verificationLink}`);
-      }
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not send verification link."), success: "" });
-    }
-  };
-
-  const toggleActive = async (id, isActive) => {
-    setStatus({ error: "", success: "" });
-    try {
-      await api.patch(`/super-admin/staff/${id}`, { isActive });
-      setStatus({ error: "", success: `Staff ${isActive ? "activated" : "deactivated"}.` });
-      await load();
+      if (isActive) await api.patch(`/super-admin/team/${id}/activate`);
+      else await api.patch(`/super-admin/team/${id}/deactivate`);
+      setStatus({ error: "", success: `User ${isActive ? "activated" : "deactivated"}.` });
+      await loadData();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not update status"), success: "" });
     }
   };
 
-  const togglePagePermission = (pageKey) => {
-    setForm((prev) => {
-      const current = prev.pagePermissions;
+  // --- ROLE LOGIC ---
+  const toggleRolePermission = (pageKey) => {
+    setRoleForm((prev) => {
+      const current = prev.permissions;
       const next = current.includes(pageKey)
         ? current.filter((p) => p !== pageKey)
         : [...current, pageKey];
-      return { ...prev, pagePermissions: next };
+      return { ...prev, permissions: next };
     });
   };
 
   const toggleGroupPermissions = (pageKeys) => {
-    setForm((prev) => {
-      const allSelected = pageKeys.every((k) => prev.pagePermissions.includes(k));
+    setRoleForm((prev) => {
+      const allSelected = pageKeys.every((k) => prev.permissions.includes(k));
       const next = allSelected
-        ? prev.pagePermissions.filter((k) => !pageKeys.includes(k))
-        : [...new Set([...prev.pagePermissions, ...pageKeys])];
-      return { ...prev, pagePermissions: next };
+        ? prev.permissions.filter((k) => !pageKeys.includes(k))
+        : [...new Set([...prev.permissions, ...pageKeys])];
+      return { ...prev, permissions: next };
     });
   };
 
-  if (loading) {
-    return (
-      <div className="page-shell super-admin-page">
-        <PageLoader title="Loading staff" message="Fetching staff accounts..." />
-      </div>
-    );
-  }
+  const submitRole = async (e) => {
+    e.preventDefault();
+    if (!roleForm.name) return setStatus({ error: "Role name is required.", success: "" });
+
+    setStatus({ error: "", success: "" });
+    setSavingRole(true);
+    try {
+      if (editingRoleId) {
+        await api.patch(`/super-admin/roles/${editingRoleId}`, roleForm);
+        setStatus({ error: "", success: "Role updated successfully." });
+      } else {
+        await api.post("/super-admin/roles", roleForm);
+        setStatus({ error: "", success: "Role created successfully." });
+      }
+      setIsRoleModalOpen(false);
+      setRoleForm(emptyRoleForm);
+      setEditingRoleId("");
+      await loadData();
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Could not save role"), success: "" });
+    } finally {
+      setSavingRole(false);
+    }
+  };
+
+  const deleteRole = async (id, name) => {
+    if (!window.confirm(`Delete role "${name}"?`)) return;
+    try {
+      await api.delete(`/super-admin/roles/${id}`);
+      setStatus({ error: "", success: "Role deleted." });
+      await loadData();
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Could not delete role"), success: "" });
+    }
+  };
+
+  if (loading) return <div className="page-shell"><PageLoader title="Loading Team" /></div>;
 
   return (
     <div className="page-shell super-admin-page">
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div>
-            <h1 style={{ marginTop: 0 }}>Staff Management</h1>
-            <p style={{ marginBottom: 0 }}>Create and manage staff accounts with specific page access permissions.</p>
+            <h1 style={{ marginTop: 0 }}>Team & Roles</h1>
+            <p style={{ marginBottom: 0 }}>Manage your internal team members and their role-based permissions.</p>
           </div>
           <div className="badge-row">
-            <span className="badge">Total Staff {staff.length}</span>
+            <span className="badge">Team Members: {staff.length}</span>
+            <span className="badge">Roles: {roles.length}</span>
           </div>
         </div>
       </div>
@@ -197,217 +170,196 @@ export default function StaffManagementPage() {
       {status.error && <div className="alert alert-error">{status.error}</div>}
       {status.success && <div className="alert alert-success">{status.success}</div>}
 
-      <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end" }}>
-        <button
-          className="btn btn-primary"
-          onClick={() => { setForm(emptyForm); setEditingId(""); setIsModalOpen(true); }}
+      <div style={{ display: "flex", gap: 16, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+        <button 
+          onClick={() => setActiveTab("team")}
+          style={{ background: "none", border: "none", fontSize: "1rem", fontWeight: 600, color: activeTab === "team" ? "#4f46e5" : "#64748b", cursor: "pointer", borderBottom: activeTab === "team" ? "2px solid #4f46e5" : "none", paddingBottom: 8 }}
         >
-          <Plus size={16} style={{ marginRight: 6 }} />
-          Add Staff
+          Team Members
+        </button>
+        <button 
+          onClick={() => setActiveTab("roles")}
+          style={{ background: "none", border: "none", fontSize: "1rem", fontWeight: 600, color: activeTab === "roles" ? "#4f46e5" : "#64748b", cursor: "pointer", borderBottom: activeTab === "roles" ? "2px solid #4f46e5" : "none", paddingBottom: 8 }}
+        >
+          Roles & Permissions
         </button>
       </div>
 
-      {staff.length === 0 ? (
-        <EmptyState
-          title="No Staff Members"
-          message="Create your first staff account to get started."
-        />
-      ) : (
-        <div className="panel-card" style={{ overflow: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Email</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Created</th>
-                <th style={{ ...thStyle, textAlign: "right" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {staff.map((s) => (
-                <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: "50%",
-                        background: "#f1f5f9",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: "#475569"
-                      }}>
-                        <User size={16} />
+      {activeTab === "team" && (
+        <>
+          <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end" }}>
+            <button className="btn btn-primary" onClick={() => { setUserForm(emptyUserForm); setEditingUserId(""); setIsUserModalOpen(true); }}>
+              <Plus size={16} style={{ marginRight: 6 }} /> Invite Staff
+            </button>
+          </div>
+          {staff.length === 0 ? <EmptyState title="No Team Members" message="Invite someone to join the admin team." /> : (
+            <div className="panel-card" style={{ overflow: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>Name</th>
+                    <th style={thStyle}>Email</th>
+                    <th style={thStyle}>Role</th>
+                    <th style={thStyle}>Status</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {staff.map((s) => (
+                    <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                      <td style={tdStyle}><strong>{s.name}</strong><br/><small>{s.department || "N/A"}</small></td>
+                      <td style={tdStyle}>{s.email}</td>
+                      <td style={tdStyle}>{s.adminRole?.name || "No Role"}</td>
+                      <td style={tdStyle}>
+                        <span style={s.isActive ? badgeStyleActive : badgeStyleInactive}>
+                          {s.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>
+                        <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                          {s.isActive ? (
+                            <button className="btn btn-sm btn-danger-outline" onClick={() => toggleUserActive(s.id, false)}>Deactivate</button>
+                          ) : (
+                            <button className="btn btn-sm btn-outline" onClick={() => toggleUserActive(s.id, true)}>Activate</button>
+                          )}
+                          <button className="btn btn-sm btn-outline" onClick={() => {
+                            setEditingUserId(s.id);
+                            setUserForm({ email: s.email, name: s.name, adminRoleId: s.adminRoleId || "", department: s.department || "" });
+                            setIsUserModalOpen(true);
+                          }}><Pencil size={14}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === "roles" && (
+        <>
+          <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end" }}>
+            <button className="btn btn-primary" onClick={() => { setRoleForm(emptyRoleForm); setEditingRoleId(""); setIsRoleModalOpen(true); }}>
+              <Plus size={16} style={{ marginRight: 6 }} /> Add Role
+            </button>
+          </div>
+          {roles.length === 0 ? <EmptyState title="No Roles" message="Create roles to assign permissions." /> : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+              {roles.map(r => (
+                <div key={r.id} className="panel-card" style={{ padding: 20 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <div>
+                      <h3 style={{ margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: 8 }}>
+                        {r.name} {r.isSystem && <span style={badgeStyleActive}>System</span>}
+                      </h3>
+                      <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>{r.description || "No description"}</p>
+                    </div>
+                    {!r.isSystem && (
+                      <div style={{ display: "flex", gap: 4 }}>
+                        <button className="btn btn-sm btn-outline" onClick={() => {
+                          setEditingRoleId(r.id);
+                          setRoleForm({ name: r.name, description: r.description || "", permissions: Array.isArray(r.permissions) ? r.permissions : [] });
+                          setIsRoleModalOpen(true);
+                        }}><Pencil size={14}/></button>
+                        {r._count?.users === 0 && (
+                          <button className="btn btn-sm btn-danger-outline" onClick={() => deleteRole(r.id, r.name)}><Trash2 size={14}/></button>
+                        )}
                       </div>
-                      <span style={{ fontWeight: 600 }}>{s.name}</span>
-                    </div>
-                  </td>
-                  <td style={tdStyle}>{s.email}</td>
-                  <td style={tdStyle}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{
-                        display: "inline-block", padding: "2px 10px", borderRadius: 12,
-                        fontSize: 12, fontWeight: 600,
-                        background: s.isActive ? "#dcfce7" : "#fee2e2",
-                        color: s.isActive ? "#166534" : "#991b1b"
-                      }}>
-                        {s.isActive ? "Active" : "Inactive"}
-                      </span>
-                      <button
-                        onClick={() => toggleActive(s.id, !s.isActive)}
-                        style={{ padding: "2px 8px", fontSize: 11, fontWeight: 600, borderRadius: 6, border: "1px solid #e2e8f0", background: s.isActive ? "#fef2f2" : "#ecfdf5", color: s.isActive ? "#ef4444" : "#10b981", cursor: "pointer" }}
-                        title={s.isActive ? "Deactivate" : "Activate"}
-                      >
-                        {s.isActive ? "Deactivate" : "Activate"}
-                      </button>
-                    </div>
-                  </td>
-                  <td style={tdStyle}>
-                    {new Date(s.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
-                  </td>
-                  <td style={{ ...tdStyle, textAlign: "right" }}>
-                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                      <button
-                        className="btn btn-sm btn-outline"
-                        onClick={() => sendVerificationLink(s.email)}
-                        title="Send Email Verification Link"
-                      >
-                        <Mail size={14} />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline"
-                        onClick={() => startEdit(s)}
-                        title="Edit"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger-outline"
-                        onClick={() => deleteStaff(s.id, s.name)}
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    )}
+                  </div>
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}>Assigned to <strong>{r._count?.users || 0}</strong> users</span>
+                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}><strong>{(Array.isArray(r.permissions) ? r.permissions.length : 0)}</strong> permissions</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* USER MODAL */}
+      {isUserModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsUserModalOpen(false)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+            <div className="modal-header">
+              <h3>{editingUserId ? "Edit User Role" : "Invite Staff"}</h3>
+              <button className="modal-close-btn" onClick={() => setIsUserModalOpen(false)}>&times;</button>
+            </div>
+            <form onSubmit={submitUser} style={{ padding: 24 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Name *</span>
+                  <input required value={userForm.name} onChange={e => setUserForm({...userForm, name: e.target.value})} className="input-field" disabled={!!editingUserId} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Email *</span>
+                  <input type="email" required={!editingUserId} disabled={!!editingUserId} value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} className="input-field" />
+                  {!editingUserId && <small style={{ color: "#64748b" }}>An invite link will be sent to this email to set a password.</small>}
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Department</span>
+                  <input value={userForm.department} onChange={e => setUserForm({...userForm, department: e.target.value})} className="input-field" />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Assign Role *</span>
+                  <select required value={userForm.adminRoleId} onChange={e => setUserForm({...userForm, adminRoleId: e.target.value})} className="input-field">
+                    <option value="">Select a Role</option>
+                    {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  </select>
+                </label>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
+                <button type="button" className="btn btn-outline" onClick={() => setIsUserModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={savingUser}>{savingUser ? "Saving..." : "Send Invite"}</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={resetForm}>
-          <div
-            className="modal-content-card"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: 600 }}
-          >
+      {/* ROLE MODAL */}
+      {isRoleModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsRoleModalOpen(false)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 700, maxHeight: "90vh", overflow: "auto" }}>
             <div className="modal-header">
-              <h3>{editingId ? "Edit Staff Member" : "Add Staff Member"}</h3>
-              <button type="button" className="modal-close-btn" onClick={resetForm}>&times;</button>
+              <h3>{editingRoleId ? "Edit Role" : "Create Role"}</h3>
+              <button className="modal-close-btn" onClick={() => setIsRoleModalOpen(false)}>&times;</button>
             </div>
-            <form onSubmit={submit} style={{ padding: "0 24px 24px" }}>
+            <form onSubmit={submitRole} style={{ padding: 24 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Name *</span>
-                  <input
-                    placeholder="Staff member name"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    required
-                    style={{ minHeight: 40, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }}
-                  />
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Role Name *</span>
+                  <input required value={roleForm.name} onChange={e => setRoleForm({...roleForm, name: e.target.value})} className="input-field" />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Email *</span>
-                  <input
-                    type="email"
-                    placeholder="email@example.com"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    disabled={!!editingId}
-                    required={!editingId}
-                    style={{ minHeight: 40, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", background: editingId ? "#f8fafc" : "white" }}
-                  />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>
-                    {editingId ? "New Password (leave blank to keep)" : "Password *"}
-                  </span>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder={editingId ? "••••••••" : "Min 6 characters"}
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      required={!editingId}
-                      style={{ minHeight: 40, padding: "8px 12px", paddingRight: 40, borderRadius: 8, border: "1px solid #cbd5e1", width: "100%", boxSizing: "border-box" }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
-                        background: "none", border: "none", cursor: "pointer", color: "#64748b"
-                      }}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Description</span>
+                  <input value={roleForm.description} onChange={e => setRoleForm({...roleForm, description: e.target.value})} className="input-field" />
                 </label>
               </div>
 
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <Shield size={16} style={{ color: "#6366f1" }} />
-                  <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#0f172a" }}>Page Access Permissions *</span>
+                  <span style={{ fontSize: "0.88rem", fontWeight: 700 }}>Role Permissions</span>
                 </div>
-                <p style={{ fontSize: "0.78rem", color: "#64748b", marginBottom: 16 }}>
-                  Select which pages this staff member can access. They will only see these pages in their sidebar.
-                </p>
-
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {Object.entries(PAGE_GROUP_LABELS).map(([group, pageKeys]) => (
                     <div key={group} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden" }}>
-                      <div
-                        onClick={() => toggleGroupPermissions(pageKeys)}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 10, padding: "12px 16px",
-                          background: pageKeys.every((k) => form.pagePermissions.includes(k)) ? "#eef2ff" : "#f8fafc",
-                          borderBottom: "1px solid #e2e8f0", cursor: "pointer", transition: "background 0.2s"
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={pageKeys.every((k) => form.pagePermissions.includes(k))}
-                          onChange={() => toggleGroupPermissions(pageKeys)}
-                          style={{ cursor: "pointer", width: 16, height: 16, accentColor: "#4f46e5" }}
-                        />
-                        <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b" }}>{group}</span>
+                      <div onClick={() => toggleGroupPermissions(pageKeys)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", background: pageKeys.every(k => roleForm.permissions.includes(k)) ? "#eef2ff" : "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                        <input type="checkbox" checked={pageKeys.every(k => roleForm.permissions.includes(k))} readOnly style={{ width: 16, height: 16 }} />
+                        <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>{group}</span>
                       </div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: "16px" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: 16 }}>
                         {pageKeys.map((pk) => {
                           const page = availablePages.find((p) => p.key === pk);
                           if (!page) return null;
-                          const isSelected = form.pagePermissions.includes(pk);
+                          const isSelected = roleForm.permissions.includes(pk);
                           return (
-                            <label
-                              key={pk}
-                              style={{
-                                display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
-                                border: `1px solid ${isSelected ? "#6366f1" : "#cbd5e1"}`,
-                                borderRadius: 20, cursor: "pointer", fontSize: "0.82rem", fontWeight: 500,
-                                background: isSelected ? "#eef2ff" : "white",
-                                color: isSelected ? "#4338ca" : "#475569",
-                                transition: "all 0.2s ease", userSelect: "none"
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() => togglePagePermission(pk)}
-                                style={{ display: "none" }}
-                              />
+                            <label key={pk} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", border: `1px solid ${isSelected ? "#6366f1" : "#cbd5e1"}`, borderRadius: 20, cursor: "pointer", fontSize: "0.82rem", background: isSelected ? "#eef2ff" : "white", color: isSelected ? "#4338ca" : "#475569" }}>
+                              <input type="checkbox" checked={isSelected} onChange={() => toggleRolePermission(pk)} style={{ display: "none" }} />
                               {page.label}
                             </label>
                           );
@@ -418,11 +370,9 @@ export default function StaffManagementPage() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
-                <button type="button" className="btn btn-outline" onClick={resetForm} style={{ minWidth: 100 }}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving} style={{ minWidth: 120 }}>
-                  {saving ? "Saving..." : editingId ? "Update Staff" : "Create Staff"}
-                </button>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
+                <button type="button" className="btn btn-outline" onClick={() => setIsRoleModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={savingRole}>{savingRole ? "Saving..." : "Save Role"}</button>
               </div>
             </form>
           </div>
@@ -432,31 +382,7 @@ export default function StaffManagementPage() {
   );
 }
 
-const thStyle = {
-  textAlign: "left",
-  padding: "12px 16px",
-  fontSize: "0.78rem",
-  fontWeight: 700,
-  color: "#64748b",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  borderBottom: "2px solid #e2e8f0"
-};
-
-const tdStyle = {
-  padding: "12px 16px",
-  fontSize: "0.88rem",
-  color: "#334155",
-  verticalAlign: "middle"
-};
-
-const badgeStyle = {
-  display: "inline-block",
-  padding: "2px 8px",
-  borderRadius: 6,
-  fontSize: "0.72rem",
-  fontWeight: 600,
-  background: "#eef2ff",
-  color: "#4338ca",
-  whiteSpace: "nowrap"
-};
+const thStyle = { textAlign: "left", padding: "12px 16px", fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", borderBottom: "2px solid #e2e8f0" };
+const tdStyle = { padding: "12px 16px", fontSize: "0.88rem", color: "#334155", verticalAlign: "middle" };
+const badgeStyleActive = { display: "inline-block", padding: "2px 8px", borderRadius: 6, fontSize: "0.72rem", fontWeight: 600, background: "#dcfce7", color: "#166534" };
+const badgeStyleInactive = { display: "inline-block", padding: "2px 8px", borderRadius: 6, fontSize: "0.72rem", fontWeight: 600, background: "#fee2e2", color: "#991b1b" };

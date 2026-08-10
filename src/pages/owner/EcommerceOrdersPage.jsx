@@ -85,6 +85,7 @@ export default function EcommerceOrdersPage() {
   const [search, setSearch]   = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [assigningOrder, setAssigningOrder] = useState(null);
 
   const activeTab = useMemo(() => {
     const path = location.pathname;
@@ -482,6 +483,7 @@ export default function EcommerceOrdersPage() {
                   actionLoading={actionLoading}
                   onSelect={() => openDetail(booking)}
                   onAction={doAction}
+                  onAssign={setAssigningOrder}
                 />
               ))}
             </div>
@@ -539,16 +541,25 @@ export default function EcommerceOrdersPage() {
               actionLoading={actionLoading}
               onClose={() => setSelectedBooking(null)}
               onAction={doAction}
+              onAssign={setAssigningOrder}
             />
           )}
         </div>
       </div>
+      
+      {assigningOrder && (
+        <AssignStaffPopup
+          booking={assigningOrder}
+          onClose={() => setAssigningOrder(null)}
+          onSuccess={() => { setAssigningOrder(null); load(); setSelectedBooking(null); }}
+        />
+      )}
     </div>
   );
 }
 
 // ─── BookingCard ──────────────────────────────────────────────────────────────
-function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction }) {
+function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, onAssign }) {
   const sm = STATUS_META[booking.status] || STATUS_META.PENDING;
   const pm = PAYMENT_META[booking.paymentStatus] || PAYMENT_META.PENDING;
   const nextStatus = NEXT_STATUS[booking.status];
@@ -706,16 +717,23 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction })
           style={{ display: "flex", gap: 8 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {nextStatus && booking.status !== "CANCELLED" && (
+          {nextStatus && booking.status !== "CANCELLED" && (booking.source !== "SERVICE_BOOKING" || booking.status === "NEW") && (
             <ActionBtn
               loading={isLoading(nextStatus)}
-              onClick={() => onAction(booking.id, nextStatus)}
+              onClick={() => {
+                if (booking.source === "SERVICE_BOOKING" && booking.status === "NEW") {
+                  onAssign(booking);
+                } else {
+                  onAction(booking.id, nextStatus);
+                }
+              }}
               color="#fff"
               bg="#4f46e5"
               hoverBg="#4338ca"
             >
-              {nextStatus === "CONFIRMED"   ? <><Check size={14} /> Confirm</> :
-               nextStatus === "IN_PROGRESS" ? <><Timer size={14} /> Start Service</> :
+              {booking.source === "SERVICE_BOOKING" && booking.status === "NEW" ? <><Users size={14} /> Assign</> :
+               nextStatus === "ACCEPTED"    ? <><Check size={14} /> Confirm</> :
+               nextStatus === "READY"       ? <><Timer size={14} /> Start Service</> :
                                               <><CheckCircle2 size={14} /> Complete</>}
             </ActionBtn>
           )}
@@ -726,7 +744,7 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction })
 }
 
 // ─── BookingDetailPanel ────────────────────────────────────────────────────
-function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction }) {
+function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction, onAssign }) {
   const sm = STATUS_META[booking.status] || STATUS_META.PENDING;
   const pm = PAYMENT_META[booking.paymentStatus] || PAYMENT_META.PENDING;
   const nextStatus = NEXT_STATUS[booking.status];
@@ -806,7 +824,7 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
       ) : (
         <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
           {/* Action Banner */}
-          {nextStatus && booking.status !== "CANCELLED" && (
+          {nextStatus && booking.status !== "CANCELLED" && (booking.source !== "SERVICE_BOOKING" || booking.status === "NEW") && (
             <div style={{ display: 'flex', gap: 12, padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ background: 'white', padding: 8, borderRadius: 8, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
@@ -819,13 +837,20 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
               </div>
               <ActionBtn
                 loading={isLoading(nextStatus)}
-                onClick={() => onAction(booking.id, nextStatus)}
+                onClick={() => {
+                  if (booking.source === "SERVICE_BOOKING" && booking.status === "NEW") {
+                    onAssign(booking);
+                  } else {
+                    onAction(booking.id, nextStatus);
+                  }
+                }}
                 color="#fff"
                 bg="#4f46e5"
                 hoverBg="#4338ca"
               >
-                {nextStatus === "CONFIRMED"   ? <><Check size={16} /> Confirm Booking</> :
-                 nextStatus === "IN_PROGRESS" ? <><Timer size={16} /> Start Service</> :
+                {booking.source === "SERVICE_BOOKING" && booking.status === "NEW" ? <><Users size={16} /> Assign Staff</> :
+                 nextStatus === "ACCEPTED"    ? <><Check size={16} /> Confirm</> :
+                 nextStatus === "READY"       ? <><Timer size={16} /> Start Service</> :
                                                 <><CheckCircle2 size={16} /> Complete Booking</>}
               </ActionBtn>
             </div>
@@ -981,5 +1006,118 @@ function ActionBtn({ loading, onClick, color, bg, hoverBg, children }) {
     >
       {loading ? "..." : children}
     </button>
+  );
+}
+
+// ─── AssignStaffPopup ────────────────────────────────────────────────────────
+function AssignStaffPopup({ booking, onClose, onSuccess }) {
+  const { selectedBranchId } = useBranch();
+  const [staffList, setStaffList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [assigning, setAssigning] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadStaff() {
+      try {
+        const res = await api.get("/owner/users", { params: { role: 'STAFF', branchId: selectedBranchId } });
+        setStaffList(res.data.users || res.data || []);
+      } catch (err) {
+        setError("Failed to load staff list.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStaff();
+  }, [selectedBranchId]);
+
+  const handleAssign = async () => {
+    if (!selectedStaff) return;
+    setAssigning(true);
+    setError("");
+    try {
+      await api.patch(`/owner/orders/${booking.id}/assign-staff`, { staffUserId: selectedStaff.id });
+      onSuccess();
+    } catch (err) {
+      setError(formatApiError(err, "Failed to assign staff."));
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)" }}>
+      <div style={{ background: "white", borderRadius: 24, width: "100%", maxWidth: 500, overflow: "hidden", display: "flex", flexDirection: "column", maxHeight: "90vh", boxShadow: "0 24px 48px rgba(0,0,0,0.2)" }}>
+        <div style={{ padding: "24px 32px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "#0f172a" }}>Assign Staff</h2>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Booking #{booking.orderNumber}</p>
+          </div>
+          <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}><X size={24} /></button>
+        </div>
+        
+        <div style={{ padding: 32, overflowY: "auto", flex: 1 }}>
+          {error && (
+            <div style={{ padding: 16, background: "#fee2e2", color: "#991b1b", borderRadius: 12, marginBottom: 24, fontSize: 14, display: "flex", gap: 12, alignItems: "center" }}>
+              <AlertTriangle size={18} /> <span>{error}</span>
+            </div>
+          )}
+
+          <div style={{ marginBottom: 24 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1e293b", margin: "0 0 12px" }}>Select Available Staff</h3>
+            {loading ? (
+              <p style={{ color: "#64748b", fontSize: 14 }}>Loading staff...</p>
+            ) : staffList.length === 0 ? (
+              <p style={{ color: "#64748b", fontSize: 14 }}>No staff found for this branch.</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {staffList.map((s) => (
+                  <div 
+                    key={s.id} 
+                    onClick={() => setSelectedStaff(s)}
+                    style={{ 
+                      padding: 16, 
+                      borderRadius: 12, 
+                      border: `2px solid ${selectedStaff?.id === s.id ? "#4f46e5" : "#e2e8f0"}`, 
+                      background: selectedStaff?.id === s.id ? "#eef2ff" : "white",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 600 }}>
+                      {s.user?.name?.charAt(0) || "S"}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, color: "#0f172a", fontSize: 15 }}>{s.user?.name}</div>
+                      <div style={{ color: "#64748b", fontSize: 13 }}>{s.roleTitle || "Staff"}</div>
+                    </div>
+                    {selectedStaff?.id === s.id && (
+                      <CheckCircle2 size={20} color="#4f46e5" style={{ marginLeft: "auto" }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ padding: "20px 32px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "flex-end", gap: 12 }}>
+          <button onClick={onClose} style={{ padding: "12px 24px", borderRadius: 12, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, cursor: "pointer" }}>
+            Cancel
+          </button>
+          <button 
+            disabled={!selectedStaff || assigning} 
+            onClick={handleAssign} 
+            style={{ padding: "12px 24px", borderRadius: 12, border: "none", background: !selectedStaff ? "#94a3b8" : "#4f46e5", color: "white", fontWeight: 600, cursor: !selectedStaff ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8 }}
+          >
+            {assigning ? "Assigning..." : "Assign & Confirm"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
