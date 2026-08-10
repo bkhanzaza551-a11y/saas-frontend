@@ -39,8 +39,7 @@ export default function CheckoutPage() {
     setError("");
     try {
       const customerName = `${form.firstName} ${form.lastName}`.trim();
-      const results = [];
-
+      const promises = [];
       for (const booking of bookings) {
         for (let i = 0; i < booking.qty; i++) {
           const payload = {
@@ -54,10 +53,11 @@ export default function CheckoutPage() {
             note: form.note || undefined,
             paymentMode: form.paymentMode, 
           };
-          const res = await api.post(`/public/salon/${salon.slug}/service-bookings`, payload);
-          results.push(res.data);
+          promises.push(api.post(`/public/salon/${salon.slug}/service-bookings`, payload));
         }
       }
+      const resps = await Promise.all(promises);
+      const results = resps.map(r => r.data);
 
       clearBookings();
       const orderNumber = results[0]?.orderNumber || `BK-${Date.now()}`;
