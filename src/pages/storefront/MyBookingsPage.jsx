@@ -22,7 +22,7 @@ export default function MyBookingsPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.get(`/public/salon/${salon.slug}/track-booking`, { params: { phone } });
+      const res = await api.get(`/public/salon/${salon.slug}/my-bookings`, { params: { phone } });
       // Depending on API, this might return a single booking or array. 
       // Assuming array for "My Bookings" list or we just show a message.
       const data = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);

@@ -43,38 +43,55 @@ export default function BookingConfirmationPage() {
 
   return (
     <div className="storefront-wrapper" style={{ background: 'var(--surface)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px' }}>
-      <div style={{ maxWidth: 700, width: '100%', margin: '0 auto', background: 'var(--bg-main)', padding: '80px 48px', border: '1px solid var(--border)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 700, width: '100%', margin: '0 auto', background: 'var(--bg-main)', padding: '60px 48px', border: '1px solid var(--border)', textAlign: 'center', position: 'relative', overflow: 'hidden', borderRadius: '32px', boxShadow: '0 24px 64px -12px rgba(0,0,0,0.08)' }}>
         
         {/* Decorative Top Accent */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, background: 'var(--accent)' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 8, background: 'linear-gradient(90deg, var(--accent), #eab308, var(--accent))' }} />
 
-        <div style={{ width: 80, height: 80, background: "var(--accent)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 40px", boxShadow: '0 12px 32px rgba(0,0,0,0.1)' }}>
-          <Check size={36} strokeWidth={2.5} />
-        </div>
-        
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3.5rem', margin: '0 0 24px', fontWeight: 500 }}>Reservation Confirmed</h1>
-        
-        {error ? (
-          <p style={{ color: '#be123c', marginBottom: 48, lineHeight: 1.8, fontSize: '1.1rem', background: '#fff1f2', padding: '24px', borderLeft: '4px solid #be123c', fontWeight: 500 }}>{error}</p>
-        ) : (
-          <div style={{ color: 'var(--text-muted)', marginBottom: 60, lineHeight: 1.8, fontSize: '1.1rem', fontWeight: 300 }}>
-            <p style={{ marginBottom: 24 }}>Thank you for your reservation. Your booking reference is <br/><strong style={{ color: 'var(--text-main)', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', display: 'inline-block', marginTop: 12, padding: '8px 24px', border: '1px solid var(--border)', background: 'var(--surface)' }}>{orderNumber}</strong></p>
-            
-            {booking?.startAt && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'var(--surface)', padding: '16px 32px', border: '1px solid var(--border)', marginTop: 8 }}>
-                <CalendarDays size={20} style={{ color: 'var(--accent)' }} />
-                <span>
-                  <strong style={{ color: 'var(--text-main)', fontWeight: 500 }}>{new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</strong> at <strong style={{ color: 'var(--text-main)', fontWeight: 500 }}>{new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</strong>
-                </span>
-              </div>
-            )}
-            <p style={{ marginTop: 40, fontSize: '1rem', borderTop: '1px solid var(--border)', paddingTop: 40 }}>We look forward to seeing you. You can track your booking status anytime using your reference number.</p>
+        <div className="sf-animate" style={{ animationDelay: '0.1s' }}>
+          <div style={{ width: 96, height: 96, background: "linear-gradient(135deg, var(--accent), #eab308)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px", boxShadow: '0 16px 32px rgba(0,0,0,0.1)' }}>
+            <Check size={44} strokeWidth={2.5} />
           </div>
-        )}
+          
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', margin: '0 0 16px', fontWeight: 500, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>Reservation Confirmed</h1>
+          
+          {error ? (
+            <div style={{ marginTop: 32, padding: '24px', borderRadius: '16px', background: '#fff1f2', border: '1px solid #fda4af', color: '#be123c' }}>
+              <p style={{ margin: 0, fontWeight: 500, fontSize: '1.1rem' }}>{error}</p>
+            </div>
+          ) : (
+            <div style={{ marginTop: 24 }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', fontWeight: 300, marginBottom: 40, lineHeight: 1.6 }}>
+                Thank you for your reservation. A confirmation email has been sent to you.
+              </p>
+              
+              <div style={{ background: 'var(--surface)', borderRadius: '24px', border: '1px solid var(--border)', padding: '32px', marginBottom: 48, textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: 24 }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>Booking Reference</span>
+                  <span style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--accent)', background: 'rgba(200, 169, 126, 0.1)', padding: '6px 16px', borderRadius: '100px' }}>{orderNumber}</span>
+                </div>
+                
+                {booking?.startAt && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-main)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
+                      <CalendarDays size={24} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 4 }}>Date & Time</div>
+                      <div style={{ color: 'var(--text-main)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        {new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })} at {new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-        <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to={`/site/${slug}/my-bookings`} className="sf-btn-primary">Track Reservation <ArrowRight size={16} /></Link>
-          <Link to={`/site/${slug}/services`} className="sf-btn-outline">Book Another Service</Link>
+          <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to={`/site/${slug}/my-bookings`} className="sf-btn-primary" style={{ display: 'inline-flex', padding: '16px 36px', borderRadius: '100px' }}>Track Reservation <ArrowRight size={18} style={{ marginLeft: 8 }} /></Link>
+            <Link to={`/site/${slug}/services`} className="sf-btn-outline" style={{ display: 'inline-flex', padding: '16px 36px', borderRadius: '100px' }}>Book Another Service</Link>
+          </div>
         </div>
       </div>
     </div>
