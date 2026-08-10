@@ -147,22 +147,22 @@ export default function CheckoutPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 32 }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>First Name *</label>
-                <input type="text" className="sf-checkout-input" placeholder="Sara" value={form.firstName} onChange={set("firstName")} />
+                <input type="text" className="sf-checkout-input" placeholder="Rohan" value={form.firstName} onChange={set("firstName")} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Last Name</label>
-                <input type="text" className="sf-checkout-input" placeholder="Khan" value={form.lastName} onChange={set("lastName")} />
+                <input type="text" className="sf-checkout-input" placeholder="Sharma" value={form.lastName} onChange={set("lastName")} />
               </div>
             </div>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Phone Number *</label>
-                <input type="tel" className="sf-checkout-input" placeholder="+1 (555) 000-0000" value={form.phone} onChange={set("phone")} />
+                <input type="tel" className="sf-checkout-input" placeholder="+91 98765 43210" value={form.phone} onChange={set("phone")} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Email Address</label>
-                <input type="email" className="sf-checkout-input" placeholder="sara@example.com" value={form.email} onChange={set("email")} />
+                <input type="email" className="sf-checkout-input" placeholder="rohan@example.com" value={form.email} onChange={set("email")} />
               </div>
             </div>
           </div>
