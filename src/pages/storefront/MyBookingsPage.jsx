@@ -39,7 +39,7 @@ export default function MyBookingsPage() {
     <div className="sf-animate" style={{ maxWidth: 800, margin: "100px auto", padding: "0 40px" }}>
       <div style={{ textAlign: "center", marginBottom: 60 }}>
         <h1 style={{ fontSize: "3.5rem", marginBottom: 16 }}>My Bookings</h1>
-        <p style={{ fontSize: "1.2rem", color: "var(--sf-text-muted)" }}>Enter your phone number to track your appointments.</p>
+        <p style={{ fontSize: "1.2rem", color: "var(--text-muted)" }}>Enter your phone number to track your appointments.</p>
       </div>
 
       {!searched ? (
@@ -49,7 +49,7 @@ export default function MyBookingsPage() {
             placeholder="e.g. +1234567890" 
             value={phone}
             onChange={e => setPhone(e.target.value)}
-            style={{ flex: 1, padding: "16px 24px", borderRadius: 100, border: "1px solid var(--sf-border)", fontSize: "1.1rem" }}
+            style={{ flex: 1, padding: "16px 24px", borderRadius: 100, border: "1px solid var(--border)", fontSize: "1.1rem" }}
           />
           <button type="submit" className="sf-btn-dark" disabled={loading}>
             {loading ? "Searching..." : "Find Bookings"}
