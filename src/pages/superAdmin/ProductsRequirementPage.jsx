@@ -209,9 +209,9 @@ export default function SuperAdminProductsRequirementPage() {
                 <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Update Status:</span>
                 <div style={{ display: "flex", background: "#e2e8f0", borderRadius: 8, padding: 4 }}>
                   {[
-                    { val: "OPEN", label: "Open" },
-                    { val: "IN_PROGRESS", label: "In Progress" },
-                    { val: "CLOSED", label: "Closed" }
+                    { val: "PENDING", label: "Pending" },
+                    { val: "APPROVED", label: "Approved" },
+                    { val: "REJECTED", label: "Rejected" }
                   ].map(st => {
                     const isActive = selectedReq.status === st.val;
                     return (

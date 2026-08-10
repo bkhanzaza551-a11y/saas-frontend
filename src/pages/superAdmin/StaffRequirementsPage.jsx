@@ -11,12 +11,6 @@ const statusConfig = {
   CLOSED: { label: "Closed", color: "#10b981", bg: "#d1fae5", icon: CheckCircle }
 };
 
-const urgencyColors = {
-  LOW: "#10b981",
-  MEDIUM: "#f59e0b",
-  HIGH: "#ef4444",
-  URGENT: "#dc2626"
-};
 
 export default function SuperAdminStaffRequirementsPage() {
   const [requirements, setRequirements] = useState([]);
@@ -113,7 +107,6 @@ export default function SuperAdminStaffRequirementsPage() {
                         {req.salon.slug && <span style={{ color: "#94a3b8" }}> ({req.salon.slug})</span>}
                       </p>
                     )}
-                    {req.description && <p style={{ fontSize: 14, color: "#475569", margin: "8px 0" }}>{req.description}</p>}
                     <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginTop: 8 }}>
                       <span>Dept: <b style={{ color: "#334155" }}>{req.department || "N/A"}</b></span>
                       <span>Salary: <b style={{ color: "#334155" }}>{req.salary || "N/A"}</b></span>
@@ -195,27 +188,6 @@ export default function SuperAdminStaffRequirementsPage() {
                 </div>
               </div>
 
-              {selectedReq.description && (
-                <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700 }}>Description</h4>
-                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, fontSize: 14, color: "#334155", lineHeight: 1.6, border: "1px solid #f1f5f9" }}>
-                    {selectedReq.description}
-                  </div>
-                </div>
-              )}
-
-              {selectedReq.skills && (
-                <div>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700 }}>Required Skills</h4>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {selectedReq.skills.split(",").map((skill, i) => (
-                      <span key={i} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1px solid #e2e8f0" }}>
-                        {skill.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer (Action Area) */}

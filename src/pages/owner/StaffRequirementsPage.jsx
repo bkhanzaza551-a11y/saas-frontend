@@ -12,12 +12,6 @@ const statusConfig = {
   CLOSED: { label: "Closed", color: "#10b981", bg: "#d1fae5", icon: CheckCircle }
 };
 
-const urgencyColors = {
-  LOW: "#10b981",
-  MEDIUM: "#f59e0b",
-  HIGH: "#ef4444",
-  URGENT: "#dc2626"
-};
 
 export default function StaffRequirementsPage() {
   const [requirements, setRequirements] = useState([]);
@@ -94,11 +88,7 @@ export default function StaffRequirementsPage() {
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: status.color, background: status.bg }}>
                       <StatusIcon size={12} /> {status.label}
                     </span>
-                    <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, color: urgencyColors[req.urgency] || "#64748b", background: "#f1f5f9" }}>
-                      {req.urgency}
-                    </span>
                   </div>
-                  {req.description && <p style={{ fontSize: 14, color: "#475569", margin: "4px 0 8px" }}>{req.description}</p>}
                   <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap" }}>
                     {req.department && <span>Dept: <b style={{ color: "#334155" }}>{req.department}</b></span>}
                     {req.salary && <span>Salary: <b style={{ color: "#334155" }}>{req.salary}</b></span>}
