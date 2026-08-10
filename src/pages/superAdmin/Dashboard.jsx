@@ -33,8 +33,9 @@ export default function SuperAdminDashboard() {
     { label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons" },
     { label: "New Salons", value: data?.trialSalons || 0, caption: "Recently onboarded", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons" },
     { label: "Suspended", value: data?.suspendedSalons || 0, caption: "Needs follow-up", icon: AlertTriangle, color: "#ef4444", bg: "#fef2f2", path: "/super-admin/salons" },
-    { label: "Demo Leads", value: data?.demoLeadsCount || 0, caption: "Pipeline", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/demo-leads" },
-    { label: "Support Queue", value: data?.supportTicketsCount || 0, caption: "Open tickets", icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets" }
+    { label: "Sales Pipeline", value: data?.demoLeadsCount || 0, caption: "Active leads", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" },
+    { label: "Support Queue", value: data?.supportTicketsCount || 0, caption: "Open tickets", icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets" },
+    { label: "Pending Requests", value: (data?.pendingProductRequests || 0) + (data?.pendingStaffRequests || 0), caption: "Products + Staff", icon: AlertCircle, color: "#8b5cf6", bg: "#f5f3ff", path: "/super-admin/product-requests" }
   ], [data]);
 
   const filteredPayments = useMemo(() => {
@@ -156,6 +157,57 @@ export default function SuperAdminDashboard() {
           <style>{`#fab-menu.show { display: flex !important; }`}</style>
         </div>
       </div>
+
+      {/* Attention Required Section */}
+      {data.attentionRequired && (
+        (data.attentionRequired.expiringSalons?.length > 0 || data.attentionRequired.suspendedCount > 0 || data.attentionRequired.pendingProductRequests > 0 || data.attentionRequired.pendingStaffRequests > 0) && (
+        <div style={{ background: "linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)", border: "1px solid #fed7aa", borderRadius: 16, padding: 24, marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#f97316", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <AlertTriangle size={16} />
+            </div>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#9a3412" }}>Attention Required</h3>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+            {data.attentionRequired.expiringSalons?.length > 0 && (
+              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#c2410c", textTransform: "uppercase", marginBottom: 8 }}>Expiring Soon ({data.attentionRequired.expiringSalons.length})</div>
+                {data.attentionRequired.expiringSalons.slice(0, 3).map((s) => (
+                  <div key={s.salonId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #fef3c7" }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{s.salonName}</span>
+                    <span style={{ fontSize: 11, color: "#d97706", fontWeight: 600 }}>{new Date(s.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                  </div>
+                ))}
+                {data.attentionRequired.expiringSalons.length > 3 && (
+                  <Link to="/super-admin/subscriptions" style={{ fontSize: 12, color: "#7c3aed", fontWeight: 600, textDecoration: "none" }}>+{data.attentionRequired.expiringSalons.length - 3} more →</Link>
+                )}
+              </div>
+            )}
+            {data.attentionRequired.suspendedCount > 0 && (
+              <div onClick={() => navigate("/super-admin/salons")} style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa", cursor: "pointer" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#c2410c", textTransform: "uppercase", marginBottom: 8 }}>Suspended Salons</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#ef4444" }}>{data.attentionRequired.suspendedCount}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>Require action →</div>
+              </div>
+            )}
+            {(data.attentionRequired.pendingProductRequests > 0 || data.attentionRequired.pendingStaffRequests > 0) && (
+              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", marginBottom: 8 }}>Pending Requests</div>
+                <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+                  <div onClick={() => navigate("/super-admin/product-requests")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f5f3ff", borderRadius: 8, cursor: "pointer" }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "#7c3aed" }}>{data.attentionRequired.pendingProductRequests}</div>
+                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Products</div>
+                  </div>
+                  <div onClick={() => navigate("/super-admin/staff-requests")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f0fdf4", borderRadius: 8, cursor: "pointer" }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "#10b981" }}>{data.attentionRequired.pendingStaffRequests}</div>
+                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Staff</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
 
       <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, marginBottom: 32 }}>
         {healthCards.map((card) => {
