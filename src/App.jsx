@@ -191,7 +191,7 @@ const Protected = () => {
           items: [
             can("settings", "edit") && { label: "Website Editor", to: "/admin/website-editor" },
             can("settings", "view") && enabled("catalogAnalytics") && { label: "Website Analytics", to: "/admin/website-analytics" },
-            can("orders", "view") && enabled("onlineOrders") && { label: "Orders", to: "/admin/order-dashboard" },
+            can("orders", "view") && enabled("onlineOrders") && { label: "Bookings", to: "/admin/order-dashboard" },
             { label: "View Live Site", to: `/site/${auth?.membership?.salon?.slug || "demo-salon"}` }
           ].filter(Boolean)
         },
