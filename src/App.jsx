@@ -288,6 +288,7 @@ const Protected = () => {
         { label: "Staff Requests", to: "/super-admin/staff-requests" },
         { label: "Support", to: "/super-admin/support-tickets" },
         { label: "Finance", to: "/super-admin/finance" },
+        { label: "WhatsApp Credits", to: "/super-admin/credits" },
         { label: "Team & Roles", to: "/super-admin/staff" },
         { label: "Platform", to: "/super-admin/settings" }
       ]
@@ -655,6 +656,7 @@ export default function App() {
           <Route path="/super-admin/support-tickets" element={<SuperAdminRoute pageKey="support-tickets" element={<SuperAdminSupportTicketsPage />} />} />
           <Route path="/super-admin/finance" element={<SuperAdminRoute pageKey="finance" element={<SuperAdminFinancialReportsPage />} />} />
           <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />
+          <Route path="/super-admin/credits" element={<SuperAdminRoute pageKey="credits" element={<ManageCreditsPage />} />} />
           <Route path="/super-admin/settings" element={<SuperAdminRoute pageKey="settings" element={<SuperAdminSettingsPage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
