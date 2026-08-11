@@ -51,8 +51,8 @@ export default function OwnerLayout() {
 
   if (maintenance && auth?.user?.systemRole !== "SUPER_ADMIN") {
     return (
-      <div className="page-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
-        <div className="panel-card" style={{ textAlign: "center", maxWidth: 500, margin: "auto" }}>
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "#f8fafc", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="panel-card" style={{ textAlign: "center", maxWidth: 500, margin: "auto", padding: 40, boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }}>
           <h2>Maintenance Mode</h2>
           <p className="muted" style={{ marginBottom: 20 }}>
             The system is currently undergoing scheduled maintenance. Please check back later. We apologize for the inconvenience.
