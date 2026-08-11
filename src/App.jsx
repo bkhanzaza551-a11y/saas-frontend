@@ -121,7 +121,7 @@ const ProductsRequirementPage = lazyWithRetry(() => import("./pages/owner/Produc
 const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffRequirementsPage.jsx"));
 
 const WhatsAppCreditsPage = lazyWithRetry(() => import("./pages/owner/WhatsAppCreditsPage.jsx"));
-const ManageCreditsPage = lazyWithRetry(() => import("./pages/superAdmin/ManageCreditsPage.jsx"));
+import OwnerLayout from "./components/OwnerLayout.jsx";
 
 const RouteFallback = () => {
   const isStorefront = window.location.pathname.startsWith("/site/");
@@ -344,7 +344,7 @@ const Protected = () => {
         <Topbar auth={auth} sidebarExpanded={sidebarExpanded} onToggleSidebar={toggleSidebar} onLogout={logout} />
         <main className="app-main">
           <Suspense fallback={<PageLoader />}>
-            <Outlet />
+            <OwnerLayout />
           </Suspense>
         </main>
       </div>
@@ -368,8 +368,14 @@ const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
 
   const permissions = auth.membership?.permissions || {};
   const featureFlags = auth.membership?.featureFlags || {};
+  const planFlags = auth.membership?.plan?.featureFlags || {};
   const allowed = Array.isArray(permissions[moduleKey]) && permissions[moduleKey].includes(action);
   const enabled = featureKey ? featureFlags[featureKey] !== false : true;
+  const isPlanRestricted = featureKey && auth.membership?.plan && planFlags[featureKey] === false;
+
+  if (isPlanRestricted) {
+    return <AccessNotice title="Upgrade Required" message="This feature is not included in your current subscription plan. Please upgrade to access this module." />;
+  }
 
   if (!enabled) {
     return <AccessNotice title="Module Disabled" message="This module is currently turned off in business settings." />;
