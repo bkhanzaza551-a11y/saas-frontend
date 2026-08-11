@@ -283,6 +283,7 @@ const Protected = () => {
         { label: "Sales Pipeline", to: "/super-admin/sales-pipeline" },
         { label: "Salon Management", to: "/super-admin/salons" },
         { label: "Subscription", to: "/super-admin/subscriptions" },
+        { label: "Plans", to: "/super-admin/plans" },
         { label: "Product Requests", to: "/super-admin/product-requests" },
         { label: "Staff Requests", to: "/super-admin/staff-requests" },
         { label: "Support", to: "/super-admin/support-tickets" },
@@ -647,6 +648,7 @@ export default function App() {
           <Route path="/super-admin/salons/:id" element={<SuperAdminRoute pageKey="salons" element={<SuperAdminSalon360ProfilePage />} />} />
           <Route path="/super-admin/sales-pipeline" element={<SuperAdminRoute pageKey="sales-pipeline" element={<SuperAdminDemoLeadsPage />} />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminRoute pageKey="subscriptions" element={<SuperAdminSubscriptionsPage />} />} />
+          <Route path="/super-admin/plans" element={<SuperAdminRoute pageKey="plans" element={<SuperAdminPlansPage />} />} />
           
           <Route path="/super-admin/product-requests" element={<SuperAdminRoute pageKey="product-requests" element={<SuperAdminProductsRequirementPage />} />} />
           <Route path="/super-admin/staff-requests" element={<SuperAdminRoute pageKey="staff-requests" element={<SuperAdminStaffRequirementsPage />} />} />
