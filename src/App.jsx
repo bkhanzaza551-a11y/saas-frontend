@@ -121,6 +121,7 @@ const ProductsRequirementPage = lazyWithRetry(() => import("./pages/owner/Produc
 const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffRequirementsPage.jsx"));
 
 const WhatsAppCreditsPage = lazyWithRetry(() => import("./pages/owner/WhatsAppCreditsPage.jsx"));
+const ManageCreditsPage = lazyWithRetry(() => import("./pages/superAdmin/ManageCreditsPage.jsx"));
 import OwnerLayout from "./components/OwnerLayout.jsx";
 
 const RouteFallback = () => {
