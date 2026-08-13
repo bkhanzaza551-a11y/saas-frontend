@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Clock, CheckCircle, AlertCircle, ArrowRight, X, ExternalLink, Calendar, Users, Briefcase } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle, X, ExternalLink, Calendar, Users, Briefcase } from "lucide-react";
 
 const statusConfig = {
   OPEN: { label: "Open", color: "#f59e0b", bg: "#fef3c7", icon: Clock },
@@ -11,16 +12,24 @@ const statusConfig = {
   CLOSED: { label: "Closed", color: "#10b981", bg: "#d1fae5", icon: CheckCircle }
 };
 
+const priorityColors = {
+  LOW: "#10b981",
+  MEDIUM: "#f59e0b",
+  HIGH: "#ef4444",
+  URGENT: "#dc2626"
+};
 
 export default function SuperAdminStaffRequirementsPage() {
   const [requirements, setRequirements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filter, setFilter] = useState("ALL");
+  const [searchParams] = useSearchParams();
+  const [filter, setFilter] = useState(searchParams.get("status") || "ALL");
   const [updatingId, setUpdatingId] = useState(null);
   const [selectedReq, setSelectedReq] = useState(null);
+  const [internalNotes, setInternalNotes] = useState("");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -31,20 +40,20 @@ export default function SuperAdminStaffRequirementsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id, status) => {
+  const updateRequirement = async (id, updates) => {
     setUpdatingId(id);
     try {
-      await api.patch(`/super-admin/staff-requirements/${id}`, { status });
+      await api.patch(`/super-admin/staff-requirements/${id}`, updates);
       load();
       if (selectedReq && selectedReq.id === id) {
-        setSelectedReq({ ...selectedReq, status });
+        setSelectedReq({ ...selectedReq, ...updates });
       }
     } catch (err) {
-      alert(formatApiError(err, "Failed to update status"));
+      alert(formatApiError(err, "Failed to update"));
     } finally {
       setUpdatingId(null);
     }
@@ -109,15 +118,18 @@ export default function SuperAdminStaffRequirementsPage() {
                     )}
                     <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginTop: 8 }}>
                       <span>Dept: <b style={{ color: "#334155" }}>{req.department || "N/A"}</b></span>
+                      <span>Position: <b style={{ color: "#334155" }}>{req.position || "N/A"}</b></span>
+                      <span>Staff: <b style={{ color: "#334155" }}>{req.count || 1}</b></span>
                       <span>Salary: <b style={{ color: "#334155" }}>{req.salary || "N/A"}</b></span>
                       <span>Experience: <b style={{ color: "#334155" }}>{req.experience || "N/A"}</b></span>
+                      <span>Priority: <b style={{ color: priorityColors[req.priority] || "#334155" }}>{req.priority}</b></span>
                     </div>
                     <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>
                       Submitted: {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-start" }}>
-                    <button onClick={() => setSelectedReq(req)} style={{
+                    <button onClick={() => { setSelectedReq(req); setInternalNotes(req.internalNotes || ""); }} style={{
                       padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: "1px solid #cbd5e1", cursor: "pointer",
                       background: "#fff", color: "#475569", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s"
                     }}>
@@ -131,13 +143,10 @@ export default function SuperAdminStaffRequirementsPage() {
         </div>
       )}
 
-      {/* View Detail Modal */}
       {selectedReq && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)" }} onClick={() => setSelectedReq(null)} />
-          <div style={{ background: "#fff", width: "100%", maxWidth: 650, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", position: "relative", zIndex: 1, display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
-            
-            {/* Modal Header */}
+          <div style={{ background: "#fff", width: "100%", maxWidth: 700, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", position: "relative", zIndex: 1, display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
             <div style={{ padding: "24px 32px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "#f8fafc", borderRadius: "16px 16px 0 0" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -151,7 +160,7 @@ export default function SuperAdminStaffRequirementsPage() {
                       </span>
                     );
                   })()}
-                    </div>
+                </div>
                 {selectedReq.salon && (
                   <p style={{ margin: 0, fontSize: 14, color: "#64748b", display: "flex", alignItems: "center", gap: 6 }}>
                     <Users size={14} /> Salon: <span style={{ fontWeight: 600, color: "#334155" }}>{selectedReq.salon.name}</span>
@@ -163,7 +172,6 @@ export default function SuperAdminStaffRequirementsPage() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div style={{ padding: "24px 32px", overflowY: "auto", flex: 1 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
                 <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
@@ -172,11 +180,13 @@ export default function SuperAdminStaffRequirementsPage() {
                   </h4>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Department:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.department || "N/A"}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Position:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.position || "N/A"}</span></div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Experience:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.experience || "N/A"}</span></div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Salary Range:</span><span style={{ fontWeight: 600, color: "#10b981", fontSize: 13 }}>{selectedReq.salary || "N/A"}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Staff Needed:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.count || 1}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Shift:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.shift || "N/A"}</span></div>
                   </div>
                 </div>
-
                 <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
                   <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
                     <Calendar size={14} /> Timeline & Info
@@ -184,13 +194,39 @@ export default function SuperAdminStaffRequirementsPage() {
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Submitted On:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{new Date(selectedReq.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span></div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Current Status:</span><span style={{ fontWeight: 600, color: statusConfig[selectedReq.status]?.color || "#0f172a", fontSize: 13 }}>{statusConfig[selectedReq.status]?.label}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Priority:</span><span style={{ fontWeight: 700, color: priorityColors[selectedReq.priority] || "#0f172a", fontSize: 13 }}>{selectedReq.priority}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Branch:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.branch?.name || "All"}</span></div>
                   </div>
                 </div>
               </div>
-
+              {selectedReq.description && (
+                <div style={{ marginBottom: 24 }}>
+                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Description</h4>
+                  <p style={{ margin: 0, fontSize: 14, color: "#475569", lineHeight: 1.6, background: "#f8fafc", padding: 16, borderRadius: 8, border: "1px solid #f1f5f9" }}>{selectedReq.description}</p>
+                </div>
+              )}
+              {selectedReq.skills && (
+                <div style={{ marginBottom: 24 }}>
+                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Required Skills</h4>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {selectedReq.skills.split(",").map((skill, i) => (
+                      <span key={i} style={{ background: "#f1f5f9", color: "#475569", padding: "6px 12px", borderRadius: 100, fontSize: 13, fontWeight: 600 }}>{skill.trim()}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{ marginBottom: 24 }}>
+                <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Internal Notes</h4>
+                <textarea
+                  value={internalNotes}
+                  onChange={e => setInternalNotes(e.target.value)}
+                  placeholder="Add internal notes about this requirement..."
+                  rows={3}
+                  style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
+                />
+              </div>
             </div>
 
-            {/* Modal Footer (Action Area) */}
             <div style={{ padding: "20px 32px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", borderRadius: "0 0 16px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Update Status:</span>
@@ -205,7 +241,7 @@ export default function SuperAdminStaffRequirementsPage() {
                       <button
                         key={st.val}
                         disabled={updatingId === selectedReq.id}
-                        onClick={() => updateStatus(selectedReq.id, st.val)}
+                        onClick={() => updateRequirement(selectedReq.id, { status: st.val })}
                         style={{
                           padding: "6px 12px",
                           border: "none",
@@ -226,14 +262,22 @@ export default function SuperAdminStaffRequirementsPage() {
                 </div>
                 {updatingId === selectedReq.id && <span style={{ fontSize: 12, color: "#3b82f6", fontWeight: 600 }}>Saving...</span>}
               </div>
-              <button onClick={() => setSelectedReq(null)} style={{ padding: "10px 24px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                Close
-              </button>
+              <div style={{ display: "flex", gap: 12 }}>
+                <button
+                  onClick={() => updateRequirement(selectedReq.id, { internalNotes })}
+                  disabled={updatingId === selectedReq.id}
+                  style={{ padding: "10px 24px", background: "#4f46e5", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                >
+                  Save Notes
+                </button>
+                <button onClick={() => setSelectedReq(null)} style={{ padding: "10px 24px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

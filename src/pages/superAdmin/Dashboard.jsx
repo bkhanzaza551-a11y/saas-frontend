@@ -1,26 +1,29 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Building2, CheckCircle, Clock, AlertTriangle, Sparkles, LifeBuoy, Calendar, BarChart3, Users, TrendingUp, IndianRupee, Layers, AlertCircle } from "lucide-react";
+import { Building2, CheckCircle, Clock, AlertTriangle, Sparkles, LifeBuoy, TrendingUp, IndianRupee, Layers, AlertCircle, Activity, Plus, UserPlus, Ticket, FileText } from "lucide-react";
 
 const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
 export default function SuperAdminDashboard() {
+  const { auth } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
-  const [period, setPeriod] = useState("all");
+  const [period, setPeriod] = useState("lifetime");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   const fetchDashboard = useCallback(() => {
     setError("");
     const params = { period };
-    if (period === "custom" && dateFrom) params.dateFrom = dateFrom;
-    if (period === "custom" && dateTo) params.dateTo = dateTo;
+    if (period === "custom") {
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+    }
     api.get("/super-admin/dashboard", { params })
       .then((res) => setData(res.data))
       .catch((err) => setError(err?.response?.data?.message || "Could not load dashboard."));
@@ -28,30 +31,32 @@ export default function SuperAdminDashboard() {
 
   useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
 
+  const totalPendingRequests = (data?.pendingProductRequests || 0) + (data?.pendingStaffRequests || 0);
+
+  const roleName = (auth?.user?.adminRole?.name || "Master Admin").toLowerCase();
+  const roleConfig = useMemo(() => {
+    if (roleName.includes("sales")) return { kpis: ["Total Salons", "Active Salons", "Trial Salons", "Leads"], revenue: false, subs: false, salons: true, payments: false, activity: true, pending: false, attention: true };
+    if (roleName.includes("support")) return { kpis: ["Total Salons", "Open Support Tickets", "Pending Requests"], revenue: false, subs: false, salons: true, payments: false, activity: true, pending: true, attention: true };
+    if (roleName.includes("operation")) return { kpis: ["Total Salons", "Active Salons", "Trial Salons", "Pending Requests"], revenue: false, subs: false, salons: true, payments: false, activity: true, pending: true, attention: true };
+    if (roleName.includes("finance")) return { kpis: ["Total Salons", "Active Salons", "Trial Salons", "Open Support Tickets"], revenue: true, subs: true, salons: true, payments: true, activity: false, pending: false, attention: true };
+    return { kpis: null, revenue: true, subs: true, salons: true, payments: true, activity: true, pending: true, attention: true };
+  }, [roleName]);
+
   const healthCards = useMemo(() => [
     { label: "Total Salons", value: data?.totalSalons || 0, caption: "All tenants", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" },
-    { label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons" },
-    { label: "New Salons", value: data?.trialSalons || 0, caption: "Recently onboarded", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons" },
-    { label: "Suspended", value: data?.suspendedSalons || 0, caption: "Needs follow-up", icon: AlertTriangle, color: "#ef4444", bg: "#fef2f2", path: "/super-admin/salons" },
-    { label: "Sales Pipeline", value: data?.demoLeadsCount || 0, caption: "Active leads", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" },
-    { label: "Support Queue", value: data?.supportTicketsCount || 0, caption: "Open tickets", icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets" },
-    { label: "Pending Requests", value: (data?.pendingProductRequests || 0) + (data?.pendingStaffRequests || 0), caption: "Products + Staff", icon: AlertCircle, color: "#8b5cf6", bg: "#f5f3ff", path: "/super-admin/product-requests" }
-  ], [data]);
+    { label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons?status=ACTIVE" },
+    { label: "Trial Salons", value: data?.trialSalons || 0, caption: "Recently onboarded", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons?status=TRIAL" },
+    { label: "Leads", value: data?.activeDemoLeads ?? data?.demoLeadsCount ?? 0, caption: "Active leads", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" },
+    { label: "Open Support Tickets", value: data?.supportTicketsCount || 0, caption: "Open + In progress", icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets?status=OPEN" },
+    { label: "Pending Requests", value: totalPendingRequests, caption: `${data?.pendingProductRequests || 0} products + ${data?.pendingStaffRequests || 0} staff`, icon: AlertCircle, color: "#8b5cf6", bg: "#f5f3ff", path: "/super-admin/product-requests?status=PENDING" }
+  ], [data, totalPendingRequests]);
 
-  const filteredPayments = useMemo(() => {
-    if (!data?.recentPayments) return [];
-    if (!search.trim()) return data.recentPayments;
-    const q = search.toLowerCase();
-    return data.recentPayments.filter((p) =>
-      (p.mode || "").toLowerCase().includes(q) ||
-      String(p.amount || "").includes(q)
-    );
-  }, [data, search]);
+  const visibleCards = roleConfig.kpis ? healthCards.filter((c) => roleConfig.kpis.includes(c.label)) : healthCards;
 
   const periodOptions = [
-    { value: "all", label: "ALL" },
+    { value: "lifetime", label: "Lifetime" },
     { value: "today", label: "Today" },
-    { value: "month", label: "Month" },
+    { value: "month", label: "This Month" },
     { value: "custom", label: "Custom" }
   ];
 
@@ -71,7 +76,8 @@ export default function SuperAdminDashboard() {
 
   const plans = data.activePlansSummary || [];
   const salons = data.recentSalons || [];
-  const payments = filteredPayments;
+  const payments = data.recentPayments || [];
+  const subStatus = data.subscriptionStatusSummary || {};
 
   return (
     <div className="page-shell super-admin-page">
@@ -127,15 +133,6 @@ export default function SuperAdminDashboard() {
             )}
           </div>
         </div>
-        <div className="inline-actions" style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-          <input
-            type="text"
-            placeholder="Search payments..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", width: 220, background: "white" }}
-          />
-        </div>
       </div>
       
       {/* Floating Action Button */}
@@ -144,23 +141,29 @@ export default function SuperAdminDashboard() {
           <button 
             type="button"
             onClick={() => document.getElementById("fab-menu").classList.toggle("show")}
-            style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontSize: 32, border: "none", boxShadow: "0 10px 25px rgba(79, 70, 229, 0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontSize: 28, border: "none", boxShadow: "0 10px 25px rgba(79, 70, 229, 0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
-            +
+            <Plus size={26} />
           </button>
-          <div id="fab-menu" style={{ position: "absolute", bottom: 70, right: 0, background: "white", borderRadius: 12, boxShadow: "0 10px 25px rgba(0,0,0,0.1)", display: "none", flexDirection: "column", minWidth: 200, overflow: "hidden", border: "1px solid #e2e8f0" }}>
-            <Link to="/super-admin/salons" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9" }}>🏢 Create Salon</Link>
-            <Link to="/super-admin/demo-leads" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9" }}>✨ Add Lead</Link>
-            <Link to="/super-admin/plans" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9" }}>📋 Create Plan</Link>
-            <Link to="/super-admin/team" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14 }}>👤 New Staff User</Link>
+          <div id="fab-menu" style={{ position: "absolute", bottom: 70, right: 0, background: "white", borderRadius: 12, boxShadow: "0 10px 25px rgba(0,0,0,0.1)", display: "none", flexDirection: "column", minWidth: 220, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+            <Link to="/super-admin/salons" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 10 }}><Building2 size={16} color="#4f46e5" /> Add Salon</Link>
+            <Link to="/super-admin/sales-pipeline" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 10 }}><UserPlus size={16} color="#06b6d4" /> Add Lead</Link>
+            <Link to="/super-admin/support-tickets?new=true" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 10 }}><Ticket size={16} color="#ec4899" /> Create Support Ticket</Link>
+            <Link to="/super-admin/plans" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, display: "flex", alignItems: "center", gap: 10 }}><FileText size={16} color="#8b5cf6" /> Create Plan</Link>
           </div>
           <style>{`#fab-menu.show { display: flex !important; }`}</style>
         </div>
       </div>
 
       {/* Attention Required Section */}
-      {data.attentionRequired && (
-        (data.attentionRequired.expiringSalons?.length > 0 || data.attentionRequired.suspendedCount > 0 || data.attentionRequired.pendingProductRequests > 0 || data.attentionRequired.pendingStaffRequests > 0) && (
+      {roleConfig.attention && data.attentionRequired && (
+        data.attentionRequired.expiringSalons?.length > 0 || 
+        data.attentionRequired.suspendedCount > 0 || 
+        data.attentionRequired.pendingProductRequests > 0 || 
+        data.attentionRequired.pendingStaffRequests > 0 ||
+        data.attentionRequired.urgentTickets?.length > 0 ||
+        data.attentionRequired.pendingPayments?.length > 0
+      ) && (
         <div style={{ background: "linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)", border: "1px solid #fed7aa", borderRadius: 16, padding: 24, marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, background: "#f97316", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -184,7 +187,7 @@ export default function SuperAdminDashboard() {
               </div>
             )}
             {data.attentionRequired.suspendedCount > 0 && (
-              <div onClick={() => navigate("/super-admin/salons")} style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa", cursor: "pointer" }}>
+              <div onClick={() => navigate("/super-admin/salons?status=SUSPENDED")} style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa", cursor: "pointer" }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: "#c2410c", textTransform: "uppercase", marginBottom: 8 }}>Suspended Salons</div>
                 <div style={{ fontSize: 28, fontWeight: 800, color: "#ef4444" }}>{data.attentionRequired.suspendedCount}</div>
                 <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>Require action →</div>
@@ -194,23 +197,45 @@ export default function SuperAdminDashboard() {
               <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa" }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", marginBottom: 8 }}>Pending Requests</div>
                 <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-                  <div onClick={() => navigate("/super-admin/product-requests")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f5f3ff", borderRadius: 8, cursor: "pointer" }}>
+                  <div onClick={() => navigate("/super-admin/product-requests?status=PENDING")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f5f3ff", borderRadius: 8, cursor: "pointer" }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: "#7c3aed" }}>{data.attentionRequired.pendingProductRequests}</div>
                     <div style={{ fontSize: 11, color: "#94a3b8" }}>Products</div>
                   </div>
-                  <div onClick={() => navigate("/super-admin/staff-requests")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f0fdf4", borderRadius: 8, cursor: "pointer" }}>
+                  <div onClick={() => navigate("/super-admin/staff-requests?status=OPEN")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f0fdf4", borderRadius: 8, cursor: "pointer" }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: "#10b981" }}>{data.attentionRequired.pendingStaffRequests}</div>
                     <div style={{ fontSize: 11, color: "#94a3b8" }}>Staff</div>
                   </div>
                 </div>
               </div>
             )}
+            {data.attentionRequired.urgentTickets?.length > 0 && (
+              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fca5a5" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#b91c1c", textTransform: "uppercase", marginBottom: 8 }}>Urgent Tickets ({data.attentionRequired.urgentTickets.length})</div>
+                {data.attentionRequired.urgentTickets.slice(0, 3).map((t) => (
+                  <div key={t.id} onClick={() => navigate("/super-admin/support-tickets?status=OPEN")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #fee2e2", cursor: "pointer" }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{t.salon?.name || "Global"}</span>
+                    <span style={{ fontSize: 11, color: "#b91c1c", fontWeight: 700 }}>{t.priority}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {data.attentionRequired.pendingPayments?.length > 0 && (
+              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fcd34d" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#b45309", textTransform: "uppercase", marginBottom: 8 }}>Overdue Payments ({data.attentionRequired.pendingPayments.length})</div>
+                {data.attentionRequired.pendingPayments.slice(0, 3).map((p) => (
+                  <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #fef3c7" }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{p.salon?.name}</span>
+                    <span style={{ fontSize: 11, color: "#d97706", fontWeight: 700 }}>₹{fmt(p.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      ))}
+      )}
 
       <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, marginBottom: 32 }}>
-        {healthCards.map((card) => {
+        {visibleCards.map((card) => {
           const Icon = card.icon;
           return (
             <div 
@@ -234,28 +259,41 @@ export default function SuperAdminDashboard() {
         })}
       </div>
 
-      <div className="two-col">
+      {(roleConfig.revenue || roleConfig.subs) && (
+        <div className="two-col">
         <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue</h3>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#f5f3ff", padding: "4px 10px", borderRadius: 100 }}>SaaS Health</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
-              <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                <TrendingUp size={16} /> Monthly Recurring (MRR)
-              </span>
-              <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.monthlySubscriptionRevenue)}</div>
-            </div>
-            <div style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
-              <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                <IndianRupee size={16} /> Total Collected Revenue
-              </span>
-              <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.totalSubscriptionRevenue)}</div>
-            </div>
-          </div>
+          {roleConfig.revenue && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue</h3>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#f5f3ff", padding: "4px 10px", borderRadius: 100 }}>SaaS Health</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                <div style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                    <TrendingUp size={16} /> Monthly Recurring (MRR)
+                  </span>
+                  <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.monthlySubscriptionRevenue)}</div>
+                </div>
+                <div style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                    <IndianRupee size={16} /> Collected Revenue
+                  </span>
+                  <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.totalSubscriptionRevenue)}</div>
+                </div>
+                <div style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                    <Clock size={16} /> Pending Collection
+                  </span>
+                  <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.pendingSubscriptionRevenue)}</div>
+                </div>
+              </div>
+            </>
+          )}
+          {roleConfig.subs && (
           <div style={{ display: "flex", gap: 12, marginTop: 24, padding: "16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ width: 40, height: 40, borderRadius: 10, background: "#e0e7ff", color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -272,37 +310,73 @@ export default function SuperAdminDashboard() {
                 <AlertCircle size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Expired Salons</div>
-                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>{data.expiredSalons || 0}</div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Expired Subscriptions</div>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>{subStatus.expired ?? data.expiredSubscriptionsSummary ?? 0}</div>
               </div>
             </div>
           </div>
+          )}
         </div>
 
+        {roleConfig.subs && (
         <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Active Plans</h3>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10b981", background: "#ecfdf5", padding: "4px 10px", borderRadius: 100 }}>{plans.length} Live</span>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Subscriptions</h3>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10b981", background: "#ecfdf5", padding: "4px 10px", borderRadius: 100 }}>{plans.length} Plans</span>
           </div>
-          <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "350px", overflowY: "auto", paddingRight: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+            <div onClick={() => navigate("/super-admin/subscriptions?status=ACTIVE")} style={{ background: "#ecfdf5", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #a7f3d0" }}>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#065f46" }}>{subStatus.active ?? 0}</div>
+              <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#047857", textTransform: "uppercase" }}>Active</div>
+            </div>
+            <div onClick={() => navigate("/super-admin/subscriptions?status=TRIAL")} style={{ background: "#fffbeb", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fde68a" }}>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#92400e" }}>{subStatus.trial ?? 0}</div>
+              <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#b45309", textTransform: "uppercase" }}>Trial</div>
+            </div>
+            <div onClick={() => navigate("/super-admin/subscriptions")} style={{ background: "#fff7ed", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fed7aa" }}>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#9a3412" }}>{subStatus.expiringSoon ?? 0}</div>
+              <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#c2410c", textTransform: "uppercase" }}>Expiring Soon</div>
+            </div>
+            <div onClick={() => navigate("/super-admin/subscriptions?status=EXPIRED")} style={{ background: "#fef2f2", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fecaca" }}>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#991b1b" }}>{subStatus.expired ?? 0}</div>
+              <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#b91c1c", textTransform: "uppercase" }}>Expired</div>
+            </div>
+          </div>
+          <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "300px", overflowY: "auto", paddingRight: 8 }}>
             {plans.length ? plans.map((plan) => (
               <div key={plan.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
                 <div>
                   <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>{plan.name}</div>
                   <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 2 }}>{plan.isCustom ? "Custom Tier" : "Standard Tier"}</div>
                 </div>
-                <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#4f46e5" }}>₹{fmt(plan.monthlyPrice)}<span style={{ fontSize: "0.75rem", fontWeight: 500, color: "#64748b" }}>/mo</span></div>
+                <div style={{ display: "flex", gap: 12, textAlign: "right" }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#10b981" }}>{plan.activeCount}</div>
+                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Active</div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#f59e0b" }}>{plan.trialCount}</div>
+                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Trial</div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#c2410c" }}>{plan.expiringCount}</div>
+                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Expiring</div>
+                  </div>
+                </div>
               </div>
             )) : <EmptyState title="No active plans" message="Create plans to see them here." />}
           </div>
         </div>
+        )}
       </div>
+      )}
 
       <div className="two-col" style={{ marginTop: 20 }}>
+        {roleConfig.salons && (
         <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Salons</h3>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0d9488", background: "#f0fdfa", padding: "4px 10px", borderRadius: 100 }}>Newest</span>
+            <Link to="/super-admin/salons" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>View All →</Link>
           </div>
           <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
             {salons.length ? salons.map((salon) => (
@@ -320,13 +394,13 @@ export default function SuperAdminDashboard() {
                   <span style={{ 
                     fontSize: "0.7rem", 
                     fontWeight: 750, 
-                    color: salon.status === "ACTIVE" ? "#065f46" : "#991b1b", 
-                    background: salon.status === "ACTIVE" ? "#d1fae5" : "#fee2e2", 
+                    color: salon.status === "ACTIVE" ? "#065f46" : salon.status === "TRIAL" ? "#92400e" : "#991b1b", 
+                    background: salon.status === "ACTIVE" ? "#d1fae5" : salon.status === "TRIAL" ? "#fef3c7" : "#fee2e2", 
                     padding: "4px 10px", 
                     borderRadius: 100,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
-                    border: `1px solid ${salon.status === "ACTIVE" ? "#a7f3d0" : "#fecaca"}`
+                    border: `1px solid ${salon.status === "ACTIVE" ? "#a7f3d0" : salon.status === "TRIAL" ? "#fde68a" : "#fecaca"}`
                   }}>
                     {salon.status}
                   </span>
@@ -335,11 +409,13 @@ export default function SuperAdminDashboard() {
             )) : <EmptyState title="No recent salons" message="New signups appear here." />}
           </div>
         </div>
+        )}
 
+        {roleConfig.payments && (
         <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Payments</h3>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#06b6d4", background: "#ecfeff", padding: "4px 10px", borderRadius: 100 }}>Collections</span>
+            <Link to="/super-admin/finance" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>View All →</Link>
           </div>
           <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
             {payments.length ? payments.map((payment) => (
@@ -371,6 +447,31 @@ export default function SuperAdminDashboard() {
             )) : <EmptyState title="No recent payments" message="Payment entries appear here." />}
           </div>
         </div>
+        )}
+        {roleConfig.activity && (
+        <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Activity</h3>
+            <Link to="/super-admin/audit-logs" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>Audit Log →</Link>
+          </div>
+          <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
+            {data.recentActivity?.length ? data.recentActivity.map((log) => (
+              <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(139, 92, 246, 0.2)" }}>
+                    <Activity size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{log.action}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{log.summary || log.module}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8" }}>{new Date(log.createdAt).toLocaleDateString()}</div>
+              </div>
+            )) : <EmptyState title="No activity" message="System events appear here." />}
+          </div>
+        </div>
+        )}
       </div>
     </div>
   );

@@ -1,439 +1,384 @@
-import { useEffect, useMemo, useState } from "react";
-import { Trash2, Edit2, Plus, CheckCircle2, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Archive, ArchiveRestore, Edit2, Plus, CheckCircle2, XCircle, Users, AlertTriangle, Star } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 
-const defaultFeatureFlags = {
-  pos: true,
-  appointments: true,
-  inventory: true,
-  crm: true,
-  campaigns: true,
-  campaignTemplates: true,
-  campaignAnalytics: true,
-  ecommerce: true,
-  digitalCatalog: true,
-  catalogAnalytics: true,
-  feedback: true,
-  reports: true,
-  memberships: true,
-  packages: true,
-  loyalty: true,
-  couponsGiftCards: true,
-  whatsapp: true,
-  enquiries: true,
-  expenses: true,
-  attendance: true,
-  leaves: true,
-  payroll: true,
-  incentives: true,
-  customerPortal: true,
-  publicCatalog: true,
-  onlineOrders: true,
-  messageTemplates: true,
-  notifications: true,
-  auditLogs: true,
-  advancedReports: true
+const FEATURE_CATEGORIES = [
+  {
+    label: "Core",
+    flags: ["pos", "appointments", "inventory", "crm", "reports", "advancedReports"]
+  },
+  {
+    label: "Sales & Marketing",
+    flags: ["campaigns", "campaignTemplates", "campaignAnalytics", "loyalty", "couponsGiftCards", "whatsapp", "messageTemplates", "enquiries"]
+  },
+  {
+    label: "Online Business",
+    flags: ["ecommerce", "digitalCatalog", "catalogAnalytics", "publicCatalog", "onlineOrders", "customerPortal"]
+  },
+  {
+    label: "Staff",
+    flags: ["attendance", "leaves", "payroll", "incentives", "memberships", "packages"]
+  },
+  {
+    label: "System",
+    flags: ["expenses", "feedback", "notifications", "auditLogs"]
+  }
+];
+
+const ALL_FLAGS = FEATURE_CATEGORIES.flatMap(c => c.flags);
+const FLAG_LABELS = {
+  pos: "Point of Sale", appointments: "Appointments", inventory: "Inventory", crm: "CRM",
+  reports: "Reports", advancedReports: "Advanced Reports", campaigns: "Campaigns",
+  campaignTemplates: "Campaign Templates", campaignAnalytics: "Campaign Analytics",
+  loyalty: "Loyalty Program", couponsGiftCards: "Coupons & Gift Cards", whatsapp: "WhatsApp",
+  messageTemplates: "Message Templates", enquiries: "Enquiries", ecommerce: "E-Commerce",
+  digitalCatalog: "Digital Catalog", catalogAnalytics: "Catalog Analytics",
+  publicCatalog: "Public Catalog", onlineOrders: "Online Orders", customerPortal: "Customer Portal",
+  attendance: "Attendance", leaves: "Leaves", payroll: "Payroll", incentives: "Incentives",
+  memberships: "Memberships", packages: "Packages", expenses: "Expenses", feedback: "Feedback",
+  notifications: "Notifications", auditLogs: "Audit Logs"
 };
 
+const defaultFeatureFlags = {};
+ALL_FLAGS.forEach(f => { defaultFeatureFlags[f] = true; });
+
 const emptyForm = {
-  name: "",
-  monthlyPrice: 0,
-  yearlyPrice: 0,
-  trialDays: 0,
-  branchLimit: 1,
-  userLimit: 5,
-  customerLimit: 500,
-  invoiceLimit: 1000,
-  storageLimit: 5,
-  isCustom: false,
-  isPopular: false,
-  featureFlags: defaultFeatureFlags
+  name: "", monthlyPrice: 0, yearlyPrice: 0, trialDays: 14,
+  branchLimit: 1, userLimit: 5, customerLimit: 500, invoiceLimit: 1000, storageLimit: 0,
+  isCustom: false, isPopular: false, featureFlags: { ...defaultFeatureFlags }
 };
 
 export default function PlansPage() {
-  const { showAlert, showConfirm } = useAlert();
-  const [rows, setRows] = useState([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState("");
-  const [status, setStatus] = useState({ error: "", success: "" });
+  const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState({ error: "", success: "" });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState("");
+  const [form, setForm] = useState(emptyForm);
+  const [confirmArchive, setConfirmArchive] = useState(null);
+  const { showConfirm } = useAlert();
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = (await api.get("/super-admin/plans")).data;
-      setRows(data);
+      const res = await api.get("/super-admin/plans");
+      setPlans(res.data);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load plans."), success: "" });
+      setStatus({ error: formatApiError(err, "Could not load plans"), success: "" });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    let active = true;
-    load().then(() => {}).catch(() => {});
-    return () => { active = false; };
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  const summary = useMemo(() => ({
-    total: rows.length,
-    custom: rows.filter((row) => row.isCustom).length,
-    standard: rows.filter((row) => !row.isCustom).length
-  }), [rows]);
-
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId("");
-    setIsModalOpen(false);
+  const openCreate = () => { setEditingId(""); setForm(emptyForm); setIsModalOpen(true); };
+  const openEdit = (p) => {
+    setEditingId(p.id);
+    setForm({
+      name: p.name, monthlyPrice: Number(p.monthlyPrice), yearlyPrice: Number(p.yearlyPrice),
+      trialDays: p.trialDays, branchLimit: p.branchLimit, userLimit: p.userLimit,
+      customerLimit: p.customerLimit, invoiceLimit: p.invoiceLimit, storageLimit: p.storageLimit || 0,
+      isCustom: p.isCustom, isPopular: p.isPopular,
+      featureFlags: { ...defaultFeatureFlags, ...(p.featureFlags || p.features || {}) }
+    });
+    setIsModalOpen(true);
   };
 
-  const submit = async (event) => {
-    event.preventDefault();
-    if (!form.name.trim()) {
-      setStatus({ error: "Plan name is required.", success: "" });
-      return;
-    }
-    setStatus({ error: "", success: "" });
+  const toggleFeature = (key) => {
+    setForm(prev => ({ ...prev, featureFlags: { ...prev.featureFlags, [key]: !prev.featureFlags[key] } }));
+  };
+
+  const toggleCategory = (flags, enable) => {
+    setForm(prev => {
+      const next = { ...prev.featureFlags };
+      flags.forEach(f => { next[f] = enable; });
+      return { ...prev, featureFlags: next };
+    });
+  };
+
+  const savePlan = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) return setStatus({ error: "Plan name is required", success: "" });
     setSaving(true);
+    setStatus({ error: "", success: "" });
     try {
-      const payload = {
-        name: form.name.trim(),
-        monthlyPrice: Number(form.monthlyPrice || 0),
-        yearlyPrice: Number(form.yearlyPrice || 0),
-        trialDays: Number(form.trialDays || 0),
-        branchLimit: Number(form.branchLimit || 1),
-        userLimit: Number(form.userLimit || 0),
-        customerLimit: Number(form.customerLimit || 0),
-        invoiceLimit: Number(form.invoiceLimit || 0),
-        storageLimit: Number(form.storageLimit || 0),
-        isCustom: Boolean(form.isCustom),
-        isPopular: Boolean(form.isPopular),
-        featureFlags: form.featureFlags || defaultFeatureFlags
-      };
       if (editingId) {
-        await api.patch(`/super-admin/plans/${editingId}`, payload);
-        setStatus({ error: "", success: "Plan updated successfully." });
+        await api.patch(`/super-admin/plans/${editingId}`, form);
+        setStatus({ error: "", success: "Plan updated." });
       } else {
-        await api.post("/super-admin/plans", payload);
-        setStatus({ error: "", success: "Plan created successfully." });
+        await api.post("/super-admin/plans", form);
+        setStatus({ error: "", success: "Plan created." });
       }
-      resetForm();
+      setIsModalOpen(false);
       await load();
-    } catch (error) {
-      const status = error?.response?.status;
-      const msg = formatApiError(error, "Could not save plan");
-      const detail = status ? ` (HTTP ${status})` : (error?.message ? ` — ${error.message}` : "");
-      setStatus({ error: msg + detail, success: "" });
+    } catch (err) {
+      const msg = formatApiError(err, "Could not save plan");
+      if (err?.response?.status === 409 && err?.response?.data?.requiresConfirmation && editingId) {
+        const confirmed = await showConfirm(`${err.response.data.message}\n\nProceed anyway?`);
+        if (confirmed) {
+          try {
+            await api.patch(`/super-admin/plans/${editingId}`, { ...form, force: true });
+            setStatus({ error: "", success: "Plan updated (active subscriptions affected)." });
+            setIsModalOpen(false);
+            await load();
+          } catch (e2) { setStatus({ error: formatApiError(e2), success: "" }); }
+        }
+      } else {
+        setStatus({ error: msg, success: "" });
+      }
     } finally {
       setSaving(false);
     }
   };
 
-  const startEdit = (row) => {
-    setEditingId(row.id);
-    setForm({
-      name: row.name,
-      monthlyPrice: Number(row.monthlyPrice || 0),
-      yearlyPrice: Number(row.yearlyPrice || 0),
-      trialDays: Number(row.trialDays || 14),
-      branchLimit: Number(row.branchLimit || 1),
-      userLimit: Number(row.userLimit || 5),
-      customerLimit: Number(row.customerLimit || 500),
-      invoiceLimit: Number(row.invoiceLimit || 1000),
-      storageLimit: Number(row.storageLimit || 5),
-      isCustom: Boolean(row.isCustom),
-      isPopular: Boolean(row.isPopular),
-      featureFlags: row.featureFlags || defaultFeatureFlags
-    });
-    setIsModalOpen(true);
+  const handleArchive = async (plan) => {
+    try {
+      await api.patch(`/super-admin/plans/${plan.id}/archive`);
+      setStatus({ error: "", success: plan.isArchived ? `Plan "${plan.name}" restored.` : `Plan "${plan.name}" archived.` });
+      setConfirmArchive(null);
+      await load();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not archive plan"), success: "" });
+    }
   };
 
-  const deletePlan = async (planId, planName) => {
-    showConfirm(`Delete "${planName}"? This cannot be undone.`, async () => {
-      setStatus({ error: "", success: "" });
-      try {
-        await api.delete(`/super-admin/plans/${planId}`);
-        setStatus({ error: "", success: "Plan deleted." });
-        await load();
-      } catch (error) {
-        setStatus({ error: formatApiError(error, "Could not delete plan"), success: "" });
-      }
-    });
-  };
+  const activePlans = plans.filter(p => !p.isArchived);
+  const archivedPlans = plans.filter(p => p.isArchived);
 
-  const numInput = (key, opts = {}) => ({
-    type: "number",
-    min: opts.min ?? 0,
-    value: form[key] === "" ? "" : form[key],
-    onChange: (e) => setForm({ ...form, [key]: e.target.value === "" ? "" : Number(e.target.value) })
-  });
+  if (loading) return <div className="page-shell"><PageLoader /></div>;
 
   return (
-    <div className="page-shell super-admin-page">
+    <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head">
+        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h1 style={{ marginTop: 0 }}>Plans</h1>
-            <p style={{ marginBottom: 0 }}>Manage pricing tiers, limits, and feature access for every salon subscription.</p>
+            <h1 style={{ marginTop: 0 }}>Plans & Pricing</h1>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Define plans with usage limits and feature access. {activePlans.length} active, {archivedPlans.length} archived.</p>
           </div>
-          <div className="badge-row">
-            <span className="badge">Total {summary.total}</span>
-            <span className="badge">Standard {summary.standard}</span>
-            <span className="badge">Custom {summary.custom}</span>
-          </div>
+          <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+            <Plus size={16} /> New Plan
+          </button>
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={resetForm}>
-          <div className="modal-content-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingId ? "Edit Subscription Plan" : "Add New Subscription Plan"}</h3>
-              <button type="button" className="modal-close-btn" onClick={resetForm}>&times;</button>
+      {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
+      {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
+
+      {activePlans.length === 0 && archivedPlans.length === 0 ? (
+        <EmptyState title="No Plans" message="Create your first plan to get started." />
+      ) : (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
+            {activePlans.map(plan => (
+              <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onArchive={setConfirmArchive} />
+            ))}
+          </div>
+
+          {archivedPlans.length > 0 && (
+            <div style={{ marginTop: 32 }}>
+              <h3 style={{ color: "#94a3b8", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Archived Plans</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16, opacity: 0.6 }}>
+                {archivedPlans.map(plan => (
+                  <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onArchive={setConfirmArchive} />
+                ))}
+              </div>
             </div>
-            <form onSubmit={submit} className="form-grid">
-              <label>
-                <span>Plan Name *</span>
-                <input placeholder="Plan name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-              </label>
-              <label>
-                <span>Monthly Price (INR)</span>
-                <input {...numInput("monthlyPrice")} placeholder="0" />
-              </label>
-              <label>
-                <span>Yearly Price (INR)</span>
-                <input {...numInput("yearlyPrice")} placeholder="0" />
-              </label>
-              <label>
-                <span>Trial Days</span>
-                <input {...numInput("trialDays", { min: 0, max: 90 })} placeholder="0" />
-              </label>
-              <label>
-                <span>Branch Limit</span>
-                <input {...numInput("branchLimit", { min: 1 })} placeholder="1" />
-              </label>
-              <label>
-                <span>User Account Limit</span>
-                <input {...numInput("userLimit")} placeholder="5" />
-              </label>
-              <label>
-                <span>Customer Record Limit</span>
-                <input {...numInput("customerLimit")} placeholder="500" />
-              </label>
-              <label>
-                <span>Monthly Invoice Limit</span>
-                <input {...numInput("invoiceLimit")} placeholder="1000" />
-              </label>
-              <label>
-                <span>Cloud Storage (GB)</span>
-                <input {...numInput("storageLimit")} placeholder="5" />
-              </label>
-              <div style={{ gridColumn: "1 / -1", marginTop: 8 }}>
-                <span style={{ fontSize: "0.88rem", fontWeight: 750, color: "#0f172a", display: "block", marginBottom: 8 }}>Feature Access</span>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                  {Object.keys(defaultFeatureFlags).map((key) => (
-                    <label key={key} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "#475569", cursor: "pointer", padding: "6px 8px", borderRadius: 6, background: form.featureFlags?.[key] ? "#f0fdf4" : "#f8fafc", border: `1px solid ${form.featureFlags?.[key] ? "#bbf7d0" : "#e2e8f0"}` }}>
-                      <input type="checkbox" checked={form.featureFlags?.[key] ?? true} onChange={(e) => setForm({ ...form, featureFlags: { ...form.featureFlags, [key]: e.target.checked } })} style={{ accentColor: "#10b981" }} />
-                      <span>{key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}</span>
+          )}
+        </>
+      )}
+
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 720, maxHeight: "90vh", overflowY: "auto" }}>
+            <div className="modal-header">
+              <h3>{editingId ? "Edit Plan" : "Create New Plan"}</h3>
+              <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
+            </div>
+            <form onSubmit={savePlan} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
+                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Plan Name *</span>
+                  <input placeholder="e.g. Starter, Professional" value={form.name} required onChange={e => setForm({ ...form, name: e.target.value })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Monthly Price (INR) *</span>
+                  <input type="number" min="0" step="100" value={form.monthlyPrice} required onChange={e => setForm({ ...form, monthlyPrice: Number(e.target.value) })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Yearly Price (INR) *</span>
+                  <input type="number" min="0" step="100" value={form.yearlyPrice} required onChange={e => setForm({ ...form, yearlyPrice: Number(e.target.value) })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Trial Days</span>
+                  <input type="number" min="0" value={form.trialDays} onChange={e => setForm({ ...form, trialDays: Number(e.target.value) })} />
+                </label>
+              </div>
+
+              <div>
+                <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", color: "#0f172a" }}>Usage Limits</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+                  {[
+                    { key: "branchLimit", label: "Branches" },
+                    { key: "userLimit", label: "Staff Users" },
+                    { key: "customerLimit", label: "Customers" },
+                    { key: "invoiceLimit", label: "Invoices/mo" },
+                    { key: "storageLimit", label: "Storage (MB)" }
+                  ].map(l => (
+                    <label key={l.key} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b" }}>{l.label}</span>
+                      <input type="number" min="0" value={form[l.key]} onChange={e => setForm({ ...form, [l.key]: Number(e.target.value) })} style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
                     </label>
                   ))}
                 </div>
               </div>
-              <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, marginTop: 8 }}>
-                <div>
-                  <span style={{ fontSize: "0.88rem", fontWeight: 750, color: "#0f172a" }}>Custom Plan</span>
-                  <span style={{ display: "block", fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>Mark this plan as custom (not public)</span>
-                </div>
-                <div 
-                  onClick={() => setForm({ ...form, isCustom: !form.isCustom })}
-                  style={{
-                    width: 44,
-                    height: 24,
-                    borderRadius: 100,
-                    background: form.isCustom ? "#10b981" : "#cbd5e1",
-                    position: "relative",
-                    cursor: "pointer",
-                    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
-                  }}
-                >
-                  <div style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: "50%",
-                    background: "white",
-                    position: "absolute",
-                    top: 3,
-                    left: form.isCustom ? 23 : 3,
-                    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-                  }} />
-                </div>
+
+              <div>
+                <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", color: "#0f172a" }}>Feature Access</h4>
+                {FEATURE_CATEGORIES.map(cat => {
+                  const allEnabled = cat.flags.every(f => form.featureFlags[f]);
+                  const someEnabled = cat.flags.some(f => form.featureFlags[f]);
+                  return (
+                    <div key={cat.label} style={{ marginBottom: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                        <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>{cat.label}</span>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button type="button" onClick={() => toggleCategory(cat.flags, true)} style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, border: "1px solid #e2e8f0", background: allEnabled ? "#f0fdf4" : "#fff", cursor: "pointer", color: "#16a34a" }}>All</button>
+                          <button type="button" onClick={() => toggleCategory(cat.flags, false)} style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, border: "1px solid #e2e8f0", background: !someEnabled ? "#fef2f2" : "#fff", cursor: "pointer", color: "#ef4444" }}>None</button>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {cat.flags.map(f => (
+                          <button key={f} type="button" onClick={() => toggleFeature(f)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, border: `1px solid ${form.featureFlags[f] ? "#bbf7d0" : "#fecaca"}`, background: form.featureFlags[f] ? "#f0fdf4" : "#fef2f2", cursor: "pointer", fontSize: 12, fontWeight: 500, color: form.featureFlags[f] ? "#166534" : "#991b1b" }}>
+                            {form.featureFlags[f] ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                            {FLAG_LABELS[f] || f}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, marginTop: 4 }}>
-                <div>
-                  <span style={{ fontSize: "0.88rem", fontWeight: 750, color: "#0f172a" }}>Most Popular Plan</span>
-                  <span style={{ display: "block", fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>Highlight this plan with a "Most Popular" badge on public site</span>
-                </div>
-                <div 
-                  onClick={() => setForm({ ...form, isPopular: !form.isPopular })}
-                  style={{
-                    width: 44,
-                    height: 24,
-                    borderRadius: 100,
-                    background: form.isPopular ? "#10b981" : "#cbd5e1",
-                    position: "relative",
-                    cursor: "pointer",
-                    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
-                  }}
-                >
-                  <div style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: "50%",
-                    background: "white",
-                    position: "absolute",
-                    top: 3,
-                    left: form.isPopular ? 23 : 3,
-                    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-                  }} />
-                </div>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
+                  <input type="checkbox" checked={form.isPopular} onChange={e => setForm({ ...form, isPopular: e.target.checked })} /> Popular
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
+                  <input type="checkbox" checked={form.isCustom} onChange={e => setForm({ ...form, isCustom: e.target.checked })} /> Custom Plan
+                </label>
               </div>
-              <div style={{ gridColumn: "1 / -1", marginTop: 12 }}>
-                <button type="submit" style={{ width: "100%" }} disabled={saving}>
-                  {saving ? (editingId ? "Saving..." : "Creating...") : (editingId ? "Save Changes" : "Create Plan")}
-                </button>
-              </div>
+
+              <button type="submit" disabled={saving} style={{ width: "100%", padding: "12px 24px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}>
+                {saving ? "Saving..." : editingId ? "Update Plan" : "Create Plan"}
+              </button>
             </form>
-            {status.error && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 12 }}>{status.error}</p>}
-            {status.success && <p style={{ color: "#10b981", fontSize: 13, marginTop: 12 }}>{status.success}</p>}
           </div>
         </div>
       )}
 
-      <div className="panel-card" style={{ maxWidth: "100%" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f1f5f9", paddingBottom: 16, marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <h3 style={{ margin: 0 }}>Plan Library</h3>
-            <span className="badge" style={{ background: "#e0e7ff", color: "#4f46e5" }}>{summary.total} plans</span>
+      {confirmArchive && (
+        <div className="modal-overlay" onClick={() => setConfirmArchive(null)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
+            <div className="modal-header">
+              <h3>{confirmArchive.isArchived ? "Restore Plan" : "Archive Plan"}</h3>
+              <button className="modal-close-btn" onClick={() => setConfirmArchive(null)}>&times;</button>
+            </div>
+            <p style={{ color: "#475569", fontSize: "0.9rem", marginBottom: 16 }}>
+              {confirmArchive.isArchived
+                ? `Restore "${confirmArchive.name}"? It will become available for new subscriptions.`
+                : `Archive "${confirmArchive.name}"? It won't be available for new subscriptions.`}
+            </p>
+            {confirmArchive.activeSubscriptions > 0 && !confirmArchive.isArchived && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, marginBottom: 16, fontSize: 13, color: "#92400e" }}>
+                <AlertTriangle size={16} /> This plan has {confirmArchive.activeSubscriptions} active subscription(s).
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setConfirmArchive(null)} style={{ padding: "8px 16px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Cancel</button>
+              <button onClick={() => handleArchive(confirmArchive)} style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: confirmArchive.isArchived ? "#10b981" : "#ef4444", color: "white", fontWeight: 600, cursor: "pointer" }}>
+                {confirmArchive.isArchived ? "Restore" : "Archive"}
+              </button>
+            </div>
           </div>
-          <button type="button" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, minHeight: 38, padding: "8px 16px" }}>
-            <span>+ Add New Plan</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlanCard({ plan, onEdit, onArchive }) {
+  const flags = plan.featureFlags || plan.features || {};
+  const enabledCount = ALL_FLAGS.filter(f => flags[f]).length;
+  const activeCount = plan.activeSubscriptions || 0;
+
+  return (
+    <div style={{ background: "white", borderRadius: 14, border: plan.isPopular ? "2px solid #4f46e5" : "1px solid #e2e8f0", padding: 24, position: "relative" }}>
+      {plan.isPopular && (
+        <div style={{ position: "absolute", top: -10, right: 16, background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", padding: "3px 10px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+          <Star size={10} fill="white" /> Popular
+        </div>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+        <div>
+          <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>{plan.name}</h3>
+          {plan.isCustom && <span style={{ fontSize: "0.7rem", color: "#8b5cf6", fontWeight: 600 }}>Custom</span>}
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {!plan.isArchived && <button onClick={() => onEdit(plan)} style={{ padding: 6, border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><Edit2 size={14} /></button>}
+          <button onClick={() => onArchive(plan)} style={{ padding: 6, border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}>
+            {plan.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
           </button>
         </div>
-
-        {loading ? (
-          <PageLoader compact title="Loading plans" message="Fetching plan catalog..." />
-        ) : rows.length ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
-            {rows.map((row) => {
-              return (
-                <div 
-                  key={row.id} 
-                  style={{ 
-                    background: "#fff", 
-                    borderRadius: 20, 
-                    padding: 24, 
-                    border: row.isPopular ? "2px solid #0d9488" : "1px solid #e2e8f0", 
-                    position: "relative", 
-                    boxShadow: row.isPopular ? "0 8px 30px rgba(13,148,136,0.12)" : "0 4px 16px rgba(0,0,0,0.01)",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    minHeight: 380
-                  }}
-                >
-                  {row.isPopular && (
-                    <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#0d9488", color: "#fff", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, whiteSpace: "nowrap" }}>
-                      MOST POPULAR
-                    </div>
-                  )}
-                  
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: row.isCustom ? "#ef4444" : "#0d9488", textTransform: "uppercase", letterSpacing: "0.05em", background: row.isCustom ? "#fef2f2" : "#f0fdfa", padding: "4px 8px", borderRadius: 6 }}>
-                        {row.isCustom ? "Custom Tier" : "Standard Tier"}
-                      </span>
-                    </div>
-
-                    <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>{row.name}</h3>
-                    
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
-                      <span style={{ fontSize: 16, color: "#64748b", fontWeight: 600 }}>INR</span>
-                      <span style={{ fontSize: "2rem", fontWeight: 800, color: "#0f172a" }}>{Number(row.monthlyPrice || 0).toLocaleString("en-IN")}</span>
-                      <span style={{ fontSize: 12, color: "#64748b" }}>/mo</span>
-                    </div>
-                    <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 20px" }}>Yearly: INR {Number(row.yearlyPrice || 0).toLocaleString("en-IN")}/yr</p>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24, borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
-                      {[
-                        `Max ${row.branchLimit} Branches`,
-                        `Max ${row.userLimit} Staff Users`,
-                        `Max ${row.customerLimit} Customers`,
-                        `Max ${row.invoiceLimit} Invoices/mo`,
-                        `${row.storageLimit || 0} GB Storage`
-                      ].map(item => (
-                        <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
-                          <span style={{ color: "#14b8a6", fontWeight: 700 }}>✓</span> {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", gap: 10, borderTop: "1px solid #f1f5f9", paddingTop: 16, marginTop: "auto" }}>
-                    <button 
-                      type="button" 
-                      onClick={() => startEdit(row)} 
-                      style={{ 
-                        flex: 1, 
-                        background: "#f1f5f9", 
-                        color: "#475569", 
-                        border: "none", 
-                        padding: "10px", 
-                        borderRadius: 10, 
-                        fontWeight: 700, 
-                        fontSize: 13, 
-                        cursor: "pointer",
-                        textAlign: "center"
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => deletePlan(row.id, row.name)} 
-                      style={{ 
-                        flex: 1, 
-                        background: "#fef2f2", 
-                        color: "#dc2626", 
-                        border: "none", 
-                        padding: "10px", 
-                        borderRadius: 10, 
-                        fontWeight: 700, 
-                        fontSize: 13, 
-                        cursor: "pointer",
-                        textAlign: "center"
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <EmptyState title="No pricing plans yet" message="Click '+ Add New Plan' to create your first plan." label="Plans" />
-        )}
       </div>
+
+      <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.monthlyPrice).toLocaleString()}</div>
+          <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>per month</div>
+        </div>
+        <div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.yearlyPrice).toLocaleString()}</div>
+          <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>per year</div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+        {[
+          { label: "Branches", val: plan.branchLimit },
+          { label: "Staff", val: plan.userLimit },
+          { label: "Customers", val: plan.customerLimit },
+          { label: "Invoices", val: plan.invoiceLimit }
+        ].map(l => (
+          <div key={l.label} style={{ fontSize: "0.8rem", color: "#64748b" }}>
+            <span style={{ fontWeight: 600, color: "#334155" }}>{l.val === 9999 ? "∞" : (l.val ?? 0).toLocaleString()}</span> {l.label}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 12, marginBottom: 12 }}>
+        <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: 6 }}>{enabledCount}/{ALL_FLAGS.length} features enabled</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+          {ALL_FLAGS.filter(f => flags[f]).slice(0, 8).map(f => (
+            <span key={f} style={{ background: "#f0fdf4", color: "#16a34a", padding: "2px 6px", borderRadius: 4, fontSize: "0.65rem", fontWeight: 600 }}>{FLAG_LABELS[f] || f}</span>
+          ))}
+          {enabledCount > 8 && <span style={{ fontSize: "0.65rem", color: "#94a3b8" }}>+{enabledCount - 8} more</span>}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: activeCount > 0 ? "#10b981" : "#94a3b8" }}>
+        <Users size={13} /> {activeCount} active subscription{activeCount !== 1 ? "s" : ""}
+      </div>
+
+      {plan.trialDays > 0 && (
+        <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 6 }}>Includes {plan.trialDays}-day trial</div>
+      )}
     </div>
   );
 }

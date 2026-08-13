@@ -48,6 +48,7 @@ const makeEmptyForm = () => ({
   permissions: clonePermissions(DEFAULT_PERMISSIONS),
   joiningDate: "",
   designation: "",
+  department: "",
   uanNumber: "",
   reportingToId: "",
   workingHours: "",
@@ -56,7 +57,8 @@ const makeEmptyForm = () => ({
   bankName: "",
   bankBranch: "",
   accountNumber: "",
-  ifscCode: ""
+  ifscCode: "",
+  otpCode: ""
 });
 
 const moduleCatalog = MODULE_GROUPS.flatMap((group) => group.modules);
@@ -73,6 +75,7 @@ export default function UsersPage() {
   const [form, setForm] = useState(makeEmptyForm);
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [staffOtpStep, setStaffOtpStep] = useState(1);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [enrollmentCaptureBusy, setEnrollmentCaptureBusy] = useState(false);
   const [enrollmentCameraOpen, setEnrollmentCameraOpen] = useState(false);
@@ -307,6 +310,7 @@ export default function UsersPage() {
       permissions: clonePermissions(row.permissions || {}),
       joiningDate: row.joiningDate ? new Date(row.joiningDate).toISOString().split('T')[0] : "",
       designation: row.designation || "",
+      department: row.department || "",
       uanNumber: row.uanNumber || "",
       reportingToId: row.reportingToId || "",
       workingHours: row.workingHours || "",
@@ -318,34 +322,6 @@ export default function UsersPage() {
       ifscCode: row.ifscCode || ""
     });
     setStatus((current) => ({ ...current, error: "", success: "" }));
-  };
-
-  const togglePermission = (moduleKey, action) => {
-    setForm((current) => {
-      const currentActions = Array.isArray(current.permissions[moduleKey]) ? current.permissions[moduleKey] : [];
-      const nextActions = currentActions.includes(action)
-        ? currentActions.filter((item) => item !== action)
-        : [...currentActions, action];
-      return {
-        ...current,
-        customRoleId: "",
-        permissions: {
-          ...current.permissions,
-          [moduleKey]: nextActions
-        }
-      };
-    });
-  };
-
-  const setModuleAccess = (moduleKey, enabled) => {
-    setForm((current) => ({
-      ...current,
-      customRoleId: "",
-      permissions: {
-        ...current.permissions,
-        [moduleKey]: enabled ? ["view"] : []
-      }
-    }));
   };
 
   const toggleServiceId = (serviceId) => {
@@ -380,7 +356,7 @@ export default function UsersPage() {
         if (!form.password) return setStatus((current) => ({ ...current, error: "Password is required" }));
         if (form.password.length < 8) return setStatus((current) => ({ ...current, error: "Password must be at least 8 characters" }));
         if (form.password.length > 128) return setStatus((current) => ({ ...current, error: "Password must be at most 128 characters" }));
-        if (form.phone && !isValidIndianPhone(form.phone)) return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits with optional country code)" }));
+        if (!form.phone || !isValidIndianPhone(form.phone)) return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits) - Required for Staff OTP" }));
         if (form.uanNumber && !/^\d{12}$/.test(form.uanNumber)) return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits" }));
         if (form.accountNumber && !/^\d{9,18}$/.test(form.accountNumber)) return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits" }));
         if (form.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(form.ifscCode)) return setStatus((current) => ({ ...current, error: "Invalid IFSC code format (e.g. HDFC0001234)" }));
@@ -405,6 +381,7 @@ export default function UsersPage() {
         permissions: form.permissions,
         joiningDate: form.joiningDate || undefined,
         designation: form.designation || undefined,
+        department: form.department || undefined,
         uanNumber: form.uanNumber || undefined,
         reportingToId: form.reportingToId || undefined,
         workingHours: form.workingHours || undefined,
@@ -413,18 +390,33 @@ export default function UsersPage() {
         accountNumber: form.accountNumber || undefined,
         ifscCode: form.ifscCode || undefined
       };
+      
       if (editingId) {
         await api.patch(`/owner/users/${editingId}`, payload);
         setStatus((current) => ({ ...current, success: "Staff profile and access updated." }));
+        resetForm();
       } else {
+        if (staffOtpStep === 1) {
+          await api.post("/owner/users/send-staff-otp", { phone: form.phone });
+          setStatus((current) => ({ ...current, success: "OTP sent to staff's phone number. Please enter it below." }));
+          setStaffOtpStep(2);
+          return;
+        }
+
+        if (!form.otpCode || form.otpCode.length < 6) {
+          return setStatus((current) => ({ ...current, error: "Please enter a valid 6-digit OTP." }));
+        }
+
         await api.post("/owner/users/create-login", {
           ...payload,
           branchId: selectedBranchId || branches[0]?.id || undefined,
           name: form.name.trim(),
           email: form.email.trim(),
           password: form.password,
+          otpCode: form.otpCode,
           joiningDate: form.joiningDate || undefined,
           designation: form.designation || undefined,
+          department: form.department || undefined,
           uanNumber: form.uanNumber || undefined,
           reportingToId: form.reportingToId || undefined,
           workingHours: form.workingHours || undefined,
@@ -435,8 +427,9 @@ export default function UsersPage() {
         });
         setStatus((current) => ({ ...current, success: "New staff login created." }));
         setIsCreateModalOpen(false);
+        setStaffOtpStep(1);
+        resetForm();
       }
-      resetForm();
       await load(selectedBranchId);
     } catch (error) {
       setStatus((current) => ({ ...current, error: formatApiError(error, "Could not save staff user"), success: "" }));
@@ -872,6 +865,10 @@ export default function UsersPage() {
                             {rows.map((r) => r.id !== selectedRow?.id && <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
                           </CustomSelect>
                         </div>
+                        <div className="hub-form-group">
+                          <label>Department</label>
+                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" />
+                        </div>
                       </div>
                     </div>
 
@@ -1072,6 +1069,10 @@ export default function UsersPage() {
                       {rows.map((r) => <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
                     </CustomSelect>
                   </div>
+                  <div className="hub-form-group" style={{ marginBottom: 16 }}>
+                    <label>Department</label>
+                    <input type="text" className="hub-input" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} placeholder="e.g. Hair, Therapy, Admin" />
+                  </div>
                 </div>
 
                 <h4 style={{ fontSize: 14, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 8, margin: '8px 0 12px' }}>Bank & Payroll Details</h4>
@@ -1110,9 +1111,28 @@ export default function UsersPage() {
                 </div>
               </div>
 
+              {staffOtpStep === 2 && (
+                <div style={{ padding: '0 24px 16px' }}>
+                  <div className="hub-form-group">
+                    <label>Enter 6-digit OTP sent to {form.phone}</label>
+                    <input 
+                      type="text" 
+                      className="hub-input" 
+                      value={form.otpCode || ''} 
+                      onChange={e => setForm({ ...form, otpCode: e.target.value.replace(/\D/g, '') })} 
+                      placeholder="000000" 
+                      maxLength={6} 
+                      autoFocus
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="hub-modal-footer">
-                <button type="button" className="btn-cancel" onClick={() => setIsCreateModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn-submit">Create Staff</button>
+                <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); }}>Cancel</button>
+                <button type="submit" className="btn-submit">
+                  {staffOtpStep === 1 ? "Send OTP & Continue" : "Verify & Create Staff"}
+                </button>
               </div>
             </form>
           </div>

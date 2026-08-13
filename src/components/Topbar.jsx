@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import { useBranch } from "../context/BranchContext";
-import { Menu, Settings, FileText, Monitor, Calendar as CalendarIcon, Users, BarChart2, Package, TrendingUp, Search, Bell, LayoutDashboard, Building2, ChevronDown } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { Menu, Settings, FileText, Monitor, Calendar as CalendarIcon, Users, BarChart2, Package, TrendingUp, Search, Bell, LayoutDashboard, Building2, ChevronDown, Check } from "lucide-react";
 
 export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { branches, selectedBranchId, selectedBranchName, setSelectedBranchId } = useBranch();
+  const { switchSalon } = useAuth();
+  const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
+  const [switchingSalon, setSwitchingSalon] = useState(false);
   const [salonName, setSalonName] = useState("");
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -643,7 +647,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
             </div>
             {searchOpen && quickSearch.trim().length >= 2 ? (
               <div className="salonnest-search-dropdown" onMouseDown={(event) => event.preventDefault()}>
-                {searchLoading ? <div className="salonnest-search-empty">Searching workspace...</div> : null}
+                {searchLoading ? <div className="salonnest-search-empty">Searching...</div> : null}
                 {!searchLoading && !searchResults.length ? <div className="salonnest-search-empty">No results found for "{quickSearch.trim()}"</div> : null}
                 {!searchLoading && searchResults.map((item) => (
                   <button
@@ -763,9 +767,48 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
               <div className="profile-dropdown" onClick={e => e.stopPropagation()}>
                 <div className="profile-dropdown-name">{auth?.user?.name || "Admin"}</div>
                 <div className="profile-dropdown-role" style={{ marginBottom: 4 }}>{auth?.user?.email || "admin@example.com"}</div>
-                <div className="profile-dropdown-role" style={{ fontWeight: 600, color: "#3b82f6", marginBottom: 16 }}>
-                  {auth?.user?.systemRole === "SUPER_ADMIN" ? (auth?.user?.role?.name || "Master Admin") : salonName}
+                <div className="profile-dropdown-role" style={{ fontWeight: 600, color: "#3b82f6", marginBottom: 8 }}>
+                  {auth?.user?.systemRole === "SUPER_ADMIN" ? (auth?.user?.adminRole?.name || auth?.user?.role?.name || "Master Admin") : salonName}
                 </div>
+                {auth?.user?.systemRole !== "SUPER_ADMIN" && auth?.memberships?.length > 1 && (
+                  <div style={{ marginBottom: 12, position: "relative" }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setIsSalonSwitcherOpen(!isSalonSwitcherOpen); }}
+                      style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#f1f5f9", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", fontSize: "0.8rem", color: "#475569", fontWeight: 600 }}
+                    >
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Switch Salon</span>
+                      <ChevronDown size={14} />
+                    </button>
+                    {isSalonSwitcherOpen && (
+                      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4, background: "white", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 999, maxHeight: 200, overflowY: "auto" }}>
+                        {auth.memberships.map((m) => {
+                          const isActive = m.salonId === auth.salonId;
+                          return (
+                            <button
+                              key={m.salonId}
+                              disabled={switchingSalon || isActive}
+                              onClick={async () => {
+                                if (isActive || switchingSalon) return;
+                                setSwitchingSalon(true);
+                                try {
+                                  await switchSalon(m.salonId);
+                                  setIsSalonSwitcherOpen(false);
+                                  window.location.reload();
+                                } catch {
+                                  setSwitchingSalon(false);
+                                }
+                              }}
+                              style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: isActive ? "#eff6ff" : "white", border: "none", borderBottom: "1px solid #f1f5f9", cursor: isActive ? "default" : "pointer", fontSize: "0.8rem", textAlign: "left", color: isActive ? "#3b82f6" : "#334155", fontWeight: isActive ? 600 : 400 }}
+                            >
+                              {isActive && <Check size={14} color="#3b82f6" />}
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.salonName || m.salonId}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {subscription?.plan && (
                   <div
                     onClick={() => { setIsProfileOpen(false); navigate("/admin/settings/subscription"); }}

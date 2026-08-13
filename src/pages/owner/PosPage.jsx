@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, FlaskConical, Plus, Search } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X,   Search } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
-import ModuleTabs from "../../components/ModuleTabs";
-import PageLoader from "../../components/PageLoader";
+// import ModuleTabs from "../../components/ModuleTabs";
+// import PageLoader from "../../components/PageLoader";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import './PosPage.css';
 
@@ -16,12 +16,12 @@ import CustomSelect from "../../components/CustomSelect";
 
 const emptyServiceItem = { itemType: "SERVICE", serviceId: "", staffUserId: "", qty: 1, taxPct: 0, consumableItems: [], complimentaryRemark: "" };
 const emptyProductItem = { itemType: "PRODUCT", productId: "", qty: 1, taxPct: 0, batchNumber: "", variationName: "" };
-const emptyMembershipItem = { itemType: "MEMBERSHIP", membershipPlanId: "", staffUserId: "", qty: 1, taxPct: 0 };
-const emptyPackageItem = { itemType: "PACKAGE", packageId: "", staffUserId: "", qty: 1, taxPct: 0 };
+// const emptyMembershipItem = { itemType: "MEMBERSHIP", membershipPlanId: "", staffUserId: "", qty: 1, taxPct: 0 };
+// const emptyPackageItem = { itemType: "PACKAGE", packageId: "", staffUserId: "", qty: 1, taxPct: 0 };
 const emptyPayment = { mode: "CASH", amount: 0, note: "" };
-const emptyRedemption = { customerPackageId: "", serviceId: "", sessionsUsed: 1, note: "" };
+// const emptyRedemption = { customerPackageId: "", serviceId: "", sessionsUsed: 1, note: "" };
 
-const normalizeCategoryId = (item) => item.categoryId || item.category?.id || item.category?.name || "";
+// const normalizeCategoryId = (item) => item.categoryId || item.category?.id || item.category?.name || "";
 const normalizeProductCategoryId = (item) => item.categoryId || item.category?.id || item.category?.name || "";
 const toAmount = (value) => {
   const parsed = Number(value);
@@ -81,9 +81,9 @@ export default function PosPage() {
   }, [toastMessage]);
 
   const [result, setResult] = useState(null);
-  const [dayClosing, setDayClosing] = useState(null);
+//   const [dayClosing, setDayClosing] = useState(null);
   const [paymentLink, setPaymentLink] = useState(null);
-  const [loading, setLoading] = useState(true);
+//   const [loading, setLoading] = useState(true);
   const [guestSearchInput, setGuestSearchInput] = useState("");
   const [posGender, setPosGender] = useState("ALL");
   const [serviceSearch, setServiceSearch] = useState("");
@@ -92,11 +92,11 @@ export default function PosPage() {
   const [membershipSearch, setMembershipSearch] = useState("");
   const [serviceCategoryFilter, setServiceCategoryFilter] = useState("");
   const [productCategoryFilter, setProductCategoryFilter] = useState("");
-  const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
+//   const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [activeServiceInvoice, setActiveServiceInvoice] = useState(null);
-  const [showActiveServicePopup, setShowActiveServicePopup] = useState(false);
+//   const [showActiveServicePopup, setShowActiveServicePopup] = useState(false);
   
   const [showGcModal, setShowGcModal] = useState(false);
   const [gcModalGc, setGcModalGc] = useState(null);
@@ -118,12 +118,12 @@ export default function PosPage() {
   const [memModalMem, setMemModalMem] = useState(null);
   const [memDraft, setMemDraft] = useState({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0, 10), customServices: [] });
   const [memSearch, setMemSearch] = useState("");
-  const [memServiceSearch, setMemServiceSearch] = useState("");
+//   const [memServiceSearch, setMemServiceSearch] = useState("");
   const [showConsumableModal, setShowConsumableModal] = useState(false);
   const [consumableItemIndex, setConsumableItemIndex] = useState(null);
   const [consumableItems, setConsumableItems] = useState([]);
   const [consumableSearch, setConsumableSearch] = useState("");
-  const [consumableOverrides, setConsumableOverrides] = useState({});
+//   const [consumableOverrides, setConsumableOverrides] = useState({});
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [timeModalDraft, setTimeModalDraft] = useState({ index: null, startTime: "", endTime: "" });
   const [showReminderModal, setShowReminderModal] = useState(false);
@@ -136,7 +136,7 @@ export default function PosPage() {
   const [membershipItemsDraft, setMembershipItemsDraft] = useState([]);
   const [showApplyPkgRedemptionModal, setShowApplyPkgRedemptionModal] = useState(false);
   const [customerPackages, setCustomerPackages] = useState([]);
-  const [loadingCustomerPkgs, setLoadingCustomerPkgs] = useState(false);
+//   const [loadingCustomerPkgs, setLoadingCustomerPkgs] = useState(false);
   const [showGcRedemptionModal, setShowGcRedemptionModal] = useState(false);
   const [gcRedemptionCode, setGcRedemptionCode] = useState("");
   const [gcRedemptionResult, setGcRedemptionResult] = useState(null);
@@ -145,7 +145,7 @@ export default function PosPage() {
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipDraft, setTipDraft] = useState({ staffId: "", amount: "", paymentMode: "CASH" });
   const [tipEntries, setTipEntries] = useState([]);
-  const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
+//   const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
   const [variationModal, setVariationModal] = useState({ open: false, product: null });
   const [compModal, setCompModal] = useState({ open: false, index: null, serviceName: "", remark: "" });
 
@@ -422,7 +422,7 @@ export default function PosPage() {
       const response = await api.get(`/owner/customers/${form.customerId}/packages`);
       const activePkgs = (response.data || []).filter(p => p.status === "ACTIVE" && new Date(p.endsAt) > new Date());
       setCustomerPackages(activePkgs);
-    } catch (_) {}
+    } catch (e) {}
   };
 
   const openPackageDetails = async (customerPkg) => {
@@ -437,7 +437,7 @@ export default function PosPage() {
       const packages = Array.isArray(response.data) ? response.data : [];
       const freshPackage = packages.find((pkg) => pkg.id === customerPkg.id) || customerPkg;
       setShowPkgDetailModal(freshPackage);
-    } catch (_) {
+    } catch (e) {
       setShowPkgDetailModal(customerPkg);
     }
   };
@@ -546,7 +546,7 @@ export default function PosPage() {
     }
 
     setForm(c => {
-      const preservedPaid = (c.payments || []).filter(p => !["WALLET", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+//       const preservedPaid = (c.payments || []).filter(p => !["WALLET", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
       let newPayments = (c.payments || []).filter(p => p.mode !== "WALLET" && p.mode !== "BALANCE");
       if (totalDeduction > 0) {
         newPayments.push({ mode: "WALLET", amount: totalDeduction, note: `Membership applied` });
@@ -641,8 +641,8 @@ export default function PosPage() {
   const productLookup = useMemo(() => Object.fromEntries((context.products || []).map((product) => [product.id, product])), [context.products]);
   const membershipLookup = useMemo(() => Object.fromEntries((context.memberships || []).map((m) => [m.id, m])), [context.memberships]);
   const packageLookup = useMemo(() => Object.fromEntries((context.packages || []).map((p) => [p.id, p])), [context.packages]);
-  const selectedCoupon = useMemo(() => (context.coupons || []).find((coupon) => coupon.code === form.couponCode) || null, [context.coupons, form.couponCode]);
-  const selectedGiftCard = useMemo(() => (context.giftCards || []).find((giftCard) => giftCard.code === form.giftVoucherCode) || null, [context.giftCards, form.giftVoucherCode]);
+//   const selectedCoupon = useMemo(() => (context.coupons || []).find((coupon) => coupon.code === form.couponCode) || null, [context.coupons, form.couponCode]);
+//   const selectedGiftCard = useMemo(() => (context.giftCards || []).find((giftCard) => giftCard.code === form.giftVoucherCode) || null, [context.giftCards, form.giftVoucherCode]);
   const affiliateServiceCreditValue = useMemo(() => {
     const value = Number(context.settings?.advancedSettings?.referralSettings?.affiliateServiceCreditValue || 1);
     return value > 0 ? value : 1;
@@ -1505,7 +1505,7 @@ export default function PosPage() {
     };
   }, [getCatalogBasePrice]);
 
-  const updateRedemption = (index, patch) => {
+//   const updateRedemption = (index, patch) => {
     const next = [...form.packageRedemptions];
     next[index] = { ...next[index], ...patch };
     setForm((current) => ({ ...current, packageRedemptions: next }));
@@ -1581,7 +1581,7 @@ export default function PosPage() {
     }
   };
 
-  const generatePaymentLink = async () => {
+//   const generatePaymentLink = async () => {
     if (!result?.id) {
       setStatus({ error: "Create an invoice first to generate a payment link.", success: "" });
       return;
@@ -1607,7 +1607,7 @@ export default function PosPage() {
     }
   };
 
-  const logPaymentLinkStatus = async (linkStatus) => {
+//   const logPaymentLinkStatus = async (linkStatus) => {
     if (!result?.id) return;
     await api.post(`/owner/invoices/${result.id}/payment-link/log`, {
       status: linkStatus,

@@ -251,7 +251,7 @@ const Protected = () => {
       items: [
         { label: "Services", to: "/admin/services" },
         {
-          label: "Staff & Roles",
+          label: "Team & Roles",
           to: "/admin/users"
         },
         {
@@ -281,7 +281,7 @@ const Protected = () => {
       hint: "Super Admin Workspace",
       items: [
         { label: "Dashboard", to: "/super-admin/dashboard" },
-        { label: "Sales Pipeline", to: "/super-admin/sales-pipeline" },
+        { label: "Leads", to: "/super-admin/sales-pipeline" },
         { label: "Salon Management", to: "/super-admin/salons" },
         { label: "Subscription", to: "/super-admin/subscriptions" },
         { label: "Plans", to: "/super-admin/plans" },
@@ -298,8 +298,15 @@ const Protected = () => {
 
   const visibleGroups = auth?.user?.systemRole === "SUPER_ADMIN"
     ? (() => {
-        const perms = auth?.user?.pagePermissions;
-        if (!perms || !Array.isArray(perms) || perms.length === 0) return superAdminGroups;
+        const adminPerms = auth?.user?.adminRole?.permissions;
+        const pagePerms = auth?.user?.pagePermissions;
+        
+        let perms = null;
+        if (Array.isArray(adminPerms) && adminPerms.length > 0) perms = adminPerms;
+        else if (Array.isArray(pagePerms) && pagePerms.length > 0) perms = pagePerms;
+
+        if (!perms || perms.length === 0) return superAdminGroups;
+
         return superAdminGroups.map((group) => ({
           ...group,
           items: group.items.filter((item) => {
@@ -344,9 +351,7 @@ const Protected = () => {
       <div className="app-content-wrapper">
         <Topbar auth={auth} sidebarExpanded={sidebarExpanded} onToggleSidebar={toggleSidebar} onLogout={logout} />
         <main className="app-main">
-          <Suspense fallback={<PageLoader />}>
             <OwnerLayout />
-          </Suspense>
         </main>
       </div>
     </div>
@@ -362,10 +367,23 @@ const AccessNotice = ({ title, message }) => (
   </div>
 );
 
+import PhoneVerificationModal from "./components/PhoneVerificationModal";
+
 const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
   const { auth } = useAuth();
 
   if (!auth) return <Navigate to="/login" replace />;
+
+  if (auth.membership?.salonRole === "SALON_OWNER" && auth.user?.isPhoneVerified === false) {
+    return (
+      <>
+        <PhoneVerificationModal />
+        <div style={{ pointerEvents: 'none', filter: 'blur(4px)' }}>
+          {element}
+        </div>
+      </>
+    );
+  }
 
   const permissions = auth.membership?.permissions || {};
   const featureFlags = auth.membership?.featureFlags || {};
@@ -420,7 +438,11 @@ const SuperAdminRoute = ({ pageKey, element }) => {
   if (auth.user?.systemRole !== "SUPER_ADMIN") {
     return <AccessNotice title="Super Admin Area" message="You do not have permission to access the SaaS control panel." />;
   }
-  const perms = auth.user?.pagePermissions;
+  const adminPerms = auth.user?.adminRole?.permissions;
+  const pagePerms = auth.user?.pagePermissions;
+  let perms = null;
+  if (Array.isArray(adminPerms) && adminPerms.length > 0) perms = adminPerms;
+  else if (Array.isArray(pagePerms) && pagePerms.length > 0) perms = pagePerms;
   if (pageKey && Array.isArray(perms) && perms.length > 0) {
     if (!perms.includes(pageKey)) {
       return <AccessNotice title="Page Access Restricted" message="Your staff account does not have permission to access this page." />;
@@ -665,6 +687,7 @@ export default function App() {
           <Route path="/super-admin/staff" element={<SuperAdminRoute pageKey="staff" element={<SuperAdminStaffPage />} />} />
           <Route path="/super-admin/credits" element={<SuperAdminRoute pageKey="credits" element={<ManageCreditsPage />} />} />
           <Route path="/super-admin/settings" element={<SuperAdminRoute pageKey="settings" element={<SuperAdminSettingsPage />} />} />
+          <Route path="/super-admin/audit-logs" element={<SuperAdminRoute pageKey="audit-logs" element={<SuperAdminAuditLogsPage />} />} />
           <Route path="/branches" element={<Navigate to="/admin/branches" replace />} />
           <Route path="/services" element={<Navigate to="/admin/services" replace />} />
           <Route path="/customers" element={<Navigate to="/admin/customers" replace />} />

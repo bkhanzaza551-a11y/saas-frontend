@@ -29,22 +29,8 @@ export default function SupportTicketsPage() {
   const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
   const hasCreateAccess = isOwner || isSuperAdmin || canCreateTicket;
 
-  const load = async () => {
-    try {
-      const res = await api.get("/owner/support-tickets", {
-        params: {
-          ...(filters.q ? { q: filters.q } : {}),
-          ...(filters.status ? { status: filters.status } : {}),
-          ...(filters.priority ? { priority: filters.priority } : {})
-        }
-      });
-      setRows(res.data || []);
-    } catch (err) {
-      console.error("Failed to load tickets", err);
-    } finally {
-      setStatus((current) => ({ ...current, loading: false }));
-    }
-  };
+  const [reloadKey, setReloadKey] = useState(0);
+  const triggerReload = () => setReloadKey(k => k + 1);
 
   useEffect(() => {
     let active = true;
@@ -63,17 +49,27 @@ export default function SupportTicketsPage() {
       if (active) setStatus((current) => ({ ...current, loading: false }));
     });
     return () => { active = false; };
-  }, [filters]);
+  }, [filters, reloadKey]);
+
+  useEffect(() => {
+    if (!selectedTicket) return;
+    const interval = setInterval(() => {
+      api.get(`/owner/support-tickets/${selectedTicket.id}`).then(res => {
+        if (res.data) setSelectedTicket(res.data);
+      }).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [selectedTicket?.id]);
 
   const submit = async (event) => {
     event.preventDefault();
     if (!form.title.trim() || !form.description.trim()) return;
-    setStatus({ error: "", success: "" });
+    setStatus({ error: "", success: "", loading: false });
     setSubmitting(true);
     try {
       await api.post("/owner/support-tickets", form);
       setForm({ title: "", category: "General", priority: "MEDIUM", description: "", attachmentUrl: "" });
-      await load();
+      triggerReload();
       setStatus({ error: "", success: "Support ticket raised successfully!" });
       setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
     } catch (error) {
@@ -85,7 +81,7 @@ export default function SupportTicketsPage() {
 
   const sendReply = async (ticketId) => {
     if (!replyDrafts[ticketId]?.trim()) return;
-    setStatus({ error: "", success: "" });
+    setStatus({ error: "", success: "", loading: false });
     setReplyingId(ticketId);
     try {
       await api.post(`/owner/support-tickets/${ticketId}/messages`, {
@@ -94,7 +90,7 @@ export default function SupportTicketsPage() {
       });
       setReplyDrafts((current) => ({ ...current, [ticketId]: "" }));
       setReplyAttachments((current) => ({ ...current, [ticketId]: "" }));
-      await load();
+      triggerReload();
       setStatus({ error: "", success: "Reply sent to support desk." });
       setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
     } catch (error) {
@@ -107,14 +103,15 @@ export default function SupportTicketsPage() {
   const stats = {
     total: rows.length,
     open: rows.filter(r => r.status === "OPEN").length,
-    pending: rows.filter(r => r.status === "PENDING").length,
+    pending: rows.filter(r => r.status === "WAITING_FOR_SALON").length,
     resolved: rows.filter(r => r.status === "RESOLVED" || r.status === "CLOSED").length,
   };
 
   const getStatusBadge = (s) => {
     switch (s) {
       case "OPEN": return <span className="badge" style={{ background: "#e0e7ff", color: "#4338ca", fontWeight: 700 }}>Open</span>;
-      case "PENDING": return <span className="badge" style={{ background: "#fff7ed", color: "#c2410c", fontWeight: 700 }}>Pending Reply</span>;
+      case "IN_PROGRESS": return <span className="badge" style={{ background: "#fef3c7", color: "#b45309", fontWeight: 700 }}>In Progress</span>;
+      case "WAITING_FOR_SALON": return <span className="badge" style={{ background: "#fff7ed", color: "#c2410c", fontWeight: 700 }}>Waiting for Salon</span>;
       case "RESOLVED": return <span className="badge" style={{ background: "#dcfce7", color: "#166534", fontWeight: 700 }}>Resolved</span>;
       case "CLOSED": return <span className="badge" style={{ background: "#f1f5f9", color: "#64748b", fontWeight: 700 }}>Closed</span>;
       default: return <span className="badge" style={{ background: "#f1f5f9", color: "#475569" }}>{s}</span>;
@@ -211,12 +208,16 @@ export default function SupportTicketsPage() {
                     onChange={e => setForm({ ...form, category: e.target.value })}
                     style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
                   >
-                    <option value="General">General Query</option>
-                    <option value="Billing">Billing & Invoices</option>
-                    <option value="POS & Sales">POS & Billing</option>
-                    <option value="Appointments">Appointments & Booking</option>
-                    <option value="Staff & Payroll">Staff & Payroll</option>
-                    <option value="Technical Issue">Technical Bug</option>
+                    <option value="General">General</option>
+                    <option value="Login">Login</option>
+                    <option value="POS">POS</option>
+                    <option value="Appointments">Appointments</option>
+                    <option value="Inventory">Inventory</option>
+                    <option value="Billing">Billing</option>
+                    <option value="Subscription">Subscription</option>
+                    <option value="Product/Staff Request">Product/Staff Request</option>
+                    <option value="Technical Issue">Technical Issue</option>
+                    <option value="Feature Request">Feature Request</option>
                   </CustomSelect>
                 </div>
 
@@ -248,16 +249,24 @@ export default function SupportTicketsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Attachment URL (Optional)</label>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Attach File (Optional)</label>
                 <div style={{ position: "relative" }}>
                   <Paperclip size={16} color="#94a3b8" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
                   <input
-                    value={form.attachmentUrl}
-                    placeholder="https://example.com/screenshot.png"
-                    onChange={e => setForm({ ...form, attachmentUrl: e.target.value })}
-                    style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }}
+                    type="file"
+                    accept="image/*,.pdf,.doc,.docx"
+                    onChange={e => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setForm({ ...form, attachmentUrl: reader.result });
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
                   />
                 </div>
+                {form.attachmentUrl && <span style={{ fontSize: 11, color: "#16a34a", marginTop: 4, display: "block" }}>File attached</span>}
               </div>
 
               <button
@@ -315,7 +324,8 @@ export default function SupportTicketsPage() {
             >
               <option value="">All Statuses</option>
               <option value="OPEN">Open</option>
-              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="WAITING_FOR_SALON">Waiting for Salon</option>
               <option value="RESOLVED">Resolved</option>
               <option value="CLOSED">Closed</option>
             </CustomSelect>
@@ -349,7 +359,7 @@ export default function SupportTicketsPage() {
 
               <div style={{ background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", borderRadius: 12, padding: "20px 24px", marginBottom: 20, color: "white" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>#{selectedTicket.id.substring(0, 8)}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>#{selectedTicket.id?.substring(0, 8) || "—"}</span>
                   <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>{selectedTicket.status}</span>
                   <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>{selectedTicket.priority}</span>
                 </div>
@@ -397,10 +407,14 @@ export default function SupportTicketsPage() {
                 <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 14, marginTop: 16 }}>
                   <textarea rows="3" value={replyDrafts[selectedTicket.id] || ""} placeholder="Type your reply or additional information..." onChange={e => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })} style={{ width: "100%", padding: 10, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, resize: "vertical", boxSizing: "border-box", marginBottom: 10, outline: "none" }} />
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <div style={{ flex: 1, position: "relative" }}>
-                      <Paperclip size={14} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
-                      <input value={replyAttachments[selectedTicket.id] || ""} placeholder="Attachment URL (optional)" onChange={e => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: e.target.value })} style={{ width: "100%", padding: "8px 10px 8px 30px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box", outline: "none" }} />
-                    </div>
+                    <label style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, cursor: "pointer", color: "#64748b", background: "white" }}>
+                      <Paperclip size={14} />
+                      {replyAttachments[selectedTicket.id] ? "File attached" : "Attach File"}
+                      <input type="file" accept="image/*,.pdf,.doc,.docx" hidden onChange={e => {
+                        const file = e.target.files[0];
+                        if (file) { const reader = new FileReader(); reader.onloadend = () => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result }); reader.readAsDataURL(file); }
+                      }} />
+                    </label>
                     <button type="button" onClick={() => sendReply(selectedTicket.id)} disabled={replyingId === selectedTicket.id || !replyDrafts[selectedTicket.id]?.trim()} style={{ padding: "8px 18px", background: !replyDrafts[selectedTicket.id]?.trim() ? "#cbd5e1" : "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: !replyDrafts[selectedTicket.id]?.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                       <Send size={14} /> {replyingId === selectedTicket.id ? "Sending..." : "Send Reply"}
                     </button>
@@ -419,7 +433,7 @@ export default function SupportTicketsPage() {
                 return (
                   <div key={row.id} style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", background: "white", padding: 16, display: "flex", flexDirection: "column", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "4px 10px", borderRadius: 6 }}>#{row.id.substring(0, 8)}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "4px 10px", borderRadius: 6 }}>#{row.id?.substring(0, 8) || "—"}</span>
                       {getStatusBadge(row.status)}
                     </div>
                     <h4 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{row.title}</h4>

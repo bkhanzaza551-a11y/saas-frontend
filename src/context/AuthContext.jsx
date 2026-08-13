@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { api, setAuthSessionHandlers, setToken, unblockSession } from "../api/client";
 
 const AuthCtx = createContext(null);
@@ -69,7 +69,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (payload) => {
     const { data } = await api.post("/auth/login", payload);
     if (!data.requireOtp) {
-      const state = { ...data, salonId: data.membership?.salonId || null, rememberMe: payload.rememberMe };
+      const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
+      const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe: payload.rememberMe };
       unblockSession();
       persistState(state, payload.rememberMe);
     }
@@ -78,10 +79,22 @@ export const AuthProvider = ({ children }) => {
 
   const verifyOtp = async (payload, rememberMe = false) => {
     const { data } = await api.post("/auth/verify-otp", payload);
-    const state = { ...data, salonId: data.membership?.salonId || null, rememberMe };
+    const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
+    const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe };
     unblockSession();
     persistState(state, rememberMe);
     return data;
+  };
+
+  const switchSalon = async (salonId) => {
+    const { data } = await api.post("/auth/switch-salon", { salonId });
+    setAuth((current) => {
+      if (!current) return current;
+      const nextState = { ...current, accessToken: data.accessToken, membership: data.membership, memberships: data.activeMemberships || current.memberships, salonId: data.salonId ?? salonId };
+      setToken(data.accessToken);
+      writeAuth(nextState, current.rememberMe !== false);
+      return nextState;
+    });
   };
 
   const resendOtp = async (payload) => {
@@ -114,15 +127,17 @@ export const AuthProvider = ({ children }) => {
     clearSession();
   };
 
-  setAuthSessionHandlers({
-    getCurrentSession: () => {
-      return readAuth();
-    },
-    onRefreshSuccess: refreshSession,
-    onAuthFailure: clearSession
-  });
+  useEffect(() => {
+    setAuthSessionHandlers({
+      getCurrentSession: () => {
+        return readAuth();
+      },
+      onRefreshSuccess: refreshSession,
+      onAuthFailure: clearSession
+    });
+  }, []);
 
-  const value = { auth, login, verifyOtp, resendOtp, logout, clearSession };
+  const value = { auth, login, verifyOtp, resendOtp, logout, clearSession, switchSalon };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 };
 

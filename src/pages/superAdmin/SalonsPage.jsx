@@ -28,7 +28,7 @@ const defaultFlags = {
   auditLogs: true, advancedReports: true, staffRequirements: false, productRequirements: false
 };
 const emptyForm = {
-  name: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: ""
+  name: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
 };
 
 export default function SalonsPage() {
@@ -44,7 +44,9 @@ export default function SalonsPage() {
       return prev;
     });
   };
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
+const [planFilter, setPlanFilter] = useState("");
+const [cityFilter, setCityFilter] = useState("");
   const [selectedSalon, setSelectedSalon] = useState(null);
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState(emptyForm);
@@ -56,12 +58,12 @@ export default function SalonsPage() {
   const [busyId, setBusyId] = useState("");
   const detailRef = useRef(null);
 
-  const load = async (nextQuery = query, nextStatus = statusFilter) => {
+  const load = async (nextQuery = query, nextStatus = statusFilter, nextPlan = planFilter, nextCity = cityFilter) => {
     setLoading(true);
     setStatus({ error: "", success: "" });
     try {
       const res = await api.get("/super-admin/salons", {
-        params: { ...(nextQuery ? { q: nextQuery } : {}), ...(nextStatus ? { status: nextStatus } : {}) }
+        params: { ...(nextQuery ? { q: nextQuery } : {}), ...(nextStatus ? { status: nextStatus } : {}), ...(nextPlan ? { planId: nextPlan } : {}), ...(nextCity ? { city: nextCity } : {}) }
       });
       setSalons(res.data);
       const plansRes = await api.get("/super-admin/plans");
@@ -87,6 +89,10 @@ export default function SalonsPage() {
     event.preventDefault();
     if (!form.name.trim()) {
       setStatus({ error: "Salon name is required.", success: "" });
+      return;
+    }
+    if (!form.city.trim()) {
+      setStatus({ error: "City is required.", success: "" });
       return;
     }
     if (!editingId) {
@@ -129,7 +135,8 @@ export default function SalonsPage() {
       setEditingId(full.id);
       setForm({
         name: full.name || "",
-        ownerName: "", ownerEmail: "", ownerPhone: "", planId: ""
+        ownerName: "", ownerEmail: "", ownerPhone: "", planId: "",
+        city: full.city || "", address: full.address || "", state: full.state || "", country: full.country || "", pinCode: full.pinCode || ""
       });
       setIsModalOpen(true);
     } catch (err) {
@@ -169,6 +176,20 @@ export default function SalonsPage() {
       setStatus({ error: formatApiError(err, "Could not toggle feature"), success: "" });
     }
   };
+  const exportData = async (salonId, type) => {
+    try {
+      const response = await api.get(`/super-admin/salons/${salonId}/export/${type}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${type}-export.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, `Could not export ${type}`), success: "" });
+    }
+  };
 
   const impersonate = async (salonId) => {
     setBusyId(salonId);
@@ -177,6 +198,28 @@ export default function SalonsPage() {
       setStatus({ error: "", success: res.data.message });
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not impersonate salon"), success: "" });
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const updateStatus = async (salonId, newStatus) => {
+    let payload = { status: newStatus };
+    
+    if (newStatus === "SUSPENDED") {
+      const reason = window.prompt("Enter reason for suspension:");
+      if (reason === null) return;
+      payload.reason = reason;
+      payload.internalNote = `Suspended by admin: ${reason}`;
+    }
+    
+    setBusyId(salonId);
+    try {
+      await api.patch(`/super-admin/salons/${salonId}/status`, payload);
+      setStatus({ error: "", success: `Salon status updated to ${newStatus}.` });
+      await load();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not update status"), success: "" });
     } finally {
       setBusyId("");
     }
@@ -271,7 +314,7 @@ export default function SalonsPage() {
         <div className="item-head">
           <div>
             <h1 style={{ marginTop: 0 }}>Salons</h1>
-            <p style={{ marginBottom: 0 }}>Create, activate, suspend, and inspect every tenant from one control surface.</p>
+            <p style={{ marginBottom: 0 }}>Create, activate, suspend, and inspect every salon from one control surface.</p>
           </div>
           <div className="badge-row" style={{ display: "flex", gap: 10 }}>
             <button type="button" onClick={handleExportCustomers} style={{ background: "#4f46e5", color: "white", padding: "6px 12px", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Export Customers</button>
@@ -300,23 +343,39 @@ export default function SalonsPage() {
                 { label: "Trial", value: "TRIAL" },
                 { label: "Suspended", value: "SUSPENDED" },
                 { label: "Expired", value: "EXPIRED" },
-                { label: "Cancelled", value: "CANCELLED" }
               ]}
               placeholder="All statuses"
               style={{ width: "100%", height: 40 }}
             />
           </div>
+          <div style={{ width: 180 }}>
+            <CustomSelect 
+              value={planFilter} 
+              onChange={(e) => setPlanFilter(e.target.value)}
+              options={[{ label: "All plans", value: "" }, ...plans.map(p => ({ label: p.name, value: p.id }))]}
+              placeholder="All plans"
+              style={{ width: "100%", height: 40 }}
+            />
+          </div>
+          <div style={{ width: 160 }}>
+            <input 
+              value={cityFilter} 
+              placeholder="Filter by city..." 
+              onChange={(e) => setCityFilter(e.target.value)} 
+              style={{ width: "100%", minHeight: 40, padding: "8px 14px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1", background: "#f8fafc" }}
+            />
+          </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button 
               type="button" 
-              onClick={() => load(query, statusFilter)} 
+              onClick={() => load(query, statusFilter, planFilter, cityFilter)} 
               style={{ minHeight: 40, padding: "0 18px", borderRadius: 8, background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer", boxShadow: "0 2px 6px rgba(79, 70, 229, 0.15)" }}
             >
               Apply
             </button>
             <button 
               type="button" 
-              onClick={() => { setQuery(""); setStatusFilter(""); }} 
+              onClick={() => { setQuery(""); setStatusFilter(""); setPlanFilter(""); setCityFilter(""); }} 
               style={{ minHeight: 40, padding: "0 18px", borderRadius: 8, background: "#f1f5f9", color: "#475569", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}
             >
               Reset
@@ -330,7 +389,7 @@ export default function SalonsPage() {
         <div className="modal-overlay" onClick={resetForm}>
           <div className="modal-content-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 840, maxHeight: "90vh", overflowY: "auto" }}>
             <div className="modal-header">
-              <h3>{editingId ? "Edit Tenant Salon Details" : "Add New Tenant Salon"}</h3>
+              <h3>{editingId ? "Edit Salon Details" : "Add New Salon"}</h3>
               <button type="button" className="modal-close-btn" onClick={resetForm}>&times;</button>
             </div>
             <form onSubmit={createOrUpdateSalon} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -347,6 +406,26 @@ export default function SalonsPage() {
                     options={plans.map(p => ({ label: p.name, value: p.id }))}
                     placeholder="Select Plan"
                   />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>City *</span>
+                  <input placeholder="City" value={form.city} required onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Address</span>
+                  <input placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>State</span>
+                  <input placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Country</span>
+                  <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>PIN</span>
+                  <input placeholder="PIN" value={form.pinCode} onChange={(e) => setForm({ ...form, pinCode: e.target.value })} />
                 </label>
 
                 {!editingId && (
@@ -374,7 +453,7 @@ export default function SalonsPage() {
 
               <div style={{ marginTop: 8 }}>
                 <button type="submit" style={{ width: "100%", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.95rem", borderRadius: 12, padding: "14px 24px", minHeight: 48, cursor: "pointer", border: "none", boxShadow: "0 4px 12px rgba(79, 70, 229, 0.2)" }} disabled={saving}>
-                  {saving ? (editingId ? "Saving Details..." : "Creating Workspace...") : (editingId ? "Save All Changes" : "Create Workspace")}
+                  {saving ? (editingId ? "Saving Details..." : "Creating Salon...") : (editingId ? "Save All Changes" : "Create Salon")}
                 </button>
               </div>
             </form>
@@ -390,7 +469,7 @@ export default function SalonsPage() {
       <div className="panel-card" style={{ maxWidth: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f1f5f9", paddingBottom: 16, marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <h3 style={{ margin: 0 }}>Tenant Directory</h3>
+            <h3 style={{ margin: 0 }}>All Salons</h3>
             <span className="badge" style={{ background: "#e0e7ff", color: "#4f46e5" }}>{salons.length} salons</span>
           </div>
           <button type="button" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, minHeight: 38, padding: "8px 16px" }}>
@@ -399,7 +478,7 @@ export default function SalonsPage() {
         </div>
 
         {loading ? (
-          <PageLoader compact title="Loading salons" message="Fetching tenant directory..." />
+          <PageLoader compact title="Loading salons" message="Loading salons..." />
         ) : salons.length ? (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
@@ -500,8 +579,17 @@ export default function SalonsPage() {
                     <button type="button" onClick={() => { setIsViewModalOpen(false); startEdit(selectedSalon); }} style={{ padding: "8px 16px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 13 }}>
                       Edit Details
                     </button>
+                    {selectedSalon.status === "ACTIVE" ? (
+                      <button type="button" onClick={() => updateStatus(selectedSalon.id, "SUSPENDED")} disabled={busyId === selectedSalon.id} style={{ padding: "8px 16px", background: "#fee2e2", color: "#991b1b", border: "none", borderRadius: 8, cursor: busyId === selectedSalon.id ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 13 }}>
+                        Suspend
+                      </button>
+                    ) : selectedSalon.status === "SUSPENDED" ? (
+                      <button type="button" onClick={() => updateStatus(selectedSalon.id, "ACTIVE")} disabled={busyId === selectedSalon.id} style={{ padding: "8px 16px", background: "#dcfce7", color: "#166534", border: "none", borderRadius: 8, cursor: busyId === selectedSalon.id ? "not-allowed" : "pointer", fontWeight: 700, fontSize: 13 }}>
+                        Unsuspend
+                      </button>
+                    ) : null}
                     <button type="button" onClick={() => impersonate(selectedSalon.id)} disabled={busyId === selectedSalon.id} style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", minHeight: 40, padding: "0 18px", fontWeight: 700, borderRadius: 10, cursor: busyId === selectedSalon.id ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8 }}>
-                      {busyId === selectedSalon.id ? "Entering..." : "Impersonate Workspace"}
+                      {busyId === selectedSalon.id ? "Entering..." : "Impersonate Salon"}
                     </button>
                   </div>
                 </div>
@@ -615,6 +703,22 @@ export default function SalonsPage() {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+
+                {/* Data Export Section */}
+                <div style={{ padding: 18, background: "white", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>Data Export</h4>
+                    <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Export salon data to Excel (.xlsx)</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button type="button" onClick={() => exportData(selectedSalon.id, 'customers')} style={{ padding: "8px 16px", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 13, color: "#334155", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Activity size={16} /> Export Customers
+                    </button>
+                    <button type="button" onClick={() => exportData(selectedSalon.id, 'inventory')} style={{ padding: "8px 16px", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 13, color: "#334155", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Activity size={16} /> Export Inventory
+                    </button>
                   </div>
                 </div>
 

@@ -107,9 +107,8 @@ export default function SalonAnalyticsPage() {
       api.get(`/owner/users${queryString}`),
       api.get(`/owner/products${queryString}`),
       api.get(`/owner/settings`),
-      api.get(`/owner/payroll/reports${queryString}`),
       api.get(`/owner/reports/profit-loss${queryString}`)
-    ]).then(([invoicesRes, expensesRes, customersRes, usersRes, productsRes, settingsRes, payrollRes, pnlRes]) => {
+    ]).then(([invoicesRes, expensesRes, customersRes, usersRes, productsRes, settingsRes, pnlRes]) => {
       if (!active) return;
 
       const extractArray = (res) => {
@@ -127,11 +126,6 @@ export default function SalonAnalyticsPage() {
       const users = extractArray(usersRes);
       const products = extractArray(productsRes);
       const settings = settingsRes.status === "fulfilled" ? settingsRes.value?.data || {} : {};
-      const rawPayrollData = payrollRes.status === "fulfilled" ? payrollRes.value?.data : null;
-      const payrollRuns = Array.isArray(rawPayrollData) ? rawPayrollData : (rawPayrollData?.rows || []);
-      const totalPayroll = rawPayrollData?.totalNet != null
-        ? Number(rawPayrollData.totalNet)
-        : payrollRuns.reduce((sum, run) => sum + (Number(run.totalNet || run.totalAmount) || 0), 0);
       const pnlData = pnlRes.status === "fulfilled" ? pnlRes.value?.data || {} : {};
 
       // 1. REVENUE CALCULATIONS
@@ -242,7 +236,7 @@ export default function SalonAnalyticsPage() {
         productsRevenue: productsRev,
         membershipsRevenue: membershipsRev,
         expenses: totalExpenses || (Number(pnlData.expenses) || 0),
-        payroll: totalPayroll,
+        payroll: 0,
         totalCustomers: totalCust,
         newCustomers: newCust,
         repeatCustomers: repeatCust,
@@ -275,7 +269,7 @@ export default function SalonAnalyticsPage() {
   }, [period, startDate, endDate, selectedBranch, branchesList.length]);
 
   // Calculate Net Profit / Loss dynamically
-  const netProfit = metrics.revenue - metrics.expenses - metrics.payroll;
+  const netProfit = metrics.revenue - metrics.expenses;
   const profitMargin = metrics.revenue > 0 ? ((netProfit / metrics.revenue) * 100).toFixed(1) : "0.0";
   const isProfitable = netProfit >= 0;
 
@@ -364,12 +358,6 @@ export default function SalonAnalyticsPage() {
           <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>Approved & Paid Operational Expenses</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 16, borderLeft: "4px solid #f59e0b" }}>
-          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>Staff Payroll & Commissions</div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#d97706", marginTop: 4 }}>₹{metrics.payroll.toLocaleString("en-IN")}</div>
-          <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>Payroll Runs & Performance Commissions</div>
-        </div>
-
         <div className="panel-card" style={{ padding: 16, borderLeft: `4px solid ${isProfitable ? "#22c55e" : "#ef4444"}`, background: isProfitable ? "#f0fdf4" : "#fef2f2" }}>
           <div style={{ color: isProfitable ? "#166534" : "#991b1b", fontSize: 11, fontWeight: 700 }}>Net Profit / Loss</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: isProfitable ? "#15803d" : "#b91c1c", marginTop: 4 }}>
@@ -447,13 +435,8 @@ export default function SalonAnalyticsPage() {
                   <td style={{ padding: "8px 12px", textAlign: "right", color: "#334155" }}>-₹{metrics.expenses.toLocaleString("en-IN")}</td>
                 </tr>
 
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1e293b", fontSize: 13 }}>3. Staff Payroll & Commissions</td>
-                  <td style={{ padding: "10px 12px", fontWeight: 800, textAlign: "right", color: "#dc2626", fontSize: 13 }}>-₹{metrics.payroll.toLocaleString("en-IN")}</td>
-                </tr>
-
                 <tr style={{ background: isProfitable ? "#ecfdf5" : "#fef2f2", borderTop: "2px solid #e2e8f0" }}>
-                  <td style={{ padding: "12px 14px", fontWeight: 800, fontSize: 14, color: isProfitable ? "#166534" : "#991b1b" }}>Net Profit / Loss (1 - 2 - 3)</td>
+                  <td style={{ padding: "12px 14px", fontWeight: 800, fontSize: 14, color: isProfitable ? "#166534" : "#991b1b" }}>Net Profit / Loss (1 - 2)</td>
                   <td style={{ padding: "12px 14px", fontWeight: 900, fontSize: 16, textAlign: "right", color: isProfitable ? "#15803d" : "#b91c1c" }}>
                     {isProfitable ? `+₹${netProfit.toLocaleString("en-IN")}` : `-₹${Math.abs(netProfit).toLocaleString("en-IN")}`}
                   </td>
