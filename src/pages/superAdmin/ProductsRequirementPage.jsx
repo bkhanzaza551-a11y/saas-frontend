@@ -400,50 +400,74 @@ export default function SuperAdminProductsRequirementPage() {
       {showCatalogModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)" }} onClick={() => { setShowCatalogModal(false); setCatalogForm(emptyCatalog); setEditCatalogItem(null); }} />
-          <div style={{ background: "#fff", width: "100%", maxWidth: 540, borderRadius: 16, padding: 24, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)", position: "relative", zIndex: 1, maxHeight: "90vh", overflowY: "auto" }}>
-            <h2 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: "#0f172a" }}>{editCatalogItem ? "Edit Product" : "Add Product to Catalog"}</h2>
-            <form onSubmit={saveCatalogItem} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ background: "#fff", width: "100%", maxWidth: 640, borderRadius: 20, padding: 32, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", position: "relative", zIndex: 1, maxHeight: "90vh", overflowY: "auto" }}>
+            <h2 style={{ margin: "0 0 24px", fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{editCatalogItem ? "Edit Product" : "Add Product to Catalog"}</h2>
+            <form onSubmit={saveCatalogItem} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Product Name *</label>
-                <input type="text" required value={catalogForm.productName} onChange={e => setCatalogForm({ ...catalogForm, productName: e.target.value })} placeholder="e.g. Hair Dryer" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Product Name *</label>
+                <input type="text" required value={catalogForm.productName} onChange={e => setCatalogForm({ ...catalogForm, productName: e.target.value })} placeholder="e.g. L'Oreal Professional Hair Color" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Description</label>
-                <textarea rows={2} value={catalogForm.description} onChange={e => setCatalogForm({ ...catalogForm, description: e.target.value })} placeholder="Product description..." style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }} />
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Description</label>
+                <textarea rows={3} value={catalogForm.description} onChange={e => setCatalogForm({ ...catalogForm, description: e.target.value })} placeholder="Enter detailed product description..." style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Category</label>
-                  <input type="text" value={catalogForm.category} onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })} placeholder="e.g. Hair Care" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Category</label>
+                  <select value={catalogForm.category} onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none", background: "#fff", cursor: "pointer" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"}>
+                    <option value="">Select Category</option>
+                    <option value="Hair Care">Hair Care</option>
+                    <option value="Skin Care">Skin Care</option>
+                    <option value="Body Care">Body Care</option>
+                    <option value="Makeup">Makeup</option>
+                    <option value="Nail Care">Nail Care</option>
+                    <option value="Spa & Massage">Spa & Massage</option>
+                    <option value="Men's Grooming">Men's Grooming</option>
+                    <option value="Tools & Equipment">Tools & Equipment</option>
+                    <option value="Miscellaneous">Miscellaneous</option>
+                  </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Brand</label>
-                  <input type="text" value={catalogForm.brand} onChange={e => setCatalogForm({ ...catalogForm, brand: e.target.value })} placeholder="e.g. L'Oreal" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Pack Size</label>
-                  <input type="text" value={catalogForm.packSize} onChange={e => setCatalogForm({ ...catalogForm, packSize: e.target.value })} placeholder="e.g. 500ml" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Unit Pack Size</label>
-                  <input type="text" value={catalogForm.unitPackSize} onChange={e => setCatalogForm({ ...catalogForm, unitPackSize: e.target.value })} placeholder="e.g. per piece" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Default Price (₹)</label>
-                  <input type="number" min="0" step="0.01" value={catalogForm.defaultPrice} onChange={e => setCatalogForm({ ...catalogForm, defaultPrice: e.target.value })} placeholder="0.00" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Available Quantity</label>
-                  <input type="number" min="0" value={catalogForm.availableQty} onChange={e => setCatalogForm({ ...catalogForm, availableQty: e.target.value })} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }} />
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Brand</label>
+                  <input type="text" value={catalogForm.brand} onChange={e => setCatalogForm({ ...catalogForm, brand: e.target.value })} placeholder="e.g. L'Oreal" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8, borderTop: "1px solid #eee", paddingTop: 16 }}>
-                <button type="button" onClick={() => { setShowCatalogModal(false); setCatalogForm(emptyCatalog); setEditCatalogItem(null); }} className="btn btn-secondary" style={{ padding: "8px 20px" }}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ padding: "8px 20px" }}>{editCatalogItem ? "Update" : "Add Product"}</button>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Pack Size (Quantity)</label>
+                  <input type="text" value={catalogForm.packSize} onChange={e => setCatalogForm({ ...catalogForm, packSize: e.target.value })} placeholder="e.g. 500" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Unit of Measurement</label>
+                  <select value={catalogForm.unitPackSize} onChange={e => setCatalogForm({ ...catalogForm, unitPackSize: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none", background: "#fff", cursor: "pointer" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"}>
+                    <option value="">Select Unit</option>
+                    <option value="ml">ml (Milliliter)</option>
+                    <option value="L">L (Liter)</option>
+                    <option value="g">g (Gram)</option>
+                    <option value="kg">kg (Kilogram)</option>
+                    <option value="piece">Piece</option>
+                    <option value="pack">Pack</option>
+                    <option value="kit">Kit</option>
+                    <option value="box">Box</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Default Price (₹)</label>
+                  <div style={{ position: "relative" }}>
+                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b", fontWeight: 600 }}>₹</span>
+                    <input type="number" min="0" step="0.01" value={catalogForm.defaultPrice} onChange={e => setCatalogForm({ ...catalogForm, defaultPrice: e.target.value })} placeholder="0.00" style={{ width: "100%", padding: "12px 14px 12px 32px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Available Quantity</label>
+                  <input type="number" min="0" value={catalogForm.availableQty} onChange={e => setCatalogForm({ ...catalogForm, availableQty: e.target.value })} placeholder="0" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 12, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
+                <button type="button" onClick={() => { setShowCatalogModal(false); setCatalogForm(emptyCatalog); setEditCatalogItem(null); }} style={{ padding: "10px 24px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#475569", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background="#e2e8f0"} onMouseOut={e => e.currentTarget.style.background="#f1f5f9"}>Cancel</button>
+                <button type="submit" style={{ padding: "10px 28px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", color: "white", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.transform="translateY(-1px)"} onMouseOut={e => e.currentTarget.style.transform="none"}>{editCatalogItem ? "Update Product" : "Add Product"}</button>
               </div>
             </form>
           </div>
