@@ -317,11 +317,11 @@ export default function Salon360ProfilePage() {
                   <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "10px 12px" }}>{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "-"}</td>
                     <td style={{ padding: "10px 12px", fontWeight: 600 }}>₹{p.amount || 0}</td>
-                    <td style={{ padding: "10px 12px" }}>{p.method || "-"}</td>
+                    <td style={{ padding: "10px 12px" }}>{p.mode || "-"}</td>
                     <td style={{ padding: "10px 12px" }}>
                       <span style={{ background: p.status === "PAID" ? "#ecfdf5" : "#fffbeb", color: p.status === "PAID" ? "#10b981" : "#d97706", padding: "2px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>{p.status || "PENDING"}</span>
                     </td>
-                    <td style={{ padding: "10px 12px", color: "#64748b" }}>{p.notes || "-"}</td>
+                    <td style={{ padding: "10px 12px", color: "#64748b" }}>{p.note || "-"}</td>
                   </tr>
                 ))}
               </tbody>
