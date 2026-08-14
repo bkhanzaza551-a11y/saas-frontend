@@ -164,68 +164,77 @@ export default function SuperAdminDashboard() {
         data.attentionRequired.urgentTickets?.length > 0 ||
         data.attentionRequired.pendingPayments?.length > 0
       ) && (
-        <div style={{ background: "linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)", border: "1px solid #fed7aa", borderRadius: 16, padding: 24, marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#f97316", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <AlertTriangle size={16} />
+        <div style={{ background: "#fff", borderRadius: 16, padding: "24px 28px", marginBottom: 32, border: "1px solid #fca5a5", boxShadow: "0 10px 25px -5px rgba(239, 68, 68, 0.1), 0 0 0 1px rgba(239, 68, 68, 0.05)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)" }}>
+              <AlertTriangle size={18} />
             </div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#9a3412" }}>Attention Required</h3>
+            <div>
+              <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#7f1d1d" }}>Attention Required</h3>
+              <p style={{ margin: "2px 0 0 0", fontSize: "0.85rem", color: "#991b1b" }}>Items requiring your immediate action</p>
+            </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
             {data.attentionRequired.expiringSalons?.length > 0 && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#c2410c", textTransform: "uppercase", marginBottom: 8 }}>Expiring Soon ({data.attentionRequired.expiringSalons.length})</div>
+              <div style={{ background: "#fffaf0", borderRadius: 12, padding: 16, borderLeft: "4px solid #f59e0b", borderTop: "1px solid #fef3c7", borderRight: "1px solid #fef3c7", borderBottom: "1px solid #fef3c7", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Expiring Soon ({data.attentionRequired.expiringSalons.length})</div>
                 {data.attentionRequired.expiringSalons.slice(0, 3).map((s) => (
-                  <div key={s.salonId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #fef3c7" }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{s.salonName}</span>
-                    <span style={{ fontSize: 11, color: "#d97706", fontWeight: 600 }}>{new Date(s.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                  <div key={s.salonId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px dashed #fde68a" }}>
+                    <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.salonName}</span>
+                    <span style={{ fontSize: "0.8rem", color: "#b45309", fontWeight: 700, background: "#fef3c7", padding: "2px 8px", borderRadius: 12 }}>{new Date(s.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
                   </div>
                 ))}
                 {data.attentionRequired.expiringSalons.length > 3 && (
-                  <Link to="/super-admin/subscriptions" style={{ fontSize: 12, color: "#7c3aed", fontWeight: 600, textDecoration: "none" }}>+{data.attentionRequired.expiringSalons.length - 3} more →</Link>
+                  <div style={{ paddingTop: 10, textAlign: "center" }}>
+                    <Link to="/super-admin/subscriptions" style={{ fontSize: "0.8rem", color: "#d97706", fontWeight: 700, textDecoration: "none" }}>View All +{data.attentionRequired.expiringSalons.length - 3}</Link>
+                  </div>
                 )}
               </div>
             )}
+            
             {data.attentionRequired.suspendedCount > 0 && (
-              <div onClick={() => navigate("/super-admin/salons?status=SUSPENDED")} style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa", cursor: "pointer" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#c2410c", textTransform: "uppercase", marginBottom: 8 }}>Suspended Salons</div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: "#ef4444" }}>{data.attentionRequired.suspendedCount}</div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>Require action →</div>
+              <div onClick={() => navigate("/super-admin/salons?status=SUSPENDED")} style={{ background: "#fef2f2", borderRadius: 12, padding: 16, borderLeft: "4px solid #ef4444", borderTop: "1px solid #fee2e2", borderRight: "1px solid #fee2e2", borderBottom: "1px solid #fee2e2", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", cursor: "pointer", transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseOut={e => e.currentTarget.style.transform="none"}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#dc2626", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Suspended Salons</div>
+                <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#b91c1c", lineHeight: 1 }}>{data.attentionRequired.suspendedCount}</div>
+                <div style={{ fontSize: "0.85rem", color: "#991b1b", marginTop: 8, fontWeight: 600 }}>Review required →</div>
               </div>
             )}
+            
             {(data.attentionRequired.pendingProductRequests > 0 || data.attentionRequired.pendingStaffRequests > 0) && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fed7aa" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", marginBottom: 8 }}>Pending Requests</div>
-                <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-                  <div onClick={() => navigate("/super-admin/product-requests?status=PENDING")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f5f3ff", borderRadius: 8, cursor: "pointer" }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "#7c3aed" }}>{data.attentionRequired.pendingProductRequests}</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Products</div>
+              <div style={{ background: "#f8fafc", borderRadius: 12, padding: 16, borderLeft: "4px solid #8b5cf6", borderTop: "1px solid #e2e8f0", borderRight: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6d28d9", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Pending Approvals</div>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <div onClick={() => navigate("/super-admin/product-requests?status=PENDING")} style={{ flex: 1, padding: "12px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4, transition: "border-color 0.2s" }} onMouseOver={e => e.currentTarget.style.borderColor="#8b5cf6"} onMouseOut={e => e.currentTarget.style.borderColor="#e2e8f0"}>
+                    <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#7c3aed" }}>{data.attentionRequired.pendingProductRequests}</div>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Products</div>
                   </div>
-                  <div onClick={() => navigate("/super-admin/staff-requests?status=OPEN")} style={{ flex: 1, textAlign: "center", padding: 8, background: "#f0fdf4", borderRadius: 8, cursor: "pointer" }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "#10b981" }}>{data.attentionRequired.pendingStaffRequests}</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Staff</div>
+                  <div onClick={() => navigate("/super-admin/staff-requests?status=OPEN")} style={{ flex: 1, padding: "12px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10, cursor: "pointer", display: "flex", flexDirection: "column", gap: 4, transition: "border-color 0.2s" }} onMouseOver={e => e.currentTarget.style.borderColor="#10b981"} onMouseOut={e => e.currentTarget.style.borderColor="#e2e8f0"}>
+                    <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#10b981" }}>{data.attentionRequired.pendingStaffRequests}</div>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Staff</div>
                   </div>
                 </div>
               </div>
             )}
+            
             {data.attentionRequired.urgentTickets?.length > 0 && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fca5a5" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#b91c1c", textTransform: "uppercase", marginBottom: 8 }}>Urgent Tickets ({data.attentionRequired.urgentTickets.length})</div>
+              <div style={{ background: "#fff1f2", borderRadius: 12, padding: 16, borderLeft: "4px solid #e11d48", borderTop: "1px solid #ffe4e6", borderRight: "1px solid #ffe4e6", borderBottom: "1px solid #ffe4e6", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#be123c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Urgent Tickets ({data.attentionRequired.urgentTickets.length})</div>
                 {data.attentionRequired.urgentTickets.slice(0, 3).map((t) => (
-                  <div key={t.id} onClick={() => navigate("/super-admin/support-tickets?status=OPEN")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #fee2e2", cursor: "pointer" }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{t.salon?.name || "Global"}</span>
-                    <span style={{ fontSize: 11, color: "#b91c1c", fontWeight: 700 }}>{t.priority}</span>
+                  <div key={t.id} onClick={() => navigate("/super-admin/support-tickets?status=OPEN")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px dashed #fecdd3", cursor: "pointer" }}>
+                    <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.salon?.name || "Global"}</span>
+                    <span style={{ fontSize: "0.7rem", color: "#fff", background: "#e11d48", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>HIGH</span>
                   </div>
                 ))}
               </div>
             )}
+
             {data.attentionRequired.pendingPayments?.length > 0 && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #fcd34d" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#b45309", textTransform: "uppercase", marginBottom: 8 }}>Overdue Payments ({data.attentionRequired.pendingPayments.length})</div>
+              <div style={{ background: "#fefce8", borderRadius: 12, padding: 16, borderLeft: "4px solid #eab308", borderTop: "1px solid #fef08a", borderRight: "1px solid #fef08a", borderBottom: "1px solid #fef08a", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#a16207", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Overdue Payments ({data.attentionRequired.pendingPayments.length})</div>
                 {data.attentionRequired.pendingPayments.slice(0, 3).map((p) => (
-                  <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #fef3c7" }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{p.salon?.name}</span>
-                    <span style={{ fontSize: 11, color: "#d97706", fontWeight: 700 }}>₹{fmt(p.amount)}</span>
+                  <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px dashed #fde047" }}>
+                    <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.salon?.name}</span>
+                    <span style={{ fontSize: "0.85rem", color: "#b45309", fontWeight: 800 }}>₹{fmt(p.amount)}</span>
                   </div>
                 ))}
               </div>
