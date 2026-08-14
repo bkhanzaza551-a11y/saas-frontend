@@ -555,7 +555,7 @@ export default function DemoLeadsPage() {
       ) : rows.length === 0 ? (
         <EmptyState title="No leads found" message="Add a lead or wait for new website inquiries." />
       ) : (
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, overflowX: "auto", overflowY: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0", color: "#64748b", fontWeight: 700, textAlign: "left" }}>
