@@ -3,7 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
-import { Plus, Eye, Search, Calendar, Download } from "lucide-react";
+import { Plus, Eye, Search, Calendar, Download, Filter } from "lucide-react";
 
 const fmt = (val) => `₹${Number(val || 0).toLocaleString("en-IN")}`;
 const localDateStr = (d = new Date()) => {
@@ -191,46 +191,76 @@ export default function FinancialReportsPage() {
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-          <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-          <input value={q} placeholder="Search TXN ID, salon, reference..." onChange={e => setQ(e.target.value)} style={{ width: "100%", height: 40, padding: "0 14px 0 34px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+      <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
+        
+        {/* Search Bar Row */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
+            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <Search size={18} />
+            </div>
+            <input
+              value={q}
+              placeholder="Search TXN ID, salon, reference..."
+              onChange={(e) => setQ(e.target.value)}
+              style={{ width: "100%", height: 44, padding: "0 16px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              onFocus={e => e.target.style.borderColor = "#6366f1"}
+              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+            />
+          </div>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f8fafc", padding: "4px", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+            {DATE_PRESETS.map(p => (
+              <button key={p.key} onClick={() => { setDatePreset(p.key); if (p.key === "custom") { setDateFrom(""); setDateTo(""); } }} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: datePreset === p.key ? "#fff" : "transparent", color: datePreset === p.key ? "#4f46e5" : "#64748b", fontSize: 13, fontWeight: datePreset === p.key ? 700 : 500, cursor: "pointer", boxShadow: datePreset === p.key ? "0 1px 2px rgba(0,0,0,0.05)" : "none", transition: "all 0.2s" }}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+          
+          <button onClick={applyFilters} disabled={loading} style={{ height: 44, padding: "0 24px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s", opacity: loading ? 0.7 : 1 }} onMouseOver={e => !loading && (e.currentTarget.style.transform="translateY(-1px)")} onMouseOut={e => !loading && (e.currentTarget.style.transform="none")}>
+            {loading ? "Loading..." : "Apply Filters"}
+          </button>
+          
+          <button 
+            onClick={() => { setQ(""); setSalonFilter(""); setModeFilter(""); setStatusFilter(""); setPaymentForFilter(""); setDatePreset("all"); setDateFrom(""); setDateTo(""); applyFilters(); }}
+            style={{ height: 44, padding: "0 20px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
+            onMouseOver={e => { e.currentTarget.style.background="#e2e8f0"; e.currentTarget.style.color="#0f172a"; }}
+            onMouseOut={e => { e.currentTarget.style.background="#f1f5f9"; e.currentTarget.style.color="#475569"; }}
+          >
+            <Filter size={16} />
+            Reset
+          </button>
         </div>
-        <select value={salonFilter} onChange={e => setSalonFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff", minWidth: 140 }}>
-          <option value="">All Salons</option>
-          {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
-        <select value={paymentForFilter} onChange={e => setPaymentForFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          <option value="">All Purpose</option>
-          {PAYMENT_FOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <select value={modeFilter} onChange={e => setModeFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          <option value="">All Methods</option>
-          {PAYMENT_MODES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-        </select>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          {PAYMENT_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 20, alignItems: "center" }}>
-        <Calendar size={15} color="#94a3b8" />
-        <div style={{ display: "flex", gap: 4 }}>
-          {DATE_PRESETS.map(p => (
-            <button key={p.key} onClick={() => { setDatePreset(p.key); if (p.key === "custom") { setDateFrom(""); setDateTo(""); } }} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${datePreset === p.key ? "#4f46e5" : "#e2e8f0"}`, background: datePreset === p.key ? "#4f46e5" : "#fff", color: datePreset === p.key ? "#fff" : "#475569", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-              {p.label}
-            </button>
-          ))}
+        {/* Dropdowns Row */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
+          <select value={salonFilter} onChange={e => setSalonFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Salons</option>
+            {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          
+          <select value={paymentForFilter} onChange={e => setPaymentForFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Purpose</option>
+            {PAYMENT_FOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          
+          <select value={modeFilter} onChange={e => setModeFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Methods</option>
+            {PAYMENT_MODES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+          </select>
+          
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            {PAYMENT_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          
+          {datePreset === "custom" && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} title="Date from" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>to</span>
+              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} title="Date to" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
+            </div>
+          )}
         </div>
-        {datePreset === "custom" && (
-          <>
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ height: 34, padding: "0 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 12 }} />
-            <span style={{ color: "#94a3b8" }}>to</span>
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ height: 34, padding: "0 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 12 }} />
-          </>
-        )}
-        <button onClick={applyFilters} disabled={loading} style={{ height: 34, padding: "0 14px", background: "#4f46e5", color: "white", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }}>{loading ? "Loading..." : "Apply"}</button>
-        <button onClick={() => { setQ(""); setSalonFilter(""); setModeFilter(""); setStatusFilter(""); setPaymentForFilter(""); setDatePreset("all"); setDateFrom(""); setDateTo(""); }} style={{ height: 34, padding: "0 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#64748b" }}>Reset</button>
       </div>
 
       {transactions.length === 0 ? (
