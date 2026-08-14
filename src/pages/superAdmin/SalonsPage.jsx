@@ -7,6 +7,7 @@ import PageLoader from "../../components/PageLoader";
 import { useAlert } from "../../context/AlertContext";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import CustomSelect from "../../components/CustomSelect";
+import { Country, State, City } from "country-state-city";
 import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Landmark, Globe, Clock, CreditCard, Search, Filter } from "lucide-react";
 
 const businessTypes = ["Salon", "Spa", "Beauty Clinic", "Nail Studio", "Tattoo Studio", "Pet Grooming", "Wellness Center"];
@@ -434,20 +435,46 @@ const [cityFilter, setCityFilter] = useState("");
                   />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Country</span>
+                  <CustomSelect 
+                    value={form.country} 
+                    onChange={(e) => setForm({ ...form, country: e.target.value, state: "", city: "" })}
+                    options={Country.getAllCountries().map(c => ({ label: c.name, value: c.name }))}
+                    placeholder="Select Country"
+                  />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>State</span>
+                  <CustomSelect 
+                    value={form.state} 
+                    onChange={(e) => setForm({ ...form, state: e.target.value, city: "" })}
+                    options={
+                      (() => {
+                        const cCode = Country.getAllCountries().find(c => c.name === form.country)?.isoCode;
+                        return cCode ? State.getStatesOfCountry(cCode).map(s => ({ label: s.name, value: s.name })) : [];
+                      })()
+                    }
+                    placeholder="Select State"
+                  />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>City *</span>
-                  <input placeholder="City" value={form.city} required onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                  <CustomSelect 
+                    value={form.city} 
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
+                    options={
+                      (() => {
+                        const cCode = Country.getAllCountries().find(c => c.name === form.country)?.isoCode;
+                        const sCode = cCode ? State.getStatesOfCountry(cCode).find(s => s.name === form.state)?.isoCode : null;
+                        return (cCode && sCode) ? City.getCitiesOfState(cCode, sCode).map(c => ({ label: c.name, value: c.name })) : [];
+                      })()
+                    }
+                    placeholder="Select City"
+                  />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Address</span>
                   <input placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>State</span>
-                  <input placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Country</span>
-                  <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>PIN</span>
