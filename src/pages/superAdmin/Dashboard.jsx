@@ -268,27 +268,33 @@ export default function SuperAdminDashboard() {
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue</h3>
                 <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#f5f3ff", padding: "4px 10px", borderRadius: 100 }}>SaaS Health</span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-                <div style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+                <div style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                    <TrendingUp size={16} /> Monthly Recurring (MRR)
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+                    <TrendingUp size={16} /> MRR
                   </span>
-                  <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.monthlySubscriptionRevenue)}</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.monthlySubscriptionRevenue)}`}>
+                    ₹{fmt(data.monthlySubscriptionRevenue)}
+                  </div>
                 </div>
-                <div style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                    <IndianRupee size={16} /> Collected Revenue
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+                    <IndianRupee size={16} /> Collected
                   </span>
-                  <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.totalSubscriptionRevenue)}</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.totalSubscriptionRevenue)}`}>
+                    ₹{fmt(data.totalSubscriptionRevenue)}
+                  </div>
                 </div>
-                <div style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 16, padding: "24px", color: "white", boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                    <Clock size={16} /> Pending Collection
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+                    <Clock size={16} /> Pending
                   </span>
-                  <div style={{ fontSize: "2.2rem", fontWeight: 850, marginTop: 12, letterSpacing: "-0.02em" }}>₹{fmt(data.pendingSubscriptionRevenue)}</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.pendingSubscriptionRevenue)}`}>
+                    ₹{fmt(data.pendingSubscriptionRevenue)}
+                  </div>
                 </div>
               </div>
             </>
