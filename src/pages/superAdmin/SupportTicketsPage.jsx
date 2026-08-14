@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X } from "lucide-react";
+import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
 
 const STATUSES = [
   { label: "Open", value: "OPEN", color: "#ef4444", bg: "#fef2f2" },
@@ -218,63 +218,69 @@ export default function SuperAdminSupportTicketsPage() {
       </div>
 
       {/* Filters */}
-      <div className="panel-card" style={{ marginBottom: 20, padding: 16, background: "white" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr auto auto", gap: 10, alignItems: "end" }}>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>Search</label>
-            <input value={filters.q} placeholder="Title, salon, agent..." onChange={e => setFilters({ ...filters, q: e.target.value })}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1", boxSizing: "border-box" }} />
+      <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
+        
+        {/* Search Bar Row */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
+            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <Search size={18} />
+            </div>
+            <input
+              value={filters.q}
+              placeholder="Search by title, salon, agent..."
+              onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+              style={{ width: "100%", height: 44, padding: "0 16px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              onFocus={e => e.target.style.borderColor = "#6366f1"}
+              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+            />
           </div>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>Status</label>
-            <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1" }}>
-              <option value="">All Statuses</option>
-              {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>Priority</label>
-            <select value={filters.priority} onChange={e => setFilters({ ...filters, priority: e.target.value })}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1" }}>
-              <option value="">All Priorities</option>
-              {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>Category</label>
-            <select value={filters.category} onChange={e => setFilters({ ...filters, category: e.target.value })}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1" }}>
-              <option value="">All Categories</option>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>Assigned Agent</label>
-            <select value={filters.assignedToId} onChange={e => setFilters({ ...filters, assignedToId: e.target.value })}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1" }}>
-              <option value="">All Agents</option>
-              {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-          <button onClick={() => load(filters)} style={{ padding: "8px 16px", borderRadius: 8, background: "#6366f1", color: "white", fontWeight: 700, fontSize: 12, border: "none", cursor: "pointer" }}>Apply</button>
-          <button onClick={() => { const empty = { q: "", status: "", priority: "", category: "", assignedToId: "", assignedToMe: false, from: "", to: "" }; setFilters(empty); load(empty); }}
-            style={{ padding: "8px 16px", borderRadius: 8, background: "#f1f5f9", color: "#475569", fontWeight: 700, fontSize: 12, border: "1px solid #e2e8f0", cursor: "pointer" }}>Reset</button>
-        </div>
-        <div style={{ display: "flex", gap: 10, marginTop: 10, alignItems: "center" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#475569", cursor: "pointer", padding: "6px 12px", borderRadius: 8, border: filters.assignedToMe ? "1px solid #6366f1" : "1px solid #cbd5e1", background: filters.assignedToMe ? "#eef2ff" : "white" }}>
-            <input type="checkbox" checked={filters.assignedToMe} onChange={e => setFilters({ ...filters, assignedToMe: e.target.checked })} style={{ width: 14, height: 14 }} />
+          
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: filters.assignedToMe ? "#4f46e5" : "#475569", cursor: "pointer", padding: "0 16px", height: 44, borderRadius: 8, border: filters.assignedToMe ? "1px solid #818cf8" : "1px solid #cbd5e1", background: filters.assignedToMe ? "#eef2ff" : "white", transition: "all 0.2s" }}>
+            <input type="checkbox" checked={filters.assignedToMe} onChange={e => setFilters({ ...filters, assignedToMe: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#4f46e5", cursor: "pointer" }} />
             Assigned to Me
           </label>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>From</label>
-            <input type="date" value={filters.from} onChange={e => setFilters({ ...filters, from: e.target.value })}
-              style={{ padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1" }} />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 3 }}>To</label>
-            <input type="date" value={filters.to} onChange={e => setFilters({ ...filters, to: e.target.value })}
-              style={{ padding: "8px 12px", borderRadius: 8, fontSize: 13, border: "1px solid #cbd5e1" }} />
+          
+          <button onClick={() => load(filters)} style={{ height: 44, padding: "0 24px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform="translateY(-1px)"} onMouseOut={e => e.currentTarget.style.transform="none"}>
+            Apply Filters
+          </button>
+          <button 
+            onClick={() => { const empty = { q: "", status: "", priority: "", category: "", assignedToId: "", assignedToMe: false, from: "", to: "" }; setFilters(empty); load(empty); }}
+            style={{ height: 44, padding: "0 20px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
+            onMouseOver={e => { e.currentTarget.style.background="#e2e8f0"; e.currentTarget.style.color="#0f172a"; }}
+            onMouseOut={e => { e.currentTarget.style.background="#f1f5f9"; e.currentTarget.style.color="#475569"; }}
+          >
+            <Filter size={16} />
+            Reset
+          </button>
+        </div>
+
+        {/* Dropdowns Row */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
+          <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Statuses</option>
+            {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+          
+          <select value={filters.priority} onChange={e => setFilters({ ...filters, priority: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Priorities</option>
+            {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+          </select>
+          
+          <select value={filters.category} onChange={e => setFilters({ ...filters, category: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Categories</option>
+            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          
+          <select value={filters.assignedToId} onChange={e => setFilters({ ...filters, assignedToId: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Agents</option>
+            {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
+            <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>to</span>
+            <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
           </div>
         </div>
       </div>
