@@ -811,141 +811,172 @@ export default function DemoLeadsPage() {
 
       {/* Manual Add Lead Modal */}
       {isAddModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 500, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Add New Lead</h2>
-              <button onClick={() => { setIsAddModalOpen(false); setDuplicateInfo(null); }} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 540, borderRadius: 20, padding: "28px 32px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>Add New Lead</h2>
+              <button onClick={() => { setIsAddModalOpen(false); setDuplicateInfo(null); }} style={{ border: "none", background: "#f1f5f9", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b", transition: "all 0.2s" }} onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>
+                <XCircle size={18} />
+              </button>
             </div>
 
             {duplicateInfo && (
-              <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "12px 14px", marginBottom: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, color: "#991b1b", fontSize: 13, marginBottom: 6 }}>
+              <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "14px 16px", marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, color: "#991b1b", fontSize: "0.85rem", marginBottom: 6 }}>
                   <Eye size={16} /> Duplicate Lead Detected
                 </div>
-                <p style={{ margin: "0 0 10px", fontSize: 12, color: "#7f1d1d" }}>
+                <p style={{ margin: "0 0 12px", fontSize: "0.8rem", color: "#7f1d1d" }}>
                   {duplicateInfo.message} Existing: <strong>{duplicateInfo.lead.name}</strong>{duplicateInfo.lead.company ? ` (${duplicateInfo.lead.company})` : ""}
                 </p>
                 <button
                   type="button"
                   onClick={() => { setIsAddModalOpen(false); setDuplicateInfo(null); openLeadById(duplicateInfo.lead.id); }}
-                  style={{ padding: "8px 14px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ padding: "8px 16px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", transition: "background 0.2s" }}
+                  onMouseOver={e => e.currentTarget.style.background = "#dc2626"}
+                  onMouseOut={e => e.currentTarget.style.background = "#ef4444"}
                 >
                   View Existing Lead
                 </button>
               </div>
             )}
 
-            <form onSubmit={handleAddLeadSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <form onSubmit={handleAddLeadSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Contact Person Name *</label>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Contact Person Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Rahul Sharma"
                   value={leadForm.name}
                   onChange={e => setLeadForm({ ...leadForm, name: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
+                  onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                  onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Email Address *</label>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Email Address *</label>
                   <input
                     type="email"
                     required
                     placeholder="rahul@salon.com"
                     value={leadForm.email}
                     onChange={e => setLeadForm({ ...leadForm, email: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
+                    onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                    onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Phone Number *</label>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Phone Number *</label>
                   <input
                     type="tel"
                     required
                     placeholder="+91 9876543210"
                     value={leadForm.phone}
                     onChange={e => setLeadForm({ ...leadForm, phone: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
+                    onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                    onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Salon / Business Name *</label>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Salon / Business Name *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Glamour Studio"
                     value={leadForm.company}
                     onChange={e => setLeadForm({ ...leadForm, company: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
+                    onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                    onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Lead Source</label>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Lead Source</label>
                   <CustomSelect
                     value={leadForm.leadSource}
                     onChange={e => setLeadForm({ ...leadForm, leadSource: e.target.value })}
                     options={LEAD_SOURCES.map(src => ({ label: src, value: src }))}
+                    style={{ width: "100%" }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Initial Inquiry Message / Request</label>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Initial Inquiry Message / Request</label>
                 <textarea
                   rows={2}
                   placeholder="e.g. Interested in multi-branch billing & POS demo..."
                   value={leadForm.message}
                   onChange={e => setLeadForm({ ...leadForm, message: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", resize: "vertical", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
+                  onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                  onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                 />
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Internal Staff Notes</label>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Internal Staff Notes</label>
                 <textarea
                   rows={2}
                   placeholder="Internal notes about lead requirements or callback instructions..."
                   value={leadForm.leadNotes}
                   onChange={e => setLeadForm({ ...leadForm, leadNotes: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", resize: "vertical", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
+                  onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                  onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Assign To</label>
-                  <select
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Assign To</label>
+                  <CustomSelect
                     value={leadForm.assignedUserId}
                     onChange={e => setLeadForm({ ...leadForm, assignedUserId: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
-                  >
-                    <option value="">Unassigned</option>
-                    {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
-                  </select>
+                    options={[{label: "Unassigned", value: ""}, ...staff.map(s => ({ label: `${s.name} (${s.email})`, value: s.id }))]}
+                    style={{ width: "100%" }}
+                  />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Next Follow-Up</label>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Next Follow-Up</label>
                   <input
                     type="datetime-local"
                     value={leadForm.nextFollowUpAt}
                     onChange={e => setLeadForm({ ...leadForm, nextFollowUpAt: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b", height: 42 }}
+                    onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                    onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 12, borderTop: "1px solid #eee", paddingTop: 16 }}>
-                <button type="button" onClick={() => setIsAddModalOpen(false)} className="btn btn-secondary">Cancel</button>
-                <button type="submit" disabled={addingLead} className="btn btn-primary" style={{ opacity: addingLead ? 0.7 : 1 }}>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 16, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
+                <button 
+                  type="button" 
+                  onClick={() => setIsAddModalOpen(false)} 
+                  style={{ padding: "0 20px", height: 44, background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 10, fontSize: "0.9rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
+                  onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }}
+                  onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#475569"; }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={addingLead} 
+                  style={{ padding: "0 24px", height: 44, background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", opacity: addingLead ? 0.7 : 1, transition: "all 0.2s" }}
+                  onMouseOver={e => { if(!addingLead) { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; } }}
+                  onMouseOut={e => { if(!addingLead) { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; } }}
+                >
                   {addingLead ? "Adding..." : "Add Lead"}
                 </button>
               </div>
