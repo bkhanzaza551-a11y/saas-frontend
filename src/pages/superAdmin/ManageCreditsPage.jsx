@@ -134,27 +134,27 @@ export default function ManageCreditsPage() {
 
   const cardStyle = {
     background: "#fff",
-    borderRadius: "16px",
-    boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01)",
-    border: "1px solid #f1f5f9",
+    borderRadius: "20px",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+    border: "1px solid #e2e8f0",
     overflow: "hidden",
     display: "flex",
     flexDirection: "column"
   };
 
   const cardHeaderStyle = {
-    padding: "20px 24px",
-    borderBottom: "1px solid #f1f5f9",
+    padding: "24px 28px",
+    borderBottom: "1px solid #e2e8f0",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    background: "#f8fafc"
+    background: "#fff"
   };
 
   const inputStyle = {
     width: "100%",
-    padding: "10px 14px",
-    borderRadius: "8px",
+    padding: "12px 16px",
+    borderRadius: "10px",
     border: "1px solid #cbd5e1",
     fontSize: "0.95rem",
     color: "#334155",
@@ -163,17 +163,17 @@ export default function ManageCreditsPage() {
   };
 
   return (
-    <div style={{ padding: "32px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Poppins', sans-serif", color: "#1e293b" }}>
+    <div style={{ padding: "32px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
       {/* Header */}
-      <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div style={{ marginBottom: "36px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#0f172a", margin: "0 0 4px", display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ background: "#eff6ff", color: "#3b82f6", padding: "10px", borderRadius: "12px" }}>
+          <h1 style={{ fontSize: "32px", fontWeight: "800", color: "#0f172a", margin: "0 0 8px", display: "flex", alignItems: "center", gap: "14px" }}>
+            <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", padding: "12px", borderRadius: "14px", boxShadow: "0 4px 10px rgba(16, 185, 129, 0.2)" }}>
               <CreditCard size={28} />
             </div>
             WhatsApp Credits
           </h1>
-          <p style={{ margin: 0, color: "#64748b", fontSize: "15px" }}>Professional management of salon communication credits and pricing</p>
+          <p style={{ margin: 0, color: "#64748b", fontSize: "16px", fontWeight: 500 }}>Manage communication credits, configure pricing, and monitor salon usage.</p>
         </div>
       </div>
 
@@ -188,9 +188,9 @@ export default function ManageCreditsPage() {
               <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>Credit Packages</h3>
               <button 
                 onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "", currency: "INR" }); setPkgModalOpen(true); }}
-                style={{ background: "#0f172a", color: "white", border: "none", borderRadius: "8px", padding: "8px 16px", fontSize: "0.85rem", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", transition: "background 0.2s" }}
-                onMouseOver={(e) => e.currentTarget.style.background = "#1e293b"}
-                onMouseOut={(e) => e.currentTarget.style.background = "#0f172a"}
+                style={{ background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }}
+                onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
+                onMouseOut={(e) => e.currentTarget.style.transform = "none"}
               >
                 <PlusCircle size={16} /> Create Package
               </button>
@@ -199,26 +199,26 @@ export default function ManageCreditsPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                 <thead>
                   <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    <th style={{ padding: "16px 24px", fontWeight: 600 }}>Package Name</th>
-                    <th style={{ padding: "16px 24px", fontWeight: 600 }}>Credits</th>
-                    <th style={{ padding: "16px 24px", fontWeight: 600 }}>Price</th>
-                    <th style={{ padding: "16px 24px", fontWeight: 600, width: "60px", textAlign: "center" }}>Actions</th>
+                    <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Package Name</th>
+                    <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Credits</th>
+                    <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Price</th>
+                    <th style={{ padding: "16px 28px", fontWeight: 700, width: "60px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {packages.length === 0 ? (
-                    <tr><td colSpan="4" style={{ padding: "32px", textAlign: "center", color: "#94a3b8" }}>No packages found. Create one above.</td></tr>
+                    <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", color: "#94a3b8", fontWeight: 500 }}>No packages found. Create one above.</td></tr>
                   ) : packages.map(pkg => (
-                    <tr key={pkg.id} style={{ borderTop: "1px solid #f1f5f9", transition: "background 0.2s" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
-                      <td style={{ padding: "16px 24px", fontWeight: 600, color: "#334155" }}>{pkg.name}</td>
-                      <td style={{ padding: "16px 24px", color: "#0f172a", fontWeight: 500 }}>
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#eff6ff", color: "#2563eb", padding: "4px 10px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 600 }}>
+                    <tr key={pkg.id} style={{ transition: "background 0.2s", borderBottom: "1px solid #f1f5f9" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
+                      <td style={{ padding: "20px 28px", fontWeight: 700, color: "#1e293b", fontSize: "0.95rem" }}>{pkg.name}</td>
+                      <td style={{ padding: "20px 28px", color: "#0f172a" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#ecfdf5", color: "#059669", padding: "6px 14px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 700 }}>
                           {pkg.credits.toLocaleString()}
                         </div>
                       </td>
-                      <td style={{ padding: "16px 24px", color: "#0f172a", fontWeight: 600 }}>{formatCurrency(pkg.price)}</td>
-                      <td style={{ padding: "16px 24px", textAlign: "center" }}>
-                        <button onClick={() => { setPkgForm(pkg); setPkgModalOpen(true); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: "4px", borderRadius: "4px" }} title="Edit Package" onMouseOver={(e) => { e.currentTarget.style.color = "#3b82f6"; e.currentTarget.style.background = "#eff6ff"; }} onMouseOut={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "transparent"; }}>
+                      <td style={{ padding: "20px 28px", color: "#1e293b", fontWeight: 700, fontSize: "0.95rem" }}>{formatCurrency(pkg.price)}</td>
+                      <td style={{ padding: "20px 28px", textAlign: "center" }}>
+                        <button onClick={() => { setPkgForm(pkg); setPkgModalOpen(true); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#94a3b8", padding: "8px", borderRadius: "8px", transition: "all 0.2s" }} title="Edit Package" onMouseOver={(e) => { e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.background = "#eef2ff"; }} onMouseOut={(e) => { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.background = "transparent"; }}>
                           <Edit2 size={18} />
                         </button>
                       </td>
@@ -238,23 +238,23 @@ export default function ManageCreditsPage() {
               <form onSubmit={handleSaveCosts} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 
                 <div>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>
-                    <MessageCircle size={16} color="#25d366" />
-                    WhatsApp Cost <span style={{ color: "#94a3b8", fontWeight: 400 }}>(Credits per message)</span>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.95rem", fontWeight: 700, color: "#334155", marginBottom: "12px" }}>
+                    <MessageCircle size={18} color="#10b981" />
+                    WhatsApp Cost <span style={{ color: "#94a3b8", fontWeight: 500 }}>(Credits per message)</span>
                   </label>
                   <div style={{ position: "relative" }}>
                     <input 
                       type="number" required min="0.01" step="0.01"
-                      style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1rem", fontWeight: 600 }}
+                      style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1.1rem", fontWeight: 700, borderColor: "#e2e8f0", transition: "border-color 0.2s" }}
                       value={costs.whatsappCreditCost} onChange={e => setCosts({...costs, whatsappCreditCost: e.target.value})} 
+                      onFocus={e => e.target.style.borderColor = "#10b981"}
+                      onBlur={e => e.target.style.borderColor = "#e2e8f0"}
                     />
                   </div>
                 </div>
 
-
-
-                <div style={{ marginTop: "8px" }}>
-                  <button type="submit" disabled={savingCosts} style={{ width: "100%", background: "#3b82f6", color: "white", border: "none", borderRadius: "8px", padding: "12px", fontSize: "1rem", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: savingCosts ? "not-allowed" : "pointer", opacity: savingCosts ? 0.7 : 1, transition: "background 0.2s" }} onMouseOver={(e) => !savingCosts && (e.currentTarget.style.background = "#2563eb")} onMouseOut={(e) => !savingCosts && (e.currentTarget.style.background = "#3b82f6")}>
+                <div style={{ marginTop: "12px" }}>
+                  <button type="submit" disabled={savingCosts} style={{ width: "100%", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: "10px", padding: "14px", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", cursor: savingCosts ? "not-allowed" : "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s", opacity: savingCosts ? 0.7 : 1 }} onMouseOver={(e) => !savingCosts && (e.currentTarget.style.transform = "translateY(-1px)")} onMouseOut={(e) => !savingCosts && (e.currentTarget.style.transform = "none")}>
                     <Save size={18} />
                     {savingCosts ? "Saving Settings..." : "Save Pricing Settings"}
                   </button>
@@ -268,61 +268,69 @@ export default function ManageCreditsPage() {
         <div style={cardStyle}>
           <div style={{ ...cardHeaderStyle, flexWrap: "wrap", gap: "16px" }}>
             <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>Salon Balances</h3>
-            <div style={{ position: "relative", minWidth: "250px" }}>
-              <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+            <div style={{ position: "relative", minWidth: "300px" }}>
+              <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+                <Search size={18} />
+              </div>
               <input 
                 type="text" 
                 placeholder="Search salons by name or email..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ ...inputStyle, paddingLeft: "36px", background: "#fff" }}
+                style={{ ...inputStyle, paddingLeft: "42px", background: "#f8fafc", borderColor: "#e2e8f0" }}
+                onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; }}
+                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; }}
               />
             </div>
           </div>
           <div style={{ padding: "0" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
               <thead>
-                <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #e2e8f0" }}>
-                  <th style={{ padding: "16px 24px", fontWeight: 600 }}>Salon Details</th>
-                  <th style={{ padding: "16px 24px", fontWeight: 600, textAlign: "right" }}>Available Credits</th>
-                  <th style={{ padding: "16px 24px", fontWeight: 600, width: "120px", textAlign: "center" }}>Action</th>
+                <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Salon Details</th>
+                  <th style={{ padding: "16px 28px", fontWeight: 700, textAlign: "right", borderBottom: "1px solid #e2e8f0" }}>Available Credits</th>
+                  <th style={{ padding: "16px 28px", fontWeight: 700, width: "200px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredSalons.length === 0 ? (
-                  <tr><td colSpan="3" style={{ padding: "32px", textAlign: "center", color: "#94a3b8" }}>No salons found matching your search.</td></tr>
+                  <tr><td colSpan="3" style={{ padding: "40px", textAlign: "center", color: "#94a3b8", fontWeight: 500 }}>No salons found matching your search.</td></tr>
                 ) : filteredSalons.map(salon => (
                   <tr key={salon.id} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.2s" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
-                    <td style={{ padding: "16px 24px" }}>
-                      <div style={{ fontWeight: 700, color: "#1e293b", fontSize: "0.95rem", marginBottom: "4px" }}>{salon.name}</div>
-                      <div style={{ color: "#64748b", fontSize: "0.85rem" }}>{salon.email}</div>
+                    <td style={{ padding: "20px 28px" }}>
+                      <div style={{ fontWeight: 700, color: "#1e293b", fontSize: "1rem", marginBottom: "6px" }}>{salon.name}</div>
+                      <div style={{ color: "#64748b", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: salon.customWhatsappEnabled ? "#10b981" : "#cbd5e1" }}></div>
+                        {salon.email}
+                      </div>
                     </td>
-                    <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                    <td style={{ padding: "20px 28px", textAlign: "right" }}>
                       <span style={{ 
-                        padding: "6px 12px", 
-                        borderRadius: "20px", 
-                        fontSize: "0.9rem",
-                        fontWeight: 700,
-                        background: salon.credits > 0 ? "#dcfce7" : "#fee2e2",
-                        color: salon.credits > 0 ? "#166534" : "#991b1b",
+                        padding: "8px 16px", 
+                        borderRadius: "24px", 
+                        fontSize: "0.95rem",
+                        fontWeight: 800,
+                        background: salon.credits > 0 ? "#ecfdf5" : "#fef2f2",
+                        color: salon.credits > 0 ? "#059669" : "#dc2626",
                         display: "inline-block",
                         minWidth: "80px",
-                        textAlign: "center"
+                        textAlign: "center",
+                        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
                       }}>
                         {Number(salon.credits || 0).toLocaleString()}
                       </span>
                     </td>
-                    <td style={{ padding: "16px 24px", textAlign: "center", display: "flex", gap: "8px", justifyContent: "center" }}>
+                    <td style={{ padding: "20px 28px", textAlign: "center", display: "flex", gap: "10px", justifyContent: "center" }}>
                       <button 
-                        style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#334155", borderRadius: "8px", padding: "6px 14px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }} 
+                        style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: "10px", padding: "8px 16px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }} 
                         onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "" }); setAddCreditsModalOpen(true); }}
-                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.background = "#f8fafc"; }}
-                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.background = "#fff"; }}
+                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#0f172a"; }}
+                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#475569"; }}
                       >
                         Adjust
                       </button>
                       <button 
-                        style={{ background: salon.customWhatsappEnabled ? "#ecfdf5" : "#fff", border: `1px solid ${salon.customWhatsappEnabled ? '#10b981' : '#cbd5e1'}`, color: salon.customWhatsappEnabled ? "#047857" : "#334155", borderRadius: "8px", padding: "6px 14px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }} 
+                        style={{ background: salon.customWhatsappEnabled ? "#10b981" : "#f1f5f9", border: "none", color: salon.customWhatsappEnabled ? "#fff" : "#475569", borderRadius: "10px", padding: "8px 16px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: salon.customWhatsappEnabled ? "0 2px 4px rgba(16, 185, 129, 0.2)" : "none" }} 
                         onClick={() => {
                           setCustomApiForm({
                             salonId: salon.id,
@@ -333,8 +341,22 @@ export default function ManageCreditsPage() {
                           });
                           setCustomApiModalOpen(true);
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = salon.customWhatsappEnabled ? "#d1fae5" : "#f8fafc"; }}
-                        onMouseOut={(e) => { e.currentTarget.style.background = salon.customWhatsappEnabled ? "#ecfdf5" : "#fff"; }}
+                        onMouseOver={(e) => { 
+                          if (salon.customWhatsappEnabled) {
+                            e.currentTarget.style.transform = "translateY(-1px)";
+                          } else {
+                            e.currentTarget.style.background = "#e2e8f0";
+                            e.currentTarget.style.color = "#0f172a";
+                          }
+                        }}
+                        onMouseOut={(e) => { 
+                          if (salon.customWhatsappEnabled) {
+                            e.currentTarget.style.transform = "none";
+                          } else {
+                            e.currentTarget.style.background = "#f1f5f9";
+                            e.currentTarget.style.color = "#475569";
+                          }
+                        }}
                         title="Configure Custom WhatsApp API"
                       >
                         API Settings
