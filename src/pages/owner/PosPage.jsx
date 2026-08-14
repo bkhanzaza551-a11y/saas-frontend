@@ -1505,7 +1505,7 @@ export default function PosPage() {
     };
   }, [getCatalogBasePrice]);
 
-//   const updateRedemption = (index, patch) => {
+  const updateRedemption = (index, patch) => {
     const next = [...form.packageRedemptions];
     next[index] = { ...next[index], ...patch };
     setForm((current) => ({ ...current, packageRedemptions: next }));
@@ -1581,7 +1581,7 @@ export default function PosPage() {
     }
   };
 
-//   const generatePaymentLink = async () => {
+  const generatePaymentLink = async () => {
     if (!result?.id) {
       setStatus({ error: "Create an invoice first to generate a payment link.", success: "" });
       return;
@@ -1607,7 +1607,7 @@ export default function PosPage() {
     }
   };
 
-//   const logPaymentLinkStatus = async (linkStatus) => {
+  const logPaymentLinkStatus = async (linkStatus) => {
     if (!result?.id) return;
     await api.post(`/owner/invoices/${result.id}/payment-link/log`, {
       status: linkStatus,

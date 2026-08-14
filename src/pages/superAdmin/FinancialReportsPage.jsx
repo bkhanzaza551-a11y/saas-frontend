@@ -217,7 +217,7 @@ export default function FinancialReportsPage() {
         <Calendar size={15} color="#94a3b8" />
         <div style={{ display: "flex", gap: 4 }}>
           {DATE_PRESETS.map(p => (
-            <button key={p.key} onClick={() => { setDatePreset(p.key); if (p.key === "custom") { setDateFrom(""); setDateTo ""); } }} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${datePreset === p.key ? "#4f46e5" : "#e2e8f0"}`, background: datePreset === p.key ? "#4f46e5" : "#fff", color: datePreset === p.key ? "#fff" : "#475569", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+            <button key={p.key} onClick={() => { setDatePreset(p.key); if (p.key === "custom") { setDateFrom(""); setDateTo(""); } }} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${datePreset === p.key ? "#4f46e5" : "#e2e8f0"}`, background: datePreset === p.key ? "#4f46e5" : "#fff", color: datePreset === p.key ? "#fff" : "#475569", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
               {p.label}
             </button>
           ))}
