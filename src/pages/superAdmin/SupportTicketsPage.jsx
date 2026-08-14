@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
 
 const STATUSES = [
@@ -260,34 +261,50 @@ export default function SuperAdminSupportTicketsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</label>
-            <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.status}
+              onChange={e => setFilters({ ...filters, status: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All Statuses</option>
               {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Priority</label>
-            <select value={filters.priority} onChange={e => setFilters({ ...filters, priority: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.priority}
+              onChange={e => setFilters({ ...filters, priority: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All Priorities</option>
               {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Category</label>
-            <select value={filters.category} onChange={e => setFilters({ ...filters, category: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.category}
+              onChange={e => setFilters({ ...filters, category: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All Categories</option>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Agent</label>
-            <select value={filters.assignedToId} onChange={e => setFilters({ ...filters, assignedToId: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.assignedToId}
+              onChange={e => setFilters({ ...filters, assignedToId: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All Agents</option>
               {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
@@ -413,7 +430,8 @@ export default function SuperAdminSupportTicketsPage() {
                     </div>
                     <div>
                       <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assigned Agent</label>
-                      <select value={selectedTicket.assignedToId || ""}
+                      <CustomSelect
+                        value={selectedTicket.assignedToId || ""}
                         onChange={e => {
                           const agentId = e.target.value || null;
                           const agentName = staff.find(s => String(s.id) === String(agentId))?.name || null;
@@ -421,10 +439,11 @@ export default function SuperAdminSupportTicketsPage() {
                           setSelectedTicket({ ...selectedTicket, assignedToId: agentId, assignedTo: staff.find(s => String(s.id) === String(agentId)) || null });
                         }}
                         disabled={selectedTicket.status === "CLOSED"}
-                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 12, background: "white", width: "100%", boxSizing: "border-box" }}>
+                        style={{ width: "100%" }}
+                      >
                         <option value="">Unassigned</option>
                         {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "No Role"})</option>)}
-                      </select>
+                      </CustomSelect>
                     </div>
                   </div>
 
@@ -550,22 +569,34 @@ export default function SuperAdminSupportTicketsPage() {
             <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Salon (Optional)</label>
-                <select value={newTicketForm.salonId} onChange={e => setNewTicketForm({ ...newTicketForm, salonId: e.target.value })} style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}>
+                <CustomSelect
+                  value={newTicketForm.salonId}
+                  onChange={e => setNewTicketForm({ ...newTicketForm, salonId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
                   <option value="">-- No Salon / Internal --</option>
                   {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
+                </CustomSelect>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Category *</label>
-                <select value={newTicketForm.category} onChange={e => setNewTicketForm({ ...newTicketForm, category: e.target.value })} style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}>
+                <CustomSelect
+                  value={newTicketForm.category}
+                  onChange={e => setNewTicketForm({ ...newTicketForm, category: e.target.value })}
+                  style={{ width: "100%" }}
+                >
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                </CustomSelect>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Priority</label>
-                <select value={newTicketForm.priority} onChange={e => setNewTicketForm({ ...newTicketForm, priority: e.target.value })} style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}>
+                <CustomSelect
+                  value={newTicketForm.priority}
+                  onChange={e => setNewTicketForm({ ...newTicketForm, priority: e.target.value })}
+                  style={{ width: "100%" }}
+                >
                   {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                </select>
+                </CustomSelect>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Subject *</label>

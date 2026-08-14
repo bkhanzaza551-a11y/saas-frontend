@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
+import CustomSelect from "../../components/CustomSelect";
 import { Plus, Eye, Search, Calendar, Download, Filter } from "lucide-react";
 
 const fmt = (val) => `₹${Number(val || 0).toLocaleString("en-IN")}`;
@@ -234,24 +235,40 @@ export default function FinancialReportsPage() {
 
         {/* Dropdowns Row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
-          <select value={salonFilter} onChange={e => setSalonFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+          <CustomSelect
+            value={salonFilter}
+            onChange={e => setSalonFilter(e.target.value)}
+            style={{ width: "100%" }}
+          >
             <option value="">All Salons</option>
             {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
+          </CustomSelect>
           
-          <select value={paymentForFilter} onChange={e => setPaymentForFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+          <CustomSelect
+            value={paymentForFilter}
+            onChange={e => setPaymentForFilter(e.target.value)}
+            style={{ width: "100%" }}
+          >
             <option value="">All Purpose</option>
             {PAYMENT_FOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          </CustomSelect>
           
-          <select value={modeFilter} onChange={e => setModeFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+          <CustomSelect
+            value={modeFilter}
+            onChange={e => setModeFilter(e.target.value)}
+            style={{ width: "100%" }}
+          >
             <option value="">All Methods</option>
             {PAYMENT_MODES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-          </select>
+          </CustomSelect>
           
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+          <CustomSelect
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            style={{ width: "100%" }}
+          >
             {PAYMENT_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          </CustomSelect>
           
           {datePreset === "custom" && (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -311,11 +328,39 @@ export default function FinancialReportsPage() {
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
             <div className="modal-header"><h3>Record Payment</h3><button className="modal-close-btn" onClick={() => setIsRecordOpen(false)}>&times;</button></div>
             <form onSubmit={handleRecordPayment} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Salon (optional)</span><select value={recordForm.salonId} onChange={e => setRecordForm({ ...recordForm, salonId: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="">Select salon</option>{salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Salon (optional)</span>
+                <CustomSelect
+                  value={recordForm.salonId}
+                  onChange={e => setRecordForm({ ...recordForm, salonId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">Select salon</option>
+                  {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </CustomSelect>
+              </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Amount (INR) *</span><input type="number" min="0" step="0.01" value={recordForm.amount} required onChange={e => setRecordForm({ ...recordForm, amount: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment For</span><select value={recordForm.paymentFor} onChange={e => setRecordForm({ ...recordForm, paymentFor: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}>{PAYMENT_FOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></label>
-                <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment Method</span><select value={recordForm.mode} onChange={e => setRecordForm({ ...recordForm, mode: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}>{PAYMENT_MODES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}</select></label>
+                <label>
+                  <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment For</span>
+                  <CustomSelect
+                    value={recordForm.paymentFor}
+                    onChange={e => setRecordForm({ ...recordForm, paymentFor: e.target.value })}
+                    style={{ width: "100%" }}
+                  >
+                    {PAYMENT_FOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </CustomSelect>
+                </label>
+                <label>
+                  <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment Method</span>
+                  <CustomSelect
+                    value={recordForm.mode}
+                    onChange={e => setRecordForm({ ...recordForm, mode: e.target.value })}
+                    style={{ width: "100%" }}
+                  >
+                    {PAYMENT_MODES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                  </CustomSelect>
+                </label>
               </div>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment Date</span><input type="date" value={recordForm.paidAt} onChange={e => setRecordForm({ ...recordForm, paidAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Reference</span><input value={recordForm.reference} placeholder="Invoice #, transaction ref..." onChange={e => setRecordForm({ ...recordForm, reference: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>

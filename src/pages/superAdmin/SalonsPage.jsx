@@ -371,21 +371,29 @@ const [cityFilter, setCityFilter] = useState("");
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ width: "100%" }}
+            >
               <option value="">All Statuses</option>
               <option value="ACTIVE">Active</option>
               <option value="TRIAL">Trial</option>
               <option value="SUSPENDED">Suspended</option>
               <option value="EXPIRED">Expired</option>
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Plan</label>
-            <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={planFilter}
+              onChange={(e) => setPlanFilter(e.target.value)}
+              style={{ width: "100%" }}
+            >
               <option value="">All Plans</option>
               {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>

@@ -414,7 +414,11 @@ export default function SuperAdminProductsRequirementPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
                   <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Category</label>
-                  <select value={catalogForm.category} onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none", background: "#fff", cursor: "pointer" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"}>
+                  <CustomSelect
+                    value={catalogForm.category}
+                    onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })}
+                    style={{ width: "100%" }}
+                  >
                     <option value="">Select Category</option>
                     <option value="Hair Care">Hair Care</option>
                     <option value="Skin Care">Skin Care</option>
@@ -425,7 +429,7 @@ export default function SuperAdminProductsRequirementPage() {
                     <option value="Men's Grooming">Men's Grooming</option>
                     <option value="Tools & Equipment">Tools & Equipment</option>
                     <option value="Miscellaneous">Miscellaneous</option>
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Brand</label>
@@ -439,7 +443,11 @@ export default function SuperAdminProductsRequirementPage() {
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Unit of Measurement</label>
-                  <select value={catalogForm.unitPackSize} onChange={e => setCatalogForm({ ...catalogForm, unitPackSize: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none", background: "#fff", cursor: "pointer" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"}>
+                  <CustomSelect
+                    value={catalogForm.unitPackSize}
+                    onChange={e => setCatalogForm({ ...catalogForm, unitPackSize: e.target.value })}
+                    style={{ width: "100%" }}
+                  >
                     <option value="">Select Unit</option>
                     <option value="ml">ml (Milliliter)</option>
                     <option value="L">L (Liter)</option>
@@ -449,7 +457,7 @@ export default function SuperAdminProductsRequirementPage() {
                     <option value="pack">Pack</option>
                     <option value="kit">Kit</option>
                     <option value="box">Box</option>
-                  </select>
+                  </CustomSelect>
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>

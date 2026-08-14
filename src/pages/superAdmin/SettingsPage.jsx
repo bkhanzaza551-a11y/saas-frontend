@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
+import CustomSelect from "../../components/CustomSelect";
 import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Save } from "lucide-react";
 
 const TABS = [
@@ -313,34 +314,34 @@ export default function SuperAdminSettingsPage() {
                     <Field label="Invoice Prefix"><input style={inputStyle} {...f("invoicePrefix")} placeholder="INV" /></Field>
                     <Field label="Tax Label"><input style={inputStyle} {...f("taxLabel")} placeholder="GST" /></Field>
                     <Field label="Default Currency">
-                      <select style={inputStyle} value={form.defaultCurrency} onChange={e => setForm(p => ({ ...p, defaultCurrency: e.target.value }))}>
-                        {["PKR", "INR", "USD", "AED", "GBP", "EUR"].map(c => <option key={c}>{c}</option>)}
-                      </select>
+                      <CustomSelect value={form.defaultCurrency} onChange={e => setForm(p => ({ ...p, defaultCurrency: e.target.value }))}>
+                        {["PKR", "INR", "USD", "AED", "GBP", "EUR"].map(c => <option key={c} value={c}>{c}</option>)}
+                      </CustomSelect>
                     </Field>
                     <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="Pakistan" /></Field>
                     <Field label="Default City"><input style={inputStyle} {...f("defaultCity")} placeholder="Lahore" /></Field>
                     <Field label="Timezone"><input style={inputStyle} {...f("defaultTimezone")} placeholder="Asia/Karachi" /></Field>
                     <Field label="Language">
-                      <select style={inputStyle} value={form.defaultLanguage} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
+                      <CustomSelect value={form.defaultLanguage} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
                         <option value="en">English (US)</option>
                         <option value="en-gb">English (UK)</option>
                         <option value="es">Spanish</option>
                         <option value="fr">French</option>
-                      </select>
+                      </CustomSelect>
                     </Field>
                     <Field label="Date Format">
-                      <select style={inputStyle} value={form.dateFormat} onChange={e => setForm(p => ({ ...p, dateFormat: e.target.value }))}>
+                      <CustomSelect value={form.dateFormat} onChange={e => setForm(p => ({ ...p, dateFormat: e.target.value }))}>
                         <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                         <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                         <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                      </select>
+                      </CustomSelect>
                     </Field>
                     <Field label="Invoice Format">
-                      <select style={inputStyle} value={form.invoiceFormat} onChange={e => setForm(p => ({ ...p, invoiceFormat: e.target.value }))}>
+                      <CustomSelect value={form.invoiceFormat} onChange={e => setForm(p => ({ ...p, invoiceFormat: e.target.value }))}>
                         <option value="standard">Standard A4</option>
                         <option value="compact">Compact / Thermal</option>
                         <option value="detailed">Detailed Itemized</option>
-                      </select>
+                      </CustomSelect>
                     </Field>
                     <Field label="Demo Booking URL"><input style={inputStyle} {...f("demoBookingUrl")} placeholder="/book-demo" /></Field>
                     <Field label="Terms URL"><input style={inputStyle} {...f("termsUrl")} placeholder="/terms" /></Field>
@@ -492,16 +493,16 @@ export default function SuperAdminSettingsPage() {
                             <input style={inputStyle} value={templateDraft.name} onChange={e => setTemplateDraft(p => ({ ...p, name: e.target.value }))} placeholder="Login OTP" />
                           </Field>
                           <Field label="Channel">
-                            <select style={inputStyle} value={templateDraft.channel} onChange={e => setTemplateDraft(p => ({ ...p, channel: e.target.value }))}>
+                            <CustomSelect value={templateDraft.channel} onChange={e => setTemplateDraft(p => ({ ...p, channel: e.target.value }))}>
                               <option value="EMAIL">Email</option>
                               <option value="SMS">SMS</option>
                               <option value="WHATSAPP">WhatsApp</option>
-                            </select>
+                            </CustomSelect>
                           </Field>
                           <Field label="Event" full>
-                            <select style={inputStyle} value={templateDraft.event} onChange={e => setTemplateDraft(p => ({ ...p, event: e.target.value }))}>
+                            <CustomSelect value={templateDraft.event} onChange={e => setTemplateDraft(p => ({ ...p, event: e.target.value }))}>
                               {TEMPLATE_EVENTS.map(ev => <option key={ev} value={ev}>{ev.replace(/_/g, " ")}</option>)}
-                            </select>
+                            </CustomSelect>
                           </Field>
                           {templateDraft.channel === "EMAIL" && (
                             <Field label="Subject" full>

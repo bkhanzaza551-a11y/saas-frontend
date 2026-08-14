@@ -5,6 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 
 const DB_STATUSES = ["TRIAL", "ACTIVE", "EXPIRED", "SUSPENDED"];
 const STATUS_OPTIONS = [
@@ -253,14 +254,22 @@ export default function SubscriptionsPage() {
           </button>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+          <CustomSelect
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            style={{ width: "100%" }}
+          >
             <option value="">All Statuses</option>
             {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-          <select value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+          </CustomSelect>
+          <CustomSelect
+            value={paymentFilter}
+            onChange={e => setPaymentFilter(e.target.value)}
+            style={{ width: "100%" }}
+          >
             <option value="">All Payments</option>
             {PAYMENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          </CustomSelect>
         </div>
       </div>
 
@@ -332,12 +341,55 @@ export default function SubscriptionsPage() {
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
             <div className="modal-header"><h3>Onboard Client</h3><button className="modal-close-btn" onClick={() => setIsCreateOpen(false)}>&times;</button></div>
             <form onSubmit={handleCreate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
-              <label style={{ gridColumn: "1 / -1" }}><span style={{ fontSize: 12, fontWeight: 700 }}>Salon *</span><select value={form.salonId} required onChange={e => setForm({ ...form, salonId: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="">Select salon</option>{salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-              <label style={{ gridColumn: "1 / -1" }}><span style={{ fontSize: 12, fontWeight: 700 }}>Plan *</span><select value={form.planId} required onChange={e => setForm({ ...form, planId: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="">Select plan</option>{plans.filter(p => !p.isArchived).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}</select></label>
+              <label style={{ gridColumn: "1 / -1" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Salon *</span>
+                <CustomSelect
+                  value={form.salonId}
+                  required
+                  onChange={e => setForm({ ...form, salonId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">Select salon</option>
+                  {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </CustomSelect>
+              </label>
+              <label style={{ gridColumn: "1 / -1" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Plan *</span>
+                <CustomSelect
+                  value={form.planId}
+                  required
+                  onChange={e => setForm({ ...form, planId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">Select plan</option>
+                  {plans.filter(p => !p.isArchived).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}
+                </CustomSelect>
+              </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Start Date *</span><input type="date" value={form.startsAt} required onChange={e => setForm({ ...form, startsAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>End Date *</span><input type="date" value={form.endsAt} required onChange={e => setForm({ ...form, endsAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Status</span><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="TRIAL">Trial</option><option value="ACTIVE">Active</option></select></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment Status</span><select value={form.paymentStatus} onChange={e => setForm({ ...form, paymentStatus: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="PENDING">Pending</option><option value="COMPLETED">Paid</option><option value="FAILED">Failed</option></select></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Status</span>
+                <CustomSelect
+                  value={form.status}
+                  onChange={e => setForm({ ...form, status: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="TRIAL">Trial</option>
+                  <option value="ACTIVE">Active</option>
+                </CustomSelect>
+              </label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment Status</span>
+                <CustomSelect
+                  value={form.paymentStatus}
+                  onChange={e => setForm({ ...form, paymentStatus: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="COMPLETED">Paid</option>
+                  <option value="FAILED">Failed</option>
+                </CustomSelect>
+              </label>
               <label style={{ gridColumn: "1 / -1" }}><span style={{ fontSize: 12, fontWeight: 700 }}>Notes</span><textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
               <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, justifyContent: "flex-end" }}>
                 <button type="button" onClick={() => setIsCreateOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>
@@ -353,9 +405,42 @@ export default function SubscriptionsPage() {
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
             <div className="modal-header"><h3>Edit Subscription</h3><button className="modal-close-btn" onClick={() => setIsEditOpen(false)}>&times;</button></div>
             <form onSubmit={handleEditSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Status</span><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="TRIAL">Trial</option><option value="ACTIVE">Active</option><option value="EXPIRED">Expired</option><option value="SUSPENDED">Suspended</option></select></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment Status</span><select value={form.paymentStatus} onChange={e => setForm({ ...form, paymentStatus: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="PENDING">Pending</option><option value="COMPLETED">Paid</option><option value="FAILED">Failed</option><option value="REFUNDED">Refunded</option></select></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Plan</span><select value={form.planId} onChange={e => setForm({ ...form, planId: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}>{plans.filter(p => !p.isArchived).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Status</span>
+                <CustomSelect
+                  value={form.status}
+                  onChange={e => setForm({ ...form, status: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="TRIAL">Trial</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="EXPIRED">Expired</option>
+                  <option value="SUSPENDED">Suspended</option>
+                </CustomSelect>
+              </label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment Status</span>
+                <CustomSelect
+                  value={form.paymentStatus}
+                  onChange={e => setForm({ ...form, paymentStatus: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="COMPLETED">Paid</option>
+                  <option value="FAILED">Failed</option>
+                  <option value="REFUNDED">Refunded</option>
+                </CustomSelect>
+              </label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Plan</span>
+                <CustomSelect
+                  value={form.planId}
+                  onChange={e => setForm({ ...form, planId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  {plans.filter(p => !p.isArchived).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </CustomSelect>
+              </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>End Date</span><input type="date" value={form.endsAt} onChange={e => setForm({ ...form, endsAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Discount (INR)</span><input type="number" min="0" value={form.manualDiscount} onChange={e => setForm({ ...form, manualDiscount: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label style={{ gridColumn: "1 / -1" }}><span style={{ fontSize: 12, fontWeight: 700 }}>Notes</span><textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
@@ -376,7 +461,18 @@ export default function SubscriptionsPage() {
               Current: <strong>{planChangeSub.plan?.name}</strong> (₹{Number(planChangeSub.plan?.monthlyPrice || 0).toLocaleString()}/mo)
             </div>
             <form onSubmit={handlePlanChange} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>New Plan *</span><select value={planChangeForm.planId} required onChange={e => setPlanChangeForm({ ...planChangeForm, planId: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="">Select new plan</option>{plans.filter(p => !p.isArchived && p.id !== planChangeSub.planId).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}</select></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>New Plan *</span>
+                <CustomSelect
+                  value={planChangeForm.planId}
+                  required
+                  onChange={e => setPlanChangeForm({ ...planChangeForm, planId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">Select new plan</option>
+                  {plans.filter(p => !p.isArchived && p.id !== planChangeSub.planId).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}
+                </CustomSelect>
+              </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Effective Date</span><input type="date" value={planChangeForm.effectiveDate} onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Reason</span><textarea rows={2} value={planChangeForm.reason} onChange={e => setPlanChangeForm({ ...planChangeForm, reason: e.target.value })} placeholder="Why is the plan being changed?" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
@@ -398,7 +494,20 @@ export default function SubscriptionsPage() {
             <form onSubmit={handleRenew} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Renewal Period (months) *</span><input type="number" min="1" max="24" value={renewForm.months} required onChange={e => setRenewForm({ ...renewForm, months: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Amount (INR)</span><input type="number" min="0" value={renewForm.amount} onChange={e => setRenewForm({ ...renewForm, amount: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment Method</span><select value={renewForm.paymentMethod} onChange={e => setRenewForm({ ...renewForm, paymentMethod: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}><option value="ONLINE">Online</option><option value="CASH">Cash</option><option value="BANK_TRANSFER">Bank Transfer</option><option value="UPI">UPI</option><option value="OTHER">Other</option></select></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment Method</span>
+                <CustomSelect
+                  value={renewForm.paymentMethod}
+                  onChange={e => setRenewForm({ ...renewForm, paymentMethod: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="ONLINE">Online</option>
+                  <option value="CASH">Cash</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                  <option value="UPI">UPI</option>
+                  <option value="OTHER">Other</option>
+                </CustomSelect>
+              </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Notes</span><textarea rows={2} value={renewForm.notes} onChange={e => setRenewForm({ ...renewForm, notes: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                 <button type="button" onClick={() => setIsRenewOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>

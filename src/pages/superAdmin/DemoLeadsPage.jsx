@@ -479,29 +479,41 @@ export default function DemoLeadsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Salesperson</label>
-            <select value={filters.assigned} onChange={(e) => setFilters({ ...filters, assigned: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.assigned}
+              onChange={(e) => setFilters({ ...filters, assigned: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All Salespersons</option>
               {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Source</label>
-            <select value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.source}
+              onChange={(e) => setFilters({ ...filters, source: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All Sources</option>
               {LEAD_SOURCES.map(src => <option key={src} value={src}>{src}</option>)}
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Follow-up</label>
-            <select value={filters.followUp} onChange={(e) => setFilters({ ...filters, followUp: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}>
+            <CustomSelect
+              value={filters.followUp}
+              onChange={(e) => setFilters({ ...filters, followUp: e.target.value })}
+              style={{ width: "100%" }}
+            >
               <option value="">All</option>
               <option value="today">Today</option>
               <option value="upcoming">Upcoming</option>
               <option value="overdue">Overdue</option>
               <option value="completed">Completed</option>
-            </select>
+            </CustomSelect>
           </div>
           
           <div>
@@ -679,10 +691,18 @@ export default function DemoLeadsPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div style={{ background: "#f1f5f9", borderRadius: 10, padding: "12px 14px" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assign To</div>
-                    <select disabled={isConverted} value={draft.assignedUserId} onChange={e => { updateDraft(row.id, "assignedUserId", e.target.value); api.put(`/super-admin/demo-leads/${row.id}`, { assignedUserId: e.target.value }).catch(console.error); }} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, background: isConverted ? "#f1f5f9" : "#fff" }}>
+                    <CustomSelect
+                      disabled={isConverted}
+                      value={draft.assignedUserId}
+                      onChange={e => {
+                        updateDraft(row.id, "assignedUserId", e.target.value);
+                        api.put(`/super-admin/demo-leads/${row.id}`, { assignedUserId: e.target.value }).catch(console.error);
+                      }}
+                      style={{ width: "100%" }}
+                    >
                       <option value="">Unassigned</option>
                       {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
-                    </select>
+                    </CustomSelect>
                   </div>
                   <div style={{ background: "#f1f5f9", borderRadius: 10, padding: "12px 14px" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Next Follow-Up Date</div>

@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomSelect from "../../components/CustomSelect";
 import { Shield, Plus, Pencil, Trash2, Mail, User, Check, X, Search, RefreshCw, Clock } from "lucide-react";
 import { useAlert } from "../../context/AlertContext";
 
@@ -207,15 +208,23 @@ export default function StaffManagementPage() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email..."
                 style={{ width: "100%", padding: "8px 12px 8px 34px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, boxSizing: "border-box" }} />
             </div>
-            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }}>
+            <CustomSelect
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              style={{ minWidth: 140 }}
+            >
               <option value="">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
-            </select>
-            <select value={filterRole} onChange={e => setFilterRole(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }}>
+            </CustomSelect>
+            <CustomSelect
+              value={filterRole}
+              onChange={e => setFilterRole(e.target.value)}
+              style={{ minWidth: 160 }}
+            >
               <option value="">All Roles</option>
               {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
+            </CustomSelect>
             <button onClick={() => { setUserForm(emptyUserForm); setEditingUserId(""); setIsUserModalOpen(true); }}
               style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, background: "#4f46e5", color: "white", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}>
               <Plus size={16} /> Invite Staff
@@ -342,19 +351,26 @@ export default function StaffManagementPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Department</label>
-                <select value={userForm.department} onChange={e => setUserForm({ ...userForm, department: e.target.value })}
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}>
+                <CustomSelect
+                  value={userForm.department}
+                  onChange={e => setUserForm({ ...userForm, department: e.target.value })}
+                  style={{ width: "100%" }}
+                >
                   <option value="">Select Department</option>
                   {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                </CustomSelect>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Role *</label>
-                <select required value={userForm.adminRoleId} onChange={e => setUserForm({ ...userForm, adminRoleId: e.target.value })}
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}>
+                <CustomSelect
+                  required
+                  value={userForm.adminRoleId}
+                  onChange={e => setUserForm({ ...userForm, adminRoleId: e.target.value })}
+                  style={{ width: "100%" }}
+                >
                   <option value="">Select a Role</option>
                   {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                </select>
+                </CustomSelect>
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
                 <button type="button" onClick={() => setIsUserModalOpen(false)} style={{ padding: "9px 16px", background: "white", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Cancel</button>
