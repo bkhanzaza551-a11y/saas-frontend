@@ -102,6 +102,10 @@ const [cityFilter, setCityFilter] = useState("");
         return;
       }
     }
+    if (form.pinCode && !/^\d{6}$/.test(form.pinCode)) {
+      setStatus({ error: "Postal Code must be exactly 6 digits.", success: "" });
+      return;
+    }
     setStatus({ error: "", success: "" });
     setSaving(true);
     try {
@@ -477,8 +481,8 @@ const [cityFilter, setCityFilter] = useState("");
                   <input placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>PIN</span>
-                  <input placeholder="PIN" value={form.pinCode} onChange={(e) => setForm({ ...form, pinCode: e.target.value })} />
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Postal Code</span>
+                  <input placeholder="6-digit code" value={form.pinCode} maxLength={6} onChange={(e) => setForm({ ...form, pinCode: e.target.value.replace(/\D/g, "") })} />
                 </label>
 
                 {!editingId && (
