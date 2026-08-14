@@ -27,7 +27,11 @@ export default function PhoneVerificationModal() {
         {},
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
-      setMessage(res.data.message || "OTP sent successfully!");
+      let successMsg = res.data.message || "OTP sent successfully!";
+      if (res.data.otpCode) {
+        successMsg += ` (Test OTP: ${res.data.otpCode})`;
+      }
+      setMessage(successMsg);
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send OTP.");
