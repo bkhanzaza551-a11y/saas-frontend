@@ -5,7 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { CheckCircle, XCircle, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter } from "lucide-react";
 
 const PIPELINE = [
   { value: "NEW", label: "New", color: "#3b82f6", bg: "#eff6ff" },
@@ -447,33 +447,60 @@ export default function DemoLeadsPage() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
-        <input
-          value={filters.q}
-          placeholder="Search by name, business, email, phone, Lead ID..."
-          onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-          style={{ flex: 1, minWidth: 250, height: 40, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14, outline: "none" }}
-        />
-        <select value={filters.assigned} onChange={(e) => setFilters({ ...filters, assigned: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          <option value="">All Salespersons</option>
-          {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
-        </select>
-        <select value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          <option value="">All Sources</option>
-          {LEAD_SOURCES.map(src => <option key={src} value={src}>{src}</option>)}
-        </select>
-        <select value={filters.followUp} onChange={(e) => setFilters({ ...filters, followUp: e.target.value })} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          <option value="">Follow-up: All</option>
-          <option value="today">Follow-up: Today</option>
-          <option value="upcoming">Follow-up: Upcoming</option>
-          <option value="overdue">Follow-up: Overdue</option>
-          <option value="completed">Follow-up: Completed</option>
-        </select>
-        <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ height: 40, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
-        <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ height: 40, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
-        <button onClick={() => setFilters({ q: "", status: "", assigned: "", source: "", from: "", to: "", followUp: "" })} style={{ height: 40, padding: "0 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#64748b" }}>
-          Clear Filters
-        </button>
+      <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
+        
+        {/* Search Bar Row */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
+            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <Search size={18} />
+            </div>
+            <input
+              value={filters.q}
+              placeholder="Search by name, business, email, phone, Lead ID..."
+              onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+              style={{ width: "100%", height: 44, padding: "0 16px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              onFocus={e => e.target.style.borderColor = "#6366f1"}
+              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+            />
+          </div>
+          <button 
+            onClick={() => setFilters({ q: "", status: "", assigned: "", source: "", from: "", to: "", followUp: "" })} 
+            style={{ height: 44, padding: "0 20px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
+            onMouseOver={e => { e.currentTarget.style.background="#e2e8f0"; e.currentTarget.style.color="#0f172a"; }}
+            onMouseOut={e => { e.currentTarget.style.background="#f1f5f9"; e.currentTarget.style.color="#475569"; }}
+          >
+            <Filter size={16} />
+            Clear Filters
+          </button>
+        </div>
+
+        {/* Dropdowns Row */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+          <select value={filters.assigned} onChange={(e) => setFilters({ ...filters, assigned: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Salespersons</option>
+            {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
+          </select>
+          
+          <select value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Sources</option>
+            {LEAD_SOURCES.map(src => <option key={src} value={src}>{src}</option>)}
+          </select>
+          
+          <select value={filters.followUp} onChange={(e) => setFilters({ ...filters, followUp: e.target.value })} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">Follow-up: All</option>
+            <option value="today">Today</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="overdue">Overdue</option>
+            <option value="completed">Completed</option>
+          </select>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
+            <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>to</span>
+            <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
+          </div>
+        </div>
       </div>
 
       {/* Feedback Toast */}
