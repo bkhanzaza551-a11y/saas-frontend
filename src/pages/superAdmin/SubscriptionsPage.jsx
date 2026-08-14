@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Edit2, Bell, Plus, RefreshCw, Eye, Calendar, Clock, ArrowRightLeft, History, CheckCircle2, XCircle } from "lucide-react";
+import { Edit2, Bell, Plus, RefreshCw, Eye, Calendar, Clock, ArrowRightLeft, History, CheckCircle2, XCircle, Search, Filter } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
@@ -226,16 +226,42 @@ export default function SubscriptionsPage() {
       {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
       {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 18, flexWrap: "wrap", alignItems: "center" }}>
-        <input value={q} placeholder="Search salon, plan, notes..." onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 200, height: 40, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <select value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)} style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#fff" }}>
-          {PAYMENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <button onClick={load} style={{ height: 40, padding: "0 16px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Apply</button>
-        <button onClick={() => { setQ(""); setStatusFilter(""); setPaymentFilter(""); }} style={{ height: 40, padding: "0 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#64748b" }}>Reset</button>
+      <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
+            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <Search size={18} />
+            </div>
+            <input
+              value={q}
+              placeholder="Search salon, plan, notes..."
+              onChange={(e) => setQ(e.target.value)}
+              style={{ width: "100%", height: 44, padding: "0 16px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              onFocus={e => e.target.style.borderColor = "#6366f1"}
+              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+            />
+          </div>
+          <button onClick={load} style={{ height: 44, padding: "0 24px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)" }}>
+            Apply Filters
+          </button>
+          <button 
+            onClick={() => { setQ(""); setStatusFilter(""); setPaymentFilter(""); }} 
+            style={{ height: 44, padding: "0 20px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 8 }}
+          >
+            <Filter size={16} />
+            Reset
+          </button>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Statuses</option>
+            {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          <select value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)} style={{ height: 42, padding: "0 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
+            <option value="">All Payments</option>
+            {PAYMENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
       </div>
 
       {subs.length === 0 ? (
@@ -275,22 +301,22 @@ export default function SubscriptionsPage() {
                       <span style={{ background: meta.bg, color: meta.color, padding: "3px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>{meta.label}</span>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
-                      <span style={{ color: row.paymentStatus === "COMPLETED" ? "#10b981" : row.paymentStatus === "FAILED" ? "#ef4444" : "#d97706", fontWeight: 600, fontSize: 12 }}>{row.paymentStatus || "PENDING"}</span>
+                      <span style={{ background: row.paymentStatus === "COMPLETED" ? "#d1fae5" : row.paymentStatus === "FAILED" ? "#fee2e2" : "#fef3c7", color: row.paymentStatus === "COMPLETED" ? "#059669" : row.paymentStatus === "FAILED" ? "#dc2626" : "#d97706", padding: "4px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>{row.paymentStatus || "PENDING"}</span>
                     </td>
-                    <td style={{ padding: "12px 16px", fontSize: 12 }}>{row.startsAt ? new Date(row.startsAt).toLocaleDateString() : "—"}</td>
-                    <td style={{ padding: "12px 16px", fontSize: 12 }}>{row.endsAt ? new Date(row.endsAt).toLocaleDateString() : "—"}</td>
+                    <td style={{ padding: "12px 16px", fontSize: 12, color: "#475569", fontWeight: 500 }}>{row.startsAt ? new Date(row.startsAt).toLocaleDateString() : "—"}</td>
+                    <td style={{ padding: "12px 16px", fontSize: 12, color: "#475569", fontWeight: 500 }}>{row.endsAt ? new Date(row.endsAt).toLocaleDateString() : "—"}</td>
                     <td style={{ padding: "12px 16px" }}>
-                      <span style={{ color: daysLeft <= 0 ? "#ef4444" : daysLeft <= 7 ? "#f59e0b" : "#334155", fontWeight: daysLeft <= 7 ? 700 : 500, fontSize: 12 }}>
+                      <span style={{ background: daysLeft <= 0 ? "#fee2e2" : daysLeft <= 7 ? "#fef3c7" : "#f1f5f9", color: daysLeft <= 0 ? "#dc2626" : daysLeft <= 7 ? "#d97706" : "#475569", padding: "4px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
                         {daysLeft <= 0 ? "Expired" : `${daysLeft}d left`}
                       </span>
                     </td>
                     <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                        <button onClick={() => openDetail(row.id)} title="View Details" style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><Eye size={14} /></button>
-                        <button onClick={() => { setPlanChangeSub(row); setPlanChangeForm({ planId: "", effectiveDate: "", reason: "" }); setIsPlanChangeOpen(true); }} title="Change Plan" style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><ArrowRightLeft size={14} /></button>
-                        <button onClick={() => { setRenewSub(row); setRenewForm({ months: 1, paymentMethod: "OTHER", amount: Number(row.plan?.monthlyPrice || 0), notes: "" }); setIsRenewOpen(true); }} title="Renew" style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><RefreshCw size={14} /></button>
-                        <button onClick={() => handleReminder(row.id)} disabled={busyId === row.id} title="Send Reminder" style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><Bell size={14} /></button>
-                        <button onClick={() => { setHistorySub(row); setIsHistoryOpen(true); }} title="History" style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><History size={14} /></button>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <button onClick={() => openDetail(row.id)} title="View Details" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><Eye size={15} /></button>
+                        <button onClick={() => { setPlanChangeSub(row); setPlanChangeForm({ planId: "", effectiveDate: "", reason: "" }); setIsPlanChangeOpen(true); }} title="Change Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><ArrowRightLeft size={15} /></button>
+                        <button onClick={() => { setRenewSub(row); setRenewForm({ months: 1, paymentMethod: "OTHER", amount: Number(row.plan?.monthlyPrice || 0), notes: "" }); setIsRenewOpen(true); }} title="Renew" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><RefreshCw size={15} /></button>
+                        <button onClick={() => handleReminder(row.id)} disabled={busyId === row.id} title="Send Reminder" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", opacity: busyId === row.id ? 0.5 : 1 }}><Bell size={15} /></button>
+                        <button onClick={() => { setHistorySub(row); setIsHistoryOpen(true); }} title="History" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><History size={15} /></button>
                       </div>
                     </td>
                   </tr>
