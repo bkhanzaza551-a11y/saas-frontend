@@ -3,7 +3,7 @@ import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
 export default function PhoneVerificationModal() {
-  const { auth, updateAuth } = useAuth();
+  const { auth, logout } = useAuth();
   const [step, setStep] = useState(1); // 1 = Send OTP, 2 = Verify OTP
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState("");
@@ -55,10 +55,8 @@ export default function PhoneVerificationModal() {
         { otpCode: otp },
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
-      updateAuth({
-        ...auth,
-        user: { ...auth.user, isPhoneVerified: true }
-      });
+      // Hard reload to refresh user session from backend
+      window.location.reload();
     } catch (err) {
       setError(err.response?.data?.message || "Invalid OTP.");
     } finally {
@@ -134,6 +132,15 @@ export default function PhoneVerificationModal() {
             <button style={btnStyle} onClick={handleSendOtp} disabled={loading}>
               {loading ? "Sending..." : "Send OTP via SMS"}
             </button>
+            <div style={{ marginTop: 20 }}>
+              <button 
+                type="button" 
+                onClick={logout}
+                style={{ background: "transparent", border: "none", color: "#64748b", fontWeight: "600", cursor: "pointer", fontSize: "14px", textDecoration: "underline" }}
+              >
+                Logout
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleVerifyOtp}>
