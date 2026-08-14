@@ -330,10 +330,14 @@ function PlanCard({ plan, onEdit, onArchive }) {
           <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>{plan.name}</h3>
           {plan.isCustom && <span style={{ fontSize: "0.7rem", color: "#8b5cf6", fontWeight: 600 }}>Custom</span>}
         </div>
-        <div style={{ display: "flex", gap: 4 }}>
-          {!plan.isArchived && <button onClick={() => onEdit(plan)} style={{ padding: 6, border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}><Edit2 size={14} /></button>}
-          <button onClick={() => onArchive(plan)} style={{ padding: 6, border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc", cursor: "pointer" }}>
-            {plan.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+        <div style={{ display: "flex", gap: 6 }}>
+          {!plan.isArchived && (
+            <button onClick={() => onEdit(plan)} title="Edit Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+              <Edit2 size={15} />
+            </button>
+          )}
+          <button onClick={() => onArchive(plan)} title={plan.isArchived ? "Restore Plan" : "Archive Plan"} style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: plan.isArchived ? "#10b981" : "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+            {plan.isArchived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
           </button>
         </div>
       </div>
