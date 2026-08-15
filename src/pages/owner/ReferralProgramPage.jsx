@@ -214,28 +214,17 @@ export default function ReferralProgramPage() {
     setShowRedeemModal(true);
   };
 
-  const handleRequestPayout = () => {
-    setRedeemType("cash");
-    setRedeemAmount("");
-    setShowRedeemModal(true);
-  };
-
   const submitRedeem = async () => {
     if (!redeemAmount || isNaN(redeemAmount) || Number(redeemAmount) <= 0) return;
     setRedeemLoading(true);
     try {
-      if (redeemType === "service") {
-        await api.post(`/owner/referrals/wallets/${selectedWallet}/redeem-service`, { amount: Number(redeemAmount), note: "Manual service redemption" });
-        setStatus({ error: "", success: `${redeemAmount} credits redeemed for services.` });
-      } else {
-        await api.post(`/owner/referrals/wallets/${selectedWallet}/payout`, { creditsRedeemed: Number(redeemAmount) });
-        setStatus({ error: "", success: `Payout requested for ${redeemAmount} credits.` });
-      }
+      await api.post(`/owner/referrals/wallets/${selectedWallet}/redeem-service`, { amount: Number(redeemAmount), note: "Manual service redemption" });
+      setStatus({ error: "", success: `${redeemAmount} credits redeemed for services.` });
       setShowRedeemModal(false);
       await loadWallets();
       if (selectedWallet) await loadWalletDetail(selectedWallet);
     } catch (err) {
-      setStatus({ error: formatApiError(err, redeemType === "service" ? "Could not redeem" : "Could not request payout"), success: "" });
+      setStatus({ error: formatApiError(err, "Could not redeem credits"), success: "" });
     } finally {
       setRedeemLoading(false);
     }
@@ -619,7 +608,6 @@ export default function ReferralProgramPage() {
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24, flexWrap: "wrap" }}>
             <button onClick={() => { setSelectedWallet(null); setWalletDetail(null); }} className="cpn-btn" style={{ fontSize: 13, background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}>← Back</button>
             <button onClick={handleRedeemService} className="cpn-btn" style={{ fontSize: 13, background: "#10b981", color: "white", border: "none", boxShadow: "0 4px 6px -1px rgba(16, 185, 129, 0.2)" }}>Redeem for Services</button>
-            <button onClick={handleRequestPayout} className="cpn-btn" style={{ fontSize: 13, background: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe", boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.15)" }}>Request Cash Payout</button>
           </div>
           {detailLoading ? <PageLoader title="Loading wallet..." message="Please wait" /> : walletDetail?.wallet ? (
             <>
@@ -628,7 +616,6 @@ export default function ReferralProgramPage() {
                 <div style={{ background: "#f8fafc", borderRadius: 8, padding: 14, textAlign: "center" }}><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Earned</div><div style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", marginTop: 4 }}>{Number(walletDetail.wallet.totalEarned)}</div></div>
                 <div style={{ background: "#f8fafc", borderRadius: 8, padding: 14, textAlign: "center" }}><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Redeemed</div><div style={{ fontSize: 24, fontWeight: 700, color: "#64748b", marginTop: 4 }}>{Number(walletDetail.wallet.totalRedeemed)}</div></div>
                 <div style={{ background: "#f8fafc", borderRadius: 8, padding: 14, textAlign: "center" }}><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Service Rate</div><div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginTop: 4 }}>1 cr = ₹{ratios.service}</div></div>
-                <div style={{ background: "#f8fafc", borderRadius: 8, padding: 14, textAlign: "center" }}><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Cash Rate</div><div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginTop: 4 }}>1 cr = ₹{ratios.cash}</div></div>
               </div>
               <h4 style={{ margin: "0 0 8px", fontSize: 14 }}>Transaction Ledger</h4>
               {walletDetail.transactions?.length === 0 ? (
@@ -694,13 +681,13 @@ export default function ReferralProgramPage() {
       {showRedeemModal && walletDetail?.wallet && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)" }} onClick={() => setShowRedeemModal(false)}>
           <div className="anim-fade" style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", padding: 32, width: 420, maxWidth: "90vw", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ margin: "0 0 16px", fontSize: 18, fontWeight: 700 }}>{redeemType === "service" ? "Redeem for Services" : "Request Cash Payout"}</h3>
+            <h3 style={{ margin: "0 0 16px", fontSize: 18, fontWeight: 700 }}>Redeem for Services</h3>
             <div style={{ background: "#f0fdf4", borderRadius: 12, padding: 16, marginBottom: 20, border: "1px solid #bbf7d0" }}>
               <div style={{ fontSize: 13, color: "#166534", fontWeight: 600 }}>Available Balance</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>{Number(walletDetail.wallet.balance)} credits</div>
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label className="cpn-label">Credits to {redeemType === "service" ? "redeem" : "withdraw"}</label>
+              <label className="cpn-label">Credits to redeem</label>
               <input
                 type="number"
                 min="1"
@@ -713,16 +700,10 @@ export default function ReferralProgramPage() {
               />
             </div>
             {redeemAmount && Number(redeemAmount) > 0 && (
-              <div style={{ background: redeemType === "service" ? "#f0fdf4" : "#fefce8", borderRadius: 10, padding: 12, marginBottom: 20, fontSize: 14 }}>
-                <div style={{ fontWeight: 600, color: redeemType === "service" ? "#166534" : "#854d0e" }}>
-                  {redeemType === "service"
-                    ? `${redeemAmount} credits = ₹${Number(redeemAmount) * ratios.service} service discount`
-                    : `${redeemAmount} credits = ₹${(Number(redeemAmount) * ratios.cash).toFixed(2)} cash payout`
-                  }
+              <div style={{ background: "#f0fdf4", borderRadius: 10, padding: 12, marginBottom: 20, fontSize: 14 }}>
+                <div style={{ fontWeight: 600, color: "#166534" }}>
+                  {redeemAmount} credits = ₹{Number(redeemAmount) * ratios.service} service discount
                 </div>
-                {redeemType === "cash" && (
-                  <div style={{ fontSize: 12, color: "#92400e", marginTop: 4 }}>50% conversion rate applies</div>
-                )}
               </div>
             )}
             {redeemAmount && (Number(redeemAmount) > Number(walletDetail.wallet.balance) || Number(redeemAmount) <= 0) && (
