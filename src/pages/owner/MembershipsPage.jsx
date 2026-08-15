@@ -385,7 +385,7 @@ export default function MembershipsPage() {
                 </button>
               )}
               {(activeSection === "packages") && (
-                <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="primary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f97316", borderColor: "#ea580c" }}>
+                <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="primary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#2563eb", borderColor: "#1d4ed8" }}>
                   <PackageOpen size={16} /> Add Package
                 </button>
               )}
@@ -1106,9 +1106,9 @@ export default function MembershipsPage() {
                           onClick={() => togglePackageProduct(product.id)}
                           style={{
                             padding: "6px 12px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
-                            background: isSelected ? "#f97316" : "white",
+                            background: isSelected ? "#2563eb" : "white",
                             color: isSelected ? "white" : "#475569",
-                            border: isSelected ? "1px solid #f97316" : "1px solid #cbd5e1"
+                            border: isSelected ? "1px solid #2563eb" : "1px solid #cbd5e1"
                           }}
                         >
                           {product.name}
