@@ -514,47 +514,48 @@ export default function ExpensesPage() {
 
         /* Filter Row style */
         .expenses-filter-panel {
-          background: white;
+          background: #ffffff;
           border-radius: 12px;
           border: 1px solid #e2e8f0;
-          padding: 16px 20px;
+          padding: 12px 16px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
+          gap: 12px;
           flex-wrap: wrap;
-          box-shadow: none;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
 
         .filters-group {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 14px;
           flex-wrap: wrap;
         }
 
         .filter-item {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
 
         .filter-label {
           font-size: 13px;
           font-weight: 600;
           color: #64748b;
+          white-space: nowrap;
         }
 
         .filter-select, .filter-input {
-          padding: 8px 12px;
+          padding: 6px 10px;
           border-radius: 8px;
           border: 1px solid #cbd5e1;
           background-color: #fff;
           font-size: 13px;
-          color: #1e293b;
+          color: #0f172a;
           font-weight: 500;
           outline: none;
-          min-width: 140px;
+          min-width: 110px;
         }
 
         .filter-select:focus, .filter-input:focus {
@@ -949,6 +950,7 @@ export default function ExpensesPage() {
                         className="filter-select"
                         value={filters.paymentMode}
                         onChange={(e) => setFilters({ ...filters, paymentMode: e.target.value })}
+                        style={{ minWidth: 110, padding: "6px 10px", fontSize: 13 }}
                       >
                         <option value="">All</option>
                         <option value="CASH">CASH</option>
@@ -966,8 +968,9 @@ export default function ExpensesPage() {
                         className="filter-select"
                         value={filters.categoryId}
                         onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
+                        style={{ minWidth: 120, padding: "6px 10px", fontSize: 13 }}
                       >
-                        <option value="">All</option>
+                        <option value="">All Categories</option>
                         {categories.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
@@ -982,6 +985,7 @@ export default function ExpensesPage() {
                         value={filters.startDate}
                         onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                         max={filters.endDate || undefined}
+                        style={{ padding: "6px 8px", fontSize: 13 }}
                       />
                     </div>
 
@@ -993,16 +997,25 @@ export default function ExpensesPage() {
                         value={filters.endDate}
                         onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                         min={filters.startDate || undefined}
+                        style={{ padding: "6px 8px", fontSize: 13 }}
                       />
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <button className="blue-btn-secondary" onClick={loadData}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <button 
+                      className="cpn-btn cpn-btn-secondary" 
+                      onClick={loadData}
+                      style={{ fontSize: 13, padding: "7px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                    >
                       <Search size={14} /> Show Expenses
                     </button>
-                    <button className="blue-btn" onClick={() => { setEditingExpenseId(null); setForm({ ...emptyForm, branchId: selectedBranchId || "" }); setStatus({ error: "", success: "" }); setShowAddModal(true); }}>
-                      <Plus size={16} /> Add Expenses
+                    <button 
+                      className="cpn-btn cpn-btn-primary" 
+                      onClick={() => { setEditingExpenseId(null); setForm({ ...emptyForm, branchId: selectedBranchId || "" }); setStatus({ error: "", success: "" }); setShowAddModal(true); }}
+                      style={{ fontSize: 13, padding: "7px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                    >
+                      <Plus size={16} /> Add Expense
                     </button>
                   </div>
                 </div>
