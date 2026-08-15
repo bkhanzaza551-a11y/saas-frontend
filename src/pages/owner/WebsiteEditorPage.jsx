@@ -154,7 +154,12 @@ function LivePreview({ config, slug, device }) {
   }, [config]);
 
   if (!slug) {
-    return <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>Salon slug not found</div>;
+    return (
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#64748b", background: "#f8fafc", gap: 12 }}>
+        <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid #cbd5e1", borderTopColor: "#2563eb", animation: "spin 0.8s linear infinite" }} />
+        <div style={{ fontSize: 13, fontWeight: 600 }}>Loading live website preview...</div>
+      </div>
+    );
   }
 
   return (
@@ -184,7 +189,7 @@ export default function WebsiteEditorPage() {
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
 
-  const slug = auth?.membership?.salonSlug || auth?.membership?.salon?.slug || "";
+  const slug = config.slug || auth?.membership?.salon?.slug || auth?.membership?.salonSlug || auth?.salon?.slug || auth?.user?.salon?.slug || auth?.user?.salonSlug || "";
 
   useEffect(() => {
     let active = true;
@@ -193,7 +198,9 @@ export default function WebsiteEditorPage() {
       const d = res.data || {};
       setConfig(prev => {
         const next = { ...prev };
-        Object.keys(prev).forEach(k => { if (d[k] !== undefined && d[k] !== null && d[k] !== "") next[k] = d[k]; });
+        Object.keys(d).forEach(k => {
+          if (d[k] !== undefined && d[k] !== null) next[k] = d[k];
+        });
         return next;
       });
       if (d.sections && Array.isArray(d.sections) && d.sections.length > 0) {
@@ -206,7 +213,7 @@ export default function WebsiteEditorPage() {
       }
     }).catch(() => {
       if (!active) return;
-      setStatus({ error: "Could not load editor", success: "" });
+      setStatus({ error: "Could not load editor settings", success: "" });
     });
     return () => { active = false; };
   }, []);
