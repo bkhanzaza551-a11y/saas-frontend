@@ -1433,53 +1433,47 @@ export default function CustomersPage() {
           <div className="sidebar-modal" onClick={(event) => event.stopPropagation()}>
             <div className="sidebar-modal-header" style={{ borderBottom: "none" }}>
               <h3 style={{ fontSize: "1.2rem", fontWeight: "700" }}>Add Guest</h3>
-              <button className="modal-close" onClick={() => setShowAddGuest(false)} style={{ background: "#3b82f6", color: "white", borderRadius: "8px", padding: "6px" }}><X size={20} /></button>
+              <button className="modal-close" onClick={() => setShowAddGuest(false)} style={{ background: "transparent", color: "#ef4444", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", justifyContent: "center" }}><X size={20} /></button>
             </div>
             <form onSubmit={handleAddGuest} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
-              <div className="sidebar-modal-body" style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "16px 24px", overflowY: "auto" }}>
-                <div className="form-group">
-                  <label>MOBILE NUMBER *</label>
-                  <IndianPhoneInput required value={formData.phone} onChange={(phone) => setFormData((current) => ({ ...current, phone }))} />
+              <div className="sidebar-modal-body" style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "20px 24px", overflowY: "auto" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Mobile Number *</label>
+                  <IndianPhoneInput required value={formData.phone} onChange={(phone) => setFormData((current) => ({ ...current, phone }))} style={{ height: 42 }} />
                 </div>
-                <div className="form-group">
-                  <label>NAME *</label>
-                  <input required type="text" value={formData.name} placeholder="Guest Name" onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))} />
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Name *</label>
+                  <input required type="text" value={formData.name} placeholder="Guest Name" onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
-                <div className="form-group">
-                  <label>GENDER</label>
-                  <div className="gender-circle-group">
-                    <label className="gender-circle-label">
-                      <input type="radio" name="gender" checked={formData.gender === "FEMALE"} onChange={() => setFormData((current) => ({ ...current, gender: "FEMALE" }))} />
-                      <div className="gender-circle"><div className="gender-circle-inner"></div></div>
-                      FEMALE
-                    </label>
-                    <label className="gender-circle-label">
-                      <input type="radio" name="gender" checked={formData.gender === "MALE"} onChange={() => setFormData((current) => ({ ...current, gender: "MALE" }))} />
-                      <div className="gender-circle"><div className="gender-circle-inner"></div></div>
-                      MALE
-                    </label>
-                    <label className="gender-circle-label">
-                      <input type="radio" name="gender" checked={formData.gender === "OTHER"} onChange={() => setFormData((current) => ({ ...current, gender: "OTHER" }))} />
-                      <div className="gender-circle"><div className="gender-circle-inner"></div></div>
-                      OTHER
-                    </label>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Gender</label>
+                  <div style={{ display: "flex", gap: 4, background: "#f8fafc", padding: 4, borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                    {["FEMALE", "MALE", "OTHER"].map(g => (
+                      <button 
+                        key={g} 
+                        type="button" 
+                        onClick={() => setFormData(c => ({...c, gender: g}))} 
+                        style={{ flex: 1, padding: "8px 0", borderRadius: 6, border: "none", background: formData.gender === g ? "#fff" : "transparent", color: formData.gender === g ? "#0f172a" : "#64748b", fontWeight: formData.gender === g ? 700 : 600, fontSize: 13, cursor: "pointer", boxShadow: formData.gender === g ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}>
+                        {g.charAt(0) + g.slice(1).toLowerCase()}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <div className="form-group">
-                  <label>EMAIL</label>
-                  <input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} />
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Email</label>
+                  <input type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
-                <div className="form-group">
-                  <label>DOB</label>
-                  <input type="date" max={new Date().toISOString().slice(0, 10)} value={formData.dateOfBirth} onChange={(event) => setFormData((current) => ({ ...current, dateOfBirth: event.target.value }))} />
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Date of Birth</label>
+                  <input type="date" max={new Date().toISOString().slice(0, 10)} value={formData.dateOfBirth} onChange={(event) => setFormData((current) => ({ ...current, dateOfBirth: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
-                <div className="form-group">
-                  <label>ANNIVERSARY DATE</label>
-                  <input type="date" max={new Date().toISOString().slice(0, 10)} value={formData.anniversary} onChange={(event) => setFormData((current) => ({ ...current, anniversary: event.target.value }))} />
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Anniversary Date</label>
+                  <input type="date" max={new Date().toISOString().slice(0, 10)} value={formData.anniversary} onChange={(event) => setFormData((current) => ({ ...current, anniversary: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
-                <div className="form-group">
-                  <label>GST NUMBER</label>
-                  <input type="text" value={formData.gst} onChange={(event) => setFormData((current) => ({ ...current, gst: event.target.value }))} />
+                <div>
+                  <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>GST Number</label>
+                  <input type="text" value={formData.gst} onChange={(event) => setFormData((current) => ({ ...current, gst: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
               </div>
               <div className="sidebar-modal-footer" style={{ borderTop: "1px solid #e2e8f0", padding: "16px 24px", justifyContent: "flex-end", gap: "12px", background: "white" }}>
