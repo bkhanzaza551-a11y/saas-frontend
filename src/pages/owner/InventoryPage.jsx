@@ -1250,73 +1250,14 @@ export default function InventoryPage() {
 
         {/* Stock Reconciliation Tab */}
         {activeTab === "Stock Reconciliation" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {/* Status Messages */}
-            {status.success && (
-              <div style={{ padding: "12px 16px", borderRadius: 8, background: "#dcfce7", color: "#166534", fontSize: "0.9rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                {status.success}
-                <button onClick={() => setStatus({ error: "", success: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#166534", fontWeight: 700, fontSize: "1rem" }}>x</button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Title Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Stock Reconciliation & Audit</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Audit physical stock levels, adjust floor inventory, and track stock variance.</div>
               </div>
-            )}
-            {status.error && (
-              <div style={{ padding: "12px 16px", borderRadius: 8, background: "#fee2e2", color: "#991b1b", fontSize: "0.9rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                {status.error}
-                <button onClick={() => setStatus({ error: "", success: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#991b1b", fontWeight: 700, fontSize: "1rem" }}>x</button>
-              </div>
-            )}
-            {/* Header Filters row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-                {/* Search */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontWeight: 600, color: "#475569", fontSize: "0.95rem" }}>Item :</span>
-                  <div style={{ position: "relative" }}>
-                    <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-                    <input
-                      type="text"
-                      placeholder="Search By Name"
-                      value={reconSearch}
-                      onChange={(e) => setReconSearch(e.target.value)}
-                      style={{
-                        padding: "8px 12px 8px 36px",
-                        border: "1px solid #cbd5e1",
-                        borderRadius: 8,
-                        fontSize: "0.9rem",
-                        outline: "none",
-                        width: 220,
-                        transition: "all 0.2s"
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Category Select */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontWeight: 600, color: "#475569", fontSize: "0.95rem" }}>Category:</span>
-                  <CustomSelect
-                    value={reconCategoryId}
-                    onChange={(e) => setReconCategoryId(e.target.value)}
-                    style={{
-                      padding: "8px 16px",
-                      border: "1px solid #cbd5e1",
-                      borderRadius: 8,
-                      fontSize: "0.9rem",
-                      background: "white",
-                      outline: "none",
-                      cursor: "pointer",
-                      minWidth: 120
-                    }}
-                  >
-                    <option value="All">All</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </CustomSelect>
-                </div>
-              </div>
-
-              {/* Import / Export */}
-              <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ display: "flex", gap: 10 }}>
                 <input
                   ref={reconImportRef}
                   type="file"
@@ -1325,230 +1266,267 @@ export default function InventoryPage() {
                   onChange={handleImportReconCsv}
                 />
                 <button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 16px",
-                    borderRadius: 8,
-                    background: "var(--button-bg-solid, #3b82f6)",
-                    color: "white",
-                    fontWeight: 600,
-                    fontSize: "0.9rem",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "background 0.2s"
-                  }}
+                  className="cpn-btn cpn-btn-secondary"
+                  style={{ fontSize: 13, padding: "8px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
                   onClick={() => reconImportRef.current?.click()}
                 >
-                  <Upload size={16} /> Import
+                  <Upload size={14} /> Import CSV
                 </button>
                 <button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 16px",
-                    borderRadius: 8,
-                    background: "var(--button-bg-solid, #3b82f6)",
-                    color: "white",
-                    fontWeight: 600,
-                    fontSize: "0.9rem",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "background 0.2s"
-                  }}
+                  className="cpn-btn cpn-btn-secondary"
+                  style={{ fontSize: 13, padding: "8px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
                   onClick={() => handleExportReconCsv(filteredReconProducts)}
                 >
-                  <Download size={16} /> Export
+                  <Download size={14} /> Export CSV
                 </button>
               </div>
             </div>
 
+            {/* Status Messages */}
+            {status.success && (
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "#f0fdf4", color: "#166534", fontSize: "0.9rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #dcfce7" }}>
+                <span>{status.success}</span>
+                <button onClick={() => setStatus({ error: "", success: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#166534", fontWeight: 700 }}>✕</button>
+              </div>
+            )}
+            {status.error && (
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "#fef2f2", color: "#991b1b", fontSize: "0.9rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #fee2e2" }}>
+                <span>{status.error}</span>
+                <button onClick={() => setStatus({ error: "", success: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#991b1b", fontWeight: 700 }}>✕</button>
+              </div>
+            )}
+
+            {/* Header Filters row */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                {/* Search */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontWeight: 600, color: "#64748b", fontSize: 13 }}>Item:</span>
+                  <div style={{ position: "relative" }}>
+                    <Search size={15} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                    <input
+                      type="text"
+                      placeholder="Search product..."
+                      value={reconSearch}
+                      onChange={(e) => setReconSearch(e.target.value)}
+                      style={{
+                        padding: "7px 12px 7px 32px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 8,
+                        fontSize: 13,
+                        outline: "none",
+                        width: 220
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Category Select */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontWeight: 600, color: "#64748b", fontSize: 13 }}>Category:</span>
+                  <CustomSelect
+                    value={reconCategoryId}
+                    onChange={(e) => setReconCategoryId(e.target.value)}
+                    style={{
+                      padding: "7px 12px",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 8,
+                      fontSize: 13,
+                      background: "white",
+                      outline: "none",
+                      minWidth: 140
+                    }}
+                  >
+                    <option value="All">All Categories</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </CustomSelect>
+                </div>
+              </div>
+
+              <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>
+                Showing {filteredReconProducts.length} product{filteredReconProducts.length !== 1 ? "s" : ""}
+              </div>
+            </div>
+
             {/* Table Area */}
-            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
-                <thead>
-                  <tr style={{ background: "#e0f2fe", color: "#0369a1", textTransform: "none", borderBottom: "1px solid #cbd5e1" }}>
-                    <th style={{ padding: "12px 16px", fontWeight: 600 }}>Category Name</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600 }}>Item Name</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Actual Stock</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Adjust Stock</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Stock Difference</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Stock Value</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Actual Consumable</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Adjust Consumable</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Unit</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Consumable Difference</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600 }}>Remark*</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredReconProducts.map(p => {
-                    const totalStock = Number(p.currentStock || 0);
-                    const onFloor = Number(p.onFloor || 0);
-                    
-                    let baseActualStock = 0;
-                    let baseActualConsumable = 0;
-                    
-                    if (p.productType === "RETAIL") {
-                      baseActualStock = totalStock;
-                    } else if (p.productType === "CONSUMABLE") {
-                      baseActualConsumable = totalStock;
-                    } else {
-                      // BOTH
-                      baseActualConsumable = onFloor;
-                      baseActualStock = Math.max(0, totalStock - onFloor);
-                    }
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div className="table-container">
+                <table className="data-table" style={{ width: "100%", textAlign: "left" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: "12px 16px" }}>Category</th>
+                      <th style={{ padding: "12px 16px" }}>Item Name</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Actual Stock</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Adjust Stock</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Stock Diff</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Stock Value</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Actual Consumable</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Adjust Consumable</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Unit</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Consumable Diff</th>
+                      <th style={{ padding: "12px 16px" }}>Remark</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredReconProducts.map(p => {
+                      const totalStock = Number(p.currentStock || 0);
+                      const onFloor = Number(p.onFloor || 0);
+                      
+                      let baseActualStock = 0;
+                      let baseActualConsumable = 0;
+                      
+                      if (p.productType === "RETAIL") {
+                        baseActualStock = totalStock;
+                      } else if (p.productType === "CONSUMABLE") {
+                        baseActualConsumable = totalStock;
+                      } else {
+                        // BOTH
+                        baseActualConsumable = onFloor;
+                        baseActualStock = Math.max(0, totalStock - onFloor);
+                      }
 
-                    const actualStock = baseActualStock;
-                    const adjustStock = getEditValue(p.id, "adjustStock", actualStock);
-                    const stockDiff = adjustStock - actualStock;
+                      const actualStock = baseActualStock;
+                      const adjustStock = getEditValue(p.id, "adjustStock", actualStock);
+                      const stockDiff = adjustStock - actualStock;
 
-                    const actualConsumable = baseActualConsumable;
-                    const adjustConsumable = getEditValue(p.id, "adjustConsumable", actualConsumable);
-                    const consumableDiff = adjustConsumable - actualConsumable;
+                      const actualConsumable = baseActualConsumable;
+                      const adjustConsumable = getEditValue(p.id, "adjustConsumable", actualConsumable);
+                      const consumableDiff = adjustConsumable - actualConsumable;
 
-                    const stockValue = (adjustStock + adjustConsumable) * Number(p.costPrice || 0);
+                      const stockValue = (adjustStock + adjustConsumable) * Number(p.costPrice || 0);
 
-                    const remark = getEditValue(p.id, "remark", "");
-                    const unit = p.unit || (p.productType === "CONSUMABLE" ? "ml" : "gm");
+                      const remark = getEditValue(p.id, "remark", "");
+                      const unit = p.unit || (p.productType === "CONSUMABLE" ? "ml" : "gm");
 
-                    return (
-                      <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "12px 16px", color: "#475569" }}>{p.category?.name || "-"}</td>
-                        <td style={{ padding: "12px 16px", fontWeight: 600, color: "#0f172a" }}>
-                          {p.name}
-                          {p.featured && <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 4, fontWeight: 700, marginLeft: 6 }}>★ Featured</span>}
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b" }}>{actualStock}</td>
-                        <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                          <input
-                            type="number"
-                            value={adjustStock}
-                            onChange={(e) => handleEditChange(p.id, "adjustStock", Number(e.target.value))}
-                            style={{
-                              width: 70,
-                              padding: "6px 8px",
-                              border: "1px solid #cbd5e1",
-                              borderRadius: 6,
-                              textAlign: "center",
-                              outline: "none"
-                            }}
-                          />
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center", color: stockDiff !== 0 ? (stockDiff > 0 ? "#10b981" : "#ef4444") : "#64748b", fontWeight: 600 }}>
-                          {stockDiff > 0 ? `+${stockDiff}` : stockDiff}
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center", fontWeight: 600, color: "#0f172a" }}>
-                          {formatMoney(stockValue)}
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b" }}>{actualConsumable}</td>
-                        <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                          <input
-                            type="number"
-                            value={adjustConsumable}
-                            onChange={(e) => handleEditChange(p.id, "adjustConsumable", Number(e.target.value))}
-                            style={{
-                              width: 70,
-                              padding: "6px 8px",
-                              border: "1px solid #cbd5e1",
-                              borderRadius: 6,
-                              textAlign: "center",
-                              outline: "none"
-                            }}
-                          />
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b" }}>{unit}</td>
-                        <td style={{ padding: "12px 16px", textAlign: "center", color: consumableDiff !== 0 ? (consumableDiff > 0 ? "#10b981" : "#ef4444") : "#64748b", fontWeight: 600 }}>
-                          {consumableDiff > 0 ? `+${consumableDiff}` : consumableDiff}
-                        </td>
-                        <td style={{ padding: "12px 16px" }}>
-                          <input
-                            type="text"
-                            placeholder="Add remark"
-                            value={remark}
-                            onChange={(e) => handleEditChange(p.id, "remark", e.target.value)}
-                            style={{
-                              width: "100%",
-                              minWidth: 100,
-                              padding: "6px 10px",
-                              border: "1px solid #cbd5e1",
-                              borderRadius: 6,
-                              outline: "none"
-                            }}
-                          />
-                        </td>
-                        <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                          <button
-                            onClick={() => handleSaveIndividualRecon(p)}
-                            style={{
-                              padding: 6,
-                              background: "#e0f2fe",
-                              color: "#0369a1",
-                              border: "none",
-                              borderRadius: 6,
-                              cursor: "pointer",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "all 0.2s"
-                            }}
-                            title="Save individual adjustment"
-                          >
-                            <Save size={16} />
-                          </button>
+                      return (
+                        <tr key={p.id}>
+                          <td style={{ padding: "12px 16px", color: "#64748b", fontSize: 13 }}>{p.category?.name || "General"}</td>
+                          <td style={{ padding: "12px 16px", fontWeight: 700, color: "#0f172a", fontSize: 13 }}>
+                            {p.name}
+                            {p.featured && <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 4, fontWeight: 700, marginLeft: 6 }}>★ Featured</span>}
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", color: "#475569", fontSize: 13, fontWeight: 600 }}>{actualStock}</td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <input
+                              type="number"
+                              value={adjustStock}
+                              onChange={(e) => handleEditChange(p.id, "adjustStock", Number(e.target.value))}
+                              style={{
+                                width: 70,
+                                padding: "5px 8px",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                textAlign: "center",
+                                outline: "none",
+                                fontSize: 13,
+                                fontWeight: 700
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: stockDiff !== 0 ? (stockDiff > 0 ? "#16a34a" : "#dc2626") : "#64748b", background: stockDiff !== 0 ? (stockDiff > 0 ? "#f0fdf4" : "#fef2f2") : "transparent", padding: stockDiff !== 0 ? "2px 8px" : 0, borderRadius: 10 }}>
+                              {stockDiff > 0 ? `+${stockDiff}` : stockDiff}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", fontWeight: 700, color: "#0f172a", fontSize: 13 }}>
+                            {formatMoney(stockValue)}
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b", fontSize: 13 }}>{actualConsumable}</td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <input
+                              type="number"
+                              value={adjustConsumable}
+                              onChange={(e) => handleEditChange(p.id, "adjustConsumable", Number(e.target.value))}
+                              style={{
+                                width: 70,
+                                padding: "5px 8px",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                textAlign: "center",
+                                outline: "none",
+                                fontSize: 13,
+                                fontWeight: 700
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b", fontSize: 12 }}>{unit}</td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: consumableDiff !== 0 ? (consumableDiff > 0 ? "#16a34a" : "#dc2626") : "#64748b", background: consumableDiff !== 0 ? (consumableDiff > 0 ? "#f0fdf4" : "#fef2f2") : "transparent", padding: consumableDiff !== 0 ? "2px 8px" : 0, borderRadius: 10 }}>
+                              {consumableDiff > 0 ? `+${consumableDiff}` : consumableDiff}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px 16px" }}>
+                            <input
+                              type="text"
+                              placeholder="Add remark"
+                              value={remark}
+                              onChange={(e) => handleEditChange(p.id, "remark", e.target.value)}
+                              style={{
+                                width: "100%",
+                                minWidth: 100,
+                                padding: "5px 8px",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                outline: "none",
+                                fontSize: 12
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <button
+                              onClick={() => handleSaveIndividualRecon(p)}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                background: "#eff6ff",
+                                color: "#2563eb",
+                                border: "1px solid #bfdbfe",
+                                borderRadius: 6,
+                                cursor: "pointer",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.15s"
+                              }}
+                              title="Save individual adjustment"
+                            >
+                              <Save size={15} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filteredReconProducts.length === 0 && (
+                      <tr>
+                        <td colSpan="12" style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>
+                          No products found matching the criteria.
                         </td>
                       </tr>
-                    );
-                  })}
-                  {filteredReconProducts.length === 0 && (
-                    <tr>
-                      <td colSpan="12" style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>
-                        No products found matching the criteria.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Bottom Actions Bar */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 12 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 4 }}>
               <button
                 onClick={handleClearAllRecon}
-                style={{
-                  padding: "10px 24px",
-                  borderRadius: 8,
-                  background: "white",
-                  border: "1px solid #cbd5e1",
-                  color: "#475569",
-                  fontWeight: 600,
-                  fontSize: "0.9rem",
-                  cursor: "pointer",
-                  transition: "all 0.2s"
-                }}
+                className="cpn-btn cpn-btn-secondary"
+                style={{ fontSize: 13, padding: "8px 18px" }}
               >
-                Clear All
+                Clear Edits
               </button>
               <button
                 onClick={() => handleUpdateAllRecon(filteredReconProducts)}
-                style={{
-                  padding: "10px 24px",
-                  borderRadius: 8,
-                  background: "var(--button-bg-solid, #3b82f6)",
-                  border: "none",
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "0.9rem",
-                  cursor: "pointer",
-                  transition: "background 0.2s"
-                }}
+                className="cpn-btn cpn-btn-primary"
+                style={{ fontSize: 13, padding: "8px 20px" }}
               >
-                Update All
+                Update All Reconciliations
               </button>
-            </div>
           </div>
         )}
 
