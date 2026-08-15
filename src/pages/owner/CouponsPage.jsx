@@ -312,7 +312,9 @@ export default function CouponsPage() {
           </div>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Active Coupons</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{coupons.filter(c => c.isActive).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {coupons.length} total</span></div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {coupons.filter(c => !c.isArchived && (!c.endsAt || new Date(c.endsAt) >= new Date())).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {coupons.length} total</span>
+            </div>
           </div>
         </div>
 
@@ -322,7 +324,9 @@ export default function CouponsPage() {
           </div>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Gift Cards</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{giftCards.filter(g => g.isActive).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {giftCards.length} active</span></div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {giftCards.filter(g => g.isActive !== false && (!g.expiresAt || new Date(g.expiresAt) >= new Date())).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {giftCards.length} total</span>
+            </div>
           </div>
         </div>
 
