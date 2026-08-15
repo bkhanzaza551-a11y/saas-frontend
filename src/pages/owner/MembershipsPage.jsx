@@ -381,17 +381,17 @@ export default function MembershipsPage() {
           actions={
             <div style={{ display: "flex", gap: "10px" }}>
               {(activeSection === "memberships") && (
-                <button type="button" onClick={() => { setEditableMembershipId(""); setMembershipForm(emptyMembership); setShowMembershipModal(true); }} className="primary-button" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Plus size={16} /> Add Membership
+                <button type="button" onClick={() => { setEditableMembershipId(""); setMembershipForm(emptyMembership); setShowMembershipModal(true); }} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                  <Plus size={16} color="#2563eb" /> Add Membership
                 </button>
               )}
               {(activeSection === "packages") && (
                 <>
-                  <button type="button" onClick={() => setShowRedeemModal(true)} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#334155", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer" }}>
+                  <button type="button" onClick={() => setShowRedeemModal(true)} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
                     <CheckCircle size={16} color="#16a34a" /> Redeem Package
                   </button>
-                  <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="primary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#2563eb", borderColor: "#1d4ed8" }}>
-                    <PackageOpen size={16} /> Add Package
+                  <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                    <PackageOpen size={16} color="#2563eb" /> Add Package
                   </button>
                 </>
               )}
