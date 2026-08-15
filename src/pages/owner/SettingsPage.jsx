@@ -3509,39 +3509,7 @@ export default function SettingsPage() {
     );
   };
 
-  const renderSmsSection = () => (
-    <>
-      <SectionHeader title="Messaging Center" description="Review delivery-provider defaults. Email is sent through backend SMTP; SMS and WhatsApp values stay ready for live gateway integration." badges={[form.smsSettings.gatewayProvider.replace("_PLACEHOLDER", ""), form.smsSettings.senderId || "No Sender ID"]} />
-      <div className="muted" style={{ marginBottom: 12, fontSize: 12 }}>
-        SMTP credentials are configured on the backend environment. SMS/WhatsApp provider details are saved here so the UI stays ready when the real gateway API is connected.
-      </div>
-      <div className="settings-panel-card">
-        <div className="settings-form-grid">
-          <label className="settings-input-group">
-            <span className="muted">Gateway provider</span>
-            <CustomSelect value={form.smsSettings.gatewayProvider} onChange={(event) => setForm((current) => ({ ...current, smsSettings: { ...current.smsSettings, gatewayProvider: event.target.value } }))}>
-              <option value="TWILIO_PLACEHOLDER">Twilio</option>
-              <option value="MSG91_PLACEHOLDER">Msg91</option>
-              <option value="GUPSHUP_PLACEHOLDER">Gupshup</option>
-            </CustomSelect>
-          </label>
-          <label className="settings-input-group">
-            <span className="muted">Sender ID</span>
-            <input value={form.smsSettings.senderId} onChange={(event) => setForm((current) => ({ ...current, smsSettings: { ...current.smsSettings, senderId: event.target.value } }))} />
-          </label>
-          <label className="settings-input-group">
-            <span className="muted">API key / auth token</span>
-            <textarea rows="3" value={form.smsSettings.apiKey} onChange={(event) => setForm((current) => ({ ...current, smsSettings: { ...current.smsSettings, apiKey: event.target.value } }))} />
-          </label>
-          <div className="settings-input-group" style={{ alignSelf: "end" }}>
-            <span className="muted" style={{ fontSize: 12 }}>
-              Provider, sender ID, and auth token are stored with salon settings. They do not send real SMS until a gateway connector is added.
-            </span>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+
 
   const renderSegmentSection = () => {
     const segments = form.advancedSettings.crmSegments;
@@ -5185,8 +5153,7 @@ export default function SettingsPage() {
         return renderAccessControlSection();
       case "notification-settings":
         return renderNotificationsSection();
-      case "sms-center":
-        return renderSmsSection();
+
       case "crm-segment":
         return renderSegmentSection();
       case "privacy-policy":

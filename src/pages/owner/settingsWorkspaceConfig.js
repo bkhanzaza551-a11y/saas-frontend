@@ -6,7 +6,6 @@ export const SETTINGS_WORKSPACE_SECTIONS = [
   { key: "feedback-setting", label: "Feedback Setting", to: "/admin/settings/feedback-setting", hint: "Review flow" },
   { key: "access-control", label: "Access Control", to: "/admin/roles-permissions", hint: "Roles and access" },
   { key: "notification-settings", label: "Notification Settings", to: "/admin/settings/notification-settings", hint: "Alerts" },
-  { key: "sms-center", label: "Messaging Center", to: "/admin/settings/sms-center", hint: "Email gateway" },
   { key: "coupons", label: "Coupons & Gift Cards", to: "/admin/coupons", hint: "Promo rules" },
   { key: "referrals", label: "Referral Program", to: "/admin/referral-coupons", hint: "Referral benefits" },
   { key: "privacy-policy", label: "Privacy Policy", to: "/admin/settings/privacy-policy", hint: "Legal copy" },
@@ -21,7 +20,7 @@ const legacyPathMap = {
   "/admin/settings/payments": "generic",
   "/admin/settings/booking": "generic",
   "/admin/settings/notifications": "notification-settings",
-  "/admin/settings/whatsapp": "sms-center",
+  "/admin/settings/whatsapp": "notification-settings",
   "/admin/settings/advanced": "access-control"
 };
 
