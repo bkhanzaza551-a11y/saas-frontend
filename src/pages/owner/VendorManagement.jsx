@@ -67,36 +67,43 @@ const formGroupStyle = {
 
 function Toggle({ checked, onChange, activeLabel = "Active Vendor", inactiveLabel = "Inactive Vendor" }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <span style={{ fontSize: "0.85rem", fontWeight: 700, color: checked ? "#16a34a" : "#64748b" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: checked ? "#16a34a" : "#64748b" }}>
         {checked ? activeLabel : inactiveLabel}
       </span>
       <button
         type="button"
         onClick={onChange}
         style={{
-          width: 44,
-          height: 24,
-          borderRadius: 12,
+          width: 48,
+          height: 26,
+          borderRadius: 13,
           border: "none",
+          padding: 0,
           background: checked ? "#16a34a" : "#cbd5e1",
           position: "relative",
           cursor: "pointer",
-          transition: "background 0.25s ease"
+          outline: "none",
+          appearance: "none",
+          WebkitAppearance: "none",
+          transition: "background 0.2s ease",
+          boxSizing: "border-box",
+          boxShadow: checked ? "0 2px 6px rgba(22, 163, 74, 0.25)" : "none"
         }}
         aria-checked={checked}
         role="switch"
       >
         <span style={{
           display: "block",
-          width: 18,
-          height: 18,
+          width: 20,
+          height: 20,
           borderRadius: "50%",
-          background: "white",
+          background: "#ffffff",
           position: "absolute",
           top: 3,
-          left: checked ? 23 : 3,
-          transition: "left 0.25s ease"
+          left: checked ? 25 : 3,
+          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          transition: "left 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
         }} />
       </button>
     </div>
