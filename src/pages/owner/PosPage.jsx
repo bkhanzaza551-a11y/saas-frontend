@@ -145,7 +145,7 @@ export default function PosPage() {
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipDraft, setTipDraft] = useState({ staffId: "", amount: "", paymentMode: "CASH" });
   const [tipEntries, setTipEntries] = useState([]);
-//   const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
+  const [paymentManuallyEdited, setPaymentManuallyEdited] = useState({ online: false, cash: false });
   const [variationModal, setVariationModal] = useState({ open: false, product: null });
   const [compModal, setCompModal] = useState({ open: false, index: null, serviceName: "", remark: "" });
 
