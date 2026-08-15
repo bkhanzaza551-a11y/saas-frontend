@@ -2,15 +2,24 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
+import { LayoutTemplate, Info, Image as ImageIcon, Sparkles, Star, Layout, Palette, Store, Smartphone, Monitor } from "lucide-react";
 import "./WebsiteEditorPage.css";
 
 const DEFAULT_SECTIONS = [
-  { id: "hero", type: "hero", label: "Hero Banner", icon: "🎨", enabled: true, locked: true },
-  { id: "about", type: "about", label: "About Us", icon: "ℹ️", enabled: true, locked: true },
-  { id: "gallery", type: "gallery", label: "Gallery", icon: "🖼️", enabled: true, locked: true },
-  { id: "services", type: "services", label: "Featured Services", icon: "✨", enabled: true, locked: true },
-  { id: "testimonials", type: "testimonials", label: "Client Reviews", icon: "⭐", enabled: true, locked: false }
+  { id: "hero", type: "hero", label: "Hero Banner", enabled: true, locked: true },
+  { id: "about", type: "about", label: "About Us", enabled: true, locked: true },
+  { id: "gallery", type: "gallery", label: "Gallery", enabled: true, locked: true },
+  { id: "services", type: "services", label: "Featured Services", enabled: true, locked: true },
+  { id: "testimonials", type: "testimonials", label: "Client Reviews", enabled: true, locked: false }
 ];
+
+const iconMap = {
+  hero: <LayoutTemplate size={16} />,
+  about: <Info size={16} />,
+  gallery: <ImageIcon size={16} />,
+  services: <Sparkles size={16} />,
+  testimonials: <Star size={16} />
+};
 
 const COLOR_PRESETS = [
   "#c8a97e", "#b08d57", "#d4a574", "#e8c99b", "#a67c52",
@@ -242,7 +251,7 @@ export default function WebsiteEditorPage() {
     return (
       <>
         {sections.find(s => s.type === "hero")?.enabled && (
-          <SectionBlock icon="🎨" title="Hero Banner" badge="Main" defaultOpen={true}>
+          <SectionBlock icon={<LayoutTemplate size={16} />} title="Hero Banner" badge="Main" defaultOpen={true}>
             <Field label="Headline"><Input value={config.heroTitle} onChange={v => update("heroTitle", v)} placeholder="Your headline here" /></Field>
             <Field label="Subtitle"><Textarea value={config.heroSubtitle} onChange={v => update("heroSubtitle", v)} placeholder="Your subtitle..." rows={2} /></Field>
             <ImageField label="Background Image" value={config.heroImage} onChange={v => update("heroImage", v)} hint="1920 x 800" />
@@ -258,7 +267,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "about")?.enabled && (
-          <SectionBlock icon="ℹ️" title="About Us" defaultOpen={false}>
+          <SectionBlock icon={<Info size={16} />} title="About Us" defaultOpen={false}>
             <Field label="Title"><Input value={config.aboutTitle} onChange={v => update("aboutTitle", v)} placeholder="About Our Salon" /></Field>
             <Field label="Description"><Textarea value={config.aboutDescription} onChange={v => update("aboutDescription", v)} rows={3} placeholder="Tell your story..." /></Field>
             <div className="we-row-2">
@@ -270,7 +279,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "gallery")?.enabled && (
-          <SectionBlock icon="🖼️" title="Photo Gallery" badge={`${(config.galleryImages || []).length} photos`} defaultOpen={false}>
+          <SectionBlock icon={<ImageIcon size={16} />} title="Photo Gallery" badge={`${config.galleryImages?.length || 0} photos`} defaultOpen={false}>
             <div className="we-gallery-grid">
               {(config.galleryImages || []).map((img, idx) => (
                 <div key={idx} className="we-gallery-thumb">
@@ -293,13 +302,13 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "services")?.enabled && (
-          <SectionBlock icon="✨" title="Featured Services" badge="Auto" defaultOpen={false}>
+          <SectionBlock icon={<Sparkles size={16} />} title="Featured Services" badge="Auto" defaultOpen={false}>
             <div className="we-info-box">Auto-populated from services with 'Show on Website' enabled.</div>
           </SectionBlock>
         )}
 
         {sections.find(s => s.type === "testimonials")?.enabled && (
-          <SectionBlock icon="⭐" title="Client Reviews" badge={`${(config.testimonials || []).length}`} defaultOpen={false}>
+          <SectionBlock icon={<Star size={16} />} title="Client Reviews" badge={config.testimonials?.length || 0} defaultOpen={false}>
             {(config.testimonials || []).map((t, idx) => (
               <div key={idx} className="we-review-item">
                 <div className="we-review-header">
@@ -419,7 +428,7 @@ export default function WebsiteEditorPage() {
                 {sections.map((sec, idx) => (
                   <div key={sec.id} className={`we-section-item ${!sec.enabled ? "disabled" : ""}`} draggable onDragStart={() => handleDragStart(idx)} onDragEnter={() => handleDragEnter(idx)} onDragEnd={handleDragEnd} onDragOver={e => e.preventDefault()}>
                     <span className="we-drag-handle">&#9776;</span>
-                    <span className="we-section-item-icon">{sec.icon}</span>
+                    <span className="we-section-item-icon">{iconMap[sec.type]}</span>
                     <span className="we-section-item-label">{sec.label}</span>
                     <button className={`we-toggle ${sec.enabled ? "on" : ""}`} onClick={() => toggleSection(sec.id)}>
                       <span className="we-toggle-knob" />
@@ -432,13 +441,13 @@ export default function WebsiteEditorPage() {
 
               {renderSectionEditor()}
 
-              <SectionBlock icon="📝" title="Footer" defaultOpen={false}>
+              <SectionBlock icon={<Layout size={16} />} title="Footer" defaultOpen={false}>
                 <Field label="Footer Text"><Textarea value={config.footerText} onChange={v => update("footerText", v)} rows={2} placeholder="All rights reserved..." /></Field>
               </SectionBlock>
             </div>
           ) : (
             <div className="we-tab-content">
-              <SectionBlock icon="🎨" title="Colors & Branding">
+              <SectionBlock icon={<Palette size={16} />} title="Colors & Branding">
                 <div className="we-color-grid">
                   <ColorField label="Accent / Buttons" value={config.primaryColor} onChange={v => update("primaryColor", v)} />
                   <ColorField label="Text / Headings" value={config.secondaryColor} onChange={v => update("secondaryColor", v)} />
@@ -447,7 +456,7 @@ export default function WebsiteEditorPage() {
 
 
 
-              <SectionBlock icon="🏢" title="Salon Identity" defaultOpen={false}>
+              <SectionBlock icon={<Store size={16} />} title="Salon Identity" defaultOpen={false}>
                 <Field label="Salon Name"><Input value={config.salonName} onChange={v => update("salonName", v)} placeholder="Your Salon" /></Field>
                 <ImageField label="Logo" value={config.logoUrl} onChange={v => update("logoUrl", v)} hint="200 x 200" />
               </SectionBlock>
@@ -461,11 +470,11 @@ export default function WebsiteEditorPage() {
         <div className="we-preview-toolbar">
           <div className="we-device-toggle">
             <button className={`we-device-btn ${previewDevice === "desktop" ? "active" : ""}`} onClick={() => setPreviewDevice("desktop")}>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="2" width="16" height="12" rx="1.5" /><line x1="5" y1="16" x2="13" y2="16" /></svg>
+              <Monitor size={14} />
               Desktop
             </button>
             <button className={`we-device-btn ${previewDevice === "mobile" ? "active" : ""}`} onClick={() => setPreviewDevice("mobile")}>
-              <svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="1" width="12" height="16" rx="2" /><line x1="6" y1="15" x2="10" y2="15" /></svg>
+              <Smartphone size={14} />
               Mobile
             </button>
           </div>
