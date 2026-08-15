@@ -83,7 +83,7 @@ export default function PosPage() {
   const [result, setResult] = useState(null);
 //   const [dayClosing, setDayClosing] = useState(null);
   const [paymentLink, setPaymentLink] = useState(null);
-//   const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [guestSearchInput, setGuestSearchInput] = useState("");
   const [posGender, setPosGender] = useState("ALL");
   const [serviceSearch, setServiceSearch] = useState("");
