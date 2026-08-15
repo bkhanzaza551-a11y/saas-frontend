@@ -447,61 +447,49 @@ export default function DemoLeadsPage() {
       </div>
 
       {/* Filters */}
-      <div style={{ background: "#fff", borderRadius: 16, padding: "24px 28px", marginBottom: 28, border: "1px solid #e2e8f0", boxShadow: "0 4px 16px -4px rgba(0, 0, 0, 0.06)" }}>
-        
-        {/* Search Bar Row */}
-        <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
-            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+      <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 20, border: "1px solid #e2e8f0", boxShadow: "0 2px 8px -4px rgba(0, 0, 0, 0.04)" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
+          
+          <div style={{ flex: "2 1 220px", position: "relative" }}>
+            <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Search Leads</label>
+            <div style={{ position: "absolute", left: 14, bottom: 12, color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
               <Search size={18} />
             </div>
             <input
               value={filters.q}
-              placeholder="Search by name, business, email, phone, Lead ID..."
+              placeholder="Name, email, phone..."
               onChange={(e) => setFilters({ ...filters, q: e.target.value })}
               style={{ width: "100%", height: 42, paddingLeft: 42, paddingRight: 14, borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
               onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#818cf8"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
               onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
             />
           </div>
-          <button 
-            onClick={() => setFilters({ q: "", status: "", assigned: "", source: "", from: "", to: "", followUp: "" })} 
-            style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
-            onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
-            onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.color="#64748b"; }}
-          >
-            <Filter size={15} />
-            Clear
-          </button>
-        </div>
 
-        {/* Dropdowns Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
-          <div>
+          <div style={{ flex: "1 1 140px" }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Salesperson</label>
             <CustomSelect
               value={filters.assigned}
               onChange={(e) => setFilters({ ...filters, assigned: e.target.value })}
               style={{ width: "100%" }}
             >
-              <option value="">All Salespersons</option>
-              {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
+              <option value="">All</option>
+              {staff.map(s => <option key={s.id} value={s.id}>{s.name.split(" ")[0]}</option>)}
             </CustomSelect>
           </div>
           
-          <div>
+          <div style={{ flex: "1 1 120px" }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Source</label>
             <CustomSelect
               value={filters.source}
               onChange={(e) => setFilters({ ...filters, source: e.target.value })}
               style={{ width: "100%" }}
             >
-              <option value="">All Sources</option>
+              <option value="">All</option>
               {LEAD_SOURCES.map(src => <option key={src} value={src}>{src}</option>)}
             </CustomSelect>
           </div>
           
-          <div>
+          <div style={{ flex: "1 1 120px" }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Follow-up</label>
             <CustomSelect
               value={filters.followUp}
@@ -516,14 +504,24 @@ export default function DemoLeadsPage() {
             </CustomSelect>
           </div>
           
-          <div>
+          <div style={{ flex: "1 1 200px" }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Range</label>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="From date" style={{ flex: 1, height: 40, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="From date" style={{ flex: 1, height: 42, padding: "0 8px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }} />
               <span style={{ fontSize: "0.75rem", color: "#cbd5e1", fontWeight: 700 }}>→</span>
-              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="To date" style={{ flex: 1, height: 40, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }} />
+              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="To date" style={{ flex: 1, height: 42, padding: "0 8px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }} />
             </div>
           </div>
+
+          <button 
+            onClick={() => setFilters({ q: "", status: "", assigned: "", source: "", from: "", to: "", followUp: "" })} 
+            style={{ height: 42, padding: "0 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
+            onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
+            onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.color="#64748b"; }}
+          >
+            <Filter size={15} />
+            Clear
+          </button>
         </div>
       </div>
 
