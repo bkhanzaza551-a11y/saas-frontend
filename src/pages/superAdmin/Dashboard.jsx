@@ -479,17 +479,23 @@ export default function SuperAdminDashboard() {
           </div>
           <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
             {data.recentActivity?.length ? data.recentActivity.map((log) => (
-              <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(139, 92, 246, 0.2)" }}>
+              <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "14px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flex: 1, minWidth: 0 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 6px rgba(139, 92, 246, 0.2)" }}>
                     <Activity size={18} />
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{log.action}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{log.summary || log.module}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textTransform: "capitalize" }}>
+                      {log.action ? log.action.toLowerCase().replace(/_/g, ' ') : "Activity"}
+                    </div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.4 }}>
+                      {log.summary || log.module}
+                    </div>
                   </div>
                 </div>
-                <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8" }}>{new Date(log.createdAt).toLocaleDateString()}</div>
+                <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8", flexShrink: 0, marginLeft: 12, marginTop: 4 }}>
+                  {new Date(log.createdAt).toLocaleDateString()}
+                </div>
               </div>
             )) : <EmptyState title="No activity" message="System events appear here." />}
           </div>
