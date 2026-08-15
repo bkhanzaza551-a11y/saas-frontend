@@ -3554,9 +3554,20 @@ html, body {
   padding: 0;
   background: #ffffff !important;
   border-right: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.32);
+  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.08);
   z-index: 10000;
   transition: width 240ms cubic-bezier(0.4, 0, 0.2, 1), transform 280ms ease, opacity 240ms ease;
+}
+
+.app-sidebar button,
+.sidebar-group-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none !important;
+  outline: none;
+  font-family: inherit;
+  box-shadow: none;
 }
 
 .app-sidebar.open {
@@ -3571,7 +3582,38 @@ html, body {
   pointer-events: none;
 }
 
-/* Desktop (>768px): When closed, display dedicated 70px Mini Rail Icon Strip (Matching Reference Image 2) */
+/* Mobile & Tablet (<=768px): Hide sidebar completely off-screen unless open */
+@media (max-width: 768px) {
+  .app-sidebar {
+    transform: translateX(-100%) !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .app-sidebar.open {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .app-sidebar.mini-rail {
+    transform: translateX(-100%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .app-content-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .sidebar-mobile-toggle-shell {
+    display: flex !important;
+  }
+}
+
+/* Desktop (>768px): When closed, display dedicated 70px Mini Rail Icon Strip */
 @media (min-width: 769px) {
   .app-sidebar.open {
     width: 240px;
