@@ -190,8 +190,6 @@ export default function ProductCategoriesPage() {
         targetGroup: productForm.targetGroup || "BOTH",
         hideFromCatalogue: Boolean(productForm.hideFromCatalogue),
         nonDiscountable: Boolean(productForm.nonDiscountable),
-        discountType: productForm.discountType || null,
-        discountValue: productForm.discountValue ?? null,
         description: productForm.description || null,
         benefits: productForm.benefits || null,
         ingredients: productForm.ingredients || null,
@@ -207,6 +205,8 @@ export default function ProductCategoriesPage() {
         unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null,
         favourite: Boolean(productForm.favourite)
       };
+      delete payload.discountType;
+      delete payload.discountValue;
       if (editingProduct) {
         await api.patch(`/owner/inventory/products/${editingProduct.id}`, payload);
       } else {
