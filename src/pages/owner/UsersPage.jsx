@@ -917,12 +917,12 @@ export default function UsersPage() {
           <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
             <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               Create New Staff
-              <button type="button" onClick={() => setIsCreateModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", padding: 4, display: "flex" }}><X size={18} /></button>
+              <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", padding: 4, display: "flex" }}><X size={18} /></button>
             </div>
             
             <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', minHeight: 0 }}>
               {status.error && <div className="form-error-banner" style={{ padding: '10px 14px', background: '#fef2f2', color: '#b91c1c', fontSize: 13, borderBottom: '1px solid #fecaca', flexShrink: 0 }}>{status.error}</div>}
-              <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1 }}>
+              <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, ...(staffOtpStep === 2 ? { display: 'none' } : {}) }}>
                 <div className="hub-form-group" style={{ marginBottom: 16 }}>
                   <label>Full Name *</label>
                   <input type="text" required className="hub-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g. John Doe" minLength={2} maxLength={200} />
@@ -1112,24 +1112,28 @@ export default function UsersPage() {
               </div>
 
               {staffOtpStep === 2 && (
-                <div style={{ padding: '0 24px 16px' }}>
-                  <div className="hub-form-group">
-                    <label>Enter 6-digit OTP sent to {form.phone}</label>
+                <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', textAlign: 'center' }}>
+                  {status.success && <div style={{ marginBottom: 24, padding: "12px 16px", background: "#ecfdf5", color: "#065f46", border: "1px solid #34d399", borderRadius: 8, fontSize: 14, fontWeight: 500 }}>{status.success}</div>}
+                  <h3 style={{ marginBottom: 8, color: '#0f172a', fontSize: 20 }}>Verify Phone Number</h3>
+                  <p style={{ color: '#64748b', fontSize: 14, marginBottom: 32 }}>Enter the 6-digit OTP sent to <strong style={{ color: '#0f172a' }}>{form.phone}</strong></p>
+                  
+                  <div className="hub-form-group" style={{ width: '100%', maxWidth: 300 }}>
                     <input 
                       type="text" 
                       className="hub-input" 
                       value={form.otpCode || ''} 
                       onChange={e => setForm({ ...form, otpCode: e.target.value.replace(/\D/g, '') })} 
-                      placeholder="000000" 
+                      placeholder="0 0 0 0 0 0" 
                       maxLength={6} 
                       autoFocus
+                      style={{ textAlign: 'center', fontSize: 28, letterSpacing: '12px', padding: '16px', borderRadius: 12, fontWeight: 600, color: '#0f172a' }}
                     />
                   </div>
                 </div>
               )}
 
               <div className="hub-modal-footer">
-                <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); }}>Cancel</button>
+                <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }}>Cancel</button>
                 <button type="submit" className="btn-submit">
                   {staffOtpStep === 1 ? "Send OTP & Continue" : "Verify & Create Staff"}
                 </button>
