@@ -389,65 +389,7 @@ export default function ProductsRequirementPage() {
               <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Created {new Date(viewDetailReq.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
             </div>
             <div style={{ padding: "0 24px 20px", display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => { setViewDetailReq(null); setStatusUpdateReq(viewDetailReq); }} className="btn btn-secondary" style={{ padding: "8px 16px", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: 6 }}><Edit2 size={14} /> Update Status</button>
               <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary" style={{ padding: "8px 20px", fontSize: "0.82rem", background: "#0f172a", border: "none" }}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Update Status Modal */}
-      {statusUpdateReq && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 420, borderRadius: 20, boxShadow: "0 25px 60px rgba(0,0,0,0.18)", overflow: "hidden" }}>
-            <div style={{ height: 5, background: "linear-gradient(90deg, #475569, #334155, #0f172a)" }} />
-            <div style={{ padding: "20px 24px 0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Update Status</h2>
-                <button onClick={() => setStatusUpdateReq(null)} style={{ border: "none", background: "#f1f5f9", cursor: "pointer", width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#64748b" }}>✕</button>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.82rem", color: "#64748b" }}>Select the new status for <strong>{statusUpdateReq.productName}</strong></p>
-            </div>
-            <div style={{ padding: "16px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { key: "PENDING", label: "Pending", desc: "Awaiting review", color: "#d97706", bg: "#fffbeb" },
-                { key: "APPROVED", label: "Approved", desc: "Request approved", color: "#10b981", bg: "#ecfdf5" },
-                { key: "REJECTED", label: "Rejected", desc: "Request rejected", color: "#ef4444", bg: "#fef2f2" },
-                { key: "COMPLETED", label: "Completed", desc: "Fulfilled", color: "#166534", bg: "#f0fdf4" }
-              ].map(s => (
-                <button
-                  key={s.key}
-                  onClick={() => updateStatus(statusUpdateReq.id, s.key)}
-                  style={{
-                    background: statusUpdateReq.status === s.key ? s.bg : "white",
-                    border: statusUpdateReq.status === s.key ? `2px solid ${s.color}` : "1px solid #e2e8f0",
-                    borderLeft: `4px solid ${s.color}`,
-                    color: "#0f172a",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    borderRadius: 12,
-                    transition: "all 0.2s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12
-                  }}
-                  onMouseEnter={e => { if (statusUpdateReq.status !== s.key) e.currentTarget.style.background = "#f8fafc"; }}
-                  onMouseLeave={e => { if (statusUpdateReq.status !== s.key) e.currentTarget.style.background = "white"; }}
-                >
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: "0.88rem" }}>{s.label}</div>
-                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>{s.desc}</div>
-                  </div>
-                  {statusUpdateReq.status === s.key && (
-                    <span style={{ marginLeft: "auto", fontSize: "0.7rem", fontWeight: 700, color: s.color, background: s.bg, padding: "3px 8px", borderRadius: 100 }}>Current</span>
-                  )}
-                </button>
-              ))}
-            </div>
-            <div style={{ padding: "0 24px 20px", display: "flex", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setStatusUpdateReq(null)} className="btn btn-secondary" style={{ padding: "8px 20px", fontSize: "0.82rem" }}>Cancel</button>
             </div>
           </div>
         </div>
