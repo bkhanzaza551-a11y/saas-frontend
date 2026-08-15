@@ -70,7 +70,7 @@ export default function ReferralProgramPage() {
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not load coupons"), success: "" });
     }
-  }, [selectedBranchId, showArchived]);
+  }, [selectedBranchId]);
 
   const loadWallets = useCallback(async () => {
     try {
