@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { Scissors, Edit2, Plus } from "lucide-react";
+import { Scissors, Edit2, Trash2, Plus } from "lucide-react";
 import { api } from "../../api/client";
 import { downloadFromApi } from "../../utils/download";
 import EmptyState from "../../components/EmptyState";
@@ -479,12 +478,12 @@ export default function ServiceCategoriesPage() {
                   </div>
                   <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>{(category.children || []).length} subcategories</div>
                 </div>
-                <div className="cat-actions" style={{ display: "flex", gap: 2, opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}>
-                  <button type="button" onClick={e => { e.stopPropagation(); setEditingCatId(category.id); setCatInput(category.name); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, borderRadius: 4, display: "flex", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "none"} title="Edit">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                <div className="cat-actions" style={{ display: "flex", gap: 4, opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}>
+                  <button type="button" onClick={e => { e.stopPropagation(); setEditingCatId(category.id); setCatInput(category.name); }} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, width: 28, height: 28, padding: 0, cursor: "pointer", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#93c5fd"; }} onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }} title="Edit Category">
+                    <Edit2 size={13} />
                   </button>
-                  <button type="button" onClick={e => { e.stopPropagation(); archiveCategory(category.id); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 4, borderRadius: 4, display: "flex", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#fee2e2"} onMouseLeave={e => e.currentTarget.style.background = "none"} title="Delete">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  <button type="button" onClick={e => { e.stopPropagation(); archiveCategory(category.id); }} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, width: 28, height: 28, padding: 0, cursor: "pointer", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#fca5a5"; }} onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }} title="Delete Category">
+                    <Trash2 size={13} />
                   </button>
                 </div>
               </div>
@@ -538,12 +537,12 @@ export default function ServiceCategoriesPage() {
                     </div>
                     <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>{(subcategory.services || []).length} services</div>
                   </div>
-                  <div className="sub-actions" style={{ display: "flex", gap: 2, opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}>
-                    <button type="button" onClick={e => { e.stopPropagation(); setEditingSubId(subcategory.id); setSubInput(subcategory.name); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, borderRadius: 4, display: "flex", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "none"} title="Edit">
-                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  <div className="sub-actions" style={{ display: "flex", gap: 4, opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}>
+                    <button type="button" onClick={e => { e.stopPropagation(); setEditingSubId(subcategory.id); setSubInput(subcategory.name); }} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, width: 28, height: 28, padding: 0, cursor: "pointer", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#93c5fd"; }} onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }} title="Edit Subcategory">
+                      <Edit2 size={13} />
                     </button>
-                    <button type="button" onClick={e => { e.stopPropagation(); archiveSubcategory(subcategory.id); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 4, borderRadius: 4, display: "flex", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#fee2e2"} onMouseLeave={e => e.currentTarget.style.background = "none"} title="Delete">
-                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <button type="button" onClick={e => { e.stopPropagation(); archiveSubcategory(subcategory.id); }} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, width: 28, height: 28, padding: 0, cursor: "pointer", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#fca5a5"; }} onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }} title="Delete Subcategory">
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
@@ -608,11 +607,11 @@ export default function ServiceCategoriesPage() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
                         <span style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", lineHeight: 1.3 }}>{service.name}</span>
                         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                          <button type="button" onClick={() => startEditService(service)} style={{ background: "#f1f5f9", border: "none", borderRadius: 6, padding: "5px 8px", cursor: "pointer", color: "#475569", display: "flex", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#dbeafe"} onMouseLeave={e => e.currentTarget.style.background = "#f1f5f9"} title="Edit">
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          <button type="button" onClick={() => startEditService(service)} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, width: 28, height: 28, padding: 0, cursor: "pointer", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#93c5fd"; }} onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }} title="Edit Service">
+                            <Edit2 size={13} />
                           </button>
-                          <button type="button" onClick={() => archiveService(service.id)} style={{ background: "#f1f5f9", border: "none", borderRadius: 6, padding: "5px 8px", cursor: "pointer", color: "#ef4444", display: "flex", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#fee2e2"} onMouseLeave={e => e.currentTarget.style.background = "#f1f5f9"} title="Delete">
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          <button type="button" onClick={() => archiveService(service.id)} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, width: 28, height: 28, padding: 0, cursor: "pointer", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#fca5a5"; }} onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }} title="Delete Service">
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </div>
