@@ -16,7 +16,7 @@ const CATEGORIES = [
     items: [
       { title: "Manage Inventory", description: "Manage overall stock and warehouses.", to: "/admin/inventory", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Products", description: "Keep track of your products and stock.", to: "/admin/product-categories", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
-      { title: "Ecommerce / Orders", description: "Card-based order board and online billing.", to: "/admin/order-dashboard", icon: Store, reqPerm: "orders", reqFlag: "ecommerce" },
+      { title: "Online Bookings", description: "Manage online service appointments and storefront reservations.", to: "/admin/order-dashboard", icon: CalendarDays, reqPerm: "orders", reqFlag: "ecommerce" },
       { title: "Manage Expenses", description: "Track outflow, accounts, and expense types.", to: "/admin/expenses/dashboard", icon: Banknote, reqPerm: "expenses", reqFlag: "expenses" },
       { title: "Product Requirements", description: "Submit requests for stock, electronics, or software.", to: "/admin/product-requirements", icon: Boxes, reqPerm: "inventory" }
     ]
