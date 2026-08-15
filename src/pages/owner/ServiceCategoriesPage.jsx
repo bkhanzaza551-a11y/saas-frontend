@@ -659,20 +659,11 @@ export default function ServiceCategoriesPage() {
             )}
 
             <div style={{ padding: "24px 28px", display: "grid", gap: 20 }}>
-              {/* Name and Branch */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {/* Name */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
                 <div>
                   <label style={labelStyle}>Service Name *</label>
                   <input value={serviceForm.name} onChange={e => { setServiceForm(c => ({ ...c, name: e.target.value })); if (status.error) setStatus(c => ({ ...c, error: "" })); }} placeholder="e.g. Trendy Cut, Deep Cleanup..." style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Branch</label>
-                  <CustomSelect value={serviceForm.branchId || ""} onChange={e => setServiceForm(c => ({ ...c, branchId: e.target.value }))} style={inputStyle}>
-                    <option value="">Global (All Branches)</option>
-                    {branches.filter(b => b.isActive).map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </CustomSelect>
                 </div>
               </div>
 
