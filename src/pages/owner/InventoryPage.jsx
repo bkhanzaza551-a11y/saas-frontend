@@ -1762,81 +1762,319 @@ export default function InventoryPage() {
       )}
 
       {isPurchaseOrderModalOpen && (
-        <div className="slide-panel-overlay" onClick={closePurchaseOrderModal}>
-          <div className="slide-panel" onClick={e => e.stopPropagation()} style={{ width: 560 }}>
-            <div className="sp-header">
-              <button className="sp-close" onClick={closePurchaseOrderModal}><ArrowLeft size={18} /></button>
-              <h3>Create Purchase Order</h3>
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(15, 23, 42, 0.5)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20
+          }}
+          onClick={closePurchaseOrderModal}
+        >
+          <div 
+            onClick={e => e.stopPropagation()} 
+            style={{
+              width: "100%",
+              maxWidth: 620,
+              maxHeight: "90vh",
+              background: "#ffffff",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column"
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{
+              padding: "20px 26px",
+              borderBottom: "1px solid #e2e8f0",
+              background: "#f8fafc",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 12,
+                  background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+                  color: "#2563eb",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
+                  <ShoppingCart size={22} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Create Purchase Order</h3>
+                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Generate new stock re-orders for suppliers.</div>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={closePurchaseOrderModal}
+                style={{
+                  background: "#e2e8f0",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#475569",
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 0.2s"
+                }}
+              >
+                <X size={16} />
+              </button>
             </div>
-            <form onSubmit={handlePurchaseOrderSubmit} style={{ display: "flex", flexDirection: "column", flexGrow: 1, overflow: "hidden" }}>
-              <div className="sp-body">
-                {status.error && <div style={{ color: "#ef4444", padding: 12, background: "#fef2f2", borderRadius: 8, fontSize: "0.9rem" }}>{status.error}</div>}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <div className="sp-group">
-                    <label className="sp-label">Branch</label>
-                    <input className="sp-input" value={branches.find(b => b.id === selectedBranchId)?.name || "No branch selected"} disabled style={{ background: "#f8fafc" }} />
+
+            {/* Modal Body & Form */}
+            <form onSubmit={handlePurchaseOrderSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+              <div style={{ padding: "24px 26px", overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 18 }}>
+                {status.error && (
+                  <div style={{ color: "#dc2626", padding: "12px 16px", background: "#fef2f2", borderRadius: 10, fontSize: 13, border: "1px solid #fee2e2", fontWeight: 600 }}>
+                    {status.error}
                   </div>
-                  <div className="sp-group">
-                    <label className="sp-label">Vendor</label>
-                    <CustomSelect className="sp-input" required value={purchaseOrderForm.vendorId} onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, vendorId: e.target.value })}>
+                )}
+
+                {/* Branch & Vendor */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Branch</label>
+                    <input 
+                      value={branches.find(b => b.id === selectedBranchId)?.name || "All Branches"} 
+                      disabled 
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: "1px solid #cbd5e1",
+                        fontSize: 13,
+                        background: "#f1f5f9",
+                        color: "#475569",
+                        fontWeight: 600,
+                        boxSizing: "border-box"
+                      }} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Vendor *</label>
+                    <CustomSelect 
+                      required 
+                      value={purchaseOrderForm.vendorId} 
+                      onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, vendorId: e.target.value })}
+                    >
                       <option value="">Select vendor</option>
                       {vendors.map((vendor) => <option key={vendor.id} value={vendor.id}>{vendor.name}</option>)}
                     </CustomSelect>
                   </div>
                 </div>
 
-                <div className="sp-group">
-                  <label className="sp-label">Notes</label>
-                  <textarea className="sp-input" rows="3" value={purchaseOrderForm.notes} onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, notes: e.target.value })} placeholder="PO notes" />
+                {/* Notes */}
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Order Notes / Instructions</label>
+                  <textarea 
+                    rows={2} 
+                    value={purchaseOrderForm.notes} 
+                    onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, notes: e.target.value })} 
+                    placeholder="Enter any supplier instructions, delivery terms or notes..."
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      border: "1px solid #cbd5e1",
+                      fontSize: 13,
+                      background: "#f8fafc",
+                      color: "#0f172a",
+                      fontWeight: 500,
+                      resize: "vertical",
+                      boxSizing: "border-box"
+                    }}
+                  />
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div className="sp-label" style={{ fontSize: "1rem" }}>Items</div>
-                  <button type="button" onClick={addPoItemRow} style={{ border: "none", background: "transparent", color: "#2563eb", fontWeight: 700, cursor: "pointer" }}>
-                    + Add item
+                {/* Items Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", letterSpacing: "0.02em", textTransform: "uppercase" }}>
+                    Order Items ({purchaseOrderForm.items.length})
+                  </label>
+                  <button 
+                    type="button" 
+                    onClick={addPoItemRow} 
+                    style={{
+                      border: "1px solid #dbeafe",
+                      background: "#eff6ff",
+                      color: "#2563eb",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      padding: "6px 14px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4
+                    }}
+                  >
+                    <Plus size={14} /> Add Item
                   </button>
                 </div>
 
+                {/* Items List */}
                 {purchaseOrderForm.items.map((item, index) => {
                   const selectedProduct = products.find((product) => product.id === item.productId);
                   return (
-                    <div key={`${item.productId || "item"}-${index}`} style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 16, display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 12, alignItems: "end" }}>
-                      <div className="sp-group">
-                        <label className="sp-label">Product</label>
-                        <CustomSelect
-                          className="sp-input"
-                          required
-                          value={item.productId}
-                          onChange={(e) => {
-                            const nextProduct = products.find((product) => product.id === e.target.value);
-                            updatePoItem(index, "productId", e.target.value);
-                            updatePoItem(index, "unitCost", Number(nextProduct?.costPrice || 0));
-                          }}
+                    <div 
+                      key={`${item.productId || "item"}-${index}`} 
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 14,
+                        padding: 16,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                      }}
+                    >
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 110px 38px", gap: 10, alignItems: "end" }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Product *</label>
+                          <CustomSelect
+                            required
+                            value={item.productId}
+                            onChange={(e) => {
+                              const nextProduct = products.find((product) => product.id === e.target.value);
+                              updatePoItem(index, "productId", e.target.value);
+                              updatePoItem(index, "unitCost", Number(nextProduct?.costPrice || 0));
+                            }}
+                          >
+                            <option value="">Select product</option>
+                            {products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
+                          </CustomSelect>
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Quantity</label>
+                          <input 
+                            type="number" 
+                            min="1" 
+                            required 
+                            value={item.quantityOrdered} 
+                            onChange={e => updatePoItem(index, "quantityOrdered", Number(e.target.value))} 
+                            style={{
+                              width: "100%",
+                              padding: "9px 12px",
+                              borderRadius: 8,
+                              border: "1px solid #cbd5e1",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              background: "#f8fafc",
+                              boxSizing: "border-box"
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Unit Cost (₹)</label>
+                          <input 
+                            type="number" 
+                            min="0" 
+                            step="0.01" 
+                            required 
+                            value={item.unitCost} 
+                            onChange={e => updatePoItem(index, "unitCost", Number(e.target.value))} 
+                            style={{
+                              width: "100%",
+                              padding: "9px 12px",
+                              borderRadius: 8,
+                              border: "1px solid #cbd5e1",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              background: "#f8fafc",
+                              boxSizing: "border-box"
+                            }}
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => removePoItemRow(index)} 
+                          style={{
+                            border: "none",
+                            background: "#fef2f2",
+                            color: "#dc2626",
+                            borderRadius: 8,
+                            width: 38,
+                            height: 38,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "background 0.2s"
+                          }} 
+                          title="Remove item"
                         >
-                          <option value="">Select product</option>
-                          {products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
-                        </CustomSelect>
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                      <div className="sp-group">
-                        <label className="sp-label">Qty</label>
-                        <input type="number" min="1" className="sp-input" required value={item.quantityOrdered} onChange={e => updatePoItem(index, "quantityOrdered", Number(e.target.value))} />
-                      </div>
-                      <div className="sp-group">
-                        <label className="sp-label">Unit Cost</label>
-                        <input type="number" min="0" step="0.01" className="sp-input" required value={item.unitCost} onChange={e => updatePoItem(index, "unitCost", Number(e.target.value))} />
-                      </div>
-                      <button type="button" onClick={() => removePoItemRow(index)} style={{ border: "none", background: "#fee2e2", color: "#b91c1c", borderRadius: 10, width: 42, height: 42, cursor: "pointer" }} title="Remove item">
-                        <Trash2 size={16} />
-                      </button>
-                      <div style={{ gridColumn: "1 / -1", fontSize: "0.85rem", color: "#64748b" }}>
-                        Current cost: {formatMoney(selectedProduct?.costPrice || 0)} | Current stock: {selectedProduct?.currentStock || 0}
+
+                      {/* Stock & Cost Pill */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#64748b", background: "#f8fafc", padding: "6px 12px", borderRadius: 8, border: "1px solid #f1f5f9" }}>
+                        <span>Current Cost: <strong style={{ color: "#0f172a" }}>{formatMoney(selectedProduct?.costPrice || 0)}</strong></span>
+                        <span>•</span>
+                        <span>Current Stock: <strong style={{ color: selectedProduct?.currentStock <= (selectedProduct?.minStock || 0) ? "#dc2626" : "#16a34a" }}>{selectedProduct?.currentStock || 0} units</strong></span>
+                        <span style={{ marginLeft: "auto", fontWeight: 700, color: "#2563eb" }}>
+                          Total: {formatMoney((item.quantityOrdered || 0) * (item.unitCost || 0))}
+                        </span>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>
-                <button type="submit" className="sp-btn">Create Purchase Order</button>
+
+              {/* Modal Footer */}
+              <div style={{ padding: "16px 26px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", gap: 12, justifyContent: "flex-end" }}>
+                <button 
+                  type="button" 
+                  onClick={closePurchaseOrderModal}
+                  style={{
+                    padding: "10px 20px",
+                    background: "#ffffff",
+                    border: "1px solid #cbd5e1",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#475569",
+                    cursor: "pointer"
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  style={{
+                    padding: "10px 24px",
+                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                    border: "none",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
+                  }}
+                >
+                  Create Purchase Order
+                </button>
               </div>
             </form>
           </div>
