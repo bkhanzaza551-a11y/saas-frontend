@@ -11,6 +11,21 @@ import CustomSelect from "../../components/CustomSelect";
 const formatAttachmentValue = (value) => String(value || "").trim();
 const isAttachmentLink = (value) => /^(https?:\/\/|data:)/i.test(formatAttachmentValue(value));
 
+const isImageAttachment = (value) => {
+  const url = String(value || "").trim();
+  return /^data:image\//i.test(url) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(url);
+};
+
+const getAttachmentMeta = (value) => {
+  const url = String(value || "").trim();
+  if (!url) return { label: "Attachment", isImage: false, isDoc: false };
+  if (isImageAttachment(url)) return { label: "View Full Image", isImage: true, isDoc: false };
+  if (/^data:application\/pdf/i.test(url) || /\.pdf$/i.test(url)) return { label: "Open PDF Document", isImage: false, isDoc: false };
+  if (/wordprocessingml|document|\.docx?$/i.test(url)) return { label: "Download Word Document (.docx)", isImage: false, isDoc: true };
+  if (/spreadsheetml|sheet|\.xlsx?$/i.test(url)) return { label: "Download Excel Spreadsheet (.xlsx)", isImage: false, isDoc: true };
+  return { label: "Download Attachment", isImage: false, isDoc: true };
+};
+
 export default function SupportTicketsPage() {
   const { auth } = useAuth();
   const [rows, setRows] = useState([]);
@@ -367,7 +382,23 @@ export default function SupportTicketsPage() {
                 <div style={{ fontSize: 12, opacity: 0.85 }}>Created on {selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" }) : ""}</div>
               </div>
 
-              <div style={{ background: "#f9fafb", padding: 16, borderRadius: 10, border: "1px solid #f3f4f6", color: "#334155", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", marginBottom: 16 }}>{selectedTicket.description}</div>
+              <div style={{ background: "#f9fafb", padding: 16, borderRadius: 10, border: "1px solid #f3f4f6", color: "#334155", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", marginBottom: 16 }}>
+                {selectedTicket.description}
+                {selectedTicket.attachmentUrl && (
+                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px dashed #e2e8f0" }}>
+                    {isImageAttachment(selectedTicket.attachmentUrl) ? (
+                      <div>
+                        <img src={selectedTicket.attachmentUrl} alt="Attachment" style={{ maxWidth: 300, maxHeight: 220, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 6 }} />
+                        <a href={selectedTicket.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: 600, fontSize: 12 }}>Open Full Image &rarr;</a>
+                      </div>
+                    ) : (
+                      <a href={selectedTicket.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: "#2563eb", fontWeight: 600, fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>
+                        <Paperclip size={13} /> {getAttachmentMeta(selectedTicket.attachmentUrl).label} &rarr;
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {selectedTicket.assignedAgentName && (
                 <div style={{ fontSize: 12, color: "#475569", marginBottom: 14, background: "#eef2ff", padding: "8px 12px", borderRadius: 8, display: "inline-block" }}>🎧 <strong>Assigned Agent:</strong> {selectedTicket.assignedAgentName}</div>
@@ -387,10 +418,16 @@ export default function SupportTicketsPage() {
                           </div>
                           <p style={{ margin: 0, fontSize: 13, color: "#334155", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{msg.message}</p>
                           {msg.attachmentUrl && (
-                            <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px dashed #cbd5e1", fontSize: 11 }}>
-                              <Paperclip size={11} style={{ marginRight: 4, verticalAlign: "middle" }} />
-                              {isAttachmentLink(msg.attachmentUrl) ? (
-                                <a href={formatAttachmentValue(msg.attachmentUrl)} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: 600 }}>View Attachment &rarr;</a>
+                            <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed #cbd5e1", fontSize: 11 }}>
+                              {isImageAttachment(msg.attachmentUrl) ? (
+                                <div>
+                                  <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
+                                  <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: 600, fontSize: 11 }}>View Full Image &rarr;</a>
+                                </div>
+                              ) : isAttachmentLink(msg.attachmentUrl) ? (
+                                <a href={formatAttachmentValue(msg.attachmentUrl)} target="_blank" rel="noreferrer" download style={{ color: "#2563eb", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", background: "#fff", border: "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>
+                                  <Paperclip size={11} /> {getAttachmentMeta(msg.attachmentUrl).label} &rarr;
+                                </a>
                               ) : (
                                 <span style={{ color: "#64748b" }}>{formatAttachmentValue(msg.attachmentUrl)}</span>
                               )}

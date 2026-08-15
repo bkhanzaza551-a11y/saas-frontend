@@ -8,6 +8,21 @@ import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
 
+const isImageAttachment = (value) => {
+  const url = String(value || "").trim();
+  return /^data:image\//i.test(url) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(url);
+};
+
+const getAttachmentLabel = (value) => {
+  const url = String(value || "").trim();
+  if (!url) return "Attachment";
+  if (isImageAttachment(url)) return "View Full Image";
+  if (/^data:application\/pdf/i.test(url) || /\.pdf$/i.test(url)) return "Open PDF Document";
+  if (/wordprocessingml|document|\.docx?$/i.test(url)) return "Download Word Document (.docx)";
+  if (/spreadsheetml|sheet|\.xlsx?$/i.test(url)) return "Download Excel Spreadsheet (.xlsx)";
+  return "Download Attachment";
+};
+
 const STATUSES = [
   { label: "Open", value: "OPEN", color: "#ef4444", bg: "#fef2f2" },
   { label: "In Progress", value: "IN_PROGRESS", color: "#2563eb", bg: "#eff6ff" },
@@ -470,7 +485,16 @@ export default function SuperAdminSupportTicketsPage() {
                                 {msg.message}
                                 {msg.attachmentUrl && (
                                   <div style={{ marginTop: 8, fontSize: 11, borderTop: isAgent ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #e2e8f0", paddingTop: 6 }}>
-                                    <Paperclip size={11} style={{ display: "inline" }} /> <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isAgent ? "white" : "#2563eb", textDecoration: "underline" }}>View Attachment</a>
+                                    {isImageAttachment(msg.attachmentUrl) ? (
+                                      <div>
+                                        <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
+                                        <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isAgent ? "#a5b4fc" : "#2563eb", textDecoration: "underline", fontWeight: 600 }}>View Full Image &rarr;</a>
+                                      </div>
+                                    ) : (
+                                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: isAgent ? "#ffffff" : "#2563eb", textDecoration: "underline", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                        <Paperclip size={11} /> {getAttachmentLabel(msg.attachmentUrl)} &rarr;
+                                      </a>
+                                    )}
                                   </div>
                                 )}
                               </div>
