@@ -9,7 +9,7 @@ import { LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, XCi
 import CustomSelect from "../../components/CustomSelect";
 
 const formatAttachmentValue = (value) => String(value || "").trim();
-const isAttachmentLink = (value) => /^https?:\/\//i.test(formatAttachmentValue(value));
+const isAttachmentLink = (value) => /^(https?:\/\/|data:)/i.test(formatAttachmentValue(value));
 
 export default function SupportTicketsPage() {
   const { auth } = useAuth();

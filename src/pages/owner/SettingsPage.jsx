@@ -1079,7 +1079,7 @@ export default function SettingsPage() {
                   type="text"
                   value={generic.salonName || ""}
                   onChange={(event) => updateGeneric("salonName", event.target.value)}
-                  placeholder="Enter the actual salon name to display on invoices..."
+                  placeholder={auth?.membership?.salon?.name || "Enter the actual salon name to display on invoices..."}
                   style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "100%", maxWidth: "400px" }}
                 />
               </label>

@@ -60,7 +60,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
     const fetchSettings = async () => {
       try {
         const response = await api.get("/owner/settings");
-        if (active && response.data?.advancedSettings?.genericSettings?.salonName) {
+        if (active && response.data?.advancedSettings?.genericSettings?.salonName !== undefined) {
           setLiveSettingsName(response.data.advancedSettings.genericSettings.salonName);
         }
       } catch (err) { /* ignore */ }
@@ -130,7 +130,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
   const safeInv = invoice || {};
   const items = safeInv.items || [];
   const customer = safeInv.customer || {};
-  const displaySalonName = liveSettingsName || customSalonName || salonName || auth?.membership?.salon?.name || auth?.membership?.salonName || safeInv?.salon?.name || safeInv?.branch?.name || "My Salon";
+  const displaySalonName = liveSettingsName ?? customSalonName ?? salonName ?? auth?.membership?.salon?.name ?? auth?.membership?.salonName ?? safeInv?.salon?.name ?? safeInv?.branch?.name ?? "My Salon";
   const displayAddress = salonAddress || "";
   const displayPhone = salonPhone || "";
   const invDate = safeInv.createdAt ? new Date(safeInv.createdAt) : new Date();
