@@ -89,9 +89,6 @@ export default function StorefrontLayout() {
           const branchMap = new Map();
           if (res.data.services) {
             res.data.services.forEach(item => {
-              if (item.branchId && item.branchId !== "seed-main-branch" && item.branchId !== "seed-dha-branch" && item.branchId !== "seed-gulberg-branch" && item.branchId !== "seed-johar-branch") {
-                // If it's just ID we can't do much without the full object
-              }
               if (item.branch) branchMap.set(item.branch.id, item.branch);
             });
           }
@@ -103,28 +100,6 @@ export default function StorefrontLayout() {
           allBranches = Array.from(branchMap.values());
           s.branches = allBranches; // Patch the salon object so the rest of the UI works
         }
-
-        // Add mock branches if the DB doesn't return them for some reason but they exist in services
-        if (allBranches.length === 0 || allBranches.length === 1) {
-             const uniqueBranchIds = new Set();
-             if (res.data.services) res.data.services.forEach(srv => { if (srv.branchId) uniqueBranchIds.add(srv.branchId) });
-             if (res.data.products) res.data.products.forEach(prod => { if (prod.branchId) uniqueBranchIds.add(prod.branchId) });
-             
-             if (uniqueBranchIds.size > allBranches.length) {
-                 const mockedBranches = [];
-                 uniqueBranchIds.forEach(id => {
-                     let name = "Branch";
-                     if (id === "seed-main-branch") name = "Main Branch";
-                     if (id === "seed-dha-branch") name = "DHA Branch";
-                     if (id === "seed-gulberg-branch") name = "Gulberg Branch";
-                     if (id === "seed-johar-branch") name = "Johar Branch";
-                     mockedBranches.push({ id, name });
-                 });
-                 s.branches = mockedBranches;
-                 allBranches = mockedBranches;
-             }
-        }
-
 
         let validBranch = selectedBranchId;
         if (selectedBranchId && s.branches && !s.branches.find(b => b.id === selectedBranchId)) {
