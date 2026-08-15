@@ -8,9 +8,10 @@ import "./WebsiteEditorPage.css";
 const DEFAULT_SECTIONS = [
   { id: "hero", type: "hero", label: "Hero Banner", enabled: true, locked: true },
   { id: "about", type: "about", label: "About Us", enabled: true, locked: true },
-  { id: "gallery", type: "gallery", label: "Gallery", enabled: true, locked: true },
+  { id: "gallery", type: "gallery", label: "Photo Gallery", enabled: true, locked: true },
   { id: "services", type: "services", label: "Featured Services", enabled: true, locked: true },
-  { id: "testimonials", type: "testimonials", label: "Client Reviews", enabled: true, locked: false }
+  { id: "testimonials", type: "testimonials", label: "Client Reviews", enabled: true, locked: false },
+  { id: "contact", type: "contact", label: "Contact Info", enabled: true, locked: false }
 ];
 
 const iconMap = {
@@ -18,7 +19,8 @@ const iconMap = {
   about: <Info size={16} />,
   gallery: <ImageIcon size={16} />,
   services: <Sparkles size={16} />,
-  testimonials: <Star size={16} />
+  testimonials: <Star size={16} />,
+  contact: <Info size={16} />
 };
 
 const COLOR_PRESETS = [
@@ -30,33 +32,22 @@ const COLOR_PRESETS = [
   "#2d6a4f", "#40916c", "#52b788", "#6b705c", "#a5a58d"
 ];
 
-const CARD_SHAPES = [
-  { id: "rounded", label: "Rounded", radius: "16px" },
-  { id: "square", label: "Sharp", radius: "4px" },
-  { id: "circle", label: "Circle", radius: "50%" },
-  { id: "pill", label: "Pill", radius: "999px" }
-];
-
 const emptyConfig = {
-  salonName: "", logoUrl: "",
-  heroTitle: "Elevate Your Beauty Experience",
-  heroSubtitle: "Discover premium salon services and exclusive products curated just for you.",
-  heroImage: "", heroBtn1Text: "Our Services", heroBtn1Link: "services",
-  heroBtn2Text: "Book Appointment", heroBtn2Link: "book",
-  aboutTitle: "", aboutDescription: "", aboutImage: "", aboutMission: "", aboutVision: "",
+  salonName: "",
+  logoUrl: "",
+  heroTitle: "Experience True Elegance",
+  heroSubtitle: "Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look with absolute precision.",
+  heroImage: "",
+  heroBtnText: "Book Appointment",
+  aboutTitle: "The Art of Grooming",
+  aboutDescription: "",
+  aboutImage: "",
   galleryImages: [],
-  contactPhone: "", contactEmail: "", contactAddress: "", contactMapUrl: "",
-  socialFacebook: "", socialInstagram: "", socialYoutube: "", socialTiktok: "", socialTwitter: "",
-  businessHours: [
-    { day: "Mon-Fri", hours: "9:00 AM - 8:00 PM" },
-    { day: "Saturday", hours: "10:00 AM - 6:00 PM" },
-    { day: "Sunday", hours: "Closed" }
-  ],
-  ctaTitle: "Ready to Transform Your Look?", ctaSubtitle: "Book your appointment today and experience the difference.", ctaBtnText: "Book Now", ctaBtnLink: "services", ctaImage: "",
+  contactPhone: "",
+  contactEmail: "",
+  contactAddress: "",
   testimonials: [],
-  primaryColor: "#c8a97e", secondaryColor: "#111111",
-  bannerImage: "", bannerTitle: "", bannerSubtitle: "", bannerBtnText: "", bannerBtnLink: "",
-  cardShape: "rounded", footerText: ""
+  primaryColor: "#c8a97e"
 };
 
 function Field({ label, children, hint }) {
@@ -259,29 +250,18 @@ export default function WebsiteEditorPage() {
       <>
         {sections.find(s => s.type === "hero")?.enabled && (
           <SectionBlock icon={<LayoutTemplate size={16} />} title="Hero Banner" badge="Main" defaultOpen={true}>
-            <Field label="Headline"><Input value={config.heroTitle} onChange={v => update("heroTitle", v)} placeholder="Your headline here" /></Field>
-            <Field label="Subtitle"><Textarea value={config.heroSubtitle} onChange={v => update("heroSubtitle", v)} placeholder="Your subtitle..." rows={2} /></Field>
+            <Field label="Headline"><Input value={config.heroTitle} onChange={v => update("heroTitle", v)} placeholder="Experience True Elegance" /></Field>
+            <Field label="Subtitle"><Textarea value={config.heroSubtitle} onChange={v => update("heroSubtitle", v)} placeholder="Redefining beauty and grooming..." rows={2} /></Field>
             <ImageField label="Background Image" value={config.heroImage} onChange={v => update("heroImage", v)} hint="1920 x 800" />
-            <div className="we-row-2">
-              <Field label="Button 1"><Input value={config.heroBtn1Text} onChange={v => update("heroBtn1Text", v)} placeholder="Our Services" /></Field>
-              <Field label="Link"><Input value={config.heroBtn1Link} onChange={v => update("heroBtn1Link", v)} placeholder="services" /></Field>
-            </div>
-            <div className="we-row-2">
-              <Field label="Button 2"><Input value={config.heroBtn2Text} onChange={v => update("heroBtn2Text", v)} placeholder="Book Now" /></Field>
-              <Field label="Link"><Input value={config.heroBtn2Link} onChange={v => update("heroBtn2Link", v)} placeholder="book" /></Field>
-            </div>
+            <Field label="Button Text"><Input value={config.heroBtnText} onChange={v => update("heroBtnText", v)} placeholder="Book Appointment" /></Field>
           </SectionBlock>
         )}
 
         {sections.find(s => s.type === "about")?.enabled && (
           <SectionBlock icon={<Info size={16} />} title="About Us" defaultOpen={false}>
-            <Field label="Title"><Input value={config.aboutTitle} onChange={v => update("aboutTitle", v)} placeholder="About Our Salon" /></Field>
-            <Field label="Description"><Textarea value={config.aboutDescription} onChange={v => update("aboutDescription", v)} rows={3} placeholder="Tell your story..." /></Field>
-            <div className="we-row-2">
-              <Field label="Mission"><Textarea value={config.aboutMission} onChange={v => update("aboutMission", v)} rows={2} /></Field>
-              <Field label="Vision"><Textarea value={config.aboutVision} onChange={v => update("aboutVision", v)} rows={2} /></Field>
-            </div>
-            <ImageField label="Image" value={config.aboutImage} onChange={v => update("aboutImage", v)} hint="800 x 600" />
+            <Field label="Title"><Input value={config.aboutTitle} onChange={v => update("aboutTitle", v)} placeholder="The Art of Grooming" /></Field>
+            <Field label="Description"><Textarea value={config.aboutDescription} onChange={v => update("aboutDescription", v)} rows={3} placeholder="At our salon, we approach self-care with precision..." /></Field>
+            <ImageField label="About Image" value={config.aboutImage} onChange={v => update("aboutImage", v)} hint="800 x 600" />
           </SectionBlock>
         )}
 
@@ -310,7 +290,7 @@ export default function WebsiteEditorPage() {
 
         {sections.find(s => s.type === "services")?.enabled && (
           <SectionBlock icon={<Sparkles size={16} />} title="Featured Services" badge="Auto" defaultOpen={false}>
-            <div className="we-info-box">Auto-populated from services with 'Show on Website' enabled.</div>
+            <div className="we-info-box">Auto-populated from active salon services on your menu.</div>
           </SectionBlock>
         )}
 
@@ -337,59 +317,11 @@ export default function WebsiteEditorPage() {
           </SectionBlock>
         )}
 
-        {sections.find(s => s.type === "banner")?.enabled && (
-          <SectionBlock icon="📣" title="Promotional Banner" defaultOpen={false}>
-            <Field label="Title"><Input value={config.bannerTitle} onChange={v => update("bannerTitle", v)} placeholder="Summer Sale!" /></Field>
-            <Field label="Subtitle"><Textarea value={config.bannerSubtitle} onChange={v => update("bannerSubtitle", v)} rows={2} /></Field>
-            <ImageField label="Banner Image" value={config.bannerImage} onChange={v => update("bannerImage", v)} hint="1200 x 500" />
-            <div className="we-row-2">
-              <Field label="Button"><Input value={config.bannerBtnText} onChange={v => update("bannerBtnText", v)} /></Field>
-              <Field label="Link"><Input value={config.bannerBtnLink} onChange={v => update("bannerBtnLink", v)} /></Field>
-            </div>
-          </SectionBlock>
-        )}
-
-        {sections.find(s => s.type === "cta")?.enabled && (
-          <SectionBlock icon="👆" title="Call to Action" defaultOpen={false}>
-            <Field label="Title"><Input value={config.ctaTitle} onChange={v => update("ctaTitle", v)} placeholder="Ready to Transform?" /></Field>
-            <Field label="Subtitle"><Textarea value={config.ctaSubtitle} onChange={v => update("ctaSubtitle", v)} rows={2} /></Field>
-            <div className="we-row-2">
-              <Field label="Button"><Input value={config.ctaBtnText} onChange={v => update("ctaBtnText", v)} /></Field>
-              <Field label="Link"><Input value={config.ctaBtnLink} onChange={v => update("ctaBtnLink", v)} /></Field>
-            </div>
-            <ImageField label="Background" value={config.ctaImage} onChange={v => update("ctaImage", v)} hint="1200 x 500" />
-          </SectionBlock>
-        )}
-
         {sections.find(s => s.type === "contact")?.enabled && (
-          <SectionBlock icon="📞" title="Contact Info" defaultOpen={false}>
+          <SectionBlock icon={<Info size={16} />} title="Contact & Location" defaultOpen={false}>
             <Field label="Phone"><Input value={config.contactPhone} onChange={v => update("contactPhone", v)} placeholder="+91 98765 43210" /></Field>
             <Field label="Email"><Input value={config.contactEmail} onChange={v => update("contactEmail", v)} placeholder="info@salon.com" /></Field>
-            <Field label="Address"><Textarea value={config.contactAddress} onChange={v => update("contactAddress", v)} rows={2} /></Field>
-            <Field label="Google Maps URL"><Input value={config.contactMapUrl} onChange={v => update("contactMapUrl", v)} placeholder="https://maps.google.com/..." /></Field>
-          </SectionBlock>
-        )}
-
-        {sections.find(s => s.type === "hours")?.enabled && (
-          <SectionBlock icon="⏰" title="Business Hours" defaultOpen={false}>
-            {(config.businessHours || []).map((bh, idx) => (
-              <div key={idx} className="we-hours-row">
-                <Input value={bh.day} onChange={v => { const c = [...config.businessHours]; c[idx] = { ...c[idx], day: v }; update("businessHours", c); }} placeholder="Monday" />
-                <Input value={bh.hours} onChange={v => { const c = [...config.businessHours]; c[idx] = { ...c[idx], hours: v }; update("businessHours", c); }} placeholder="9AM - 5PM" />
-                <button className="we-hours-remove" onClick={() => update("businessHours", config.businessHours.filter((_, i) => i !== idx))}>&times;</button>
-              </div>
-            ))}
-            <button className="we-add-btn" onClick={() => update("businessHours", [...(config.businessHours || []), { day: "", hours: "" }])}>+ Add Day</button>
-          </SectionBlock>
-        )}
-
-        {sections.find(s => s.type === "social")?.enabled && (
-          <SectionBlock icon="🌐" title="Social Links" defaultOpen={false}>
-            <Field label="Instagram"><Input value={config.socialInstagram} onChange={v => update("socialInstagram", v)} placeholder="@salon" /></Field>
-            <Field label="Facebook"><Input value={config.socialFacebook} onChange={v => update("socialFacebook", v)} placeholder="https://..." /></Field>
-            <Field label="YouTube"><Input value={config.socialYoutube} onChange={v => update("socialYoutube", v)} placeholder="https://..." /></Field>
-            <Field label="TikTok"><Input value={config.socialTiktok} onChange={v => update("socialTiktok", v)} placeholder="@salon" /></Field>
-            <Field label="Twitter"><Input value={config.socialTwitter} onChange={v => update("socialTwitter", v)} placeholder="@salon" /></Field>
+            <Field label="Address"><Textarea value={config.contactAddress} onChange={v => update("contactAddress", v)} rows={2} placeholder="123 Elegance Avenue..." /></Field>
           </SectionBlock>
         )}
       </>

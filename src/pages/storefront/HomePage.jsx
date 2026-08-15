@@ -23,20 +23,40 @@ export default function HomePage() {
   }, [salon?.name]);
 
   const currency = salon?.currency || "INR";
+  const wc = salon?.websiteConfig || {};
+
+  const galleryImages = Array.isArray(wc.galleryImages) && wc.galleryImages.length > 0
+    ? wc.galleryImages
+    : [
+        "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=800&q=80",
+        "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80",
+        "https://images.unsplash.com/photo-1620331311520-246422fd82f9?w=600&q=80",
+        "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80",
+        "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&q=80"
+      ];
+
+  const testimonialsList = Array.isArray(wc.testimonials) && wc.testimonials.length > 0
+    ? wc.testimonials
+    : [
+        { text: "Absolutely phenomenal service. The attention to detail is unmatched.", author: "Priya Sharma", rating: 5 },
+        { text: "A truly premium experience from start to finish. Highly recommend!", author: "Rahul Verma", rating: 5 },
+        { text: "I've never felt more pampered. Best salon I've ever visited!", author: "Anjali Patel", rating: 5 },
+        { text: "Sophisticated, clean, and highly professional. Best styling in years.", author: "Vikram Singh", rating: 5 }
+      ];
 
   return (
     <div className="storefront-wrapper">
       {/* Premium Hero Section */}
       <section className="sf-hero" style={{ overflow: "hidden" }}>
         <div className="sf-hero-bg" style={{
-          background: `url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80') center/cover no-repeat`,
+          background: `url('${wc.heroImage || "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80"}') center/cover no-repeat`,
         }}></div>
         <div className="sf-hero-content">
-          <h1 className="animate-fade-up">Experience True Elegance</h1>
-          <p className="animate-fade-up animate-delay-1">Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look with absolute precision.</p>
+          <h1 className="animate-fade-up">{wc.heroTitle || "Experience True Elegance"}</h1>
+          <p className="animate-fade-up animate-delay-1">{wc.heroSubtitle || "Redefining beauty and grooming. Step into a world of sophisticated care and let our expert stylists craft your perfect look with absolute precision."}</p>
           <div className="animate-fade-up animate-delay-2" style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-            <Link to={`/site/${salon.slug}/services`} className="sf-btn-white">
-              Book Appointment
+            <Link to={`/site/${salon?.slug}/services`} className="sf-btn-white">
+              {wc.heroBtnText || "Book Appointment"}
             </Link>
           </div>
         </div>
@@ -72,8 +92,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-
 
       {/* Featured Services */}
       <section className="sf-section">
@@ -126,17 +144,17 @@ export default function HomePage() {
           <div style={{ flex: 1, minWidth: '320px', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100%', height: '100%', border: '1px solid #111', zIndex: 0 }}></div>
             <img 
-              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80" 
+              src={wc.aboutImage || "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80"} 
               alt="Salon Interior" 
-              style={{ width: '100%', position: 'relative', zIndex: 1, display: 'block' }} 
+              style={{ width: '100%', position: 'relative', zIndex: 1, display: 'block', borderRadius: 4 }} 
             />
           </div>
           <div style={{ flex: 1, minWidth: '320px' }}>
-            <h2 style={{ fontSize: "3rem", marginBottom: "30px", fontWeight: 500 }}>The Art of Grooming</h2>
+            <h2 style={{ fontSize: "3rem", marginBottom: "30px", fontWeight: 500 }}>{wc.aboutTitle || "The Art of Grooming"}</h2>
             <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "40px", fontSize: "1.1rem", fontWeight: 300 }}>
-              At {salon?.name || "our salon"}, we approach self-care with precision and professionalism. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services. From precision haircuts to advanced skincare regimens, every detail is meticulously tailored to your requirements.
+              {wc.aboutDescription || `At ${salon?.name || "our salon"}, we approach self-care with precision and professionalism. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services.`}
             </p>
-            <Link to={`/site/${salon.slug}/services`} className="sf-btn-outline">
+            <Link to={`/site/${salon?.slug}/services`} className="sf-btn-outline">
               View Our Services
             </Link>
           </div>
@@ -150,21 +168,11 @@ export default function HomePage() {
           <p>A glimpse into our world of precision styling and premium care.</p>
         </div>
         <div className="sf-gallery-grid">
-          <div className="sf-gallery-item sf-gallery-main">
-            <img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=800&q=80" alt="Gallery 1" />
-          </div>
-          <div className="sf-gallery-item">
-            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80" alt="Gallery 2" />
-          </div>
-          <div className="sf-gallery-item">
-            <img src="https://images.unsplash.com/photo-1620331311520-246422fd82f9?w=600&q=80" alt="Gallery 3" />
-          </div>
-          <div className="sf-gallery-item">
-            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80" alt="Gallery 4" />
-          </div>
-          <div className="sf-gallery-item">
-            <img src="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&q=80" alt="Gallery 5" />
-          </div>
+          {galleryImages.map((imgUrl, idx) => (
+            <div key={idx} className={`sf-gallery-item ${idx === 0 ? "sf-gallery-main" : ""}`}>
+              <img src={imgUrl} alt={`Gallery ${idx + 1}`} />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -176,32 +184,16 @@ export default function HomePage() {
         <div className="sf-marquee-track">
           {[1, 2].map(cycle => (
             <span key={cycle}>
-              {[
-                { text: "Absolutely phenomenal service. The attention to detail is unmatched.", author: "Priya Sharma" },
-                { text: "A truly premium experience from start to finish. Highly recommend!", author: "Rahul Verma" },
-                { text: "I've never felt more pampered. Best salon I've ever visited!", author: "Anjali Patel" },
-                { text: "Sophisticated, clean, and highly professional. Best styling in years.", author: "Vikram Singh" },
-                { text: "Their treatments are absolutely divine. My skin is glowing!", author: "Neha Gupta" },
-                { text: "Incredible staff and such a relaxing atmosphere. A perfect 10/10.", author: "Arjun Reddy" },
-                { text: "I always leave feeling like a million bucks. They never disappoint!", author: "Pooja Desai" },
-                { text: "The premium products they use make such a huge difference. Love it!", author: "Karan Malhotra" },
-                { text: "Professional, punctual, and extremely talented stylists.", author: "Sneha Iyer" },
-                { text: "My go-to place for self-care. The ambiance is just perfect.", author: "Rohan Joshi" },
-                { text: "They completely transformed my look. I've gotten so many compliments!", author: "Riya Kapoor" },
-                { text: "Every visit is a luxurious escape from reality. Highly recommended.", author: "Aditya Nanda" },
-                { text: "The attention to detail here is second to none. Amazing service.", author: "Kriti Menon" },
-                { text: "Top-notch facilities and incredibly skilled professionals.", author: "Siddharth Rao" },
-                { text: "I wouldn't trust anyone else with my hair. Simply the best.", author: "Tanya Sharma" }
-              ].map((t, i) => (
+              {testimonialsList.map((t, i) => (
                 <div key={`${cycle}-${i}`} className="sf-testimonial-card" style={{ display: 'inline-flex', flexDirection: 'column', padding: '32px', borderRadius: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                     <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--surface-alt)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)', flexShrink: 0 }}>
                       <User size={24} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <div className="sf-testimonial-author" style={{ margin: 0 }}>{t.author}</div>
+                      <div className="sf-testimonial-author" style={{ margin: 0 }}>{t.author || "Valued Client"}</div>
                       <div style={{ color: '#fbbf24', fontSize: '1rem', marginTop: 4, display: 'flex', gap: 2 }}>
-                        {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}
+                        {[...Array(Number(t.rating || 5))].map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}
                       </div>
                     </div>
                   </div>
@@ -224,11 +216,11 @@ export default function HomePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', color: '#ffffff' }}>
                 <MapPin size={24} style={{ color: 'rgba(255,255,255,0.5)', marginTop: '2px' }} />
-                <span style={{ fontSize: '1.1rem', fontWeight: 300 }}>{salon?.address || "123 Elegance Avenue, Style District"}</span>
+                <span style={{ fontSize: '1.1rem', fontWeight: 300 }}>{wc.contactAddress || salon?.address || "123 Elegance Avenue, Style District"}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#ffffff' }}>
                 <Phone size={24} style={{ color: 'rgba(255,255,255,0.5)' }} />
-                <span style={{ fontSize: '1.1rem', fontWeight: 300 }}>{salon?.phone || "+1 (555) 123-4567"}</span>
+                <span style={{ fontSize: '1.1rem', fontWeight: 300 }}>{wc.contactPhone || salon?.phone || "+1 (555) 123-4567"}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', color: '#ffffff' }}>
                 <Clock size={24} style={{ color: 'rgba(255,255,255,0.5)', marginTop: '2px' }} />
