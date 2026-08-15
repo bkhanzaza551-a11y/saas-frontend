@@ -307,16 +307,28 @@ export default function ProductsRequirementPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 20, borderTop: "1px solid #eee", paddingTop: 16 }}>
-              <button type="button" onClick={() => setRequestModal(null)} className="btn btn-secondary">Cancel</button>
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
+              <button 
+                type="button" 
+                onClick={() => setRequestModal(null)} 
+                style={{ height: 42, padding: "0 20px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10, color: "#475569", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#0f172a"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#475569"; }}
+              >
+                Cancel
+              </button>
+              
               <button
                 type="button"
                 onClick={submitRequest}
                 disabled={saving || !requestForm.quantity || parseInt(requestForm.quantity) < 1}
-                className="btn btn-primary"
-                style={{ opacity: saving ? 0.7 : 1, display: "flex", alignItems: "center", gap: 6 }}
+                style={{ 
+                  height: 42, padding: "0 24px", background: "#0f172a", border: "1px solid #0f172a", borderRadius: 10, color: "#fff", fontSize: "0.9rem", fontWeight: 600, cursor: (saving || !requestForm.quantity || parseInt(requestForm.quantity) < 1) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s", opacity: (saving || !requestForm.quantity || parseInt(requestForm.quantity) < 1) ? 0.6 : 1, boxShadow: "0 4px 12px rgba(15,23,42,0.15)"
+                }}
+                onMouseOver={e => { if(!saving && requestForm.quantity && parseInt(requestForm.quantity) >= 1) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(15,23,42,0.2)"; } }}
+                onMouseOut={e => { if(!saving && requestForm.quantity && parseInt(requestForm.quantity) >= 1) { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(15,23,42,0.15)"; } }}
               >
-                {saving ? "Submitting..." : <><ShoppingCart size={14} /> Submit Request</>}
+                {saving ? "Submitting..." : <><ShoppingCart size={16} /> Submit Request</>}
               </button>
             </div>
           </div>
