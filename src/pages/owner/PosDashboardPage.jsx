@@ -639,13 +639,36 @@ export default function PosDashboardPage() {
       return;
     }
     let finalDiscount = 0;
+    const grossSubtotal = form.items.reduce((sum, it) => sum + (getDetailBasePrice(it) * Number(it.qty || 1)), 0);
     if (discountDraft.type === "PERCENT") {
       const pct = Math.min(100, Math.max(0, val));
-      finalDiscount = Number(((totals.subtotal + totals.tax) * pct / 100).toFixed(2));
+      finalDiscount = Number(((grossSubtotal + totals.tax) * pct / 100).toFixed(2));
     } else {
       finalDiscount = val;
     }
     setInvoiceDiscountDraft(finalDiscount);
+
+    // Sync & prorate discount to cart items so table row fields reflect DISC & TOTAL
+    if (form.items.length > 0 && finalDiscount >= 0) {
+      setForm(prev => ({
+        ...prev,
+        items: prev.items.map(it => {
+          const itemGross = getDetailBasePrice(it) * Number(it.qty || 1);
+          let itemDisc = 0;
+          if (discountDraft.type === "PERCENT") {
+            itemDisc = Number(((itemGross * Math.min(100, Math.max(0, val))) / 100).toFixed(2));
+          } else {
+            itemDisc = grossSubtotal > 0 ? Number(((itemGross / grossSubtotal) * finalDiscount).toFixed(2)) : 0;
+          }
+          const perUnitDisc = Number((itemDisc / Number(it.qty || 1)).toFixed(2));
+          return applyDetailItemDiscountPatch(it, { 
+            discountAmt: perUnitDisc, 
+            discountPct: discountDraft.type === "PERCENT" ? Math.min(100, Math.max(0, val)) : 0 
+          });
+        })
+      }));
+    }
+
     setShowDiscountModal(false);
     setStatus({ error: "", success: `Discount of ${formatMoney(finalDiscount)} applied.` });
   };
@@ -1221,15 +1244,15 @@ export default function PosDashboardPage() {
                   <div className="cart-table-body">
                     {form.items.map((item, index) => {
                       const qty = Number(item.qty || 1);
-                      const price = Number(item.unitPrice || 0);
-                      const subTotal = price * qty;
+                      const basePrice = getDetailBasePrice(item);
+                      const grossLineTotal = basePrice * qty;
+                      const discountPercent = item.complimentary ? 100 : toAmount(item.discountPct, 0);
+                      const discountAmount = item.complimentary ? grossLineTotal : toAmount(item.discountAmt, 0) * qty;
+                      const subTotal = Math.max(0, grossLineTotal - discountAmount);
                       const tp = Number(item.taxPct || 0);
                       const advSettings = posSettings?.advancedSettings && typeof posSettings.advancedSettings === "object" ? posSettings.advancedSettings : {};
                       const isInc = advSettings?.taxMapping?.inclusiveTax === true;
                       const taxAmount = isInc && tp > 0 ? (subTotal * tp) / (100 + tp) : (subTotal * tp) / 100;
-                      const basePrice = getDetailBasePrice(item);
-                      const discountPercent = item.complimentary ? 100 : toAmount(item.discountPct, 0);
-                      const discountAmount = item.complimentary ? basePrice * qty : toAmount(item.discountAmt, 0) * qty;
                       return (
                         <div key={item.id || `${item.serviceId || item.productId || "item"}-${index}`} className="cart-table-row" style={{ gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr 1fr 1fr 1fr 1.5fr 2fr" }}>
                           <div>
@@ -1285,7 +1308,7 @@ export default function PosDashboardPage() {
                             <input type="number" min="1" value={item.qty} onChange={(event) => updateItem(index, { qty: Number(event.target.value || 1) })} style={{ width: 52, padding: 4, borderRadius: 4, border: "1px solid #cbd5e1" }} disabled={!isEditing} />
                           </div>
                           <div>{basePrice.toFixed(0)}</div>
-                          <div>{subTotal.toFixed(0)}</div>
+                          <div>{grossLineTotal.toFixed(0)}</div>
                           <div>
                             {isEditing && !item.complimentary ? (
                               <input
@@ -1304,8 +1327,8 @@ export default function PosDashboardPage() {
                               <input
                                 type="number"
                                 min="0"
-                                value={toAmount(item.discountAmt, 0)}
-                                onChange={(event) => updateItem(index, { discountAmt: Math.max(0, toAmount(event.target.value, 0)) })}
+                                value={toAmount(item.discountAmt, 0) * qty}
+                                onChange={(event) => updateItem(index, { discountAmt: Math.max(0, toAmount(event.target.value, 0) / qty) })}
                                 style={{ width: 56, padding: 4, borderRadius: 4, border: "1px solid #cbd5e1" }}
                               />
                             ) : (
