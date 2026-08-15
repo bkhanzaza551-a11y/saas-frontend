@@ -118,7 +118,7 @@ export default function PosPage() {
   const [memModalMem, setMemModalMem] = useState(null);
   const [memDraft, setMemDraft] = useState({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0, 10), customServices: [] });
   const [memSearch, setMemSearch] = useState("");
-//   const [memServiceSearch, setMemServiceSearch] = useState("");
+  const [memServiceSearch, setMemServiceSearch] = useState("");
   const [showConsumableModal, setShowConsumableModal] = useState(false);
   const [consumableItemIndex, setConsumableItemIndex] = useState(null);
   const [consumableItems, setConsumableItems] = useState([]);
