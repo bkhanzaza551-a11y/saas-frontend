@@ -23,7 +23,7 @@ export default function ReferralProgramPage() {
   const [services, setServices] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [couponSearch, setCouponSearch] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
+
   const [showCouponForm, setShowCouponForm] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [couponForm, setCouponForm] = useState(defaultCouponForm);
@@ -58,7 +58,7 @@ export default function ReferralProgramPage() {
   const loadCoupons = useCallback(async () => {
     try {
       const [couponRes, catRes, svcRes, custRes] = await Promise.all([
-        api.get("/owner/referrals/coupons", { params: { branchId: selectedBranchId || undefined, includeArchived: showArchived ? "true" : undefined } }),
+        api.get("/owner/referrals/coupons", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/service-categories", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/services", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } }),
@@ -295,10 +295,6 @@ export default function ReferralProgramPage() {
                 <h3 style={{ margin: 0 }}>Referral Coupons <span style={{ fontSize: 13, fontWeight: 400, color: "#64748b" }}>({filteredCoupons.length})</span></h3>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", flex: 1, justifyContent: "flex-end" }}>
                   <input type="text" className="cpn-input" placeholder="Search..." value={couponSearch} onChange={(e) => setCouponSearch(e.target.value)} style={{ padding: "8px 12px", fontSize: 13, flex: 1, minWidth: 120, maxWidth: 180 }} />
-                  <label style={{ fontSize: 12, color: "#475569", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-                    <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
-                    Archived
-                  </label>
                   <button onClick={handleCreateCoupon} className="cpn-btn cpn-btn-primary" style={{ fontSize: 13, whiteSpace: "nowrap", padding: "8px 16px" }}>+ New Coupon</button>
                 </div>
               </div>
@@ -341,7 +337,6 @@ export default function ReferralProgramPage() {
                         </div>
                         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                           <button onClick={() => handleEditCoupon(c)} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 12, padding: "6px 12px" }}>Edit</button>
-                          <button onClick={() => handleArchiveToggle(c)} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 12, padding: "6px 12px", color: c.isArchived ? "#22c55e" : "#eab308" }}>{c.isArchived ? "Restore" : "Archive"}</button>
                           <button onClick={() => handleDeleteCoupon(c.id)} className="cpn-btn" style={{ fontSize: 12, padding: "6px 12px", border: "1px solid #fecaca", color: "#ef4444", background: "#fef2f2" }}>Delete</button>
                         </div>
                       </div>
