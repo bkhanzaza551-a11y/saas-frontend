@@ -164,22 +164,21 @@ label span.muted {
 }
 
 button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not([class*="map-picker"]):not([class*="we-"]):not([class*="sf-"]) {
-  background: var(--button-bg, linear-gradient(135deg, #0f766e, #0ea5e9));
-  color: white;
+  background: var(--button-bg, #ffffff);
+  color: var(--button-color, #0f172a);
   cursor: pointer;
-  border: none;
-  font-weight: 700;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
   letter-spacing: 0.01em;
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not([class*="map-picker"]):not([class*="we-"]):not([class*="sf-"]):hover {
-  transform: translateY(-1px);
+  background: var(--button-bg-hover, #f8fafc);
 }
 
 button:not([class*="maplibregl"]):not([class*="sidebar"]):not([class*="salonnest-branch"]):not([class*="map-picker"]):not([class*="we-"]):not([class*="sf-"]):not(.btn-cancel):not(.btn-submit):not(.secondary-button):not(.crm-btn):not(.blue-btn-secondary):not(.eq-btn-secondary):not(.danger-button):hover {
-  background: var(--button-bg-hover, var(--button-bg, linear-gradient(135deg, #0f766e, #0ea5e9)));
-  filter: brightness(1.05);
+  background: var(--button-bg-hover, #f1f5f9);
 }
 
 button.secondary-button:hover {
