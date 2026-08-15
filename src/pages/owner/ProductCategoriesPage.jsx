@@ -596,8 +596,8 @@ export default function ProductCategoriesPage() {
                   </div>
                 </div>
 
-                {/* Cost Price, Price, Sale Price, Non Discountable */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
+                {/* Cost Price, Selling Price, Non Discountable */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Cost Price</label>
                     <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", background: "#fff" }}>
@@ -612,13 +612,7 @@ export default function ProductCategoriesPage() {
                       <input type="number" required className="hub-input" value={productForm.sellingPrice} onChange={e => { const val = e.target.value; setProductForm(prev => ({...prev, sellingPrice: val === "" ? "" : (parseFloat(val) || 0)})); }} onFocus={() => handlePriceFocus("sellingPrice")} onBlur={() => handlePriceBlur("sellingPrice")} style={{ border: "none", flex: 1, padding: "10px", fontSize: 14, fontWeight: 600 }} />
                     </div>
                   </div>
-                  <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Sale Price</label>
-                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", background: "#fff" }}>
-                      <span style={{ padding: "10px 12px", background: "#f8fafc", borderRight: "1px solid #e2e8f0", fontSize: 14, fontWeight: 600, color: "#64748b" }}>{currencySymbol}</span>
-                      <input type="number" className="hub-input" value={productForm.salePrice} onChange={e => { const val = e.target.value; setProductForm(prev => ({...prev, salePrice: val === "" ? "" : (parseFloat(val) || 0)})); }} onFocus={() => handlePriceFocus("salePrice")} onBlur={() => handlePriceBlur("salePrice")} style={{ border: "none", flex: 1, padding: "10px", fontSize: 14 }} />
-                    </div>
-                  </div>
+
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Non Discountable</label>
                     <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
@@ -681,7 +675,7 @@ export default function ProductCategoriesPage() {
                         <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Variation: {idx + 1}</span>
                         <button type="button" onClick={() => setProductForm({...productForm, variations: productForm.variations.filter((_, i) => i !== idx)})} style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Remove Variation"><X size={14} /></button>
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1fr", gap: 10, alignItems: "end" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 10, alignItems: "end" }}>
                         <div>
                           <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Name</label>
                           <input type="text" value={v.name} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], name: e.target.value}; setProductForm({...productForm, variations: next}); }} placeholder="e.g. 10 gm" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
@@ -690,10 +684,7 @@ export default function ProductCategoriesPage() {
                           <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Price</label>
                           <input type="number" value={v.price || ""} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], price: parseFloat(e.target.value) || 0}; setProductForm({...productForm, variations: next}); }} placeholder="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
                         </div>
-                        <div>
-                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Sale Price</label>
-                          <input type="number" value={v.salePrice || ""} onChange={e => { const next = [...productForm.variations]; next[idx] = {...next[idx], salePrice: parseFloat(e.target.value) || 0}; setProductForm({...productForm, variations: next}); }} placeholder="0" style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 13 }} />
-                        </div>
+
                         <div>
                           <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Non Discountable</label>
                           <div style={{ height: "35px", display: "flex", alignItems: "center" }}>
