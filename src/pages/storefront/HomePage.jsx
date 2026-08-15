@@ -25,6 +25,14 @@ export default function HomePage() {
   const currency = salon?.currency || "INR";
   const wc = salon?.websiteConfig || {};
 
+  // Section visibility: if sections config exists, respect enabled flags; otherwise show all
+  const sectionsConfig = Array.isArray(wc.sections) && wc.sections.length > 0 ? wc.sections : null;
+  const isSectionEnabled = (sectionId) => {
+    if (!sectionsConfig) return true; // no config = show all
+    const found = sectionsConfig.find(s => s.id === sectionId);
+    return found ? found.enabled !== false : true; // default to visible
+  };
+
   const galleryImages = Array.isArray(wc.galleryImages) && wc.galleryImages.length > 0
     ? wc.galleryImages
     : [
@@ -47,6 +55,7 @@ export default function HomePage() {
   return (
     <div className="storefront-wrapper">
       {/* Premium Hero Section */}
+      {isSectionEnabled("hero") && (
       <section className="sf-hero" style={{ overflow: "hidden" }}>
         <div className="sf-hero-bg" style={{
           background: `url('${wc.heroImage || "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80"}') center/cover no-repeat`,
@@ -61,8 +70,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
-      {/* The Premium Standard / Features */}
+      {/* The Premium Standard / Features - always shown */}
       <section className="sf-section">
         <div className="sf-section-title">
           <h2>The Premium Standard</h2>
@@ -94,6 +104,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Services */}
+      {isSectionEnabled("services") && (
       <section className="sf-section">
         <div className="sf-section-title">
           <h2>Featured Services</h2>
@@ -137,8 +148,10 @@ export default function HomePage() {
           </>
         )}
       </section>
+      )}
 
       {/* About Section */}
+      {isSectionEnabled("about") && (
       <section className="sf-section-alt">
         <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: '320px', position: 'relative' }}>
@@ -161,7 +174,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      )}
+
       {/* Gallery Section */}
+      {isSectionEnabled("gallery") && (
       <section className="sf-section">
         <div className="sf-section-title">
           <h2>Signature Styles</h2>
@@ -176,7 +192,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      )}
+
       {/* Testimonials Roller */}
+      {isSectionEnabled("testimonials") && (
       <section className="sf-marquee-container" style={{ padding: '60px 0' }}>
         <div className="sf-section-title" style={{ marginBottom: 40 }}>
           <h2>What Our Clients Say</h2>
@@ -205,7 +224,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      )}
+
       {/* Contact Section */}
+      {isSectionEnabled("contact") && (
       <section className="sf-section-alt" style={{ background: '#111111', color: '#ffffff' }}>
         <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px' }}>
           <div style={{ flex: 1, minWidth: '300px' }}>
@@ -239,6 +261,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
     </div>
   );
 }

@@ -386,18 +386,13 @@ export default function WebsiteEditorPage() {
             </div>
           ) : (
             <div className="we-tab-content">
-              <SectionBlock icon={<Palette size={16} />} title="Colors & Branding">
-                <div className="we-color-grid">
-                  <ColorField label="Accent / Buttons" value={config.primaryColor} onChange={v => update("primaryColor", v)} />
-                  <ColorField label="Text / Headings" value={config.secondaryColor} onChange={v => update("secondaryColor", v)} />
-                </div>
+              <SectionBlock icon={<Palette size={16} />} title="Accent Color">
+                <ColorField label="Accent / Buttons" value={config.primaryColor} onChange={v => update("primaryColor", v)} />
+                <div className="we-info-box">This color is used for buttons, links, and highlights across your live website.</div>
               </SectionBlock>
 
-
-
               <SectionBlock icon={<Store size={16} />} title="Salon Identity" defaultOpen={false}>
-                <Field label="Salon Name"><Input value={config.salonName} onChange={v => update("salonName", v)} placeholder="Your Salon" /></Field>
-                <ImageField label="Logo" value={config.logoUrl} onChange={v => update("logoUrl", v)} hint="200 x 200" />
+                <ImageField label="Logo" value={config.logoUrl} onChange={v => update("logoUrl", v)} hint="Replaces your salon name in the navbar with this logo image" />
               </SectionBlock>
             </div>
           )}

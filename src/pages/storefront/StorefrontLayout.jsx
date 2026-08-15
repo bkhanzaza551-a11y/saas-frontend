@@ -81,7 +81,17 @@ export default function StorefrontLayout() {
     api.get(`/public/salon/${slug}`)
       .then(res => {
         const s = res.data.salon;
+        // Merge websiteConfig into salon so child pages can access salon.websiteConfig
+        if (res.data.websiteConfig && typeof res.data.websiteConfig === "object") {
+          s.websiteConfig = res.data.websiteConfig;
+        }
         setSalon(s);
+        // Apply accent color from websiteConfig as CSS variable
+        const accentColor = s.websiteConfig?.primaryColor;
+        if (accentColor) {
+          document.documentElement.style.setProperty("--accent", accentColor);
+          document.documentElement.style.setProperty("--accent-hover", accentColor);
+        }
         let allBranches = [];
         if (s.branches && Array.isArray(s.branches) && s.branches.length > 0) {
           allBranches = s.branches;
@@ -273,7 +283,7 @@ export default function StorefrontLayout() {
           <header className={`sf-header ${scrolled ? 'scrolled' : ''}`}>
             <div className="sf-nav-container">
               <Link to={`/site/${slug}`} className="sf-brand">
-                {salon.websiteConfig?.logoUrl ? <img src={salon.websiteConfig.logoUrl} alt={salon.name} style={{ height: "32px", borderRadius: 4 }} /> : salon.name}
+                {activeSalon?.websiteConfig?.logoUrl ? <img src={activeSalon.websiteConfig.logoUrl} alt={activeSalon.name} style={{ height: "32px", borderRadius: 4 }} /> : activeSalon?.name}
               </Link>
 
               <nav className="sf-nav-links">
@@ -359,9 +369,9 @@ export default function StorefrontLayout() {
               </div>
               <div>
                 <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Contact</h4>
-                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Email:</strong> {salon.email}</p>
-                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Phone:</strong> {salon.phone}</p>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}><strong>Address:</strong> {salon.address}</p>
+                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Email:</strong> {activeSalon?.websiteConfig?.contactEmail || salon.email}</p>
+                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Phone:</strong> {activeSalon?.websiteConfig?.contactPhone || salon.phone}</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}><strong>Address:</strong> {activeSalon?.websiteConfig?.contactAddress || salon.address}</p>
               </div>
             </div>
             <div className="sf-footer-bottom">
