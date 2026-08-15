@@ -731,23 +731,24 @@ export default function UsersPage() {
                         })()}
                       </div>
                       
-                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>System role (fallback) <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>— auto-set when access role picked</span></label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>System role (fallback)</label>
                           <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={{ width: '100%', height: 42, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: form.customRoleId ? '#f1f5f9' : '#f8fafc' }}>
                             {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
                           </CustomSelect>
+                          <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 4 }}>Auto-set when access role picked</div>
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Role title (Visible designation)</label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Role title (Visible designation)</label>
                           <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Phone Number</label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Phone Number</label>
                           <IndianPhoneInput required={false} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "0 14px", height: 42, borderRadius: 10, border: "1px solid #cbd5e1", background: "#f8fafc", fontSize: 13, fontWeight: 600 }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Profile Avatar</label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Profile Avatar</label>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 42 }}>
                             {form.avatarUrl ? (
                               <img src={getImageUrl(form.avatarUrl)} alt="Avatar" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid #cbd5e1' }} />
@@ -825,18 +826,19 @@ export default function UsersPage() {
                     {/* Employment & HR Details */}
                     <div style={{ marginBottom: 32 }}>
                       <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 10, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employment & HR Details</h4>
-                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Date of Joining</label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Date of Joining</label>
                           <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
 
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>UAN Number</label>
-                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" pattern="\d{12}" maxLength={12} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Department</label>
+                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
+
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Working Hours</label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Working Hours</label>
                           <div style={{ display: "flex", gap: 8, alignItems: "center", height: 42 }}>
                             <input type="time" className="hub-input" value={form.workingHoursStart || ""} onChange={e => {
                               const start = e.target.value;
@@ -851,16 +853,18 @@ export default function UsersPage() {
                             }} style={{ flex: 1, height: 42, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
                           </div>
                         </div>
+
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Reporting To</label>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Reporting To</label>
                           <CustomSelect className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })} style={{ width: "100%", height: 42, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }}>
                             <option value="">None / Self</option>
                             {rows.map((r) => r.id !== selectedRow?.id && <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
                           </CustomSelect>
                         </div>
+
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Department</label>
-                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>UAN Number</label>
+                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" pattern="\d{12}" maxLength={12} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>
