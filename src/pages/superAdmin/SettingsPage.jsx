@@ -640,6 +640,29 @@ export default function SuperAdminSettingsPage() {
                       <textarea rows={2} style={{ ...inputStyle, resize: "vertical" }} {...f("maintenanceMessage")} placeholder="We are performing scheduled maintenance. We will be back in 30 minutes." />
                     </Field>
                   </div>
+                  
+                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>System Data & Backup Export</h4>
+                      <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Export platform configuration settings, policies, and system metadata as JSON dump.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(form, null, 2));
+                        const downloadAnchor = document.createElement("a");
+                        downloadAnchor.setAttribute("href", dataStr);
+                        downloadAnchor.setAttribute("download", `salonnest_platform_backup_${new Date().toISOString().split("T")[0]}.json`);
+                        document.body.appendChild(downloadAnchor);
+                        downloadAnchor.click();
+                        downloadAnchor.remove();
+                      }}
+                      style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#ffffff", color: "#1e293b", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
+                    >
+                      Export System Backup
+                    </button>
+                  </div>
+
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                       <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Platform Audit Log</h4>

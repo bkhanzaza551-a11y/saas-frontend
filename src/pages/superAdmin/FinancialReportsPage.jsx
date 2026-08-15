@@ -400,6 +400,45 @@ export default function FinancialReportsPage() {
               {detailTxn.reference && (<><div style={{ color: "#64748b" }}>Reference</div><div>{detailTxn.reference}</div></>)}
               {detailTxn.notes && (<><div style={{ color: "#64748b" }}>Notes</div><div style={{ color: "#475569" }}>{detailTxn.notes}</div></>)}
             </div>
+            <div style={{ marginTop: 20, pt: 16, borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button
+                onClick={() => {
+                  const printWin = window.open("", "_blank");
+                  printWin.document.write(`
+                    <html>
+                      <head>
+                        <title>SaaS Receipt - ${detailTxn.transactionId}</title>
+                        <style>
+                          body { font-family: sans-serif; padding: 40px; color: #0f172a; }
+                          .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
+                          .receipt-title { font-size: 24px; font-weight: bold; color: #2563eb; }
+                          .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+                          .total { font-size: 18px; font-weight: bold; margin-top: 20px; text-align: right; color: #10b981; }
+                        </style>
+                      </head>
+                      <body>
+                        <div class="header">
+                          <div class="receipt-title">SalonNest Platform SaaS Receipt</div>
+                          <p style="color:#64748b;">Official Billing Receipt</p>
+                        </div>
+                        <div class="row"><span>Transaction ID:</span><strong>${detailTxn.transactionId}</strong></div>
+                        <div class="row"><span>Salon Name:</span><strong>${detailTxn.salon?.name || "N/A"}</strong></div>
+                        <div class="row"><span>Payment Purpose:</span><strong>${detailTxn.paymentFor}</strong></div>
+                        <div class="row"><span>Payment Mode:</span><strong>${detailTxn.paymentMethod}</strong></div>
+                        <div class="row"><span>Date:</span><strong>${detailTxn.paymentDate ? new Date(detailTxn.paymentDate).toLocaleString() : "N/A"}</strong></div>
+                        <div class="row"><span>Status:</span><strong style="color:#10b981;">PAID & VERIFIED</strong></div>
+                        <div class="total">Total Amount Paid: ₹${fmt(detailTxn.amount)}</div>
+                        <script>window.print();</script>
+                      </body>
+                    </html>
+                  `);
+                  printWin.document.close();
+                }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "#f1f5f9", color: "#1e293b", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer" }}
+              >
+                <FileText size={16} /> Print SaaS Receipt
+              </button>
+            </div>
           </div>
         </div>
       )}
