@@ -145,7 +145,7 @@ export default function StaffRequirementsPage() {
         border: "1px solid #e2e8f0",
         boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.03)",
         display: "flex",
-        justify: "space-between",
+        justifyContent: "space-between",
         alignItems: "center",
         flexWrap: "wrap",
         gap: 16
@@ -551,7 +551,7 @@ export default function StaffRequirementsPage() {
               borderBottom: "1px solid #e2e8f0",
               background: "#f8fafc",
               display: "flex",
-              justify: "space-between",
+              justifyContent: "space-between",
               alignItems: "center"
             }}>
               <span style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
