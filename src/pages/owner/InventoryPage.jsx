@@ -822,13 +822,6 @@ export default function InventoryPage() {
                 }}>
                   {lowStock.length} {lowStock.length === 1 ? "Product" : "Products"} Below Minimum
                 </span>
-                <button 
-                  onClick={() => { setActiveTab("Purchase Order"); navigate("/admin/inventory/purchase-orders"); }} 
-                  className="cpn-btn cpn-btn-primary" 
-                  style={{ fontSize: 13, padding: "8px 16px" }}
-                >
-                  + Create Purchase Order
-                </button>
               </div>
             </div>
 
