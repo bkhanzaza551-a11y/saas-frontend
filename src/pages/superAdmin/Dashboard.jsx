@@ -16,6 +16,7 @@ export default function SuperAdminDashboard() {
   const [period, setPeriod] = useState("lifetime");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [showFabMenu, setShowFabMenu] = useState(false);
   const navigate = useNavigate();
 
   const fetchDashboard = useCallback(() => {
@@ -501,6 +502,56 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
         )}
+      </div>
+
+      {/* Floating "+" Quick Action FAB Button */}
+      <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 9999 }}>
+        {showFabMenu && (
+          <div style={{ position: "absolute", bottom: 64, right: 0, background: "#ffffff", borderRadius: 16, boxShadow: "0 12px 32px rgba(0,0,0,0.15)", border: "1px solid #e2e8f0", padding: "10px 0", minWidth: 210, display: "flex", flexDirection: "column", gap: 2, animation: "fadeIn 0.2s ease-out" }}>
+            <div style={{ padding: "6px 16px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5 }}>Quick Actions</div>
+            <button 
+              onClick={() => { setShowFabMenu(false); navigate("/super-admin/salons?action=new"); }}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1e293b", textAlign: "left", width: "100%", transition: "background 0.15s" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <Building2 size={16} color="#2563eb" /> Add Salon
+            </button>
+            <button 
+              onClick={() => { setShowFabMenu(false); navigate("/super-admin/sales-pipeline?action=new"); }}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1e293b", textAlign: "left", width: "100%", transition: "background 0.15s" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <UserPlus size={16} color="#10b981" /> Add Lead
+            </button>
+            <button 
+              onClick={() => { setShowFabMenu(false); navigate("/super-admin/support-tickets?action=new"); }}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1e293b", textAlign: "left", width: "100%", transition: "background 0.15s" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <Ticket size={16} color="#ec4899" /> Create Ticket
+            </button>
+            <button 
+              onClick={() => { setShowFabMenu(false); navigate("/super-admin/plans?action=new"); }}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1e293b", textAlign: "left", width: "100%", transition: "background 0.15s" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <FileText size={16} color="#8b5cf6" /> Create Plan
+            </button>
+          </div>
+        )}
+        <button
+          onClick={() => setShowFabMenu(!showFabMenu)}
+          style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #2563eb, #1d4ed8)", color: "#ffffff", border: "none", boxShadow: "0 8px 24px rgba(37, 99, 235, 0.4)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s ease" }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.06)"}
+          onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+          title="Quick Actions"
+        >
+          {showFabMenu ? <X size={24} /> : <Plus size={24} />}
+        </button>
       </div>
     </div>
   );
