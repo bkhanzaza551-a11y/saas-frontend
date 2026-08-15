@@ -177,21 +177,21 @@ export default function HomePage() {
           {[1, 2].map(cycle => (
             <span key={cycle}>
               {[
-                { text: "Absolutely phenomenal service. The attention to detail is unmatched.", author: "Sarah Jenkins" },
-                { text: "A truly premium experience from start to finish. Highly recommend!", author: "Michael Chang" },
-                { text: "I've never felt more pampered. Best salon I've ever visited!", author: "Elena Rodriguez" },
-                { text: "Sophisticated, clean, and highly professional. Best styling in years.", author: "David Smith" },
-                { text: "Their treatments are absolutely divine. My skin is glowing!", author: "Jessica Lee" },
-                { text: "Incredible staff and such a relaxing atmosphere. A perfect 10/10.", author: "Robert Wilson" },
-                { text: "I always leave feeling like a million bucks. They never disappoint!", author: "Amanda Brown" },
-                { text: "The premium products they use make such a huge difference. Love it!", author: "Christopher Davis" },
-                { text: "Professional, punctual, and extremely talented stylists.", author: "Olivia Miller" },
-                { text: "My go-to place for self-care. The ambiance is just perfect.", author: "William Taylor" },
-                { text: "They completely transformed my look. I've gotten so many compliments!", author: "Sophia Anderson" },
-                { text: "Every visit is a luxurious escape from reality. Highly recommended.", author: "Daniel Thomas" },
-                { text: "The attention to detail here is second to none. Amazing service.", author: "Isabella Martinez" },
-                { text: "Top-notch facilities and incredibly skilled professionals.", author: "James Jackson" },
-                { text: "I wouldn't trust anyone else with my hair. Simply the best.", author: "Mia White" }
+                { text: "Absolutely phenomenal service. The attention to detail is unmatched.", author: "Priya Sharma" },
+                { text: "A truly premium experience from start to finish. Highly recommend!", author: "Rahul Verma" },
+                { text: "I've never felt more pampered. Best salon I've ever visited!", author: "Anjali Patel" },
+                { text: "Sophisticated, clean, and highly professional. Best styling in years.", author: "Vikram Singh" },
+                { text: "Their treatments are absolutely divine. My skin is glowing!", author: "Neha Gupta" },
+                { text: "Incredible staff and such a relaxing atmosphere. A perfect 10/10.", author: "Arjun Reddy" },
+                { text: "I always leave feeling like a million bucks. They never disappoint!", author: "Pooja Desai" },
+                { text: "The premium products they use make such a huge difference. Love it!", author: "Karan Malhotra" },
+                { text: "Professional, punctual, and extremely talented stylists.", author: "Sneha Iyer" },
+                { text: "My go-to place for self-care. The ambiance is just perfect.", author: "Rohan Joshi" },
+                { text: "They completely transformed my look. I've gotten so many compliments!", author: "Riya Kapoor" },
+                { text: "Every visit is a luxurious escape from reality. Highly recommended.", author: "Aditya Nanda" },
+                { text: "The attention to detail here is second to none. Amazing service.", author: "Kriti Menon" },
+                { text: "Top-notch facilities and incredibly skilled professionals.", author: "Siddharth Rao" },
+                { text: "I wouldn't trust anyone else with my hair. Simply the best.", author: "Tanya Sharma" }
               ].map((t, i) => (
                 <div key={`${cycle}-${i}`} className="sf-testimonial-card" style={{ display: 'inline-flex', flexDirection: 'column', padding: '32px', borderRadius: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
