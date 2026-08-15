@@ -20,8 +20,6 @@ export const MODULE_GROUPS = [
       { key: "pos", label: "POS Billing" },
       { key: "orders", label: "POS Dashboard" },
       { key: "invoices", label: "Invoices" },
-      { key: "payments", label: "Payments" },
-      { key: "feedback", label: "Feedback" },
       { key: "enquiries", label: "Enquiries" }
     ]
   },
