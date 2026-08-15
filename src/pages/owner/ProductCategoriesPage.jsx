@@ -500,7 +500,7 @@ export default function ProductCategoriesPage() {
             <form onSubmit={handleSaveProduct} style={{ display: "flex", flexDirection: "column", overflow: "hidden", flex: 1 }}>
               <div className="hub-modal-body" style={{ overflowY: "auto", flex: 1, padding: "24px 28px" }}>
                 {/* Name, Featured, Active */}
-                <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "end" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "start" }}>
                   <div className="hub-form-group" style={{ position: "relative" }}>
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Name *</label>
                     <input
@@ -551,35 +551,35 @@ export default function ProductCategoriesPage() {
                       </div>
                     )}
                   </div>
-                  <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", whiteSpace: "nowrap" }}>
+                  <div className="hub-form-group">
+                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Featured</label>
+                    <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
                       <ToggleSwitch checked={productForm.featured} onChange={val => setProductForm({...productForm, featured: val})} />
-                      Featured
-                    </label>
+                    </div>
                   </div>
-                  <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", whiteSpace: "nowrap" }}>
+                  <div className="hub-form-group">
+                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Active</label>
+                    <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
                       <ToggleSwitch checked={productForm.isActive} onChange={val => setProductForm({...productForm, isActive: val})} />
-                      Active
-                    </label>
+                    </div>
                   </div>
-                  <div className="hub-form-group" style={{ display: "flex", alignItems: "end", paddingBottom: 10 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", whiteSpace: "nowrap" }}>
+                  <div className="hub-form-group">
+                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Favourite</label>
+                    <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
                       <ToggleSwitch checked={productForm.favourite} onChange={val => setProductForm({...productForm, favourite: val})} />
-                      Favourite
-                    </label>
+                    </div>
                   </div>
                 </div>
 
                 {/* Branch, Group + Hide from catalogue */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, padding: "16px 20px", border: "1px solid #f1f5f9", borderRadius: 12, background: "#f8fafc", gap: 16, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, padding: "16px 20px", border: "1px solid #f1f5f9", borderRadius: 12, background: "#f8fafc", gap: 16, flexWrap: "wrap" }}>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Current Stock</label>
-                    <input type="number" className="hub-input" value={productForm.currentStock} onChange={e => { const val = e.target.value; setProductForm(prev => ({...prev, currentStock: val === "" ? "" : (parseFloat(val) || 0)})); }} onFocus={() => handlePriceFocus("currentStock")} onBlur={() => handlePriceBlur("currentStock")} style={{ width: 120, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                    <input type="number" className="hub-input" value={productForm.currentStock} onChange={e => { const val = e.target.value; setProductForm(prev => ({...prev, currentStock: val === "" ? "" : (parseFloat(val) || 0)})); }} onFocus={() => handlePriceFocus("currentStock")} onBlur={() => handlePriceBlur("currentStock")} style={{ width: 120, padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", height: 42 }} />
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>Target Group:</span>
-                    <div style={{ display: "flex", gap: 16, background: "#fff", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Target Group</label>
+                    <div style={{ display: "flex", gap: 16, background: "#fff", padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", height: 42, alignItems: "center" }}>
                       {[{ value: "BOTH", label: "Both" }, { value: "FEMALE", label: "Female" }, { value: "MALE", label: "Male" }].map(g => (
                         <label key={g.value} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 500, color: "#334155", cursor: "pointer" }}>
                           <input type="radio" name="targetGroup" value={g.value} checked={productForm.targetGroup === g.value} onChange={e => setProductForm({...productForm, targetGroup: e.target.value})} style={{ width: 16, height: 16, accentColor: "#2563eb" }} />
@@ -588,10 +588,12 @@ export default function ProductCategoriesPage() {
                       ))}
                     </div>
                   </div>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", paddingBottom: 6 }}>
-                    <ToggleSwitch checked={productForm.hideFromCatalogue} onChange={val => setProductForm({...productForm, hideFromCatalogue: val})} />
-                    Hide from catalogue
-                  </label>
+                  <div className="hub-form-group">
+                    <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Visibility</label>
+                    <div style={{ height: 42, display: "flex", alignItems: "center" }}>
+                      <ToggleSwitch checked={productForm.hideFromCatalogue} onChange={val => setProductForm({...productForm, hideFromCatalogue: val})} label="Hide from catalogue" />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Cost Price, Price, Sale Price, Non Discountable */}

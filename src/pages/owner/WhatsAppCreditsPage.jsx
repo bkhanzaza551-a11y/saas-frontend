@@ -8,6 +8,7 @@ export default function WhatsAppCreditsPage() {
   const [balance, setBalance] = useState(0);
   const [packages, setPackages] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [customApiEnabled, setCustomApiEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [error, setError] = useState("");
@@ -35,6 +36,7 @@ export default function WhatsAppCreditsPage() {
         api.get("/owner/credits/transactions")
       ]);
       setBalance(balRes.data.credits || 0);
+      setCustomApiEnabled(balRes.data.customWhatsappEnabled || false);
       setPackages(pkgRes.data || []);
       setTransactions(txnRes.data || []);
     } catch (err) {
