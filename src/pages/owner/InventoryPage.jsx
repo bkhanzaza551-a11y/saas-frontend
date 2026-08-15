@@ -804,39 +804,108 @@ export default function InventoryPage() {
         {/* Dynamic Tab Implementations */}
 
         {activeTab === "Low Stock" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h2 style={{ margin: 0, fontSize: "1.6rem", color: "#0f172a", fontWeight: "700" }}>Low Stock Products</h2>
-              <span style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 500 }}>{lowStock.length} item{lowStock.length !== 1 ? "s" : ""} below minimum</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Low Stock Inventory</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Products running below minimum threshold limit that need re-ordering.</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ 
+                  fontSize: 12, 
+                  fontWeight: 700, 
+                  padding: "6px 14px", 
+                  borderRadius: 20, 
+                  background: lowStock.length > 0 ? "#fef2f2" : "#f0fdf4", 
+                  color: lowStock.length > 0 ? "#dc2626" : "#16a34a",
+                  border: lowStock.length > 0 ? "1px solid #fee2e2" : "1px solid #dcfce7"
+                }}>
+                  {lowStock.length} {lowStock.length === 1 ? "Product" : "Products"} Below Minimum
+                </span>
+                <button 
+                  onClick={() => { setActiveTab("Purchase Order"); navigate("/admin/inventory/purchase-orders"); }} 
+                  className="cpn-btn cpn-btn-primary" 
+                  style={{ fontSize: 13, padding: "8px 16px" }}
+                >
+                  + Create Purchase Order
+                </button>
+              </div>
             </div>
+
             {lowStock.length === 0 ? (
-              <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, padding: "32px", textAlign: "center" }}>
-                <CheckCircle size={32} color="#059669" style={{ marginBottom: 12 }} />
-                <div style={{ color: "#065f46", fontWeight: 700, fontSize: "1.1rem" }}>All products are sufficiently stocked</div>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "48px 24px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#f0fdf4", border: "1px solid #dcfce7", color: "#16a34a", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                  <CheckCircle size={32} />
+                </div>
+                <h3 style={{ margin: "0 0 6px 0", fontSize: 17, color: "#0f172a", fontWeight: 700 }}>All Products Are Sufficiently Stocked</h3>
+                <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
+                  Great news! Every product currently has stock levels above its configured minimum threshold limit. No urgent re-orders required.
+                </p>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {lowStock.map((item) => (
-                  <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", border: "1px solid #fee2e2", borderRadius: 12, padding: "16px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ background: "#fef2f2", borderRadius: 10, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <AlertTriangle size={18} color="#dc2626" />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0f172a" }}>{item.name}</div>
-                        <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Min: {item.minStock} {item.unit || ""} {item.category ? `| ${item.category.name}` : ""}</div>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ background: "#fef2f2", color: "#dc2626", fontWeight: 700, fontSize: "0.85rem", padding: "6px 14px", borderRadius: 8, border: "1px solid #fecaca" }}>
-                        {item.currentStock} left
-                      </span>
-                      <span style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 700, fontSize: "0.85rem", padding: "6px 14px", borderRadius: 8, border: "1px solid #bbf7d0" }}>
-                        Need {Number(item.minStock) - Number(item.currentStock)} more
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h3 style={{ margin: 0, fontSize: 14, color: "#0f172a", fontWeight: 700 }}>Items Requiring Restock</h3>
+                </div>
+                <div className="table-container">
+                  <table className="data-table" style={{ width: "100%" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ padding: "12px 24px" }}>Product Details</th>
+                        <th style={{ padding: "12px 24px" }}>Category</th>
+                        <th style={{ padding: "12px 24px" }}>Current Stock</th>
+                        <th style={{ padding: "12px 24px" }}>Min Threshold</th>
+                        <th style={{ padding: "12px 24px" }}>Shortage / Reorder</th>
+                        <th style={{ padding: "12px 24px", textAlign: "right" }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lowStock.map((item) => {
+                        const deficit = Number(item.minStock) - Number(item.currentStock);
+                        return (
+                          <tr key={item.id}>
+                            <td style={{ padding: "14px 24px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#fef2f2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  <AlertTriangle size={18} />
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 14 }}>{item.name}</div>
+                                  {item.sku && <div style={{ fontSize: 11, color: "#64748b" }}>SKU: {item.sku}</div>}
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding: "14px 24px", color: "#475569", fontSize: 13 }}>
+                              {item.category?.name || "General"}
+                            </td>
+                            <td style={{ padding: "14px 24px" }}>
+                              <span style={{ padding: "4px 10px", borderRadius: 12, background: "#fef2f2", color: "#dc2626", fontSize: 13, fontWeight: 800, border: "1px solid #fee2e2" }}>
+                                {item.currentStock} {item.unit || ""}
+                              </span>
+                            </td>
+                            <td style={{ padding: "14px 24px", color: "#475569", fontSize: 13, fontWeight: 600 }}>
+                              {item.minStock} {item.unit || ""}
+                            </td>
+                            <td style={{ padding: "14px 24px" }}>
+                              <span style={{ padding: "4px 10px", borderRadius: 12, background: "#fff7ed", color: "#c2410c", fontSize: 12, fontWeight: 700, border: "1px solid #ffedd5" }}>
+                                Need +{deficit > 0 ? deficit : 1} {item.unit || ""}
+                              </span>
+                            </td>
+                            <td style={{ padding: "14px 24px", textAlign: "right" }}>
+                              <button 
+                                onClick={() => { setActiveTab("Purchase Order"); navigate("/admin/inventory/purchase-orders"); }} 
+                                className="cpn-btn cpn-btn-secondary" 
+                                style={{ fontSize: 12, padding: "6px 12px" }}
+                              >
+                                + Re-order
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
