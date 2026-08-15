@@ -581,7 +581,7 @@ export default function ProductCategoriesPage() {
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Target Group</label>
                     <div style={{ display: "flex", gap: 16, background: "#fff", padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", height: 42, alignItems: "center" }}>
                       {[{ value: "BOTH", label: "Both" }, { value: "FEMALE", label: "Female" }, { value: "MALE", label: "Male" }].map(g => (
-                        <label key={g.value} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 500, color: "#334155", cursor: "pointer" }}>
+                        <label key={g.value} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 500, color: "#334155", cursor: "pointer" }}>
                           <input type="radio" name="targetGroup" value={g.value} checked={productForm.targetGroup === g.value} onChange={e => setProductForm({...productForm, targetGroup: e.target.value})} style={{ width: 16, height: 16, accentColor: "#2563eb" }} />
                           {g.label}
                         </label>

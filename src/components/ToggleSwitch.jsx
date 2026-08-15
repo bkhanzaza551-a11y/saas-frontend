@@ -4,6 +4,7 @@ export default function ToggleSwitch({ checked, onChange, label, disabled = fals
   return (
     <label style={{
       display: 'flex',
+      flexDirection: 'row',
       alignItems: 'center',
       gap: '12px',
       cursor: disabled ? 'not-allowed' : 'pointer',
