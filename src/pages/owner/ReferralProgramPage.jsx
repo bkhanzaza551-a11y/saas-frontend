@@ -400,7 +400,41 @@ export default function ReferralProgramPage() {
                   </div>
                 </div>
                 <div><label className="cpn-label">Credit Value</label><input type="number" min="0" step="0.01" className="cpn-input" value={couponForm.partnerCreditValue} onChange={(e) => setCouponForm(prev => ({ ...prev, partnerCreditValue: e.target.value }))} style={{ marginTop: 4 }} /></div>
-                <div><label className="cpn-label">Assign to Partner</label><div style={{ position: "relative", marginTop: 4 }}><input type="text" className="cpn-input" placeholder="Search by name or phone..." value={partnerSearchInput} onChange={(e) => { setPartnerSearchInput(e.target.value); setShowPartnerDropdown(true); const match = customers.find(c => c.name === e.target.value); if (match) { setCouponForm(prev => ({ ...prev, partnerCustomerId: match.id })); } else { setCouponForm(prev => ({ ...prev, partnerCustomerId: "" })); } }} onFocus={() => setShowPartnerDropdown(true)} onBlur={() => setTimeout(() => setShowPartnerDropdown(false), 200)} /><svg style={{ position: "absolute", right: 12, top: 12, width: 18, height: 18, color: "#94a3b8", pointerEvents: "none" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>{showPartnerDropdown && partnerSearchInput && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: 10, marginTop: 6, maxHeight: 240, overflowY: "auto", zIndex: 50, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}><div style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", cursor: "pointer", fontWeight: couponForm.partnerCustomerId === "" ? 700 : 400, color: couponForm.partnerCustomerId === "" ? "#0f172a" : "#64748b" }} onClick={() => { setPartnerSearchInput(""); setCouponForm(prev => ({ ...prev, partnerCustomerId: "" })); setShowPartnerDropdown(false); }}>None (Generic Coupon)</div>{customers.filter(c => c.name?.toLowerCase().includes(partnerSearchInput.toLowerCase()) || c.phone?.includes(partnerSearchInput)).map(c => (<div key={c.id} style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", cursor: "pointer", fontWeight: couponForm.partnerCustomerId === c.id ? 700 : 400 }} onClick={() => { setPartnerSearchInput(c.name); setCouponForm(prev => ({ ...prev, partnerCustomerId: c.id })); setShowPartnerDropdown(false); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}><div style={{ fontWeight: 600, fontSize: 14, color: "#0f172a" }}>{c.name}</div><div style={{ fontSize: 12, color: "#64748b" }}>{c.phone}</div></div>))}{customers.filter(c => c.name?.toLowerCase().includes(partnerSearchInput.toLowerCase()) || c.phone?.includes(partnerSearchInput)).length === 0 && (<div style={{ padding: "12px 16px", color: "#64748b", fontSize: 14, textAlign: "center" }}>No matches found</div>)}</div>)}</div></div>
+                <div>
+                  <label className="cpn-label">Assign to Partner</label>
+                  <div style={{ position: "relative", marginTop: 4 }}>
+                    <input 
+                      type="text" 
+                      className="cpn-input" 
+                      placeholder="Search by name or phone..." 
+                      value={partnerSearchInput} 
+                      onChange={(e) => { setPartnerSearchInput(e.target.value); setShowPartnerDropdown(true); const match = customers.find(c => c.name === e.target.value); if (match) { setCouponForm(prev => ({ ...prev, partnerCustomerId: match.id })); } else { setCouponForm(prev => ({ ...prev, partnerCustomerId: "" })); } }} 
+                      onFocus={() => setShowPartnerDropdown(true)} 
+                      onBlur={() => setTimeout(() => setShowPartnerDropdown(false), 200)} 
+                      style={{ paddingRight: 38 }}
+                    />
+                    <svg style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#94a3b8", pointerEvents: "none" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    {showPartnerDropdown && partnerSearchInput && (
+                      <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #cbd5e1", borderRadius: 10, marginTop: 6, maxHeight: 240, overflowY: "auto", zIndex: 50, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
+                        <div style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", cursor: "pointer", background: couponForm.partnerCustomerId === "" ? "#f8fafc" : "#fff" }} onClick={() => { setPartnerSearchInput(""); setCouponForm(prev => ({ ...prev, partnerCustomerId: "" })); setShowPartnerDropdown(false); }}>
+                          <div style={{ fontWeight: 600, fontSize: 13, color: "#0f172a" }}>General Coupon (No Specific Partner)</div>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Applicable for all customers & walk-ins</div>
+                        </div>
+                        {customers.filter(c => c.name?.toLowerCase().includes(partnerSearchInput.toLowerCase()) || c.phone?.includes(partnerSearchInput)).map(c => (
+                          <div key={c.id} style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", cursor: "pointer", fontWeight: couponForm.partnerCustomerId === c.id ? 700 : 400 }} onClick={() => { setPartnerSearchInput(c.name); setCouponForm(prev => ({ ...prev, partnerCustomerId: c.id })); setShowPartnerDropdown(false); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                            <div style={{ fontWeight: 600, fontSize: 14, color: "#0f172a" }}>{c.name}</div>
+                            <div style={{ fontSize: 12, color: "#64748b" }}>{c.phone}</div>
+                          </div>
+                        ))}
+                        {customers.filter(c => c.name?.toLowerCase().includes(partnerSearchInput.toLowerCase()) || c.phone?.includes(partnerSearchInput)).length === 0 && (
+                          <div style={{ padding: "12px 16px", color: "#64748b", fontSize: 14, textAlign: "center" }}>No matches found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div style={{ gridColumn: "1 / -1", height: 1, background: "#f1f5f9", margin: "10px 0" }}></div>
                 <div style={{ gridColumn: "1 / -1" }}><h4 style={{ margin: 0, fontSize: 15, color: "#0f172a", fontWeight: 700 }}>Limits & Validity</h4></div>
 
