@@ -912,35 +912,50 @@ export default function InventoryPage() {
         )}
 
         {activeTab !== "Dashboard" && activeTab === "Purchase Order" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* Filters Row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-              {/* Left Side: Date Inputs */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 500 }}>From :</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Page Title & Top Action Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Purchase Orders</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Manage vendor orders, approvals, and stock deliveries.</div>
+              </div>
+              <button
+                onClick={() => setIsPurchaseOrderModalOpen(true)}
+                className="cpn-btn cpn-btn-primary"
+                style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                + New Purchase Order
+              </button>
+            </div>
+
+            {/* Filter Controls Card */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              {/* Date Filters */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>From:</span>
                   <input 
                     type="date" 
                     value={poFromDate} 
                     onChange={(e) => setPoFromDate(e.target.value)}
                     max={poToDate || undefined}
-                    style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, outline: "none", color: "#334155", fontWeight: 500 }} 
+                    style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, outline: "none", color: "#0f172a" }} 
                   />
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 500 }}>To :</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>To:</span>
                   <input 
                     type="date" 
                     value={poToDate} 
                     onChange={(e) => setPoToDate(e.target.value)}
                     min={poFromDate || undefined}
-                    style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, outline: "none", color: "#334155", fontWeight: 500 }} 
+                    style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, outline: "none", color: "#0f172a" }} 
                   />
                 </div>
               </div>
 
-              {/* Right Side: Status Tabs and New Button */}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", flex: 1, paddingBottom: 4 }}>
+              {/* Status Filter Tab Pills */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap", overflowX: "auto", paddingBottom: 2 }}>
                 {[
                   { label: "Placed", count: poCounts.Placed },
                   { label: "Approved", count: poCounts.Approved },
@@ -954,42 +969,37 @@ export default function InventoryPage() {
                   return (
                     <button
                       key={btn.label}
-                      className="po-status-btn"
                       onClick={() => setPoFilterStatus(btn.label)}
                       style={{
-                        border: isActive ? "none" : "1px solid #cbd5e1",
-                        background: isActive ? "#3b82f6" : "white",
-                        color: isActive ? "white" : "#475569"
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "6px 12px",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                        border: isActive ? "1px solid #2563eb" : "1px solid #e2e8f0",
+                        background: isActive ? "#eff6ff" : "#f8fafc",
+                        color: isActive ? "#1d4ed8" : "#475569"
                       }}
                     >
-                      {btn.label.replace("_", " ")}
-                      <span className="po-status-count" style={{
-                        background: isActive ? "rgba(255,255,255,0.2)" : "#f1f5f9",
-                        color: isActive ? "white" : "#64748b"
+                      <span>{btn.label.replace("_", " ")}</span>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "1px 6px",
+                        borderRadius: 10,
+                        background: isActive ? "#2563eb" : "#e2e8f0",
+                        color: isActive ? "#ffffff" : "#64748b"
                       }}>
                         {btn.count}
                       </span>
                     </button>
                   );
                 })}
-                <button
-                  onClick={() => { /* open create modal */ }}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 16px",
-                    borderRadius: 6,
-                    border: "1px solid #cbd5e1",
-                    background: "white",
-                    color: "#475569",
-                    fontWeight: 600,
-                    fontSize: "0.85rem",
-                    cursor: "pointer"
-                  }}
-                >
-                  New <Plus size={16} style={{ color: "var(--accent, #3b82f6)" }} />
-                </button>
               </div>
             </div>
 
