@@ -297,77 +297,87 @@ export default function ProductCategoriesPage() {
       {/* Left Sidebar - Categories */}
       <div className="responsive-sidebar" style={{ width: 280, background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", flexShrink: 0, boxShadow: "2px 0 8px rgba(0,0,0,0.02)" }}>
         <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff" }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: "#0f172a" }}>Categories</h3>
-          <button onClick={() => setShowCategoryModal(true)} style={{ background: "#3b82f6", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 2px 4px rgba(59,130,246,0.2)", transition: "all 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#2563eb"} onMouseLeave={e=>e.currentTarget.style.background="#3b82f6"}>
-            <Plus size={16} /> New
+      {/* Left Sidebar - Categories */}
+      <div className="responsive-sidebar" style={{ width: 280, background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#0f172a" }}>Categories</h3>
+          <button 
+            onClick={() => setShowCategoryModal(true)} 
+            className="cpn-btn cpn-btn-primary" 
+            style={{ fontSize: 12, padding: "6px 12px", display: "inline-flex", alignItems: "center", gap: 4 }}
+          >
+            <Plus size={14} /> New
           </button>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px 12px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 10px" }}>
           <div
             onClick={() => setSelectedCategory(null)}
             style={{
-              padding: "12px 16px",
+              padding: "10px 14px",
               cursor: "pointer",
               background: !selectedCategory ? "#eff6ff" : "transparent",
               color: !selectedCategory ? "#1d4ed8" : "#475569",
-              fontWeight: !selectedCategory ? 600 : 500,
-              fontSize: 14,
+              fontWeight: !selectedCategory ? 700 : 500,
+              fontSize: 13,
               borderRadius: 8,
               marginBottom: 4,
-              transition: "all 0.2s",
+              transition: "all 0.15s",
               display: "flex",
               alignItems: "center",
-              gap: 12
+              justifyContent: "space-between"
             }}
-            onMouseEnter={e => { if(selectedCategory) e.currentTarget.style.background = "#f8fafc" }}
-            onMouseLeave={e => { if(selectedCategory) e.currentTarget.style.background = "transparent" }}
           >
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: !selectedCategory ? "#3b82f6" : "#cbd5e1" }} />
-            All Categories
-          </div>
-          {filteredCategories.map(cat => (
-            <div
-              key={cat.id}
-              style={{
-                padding: "12px 16px",
-                cursor: "pointer",
-                background: selectedCategory?.id === cat.id ? "#eff6ff" : "transparent",
-                color: selectedCategory?.id === cat.id ? "#1d4ed8" : "#475569",
-                fontWeight: selectedCategory?.id === cat.id ? 600 : 500,
-                fontSize: 14,
-                borderRadius: 8,
-                marginBottom: 4,
-                transition: "all 0.2s",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between"
-              }}
-              onMouseEnter={e => { 
-                if(selectedCategory?.id !== cat.id) e.currentTarget.style.background = "#f8fafc";
-                e.currentTarget.querySelector(".del-btn").style.opacity = "1";
-              }}
-              onMouseLeave={e => { 
-                if(selectedCategory?.id !== cat.id) e.currentTarget.style.background = "transparent";
-                e.currentTarget.querySelector(".del-btn").style.opacity = "0";
-              }}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, overflow: "hidden" }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: selectedCategory?.id === cat.id ? "#3b82f6" : "#cbd5e1", flexShrink: 0 }} />
-                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cat.name}</span>
-              </div>
-              <button 
-                className="del-btn"
-                onClick={(e) => { e.stopPropagation(); setCategoryToDelete(cat); }}
-                style={{ opacity: 0, background: "none", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", padding: 4, borderRadius: 4, transition: "all 0.2s", flexShrink: 0 }}
-                onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
-                title="Delete Category"
-              >
-                <X size={16} />
-              </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 7, height: 7, borderRadius: "50%", background: !selectedCategory ? "#2563eb" : "#cbd5e1" }} />
+              <span>All Categories</span>
             </div>
-          ))}
+            <span style={{ fontSize: 11, background: !selectedCategory ? "#dbeafe" : "#f1f5f9", color: !selectedCategory ? "#1d4ed8" : "#64748b", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>
+              {products.length}
+            </span>
+          </div>
+          {filteredCategories.map(cat => {
+            const catProductCount = products.filter(p => p.categoryId === cat.id).length;
+            const isSelected = selectedCategory?.id === cat.id;
+            return (
+              <div
+                key={cat.id}
+                style={{
+                  padding: "10px 14px",
+                  cursor: "pointer",
+                  background: isSelected ? "#eff6ff" : "transparent",
+                  color: isSelected ? "#1d4ed8" : "#475569",
+                  fontWeight: isSelected ? 700 : 500,
+                  fontSize: 13,
+                  borderRadius: 8,
+                  marginBottom: 4,
+                  transition: "all 0.15s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, overflow: "hidden", paddingRight: 6 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: isSelected ? "#2563eb" : "#cbd5e1", flexShrink: 0 }} />
+                  <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cat.name}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 11, background: isSelected ? "#dbeafe" : "#f1f5f9", color: isSelected ? "#1d4ed8" : "#64748b", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>
+                    {catProductCount}
+                  </span>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setCategoryToDelete(cat); }}
+                    style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", display: "flex", padding: 2, borderRadius: 4, transition: "all 0.15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.color = "#ef4444"; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = "#94a3b8"; }}
+                    title="Delete Category"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
           {filteredCategories.length === 0 && <div style={{ padding: "32px 16px", color: "#94a3b8", fontSize: 13, textAlign: "center" }}>No categories yet</div>}
         </div>
       </div>
@@ -375,61 +385,110 @@ export default function ProductCategoriesPage() {
       {/* Right Panel - Products */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#f8fafc" }}>
         {/* Header */}
-        <div className="responsive-header" style={{ padding: "20px 32px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <h3 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ background: "#eff6ff", padding: 8, borderRadius: 8, color: "#3b82f6", display: "flex" }}><Package size={20} /></div>
-            {selectedCategory ? selectedCategory.name : "All Products"}
-          </h3>
-          <div className="responsive-header-actions" style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <div style={{ position: "relative", flex: 1 }}>
-              <Search size={16} style={{ position: "absolute", left: 12, top: 12, color: "#94a3b8" }} />
+        <div className="responsive-header" style={{ padding: "16px 28px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ background: "#eff6ff", width: 36, height: 36, borderRadius: 8, color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Package size={20} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: "#0f172a" }}>
+                {selectedCategory ? selectedCategory.name : "All Products"}
+              </h3>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
+              </div>
+            </div>
+          </div>
+
+          <div className="responsive-header-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <div style={{ position: "relative" }}>
+              <Search size={15} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
               <input
                 type="text"
                 value={searchQ}
                 onChange={(e) => setSearchQ(e.target.value)}
                 placeholder="Search products, SKU..."
-                className="responsive-search-input"
-                style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 12px 10px 36px", fontSize: 14, width: 260, outline: "none", transition: "border-color 0.2s" }}
-                onFocus={e => e.target.style.borderColor = "#3b82f6"}
-                onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+                style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "7px 12px 7px 32px", fontSize: 13, width: 220, outline: "none" }}
               />
             </div>
-            <button onClick={openNewProduct} style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.1)", transition: "all 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#1e293b"} onMouseLeave={e=>e.currentTarget.style.background="#0f172a"}>
-              <Plus size={18} /> Add Product
+            <button 
+              onClick={openNewProduct} 
+              className="cpn-btn cpn-btn-primary" 
+              style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
+            >
+              <Plus size={16} /> Add Product
             </button>
           </div>
         </div>
 
-        {/* Product List */}
-        <div className="responsive-product-grid-container" style={{ flex: 1, overflowY: "auto", padding: "24px 32px" }}>
+        {/* Product Grid */}
+        <div className="responsive-product-grid-container" style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
           {filteredProducts.length > 0 ? (
-            <div className="responsive-product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
+            <div className="responsive-product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
               {filteredProducts.map(p => (
-                <div key={p.id} style={{ background: "#ffffff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", boxShadow: "0 2px 6px rgba(0,0,0,0.02)", display: "flex", flexDirection: "column", gap: 16, transition: "transform 0.2s, box-shadow 0.2s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.06)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.02)"; }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                    <div style={{ width: 64, height: 64, borderRadius: 10, background: "#f8fafc", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0, overflow: "hidden" }}>
+                <div 
+                  key={p.id} 
+                  style={{ 
+                    background: "#ffffff", 
+                    borderRadius: 12, 
+                    padding: 16, 
+                    border: "1px solid #e2e8f0", 
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.03)", 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    justifyContent: "space-between",
+                    gap: 14, 
+                    transition: "all 0.15s" 
+                  }} 
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)"; }} 
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 10, background: "#f8fafc", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
                       {p.imageUrl ? <img src={p.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Package size={24} color="#94a3b8" />}
                     </div>
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", lineHeight: 1.3 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", lineHeight: 1.3 }}>
                         {p.name}
-                        {p.featured && <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: 4, fontWeight: 700, display: "inline-flex", alignItems: "center", height: 18 }}>★ Featured</span>}
-                        {Array.isArray(p.variations) && p.variations.length > 0 && <span style={{ fontSize: 10, background: "#dbeafe", color: "#1d4ed8", padding: "2px 6px", borderRadius: 4, fontWeight: 700, display: "inline-flex", alignItems: "center", height: 18 }}>Customisable</span>}
+                        {p.featured && <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>★ Featured</span>}
+                        {Array.isArray(p.variations) && p.variations.length > 0 && <span style={{ fontSize: 10, background: "#dbeafe", color: "#1d4ed8", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>Customisable</span>}
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b", fontWeight: 500 }}>SKU: {p.sku || "N/A"}</div>
+                      <div style={{ fontSize: 12, color: "#64748b" }}>
+                        SKU: <span style={{ fontWeight: 600, color: "#475569" }}>{p.sku || "N/A"}</span>
+                      </div>
+                      {p.category?.name && (
+                        <div style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", padding: "2px 6px", borderRadius: 4, display: "inline-block", width: "fit-content" }}>
+                          {p.category.name}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 16, marginTop: "auto" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{currencySymbol}{Number(p.sellingPrice).toFixed(0)}</span>
-                      {p.productType === "CONSUMABLE" && <span style={{ fontSize: 11, background: "#f1f5f9", color: "#475569", padding: "4px 8px", borderRadius: 6, fontWeight: 600 }}>Consumable</span>}
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 12, marginTop: 4 }}>
+                    <div>
+                      <div style={{ fontSize: 17, fontWeight: 800, color: "#0f172a" }}>
+                        {currencySymbol}{Number(p.sellingPrice || 0).toFixed(0)}
+                      </div>
+                      <div style={{ fontSize: 11, color: p.currentStock > 5 ? "#166534" : (p.currentStock > 0 ? "#b45309" : "#991b1b"), fontWeight: 600 }}>
+                        {p.productType === "CONSUMABLE" ? "Consumable" : `Stock: ${p.currentStock || 0}`}
+                      </div>
                     </div>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button onClick={() => openStockModal(p)} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "8px", cursor: "pointer", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; e.currentTarget.style.borderColor = "#bfdbfe"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#e2e8f0"; }} title="Update Stock Details">
-                        <ClipboardList size={16} />
+                      <button 
+                        onClick={() => openStockModal(p)} 
+                        className="cpn-btn cpn-btn-secondary" 
+                        style={{ fontSize: 12, padding: "5px 10px", display: "inline-flex", alignItems: "center", gap: 4 }} 
+                        title="Stock Details"
+                      >
+                        <ClipboardList size={14} /> Stock
                       </button>
-                      <button onClick={() => openEditProduct(p)} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "8px", cursor: "pointer", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; e.currentTarget.style.borderColor = "#bfdbfe"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#e2e8f0"; }} title="Edit Product">
-                        <Edit2 size={16} />
+                      <button 
+                        onClick={() => openEditProduct(p)} 
+                        className="cpn-btn cpn-btn-secondary" 
+                        style={{ fontSize: 12, padding: "5px 10px", display: "inline-flex", alignItems: "center", gap: 4 }} 
+                        title="Edit Product"
+                      >
+                        <Edit2 size={14} /> Edit
                       </button>
                     </div>
                   </div>
@@ -437,11 +496,19 @@ export default function ProductCategoriesPage() {
               ))}
             </div>
           ) : (
-            <div style={{ padding: "80px 40px", textAlign: "center", color: "#64748b", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#ffffff", borderRadius: 16, border: "1px dashed #cbd5e1" }}>
-              <div style={{ background: "#f1f5f9", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, color: "#94a3b8" }}><Package size={32} /></div>
-              <h4 style={{ margin: "0 0 8px", fontSize: 18, color: "#0f172a" }}>No products found</h4>
-              <p style={{ margin: 0, fontSize: 14 }}>There are no products in this category matching your search.</p>
-              <button onClick={openNewProduct} style={{ marginTop: 24, background: "#fff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 8, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Add your first product</button>
+            <div style={{ padding: "60px 20px", textAlign: "center", color: "#64748b", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#ffffff", borderRadius: 12, border: "1px dashed #cbd5e1" }}>
+              <div style={{ background: "#f1f5f9", width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14, color: "#94a3b8" }}>
+                <Package size={28} />
+              </div>
+              <h4 style={{ margin: "0 0 6px", fontSize: 16, color: "#0f172a", fontWeight: 700 }}>No products found</h4>
+              <p style={{ margin: 0, fontSize: 13 }}>There are no products matching your search or category selection.</p>
+              <button 
+                onClick={openNewProduct} 
+                className="cpn-btn cpn-btn-primary" 
+                style={{ marginTop: 16, fontSize: 13, padding: "8px 18px" }}
+              >
+                Add product
+              </button>
             </div>
           )}
         </div>
