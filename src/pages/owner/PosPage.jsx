@@ -123,7 +123,7 @@ export default function PosPage() {
   const [consumableItemIndex, setConsumableItemIndex] = useState(null);
   const [consumableItems, setConsumableItems] = useState([]);
   const [consumableSearch, setConsumableSearch] = useState("");
-//   const [consumableOverrides, setConsumableOverrides] = useState({});
+  const [consumableOverrides, setConsumableOverrides] = useState({});
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [timeModalDraft, setTimeModalDraft] = useState({ index: null, startTime: "", endTime: "" });
   const [showReminderModal, setShowReminderModal] = useState(false);
