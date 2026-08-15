@@ -7,16 +7,17 @@ import PageLoader from "./components/PageLoader.jsx";
 import { SETTINGS_WORKSPACE_SECTIONS } from "./pages/owner/settingsWorkspaceConfig.js";
 const lazyWithRetry = (componentImport) =>
   lazy(async () => {
-    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
-      window.sessionStorage.getItem("page-has-been-force-refreshed") || "false"
-    );
+    const lastReload = Number(window.sessionStorage.getItem("chunk_reload_timestamp") || 0);
+    const now = Date.now();
     try {
-      return await componentImport();
+      const comp = await componentImport();
+      window.sessionStorage.removeItem("chunk_reload_timestamp");
+      return comp;
     } catch (error) {
-      if (!pageHasAlreadyBeenForceRefreshed) {
-        window.sessionStorage.setItem("page-has-been-force-refreshed", "true");
-        window.location.reload();
-        return new Promise(() => {}); // Return a pending promise to avoid showing error before reload
+      if (now - lastReload > 10000) {
+        window.sessionStorage.setItem("chunk_reload_timestamp", String(now));
+        window.location.href = window.location.pathname + "?_t=" + now;
+        return new Promise(() => {});
       }
       throw error;
     }

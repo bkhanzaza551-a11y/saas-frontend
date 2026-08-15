@@ -22,12 +22,14 @@ export default class ErrorBoundary extends Component {
     // Automatically reload the page if it's a chunk load error (Vercel deployment mismatch)
     const isChunkLoadError = error?.message && (
       /Failed to fetch dynamically imported module/i.test(error.message) || 
-      /Importing a module script failed/i.test(error.message)
+      /Importing a module script failed/i.test(error.message) ||
+      /error loading dynamically imported module/i.test(error.message)
     );
     
     if (isChunkLoadError) {
-      if (!sessionStorage.getItem("chunk_reload_attempted")) {
-        sessionStorage.setItem("chunk_reload_attempted", "true");
+      const lastReload = Number(sessionStorage.getItem("eb_chunk_reload") || 0);
+      if (Date.now() - lastReload > 10000) {
+        sessionStorage.setItem("eb_chunk_reload", String(Date.now()));
         window.location.href = window.location.pathname + "?_t=" + Date.now();
       }
     }
