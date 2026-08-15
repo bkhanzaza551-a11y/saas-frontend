@@ -90,6 +90,19 @@ export default function CustomSelect({
   required = false,
   ...rest
 }) {
+  const containerStyleProps = ['width', 'minWidth', 'maxWidth', 'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'flex', 'flexGrow', 'flexShrink', 'flexBasis', 'display', 'gridColumn', 'gridRow', 'position', 'top', 'left', 'right', 'bottom'];
+  const containerStyles = {};
+  const triggerStyles = {};
+  
+  if (style) {
+    Object.keys(style).forEach(key => {
+      if (containerStyleProps.includes(key) || key.startsWith('--')) {
+        containerStyles[key] = style[key];
+      } else {
+        triggerStyles[key] = style[key];
+      }
+    });
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({});
   const containerRef = useRef(null);
@@ -243,12 +256,13 @@ export default function CustomSelect({
     <div 
       className={`custom-select-container ${className}`} 
       ref={containerRef}
-      style={style}
+      style={containerStyles}
       id={id}
       {...rest}
     >
       <div 
         className={`custom-select-trigger ${isOpen ? "custom-select-open" : ""} ${disabled ? "custom-select-disabled" : ""}`}
+        style={triggerStyles}
         onClick={toggleOpen}
         tabIndex={disabled ? -1 : 0}
         onKeyDown={(e) => {

@@ -625,7 +625,7 @@ export default function ProductCategoriesPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "start" }}>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Discount Type</label>
-                    <CustomSelect className="hub-input" value={productForm.discountType || ""} onChange={e => setProductForm({...productForm, discountType: e.target.value || null, discountValue: e.target.value ? productForm.discountValue || 0 : null})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff", height: 42 }}>
+                    <CustomSelect className="hub-input" value={productForm.discountType || ""} onChange={e => setProductForm({...productForm, discountType: e.target.value || null, discountValue: e.target.value ? productForm.discountValue || 0 : null})} style={{ width: "100%", "--select-height": "42px" }}>
                       <option value="">No Discount</option>
                       <option value="FIX">Flat (₹)</option>
                       <option value="PERCENT">Percentage (%)</option>
@@ -657,7 +657,7 @@ export default function ProductCategoriesPage() {
                 {/* Category */}
                 <div className="hub-form-group" style={{ marginBottom: 24 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Category</label>
-                  <CustomSelect className="hub-input" value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff" }}>
+                  <CustomSelect className="hub-input" value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} style={{ width: "100%", "--select-height": "42px" }}>
                     <option value="">No Category</option>
                     {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </CustomSelect>
@@ -818,7 +818,7 @@ export default function ProductCategoriesPage() {
                 </div>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Primary Unit {stockForm.productType === "CONSUMABLE" && <span style={{ color: "#dc2626" }}>*</span>}</label>
-                  <CustomSelect value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: stockForm.productType === "CONSUMABLE" && !stockForm.unit ? "1px solid #fca5a5" : "1px solid #cbd5e1", fontSize: 14, background: stockForm.productType === "CONSUMABLE" ? "#fffbeb" : "#fff", appearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                  <CustomSelect value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", "--select-height": "42px", ...(stockForm.productType === "CONSUMABLE" && !stockForm.unit ? { border: "1px solid #fca5a5" } : {}), ...(stockForm.productType === "CONSUMABLE" ? { background: "#fffbeb" } : {}) }}>
                     <option value="">Select Unit</option>
                     {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
                   </CustomSelect>
@@ -828,7 +828,7 @@ export default function ProductCategoriesPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Secondary Unit <span style={{ fontSize: 11, color: "#94a3b8" }}>(consumption unit)</span></label>
-                  <CustomSelect value={stockForm.secondaryUnit} onChange={e => setStockForm({...stockForm, secondaryUnit: e.target.value})} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "#fff", appearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                  <CustomSelect value={stockForm.secondaryUnit} onChange={e => setStockForm({...stockForm, secondaryUnit: e.target.value})} style={{ width: "100%", "--select-height": "42px" }}>
                     <option value="">Select Secondary Unit</option>
                     {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
                   </CustomSelect>
