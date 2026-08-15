@@ -942,15 +942,29 @@ export default function ExpensesPage() {
                   </h1>
                 </div>
                 {/* Filter Row Panel */}
-                <div className="expenses-filter-panel">
-                  <div className="filters-group">
-                    <div className="filter-item">
-                      <span className="filter-label">Paymode:</span>
+                <div className="expenses-filter-panel" style={{
+                  background: "#ffffff",
+                  borderRadius: 16,
+                  border: "1px solid #e2e8f0",
+                  padding: "16px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justify-content: "space-between",
+                  gap: 16,
+                  boxShadow: "0 4px 16px rgba(15, 23, 42, 0.04)",
+                  marginBottom: 24,
+                  flexWrap: "wrap"
+                }}>
+                  <div className="filters-group" style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", flex: 1 }}>
+                    <div className="filter-item" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="filter-label" style={{ fontSize: 13, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                        <Wallet size={14} color="#6366f1" /> Paymode:
+                      </span>
                       <CustomSelect 
                         className="filter-select"
                         value={filters.paymentMode}
                         onChange={(e) => setFilters({ ...filters, paymentMode: e.target.value })}
-                        style={{ minWidth: 110, padding: "6px 10px", fontSize: 13 }}
+                        style={{ minWidth: 110, height: 38, padding: "0 10px", fontSize: 13, fontWeight: 600, borderRadius: 10, background: "#f8fafc", border: "1px solid #cbd5e1" }}
                       >
                         <option value="">All</option>
                         <option value="CASH">CASH</option>
@@ -962,13 +976,15 @@ export default function ExpensesPage() {
                       </CustomSelect>
                     </div>
 
-                    <div className="filter-item">
-                      <span className="filter-label">Expense Type:</span>
+                    <div className="filter-item" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="filter-label" style={{ fontSize: 13, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                        <FolderKanban size={14} color="#6366f1" /> Expense Type:
+                      </span>
                       <CustomSelect 
                         className="filter-select"
                         value={filters.categoryId}
                         onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
-                        style={{ minWidth: 120, padding: "6px 10px", fontSize: 13 }}
+                        style={{ minWidth: 130, height: 38, padding: "0 10px", fontSize: 13, fontWeight: 600, borderRadius: 10, background: "#f8fafc", border: "1px solid #cbd5e1" }}
                       >
                         <option value="">All Categories</option>
                         {categories.map(c => (
@@ -977,43 +993,49 @@ export default function ExpensesPage() {
                       </CustomSelect>
                     </div>
 
-                    <div className="filter-item">
-                      <span className="filter-label">From:</span>
+                    <div className="filter-item" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="filter-label" style={{ fontSize: 13, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                        <Calendar size={14} color="#6366f1" /> From:
+                      </span>
                       <input 
                         type="date"
                         className="filter-input"
                         value={filters.startDate}
                         onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                         max={filters.endDate || undefined}
-                        style={{ padding: "6px 8px", fontSize: 13 }}
+                        style={{ height: 38, padding: "0 10px", fontSize: 13, fontWeight: 600, borderRadius: 10, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none" }}
                       />
                     </div>
 
-                    <div className="filter-item">
-                      <span className="filter-label">To:</span>
+                    <div className="filter-item" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="filter-label" style={{ fontSize: 13, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                        <Calendar size={14} color="#6366f1" /> To:
+                      </span>
                       <input
                         type="date"
                         className="filter-input"
                         value={filters.endDate}
                         onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                         min={filters.startDate || undefined}
-                        style={{ padding: "6px 8px", fontSize: 13 }}
+                        style={{ height: 38, padding: "0 10px", fontSize: 13, fontWeight: 600, borderRadius: 10, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none" }}
                       />
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
                     <button 
-                      className="cpn-btn cpn-btn-secondary" 
                       onClick={loadData}
-                      style={{ fontSize: 13, padding: "7px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                      style={{ height: 38, padding: "0 16px", borderRadius: 10, background: "#f1f5f9", color: "#1e293b", border: "1px solid #cbd5e1", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, transition: "all 0.15s ease" }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = "#f1f5f9"}
                     >
                       <Search size={14} /> Show Expenses
                     </button>
                     <button 
-                      className="cpn-btn cpn-btn-primary" 
                       onClick={() => { setEditingExpenseId(null); setForm({ ...emptyForm, branchId: selectedBranchId || "" }); setStatus({ error: "", success: "" }); setShowAddModal(true); }}
-                      style={{ fontSize: 13, padding: "7px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                      style={{ height: 38, padding: "0 18px", borderRadius: 10, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", color: "#ffffff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)", display: "inline-flex", alignItems: "center", gap: 6, transition: "transform 0.15s ease" }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = "none"}
                     >
                       <Plus size={16} /> Add Expense
                     </button>
