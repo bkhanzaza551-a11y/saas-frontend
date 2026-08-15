@@ -668,24 +668,23 @@ export default function MembershipsPage() {
                   </div>
 
                   {/* Name & Active Status */}
-                  <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-                    <div style={{ flex: 1 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "end" }}>
+                    <div className="hub-form-group">
                       <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Membership Name</label>
                       <input 
                         type="text" 
                         placeholder="e.g. VIP Gold Membership" 
                         value={membershipForm.name} 
                         onChange={(e) => setMembershipForm({ ...membershipForm, name: e.target.value })} 
-                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42 }}
                         onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                         onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                       />
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: membershipForm.isActive ? "#f0fdfa" : "#f8fafc", border: membershipForm.isActive ? "1px solid #99f6e4" : "1px solid #e2e8f0", borderRadius: 8, height: 42, width: 200 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: membershipForm.isActive ? "#0f766e" : "#475569" }}>Active Status</div>
-                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
-                        <input type="checkbox" checked={membershipForm.isActive} onChange={(e) => setMembershipForm({ ...membershipForm, isActive: e.target.checked })} />
-                        <span className="toggle-switch-slider" />
+                    <div className="hub-form-group">
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Active Status</label>
+                      <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
+                        <ToggleSwitch checked={membershipForm.isActive} onChange={(val) => setMembershipForm({ ...membershipForm, isActive: val })} />
                       </div>
                     </div>
                   </div>
