@@ -527,15 +527,15 @@ export default function DemoLeadsPage() {
 
       {/* Feedback Toast */}
       {feedback.error && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, marginBottom: 16, color: "#991b1b", fontSize: 14, fontWeight: 500 }}>
-          <XCircle size={18} /> {feedback.error}
-          <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "auto", cursor: "pointer", color: "#dc2626", fontWeight: 700 }}>x</span>
+        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#991b1b", fontSize: 14, fontWeight: 600 }}>
+          <XCircle size={20} /> {feedback.error}
+          <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "12px", cursor: "pointer", color: "#dc2626", fontWeight: 700, padding: 4 }}>x</span>
         </div>
       )}
       {feedback.success && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, marginBottom: 16, color: "#065f46", fontSize: 14, fontWeight: 500 }}>
-          <CheckCircle size={18} /> {feedback.success}
-          <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "auto", cursor: "pointer", color: "#059669", fontWeight: 700 }}>x</span>
+        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#065f46", fontSize: 14, fontWeight: 600 }}>
+          <CheckCircle size={20} /> {feedback.success}
+          <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "12px", cursor: "pointer", color: "#059669", fontWeight: 700, padding: 4 }}>x</span>
         </div>
       )}
 
