@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { Trash2, Edit2, Plus, PackageOpen, Package, X } from "lucide-react";
+import { Trash2, Edit2, Plus, PackageOpen, Package, X, CheckCircle } from "lucide-react";
 import { api } from "../../api/client";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from "../../context/BranchContext";
@@ -71,6 +71,7 @@ export default function MembershipsPage() {
   const [showPackageModal, setShowPackageModal] = useState(false);
   const [showAssignMembershipModal, setShowAssignMembershipModal] = useState(false);
   const [showAssignPackageModal, setShowAssignPackageModal] = useState(false);
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
   const applyWorkspaceData = useCallback(async ({
@@ -385,9 +386,14 @@ export default function MembershipsPage() {
                 </button>
               )}
               {(activeSection === "packages") && (
-                <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="primary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#2563eb", borderColor: "#1d4ed8" }}>
-                  <PackageOpen size={16} /> Add Package
-                </button>
+                <>
+                  <button type="button" onClick={() => setShowRedeemModal(true)} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#334155", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer" }}>
+                    <CheckCircle size={16} color="#16a34a" /> Redeem Package
+                  </button>
+                  <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="primary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#2563eb", borderColor: "#1d4ed8" }}>
+                    <PackageOpen size={16} /> Add Package
+                  </button>
+                </>
               )}
             </div>
           }
@@ -893,6 +899,80 @@ export default function MembershipsPage() {
         </div>
       )}
 
+      {showRedeemModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => setShowRedeemModal(false)} />
+          <div style={{ position: "relative", width: 500, maxWidth: "90vw", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Redeem Package Session</h2>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Deduct prepaid sessions consumed by a customer.</div>
+              </div>
+              <button onClick={() => setShowRedeemModal(false)} type="button" className="modal-close-btn">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={async (event) => {
+              event.preventDefault();
+              setStatus({ error: "", success: "" });
+              try {
+                await api.post("/owner/packages/redeem", {
+                  ...redeemForm,
+                  customerPackageId: effectiveCustomerPackageId,
+                  sessionsUsed: Number(redeemForm.sessionsUsed)
+                });
+                await loadAll(customerId || assignPackageForm.customerId);
+                setRedeemForm(emptyPackageRedeem);
+                setShowRedeemModal(false);
+                setStatus({ error: "", success: "Package session redeemed successfully." });
+              } catch (error) {
+                setStatus({ error: formatApiError(error, "Could not redeem package"), success: "" });
+              }
+            }} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Customer Package *</label>
+                <CustomSelect value={effectiveCustomerPackageId} onChange={(event) => setRedeemForm((current) => ({ ...current, customerPackageId: event.target.value }))}>
+                  <option value="">Select customer package</option>
+                  {customerPackageOptions.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.package?.name} - {selectedCustomerHistory?.name || "Customer"} ({item.remainingSessions} left)
+                    </option>
+                  ))}
+                </CustomSelect>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Service *</label>
+                <CustomSelect value={redeemForm.serviceId} onChange={(event) => setRedeemForm((current) => ({ ...current, serviceId: event.target.value }))}>
+                  <option value="">Select service</option>
+                  {services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
+                </CustomSelect>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Sessions Used</label>
+                <input type="number" min="1" value={redeemForm.sessionsUsed} onChange={(event) => setRedeemForm((current) => ({ ...current, sessionsUsed: event.target.value }))} placeholder="1" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none" }} />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Redemption Note</label>
+                <textarea rows="3" value={redeemForm.note} onChange={(event) => setRedeemForm((current) => ({ ...current, note: event.target.value }))} placeholder="Optional redemption note..." style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", resize: "vertical" }} />
+              </div>
+
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                <button type="button" onClick={() => setShowRedeemModal(false)} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14 }}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={!customerPackageOptions.length} style={{ padding: "10px 20px", background: customerPackageOptions.length ? "#2563eb" : "#cbd5e1", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: customerPackageOptions.length ? "pointer" : "not-allowed", fontSize: 14 }}>
+                  Redeem Package
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {showPackageModal && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: 800, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
@@ -1264,52 +1344,7 @@ export default function MembershipsPage() {
       )}
       </div>
 
-      {activeSection === "packages" && (
-        <div className="panel-card" style={{ marginTop: 18 }}>
-          <h3>Redeem Package Session</h3>
-          <p className="muted" style={{ marginTop: 0 }}>
-            Use this when a customer consumes prepaid sessions without a direct POS redemption flow.
-          </p>
-          <form onSubmit={async (event) => {
-            event.preventDefault();
-            setStatus({ error: "", success: "" });
-            try {
-              await api.post("/owner/packages/redeem", {
-                ...redeemForm,
-                customerPackageId: effectiveCustomerPackageId,
-                sessionsUsed: Number(redeemForm.sessionsUsed)
-              });
-              await loadAll(customerId || assignPackageForm.customerId);
-              setRedeemForm(emptyPackageRedeem);
-              setStatus({ error: "", success: "Package session redeemed." });
-            } catch (error) {
-              setStatus({ error: formatApiError(error, "Could not redeem package"), success: "" });
-            }
-          }} style={{ display: "grid", gap: 10 }}>
-            <label>
-              <span className="muted">Customer package</span>
-              <CustomSelect value={effectiveCustomerPackageId} onChange={(event) => setRedeemForm((current) => ({ ...current, customerPackageId: event.target.value }))}>
-              <option value="">Select customer package</option>
-              {customerPackageOptions.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.package?.name} - {selectedCustomerHistory?.name || "Customer"} ({item.remainingSessions} left)
-                </option>
-              ))}
-            </CustomSelect>
-            </label>
-            <label>
-              <span className="muted">Service</span>
-              <CustomSelect value={redeemForm.serviceId} onChange={(event) => setRedeemForm((current) => ({ ...current, serviceId: event.target.value }))}>
-              <option value="">Select service</option>
-              {services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
-            </CustomSelect>
-            </label>
-            <input type="number" min="1" value={redeemForm.sessionsUsed} onChange={(event) => setRedeemForm((current) => ({ ...current, sessionsUsed: event.target.value }))} placeholder="Sessions used" />
-            <textarea rows="3" value={redeemForm.note} onChange={(event) => setRedeemForm((current) => ({ ...current, note: event.target.value }))} placeholder="Redemption note" />
-            <button disabled={!customerPackageOptions.length}>Redeem Package</button>
-          </form>
-        </div>
-      )}
+
 
       {selectedCustomerHistory && (
         <div className="settings-section-grid" style={{ marginTop: 18 }}>
