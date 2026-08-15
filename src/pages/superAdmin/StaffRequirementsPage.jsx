@@ -117,11 +117,11 @@ export default function SuperAdminStaffRequirementsPage() {
                       </p>
                     )}
                     <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginTop: 8 }}>
-                      <span>Dept: <b style={{ color: "#334155" }}>{req.department || "N/A"}</b></span>
-                      <span>Position: <b style={{ color: "#334155" }}>{req.position || "N/A"}</b></span>
+                      {req.department && <span>Dept: <b style={{ color: "#334155" }}>{req.department}</b></span>}
+                      {req.position && <span>Position: <b style={{ color: "#334155" }}>{req.position}</b></span>}
                       <span>Staff: <b style={{ color: "#334155" }}>{req.count || 1}</b></span>
-                      <span>Salary: <b style={{ color: "#334155" }}>{req.salary || "N/A"}</b></span>
-                      <span>Experience: <b style={{ color: "#334155" }}>{req.experience || "N/A"}</b></span>
+                      {req.salary && <span>Salary: <b style={{ color: "#334155" }}>{req.salary}</b></span>}
+                      {req.experience && <span>Experience: <b style={{ color: "#334155" }}>{req.experience}</b></span>}
                       <span>Priority: <b style={{ color: priorityColors[req.priority] || "#334155" }}>{req.priority}</b></span>
                     </div>
                     <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>
