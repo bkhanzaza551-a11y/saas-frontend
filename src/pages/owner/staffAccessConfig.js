@@ -57,10 +57,6 @@ export const MODULE_GROUPS = [
     title: "Marketing & Communication",
     hint: "Campaigns, templates, and outreach",
     modules: [
-      { key: "campaigns", label: "Campaigns" },
-      { key: "campaignTemplates", label: "Campaign Templates" },
-      { key: "messageTemplates", label: "Message Templates" },
-      { key: "whatsapp", label: "WhatsApp" },
       { key: "notifications", label: "Notifications" }
     ]
   },
