@@ -136,7 +136,7 @@ export default function PosPage() {
   const [membershipItemsDraft, setMembershipItemsDraft] = useState([]);
   const [showApplyPkgRedemptionModal, setShowApplyPkgRedemptionModal] = useState(false);
   const [customerPackages, setCustomerPackages] = useState([]);
-//   const [loadingCustomerPkgs, setLoadingCustomerPkgs] = useState(false);
+  const [loadingCustomerPkgs, setLoadingCustomerPkgs] = useState(false);
   const [showGcRedemptionModal, setShowGcRedemptionModal] = useState(false);
   const [gcRedemptionCode, setGcRedemptionCode] = useState("");
   const [gcRedemptionResult, setGcRedemptionResult] = useState(null);
