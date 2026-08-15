@@ -469,7 +469,7 @@ export default function MembershipsPage() {
                             });
                             setShowMembershipModal(true);
                           }}>
-                            Edit
+                            <Edit2 size={14} />
                           </button>
                           <button type="button" className="cta-secondary" style={{ padding: "4px 8px", fontSize: "0.75rem", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }} disabled={deletingId === item.id} onClick={async () => {
                             if (!window.confirm(`Delete membership plan "${item.name}"?`)) return;
@@ -563,7 +563,7 @@ export default function MembershipsPage() {
                             });
                             setShowPackageModal(true);
                           }}>
-                            Edit
+                            <Edit2 size={14} />
                           </button>
                           <button type="button" className="cta-secondary" style={{ padding: "4px 8px", fontSize: "0.75rem", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }} disabled={deletingId === item.id} onClick={async () => {
                             if (!window.confirm(`Delete package "${item.name}"?`)) return;
@@ -607,7 +607,7 @@ export default function MembershipsPage() {
                 {membershipEditMode ? <Edit2 size={20} color="#3b82f6" /> : <Plus size={20} color="#3b82f6" />}
                 {membershipEditMode ? "Edit Membership Plan" : "Create Membership Plan"}
               </h2>
-              <button type="button" className="modal-close-btn" onClick={() => setShowMembershipModal(false)} style={{ margin: 0 }}>
+              <button type="button" onClick={() => setShowMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px", margin: 0 }}>
                 <X size={20} />
               </button>
             </div>
@@ -900,7 +900,7 @@ export default function MembershipsPage() {
               <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
                 {packageEditMode ? <><Edit2 size={20} color="#64748b" /> Edit Package</> : <><Package size={20} color="#64748b" /> Create Package</>}
               </span>
-              <button type="button" className="modal-close-btn" onClick={() => setShowPackageModal(false)}><X size={20} /></button>
+              <button type="button" onClick={() => setShowPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
             </div>
             <div className="modal-body">
             <form onSubmit={async (event) => {
@@ -1146,7 +1146,7 @@ export default function MembershipsPage() {
           <div className="modal-content" style={{ maxWidth: 500, width: "100%" }}>
             <div className="modal-header">
               <h2><Plus size={20} /> Assign Membership</h2>
-              <button type="button" className="modal-close-btn" onClick={() => setShowAssignMembershipModal(false)}><X size={20} /></button>
+              <button type="button" onClick={() => setShowAssignMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
             </div>
             <div className="modal-body">
           <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>{customerScopeLabel}</p>
@@ -1207,7 +1207,7 @@ export default function MembershipsPage() {
           <div className="modal-content" style={{ maxWidth: 500, width: "100%" }}>
             <div className="modal-header">
               <h2><Plus size={20} /> Assign Package</h2>
-              <button type="button" className="modal-close-btn" onClick={() => setShowAssignPackageModal(false)}><X size={20} /></button>
+              <button type="button" onClick={() => setShowAssignPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
             </div>
             <div className="modal-body">
           <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>{customerScopeLabel}</p>
