@@ -1527,6 +1527,7 @@ export default function InventoryPage() {
               >
                 Update All Reconciliations
               </button>
+            </div>
           </div>
         )}
 

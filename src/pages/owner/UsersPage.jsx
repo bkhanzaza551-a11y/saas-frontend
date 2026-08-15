@@ -587,50 +587,43 @@ export default function UsersPage() {
           {selectedRow ? (
             <>
               <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0' }}>
-                <div className="responsive-profile-header" style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 900, margin: '0 auto' }}>
-                  <div className="responsive-profile-header-user" style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-                    <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'white', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)' }}>
-                      {selectedRow.avatarUrl ? (
-                        <img
-                          src={getImageUrl(selectedRow.avatarUrl)}
-                          alt="Avatar"
-                          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)', display: selectedRow.avatarUrl ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontSize: 24, fontWeight: 700, border: '1px solid #cbd5e1' }}>
-                        {selectedRow.user?.name?.charAt(0).toUpperCase()}
+                <div className="responsive-profile-header" style={{ padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    {selectedRow.avatarUrl ? (
+                      <img src={getImageUrl(selectedRow.avatarUrl)} alt="Avatar" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
+                    ) : (
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
+                        {(selectedRow.user?.name || "U")[0].toUpperCase()}
                       </div>
-                    </div>
+                    )}
                     <div>
-                      <div style={{ color: '#0f172a', fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 10 }}>
                         {selectedRow.user?.name}
                         {selectedRow.user?.isActive ? (
-                          <span style={{ fontSize: 11, background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: 12, fontWeight: 700 }}>ACTIVE</span>
+                          <span style={{ fontSize: 11, background: '#ecfdf5', color: '#065f46', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #a7f3d0', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }}></span> ACTIVE
+                          </span>
                         ) : (
-                          <span style={{ fontSize: 11, background: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 12, fontWeight: 700 }}>INACTIVE</span>
+                          <span style={{ fontSize: 11, background: '#f1f5f9', color: '#64748b', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #e2e8f0' }}>INACTIVE</span>
                         )}
                       </div>
-                      <div style={{ color: '#64748b', fontSize: 14, marginTop: 4 }}>{selectedRow.user?.email}</div>
+                      <div style={{ color: '#64748b', fontSize: 13, fontWeight: 500, marginTop: 4 }}>{selectedRow.user?.email}</div>
                     </div>
                   </div>
-                  <div className="responsive-profile-header-actions" style={{ display: 'flex', gap: 12 }}>
+                  <div className="responsive-profile-header-actions" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <button
                       type="button"
                       onClick={() => toggleUserStatus(selectedRow)}
-                      style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.2s' }}
+                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
                     >
                       {selectedRow.user?.isActive ? "Deactivate Login" : "Activate Login"}
                     </button>
                     <button 
                       type="button" 
                       onClick={() => archiveUser(selectedRow)}
-                      style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', transition: 'all 0.2s' }}
+                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
                     >
                       Archive Profile
                     </button>
@@ -681,37 +674,37 @@ export default function UsersPage() {
                    )}
                 </div>
 
-                <div style={{ background: 'white', borderRadius: 8, border: '1px solid #e2e8f0', padding: 32 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                    <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a' }}>Edit Access & Settings</h3>
-                    {status.success && <span style={{ color: '#10b981', fontSize: 14, fontWeight: 500 }}>{status.success}</span>}
-                    {status.error && <span style={{ color: '#ef4444', fontSize: 14, fontWeight: 500 }}>{status.error}</span>}
+                <div style={{ background: 'white', borderRadius: 14, border: '1px solid #e2e8f0', padding: 28, boxShadow: '0 4px 16px rgba(15,23,42,0.03)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid #f1f5f9', paddingBottom: 16 }}>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Edit Access & Settings</h3>
+                    {status.success && <span style={{ color: '#10b981', fontSize: 13, fontWeight: 700, background: '#ecfdf5', padding: '4px 12px', borderRadius: 20, border: '1px solid #a7f3d0' }}>✓ {status.success}</span>}
+                    {status.error && <span style={{ color: '#ef4444', fontSize: 13, fontWeight: 700, background: '#fef2f2', padding: '4px 12px', borderRadius: 20, border: '1px solid #fecaca' }}>⚠️ {status.error}</span>}
                   </div>
                   
                   <form onSubmit={submit}>
                     {/* Identity Section */}
                     <div style={{ marginBottom: 32 }}>
-                      <h4 style={{ fontSize: 15, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 8, marginBottom: 16 }}>Identity & Scope</h4>
+                      <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 10, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity & Scope</h4>
                       
                       {/* PRIMARY: Custom role from Access Control */}
-                      <div style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '1px solid #93c5fd', borderRadius: 10, padding: 16, marginBottom: 20 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <div style={{ background: '#f0f7ff', border: '1px solid #bae6fd', borderRadius: 14, padding: 18, marginBottom: 24, boxShadow: '0 2px 8px rgba(37,99,235,0.04)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
                           <div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
                               <span>🎯 Access Role (from Access Control)</span>
-                              <span style={{ background: '#2563eb', color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, letterSpacing: 0.5 }}>RECOMMENDED</span>
+                              <span style={{ background: '#2563eb', color: 'white', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, letterSpacing: 0.5 }}>RECOMMENDED</span>
                             </div>
-                            <div style={{ fontSize: 11, color: '#475569', marginTop: 3 }}>
+                            <div style={{ fontSize: 12, color: '#475569', marginTop: 3 }}>
                               Roles created in <strong>Settings → Access Control</strong>. Pick one to auto-apply its full permission set.
                             </div>
                           </div>
-                          <button type="button" onClick={openAccessControl} className="secondary-button" style={{ background: 'white', border: '1px solid #2563eb', color: '#1d4ed8', padding: '6px 12px', fontSize: 12, fontWeight: 600, borderRadius: 6, cursor: 'pointer' }}>
+                          <button type="button" onClick={openAccessControl} style={{ background: '#ffffff', border: '1px solid #2563eb', color: '#1d4ed8', padding: '7px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, cursor: 'pointer', transition: 'all 0.15s ease' }}>
                             + Create New Role
                           </button>
                         </div>
                         <CustomSelect
                           className="hub-input"
-                          style={{ width: '100%', background: 'white', fontSize: 14, fontWeight: 600 }}
+                          style={{ width: '100%', background: '#ffffff', fontSize: 13, fontWeight: 600, height: 42, borderRadius: 10, border: '1px solid #93c5fd' }}
                           value={form.customRoleId || ""}
                           onChange={(event) => applyCustomRole(event.target.value)}
                         >
@@ -730,45 +723,45 @@ export default function UsersPage() {
                           if (!sel) return null;
                           const grantedModules = Object.entries(sel.permissions || {}).filter(([, actions]) => Array.isArray(actions) && actions.length > 0).length;
                           return (
-                            <div style={{ marginTop: 8, fontSize: 12, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ marginTop: 10, fontSize: 12, color: '#1e40af', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 12 }}>
                               <span>✓ Permissions loaded: <strong>{grantedModules}</strong> module{grantedModules === 1 ? "" : "s"}</span>
-                              {sel.isSystemPreset && <span style={{ background: '#fbbf24', color: '#78350f', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>PRESET</span>}
+                              {sel.isSystemPreset && <span style={{ background: '#fef3c7', color: '#92400e', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, border: '1px solid #fde68a' }}>PRESET</span>}
                             </div>
                           );
                         })()}
                       </div>
                       
-                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>System role (fallback) <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>— auto-set when access role picked</span></label>
-                          <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={form.customRoleId ? { background: '#f1f5f9', cursor: 'not-allowed' } : undefined}>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>System role (fallback) <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>— auto-set when access role picked</span></label>
+                          <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={{ width: '100%', height: 42, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: form.customRoleId ? '#f1f5f9' : '#f8fafc' }}>
                             {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
                           </CustomSelect>
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Role title (Visible designation)</label>
-                          <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Role title (Visible designation)</label>
+                          <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Phone</label>
-                  <IndianPhoneInput required={false} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "10px 14px", height: 42, borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Phone Number</label>
+                          <IndianPhoneInput required={false} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "0 14px", height: 42, borderRadius: 10, border: "1px solid #cbd5e1", background: "#f8fafc", fontSize: 13, fontWeight: 600 }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Profile Avatar</label>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Profile Avatar</label>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 42 }}>
                             {form.avatarUrl ? (
-                              <img src={getImageUrl(form.avatarUrl)} alt="Avatar" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '1px solid #cbd5e1' }} />
+                              <img src={getImageUrl(form.avatarUrl)} alt="Avatar" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid #cbd5e1' }} />
                             ) : (
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                              <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                               </div>
                             )}
-                            <label className="secondary-button" style={{ fontSize: 12, padding: '6px 12px', cursor: 'pointer', display: 'inline-block', margin: 0 }}>
+                            <label style={{ fontSize: 12, fontWeight: 700, padding: '8px 14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, margin: 0, background: '#f1f5f9', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: 8 }}>
                               {avatarUploading ? "Uploading..." : "Upload Image"}
                               <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={avatarUploading} style={{ display: 'none' }} />
                             </label>
                             {form.avatarUrl && (
-                              <button type="button" onClick={() => setForm({...form, avatarUrl: ""})} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 12, cursor: 'pointer', padding: 0 }}>Remove</button>
+                              <button type="button" onClick={() => setForm({...form, avatarUrl: ""})} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 12, fontWeight: 700, cursor: 'pointer', padding: 0 }}>Remove</button>
                             )}
                           </div>
                         </div>
@@ -831,66 +824,66 @@ export default function UsersPage() {
 
                     {/* Employment & HR Details */}
                     <div style={{ marginBottom: 32 }}>
-                      <h4 style={{ fontSize: 15, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 8, marginBottom: 16 }}>Employment & HR Details</h4>
-                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 10, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employment & HR Details</h4>
+                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Date of Joining</label>
-                          <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Date of Joining</label>
+                          <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
 
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>UAN Number</label>
-                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" pattern="\d{12}" maxLength={12} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>UAN Number</label>
+                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" pattern="\d{12}" maxLength={12} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Working Hours</label>
-                          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Working Hours</label>
+                          <div style={{ display: "flex", gap: 8, alignItems: "center", height: 42 }}>
                             <input type="time" className="hub-input" value={form.workingHoursStart || ""} onChange={e => {
                               const start = e.target.value;
                               const end = form.workingHoursEnd || "";
                               setForm({ ...form, workingHoursStart: start, workingHours: start && end ? `${start} - ${end}` : start || "" });
-                            }} style={{ flex: 1 }} />
-                            <span style={{ color: "#64748b", fontSize: 13, flexShrink: 0 }}>to</span>
+                            }} style={{ flex: 1, height: 42, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
+                            <span style={{ color: "#64748b", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>to</span>
                             <input type="time" className="hub-input" value={form.workingHoursEnd || ""} onChange={e => {
                               const end = e.target.value;
                               const start = form.workingHoursStart || "";
                               setForm({ ...form, workingHoursEnd: end, workingHours: start && end ? `${start} - ${end}` : "" });
-                            }} style={{ flex: 1 }} />
+                            }} style={{ flex: 1, height: 42, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
                           </div>
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Reporting To</label>
-                          <CustomSelect className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })} style={{ width: "100%", "--select-height": "42px" }}>
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Reporting To</label>
+                          <CustomSelect className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })} style={{ width: "100%", height: 42, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }}>
                             <option value="">None / Self</option>
                             {rows.map((r) => r.id !== selectedRow?.id && <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
                           </CustomSelect>
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Department</label>
-                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Department</label>
+                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>
 
                     {/* Bank & Payroll Details */}
                     <div style={{ marginBottom: 32 }}>
-                      <h4 style={{ fontSize: 15, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 8, marginBottom: 16 }}>Bank & Payroll Details</h4>
-                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 10, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bank & Payroll Details</h4>
+                      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Bank Name</label>
-                          <input type="text" className="hub-input" value={form.bankName} onChange={(event) => setForm({ ...form, bankName: event.target.value })} placeholder="e.g. HDFC Bank" maxLength={200} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Bank Name</label>
+                          <input type="text" className="hub-input" value={form.bankName} onChange={(event) => setForm({ ...form, bankName: event.target.value })} placeholder="e.g. HDFC Bank" maxLength={200} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Branch Name</label>
-                          <input type="text" className="hub-input" value={form.bankBranch} onChange={(event) => setForm({ ...form, bankBranch: event.target.value })} placeholder="Branch Area" maxLength={200} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Branch Name</label>
+                          <input type="text" className="hub-input" value={form.bankBranch} onChange={(event) => setForm({ ...form, bankBranch: event.target.value })} placeholder="Branch Area" maxLength={200} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Account Number</label>
-                          <input type="text" className="hub-input" value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} placeholder="Account No." pattern="\d{9,18}" maxLength={18} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Account Number</label>
+                          <input type="text" className="hub-input" value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} placeholder="Account No." pattern="\d{9,18}" maxLength={18} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>IFSC / Routing Code</label>
-                          <input type="text" className="hub-input" value={form.ifscCode} onChange={(event) => setForm({ ...form, ifscCode: event.target.value.toUpperCase() })} placeholder="IFSC Code" pattern="[A-Z]{4}0[A-Z0-9]{6}" maxLength={11} style={{ textTransform: 'uppercase' }} />
+                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>IFSC / Routing Code</label>
+                          <input type="text" className="hub-input" value={form.ifscCode} onChange={(event) => setForm({ ...form, ifscCode: event.target.value.toUpperCase() })} placeholder="IFSC Code" pattern="[A-Z]{4}0[A-Z0-9]{6}" maxLength={11} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', textTransform: 'uppercase', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>

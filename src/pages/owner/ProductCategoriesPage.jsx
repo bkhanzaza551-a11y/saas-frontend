@@ -45,6 +45,8 @@ const defaultProductForm = {
   unitConversion: ""
 };
 
+const UNIT_OPTIONS = ["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => ({ label: u, value: u }));
+
 export default function ProductCategoriesPage() {
   const { currencySymbol } = useSalonSettings();
   const { selectedBranchId, branches } = useBranch();
@@ -297,9 +299,6 @@ export default function ProductCategoriesPage() {
       {/* Left Sidebar - Categories */}
       <div className="responsive-sidebar" style={{ width: 280, background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", flexShrink: 0, boxShadow: "2px 0 8px rgba(0,0,0,0.02)" }}>
         <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff" }}>
-      {/* Left Sidebar - Categories */}
-      <div className="responsive-sidebar" style={{ width: 280, background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#0f172a" }}>Categories</h3>
           <button 
             onClick={() => setShowCategoryModal(true)} 
@@ -692,7 +691,7 @@ export default function ProductCategoriesPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 20, marginBottom: 24, alignItems: "start" }}>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Discount Type</label>
-                    <CustomSelect className="hub-input" value={productForm.discountType || ""} onChange={e => setProductForm({...productForm, discountType: e.target.value || null, discountValue: e.target.value ? productForm.discountValue || 0 : null})} style={{ width: "100%", "--select-height": "42px" }}>
+                    <CustomSelect className="hub-input" value={productForm.discountType || ""} onChange={e => setProductForm({...productForm, discountType: e.target.value || null, discountValue: e.target.value ? productForm.discountValue || 0 : null})} style={{ width: "100%", height: 42 }}>
                       <option value="">No Discount</option>
                       <option value="FIX">Flat (₹)</option>
                       <option value="PERCENT">Percentage (%)</option>
@@ -701,7 +700,7 @@ export default function ProductCategoriesPage() {
                   <div className="hub-form-group">
                     {productForm.discountType && (
                       <>
-                        <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Discount Value {productForm.discountType === "PERCENT" ? "(%)" : `(₹)`}</label>
+                        <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Discount Value {productForm.discountType === "PERCENT" ? "(%)" : "(₹)"}</label>
                         <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", background: "#fff", height: 42 }}>
                           <span style={{ padding: "10px 12px", background: "#f8fafc", borderRight: "1px solid #e2e8f0", fontSize: 14, fontWeight: 600, color: "#64748b" }}>{productForm.discountType === "PERCENT" ? "%" : currencySymbol}</span>
                           <input type="number" min="0" max={productForm.discountType === "PERCENT" ? 100 : undefined} className="hub-input" value={productForm.discountValue ?? ""} onChange={e => setProductForm({...productForm, discountValue: e.target.value === "" ? null : parseFloat(e.target.value) || 0})} placeholder={productForm.discountType === "PERCENT" ? "e.g. 10" : "e.g. 50"} style={{ border: "none", flex: 1, padding: "10px", fontSize: 14, fontWeight: 600, height: 40 }} />
@@ -724,7 +723,7 @@ export default function ProductCategoriesPage() {
                 {/* Category */}
                 <div className="hub-form-group" style={{ marginBottom: 24 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Category</label>
-                  <CustomSelect className="hub-input" value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} style={{ width: "100%", "--select-height": "42px" }}>
+                  <CustomSelect className="hub-input" value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} style={{ width: "100%", height: 42 }}>
                     <option value="">No Category</option>
                     {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </CustomSelect>
@@ -842,8 +841,8 @@ export default function ProductCategoriesPage() {
               </div>
 
               <div className="hub-modal-footer" style={{ borderTop: "1px solid #e2e8f0", padding: "16px 28px", display: "flex", justifyContent: "flex-end", gap: 12, background: "#f8fafc", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
-                <button type="button" onClick={() => setShowProductModal(false)} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>Cancel</button>
-                <button type="submit" disabled={saving} style={{ padding: "10px 32px", background: "#0f172a", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1, transition: "background 0.2s" }} onMouseEnter={e=>{if(!saving) e.currentTarget.style.background="#1e293b"}} onMouseLeave={e=>{if(!saving) e.currentTarget.style.background="#0f172a"}}>{saving ? "Saving..." : "Save Product"}</button>
+                <button type="button" onClick={() => setShowProductModal(false)} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer" }}>Cancel</button>
+                <button type="submit" disabled={saving} style={{ padding: "10px 32px", background: saving ? "#475569" : "#0f172a", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: saving ? "not-allowed" : "pointer" }}>{saving ? "Saving..." : "Save Product"}</button>
               </div>
             </form>
           </div>
@@ -885,20 +884,24 @@ export default function ProductCategoriesPage() {
                 </div>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Primary Unit {stockForm.productType === "CONSUMABLE" && <span style={{ color: "#dc2626" }}>*</span>}</label>
-                  <CustomSelect value={stockForm.unit} onChange={e => setStockForm({...stockForm, unit: e.target.value})} required={stockForm.productType === "CONSUMABLE"} style={{ width: "100%", "--select-height": "42px", ...(stockForm.productType === "CONSUMABLE" && !stockForm.unit ? { border: "1px solid #fca5a5" } : {}), ...(stockForm.productType === "CONSUMABLE" ? { background: "#fffbeb" } : {}) }}>
-                    <option value="">Select Unit</option>
-                    {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
-                  </CustomSelect>
+                  <CustomSelect 
+                    value={stockForm.unit} 
+                    onChange={e => setStockForm({...stockForm, unit: e.target.value})} 
+                    options={[{ label: "Select Unit", value: "" }, ...UNIT_OPTIONS]}
+                    style={{ width: "100%", height: 42, border: (stockForm.productType === "CONSUMABLE" && !stockForm.unit) ? "1px solid #fca5a5" : undefined, background: (stockForm.productType === "CONSUMABLE") ? "#fffbeb" : undefined }} 
+                  />
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
                 <div>
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6, display: "block" }}>Secondary Unit <span style={{ fontSize: 11, color: "#94a3b8" }}>(consumption unit)</span></label>
-                  <CustomSelect value={stockForm.secondaryUnit} onChange={e => setStockForm({...stockForm, secondaryUnit: e.target.value})} style={{ width: "100%", "--select-height": "42px" }}>
-                    <option value="">Select Secondary Unit</option>
-                    {["mg", "gm", "kg", "oz", "ltr", "ml", "sachet", "ox", "can", "pcs", "carton", "roll", "pkt", "box", "unit", "btl", "jar", "cane"].map(u => <option key={u} value={u}>{u}</option>)}
-                  </CustomSelect>
+                  <CustomSelect 
+                    value={stockForm.secondaryUnit} 
+                    onChange={e => setStockForm({...stockForm, secondaryUnit: e.target.value})} 
+                    options={[{ label: "Select Secondary Unit", value: "" }, ...UNIT_OPTIONS]}
+                    style={{ width: "100%", height: 42 }} 
+                  />
                 </div>
                 <div></div>
               </div>
@@ -917,8 +920,8 @@ export default function ProductCategoriesPage() {
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
-                <button type="button" onClick={() => { setStockModal({ open: false, product: null }); }} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>Close</button>
-                <button type="submit" disabled={stockSaving} style={{ padding: "10px 32px", background: "#2563eb", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: stockSaving ? "not-allowed" : "pointer", opacity: stockSaving ? 0.7 : 1, transition: "background 0.2s" }} onMouseEnter={e=>{if(!stockSaving) e.currentTarget.style.background="#1d4ed8"}} onMouseLeave={e=>{if(!stockSaving) e.currentTarget.style.background="#2563eb"}}>{stockSaving ? "Saving..." : "Submit"}</button>
+                <button type="button" onClick={() => setStockModal({ open: false, product: null })} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, color: "#475569", cursor: "pointer" }}>Close</button>
+                <button type="submit" disabled={stockSaving} style={{ padding: "10px 32px", background: stockSaving ? "#93c5fd" : "#2563eb", border: "none", borderRadius: 8, fontWeight: 600, color: "#fff", cursor: stockSaving ? "not-allowed" : "pointer" }}>{stockSaving ? "Saving..." : "Submit"}</button>
               </div>
             </form>
           </div>

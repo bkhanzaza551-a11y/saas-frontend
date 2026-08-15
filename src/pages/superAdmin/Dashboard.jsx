@@ -218,6 +218,7 @@ export default function SuperAdminDashboard() {
                   </div>
                 </div>
               </div>
+            )}
             {data.attentionRequired.pendingPayments?.length > 0 && (
               <div style={{ background: "#fefce8", borderRadius: 12, padding: 14, borderLeft: "4px solid #eab308", border: "1px solid #fef08a" }}>
                 <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#a16207", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Overdue Payments ({data.attentionRequired.pendingPayments.length})</div>

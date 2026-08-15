@@ -949,7 +949,7 @@ export default function ExpensesPage() {
                   padding: "16px 20px",
                   display: "flex",
                   alignItems: "center",
-                  justify-content: "space-between",
+                  justifyContent: "space-between",
                   gap: 16,
                   boxShadow: "0 4px 16px rgba(15, 23, 42, 0.04)",
                   marginBottom: 24,
