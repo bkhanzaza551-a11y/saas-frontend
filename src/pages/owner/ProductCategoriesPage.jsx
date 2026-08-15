@@ -698,9 +698,9 @@ export default function ProductCategoriesPage() {
                         </div>
                         <div>
                           <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Non Discountable</label>
-                          <button type="button" onClick={() => { const next = [...productForm.variations]; next[idx] = {...next[idx], nonDiscountable: !v.nonDiscountable}; setProductForm({...productForm, variations: next}); }} style={{ width: 48, height: 26, borderRadius: 13, border: "none", background: v.nonDiscountable ? "#2563eb" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.25s", display: "flex", alignItems: "center" }}>
-                            <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: v.nonDiscountable ? 24 : 2, transition: "left 0.25s", boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }} />
-                          </button>
+                          <div style={{ height: "35px", display: "flex", alignItems: "center" }}>
+                            <ToggleSwitch checked={Boolean(v.nonDiscountable)} onChange={val => { const next = [...productForm.variations]; next[idx] = {...next[idx], nonDiscountable: val}; setProductForm({...productForm, variations: next}); }} />
+                          </div>
                         </div>
                         <div>
                           <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>Store SKU</label>
