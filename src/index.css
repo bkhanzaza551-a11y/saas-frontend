@@ -6122,26 +6122,36 @@ html, body {
 }
 
 .modal-close-btn {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  line-height: 1;
-  color: #0f172a;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-  flex-shrink: 0;
+  background: #fee2e2 !important;
+  border: 1px solid #fecaca !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  color: #dc2626 !important;
+  transition: all 0.2s ease-in-out !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
 
 .modal-close-btn:hover {
-  background: #0f172a;
-  border-color: #0f172a;
-  color: #fff;
+  background: #fca5a5 !important;
+  color: #991b1b !important;
+  border-color: #f87171 !important;
+  transform: scale(1.05);
+}
+
+.modal-close-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke: currentColor !important;
+  stroke-width: 2.5px !important;
 }
 
 @keyframes fadeIn {
