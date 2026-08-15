@@ -837,18 +837,16 @@ export default function ProductCategoriesPage() {
               </div>
 
               <div style={{ display: "flex", gap: 24, marginBottom: 24, padding: "16px 20px", border: "1px solid #f1f5f9", borderRadius: 12, background: "#f8fafc" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                  <span style={{ color: "#64748b" }}>Retail</span>
-                  <button type="button" onClick={() => setStockForm({...stockForm, productType: stockForm.productType === "RETAIL" ? "CONSUMABLE" : "RETAIL"})} style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: stockForm.productType === "RETAIL" ? "#3b82f6" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
-                    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: stockForm.productType === "RETAIL" ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
-                  </button>
-                </label>
-                <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 600, color: "#334155", cursor: "pointer" }}>
-                  <span style={{ color: "#64748b" }}>Consumable</span>
-                  <button type="button" onClick={() => setStockForm({...stockForm, productType: stockForm.productType === "CONSUMABLE" ? "RETAIL" : "CONSUMABLE"})} style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: stockForm.productType === "CONSUMABLE" ? "#3b82f6" : "#cbd5e1", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
-                    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: stockForm.productType === "CONSUMABLE" ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
-                  </button>
-                </label>
+                <ToggleSwitch 
+                  checked={stockForm.productType === "RETAIL"} 
+                  onChange={(val) => setStockForm({...stockForm, productType: val ? "RETAIL" : "CONSUMABLE"})} 
+                  label="Retail" 
+                />
+                <ToggleSwitch 
+                  checked={stockForm.productType === "CONSUMABLE"} 
+                  onChange={(val) => setStockForm({...stockForm, productType: val ? "CONSUMABLE" : "RETAIL"})} 
+                  label="Consumable" 
+                />
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>

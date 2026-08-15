@@ -135,189 +135,31 @@ function SectionBlock({ icon, title, badge, children, defaultOpen = true, classN
   );
 }
 
-function LivePreview({ config, sections, device }) {
-  const radius = CARD_SHAPES.find(s => s.id === config.cardShape)?.radius || "16px";
-  const accent = config.primaryColor || "#c8a97e";
-  const textColor = config.secondaryColor || "#111111";
-  const enabledSections = sections.filter(s => s.enabled);
+function LivePreview({ config, slug, device }) {
+  const iframeRef = useRef(null);
 
-  const previewStyle = useMemo(() => ({
-    fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, sans-serif",
-    color: textColor,
-    background: "#ffffff",
-    margin: 0,
-    padding: 0,
-    overflowY: "auto",
-    overflowX: "hidden",
-    width: "100%",
-    height: "100%",
-  }), [textColor]);
-
-  const renderHero = () => (
-    <div style={{ position: "relative", background: config.heroImage ? `url(${config.heroImage}) center/cover` : `linear-gradient(135deg, ${accent}22, ${accent}11)`, padding: device === "mobile" ? "40px 16px 32px" : "60px 40px 50px", textAlign: "center" }}>
-      {config.heroImage && <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />}
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 600, margin: "0 auto" }}>
-        <h1 style={{ fontSize: device === "mobile" ? 22 : 32, fontWeight: 800, margin: "0 0 12px", color: config.heroImage ? "#fff" : textColor, lineHeight: 1.2 }}>{config.heroTitle || "Elevate Your Beauty"}</h1>
-        <p style={{ fontSize: device === "mobile" ? 13 : 15, color: config.heroImage ? "#ffffffcc" : "#666", margin: "0 0 24px", lineHeight: 1.6 }}>{config.heroSubtitle || "Premium salon services"}</p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          {config.heroBtn1Text && <span style={{ padding: "10px 24px", background: accent, color: "#fff", borderRadius: radius, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{config.heroBtn1Text}</span>}
-          {config.heroBtn2Text && <span style={{ padding: "10px 24px", background: "transparent", color: config.heroImage ? "#fff" : accent, border: `2px solid ${config.heroImage ? "#fff" : accent}`, borderRadius: radius, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{config.heroBtn2Text}</span>}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderAbout = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", display: "flex", gap: 30, flexDirection: config.aboutImage ? "row" : "column", alignItems: "center" }}>
-      {config.aboutImage && <img src={config.aboutImage} alt="" style={{ width: device === "mobile" ? "100%" : "45%", borderRadius: radius, objectFit: "cover", maxHeight: 200 }} />}
-      <div style={{ flex: 1 }}>
-        <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 12px" }}>{config.aboutTitle || "About Us"}</h2>
-        <p style={{ fontSize: 14, color: "#555", lineHeight: 1.6, margin: "0 0 16px" }}>{config.aboutDescription || "Tell your salon story..."}</p>
-        {(config.aboutMission || config.aboutVision) && (
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            {config.aboutMission && <div style={{ flex: 1, minWidth: 120, padding: 12, background: `${accent}11`, borderRadius: radius }}><strong style={{ fontSize: 12, color: accent }}>Mission</strong><p style={{ fontSize: 13, margin: "4px 0 0", color: "#555" }}>{config.aboutMission}</p></div>}
-            {config.aboutVision && <div style={{ flex: 1, minWidth: 120, padding: 12, background: `${accent}11`, borderRadius: radius }}><strong style={{ fontSize: 12, color: accent }}>Vision</strong><p style={{ fontSize: 13, margin: "4px 0 0", color: "#555" }}>{config.aboutVision}</p></div>}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderGallery = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Gallery</h2>
-      <div style={{ display: "grid", gridTemplateColumns: device === "mobile" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 8 }}>
-        {(config.galleryImages || []).slice(0, 6).map((img, i) => (
-          <div key={i} style={{ aspectRatio: "1", borderRadius: radius, overflow: "hidden" }}><img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
-        ))}
-        {(!config.galleryImages || config.galleryImages.length === 0) && <div style={{ gridColumn: "1/-1", padding: 30, background: "#f9fafb", borderRadius: radius, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No gallery images yet</div>}
-      </div>
-    </div>
-  );
-
-  const renderServices = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", background: "#f9fafb" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Featured Services</h2>
-      <div style={{ display: "grid", gridTemplateColumns: device === "mobile" ? "1fr" : "repeat(3, 1fr)", gap: 12 }}>
-        {[1, 2, 3].map(i => (
-          <div key={i} style={{ background: "#fff", borderRadius: radius, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,.06)", textAlign: "center" }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${accent}22`, margin: "0 auto 12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: accent }}>{"\u2728"}</div>
-            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Service Name</div>
-            <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Duration: 1h</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: accent }}>From ₹999</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderTestimonials = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Client Reviews</h2>
-      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8 }}>
-        {(config.testimonials || []).length > 0 ? config.testimonials.map((t, i) => (
-          <div key={i} style={{ minWidth: device === "mobile" ? 220 : 260, padding: 20, background: "#f9fafb", borderRadius: radius, flexShrink: 0 }}>
-            <div style={{ color: accent, fontSize: 16, marginBottom: 8 }}>{"\u2605".repeat(t.rating || 5)}</div>
-            <p style={{ fontSize: 13, color: "#555", margin: "0 0 12px", lineHeight: 1.5 }}>"{t.text || "Great experience!"}"</p>
-            <div style={{ fontWeight: 600, fontSize: 13 }}>{t.author || "Client"}</div>
-          </div>
-        )) : <div style={{ width: "100%", padding: 30, background: "#f9fafb", borderRadius: radius, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No reviews yet</div>}
-      </div>
-    </div>
-  );
-
-  const renderBanner = () => config.bannerTitle ? (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", background: config.bannerImage ? `url(${config.bannerImage}) center/cover` : `${accent}15`, textAlign: "center" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 28, fontWeight: 700, margin: "0 0 8px", color: config.bannerImage ? "#fff" : textColor }}>{config.bannerTitle}</h2>
-      {config.bannerSubtitle && <p style={{ fontSize: 14, color: config.bannerImage ? "#ffffffcc" : "#666", margin: "0 0 16px" }}>{config.bannerSubtitle}</p>}
-      {config.bannerBtnText && <span style={{ display: "inline-block", padding: "10px 24px", background: accent, color: "#fff", borderRadius: radius, fontWeight: 600, fontSize: 13 }}>{config.bannerBtnText}</span>}
-    </div>
-  ) : null;
-
-  const renderCTA = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", background: config.ctaImage ? `url(${config.ctaImage}) center/cover` : `${accent}10`, textAlign: "center" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 8px", color: config.ctaImage ? "#fff" : textColor }}>{config.ctaTitle || "Ready to Transform?"}</h2>
-      {config.ctaSubtitle && <p style={{ fontSize: 14, color: config.ctaImage ? "#ffffffcc" : "#666", margin: "0 0 16px" }}>{config.ctaSubtitle}</p>}
-      {config.ctaBtnText && <span style={{ display: "inline-block", padding: "10px 24px", background: accent, color: "#fff", borderRadius: radius, fontWeight: 600, fontSize: 13 }}>{config.ctaBtnText}</span>}
-    </div>
-  );
-
-  const renderContact = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", background: "#f9fafb" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Contact Us</h2>
-      <div style={{ display: "grid", gridTemplateColumns: device === "mobile" ? "1fr" : "repeat(3, 1fr)", gap: 16 }}>
-        {config.contactPhone && <div style={{ padding: 16, background: "#fff", borderRadius: radius, textAlign: "center" }}><div style={{ fontSize: 20, marginBottom: 8 }}>&#128222;</div><div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>Phone</div><div style={{ fontSize: 13, color: "#666" }}>{config.contactPhone}</div></div>}
-        {config.contactEmail && <div style={{ padding: 16, background: "#fff", borderRadius: radius, textAlign: "center" }}><div style={{ fontSize: 20, marginBottom: 8 }}>&#9993;</div><div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>Email</div><div style={{ fontSize: 13, color: "#666" }}>{config.contactEmail}</div></div>}
-        {config.contactAddress && <div style={{ padding: 16, background: "#fff", borderRadius: radius, textAlign: "center" }}><div style={{ fontSize: 20, marginBottom: 8 }}>&#128205;</div><div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>Address</div><div style={{ fontSize: 13, color: "#666" }}>{config.contactAddress}</div></div>}
-      </div>
-    </div>
-  );
-
-  const renderHours = () => (
-    <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px" }}>
-      <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px", textAlign: "center" }}>Business Hours</h2>
-      <div style={{ maxWidth: 400, margin: "0 auto" }}>
-        {(config.businessHours || []).map((bh, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #eee", fontSize: 14 }}>
-            <span style={{ fontWeight: 600 }}>{bh.day}</span><span style={{ color: "#666" }}>{bh.hours}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderSocial = () => {
-    const links = [
-      { label: "Instagram", url: config.socialInstagram },
-      { label: "Facebook", url: config.socialFacebook },
-      { label: "YouTube", url: config.socialYoutube },
-      { label: "TikTok", url: config.socialTiktok },
-      { label: "Twitter", url: config.socialTwitter },
-    ].filter(l => l.url);
-    if (links.length === 0) return null;
-    return (
-      <div style={{ padding: device === "mobile" ? "32px 16px" : "50px 40px", textAlign: "center" }}>
-        <h2 style={{ fontSize: device === "mobile" ? 20 : 24, fontWeight: 700, margin: "0 0 16px" }}>Follow Us</h2>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          {links.map((l, i) => (
-            <span key={i} style={{ padding: "8px 16px", background: accent, color: "#fff", borderRadius: radius, fontSize: 13, fontWeight: 600 }}>{l.label}</span>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderSection = (sec) => {
-    switch (sec.type) {
-      case "hero": return renderHero();
-      case "about": return renderAbout();
-      case "gallery": return renderGallery();
-      case "services": return renderServices();
-      case "testimonials": return renderTestimonials();
-      case "banner": return renderBanner();
-      case "cta": return renderCTA();
-      case "contact": return renderContact();
-      case "hours": return renderHours();
-      case "social": return renderSocial();
-      default: return null;
+  useEffect(() => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'UPDATE_WEBSITE_CONFIG', config }, '*');
     }
-  };
+  }, [config]);
+
+  if (!slug) {
+    return <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>Salon slug not found</div>;
+  }
 
   return (
-    <div style={previewStyle}>
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", gap: 10, background: "#fff", position: "sticky", top: 0, zIndex: 10 }}>
-        {config.logoUrl ? <img src={config.logoUrl} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: "cover" }} /> : <div style={{ width: 28, height: 28, borderRadius: 6, background: accent, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 12 }}>{(config.salonName || "S")[0]}</div>}
-        <span style={{ fontWeight: 700, fontSize: 14 }}>{config.salonName || "Your Salon"}</span>
-      </div>
-      {enabledSections.length > 0 ? enabledSections.map(sec => (
-        <div key={sec.id}>{renderSection(sec)}</div>
-      )) : (
-        <div style={{ padding: 60, textAlign: "center", color: "#9ca3af" }}>Enable sections to see preview</div>
-      )}
-      <div style={{ padding: "20px 16px", background: textColor, color: "#fff", textAlign: "center", fontSize: 12 }}>
-        {config.footerText || `\u00A9 ${new Date().getFullYear()} ${config.salonName || "Salon"}. All rights reserved.`}
-      </div>
-    </div>
+    <iframe
+      ref={iframeRef}
+      src={`/site/${slug}?preview=true`}
+      style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
+      onLoad={(e) => {
+        if (e.target.contentWindow) {
+          e.target.contentWindow.postMessage({ type: 'UPDATE_WEBSITE_CONFIG', config }, '*');
+        }
+      }}
+      title="Live Preview"
+    />
   );
 }
 
@@ -400,7 +242,7 @@ export default function WebsiteEditorPage() {
     return (
       <>
         {sections.find(s => s.type === "hero")?.enabled && (
-          <SectionBlock icon="\u{1F3A8}" title="Hero Banner" badge="Main" defaultOpen={true}>
+          <SectionBlock icon="🎨" title="Hero Banner" badge="Main" defaultOpen={true}>
             <Field label="Headline"><Input value={config.heroTitle} onChange={v => update("heroTitle", v)} placeholder="Your headline here" /></Field>
             <Field label="Subtitle"><Textarea value={config.heroSubtitle} onChange={v => update("heroSubtitle", v)} placeholder="Your subtitle..." rows={2} /></Field>
             <ImageField label="Background Image" value={config.heroImage} onChange={v => update("heroImage", v)} hint="1920 x 800" />
@@ -416,7 +258,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "about")?.enabled && (
-          <SectionBlock icon="\u{2139}\uFE0F" title="About Us" defaultOpen={false}>
+          <SectionBlock icon="ℹ️" title="About Us" defaultOpen={false}>
             <Field label="Title"><Input value={config.aboutTitle} onChange={v => update("aboutTitle", v)} placeholder="About Our Salon" /></Field>
             <Field label="Description"><Textarea value={config.aboutDescription} onChange={v => update("aboutDescription", v)} rows={3} placeholder="Tell your story..." /></Field>
             <div className="we-row-2">
@@ -428,7 +270,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "gallery")?.enabled && (
-          <SectionBlock icon="\u{1F5BC}\uFE0F" title="Photo Gallery" badge={`${(config.galleryImages || []).length} photos`} defaultOpen={false}>
+          <SectionBlock icon="🖼️" title="Photo Gallery" badge={`${(config.galleryImages || []).length} photos`} defaultOpen={false}>
             <div className="we-gallery-grid">
               {(config.galleryImages || []).map((img, idx) => (
                 <div key={idx} className="we-gallery-thumb">
@@ -451,13 +293,13 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "services")?.enabled && (
-          <SectionBlock icon="\u{2728}" title="Featured Services" badge="Auto" defaultOpen={false}>
+          <SectionBlock icon="✨" title="Featured Services" badge="Auto" defaultOpen={false}>
             <div className="we-info-box">Auto-populated from services with 'Show on Website' enabled.</div>
           </SectionBlock>
         )}
 
         {sections.find(s => s.type === "testimonials")?.enabled && (
-          <SectionBlock icon="\u{2B50}" title="Client Reviews" badge={`${(config.testimonials || []).length}`} defaultOpen={false}>
+          <SectionBlock icon="⭐" title="Client Reviews" badge={`${(config.testimonials || []).length}`} defaultOpen={false}>
             {(config.testimonials || []).map((t, idx) => (
               <div key={idx} className="we-review-item">
                 <div className="we-review-header">
@@ -480,7 +322,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "banner")?.enabled && (
-          <SectionBlock icon="\u{1F4E3}" title="Promotional Banner" defaultOpen={false}>
+          <SectionBlock icon="📣" title="Promotional Banner" defaultOpen={false}>
             <Field label="Title"><Input value={config.bannerTitle} onChange={v => update("bannerTitle", v)} placeholder="Summer Sale!" /></Field>
             <Field label="Subtitle"><Textarea value={config.bannerSubtitle} onChange={v => update("bannerSubtitle", v)} rows={2} /></Field>
             <ImageField label="Banner Image" value={config.bannerImage} onChange={v => update("bannerImage", v)} hint="1200 x 500" />
@@ -492,7 +334,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "cta")?.enabled && (
-          <SectionBlock icon="\u{1F446}" title="Call to Action" defaultOpen={false}>
+          <SectionBlock icon="👆" title="Call to Action" defaultOpen={false}>
             <Field label="Title"><Input value={config.ctaTitle} onChange={v => update("ctaTitle", v)} placeholder="Ready to Transform?" /></Field>
             <Field label="Subtitle"><Textarea value={config.ctaSubtitle} onChange={v => update("ctaSubtitle", v)} rows={2} /></Field>
             <div className="we-row-2">
@@ -504,7 +346,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "contact")?.enabled && (
-          <SectionBlock icon="\u{1F4DE}" title="Contact Info" defaultOpen={false}>
+          <SectionBlock icon="📞" title="Contact Info" defaultOpen={false}>
             <Field label="Phone"><Input value={config.contactPhone} onChange={v => update("contactPhone", v)} placeholder="+91 98765 43210" /></Field>
             <Field label="Email"><Input value={config.contactEmail} onChange={v => update("contactEmail", v)} placeholder="info@salon.com" /></Field>
             <Field label="Address"><Textarea value={config.contactAddress} onChange={v => update("contactAddress", v)} rows={2} /></Field>
@@ -513,7 +355,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "hours")?.enabled && (
-          <SectionBlock icon="\u{23F0}" title="Business Hours" defaultOpen={false}>
+          <SectionBlock icon="⏰" title="Business Hours" defaultOpen={false}>
             {(config.businessHours || []).map((bh, idx) => (
               <div key={idx} className="we-hours-row">
                 <Input value={bh.day} onChange={v => { const c = [...config.businessHours]; c[idx] = { ...c[idx], day: v }; update("businessHours", c); }} placeholder="Monday" />
@@ -526,7 +368,7 @@ export default function WebsiteEditorPage() {
         )}
 
         {sections.find(s => s.type === "social")?.enabled && (
-          <SectionBlock icon="\u{1F310}" title="Social Links" defaultOpen={false}>
+          <SectionBlock icon="🌐" title="Social Links" defaultOpen={false}>
             <Field label="Instagram"><Input value={config.socialInstagram} onChange={v => update("socialInstagram", v)} placeholder="@salon" /></Field>
             <Field label="Facebook"><Input value={config.socialFacebook} onChange={v => update("socialFacebook", v)} placeholder="https://..." /></Field>
             <Field label="YouTube"><Input value={config.socialYoutube} onChange={v => update("socialYoutube", v)} placeholder="https://..." /></Field>
@@ -636,7 +478,7 @@ export default function WebsiteEditorPage() {
         </div>
         <div className={`we-preview-frame ${previewDevice === "mobile" ? "we-mobile-frame" : ""}`}>
           <div className="we-preview-inner" style={{ height: "100%", width: "100%", position: "relative" }}>
-            <LivePreview config={config} sections={sections} device={previewDevice} />
+            <LivePreview config={config} slug={slug} device={previewDevice} />
           </div>
         </div>
       </div>

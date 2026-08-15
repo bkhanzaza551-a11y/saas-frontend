@@ -36,6 +36,17 @@ export default function StorefrontLayout() {
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
   const branchDropdownRef = useRef(null);
   const location = useLocation();
+  const [previewConfig, setPreviewConfig] = useState(null);
+
+  useEffect(() => {
+    const handleMessage = (e) => {
+      if (e.data && e.data.type === 'UPDATE_WEBSITE_CONFIG') {
+        setPreviewConfig(e.data.config);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   useEffect(() => {
     // Show preloader on subpage navigation for 1.5 seconds
@@ -178,6 +189,8 @@ export default function StorefrontLayout() {
 
   if (!salon && !loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Salon not found</div>;
 
+  const activeSalon = salon ? { ...salon, websiteConfig: previewConfig || salon.websiteConfig } : null;
+
   return (
     <div className="storefront-wrapper">
       {/* Premium Preloader */}
@@ -195,82 +208,71 @@ export default function StorefrontLayout() {
               animation: "fadeIn 0.4s ease-out"
             }}>
               <div style={{ 
-                background: "linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98))", 
-                borderRadius: "24px", padding: "48px 40px", maxWidth: 540, width: "100%", 
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1)", 
+                background: "#ffffff", 
+                borderRadius: "16px", padding: "32px", maxWidth: 400, width: "100%", 
+                boxShadow: "0 20px 40px rgba(0,0,0,0.1)", 
                 textAlign: "center", position: "relative",
-                border: "1px solid rgba(255,255,255,0.05)",
+                border: "1px solid #e2e8f0",
                 transform: "translateY(0)",
                 animation: "slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
               }}>
                 {selectedBranchId && (
                   <button onClick={() => setShowBranchModal(false)} style={{ 
-                    position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.05)", 
-                    border: "none", cursor: "pointer", color: "#94a3b8", borderRadius: "50%",
-                    width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
+                    position: "absolute", top: 16, right: 16, background: "#f1f5f9", 
+                    border: "none", cursor: "pointer", color: "#64748b", borderRadius: "50%",
+                    width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
                     transition: "all 0.2s ease"
-                  }} onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; }} onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "#94a3b8"; }}>
-                    <X size={20} />
+                  }} onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#334155"; }} onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>
+                    <X size={18} />
                   </button>
                 )}
                 
-                <div style={{ marginBottom: 32 }}>
-                  <div style={{ width: 64, height: 64, margin: "0 auto 24px", background: "linear-gradient(135deg, #c8a97e, #b08d5c)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 25px -5px rgba(200, 169, 126, 0.4)" }}>
-                    <MapPin size={32} color="#fff" strokeWidth={1.5} />
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ width: 56, height: 56, margin: "0 auto 16px", background: "linear-gradient(135deg, #c8a97e, #b08d5c)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 25px -5px rgba(200, 169, 126, 0.4)" }}>
+                    <MapPin size={28} color="#fff" strokeWidth={1.5} />
                   </div>
-                  <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2.5rem", margin: "0 0 12px", color: "#f8fafc", letterSpacing: "-0.5px" }}>Welcome to <span style={{ color: "#c8a97e" }}>{salon.name}</span></h2>
-                  <p style={{ color: "#94a3b8", fontSize: "1.05rem", margin: 0, lineHeight: 1.6, fontWeight: 300 }}>Please select a sanctuary location to experience our premium services.</p>
+                  <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", margin: "0 0 8px", color: "#0f172a", letterSpacing: "-0.5px" }}>Welcome to <span style={{ color: "#c8a97e" }}>{salon.name}</span></h2>
+                  <p style={{ color: "#64748b", fontSize: "0.95rem", margin: 0, lineHeight: 1.5 }}>Please select a sanctuary location to experience our premium services.</p>
                 </div>
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {salon.branches.map((b, i) => (
-                    <div 
-                      key={b.id} 
-                      onClick={() => { setSelectedBranchId(b.id); setShowBranchModal(false); }} 
+                  <div style={{ textAlign: "left" }}>
+                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Select Branch</label>
+                    <select 
                       style={{ 
-                        padding: "20px 24px", borderRadius: "16px", 
-                        border: "1px solid", borderColor: selectedBranchId === b.id ? "#c8a97e" : "rgba(255,255,255,0.08)", 
-                        cursor: "pointer", transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", 
-                        background: selectedBranchId === b.id ? "rgba(200, 169, 126, 0.05)" : "rgba(255,255,255,0.02)", 
-                        textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between",
-                        animation: `fadeInUp 0.4s ease forwards ${i * 0.1}s`,
-                        opacity: 0,
-                        transform: "translateY(10px)"
+                        width: "100%", padding: "12px 16px", borderRadius: "8px", 
+                        border: "1px solid #cbd5e1", background: "#fff", fontSize: "1rem", 
+                        color: "#0f172a", outline: "none", cursor: "pointer", appearance: "auto"
                       }}
-                      onMouseEnter={e => { 
-                        if (selectedBranchId !== b.id) {
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; 
-                          e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-                          e.currentTarget.style.transform = "translateY(-2px)";
-                        }
-                      }}
-                      onMouseLeave={e => { 
-                        if (selectedBranchId !== b.id) {
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; 
-                          e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-                          e.currentTarget.style.transform = "translateY(0)";
-                        } else {
-                          e.currentTarget.style.transform = "translateY(0)";
+                      value={selectedBranchId || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          setSelectedBranchId(val);
                         }
                       }}
                     >
-                      <div>
-                        <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "#f8fafc", fontWeight: 500, letterSpacing: "0.5px" }}>
-                          {b.name} 
-                          {selectedBranchId === b.id && <span style={{ fontSize: "0.75rem", color: "#c8a97e", marginLeft: 12, padding: "2px 8px", background: "rgba(200, 169, 126, 0.1)", borderRadius: "12px", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>Active</span>}
-                        </h3>
-                        {b.address && <p style={{ margin: 0, color: "#64748b", fontSize: "0.9rem", lineHeight: 1.4, display: "flex", alignItems: "center", gap: 6 }}><MapPin size={14} /> {b.address}</p>}
-                      </div>
-                      <div style={{ 
-                        color: selectedBranchId === b.id ? "#c8a97e" : "#475569",
-                        transform: selectedBranchId === b.id ? "translateX(0)" : "translateX(-5px)",
-                        opacity: selectedBranchId === b.id ? 1 : 0.5,
-                        transition: "all 0.3s ease"
-                      }}>
-                        <ArrowRight size={20} strokeWidth={selectedBranchId === b.id ? 2.5 : 1.5} />
-                      </div>
-                    </div>
-                  ))}
+                      <option value="" disabled>Choose a location...</option>
+                      {salon.branches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name}{b.address ? ` - ${b.address}` : ""}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      if (selectedBranchId) setShowBranchModal(false);
+                    }}
+                    disabled={!selectedBranchId}
+                    style={{
+                      width: "100%", padding: "14px", borderRadius: "8px", border: "none",
+                      background: selectedBranchId ? "#c8a97e" : "#e2e8f0",
+                      color: selectedBranchId ? "#fff" : "#94a3b8",
+                      fontSize: "1rem", fontWeight: 600, cursor: selectedBranchId ? "pointer" : "not-allowed",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    Continue
+                  </button>
                 </div>
               </div>
             </div>
@@ -362,7 +364,7 @@ export default function StorefrontLayout() {
           <main style={{ flex: 1 }}>
             <StorefrontErrorBoundary>
               <Suspense fallback={null}>
-                <Outlet context={{ salon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId, setSelectedBranchId }} />
+                <Outlet context={{ salon: activeSalon, bookings, addBooking, removeBooking, updateBookingQty, updateBookingTime, clearBookings, bookingCount, selectedBranchId, setSelectedBranchId }} />
               </Suspense>
             </StorefrontErrorBoundary>
           </main>
@@ -370,8 +372,8 @@ export default function StorefrontLayout() {
           <footer className="sf-footer">
             <div className="sf-footer-grid">
               <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "16px", fontFamily: 'var(--font-serif)' }}>{salon.name}</h3>
-                <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "1rem" }}>{salon.websiteConfig?.aboutDescription || "Providing professional grooming and beauty services with uncompromising standards."}</p>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "16px", fontFamily: 'var(--font-serif)' }}>{activeSalon.name}</h3>
+                <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "1rem" }}>{activeSalon.websiteConfig?.aboutDescription || "Providing professional grooming and beauty services with uncompromising standards."}</p>
               </div>
               <div>
                 <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Quick Links</h4>
