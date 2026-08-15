@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Tag, Gift, Plus, Search, Edit2, Trash2, X, TrendingUp, DollarSign } from "lucide-react";
 import { api } from "../../api/client";
 import ModuleTabs from "../../components/ModuleTabs";
 import EmptyState from "../../components/EmptyState";
@@ -43,6 +44,7 @@ export default function CouponsPage() {
   const [couponSearch, setCouponSearch] = useState("");
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showGcModal, setShowGcModal] = useState(false);
 
   const handleEditCoupon = (c) => {
     setEditingCoupon(c);
@@ -172,6 +174,7 @@ export default function CouponsPage() {
       }
       setGiftCardForm(emptyGiftCard);
       setEditingGc(null);
+      setShowGcModal(false);
       await load();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not save gift card"), success: "" });
@@ -275,44 +278,96 @@ export default function CouponsPage() {
           { label: "Referral Program", to: "/admin/referral-coupons" },
           { label: "Reports", to: "/admin/coupons/reports" }
         ]}
-      />
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
-          <div>
-            <h1 style={{ marginTop: 0 }}>Coupons & Gift Cards</h1>
-            <p style={{ marginBottom: 0 }}>Manage promotions, vouchers, balances, and redemption performance without leaving the revenue workspace.</p>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexShrink: 0, alignItems: "center" }}>
-            <span style={{ padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#e0f2fe", color: "#0369a1", whiteSpace: "nowrap" }}>Coupons {coupons.length}</span>
-            <span style={{ padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#f0fdf4", color: "#15803d", whiteSpace: "nowrap" }}>Gift Cards {giftCards.length}</span>
+        actions={
+          <div style={{ display: "flex", gap: 10 }}>
             {mode === "coupons" && (
               <button 
+                type="button"
                 onClick={() => { setEditingCoupon(null); setCouponForm(defaultCouponForm); setStatus({ error: "", success: "" }); setShowModal(true); }}
-                className="cpn-btn cpn-btn-primary"
-                style={{ marginLeft: 8 }}
+                className="primary-button"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
               >
-                + Create Coupon
+                <Plus size={16} /> Create Coupon
+              </button>
+            )}
+            {mode === "giftCards" && (
+              <button 
+                type="button"
+                onClick={() => { setEditingGc(null); setGiftCardForm(emptyGiftCard); setStatus({ error: "", success: "" }); setShowGcModal(true); }}
+                className="primary-button"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Plus size={16} /> Create Gift Card
               </button>
             )}
           </div>
+        }
+      />
+
+      {/* Top 4 Summary Metrics */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Tag size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Active Coupons</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{coupons.filter(c => c.isActive).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {coupons.length} total</span></div>
+          </div>
+        </div>
+
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Gift size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Gift Cards</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{giftCards.filter(g => g.isActive).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {giftCards.length} active</span></div>
+          </div>
+        </div>
+
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <TrendingUp size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Redemptions</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{reports?.redemptions?.length || 0}</div>
+          </div>
+        </div>
+
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f3e8ff", color: "#9333ea", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <DollarSign size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Total Savings</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>₹{reports?.totalSavings || 0}</div>
+          </div>
         </div>
       </div>
+
       {status.error && <div className="panel-card"><p className="error-text">{status.error}</p></div>}
       {status.success && <div className="panel-card"><p className="success-text">{status.success}</p></div>}
       {loading && <PageLoader title="Loading promotions workspace" message="Bringing together coupon rules, gift card balances, and redemption insights." />}
 
       {!loading && mode === "coupons" && (
         <div className="anim-fade">
-          <div className="panel-card" style={{ padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "#0f172a" }}>Active Coupons</h2>
-              <input 
-                placeholder="Search coupons..." 
-                value={couponSearch} 
-                onChange={(e) => setCouponSearch(e.target.value)} 
-                className="cpn-input"
-                style={{ width: "300px", background: "#f8fafc" }}
-              />
+          <div className="panel-card" style={{ padding: "20px 24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Active Coupons</h3>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Promotions and vouchers available for checkout redemption.</div>
+              </div>
+              <div style={{ position: "relative" }}>
+                <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                <input 
+                  placeholder="Search coupons..." 
+                  value={couponSearch} 
+                  onChange={(e) => setCouponSearch(e.target.value)} 
+                  style={{ paddingLeft: 34, paddingRight: 14, paddingTop: 8, paddingBottom: 8, fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 8, outline: "none", width: 260, background: "#f8fafc" }}
+                />
+              </div>
             </div>
             
             <div className="table-container">
@@ -467,46 +522,22 @@ export default function CouponsPage() {
 
       {!loading && mode === "giftCards" && (
         <div className="anim-fade">
-          <div className="cpn-card" style={{ marginBottom: 24 }}>
-            <h3 style={{ marginTop: 0, marginBottom: 20, fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>
-              {editingGc ? "Edit Gift Card" : "Issue New Gift Card"}
-            </h3>
-            <form onSubmit={saveGiftCard}>
-              <div className="coupons-form-grid-1" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
-                <label>
-                  <span className="cpn-label">Code</span>
-                  <input className="cpn-input" placeholder="e.g. GC-2024-001" required value={giftCardForm.code} onChange={(e) => setGiftCardForm({ ...giftCardForm, code: e.target.value.toUpperCase() })} style={{ textTransform: "uppercase", fontWeight: 600 }} />
-                </label>
-                <label>
-                  <span className="cpn-label">Title</span>
-                  <input className="cpn-input" placeholder="e.g. Birthday Voucher" required value={giftCardForm.title} onChange={(e) => setGiftCardForm({ ...giftCardForm, title: e.target.value })} />
-                </label>
-                <label>
-                  <span className="cpn-label">Amount (₹)</span>
-                  <input className="cpn-input" type="number" min="1" placeholder="e.g. 1000" required value={giftCardForm.originalAmount} onChange={(e) => setGiftCardForm({ ...giftCardForm, originalAmount: e.target.value })} />
-                </label>
-                <label>
-                  <span className="cpn-label">Note (Optional)</span>
-                  <input className="cpn-input" placeholder="Internal note" value={giftCardForm.note} onChange={(e) => setGiftCardForm({ ...giftCardForm, note: e.target.value })} />
-                </label>
+          <div className="panel-card" style={{ padding: "20px 24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Gift Card Inventory</h3>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Issued vouchers and available customer credits.</div>
               </div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
-                {editingGc && <button type="button" className="cpn-btn cpn-btn-secondary" onClick={() => { setEditingGc(null); setGiftCardForm(emptyGiftCard); }}>Cancel Edit</button>}
-                <button type="submit" className="cpn-btn cpn-btn-primary">{editingGc ? "Update Gift Card" : "Create Gift Card"}</button>
+              <div style={{ position: "relative" }}>
+                <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                <input 
+                  placeholder="Search by code or title..." 
+                  value={gcSearch} 
+                  onChange={(e) => setGcSearch(e.target.value)} 
+                  style={{ paddingLeft: 34, paddingRight: 14, paddingTop: 8, paddingBottom: 8, fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 8, outline: "none", width: 260, background: "#f8fafc" }}
+                />
               </div>
-            </form>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 700, color: "#1e293b" }}>Gift Card Inventory</h2>
-            <input 
-              className="cpn-input" 
-              placeholder="Search by code or title..." 
-              value={gcSearch} 
-              onChange={(e) => setGcSearch(e.target.value)} 
-              style={{ width: "300px", background: "white", padding: "10px 16px" }} 
-            />
-          </div>
+            </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: 12, marginTop: 12 }}>
             {filteredGiftCards.map((gc) => {
@@ -548,7 +579,7 @@ export default function CouponsPage() {
                     </div>
                   )}
                   <div style={{ display: "flex", gap: 8, marginTop: 16, position: "relative", zIndex: 1 }}>
-                    <button onClick={() => { setEditingGc(gc); setGiftCardForm({ code: gc.code, title: gc.title, originalAmount: gc.originalAmount, note: gc.note || "" }); setStatus({ error: "", success: "" }); }} style={{ flex: 1, padding: "8px 0", fontSize: 13, background: gc.isActive ? "rgba(255,255,255,0.1)" : "#fff", border: `1px solid ${gc.isActive ? "rgba(255,255,255,0.2)" : "#cbd5e1"}`, borderRadius: 8, cursor: "pointer", color: gc.isActive ? "#fff" : "#3b82f6", fontWeight: 700, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = gc.isActive ? "rgba(255,255,255,0.2)" : "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = gc.isActive ? "rgba(255,255,255,0.1)" : "#fff"}>Edit</button>
+                    <button onClick={() => { setEditingGc(gc); setGiftCardForm({ code: gc.code, title: gc.title, originalAmount: gc.originalAmount, note: gc.note || "" }); setStatus({ error: "", success: "" }); setShowGcModal(true); }} style={{ flex: 1, padding: "8px 0", fontSize: 13, background: gc.isActive ? "rgba(255,255,255,0.1)" : "#fff", border: `1px solid ${gc.isActive ? "rgba(255,255,255,0.2)" : "#cbd5e1"}`, borderRadius: 8, cursor: "pointer", color: gc.isActive ? "#fff" : "#3b82f6", fontWeight: 700, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = gc.isActive ? "rgba(255,255,255,0.2)" : "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = gc.isActive ? "rgba(255,255,255,0.1)" : "#fff"}>Edit</button>
                     <button onClick={() => toggleGiftCardActive(gc)} style={{ flex: 1, padding: "8px 0", fontSize: 13, background: gc.isActive ? "rgba(255,255,255,0.1)" : "#f0fdf4", border: `1px solid ${gc.isActive ? "rgba(255,255,255,0.2)" : "#bbf7d0"}`, borderRadius: 8, cursor: "pointer", color: gc.isActive ? "#e2e8f0" : "#166534", fontWeight: 700, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = gc.isActive ? "rgba(255,255,255,0.2)" : "#dcfce7"} onMouseLeave={e => e.currentTarget.style.background = gc.isActive ? "rgba(255,255,255,0.1)" : "#f0fdf4"}>{gc.isActive ? "Deactivate" : "Activate"}</button>
                     <button onClick={() => deleteGiftCard(gc.id)} style={{ padding: "8px 12px", fontSize: 13, background: "transparent", border: `1px solid ${gc.isActive ? "rgba(248,113,113,0.3)" : "#fecaca"}`, borderRadius: 8, cursor: "pointer", color: gc.isActive ? "#fca5a5" : "#ef4444", fontWeight: 700, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = gc.isActive ? "rgba(248,113,113,0.15)" : "#fee2e2"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>&#x2715;</button>
                   </div>
@@ -556,23 +587,64 @@ export default function CouponsPage() {
               );
             })}
           </div>
-          {!filteredGiftCards.length && <EmptyState title="No gift cards found" message={gcSearch ? "No gift cards match your search." : "Create a gift card to issue vouchers for salon credit."} />}
+          </div>
+          {!filteredGiftCards.length && <EmptyState title="No gift cards found" message={gcSearch ? "No gift cards match your search." : "Click '+ Create Gift Card' to issue vouchers for salon credit."} />}
+        </div>
+      )}
+
+      {(showGcModal || editingGc) && (
+        <div className="modal-overlay" onClick={() => { setShowGcModal(false); setEditingGc(null); }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 540, width: "90vw" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a" }}>
+                  {editingGc ? "Edit Gift Card" : "Issue New Gift Card"}
+                </h2>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Create or update promotional gift card credit.</div>
+              </div>
+              <button onClick={() => { setShowGcModal(false); setEditingGc(null); }} type="button" className="modal-close-btn">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={saveGiftCard} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label className="cpn-label">Gift Card Code *</label>
+                <input className="cpn-input" placeholder="e.g. GC-2024-001" required value={giftCardForm.code} onChange={(e) => setGiftCardForm({ ...giftCardForm, code: e.target.value.toUpperCase() })} style={{ textTransform: "uppercase", fontWeight: 700, letterSpacing: 1 }} />
+              </div>
+
+              <div>
+                <label className="cpn-label">Gift Card Title *</label>
+                <input className="cpn-input" placeholder="e.g. Birthday Voucher" required value={giftCardForm.title} onChange={(e) => setGiftCardForm({ ...giftCardForm, title: e.target.value })} />
+              </div>
+
+              <div>
+                <label className="cpn-label">Credit Amount (₹) *</label>
+                <input className="cpn-input" type="number" min="1" placeholder="e.g. 1000" required value={giftCardForm.originalAmount} onChange={(e) => setGiftCardForm({ ...giftCardForm, originalAmount: e.target.value })} />
+              </div>
+
+              <div>
+                <label className="cpn-label">Internal Note (Optional)</label>
+                <input className="cpn-input" placeholder="Internal note..." value={giftCardForm.note} onChange={(e) => setGiftCardForm({ ...giftCardForm, note: e.target.value })} />
+              </div>
+
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                <button type="button" onClick={() => { setShowGcModal(false); setEditingGc(null); }} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14 }}>
+                  Cancel
+                </button>
+                <button type="submit" className="cpn-btn cpn-btn-primary" style={{ padding: "10px 24px" }}>
+                  {editingGc ? "Update Gift Card" : "Issue Gift Card"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
       {!loading && mode === "reports" && reports && (
         <div className="anim-fade">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20, marginBottom: 24 }}>
-            <div className="panel-card" style={{ padding: "32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#e0f2fe", color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>💰</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: 1 }}>Total Coupon Savings</div>
-              <div style={{ fontSize: "3rem", fontWeight: 800, color: "#0f172a", marginTop: 8 }}>₹{reports.totalSavings || 0}</div>
-              <div style={{ fontSize: "0.9rem", color: "#94a3b8", marginTop: 8 }}>Amount saved by customers via promotions</div>
-            </div>
-          </div>
-          
           <div className="panel-card" style={{ padding: 24 }}>
-            <h3 style={{ marginTop: 0, marginBottom: 20, fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>Redemption History</h3>
+            <h3 style={{ marginTop: 0, marginBottom: 18, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Redemption Audit History</h3>
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -584,8 +656,8 @@ export default function CouponsPage() {
                 <tbody>
                   {(reports.redemptions || []).map((row) => (
                     <tr key={row.id}>
-                      <td style={{ fontWeight: 700, color: "#4f46e5" }}>{row.coupon?.code || "-"}</td>
-                      <td style={{ fontWeight: 600, color: "#10b981" }}>₹{row.amountSaved}</td>
+                      <td style={{ fontWeight: 700, color: "#2563eb", letterSpacing: 0.5 }}>{row.coupon?.code || "-"}</td>
+                      <td style={{ fontWeight: 700, color: "#16a34a" }}>₹{row.amountSaved}</td>
                     </tr>
                   ))}
                   {!reports.redemptions?.length && (
