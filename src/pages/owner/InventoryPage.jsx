@@ -652,70 +652,85 @@ export default function InventoryPage() {
         {loading && <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 100 }}><PageLoader title="Loading..." /></div>}
         
         {activeTab === "Dashboard" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <h2 style={{ margin: 0, fontSize: "1.6rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Real-time stock analytics, purchase order tracking, and product performance.</div>
+            </div>
             
             {/* Top KPI Row */}
-            <div className="inventory-dashboard-kpis">
-              <div style={{ background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", borderRadius: 10, padding: "12px 16px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "none" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: "0.72rem", opacity: 0.9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Pending PO</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, marginTop: 2 }}>{pendingOrders}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Pending PO</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{pendingOrders}</div>
                 </div>
-                <ShoppingCart size={28} opacity={0.3} />
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#f3e8ff", color: "#9333ea", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <ShoppingCart size={22} />
+                </div>
               </div>
-              <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", borderRadius: 10, padding: "12px 16px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "none" }}>
+
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: "0.72rem", opacity: 0.9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Approved PO</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, marginTop: 2 }}>{approvedOrders}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Approved PO</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{approvedOrders}</div>
                 </div>
-                <CheckCircle size={28} opacity={0.3} />
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <CheckCircle size={22} />
+                </div>
               </div>
-              <div style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)", borderRadius: 10, padding: "12px 16px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "none" }}>
+
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: "0.72rem", opacity: 0.9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Rejected PO</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, marginTop: 2 }}>{rejectedOrders}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Rejected PO</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{rejectedOrders}</div>
                 </div>
-                <XCircle size={28} opacity={0.3} />
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#fef2f2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <XCircle size={22} />
+                </div>
               </div>
-              <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 10, padding: "12px 16px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "none", cursor: "pointer" }} onClick={() => { setActiveTab("Low Stock"); navigate("/admin/inventory/low-stock"); }}>
+
+              <div style={{ background: "#ffffff", border: lowStock.length > 0 ? "1px solid #fde68a" : "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", transition: "all 0.15s" }} onClick={() => { setActiveTab("Low Stock"); navigate("/admin/inventory/low-stock"); }}>
                 <div>
-                  <div style={{ fontSize: "0.72rem", opacity: 0.9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Min Stock Items</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, marginTop: 2 }}>{lowStock.length}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Min Stock Items</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: lowStock.length > 0 ? "#d97706" : "#0f172a", marginTop: 4 }}>{lowStock.length}</div>
                 </div>
-                <AlertTriangle size={28} opacity={0.3} />
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <AlertTriangle size={22} />
+                </div>
               </div>
             </div>
 
             {/* Summary Cards Row */}
-            <div className="inventory-summary-cards">
-              <div style={{ background: "white", borderRadius: 10, border: "1px solid #e2e8f0", padding: "16px", textAlign: "center" }}>
-                <h3 style={{ margin: "0 0 12px 0", fontSize: "0.85rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 700 }}>Inventory Summary</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
+              <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>Inventory Summary</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Stock In Hand</div>
-                    <div style={{ fontSize: "1.3rem", color: "#0f172a", fontWeight: 700, marginTop: 4 }}>{totalStock.toFixed(0)}</div>
+                  <div style={{ background: "#f8fafc", padding: "14px 16px", borderRadius: 10, border: "1px solid #f1f5f9" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Stock In Hand</div>
+                    <div style={{ fontSize: 22, color: "#0f172a", fontWeight: 800, marginTop: 4 }}>{totalStock.toFixed(0)}</div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Stock Yet To Be Received</div>
-                    <div style={{ fontSize: "1.3rem", color: "#0f172a", fontWeight: 700, marginTop: 4 }}>{stockYetToBeReceived}</div>
+                  <div style={{ background: "#f8fafc", padding: "14px 16px", borderRadius: 10, border: "1px solid #f1f5f9" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Incoming Stock</div>
+                    <div style={{ fontSize: 22, color: "#2563eb", fontWeight: 800, marginTop: 4 }}>{stockYetToBeReceived}</div>
                   </div>
                 </div>
               </div>
-              <div style={{ background: "white", borderRadius: 10, border: "1px solid #e2e8f0", padding: "16px", textAlign: "center" }}>
-                <h3 style={{ margin: "0 0 12px 0", fontSize: "0.85rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 700 }}>Product Summary</h3>
-                <div className="inventory-product-summary">
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Total Items</div>
-                    <div style={{ fontSize: "1.3rem", color: "#0f172a", fontWeight: 700, marginTop: 4 }}>{products.length}</div>
+
+              <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>Product Catalog Summary</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                  <div style={{ background: "#f8fafc", padding: "14px 12px", borderRadius: 10, border: "1px solid #f1f5f9", textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Total</div>
+                    <div style={{ fontSize: 20, color: "#0f172a", fontWeight: 800, marginTop: 4 }}>{products.length}</div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Active Items</div>
-                    <div style={{ fontSize: "1.3rem", color: "#10b981", fontWeight: 700, marginTop: 4 }}>{activeItems}</div>
+                  <div style={{ background: "#f0fdf4", padding: "14px 12px", borderRadius: 10, border: "1px solid #dcfce7", textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#166534", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Active</div>
+                    <div style={{ fontSize: 20, color: "#16a34a", fontWeight: 800, marginTop: 4 }}>{activeItems}</div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Inactive Items</div>
-                    <div style={{ fontSize: "1.3rem", color: "#ef4444", fontWeight: 700, marginTop: 4 }}>{products.length - activeItems}</div>
+                  <div style={{ background: "#fef2f2", padding: "14px 12px", borderRadius: 10, border: "1px solid #fee2e2", textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#991b1b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Inactive</div>
+                    <div style={{ fontSize: 20, color: "#dc2626", fontWeight: 800, marginTop: 4 }}>{products.length - activeItems}</div>
                   </div>
                 </div>
               </div>
@@ -723,34 +738,26 @@ export default function InventoryPage() {
 
             {/* Top Selling Items */}
             {topSelling.length > 0 && (
-              <div style={{ background: "white", borderRadius: 10, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-                <div style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-                  <h3 style={{ margin: 0, fontSize: "0.85rem", color: "#0f172a", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Top Selling Items</h3>
-                </div>
-                <div style={{ padding: "16px", display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center" }}>
-                  {topSelling.map((item) => (
-                    <div key={item.product?.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 120 }}>
-                      <div style={{
-                        width: 72, height: 72, borderRadius: 10,
-                        border: "1px solid #e2e8f0",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        background: "#f8fafc", overflow: "hidden"
-                      }}>
+              <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <h3 style={{ margin: "0 0 16px 0", fontSize: 14, color: "#0f172a", fontWeight: 700 }}>Top Selling Items</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 14 }}>
+                  {topSelling.map((item, idx) => (
+                    <div key={item.product?.id || idx} style={{ background: "#f8fafc", border: "1px solid #f1f5f9", borderRadius: 10, padding: 14, display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
+                      <div style={{ position: "absolute", top: 6, right: 8, fontSize: 10, fontWeight: 800, color: "#64748b", background: "#e2e8f0", padding: "2px 6px", borderRadius: 10 }}>#{idx + 1}</div>
+                      <div style={{ width: 44, height: 44, borderRadius: 10, border: "1px solid #cbd5e1", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
                         {item.product?.imageUrl ? (
                           <img src={item.product.imageUrl} alt={item.product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         ) : (
-                          <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="12" y="8" width="10" height="32" rx="3" stroke="#94a3b8" strokeWidth="2" fill="#e2e8f0"/>
-                            <rect x="26" y="14" width="8" height="26" rx="2" stroke="#94a3b8" strokeWidth="2" fill="#e2e8f0"/>
-                            <circle cx="30" cy="12" r="4" stroke="#94a3b8" strokeWidth="2" fill="#e2e8f0"/>
-                          </svg>
+                          <Package size={22} color="#64748b" />
                         )}
                       </div>
-                      <div style={{ marginTop: 8, fontSize: "0.75rem", color: "#0f172a", fontWeight: 600, textAlign: "center", lineHeight: 1.2 }}>
-                        {item.product?.name}
-                      </div>
-                      <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: 2 }}>
-                        {item.totalSold} {item.totalSold === 1 ? "item" : "items"} sold
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {item.product?.name || "Product"}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#2563eb", fontWeight: 600, marginTop: 2 }}>
+                          {item.totalSold} {item.totalSold === 1 ? "sold" : "sold"}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -758,32 +765,38 @@ export default function InventoryPage() {
               </div>
             )}
 
-            {/* Tables Row */}
-            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-              <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-                <h3 style={{ margin: 0, fontSize: "1rem", color: "#0f172a", fontWeight: 700 }}>Most Used Consumables</h3>
+            {/* Consumables Table */}
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", background: "#fff" }}>
+                <h3 style={{ margin: 0, fontSize: 14, color: "#0f172a", fontWeight: 700 }}>Most Used Consumables</h3>
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                <thead>
-                  <tr style={{ background: "#e0f2fe", color: "#0369a1", fontSize: "0.85rem", textTransform: "uppercase" }}>
-                    <th style={{ padding: "12px 24px", fontWeight: 600 }}>Product Name</th>
-                    <th style={{ padding: "12px 24px", fontWeight: 600 }}>Category</th>
-                    <th style={{ padding: "12px 24px", fontWeight: 600 }}>Total Consumed</th>
-                    <th style={{ padding: "12px 24px", fontWeight: 600 }}>Last Used</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mostUsedConsumables.map(m => (
-                    <tr key={m.product.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      <td style={{ padding: "14px 24px", fontSize: "0.9rem", color: "#334155", fontWeight: 500 }}>{m.product.name}</td>
-                      <td style={{ padding: "14px 24px", fontSize: "0.9rem", color: "#334155" }}>{m.product.category?.name || "Consumable"}</td>
-                      <td style={{ padding: "14px 24px", fontSize: "0.9rem", color: "#ef4444", fontWeight: 600 }}>{m.totalConsumed} {m.product.secondaryUnit || m.product.unit || ""}</td>
-                      <td style={{ padding: "14px 24px", fontSize: "0.9rem", color: "#64748b" }}>{new Date(m.lastUsed).toLocaleDateString()}</td>
+              <div className="table-container">
+                <table className="data-table" style={{ width: "100%" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: "12px 24px" }}>Product Name</th>
+                      <th style={{ padding: "12px 24px" }}>Category</th>
+                      <th style={{ padding: "12px 24px" }}>Total Consumed</th>
+                      <th style={{ padding: "12px 24px" }}>Last Used</th>
                     </tr>
-                  ))}
-                  {mostUsedConsumables.length === 0 && <tr><td colSpan="4" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No consumables used yet.</td></tr>}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {mostUsedConsumables.map(m => (
+                      <tr key={m.product.id}>
+                        <td style={{ padding: "12px 24px", fontWeight: 600, color: "#0f172a" }}>{m.product.name}</td>
+                        <td style={{ padding: "12px 24px", color: "#64748b" }}>{m.product.category?.name || "Consumable"}</td>
+                        <td style={{ padding: "12px 24px" }}>
+                          <span style={{ padding: "3px 8px", borderRadius: 12, background: "#fef2f2", color: "#dc2626", fontSize: 12, fontWeight: 700 }}>
+                            {m.totalConsumed} {m.product.secondaryUnit || m.product.unit || ""}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 24px", fontSize: 12, color: "#64748b" }}>{new Date(m.lastUsed).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                    {mostUsedConsumables.length === 0 && <tr><td colSpan="4" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No consumables used yet.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
