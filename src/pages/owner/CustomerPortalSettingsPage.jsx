@@ -62,7 +62,7 @@ export default function CustomerPortalSettingsPage() {
     login: `${appBaseUrl}/customer/login`,
     register: `${appBaseUrl}/customer/register`,
     profile: `${appBaseUrl}/customer/profile`,
-    publicBooking: slug ? `${appBaseUrl}/salon/${slug}/book` : `${appBaseUrl}/book`
+    publicBooking: slug ? `${appBaseUrl}/site/${slug}/collections` : `${appBaseUrl}/collections`
   }), [appBaseUrl, slug]);
 
   const copyToClipboard = (text, label) => {

@@ -92,7 +92,7 @@ export default function PosPage() {
   const [membershipSearch, setMembershipSearch] = useState("");
   const [serviceCategoryFilter, setServiceCategoryFilter] = useState("");
   const [productCategoryFilter, setProductCategoryFilter] = useState("");
-//   const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
+  const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [activeServiceInvoice, setActiveServiceInvoice] = useState(null);
@@ -1397,8 +1397,9 @@ export default function PosPage() {
     const discount = Number(form.discount || 0);
     const couponDiscount = Number(couponValidation?.totalDiscount || 0);
     const gcDiscount = Number(giftCardDiscount || 0);
-    const membershipWalletUsed = form.items.reduce((sum, item) => sum + Number(item.membershipWalletUsed || 0), 0);
-    const total = subtotal + itemTax - discount - couponDiscount - gcDiscount - membershipWalletUsed;
+    const total = isInclusive
+      ? subtotal - discount - couponDiscount - gcDiscount - membershipWalletUsed
+      : subtotal + itemTax - discount - couponDiscount - gcDiscount - membershipWalletUsed;
     const paid = form.payments.filter(p => p.mode !== "BALANCE" && p.mode !== "WALLET").reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
     return { subtotal, itemTax, total, paid, due: Math.max(0, total - paid), couponDiscount, gcDiscount, membershipWalletUsed };
   }, [form, getCatalogBasePrice, context.settings, couponValidation, giftCardDiscount]);
@@ -2269,7 +2270,7 @@ export default function PosPage() {
                       const newBalance = remaining;
                       if (newOnline > 0) fixedPayments.push({ mode: "ONLINE", amount: newOnline, note: "" });
                       if (targetAmt > 0) fixedPayments.push({ mode: "CASH", amount: targetAmt, note: "" });
-                      if (newBalance > 0) fixedPayments.push({ mode: "BALANCE", amount: targetAmt, note: "" });
+                      if (newBalance > 0) fixedPayments.push({ mode: "BALANCE", amount: newBalance, note: "" });
                       return { ...current, payments: fixedPayments };
                     });
                   }} />

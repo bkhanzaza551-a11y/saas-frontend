@@ -82,9 +82,9 @@ export default function CustomerPortalPage() {
 
   const portalContext = data?.portalContext || session?.customer || null;
   const storefrontSlug = portalContext?.storefrontSlug || portalContext?.salonSlug || "";
-  const bookingLink = storefrontSlug ? `/salon/${storefrontSlug}/book` : "";
-  const shopLink = storefrontSlug ? `/salon/${storefrontSlug}/shop` : "";
-  const catalogLink = storefrontSlug ? `/salon/${storefrontSlug}` : "";
+  const bookingLink = storefrontSlug ? `/site/${storefrontSlug}/collections` : "";
+  const shopLink = storefrontSlug ? `/site/${storefrontSlug}/collections` : "";
+  const catalogLink = storefrontSlug ? `/site/${storefrontSlug}` : "";
 
   const saveProfile = async (event) => {
     event.preventDefault();
