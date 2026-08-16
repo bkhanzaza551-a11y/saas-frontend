@@ -690,8 +690,8 @@ export default function DemoLeadsPage() {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <div style={{ background: "#f1f5f9", borderRadius: 10, padding: "12px 14px" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assign To</div>
+                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Assign To</div>
                     <CustomSelect
                       disabled={isConverted}
                       value={draft.assignedUserId}
@@ -702,12 +702,23 @@ export default function DemoLeadsPage() {
                       style={{ width: "100%" }}
                     >
                       <option value="">Unassigned</option>
-                      {staff.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
+                      {staff.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </CustomSelect>
                   </div>
-                  <div style={{ background: "#f1f5f9", borderRadius: 10, padding: "12px 14px" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Next Follow-Up Date</div>
-                    <input disabled={isConverted} type="datetime-local" value={draft.nextFollowUpAt} onChange={e => { updateDraft(row.id, "nextFollowUpAt", e.target.value); api.put(`/super-admin/demo-leads/${row.id}`, { nextFollowUpAt: e.target.value || null }).catch(console.error); }} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
+                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Next Follow-Up Date</div>
+                    <input 
+                      disabled={isConverted} 
+                      type="datetime-local" 
+                      value={draft.nextFollowUpAt} 
+                      onChange={e => { 
+                        updateDraft(row.id, "nextFollowUpAt", e.target.value); 
+                        api.put(`/super-admin/demo-leads/${row.id}`, { nextFollowUpAt: e.target.value || null }).catch(console.error); 
+                      }} 
+                      style={{ width: "100%", height: 38, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box", outline: "none", transition: "all 0.2s" }} 
+                      onFocus={e => e.target.style.borderColor = "#6366f1"}
+                      onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+                    />
                   </div>
                 </div>
 
