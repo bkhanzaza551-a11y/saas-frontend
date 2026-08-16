@@ -59,7 +59,8 @@ const emptyDraft = {
   trialDays: 30,
   reviewNote: "",
   meetingScheduledAt: "",
-  meetingLink: ""
+  meetingLink: "",
+  billingCycle: "monthly"
 };
 
 const emptyLeadForm = {
@@ -782,9 +783,32 @@ export default function DemoLeadsPage() {
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 4 }}>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
-                          <CustomSelect value={draft.planId} onChange={e => updateDraft(row.id, "planId", e.target.value)} options={plans.map(p => ({ label: `${p.name} (₹${p.monthlyPrice}/mo)`, value: p.id }))} />
+                        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+                          <div>
+                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
+                            <CustomSelect 
+                              value={draft.planId} 
+                              onChange={e => updateDraft(row.id, "planId", e.target.value)} 
+                              options={plans.map(p => {
+                                const isYearly = draft.billingCycle === "yearly";
+                                const priceText = isYearly 
+                                  ? `₹${p.yearlyPrice || (p.monthlyPrice * 10)}/yr` 
+                                  : `₹${p.monthlyPrice}/mo`;
+                                return { label: `${p.name} (${priceText})`, value: p.id };
+                              })} 
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Billing Cycle</label>
+                            <CustomSelect 
+                              value={draft.billingCycle || "monthly"} 
+                              onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} 
+                              options={[
+                                { label: "Monthly", value: "monthly" },
+                                { label: "Yearly", value: "yearly" }
+                              ]} 
+                            />
+                          </div>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                           <div>
