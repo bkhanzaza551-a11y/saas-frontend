@@ -341,10 +341,34 @@ export default function ManageCreditsPage() {
                     <td style={{ padding: "20px 28px", textAlign: "right" }}>
                       <div style={{ display: "inline-flex", gap: "8px", justifyContent: "flex-end", width: "100%" }}>
                         <button 
-                          style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: "10px", padding: "8px 14px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", whiteSpace: "nowrap" }} 
+                          disabled={salon.customWhatsappEnabled}
+                          style={{ 
+                            background: salon.customWhatsappEnabled ? "#f1f5f9" : "#fff", 
+                            border: "1px solid #cbd5e1", 
+                            color: salon.customWhatsappEnabled ? "#94a3b8" : "#475569", 
+                            borderRadius: "10px", 
+                            padding: "8px 14px", 
+                            fontSize: "0.85rem", 
+                            fontWeight: 700, 
+                            cursor: salon.customWhatsappEnabled ? "not-allowed" : "pointer", 
+                            transition: "all 0.2s", 
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.05)", 
+                            whiteSpace: "nowrap",
+                            opacity: salon.customWhatsappEnabled ? 0.6 : 1
+                          }} 
                           onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "" }); setAddCreditsModalOpen(true); }}
-                          onMouseOver={(e) => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#0f172a"; }}
-                          onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#475569"; }}
+                          onMouseOver={(e) => { 
+                            if (!salon.customWhatsappEnabled) {
+                              e.currentTarget.style.borderColor = "#94a3b8"; 
+                              e.currentTarget.style.color = "#0f172a"; 
+                            }
+                          }}
+                          onMouseOut={(e) => { 
+                            if (!salon.customWhatsappEnabled) {
+                              e.currentTarget.style.borderColor = "#cbd5e1"; 
+                              e.currentTarget.style.color = "#475569"; 
+                            }
+                          }}
                         >
                           Adjust
                         </button>
