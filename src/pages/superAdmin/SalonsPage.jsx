@@ -344,7 +344,7 @@ const [cityFilter, setCityFilter] = useState("");
                 value={query}
                 placeholder="Search salon by name, slug, email, phone..."
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ width: "100%", height: 42, padding: "0 14px 0 48px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                style={{ width: "100%", height: 42, padding: "10px 14px 10px 48px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                 onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
               />
