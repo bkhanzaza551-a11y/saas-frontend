@@ -537,6 +537,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/setup-password" element={<ResetPasswordPage />} />
         <Route element={<Protected />}>
           <Route path="/app" element={<OwnerRoute moduleKey="dashboard" element={<Home />} />} />
           <Route path="/admin/dashboard" element={<OwnerRoute moduleKey="dashboard" element={<OwnerDashboard />} />} />
