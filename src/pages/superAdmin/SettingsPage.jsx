@@ -336,16 +336,6 @@ export default function SuperAdminSettingsPage() {
                         <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                       </CustomSelect>
                     </Field>
-                    <Field label="Invoice Format">
-                      <CustomSelect value={form.invoiceFormat} onChange={e => setForm(p => ({ ...p, invoiceFormat: e.target.value }))}>
-                        <option value="standard">Standard A4</option>
-                        <option value="compact">Compact / Thermal</option>
-                        <option value="detailed">Detailed Itemized</option>
-                      </CustomSelect>
-                    </Field>
-                    <Field label="Demo Booking URL"><input style={inputStyle} {...f("demoBookingUrl")} placeholder="/book-demo" /></Field>
-                    <Field label="Terms URL"><input style={inputStyle} {...f("termsUrl")} placeholder="/terms" /></Field>
-                    <Field label="Privacy URL"><input style={inputStyle} {...f("privacyUrl")} placeholder="/privacy" /></Field>
                     <Field label="Blog Title" full><input style={inputStyle} {...f("blogTitle")} placeholder="SalonNest Blog" /></Field>
                   </div>
                 </div>
