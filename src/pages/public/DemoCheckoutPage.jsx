@@ -22,6 +22,8 @@ export default function DemoCheckoutPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [converted, setConverted] = useState(null);
+
   useEffect(() => {
     document.title = "Checkout & Subscribe | Salon Nest";
     api.get(`/public/demo-checkout-info/${leadId}/${planId}`)
@@ -32,7 +34,8 @@ export default function DemoCheckoutPage() {
       .catch((err) => {
         if (err?.response?.status === 409) {
           const userEmail = err.response.data?.email || "";
-          window.location.href = `/login?email=${encodeURIComponent(userEmail)}`;
+          setConverted({ email: userEmail });
+          setLoading(false);
           return;
         }
         setError(formatApiError(err, "Could not fetch checkout information. Please verify link details."));
@@ -67,7 +70,8 @@ export default function DemoCheckoutPage() {
         const status = orderErr?.response?.status;
         const msg = (orderErr?.response?.data?.message || "").toLowerCase();
         if (status === 409 || msg.includes("already_converted") || msg.includes("already converted")) {
-          window.location.href = `/login?email=${encodeURIComponent(info?.leadEmail || "")}`;
+          setConverted({ email: info?.leadEmail || "" });
+          setSubmitting(false);
           return;
         }
         if (status === 404 || msg.includes("not found")) {
@@ -85,7 +89,8 @@ export default function DemoCheckoutPage() {
         return;
       }
       if (res.data?.message === "ALREADY_CONVERTED") {
-        window.location.href = `/login?email=${encodeURIComponent(info?.leadEmail || "")}`;
+        setConverted({ email: info?.leadEmail || "" });
+        setSubmitting(false);
         return;
       }
       const order = res.data;
@@ -110,12 +115,13 @@ export default function DemoCheckoutPage() {
             const { setupToken, loginAccessToken, email, alreadyConverted } = verifyRes.data || {};
 
             if (alreadyConverted) {
-              window.location.href = `/login?email=${encodeURIComponent(email || info?.leadEmail || "")}`;
+              setConverted({ email: email || info?.leadEmail || "" });
+              setSubmitting(false);
               return;
             }
 
             if (setupToken && loginAccessToken && email) {
-              window.location.href = `/reset-password?token=${encodeURIComponent(setupToken)}&email=${encodeURIComponent(email)}&access=${encodeURIComponent(loginAccessToken)}`;
+              window.location.href = `/setup-password?token=${encodeURIComponent(setupToken)}&email=${encodeURIComponent(email)}&access=${encodeURIComponent(loginAccessToken)}`;
               return;
             }
 
@@ -125,7 +131,8 @@ export default function DemoCheckoutPage() {
             if (errMsg.includes("already belongs to an existing user") || errMsg.includes("already belongs to an existing")) {
               setError("This email is already registered. Please login with your existing account.");
             } else if (errMsg.includes("already converted") || errMsg.includes("alreadyConverted")) {
-              window.location.href = `/login?email=${encodeURIComponent(info?.leadEmail || "")}`;
+              setConverted({ email: info?.leadEmail || "" });
+              setSubmitting(false);
               return;
             } else if (errMsg.includes("not found")) {
               setError("This subscription link has expired. Please contact support for a new link.");
@@ -214,6 +221,37 @@ export default function DemoCheckoutPage() {
               message="Securing payment tunnel, loading plan limits, and configuring subscription checkout."
             />
           </div>
+        ) : converted ? (
+          <section className="demo-hero" style={{ justifyContent: "center", gridTemplateColumns: "1fr", maxWidth: 560, margin: "60px auto" }}>
+            <div style={{ padding: "48px 36px", borderRadius: 24, textAlign: "center", background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.06)", border: "1px solid #e2e8f0" }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", border: "2px solid #bbf7d0" }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <h2 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Account Already Active</h2>
+              <p style={{ margin: "0 0 24px", fontSize: 15, color: "#64748b", lineHeight: 1.6 }}>
+                Your salon workspace has already been set up and is ready to use.
+                {converted.email ? <><br/>Sign in with <strong style={{ color: "#0f172a" }}>{converted.email}</strong> to access your dashboard.</> : " Please sign in to access your dashboard."}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+                <Link
+                  to={`/login${converted.email ? `?email=${encodeURIComponent(converted.email)}` : ""}`}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 8,
+                    padding: "13px 36px", fontSize: 15, fontWeight: 700, color: "#fff",
+                    background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)",
+                    borderRadius: 10, textDecoration: "none",
+                    boxShadow: "0 4px 14px rgba(79, 70, 229, 0.3)",
+                    transition: "transform 0.15s",
+                  }}
+                >
+                  Sign In to Dashboard
+                </Link>
+                <Link to="/" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>
+                  ← Back to Home
+                </Link>
+              </div>
+            </div>
+          </section>
         ) : error && !info ? (
           <div style={{ maxWidth: 600, margin: "100px auto", textAlign: "center" }} className="panel-card">
             <h2 className="error-text" style={{ color: "#c2410c" }}>Checkout Error</h2>
