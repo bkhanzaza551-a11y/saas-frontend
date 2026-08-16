@@ -163,11 +163,25 @@ export default function CustomSelect({
   const updatePosition = () => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    setDropdownStyle({
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.left + window.scrollX,
-      width: rect.width
-    });
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const dropdownHeight = 250;
+    const shouldOpenUpward = spaceBelow < dropdownHeight && rect.top > dropdownHeight;
+
+    if (shouldOpenUpward) {
+      setDropdownStyle({
+        bottom: (document.documentElement.scrollHeight - (rect.top + window.scrollY)) + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        transformOrigin: "bottom center"
+      });
+    } else {
+      setDropdownStyle({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        transformOrigin: "top center"
+      });
+    }
   };
 
   useEffect(() => {
@@ -205,6 +219,7 @@ export default function CustomSelect({
         <div 
           ref={dropdownRef}
           className={`custom-select-dropdown ${isOpen ? "open" : ""}`}
+          style={{ transformOrigin: dropdownStyle.transformOrigin }}
         >
           {normalizedOptions.length === 0 ? (
             <div className="custom-select-option" style={{ color: "#94a3b8", justifyContent: "center" }}>
