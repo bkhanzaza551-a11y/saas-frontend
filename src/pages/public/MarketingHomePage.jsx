@@ -519,22 +519,14 @@ export default function MarketingHomePage() {
             </div>
             <div className="marketing-platform-grid">
               {[
-                { title: "Multi-Tenant Isolation", desc: "Each salon is logically isolated at the query level using secure client references." },
-                { title: "Secure JWT Authentication", desc: "Cryptographic access tokens ensure backend routers confirm actor role and permissions." },
-                { title: "RBAC + Feature Flags", desc: "Permissions, feature flags, and maintenance mode enforced on the backend." },
-                { title: "Branch-Aware Architecture", desc: "Services, products, invoices, and reports are branch-scoped for clean operations." }
+                { title: "Multi-Salon Control", desc: "Manage multiple branches, locations, and staff schedules cleanly from a single central console." },
+                { title: "Secure Staff Access", desc: "Ensure role-based logins to protect customer databases, billing history, and business reports." },
+                { title: "Flexible Feature Controls", desc: "Instantly toggle modules such as POS, Appointments, Inventory, and Payroll to suit your business needs." },
+                { title: "Consolidated Reports", desc: "View operations, sales pipeline, product orders, and financial invoices scoped cleanly by branch or overall business." }
               ].map((item, i) => (
                 <div key={i} style={{ background: "#f8fafc", borderRadius: 16, padding: 32, border: "1px solid #e2e8f0" }}>
                   <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>{item.title}</h3>
                   <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
-                </div>
-              ))}
-            </div>
-            <div className="marketing-platform-badges-grid" style={{ marginTop: 40 }}>
-              {[{ label: "Frontend", value: "React" }, { label: "Backend", value: "Node + Express" }, { label: "Database", value: "MySQL" }, { label: "Control", value: "RBAC + Tenancy" }].map((b, i) => (
-                <div key={i} style={{ background: "#0f172a", borderRadius: 12, padding: 20, textAlign: "center" }}>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>{b.label}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#14b8a6" }}>{b.value}</div>
                 </div>
               ))}
             </div>
