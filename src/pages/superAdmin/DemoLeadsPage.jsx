@@ -791,10 +791,11 @@ export default function DemoLeadsPage() {
                               onChange={e => updateDraft(row.id, "planId", e.target.value)} 
                               options={plans.map(p => {
                                 const isYearly = draft.billingCycle === "yearly";
-                                const priceText = isYearly 
-                                  ? `₹${p.yearlyPrice || (p.monthlyPrice * 10)}/yr` 
-                                  : `₹${p.monthlyPrice}/mo`;
-                                return { label: `${p.name} (${priceText})`, value: p.id };
+                                const priceVal = isYearly 
+                                  ? (p.yearlyPrice || (p.monthlyPrice * 10)) 
+                                  : p.monthlyPrice;
+                                const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/${isYearly ? "yr" : "mo"}`;
+                                return { label: `${p.name} — ${priceText}`, value: p.id };
                               })} 
                             />
                           </div>
