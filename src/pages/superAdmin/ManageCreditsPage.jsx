@@ -163,7 +163,25 @@ export default function ManageCreditsPage() {
   };
 
   return (
-    <div style={{ padding: "32px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+    <div className="manage-credits-container" style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+      <style>{`
+        .manage-credits-grid {
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 24px;
+          align-items: start;
+        }
+        @media (max-width: 1024px) {
+          .manage-credits-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .credits-table-wrapper {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      `}</style>
       {/* Header */}
       <div style={{ marginBottom: "36px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
@@ -177,7 +195,7 @@ export default function ManageCreditsPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "32px", alignItems: "start" }}>
+      <div className="manage-credits-grid">
         
         {/* Left Side: Packages & Costs */}
         <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
@@ -195,7 +213,7 @@ export default function ManageCreditsPage() {
                 <PlusCircle size={16} /> Create Package
               </button>
             </div>
-            <div style={{ padding: "0" }}>
+            <div className="credits-table-wrapper">
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                 <thead>
                   <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -283,7 +301,7 @@ export default function ManageCreditsPage() {
               />
             </div>
           </div>
-          <div style={{ padding: "0" }}>
+          <div className="credits-table-wrapper">
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
               <thead>
                 <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
