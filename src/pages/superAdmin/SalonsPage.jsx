@@ -332,85 +332,86 @@ const [cityFilter, setCityFilter] = useState("");
           </div>
         </div>
       </div>
-      <div style={{ background: "#fff", borderRadius: 16, padding: "24px 28px", marginBottom: 28, border: "1px solid #e2e8f0", boxShadow: "0 4px 16px -4px rgba(0, 0, 0, 0.06)" }}>
-        
-        {/* Search Bar Row */}
-        <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
-            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
-              <Search size={18} />
+      <div style={{ background: "#fff", borderRadius: 16, padding: "24px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 4px 20px -4px rgba(0, 0, 0, 0.05)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
+          {/* Top Row: Search and Action Buttons */}
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
+              <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+                <Search size={18} />
+              </div>
+              <input
+                value={query}
+                placeholder="Search salon by name, slug, email, phone..."
+                onChange={(e) => setQuery(e.target.value)}
+                style={{ width: "100%", height: 42, padding: "0 14px 0 40px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
+              />
             </div>
-            <input
-              value={query}
-              placeholder="Search salon, slug, email, phone..."
-              onChange={(e) => setQuery(e.target.value)}
-              style={{ width: "100%", height: 42, padding: "0 14px 0 40px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
-              onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#818cf8"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
-              onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
-            />
+            
+            <button 
+              type="button"
+              onClick={() => load(query, statusFilter, planFilter, cityFilter)} 
+              style={{ height: 42, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }}
+              onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }}
+              onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}
+            >
+              Apply Filters
+            </button>
+            
+            <button 
+              type="button"
+              onClick={() => { setQuery(""); setStatusFilter(""); setPlanFilter(""); setCityFilter(""); load("", "", "", ""); }} 
+              style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
+              onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
+              onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.color="#64748b"; }}
+            >
+              <Filter size={15} />
+              Reset
+            </button>
           </div>
-          
-          <button 
-            type="button"
-            onClick={() => load(query, statusFilter, planFilter, cityFilter)} 
-            style={{ height: 42, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }}
-            onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }}
-            onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}
-          >
-            Apply Filters
-          </button>
-          
-          <button 
-            type="button"
-            onClick={() => { setQuery(""); setStatusFilter(""); setPlanFilter(""); setCityFilter(""); }} 
-            style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
-            onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
-            onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.color="#64748b"; }}
-          >
-            <Filter size={15} />
-            Reset
-          </button>
-        </div>
 
-        {/* Dropdowns Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
-          <div>
-            <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</label>
-            <CustomSelect
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ width: "100%" }}
-            >
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="TRIAL">Trial</option>
-              <option value="SUSPENDED">Suspended</option>
-              <option value="EXPIRED">Expired</option>
-            </CustomSelect>
-          </div>
-          
-          <div>
-            <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Plan</label>
-            <CustomSelect
-              value={planFilter}
-              onChange={(e) => setPlanFilter(e.target.value)}
-              style={{ width: "100%" }}
-            >
-              <option value="">All Plans</option>
-              {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </CustomSelect>
-          </div>
-          
-          <div>
-            <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>City</label>
-            <input 
-              value={cityFilter} 
-              placeholder="Filter by city..." 
-              onChange={(e) => setCityFilter(e.target.value)} 
-              style={{ height: 40, padding: "0 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }}
-              onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }}
-              onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}
-            />
+          {/* Bottom Row: Detailed Selectors */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</label>
+              <CustomSelect
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ width: "100%" }}
+              >
+                <option value="">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="TRIAL">Trial</option>
+                <option value="SUSPENDED">Suspended</option>
+                <option value="EXPIRED">Expired</option>
+              </CustomSelect>
+            </div>
+            
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Plan</label>
+              <CustomSelect
+                value={planFilter}
+                onChange={(e) => setPlanFilter(e.target.value)}
+                style={{ width: "100%" }}
+              >
+                <option value="">All Plans</option>
+                {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </CustomSelect>
+            </div>
+            
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>City</label>
+              <input 
+                value={cityFilter} 
+                placeholder="Filter by city..." 
+                onChange={(e) => setCityFilter(e.target.value)} 
+                style={{ height: 42, padding: "0 12px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }}
+                onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; }}
+                onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}
+              />
+            </div>
           </div>
         </div>
       </div>

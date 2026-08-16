@@ -320,47 +320,49 @@ export default function ManageCreditsPage() {
                         {Number(salon.credits || 0).toLocaleString()}
                       </span>
                     </td>
-                    <td style={{ padding: "20px 28px", textAlign: "center", display: "flex", gap: "10px", justifyContent: "center" }}>
-                      <button 
-                        style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: "10px", padding: "8px 16px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }} 
-                        onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "" }); setAddCreditsModalOpen(true); }}
-                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#0f172a"; }}
-                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#475569"; }}
-                      >
-                        Adjust
-                      </button>
-                      <button 
-                        style={{ background: salon.customWhatsappEnabled ? "#10b981" : "#f1f5f9", border: "none", color: salon.customWhatsappEnabled ? "#fff" : "#475569", borderRadius: "10px", padding: "8px 16px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: salon.customWhatsappEnabled ? "0 2px 4px rgba(16, 185, 129, 0.2)" : "none" }} 
-                        onClick={() => {
-                          setCustomApiForm({
-                            salonId: salon.id,
-                            customWhatsappEnabled: salon.customWhatsappEnabled || false,
-                            customWhatsappToken: salon.customWhatsappToken || "",
-                            customWhatsappPhoneId: salon.customWhatsappPhoneId || "",
-                            customWhatsappAccountId: salon.customWhatsappAccountId || ""
-                          });
-                          setCustomApiModalOpen(true);
-                        }}
-                        onMouseOver={(e) => { 
-                          if (salon.customWhatsappEnabled) {
-                            e.currentTarget.style.transform = "translateY(-1px)";
-                          } else {
-                            e.currentTarget.style.background = "#e2e8f0";
-                            e.currentTarget.style.color = "#0f172a";
-                          }
-                        }}
-                        onMouseOut={(e) => { 
-                          if (salon.customWhatsappEnabled) {
-                            e.currentTarget.style.transform = "none";
-                          } else {
-                            e.currentTarget.style.background = "#f1f5f9";
-                            e.currentTarget.style.color = "#475569";
-                          }
-                        }}
-                        title="Configure Custom WhatsApp API"
-                      >
-                        API Settings
-                      </button>
+                    <td style={{ padding: "20px 28px", textAlign: "right" }}>
+                      <div style={{ display: "inline-flex", gap: "8px", justifyContent: "flex-end", width: "100%" }}>
+                        <button 
+                          style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: "10px", padding: "8px 14px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", whiteSpace: "nowrap" }} 
+                          onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "" }); setAddCreditsModalOpen(true); }}
+                          onMouseOver={(e) => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#0f172a"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#475569"; }}
+                        >
+                          Adjust
+                        </button>
+                        <button 
+                          style={{ background: salon.customWhatsappEnabled ? "#10b981" : "#f1f5f9", border: "none", color: salon.customWhatsappEnabled ? "#fff" : "#475569", borderRadius: "10px", padding: "8px 14px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: salon.customWhatsappEnabled ? "0 2px 4px rgba(16, 185, 129, 0.2)" : "none", whiteSpace: "nowrap" }} 
+                          onClick={() => {
+                            setCustomApiForm({
+                              salonId: salon.id,
+                              customWhatsappEnabled: salon.customWhatsappEnabled || false,
+                              customWhatsappToken: salon.customWhatsappToken || "",
+                              customWhatsappPhoneId: salon.customWhatsappPhoneId || "",
+                              customWhatsappAccountId: salon.customWhatsappAccountId || ""
+                            });
+                            setCustomApiModalOpen(true);
+                          }}
+                          onMouseOver={(e) => { 
+                            if (salon.customWhatsappEnabled) {
+                              e.currentTarget.style.transform = "translateY(-1px)";
+                            } else {
+                              e.currentTarget.style.background = "#e2e8f0";
+                              e.currentTarget.style.color = "#0f172a";
+                            }
+                          }}
+                          onMouseOut={(e) => { 
+                            if (salon.customWhatsappEnabled) {
+                              e.currentTarget.style.transform = "none";
+                            } else {
+                              e.currentTarget.style.background = "#f1f5f9";
+                              e.currentTarget.style.color = "#475569";
+                            }
+                          }}
+                          title="Configure Custom WhatsApp API"
+                        >
+                          API Settings
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
