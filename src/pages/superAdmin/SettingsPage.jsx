@@ -11,11 +11,10 @@ const TABS = [
   { id: "business",      label: "Business & Tax",        icon: CreditCard },
   { id: "comms",         label: "Communications",         icon: MessageSquare },
   { id: "notifications", label: "Notifications",         icon: MessageSquare },
-  { id: "templates",     label: "Message Templates",     icon: MessageSquare },
   { id: "integrations",  label: "Integrations",          icon: MessageSquare },
   { id: "policy",        label: "Subscription Policies",  icon: CreditCard },
   { id: "security",      label: "Security",               icon: Shield },
-  { id: "maintenance",   label: "Maintenance & Audit",    icon: AlertTriangle }
+  { id: "maintenance",   label: "Maintenance",            icon: AlertTriangle }
 ];
 
 const Toggle = ({ value, onChange, label }) => (
@@ -439,11 +438,9 @@ export default function SuperAdminSettingsPage() {
                       <Toggle value={form.notifyRequests} onChange={v => setForm(p => ({ ...p, notifyRequests: v }))} label="System Requests" />
                     </div>
                   </div>
-                </div>
-              )}
 
-              {activeTab === "templates" && (
-                <div>
+                  <div style={{ height: 1, background: "#e2e8f0", margin: "32px 0 24px 0" }} />
+
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Message Templates</h3>
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Manage templates for system notifications (Email, SMS, WhatsApp).</p>
@@ -623,8 +620,8 @@ export default function SuperAdminSettingsPage() {
               {activeTab === "maintenance" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Maintenance & Audit Log</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control maintenance mode and review platform-wide activity history.</p>
+                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Maintenance Mode</h3>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control maintenance mode and manage backup exports.</p>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
                     <Toggle value={form.maintenanceMode} onChange={v => setForm(p => ({ ...p, maintenanceMode: v }))} label="Enable Maintenance Mode - locks out all salon owners" />
@@ -633,7 +630,7 @@ export default function SuperAdminSettingsPage() {
                     </Field>
                   </div>
                   
-                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>System Data & Backup Export</h4>
                       <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Export platform configuration settings, policies, and system metadata as JSON dump.</p>
@@ -653,51 +650,6 @@ export default function SuperAdminSettingsPage() {
                     >
                       Export System Backup
                     </button>
-                  </div>
-
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Platform Audit Log</h4>
-                      <button type="button" onClick={loadAuditLogs} style={{ padding: "6px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#64748b" }}>Refresh</button>
-                    </div>
-                    {auditLoading ? (
-                      <div style={{ textAlign: "center", padding: 40, color: "#94a3b8", fontSize: 13 }}>Loading audit logs...</div>
-                    ) : auditLogs.length === 0 ? (
-                      <EmptyState title="No audit events" message="Platform activity will appear here." />
-                    ) : (
-                      <div style={{ maxHeight: 300, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
-                        {auditLogs.map((log) => {
-                          const mc = LOG_TYPE_COLORS[log.type] || LOG_TYPE_COLORS.default;
-                          const changes = log.meta?.changes ? Object.entries(log.meta.changes).filter(([, v]) => v && typeof v === "object" && "from" in v) : [];
-                          return (
-                            <div key={log.id} style={{ padding: "10px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #f1f5f9" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700, whiteSpace: "nowrap", background: mc.bg, color: mc.color }}>
-                                  {(log.type || "EVENT").replace(/_/g, " ")}
-                                </span>
-                                <span style={{ fontSize: 13, color: "#334155", flex: 1 }}>{log.action}</span>
-                                <span style={{ fontSize: 11, color: "#94a3b8", whiteSpace: "nowrap" }}>
-                                  {new Date(log.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                                </span>
-                              </div>
-                              <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>by <strong>{log.actorName || "System"}</strong>{log.salonName !== "Global" ? ` • ${log.salonName}` : ""}</div>
-                              {changes.length > 0 && (
-                                <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 4 }}>
-                                  {changes.slice(0, 4).map(([key, c]) => (
-                                    <div key={key} style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 8 }}>
-                                      <span style={{ fontWeight: 700, color: "#475569", minWidth: 90 }}>{key}</span>
-                                      <span style={{ color: "#b91c1c", background: "#fef2f2", padding: "1px 6px", borderRadius: 4 }}>{c.from === null || c.from === undefined || c.from === "" ? "—" : JSON.stringify(c.from)}</span>
-                                      <span style={{ color: "#94a3b8" }}>→</span>
-                                      <span style={{ color: "#065f46", background: "#ecfdf5", padding: "1px 6px", borderRadius: 4 }}>{c.to === null || c.to === undefined || c.to === "" ? "—" : JSON.stringify(c.to)}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
