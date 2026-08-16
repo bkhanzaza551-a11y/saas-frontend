@@ -246,7 +246,7 @@ export default function HomePage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', color: '#ffffff' }}>
                 <Clock size={24} style={{ color: 'rgba(255,255,255,0.5)', marginTop: '2px' }} />
-                <span style={{ fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.6 }}>Mon - Fri: 9:00 AM - 8:00 PM<br/>Sat - Sun: 10:00 AM - 6:00 PM</span>
+                <span style={{ fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.6 }}>{wc.businessHours || "Mon - Sat: 10:00 AM - 08:00 PM | Sunday: 11:00 AM - 06:00 PM"}</span>
               </div>
             </div>
           </div>
