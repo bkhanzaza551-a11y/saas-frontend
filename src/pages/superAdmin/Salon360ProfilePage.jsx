@@ -105,12 +105,17 @@ export default function Salon360ProfilePage() {
   const handleExport = async (type) => {
     setBusyAction(`export-${type}`);
     try {
-      const res = await api.get(`/super-admin/export-${type}`, { params: { salonId: id } });
-      const blob = new Blob([res.data.csv || ""], { type: "text/csv" });
+      const res = await api.get(`/super-admin/salons/${id}/export/${type}`, { responseType: "blob" });
+      const blob = new Blob([res.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = `${type}-${data?.salon?.slug || id}.csv`; a.click();
+      a.href = url;
+      a.download = `${type}-${data?.salon?.slug || id}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       URL.revokeObjectURL(url);
+      setStatus({ success: `Exported ${type} successfully!`, error: "" });
     } catch (err) {
       setStatus({ error: formatApiError(err, `Failed to export ${type}`), success: "" });
     } finally {

@@ -533,6 +533,7 @@ export default function App() {
         <Route path="/platform" element={<MarketingHomePage />} />
         <Route path="/book-demo" element={<PublicDemoLeadPage />} />
         <Route path="/demo-checkout/:leadId/:planId" element={<DemoCheckoutPage />} />
+        <Route path="/demo/pay" element={<Navigate to="/pricing" replace />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
