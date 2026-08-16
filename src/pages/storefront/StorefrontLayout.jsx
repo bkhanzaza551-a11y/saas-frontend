@@ -42,6 +42,12 @@ export default function StorefrontLayout() {
     const handleMessage = (e) => {
       if (e.data && e.data.type === 'UPDATE_WEBSITE_CONFIG') {
         setPreviewConfig(e.data.config);
+        const accent = e.data.config?.primaryColor;
+        if (accent) {
+          document.documentElement.style.setProperty("--accent", accent);
+          document.documentElement.style.setProperty("--accent-hover", accent);
+          document.documentElement.style.setProperty("--sf-accent", accent);
+        }
       }
     };
     window.addEventListener('message', handleMessage);
@@ -139,6 +145,7 @@ export default function StorefrontLayout() {
       return [...prev, {
         serviceId: service.id, name: service.name, price: service.salePrice || service.price,
         duration: service.durationMin, imageUrl: service.imageUrl, date, time, qty: 1,
+        staffId: service.staffId || null, staffName: service.staffName || null,
         branchId: selectedBranchId, createdAt: Date.now(),
       }];
     });
@@ -378,8 +385,7 @@ export default function StorefrontLayout() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
                 <p style={{ margin: 0 }}>&copy; {new Date().getFullYear()} {salon.name}. All rights reserved.</p>
                 <div style={{ display: "flex", gap: "24px" }}>
-                  <span style={{ cursor: 'pointer', transition: 'var(--transition)' }}>Terms of Service</span>
-                  <span style={{ cursor: 'pointer', transition: 'var(--transition)' }}>Privacy Policy</span>
+                  <Link to={`/site/${slug}/privacy`} style={{ color: "inherit", textDecoration: "none", transition: "var(--transition)" }}>Terms & Privacy</Link>
                 </div>
               </div>
             </div>

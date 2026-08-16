@@ -50,6 +50,7 @@ export default function CheckoutPage() {
             preferredDate: booking.date,
             preferredTime: booking.time,
             staffId: booking.staffId || null,
+            branchId: booking.branchId || null,
             note: form.note || undefined,
             paymentMode: form.paymentMode, 
           };

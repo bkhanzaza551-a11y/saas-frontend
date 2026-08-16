@@ -89,19 +89,19 @@ export default function EcommerceOrdersPage() {
 
   const activeTab = useMemo(() => {
     const path = location.pathname;
-    if (path.endsWith("/pending"))     return "NEW";
-    if (path.endsWith("/confirmed"))   return "ACCEPTED";
-    if (path.endsWith("/in-progress")) return "READY";
-    if (path.endsWith("/completed"))   return "COMPLETED";
-    if (path.endsWith("/cancelled"))   return "CANCELLED";
+    if (path.endsWith("/new") || path.endsWith("/pending")) return "NEW";
+    if (path.endsWith("/accepted") || path.endsWith("/confirmed")) return "ACCEPTED";
+    if (path.endsWith("/ready") || path.endsWith("/in-progress")) return "READY";
+    if (path.endsWith("/completed")) return "COMPLETED";
+    if (path.endsWith("/cancelled")) return "CANCELLED";
     return "ALL";
   }, [location.pathname]);
 
   const tabPath = (t) => {
     if (t === "ALL") return "/admin/order-dashboard";
-    if (t === "NEW") return "/admin/order-dashboard/pending";
-    if (t === "ACCEPTED") return "/admin/order-dashboard/confirmed";
-    if (t === "READY") return "/admin/order-dashboard/in-progress";
+    if (t === "NEW") return "/admin/order-dashboard/new";
+    if (t === "ACCEPTED") return "/admin/order-dashboard/accepted";
+    if (t === "READY") return "/admin/order-dashboard/ready";
     if (t === "COMPLETED") return "/admin/order-dashboard/completed";
     if (t === "CANCELLED") return "/admin/order-dashboard/cancelled";
     return "/admin/order-dashboard";
