@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
 import { Scissors, Sparkles, Star, Clock, MapPin, Phone, ArrowRight, User } from "lucide-react";
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const { salon, selectedBranchId } = useOutletContext();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +120,7 @@ export default function HomePage() {
           <>
             <div className="sf-services-grid">
               {services.map(service => (
-                <div key={service.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
+                <div key={service.id} className="sf-service-card" onClick={() => navigate(`/site/${salon.slug}/service/${service.id}`)}>
                   {service.imageUrl ? (
                     <img src={service.imageUrl} alt={service.name} style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', marginBottom: 24, border: '1px solid var(--border)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} />
                   ) : (

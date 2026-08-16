@@ -71,7 +71,7 @@ export default function BookingConfirmationPage() {
                   <span style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--accent)', background: 'rgba(200, 169, 126, 0.1)', padding: '6px 16px', borderRadius: '100px' }}>{orderNumber}</span>
                 </div>
                 
-                {booking?.startAt && (
+                {(booking?.serviceInfo?.preferredDate || booking?.startAt) && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-main)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
                       <CalendarDays size={24} strokeWidth={1.5} />
@@ -79,7 +79,10 @@ export default function BookingConfirmationPage() {
                     <div>
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 4 }}>Date & Time</div>
                       <div style={{ color: 'var(--text-main)', fontSize: '1.1rem', fontWeight: 500 }}>
-                        {new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })} at {new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        {booking?.serviceInfo?.preferredDate 
+                          ? `${booking.serviceInfo.preferredDate} at ${booking.serviceInfo.preferredTime || ""}`
+                          : `${new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })} at ${new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                        }
                       </div>
                     </div>
                   </div>

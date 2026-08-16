@@ -64,11 +64,17 @@ export default function ServiceDetailPage() {
     if (!selectedDate || !salon?.slug || !salon?.branches?.length) { setBookedSlots([]); return; }
     setCheckingSlots(true);
     const branchId = selectedBranchId || salon.branches[0]?.id;
-    api.get(`/public/salon/${salon.slug}/booked-slots`, { params: { branchId, date: selectedDate } })
+    api.get(`/public/salon/${salon.slug}/booked-slots`, { 
+      params: { 
+        branchId, 
+        date: selectedDate,
+        staffId: selectedStaff?.id || undefined 
+      } 
+    })
       .then(res => setBookedSlots(res.data?.bookedSlots || []))
       .catch(() => setBookedSlots([]))
       .finally(() => setCheckingSlots(false));
-  }, [selectedDate, salon?.slug, salon?.branches, selectedBranchId]);
+  }, [selectedDate, salon?.slug, salon?.branches, selectedBranchId, selectedStaff?.id]);
 
   if (loading) {
     return (
@@ -101,9 +107,12 @@ export default function ServiceDetailPage() {
 
   const isSlotBooked = (time) => {
     if (!bookedSlots.length || !time || !selectedDate) return false;
-    const userStartMs = new Date(`${selectedDate}T${time}:00`).getTime();
+    const userStartMs = new Date(`${selectedDate}T${time}:00Z`).getTime();
     const userEndMs = userStartMs + (service.durationMin || 30) * 60000;
     return bookedSlots.some(slot => {
+      if (selectedStaff?.id && slot.staffId && String(slot.staffId) !== String(selectedStaff.id)) {
+        return false;
+      }
       const slotStart = new Date(slot.startAt).getTime();
       const slotEnd = new Date(slot.endAt).getTime();
       return userStartMs < slotEnd && userEndMs > slotStart;
@@ -353,7 +362,7 @@ export default function ServiceDetailPage() {
                 const sPrice = Number(s.salePrice && Number(s.salePrice) < Number(s.price) ? s.salePrice : s.price);
                 const sHasSale = s.salePrice && Number(s.salePrice) < Number(s.price);
                 return (
-                  <div key={s.id} className="sf-service-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${s.id}`}>
+                  <div key={s.id} className="sf-service-card" onClick={() => navigate(`/site/${salon.slug}/service/${s.id}`)}>
                     <div className="sf-service-img-wrapper">
                       <img src={s.imageUrl || FALLBACK_IMG} alt={s.name} className="sf-service-img" />
                     </div>

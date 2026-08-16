@@ -55,9 +55,10 @@ export default function CustomerPortalPage() {
         });
       }
       if (route.key === "appointmentDetail") {
+        const toLocalDatetime = (d) => d ? new Date(new Date(d).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
         setRescheduleForm({
-          startAt: response.data?.startAt ? new Date(response.data.startAt).toISOString().slice(0, 16) : "",
-          endAt: response.data?.endAt ? new Date(response.data.endAt).toISOString().slice(0, 16) : "",
+          startAt: toLocalDatetime(response.data?.startAt),
+          endAt: toLocalDatetime(response.data?.endAt),
           note: ""
         });
       }
