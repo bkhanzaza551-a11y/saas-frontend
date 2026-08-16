@@ -162,14 +162,16 @@ export default function FinancialReportsPage() {
             <h1 style={{ marginTop: 0 }}>Finance</h1>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Revenue, transactions, and payment tracking</p>
           </div>
-          <button onClick={() => setIsRecordOpen(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-            <Plus size={16} /> Record Payment
-          </button>
-          {transactions.length > 0 && (
-            <button onClick={() => exportCsv(transactions)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "white", color: "#475569", border: "1px solid #e2e8f0", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-              <Download size={16} /> Export CSV
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button onClick={() => setIsRecordOpen(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+              <Plus size={16} /> Record Payment
             </button>
-          )}
+            {transactions.length > 0 && (
+              <button onClick={() => exportCsv(transactions)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "white", color: "#475569", border: "1px solid #e2e8f0", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                <Download size={16} /> Export CSV
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
