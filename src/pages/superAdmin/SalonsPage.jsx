@@ -337,16 +337,16 @@ const [cityFilter, setCityFilter] = useState("");
           {/* Top Row: Search and Action Buttons */}
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
-              <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <div style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#64748b", display: "flex", pointerEvents: "none" }}>
                 <Search size={18} />
               </div>
               <input
                 value={query}
                 placeholder="Search salon by name, slug, email, phone..."
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ width: "100%", height: 42, padding: "0 14px 0 40px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                style={{ width: "100%", height: 42, padding: "0 14px 0 48px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
-                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
+                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
               />
             </div>
             
