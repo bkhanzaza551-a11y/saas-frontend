@@ -9,10 +9,12 @@ export default function ManageCreditsPage() {
   const { showAlert } = useAlert();
   const [salons, setSalons] = useState([]);
   const [packages, setPackages] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [costs, setCosts] = useState({ whatsappCreditCost: 1, smsCreditCost: 1 });
   const [loading, setLoading] = useState(true);
   const [savingCosts, setSavingCosts] = useState(false);
-  
+  const [costsModalOpen, setCostsModalOpen] = useState(false);
+
   // Package modal
   const [pkgModalOpen, setPkgModalOpen] = useState(false);
   const [pkgForm, setPkgForm] = useState({ id: "", name: "", credits: "", price: "", currency: "INR" });
@@ -40,14 +42,16 @@ export default function ManageCreditsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [salonsRes, pkgsRes, costsRes] = await Promise.all([
+      const [salonsRes, pkgsRes, costsRes, txsRes] = await Promise.all([
         api.get("/super-admin/credits/salons"),
         api.get("/super-admin/credits/packages"),
-        api.get("/super-admin/credits/costs")
+        api.get("/super-admin/credits/costs"),
+        api.get("/super-admin/credits/transactions").catch(() => ({ data: [] }))
       ]);
       setSalons(salonsRes.data || []);
       setPackages(pkgsRes.data || []);
       setCosts(costsRes.data || { whatsappCreditCost: 1, smsCreditCost: 1 });
+      setTransactions(txsRes.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -99,7 +103,7 @@ export default function ManageCreditsPage() {
     try {
       setSavingCosts(true);
       await api.post("/super-admin/credits/costs", costs);
-      alert("Costs updated successfully");
+      setCostsModalOpen(false);
       fetchData();
     } catch (err) {
       alert("Failed to update costs");
@@ -129,6 +133,11 @@ export default function ManageCreditsPage() {
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (s.email && s.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const completedTxs = transactions.filter(t => t.status === "COMPLETED" && t.packageName !== "MANUAL_ADD");
+  const totalPurchased = completedTxs.length;
+  const totalRevenue = completedTxs.reduce((sum, t) => sum + (t.amountPaidPaise || 0) / 100, 0);
+  const customApiCount = salons.filter(s => s.customWhatsappEnabled).length;
 
   if (loading) return <PageLoader title="Loading Credit Hub" />;
 
@@ -163,143 +172,121 @@ export default function ManageCreditsPage() {
   };
 
   return (
-    <div className="manage-credits-container" style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+    <div className="manage-credits-container" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
       <style>{`
-        .manage-credits-grid {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 24px;
-          align-items: start;
-        }
-        @media (max-width: 1024px) {
-          .manage-credits-grid {
-            grid-template-columns: 1fr;
-          }
-        }
         .credits-table-wrapper {
           width: 100%;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
         }
+        .kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin-bottom: 28px;
+        }
+        .packages-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+          margin-bottom: 28px;
+        }
+        @media (max-width: 768px) {
+          .kpi-grid {
+            grid-template-columns: 1fr;
+          }
+        }
       `}</style>
+
       {/* Header */}
-      <div style={{ marginBottom: "36px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
         <div>
-          <h1 style={{ fontSize: "32px", fontWeight: "800", color: "#0f172a", margin: "0 0 8px", display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", padding: "12px", borderRadius: "14px", boxShadow: "0 4px 10px rgba(16, 185, 129, 0.2)" }}>
-              <CreditCard size={28} />
+          <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#0f172a", margin: "0 0 4px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", padding: "10px", borderRadius: "12px", display: "flex" }}>
+              <CreditCard size={24} />
             </div>
             WhatsApp Credits
           </h1>
-          <p style={{ margin: 0, color: "#64748b", fontSize: "16px", fontWeight: 500 }}>Manage communication credits, configure pricing, and monitor salon usage.</p>
+          <p style={{ margin: 0, color: "#64748b", fontSize: "0.95rem", fontWeight: 500 }}>Manage communication credits, configure pricing, and monitor salon usage.</p>
+        </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <button 
+            onClick={() => setCostsModalOpen(true)}
+            style={{ height: 42, padding: "0 18px", background: "white", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.background = "#f8fafc"; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.background = "white"; }}
+          >
+            <MessageSquare size={16} /> Configure Cost
+          </button>
+          <button 
+            onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "", currency: "INR" }); setPkgModalOpen(true); }}
+            style={{ height: 42, padding: "0 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 8, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }}
+            onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
+            onMouseOut={(e) => e.currentTarget.style.transform = "none"}
+          >
+            <PlusCircle size={16} /> Create Package
+          </button>
         </div>
       </div>
 
-      <div className="manage-credits-grid">
-        
-        {/* Left Side: Packages & Costs */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-          
-          {/* Credit Packages */}
-          <div style={cardStyle}>
-            <div style={cardHeaderStyle}>
-              <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>Credit Packages</h3>
-              <button 
-                onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "", currency: "INR" }); setPkgModalOpen(true); }}
-                style={{ background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }}
-                onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
-                onMouseOut={(e) => e.currentTarget.style.transform = "none"}
-              >
-                <PlusCircle size={16} /> Create Package
-              </button>
-            </div>
-            <div className="credits-table-wrapper">
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                <thead>
-                  <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Package Name</th>
-                    <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Credits</th>
-                    <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Price</th>
-                    <th style={{ padding: "16px 28px", fontWeight: 700, width: "60px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {packages.length === 0 ? (
-                    <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", color: "#94a3b8", fontWeight: 500 }}>No packages found. Create one above.</td></tr>
-                  ) : packages.map(pkg => (
-                    <tr key={pkg.id} style={{ transition: "background 0.2s", borderBottom: "1px solid #f1f5f9" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
-                      <td style={{ padding: "20px 28px", fontWeight: 700, color: "#1e293b", fontSize: "0.95rem" }}>{pkg.name}</td>
-                      <td style={{ padding: "20px 28px", color: "#0f172a" }}>
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#ecfdf5", color: "#059669", padding: "6px 14px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 700 }}>
-                          {pkg.credits.toLocaleString()}
-                        </div>
-                      </td>
-                      <td style={{ padding: "20px 28px", color: "#1e293b", fontWeight: 700, fontSize: "0.95rem" }}>{formatCurrency(pkg.price)}</td>
-                      <td style={{ padding: "20px 28px", textAlign: "center" }}>
-                        <button onClick={() => { setPkgForm(pkg); setPkgModalOpen(true); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#94a3b8", padding: "8px", borderRadius: "8px", transition: "all 0.2s" }} title="Edit Package" onMouseOver={(e) => { e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.background = "#eef2ff"; }} onMouseOut={(e) => { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.background = "transparent"; }}>
-                          <Edit2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+      {/* KPI Stats Cards */}
+      <div className="kpi-grid">
+        <div style={{ background: "white", borderRadius: 16, padding: 24, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Credit Packages Sold</div>
+          <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>{totalPurchased}</div>
+        </div>
+        <div style={{ background: "white", borderRadius: 16, padding: 24, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Total Revenue (INR)</div>
+          <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#10b981" }}>₹{totalRevenue.toLocaleString("en-IN")}</div>
+        </div>
+        <div style={{ background: "white", borderRadius: 16, padding: 24, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Custom API Users</div>
+          <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#6366f1" }}>{customApiCount}</div>
+        </div>
+      </div>
 
-          {/* Consumption Costs */}
-          <div style={cardStyle}>
-            <div style={cardHeaderStyle}>
-              <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>Consumption Costs</h3>
-            </div>
-            <div style={{ padding: "24px" }}>
-              <form onSubmit={handleSaveCosts} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                
+      {/* Credit Packages Section */}
+      <div style={{ marginBottom: "32px" }}>
+        <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>Available Packages</h3>
+        {packages.length === 0 ? (
+          <div style={{ background: "white", borderRadius: 16, padding: 32, textAlign: "center", border: "1px solid #e2e8f0", color: "#64748b" }}>No credit packages defined. Click "Create Package" to add one.</div>
+        ) : (
+          <div className="packages-grid">
+            {packages.map(pkg => (
+              <div key={pkg.id} style={{ background: "white", borderRadius: 16, padding: 20, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
                 <div>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.95rem", fontWeight: 700, color: "#334155", marginBottom: "12px" }}>
-                    <MessageCircle size={18} color="#10b981" />
-                    WhatsApp Cost <span style={{ color: "#94a3b8", fontWeight: 500 }}>(Credits per message)</span>
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input 
-                      type="number" required min="0.01" step="0.01"
-                      style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1.1rem", fontWeight: 700, borderColor: "#e2e8f0", transition: "border-color 0.2s" }}
-                      value={costs.whatsappCreditCost} onChange={e => setCosts({...costs, whatsappCreditCost: e.target.value})} 
-                      onFocus={e => e.target.style.borderColor = "#10b981"}
-                      onBlur={e => e.target.style.borderColor = "#e2e8f0"}
-                    />
+                  <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "1.05rem", marginBottom: 4 }}>{pkg.name}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#059669", background: "#ecfdf5", padding: "3px 8px", borderRadius: 12 }}>{pkg.credits.toLocaleString()} Credits</span>
+                    <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1e293b" }}>{formatCurrency(pkg.price)}</span>
                   </div>
                 </div>
-
-                <div style={{ marginTop: "12px" }}>
-                  <button type="submit" disabled={savingCosts} style={{ width: "100%", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: "10px", padding: "14px", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", cursor: savingCosts ? "not-allowed" : "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s", opacity: savingCosts ? 0.7 : 1 }} onMouseOver={(e) => !savingCosts && (e.currentTarget.style.transform = "translateY(-1px)")} onMouseOut={(e) => !savingCosts && (e.currentTarget.style.transform = "none")}>
-                    <Save size={18} />
-                    {savingCosts ? "Saving Settings..." : "Save Pricing Settings"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Salons */}
-        <div style={cardStyle}>
-          <div style={{ ...cardHeaderStyle, flexWrap: "wrap", gap: "16px" }}>
-            <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>Salon Balances</h3>
-            <div style={{ position: "relative", minWidth: "300px" }}>
-              <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
-                <Search size={18} />
+                <button onClick={() => { setPkgForm(pkg); setPkgModalOpen(true); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: "8px", borderRadius: "8px", transition: "all 0.2s" }} title="Edit Package" onMouseOver={(e) => { e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.background = "#eef2ff"; }} onMouseOut={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "transparent"; }}>
+                  <Edit2 size={16} />
+                </button>
               </div>
-              <input 
-                type="text" 
-                placeholder="Search salons by name or email..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ ...inputStyle, paddingLeft: "42px", background: "#f8fafc", borderColor: "#e2e8f0" }}
-                onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; }}
-                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; }}
-              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Salon Balances (Full Width Table) */}
+      <div style={cardStyle}>
+        <div style={{ ...cardHeaderStyle, flexWrap: "wrap", gap: "16px" }}>
+          <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>Salon Balances</h3>
+          <div style={{ position: "relative", minWidth: "320px" }}>
+            <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <Search size={18} />
             </div>
+            <input 
+              type="text" 
+              placeholder="Search salons by name or email..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ ...inputStyle, padding: "10px 14px 10px 42px", background: "#f8fafc", borderColor: "#cbd5e1" }}
+              onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+              onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
+            />
           </div>
           <div className="credits-table-wrapper">
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
@@ -541,6 +528,43 @@ export default function ManageCreditsPage() {
                 </button>
                 <button type="submit" style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#0f172a", color: "#fff", fontWeight: 600, fontSize: "0.95rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }} onMouseOver={(e) => e.currentTarget.style.background = "#1e293b"} onMouseOut={(e) => e.currentTarget.style.background = "#0f172a"}>
                   <Save size={18} /> Save Config
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Configure Consumption Cost Modal */}
+      {costsModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" }}>
+          <div style={{ background: "#fff", borderRadius: "20px", width: "100%", maxWidth: "440px", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", overflow: "hidden" }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: "#0f172a" }}>Configure Message Cost</h2>
+              <button type="button" onClick={() => setCostsModalOpen(false)} style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", padding: "4px", borderRadius: "50%" }} onMouseOver={(e) => e.currentTarget.style.background = "#e2e8f0"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveCosts} style={{ padding: "24px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.95rem", fontWeight: 700, color: "#334155", marginBottom: "12px" }}>
+                    <MessageSquare size={18} color="#10b981" />
+                    WhatsApp Cost <span style={{ color: "#94a3b8", fontWeight: 500 }}>(Credits per message)</span>
+                  </label>
+                  <input 
+                    type="number" required min="0.01" step="0.01"
+                    style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1.1rem", fontWeight: 700, borderColor: "#cbd5e1" }}
+                    value={costs.whatsappCreditCost} onChange={e => setCosts({...costs, whatsappCreditCost: e.target.value})} 
+                  />
+                </div>
+              </div>
+              <div style={{ marginTop: "32px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+                <button type="button" onClick={() => setCostsModalOpen(false)} style={{ padding: "10px 20px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontWeight: 600, fontSize: "0.95rem", cursor: "pointer" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "#fff"}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={savingCosts} style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#0f172a", color: "#fff", fontWeight: 600, fontSize: "0.95rem", cursor: savingCosts ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: "8px" }} onMouseOver={(e) => !savingCosts && (e.currentTarget.style.background = "#1e293b")} onMouseOut={(e) => !savingCosts && (e.currentTarget.style.background = "#0f172a")}>
+                  <Save size={18} /> {savingCosts ? "Saving..." : "Save Settings"}
                 </button>
               </div>
             </form>
