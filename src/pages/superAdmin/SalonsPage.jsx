@@ -407,9 +407,9 @@ const [cityFilter, setCityFilter] = useState("");
                 value={cityFilter} 
                 placeholder="Filter by city..." 
                 onChange={(e) => setCityFilter(e.target.value)} 
-                style={{ height: 42, padding: "0 12px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }}
-                onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; }}
-                onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}
+                style={{ height: 42, padding: "0 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }}
+                onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+                onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }}
               />
             </div>
           </div>
