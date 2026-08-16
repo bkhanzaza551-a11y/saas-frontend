@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Archive, ArchiveRestore, Edit2, Plus, CheckCircle2, XCircle, Users, AlertTriangle, Star } from "lucide-react";
+import { Trash2, Edit2, Plus, CheckCircle2, XCircle, Users, AlertTriangle, Star } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
@@ -60,7 +60,7 @@ export default function PlansPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState(emptyForm);
-  const [confirmArchive, setConfirmArchive] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const { showConfirm } = useAlert();
 
   const load = async () => {
@@ -137,19 +137,19 @@ export default function PlansPage() {
     }
   };
 
-  const handleArchive = async (plan) => {
+  const handleDelete = async (plan) => {
     try {
-      await api.patch(`/super-admin/plans/${plan.id}/archive`);
-      setStatus({ error: "", success: plan.isArchived ? `Plan "${plan.name}" restored.` : `Plan "${plan.name}" archived.` });
-      setConfirmArchive(null);
+      await api.delete(`/super-admin/plans/${plan.id}`);
+      setStatus({ error: "", success: `Plan "${plan.name}" deleted.` });
+      setConfirmDelete(null);
       await load();
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not archive plan"), success: "" });
+      setStatus({ error: formatApiError(err, "Could not delete plan"), success: "" });
+      setConfirmDelete(null);
     }
   };
 
-  const activePlans = plans.filter(p => !p.isArchived);
-  const archivedPlans = plans.filter(p => p.isArchived);
+  const activePlans = plans;
 
   if (loading) return <div className="page-shell"><PageLoader /></div>;
 
@@ -159,7 +159,7 @@ export default function PlansPage() {
         <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Plans & Pricing</h1>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Define plans with usage limits and feature access. {activePlans.length} active, {archivedPlans.length} archived.</p>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Define plans with usage limits and feature access. {activePlans.length} active plan(s).</p>
           </div>
           <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
             <Plus size={16} /> New Plan
@@ -170,27 +170,14 @@ export default function PlansPage() {
       {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
       {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
-      {activePlans.length === 0 && archivedPlans.length === 0 ? (
+      {activePlans.length === 0 ? (
         <EmptyState title="No Plans" message="Create your first plan to get started." />
       ) : (
-        <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
-            {activePlans.map(plan => (
-              <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onArchive={setConfirmArchive} />
-            ))}
-          </div>
-
-          {archivedPlans.length > 0 && (
-            <div style={{ marginTop: 32 }}>
-              <h3 style={{ color: "#94a3b8", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Archived Plans</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16, opacity: 0.6 }}>
-                {archivedPlans.map(plan => (
-                  <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onArchive={setConfirmArchive} />
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
+          {activePlans.map(plan => (
+            <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onDelete={setConfirmDelete} />
+          ))}
+        </div>
       )}
 
       {isModalOpen && (
@@ -282,29 +269,38 @@ export default function PlansPage() {
         </div>
       )}
 
-      {confirmArchive && (
-        <div className="modal-overlay" onClick={() => setConfirmArchive(null)}>
+      {confirmDelete && (
+        <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
             <div className="modal-header">
-              <h3>{confirmArchive.isArchived ? "Restore Plan" : "Archive Plan"}</h3>
-              <button className="modal-close-btn" onClick={() => setConfirmArchive(null)}>&times;</button>
+              <h3>Delete Plan</h3>
+              <button className="modal-close-btn" onClick={() => setConfirmDelete(null)}>&times;</button>
             </div>
-            <p style={{ color: "#475569", fontSize: "0.9rem", marginBottom: 16 }}>
-              {confirmArchive.isArchived
-                ? `Restore "${confirmArchive.name}"? It will become available for new subscriptions.`
-                : `Archive "${confirmArchive.name}"? It won't be available for new subscriptions.`}
-            </p>
-            {confirmArchive.activeSubscriptions > 0 && !confirmArchive.isArchived && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, marginBottom: 16, fontSize: 13, color: "#92400e" }}>
-                <AlertTriangle size={16} /> This plan has {confirmArchive.activeSubscriptions} active subscription(s).
+            {confirmDelete.activeSubscriptions > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: 12, background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8, fontSize: 13, color: "#991b1b" }}>
+                  <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <strong>Cannot Delete Plan:</strong> This plan has <strong>{confirmDelete.activeSubscriptions}</strong> active subscription(s) in salons. You must migrate those salons to another plan first.
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+                  <button onClick={() => setConfirmDelete(null)} style={{ padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Close</button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <p style={{ color: "#475569", fontSize: "0.9rem", margin: 0 }}>
+                  Are you sure you want to delete the plan <strong>"{confirmDelete.name}"</strong>? This action cannot be undone.
+                </p>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+                  <button onClick={() => setConfirmDelete(null)} style={{ padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Cancel</button>
+                  <button onClick={() => handleDelete(confirmDelete)} style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: "#ef4444", color: "white", fontWeight: 600, cursor: "pointer" }}>
+                    Delete Plan
+                  </button>
+                </div>
               </div>
             )}
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              <button onClick={() => setConfirmArchive(null)} style={{ padding: "8px 16px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Cancel</button>
-              <button onClick={() => handleArchive(confirmArchive)} style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: confirmArchive.isArchived ? "#10b981" : "#ef4444", color: "white", fontWeight: 600, cursor: "pointer" }}>
-                {confirmArchive.isArchived ? "Restore" : "Archive"}
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -312,7 +308,7 @@ export default function PlansPage() {
   );
 }
 
-function PlanCard({ plan, onEdit, onArchive }) {
+function PlanCard({ plan, onEdit, onDelete }) {
   const flags = plan.featureFlags || plan.features || {};
   const enabledCount = ALL_FLAGS.filter(f => flags[f]).length;
   const activeCount = plan.activeSubscriptions || 0;
@@ -331,13 +327,11 @@ function PlanCard({ plan, onEdit, onArchive }) {
           {plan.isCustom && <span style={{ fontSize: "0.7rem", color: "#8b5cf6", fontWeight: 600 }}>Custom</span>}
         </div>
         <div style={{ display: "flex", gap: 6 }}>
-          {!plan.isArchived && (
-            <button onClick={() => onEdit(plan)} title="Edit Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
-              <Edit2 size={15} />
-            </button>
-          )}
-          <button onClick={() => onArchive(plan)} title={plan.isArchived ? "Restore Plan" : "Archive Plan"} style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: plan.isArchived ? "#10b981" : "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
-            {plan.isArchived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
+          <button onClick={() => onEdit(plan)} title="Edit Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+            <Edit2 size={15} />
+          </button>
+          <button onClick={() => onDelete(plan)} title="Delete Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+            <Trash2 size={15} />
           </button>
         </div>
       </div>
