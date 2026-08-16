@@ -375,10 +375,24 @@ export default function StorefrontLayout() {
                 </div>
               </div>
               <div>
-                <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Contact</h4>
-                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Email:</strong> {activeSalon?.websiteConfig?.contactEmail || salon.email}</p>
-                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem" }}><strong>Phone:</strong> {activeSalon?.websiteConfig?.contactPhone || salon.phone}</p>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}><strong>Address:</strong> {activeSalon?.websiteConfig?.contactAddress || salon.address}</p>
+                <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Contact & Hours</h4>
+                <p style={{ color: "var(--text-muted)", marginBottom: "10px", fontSize: "0.95rem" }}><strong>Phone:</strong> {activeSalon?.websiteConfig?.contactPhone || salon.phone}</p>
+                <p style={{ color: "var(--text-muted)", marginBottom: "10px", fontSize: "0.95rem" }}><strong>Email:</strong> {activeSalon?.websiteConfig?.contactEmail || salon.email}</p>
+                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem", lineHeight: 1.5 }}><strong>Address:</strong> {activeSalon?.websiteConfig?.contactAddress || salon.address}</p>
+                {activeSalon?.websiteConfig?.businessHours && (
+                  <p style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 500, marginBottom: "12px" }}>🕒 {activeSalon.websiteConfig.businessHours}</p>
+                )}
+                <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+                  {activeSalon?.websiteConfig?.socialInstagram && (
+                    <a href={activeSalon.websiteConfig.socialInstagram} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-main)", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>Instagram</a>
+                  )}
+                  {activeSalon?.websiteConfig?.socialWhatsapp && (
+                    <a href={activeSalon.websiteConfig.socialWhatsapp.startsWith("http") ? activeSalon.websiteConfig.socialWhatsapp : `https://wa.me/${activeSalon.websiteConfig.socialWhatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-main)", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>WhatsApp</a>
+                  )}
+                  {activeSalon?.websiteConfig?.socialFacebook && (
+                    <a href={activeSalon.websiteConfig.socialFacebook} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-main)", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>Facebook</a>
+                  )}
+                </div>
               </div>
             </div>
             <div className="sf-footer-bottom">
