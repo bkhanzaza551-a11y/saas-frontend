@@ -453,16 +453,16 @@ export default function DemoLeadsPage() {
           {/* Top Row: Search and Clear Button */}
           <div style={{ display: "flex", gap: "12px", width: "100%", alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ flex: 1, position: "relative", minWidth: "260px" }}>
-              <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+              <div style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#64748b", display: "flex", pointerEvents: "none" }}>
                 <Search size={18} />
               </div>
               <input
                 value={filters.q}
                 placeholder="Search leads by name, email, phone..."
                 onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-                style={{ width: "100%", height: 42, paddingLeft: 42, paddingRight: 14, borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                style={{ width: "100%", height: 42, paddingLeft: "48px", paddingRight: "14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
-                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
+                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
               />
             </div>
             <button 
