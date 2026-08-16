@@ -6914,13 +6914,16 @@ html, body {
 
 .marketing-plans-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 360px));
+  gap: 28px;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 1200px;
 }
 @media (max-width: 960px) {
   .marketing-plans-grid {
     grid-template-columns: 1fr;
-    max-width: 400px;
+    max-width: 360px;
     margin: 0 auto;
   }
 }
