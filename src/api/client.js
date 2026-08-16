@@ -29,7 +29,7 @@ export const setAuthSessionHandlers = ({ getCurrentSession, onRefreshSuccess, on
 
 api.interceptors.request.use((config) => {
   const url = config.url || "";
-  const isAuthEndpoint = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/forgot-password") || url.includes("/auth/reset-password") || url.includes("/auth/refresh");
+  const isAuthEndpoint = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/forgot-password") || url.includes("/auth/reset-password") || url.includes("/auth/validate-reset-token") || url.includes("/auth/refresh");
   if (sessionBlocked && !isAuthEndpoint) {
     return Promise.reject(Object.assign(new Error("Session expired"), { __sessionBlocked: true }));
   }
