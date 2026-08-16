@@ -462,10 +462,10 @@ export default function SuperAdminProductsRequirementPage() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Default Price (₹)</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Price (₹)</label>
                   <div style={{ position: "relative" }}>
                     <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b", fontWeight: 600 }}>₹</span>
-                    <input type="number" min="0" step="0.01" value={catalogForm.defaultPrice} onChange={e => setCatalogForm({ ...catalogForm, defaultPrice: e.target.value })} placeholder="0.00" style={{ width: "100%", padding: "12px 14px 12px 32px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
+                    <input type="number" min="0" step="0.01" value={catalogForm.defaultPrice} onChange={e => setCatalogForm({ ...catalogForm, defaultPrice: e.target.value })} placeholder="0.00" style={{ width: "100%", padding: "12px 14px 12px 36px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                   </div>
                 </div>
                 <div>
