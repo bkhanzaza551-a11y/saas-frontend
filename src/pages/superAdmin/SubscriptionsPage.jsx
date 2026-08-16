@@ -159,7 +159,7 @@ export default function SubscriptionsPage() {
 
   const handlePlanChange = async (e) => {
     e.preventDefault();
-    if (!planChangeSub || !planChangeForm.planId) return;
+    if (!planChangeSub || !planChangeForm.planId || !planChangeForm.effectiveDate) return;
     setBusyId("planchange");
     try {
       await api.post(`/super-admin/subscriptions/${planChangeSub.id}/change-plan`, planChangeForm);
@@ -473,7 +473,7 @@ export default function SubscriptionsPage() {
                   {plans.filter(p => !p.isArchived && p.id !== planChangeSub.planId).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}
                 </CustomSelect>
               </label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Effective Date</span><input type="date" value={planChangeForm.effectiveDate} onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
+              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Effective Date *</span><input type="date" required value={planChangeForm.effectiveDate} onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Reason</span><textarea rows={2} value={planChangeForm.reason} onChange={e => setPlanChangeForm({ ...planChangeForm, reason: e.target.value })} placeholder="Why is the plan being changed?" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                 <button type="button" onClick={() => setIsPlanChangeOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>
