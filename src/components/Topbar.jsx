@@ -851,7 +851,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                   </button>
                 )}
                 <div className="profile-dropdown-version">
-                  Respark SaaS v1.0.0
+                  SalonNest SaaS v1.0.0
                 </div>
               </div>
             )}

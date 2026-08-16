@@ -298,7 +298,7 @@ export default function SuperAdminSettingsPage() {
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Basic platform metadata, currency, invoice prefix and regional defaults.</p>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                    <Field label="System Name"><input style={inputStyle} {...f("systemName")} placeholder="Respark SaaS" /></Field>
+                    <Field label="System Name"><input style={inputStyle} {...f("systemName")} placeholder="SalonNest" /></Field>
                     <Field label="Platform Logo">
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         {form.globalLogo && <img src={form.globalLogo} alt="Logo" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 4, border: "1px solid #e2e8f0" }} />}
@@ -311,16 +311,16 @@ export default function SuperAdminSettingsPage() {
                         }} />
                       </div>
                     </Field>
-                    <Field label="Invoice Prefix"><input style={inputStyle} {...f("invoicePrefix")} placeholder="INV" /></Field>
+                    <Field label="Invoice Prefix"><input style={inputStyle} {...f("invoicePrefix")} placeholder="SLN" /></Field>
                     <Field label="Tax Label"><input style={inputStyle} {...f("taxLabel")} placeholder="GST" /></Field>
                     <Field label="Default Currency">
                       <CustomSelect value={form.defaultCurrency} onChange={e => setForm(p => ({ ...p, defaultCurrency: e.target.value }))}>
                         {["PKR", "INR", "USD", "AED", "GBP", "EUR"].map(c => <option key={c} value={c}>{c}</option>)}
                       </CustomSelect>
                     </Field>
-                    <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="Pakistan" /></Field>
-                    <Field label="Default City"><input style={inputStyle} {...f("defaultCity")} placeholder="Lahore" /></Field>
-                    <Field label="Timezone"><input style={inputStyle} {...f("defaultTimezone")} placeholder="Asia/Karachi" /></Field>
+                    <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="India" /></Field>
+                    <Field label="Default City"><input style={inputStyle} {...f("defaultCity")} placeholder="Delhi" /></Field>
+                    <Field label="Timezone"><input style={inputStyle} {...f("defaultTimezone")} placeholder="Asia/Kolkata" /></Field>
                     <Field label="Language">
                       <CustomSelect value={form.defaultLanguage} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
                         <option value="en">English (US)</option>
@@ -346,11 +346,11 @@ export default function SuperAdminSettingsPage() {
                     <Field label="Demo Booking URL"><input style={inputStyle} {...f("demoBookingUrl")} placeholder="/book-demo" /></Field>
                     <Field label="Terms URL"><input style={inputStyle} {...f("termsUrl")} placeholder="/terms" /></Field>
                     <Field label="Privacy URL"><input style={inputStyle} {...f("privacyUrl")} placeholder="/privacy" /></Field>
-                    <Field label="Blog Title" full><input style={inputStyle} {...f("blogTitle")} placeholder="Respark Blog" /></Field>
+                    <Field label="Blog Title" full><input style={inputStyle} {...f("blogTitle")} placeholder="SalonNest Blog" /></Field>
                   </div>
                 </div>
               )}
-
+ 
               {activeTab === "business" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
@@ -358,56 +358,56 @@ export default function SuperAdminSettingsPage() {
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Information belonging to SalonNest as the platform/business.</p>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                    <Field label="Legal Business Name"><input style={inputStyle} {...f("businessName")} placeholder="Respark Tech" /></Field>
-                    <Field label="Business Email"><input style={inputStyle} {...f("businessEmail")} placeholder="biz@respark.io" /></Field>
-                    <Field label="Business Phone"><input style={inputStyle} {...f("businessPhone")} placeholder="+92300..." /></Field>
+                    <Field label="Legal Business Name"><input style={inputStyle} {...f("businessName")} placeholder="SalonNest Tech" /></Field>
+                    <Field label="Business Email"><input style={inputStyle} {...f("businessEmail")} placeholder="info@salonnest.in" /></Field>
+                    <Field label="Business Phone"><input style={inputStyle} {...f("businessPhone")} placeholder="+91300..." /></Field>
                     <Field label="Registered Address"><input style={inputStyle} {...f("businessAddress")} placeholder="123 Main St" /></Field>
-                    <Field label="City"><input style={inputStyle} {...f("businessCity")} placeholder="Lahore" /></Field>
-                    <Field label="State"><input style={inputStyle} {...f("businessState")} placeholder="Punjab" /></Field>
-                    <Field label="Country"><input style={inputStyle} {...f("businessCountry")} placeholder="Pakistan" /></Field>
-                    <Field label="PIN Code"><input style={inputStyle} {...f("businessPin")} placeholder="54000" /></Field>
+                    <Field label="City"><input style={inputStyle} {...f("businessCity")} placeholder="Delhi" /></Field>
+                    <Field label="State"><input style={inputStyle} {...f("businessState")} placeholder="Delhi" /></Field>
+                    <Field label="Country"><input style={inputStyle} {...f("businessCountry")} placeholder="India" /></Field>
+                    <Field label="PIN Code"><input style={inputStyle} {...f("businessPin")} placeholder="110001" /></Field>
                     <Field label="GST / Tax Number"><input style={inputStyle} {...f("taxNumber")} placeholder="GST-12345" /></Field>
                     <Field label="Tax Name"><input style={inputStyle} {...f("taxLabel")} placeholder="GST / Tax" /></Field>
                     <Field label="Default Tax Rate (%)"><input style={inputStyle} {...n("taxRate")} placeholder="0" /></Field>
                   </div>
                 </div>
               )}
-
+ 
               {activeTab === "comms" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Communications & Providers</h3>
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Contact mailboxes and external provider configurations.</p>
                   </div>
-
+ 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                    <Field label="Contact Email"><input style={inputStyle} type="email" {...f("contactEmail")} placeholder="hello@respark.io" /></Field>
-                    <Field label="Support Email"><input style={inputStyle} type="email" {...f("supportEmail")} placeholder="support@respark.io" /></Field>
-                    <Field label="Notification Email" full><input style={inputStyle} type="email" {...f("notificationEmail")} placeholder="noreply@respark.io" /></Field>
+                    <Field label="Contact Email"><input style={inputStyle} type="email" {...f("contactEmail")} placeholder="info@salonnest.in" /></Field>
+                    <Field label="Support Email"><input style={inputStyle} type="email" {...f("supportEmail")} placeholder="support@salonnest.in" /></Field>
+                    <Field label="Notification Email" full><input style={inputStyle} type="email" {...f("notificationEmail")} placeholder="alerts@salonnest.in" /></Field>
                     
                     <div style={{ gridColumn: "1 / -1", height: 1, background: "#e2e8f0", margin: "8px 0" }} />
-
+ 
                     <div style={{ gridColumn: "1 / -1", padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                       <Field label="Test Recipient Email (for Test buttons)">
                         <input style={inputStyle} type="email" value={testRecipient.email} onChange={e => setTestRecipient(p => ({ ...p, email: e.target.value }))} placeholder="test@yourcompany.com" />
                       </Field>
                       <Field label="Test Recipient Phone (for Test buttons)">
-                        <input style={inputStyle} value={testRecipient.phone} onChange={e => setTestRecipient(p => ({ ...p, phone: e.target.value }))} placeholder="+923001234567" />
+                        <input style={inputStyle} value={testRecipient.phone} onChange={e => setTestRecipient(p => ({ ...p, phone: e.target.value }))} placeholder="+919876543210" />
                       </Field>
                     </div>
-
+ 
                     <Field label="Email Provider"><input style={inputStyle} {...f("emailProviderName")} placeholder="SMTP / Resend" /></Field>
                     <Field label="Email Sender ID (Name/Email)">
                       <div style={{ display: "flex", gap: 8 }}>
-                        <input style={{ ...inputStyle, flex: 1 }} {...f("emailSenderId")} placeholder="Respark <noreply@...>" />
+                        <input style={{ ...inputStyle, flex: 1 }} {...f("emailSenderId")} placeholder="SalonNest <alerts@salonnest.in>" />
                         <button type="button" disabled={!!testingChannel} onClick={() => testChannel("email")} style={{ padding: "0 12px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, cursor: testingChannel ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 600 }}>{testingChannel === "email" ? "Sending..." : "Test"}</button>
                       </div>
                     </Field>
-
+ 
                     <Field label="SMS Provider"><input style={inputStyle} {...f("smsProviderName")} placeholder="Twilio" /></Field>
                     <Field label="SMS Sender ID">
                       <div style={{ display: "flex", gap: 8 }}>
-                        <input style={{ ...inputStyle, flex: 1 }} {...f("smsSenderId")} placeholder="RESPRK" />
+                        <input style={{ ...inputStyle, flex: 1 }} {...f("smsSenderId")} placeholder="SLNNST" />
                         <button type="button" disabled={!!testingChannel} onClick={() => testChannel("sms")} style={{ padding: "0 12px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, cursor: testingChannel ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 600 }}>{testingChannel === "sms" ? "Sending..." : "Test"}</button>
                       </div>
                     </Field>
