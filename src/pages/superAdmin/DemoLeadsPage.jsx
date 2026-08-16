@@ -770,24 +770,35 @@ export default function DemoLeadsPage() {
                       <Building2 size={15} color="#16a34a" /> Convert to Salon
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 8 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 4 }}>
                         <div>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
                           <CustomSelect value={draft.planId} onChange={e => updateDraft(row.id, "planId", e.target.value)} options={plans.map(p => ({ label: `${p.name} (₹${p.monthlyPrice}/mo)`, value: p.id }))} />
                         </div>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Salon City *</label>
-                          <input 
-                            type="text" 
-                            placeholder="e.g. Mumbai, Delhi" 
-                            value={draft.city || "Mumbai"} 
-                            onChange={e => updateDraft(row.id, "city", e.target.value)} 
-                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} 
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
-                          <input type="number" value={draft.trialDays} onChange={e => updateDraft(row.id, "trialDays", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          <div>
+                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Salon City *</label>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. Mumbai, Delhi" 
+                              value={draft.city || "Mumbai"} 
+                              onChange={e => updateDraft(row.id, "city", e.target.value)} 
+                              style={{ width: "100%", height: 38, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", outline: "none", transition: "all 0.2s" }} 
+                              onFocus={e => e.target.style.borderColor = "#6366f1"}
+                              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
+                            <input 
+                              type="number" 
+                              value={draft.trialDays} 
+                              onChange={e => updateDraft(row.id, "trialDays", e.target.value)} 
+                              style={{ width: "100%", height: 38, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", outline: "none", transition: "all 0.2s" }} 
+                              onFocus={e => e.target.style.borderColor = "#6366f1"}
+                              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
+                            />
+                          </div>
                         </div>
                       </div>
                       <button type="button" onClick={() => approveLead(row.id)} disabled={isBusy || isConverted} style={{ padding: "9px 12px", background: isConverted ? "#d1fae5" : "#10b981", color: isConverted ? "#065f46" : "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: isConverted ? "not-allowed" : "pointer" }}>
