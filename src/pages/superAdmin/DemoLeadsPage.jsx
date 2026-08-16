@@ -554,7 +554,7 @@ export default function DemoLeadsPage() {
               <div style={{ display: "grid", gap: 8, background: "#fff", padding: 14, borderRadius: 10, border: "1px solid #d1fae5" }}>
                 <div><strong>Salon Name:</strong> {lastApprovedLead.salon?.name}</div>
                 <div><strong>Owner Email:</strong> {lastApprovedLead.owner?.email}</div>
-                <div><strong>Setup Password URL:</strong> <a href={lastApprovedLead.passwordSetupUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb" }}>{lastApprovedLead.passwordSetupUrl}</a></div>
+                <div><strong>Invite Link:</strong> <a href={lastApprovedLead.inviteLink} target="_blank" rel="noreferrer" style={{ color: "#2563eb" }}>{lastApprovedLead.inviteLink}</a></div>
               </div>
             </div>
             <button onClick={() => setLastApprovedLead(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#059669", fontWeight: 700 }}>Close</button>
