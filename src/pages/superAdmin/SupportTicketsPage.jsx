@@ -246,28 +246,54 @@ export default function SuperAdminSupportTicketsPage() {
               value={filters.q}
               placeholder="Search by title, salon, agent..."
               onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-              style={{ width: "100%", height: 42, padding: "0 14px 0 40px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
-              onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#818cf8"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
-              onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
+              style={{ width: "100%", height: 42, padding: "10px 14px 10px 40px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+              onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+              onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
             />
           </div>
           
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 600, color: filters.assignedToMe ? "#4f46e5" : "#64748b", cursor: "pointer", padding: "0 16px", height: 42, borderRadius: 10, border: filters.assignedToMe ? "1px solid #818cf8" : "1px solid #e2e8f0", background: filters.assignedToMe ? "#eef2ff" : "#f8fafc", transition: "all 0.2s", whiteSpace: "nowrap" }}>
-            <input type="checkbox" checked={filters.assignedToMe} onChange={e => setFilters({ ...filters, assignedToMe: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#4f46e5", cursor: "pointer" }} />
+          <button
+            type="button"
+            onClick={() => setFilters({ ...filters, assignedToMe: !filters.assignedToMe })}
+            style={{ 
+              height: 42, 
+              padding: "0 16px", 
+              background: filters.assignedToMe ? "#eef2ff" : "#fff", 
+              border: filters.assignedToMe ? "2px solid #6366f1" : "1px solid #cbd5e1", 
+              color: filters.assignedToMe ? "#4f46e5" : "#475569", 
+              borderRadius: 10, 
+              fontSize: "0.85rem", 
+              fontWeight: 700, 
+              cursor: "pointer", 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 8, 
+              transition: "all 0.2s", 
+              whiteSpace: "nowrap",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+            }}
+          >
+            <span style={{ 
+              width: 8, 
+              height: 8, 
+              borderRadius: "50%", 
+              background: filters.assignedToMe ? "#4f46e5" : "#cbd5e1", 
+              display: "inline-block",
+              transition: "background 0.2s"
+            }} />
             Assigned to Me
-          </label>
+          </button>
           
-          <button onClick={() => load(filters)} style={{ height: 42, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }} onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }} onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}>
+          <button onClick={() => load(filters)} style={{ height: 42, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }} onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }} onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}>
             Apply Filters
           </button>
           
           <button 
             onClick={() => { const empty = { q: "", status: "", priority: "", category: "", assignedToId: "", assignedToMe: false, from: "", to: "" }; setFilters(empty); load(empty); }}
-            style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
+            style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
             onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
-            onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.color="#64748b"; }}
+            onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1"; e.currentTarget.style.color="#64748b"; }}
           >
-            <Filter size={15} />
             Reset
           </button>
         </div>
@@ -325,9 +351,9 @@ export default function SuperAdminSupportTicketsPage() {
           <div>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Range</label>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, height: 40, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }} />
+              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, height: 42, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
               <span style={{ fontSize: "0.75rem", color: "#cbd5e1", fontWeight: 700 }}>→</span>
-              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, height: 40, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#818cf8"; e.target.style.background = "#fff"; }} onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }} />
+              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, height: 42, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0, transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
             </div>
           </div>
         </div>
