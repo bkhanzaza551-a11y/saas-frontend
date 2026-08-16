@@ -311,15 +311,12 @@ export default function SuperAdminSettingsPage() {
                         }} />
                       </div>
                     </Field>
-                    <Field label="Invoice Prefix"><input style={inputStyle} {...f("invoicePrefix")} placeholder="SLN" /></Field>
-                    <Field label="Tax Label"><input style={inputStyle} {...f("taxLabel")} placeholder="GST" /></Field>
                     <Field label="Default Currency">
                       <CustomSelect value={form.defaultCurrency} onChange={e => setForm(p => ({ ...p, defaultCurrency: e.target.value }))}>
                         {["PKR", "INR", "USD", "AED", "GBP", "EUR"].map(c => <option key={c} value={c}>{c}</option>)}
                       </CustomSelect>
                     </Field>
                     <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="India" /></Field>
-                    <Field label="Default City"><input style={inputStyle} {...f("defaultCity")} placeholder="Delhi" /></Field>
                     <Field label="Timezone"><input style={inputStyle} {...f("defaultTimezone")} placeholder="Asia/Kolkata" /></Field>
                     <Field label="Language">
                       <CustomSelect value={form.defaultLanguage} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
@@ -336,7 +333,12 @@ export default function SuperAdminSettingsPage() {
                         <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                       </CustomSelect>
                     </Field>
-                    <Field label="Blog Title" full><input style={inputStyle} {...f("blogTitle")} placeholder="SalonNest Blog" /></Field>
+                    <Field label="Time Format">
+                      <CustomSelect value={form.timeFormat || "12"} onChange={e => setForm(p => ({ ...p, timeFormat: e.target.value }))}>
+                        <option value="12">12-Hour (1:00 PM)</option>
+                        <option value="24">24-Hour (13:00)</option>
+                      </CustomSelect>
+                    </Field>
                   </div>
                 </div>
               )}
