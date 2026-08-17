@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "../../context/AuthContext.jsx";
 import {
   MessageSquare,
   Smartphone,
@@ -22,6 +23,7 @@ import { formatCurrency } from "../../utils/currency.js";
 import PageLoader from "../../components/PageLoader.jsx";
 
 export default function WhatsAppCreditsPage() {
+  const { auth } = useAuth();
   const [whatsappCredits, setWhatsappCredits] = useState(0);
   const [smsCredits, setSmsCredits] = useState(0);
   const [costs, setCosts] = useState({ whatsapp: 1, sms: 1 });
@@ -120,8 +122,8 @@ export default function WhatsAppCreditsPage() {
           }
         },
         prefill: {
-          name: "Salon Owner",
-          email: "owner@salon.com"
+          name: auth?.user?.name || auth?.membership?.salon?.name || "Salon Owner",
+          email: auth?.user?.email || auth?.membership?.salon?.email || ""
         },
         theme: { color: "#2563eb" }
       };
@@ -393,7 +395,7 @@ export default function WhatsAppCreditsPage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: filteredPackages.length <= 2 ? `repeat(${Math.min(filteredPackages.length, 2)}, minmax(280px, 320px))` : "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, justifyItems: filteredPackages.length <= 2 ? "start" : "stretch" }}>
           {filteredPackages.map((pkg) => {
             const isPopular = pkg.credits === 2000 || pkg.name.toLowerCase().includes("growth");
             const isPurchasing = purchasingId === pkg.id;
