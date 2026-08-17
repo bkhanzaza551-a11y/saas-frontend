@@ -24,6 +24,25 @@ const priorityColors = {
 
 const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
+export const SALON_PRODUCT_CATEGORIES = [
+  "Hair Care (Shampoo, Conditioner)",
+  "Hair Color & Developers",
+  "Hair Treatments (Keratin, Botox, Spa)",
+  "Hair Styling (Serums, Sprays, Wax)",
+  "Skin Care & Facials",
+  "Bleach & De-Tan",
+  "Waxing & Hair Removal",
+  "Nail Care & Extensions",
+  "Pedicure & Manicure Kits",
+  "Beard & Men's Grooming",
+  "Makeup & Cosmetics",
+  "Massage & Body Spa Oils",
+  "Salon Tools & Equipment (Dryers, Scissors)",
+  "Disposables & Hygiene (Gloves, Towels, Sheets)",
+  "Sanitization & Cleaning",
+  "Other Supplies"
+];
+
 const emptyCatalog = {
   productName: "",
   description: "",
@@ -58,25 +77,27 @@ export default function SuperAdminProductsRequirementPage() {
   const [salonFilter, setSalonFilter] = useState("");
 
   // Catalog Form & Modals
-  const [catalogForm, setCatalogForm] = useState(emptyCatalog);
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [editCatalogItem, setEditCatalogItem] = useState(null);
+  const [catalogForm, setCatalogForm] = useState(emptyCatalog);
 
-  // New Request Form & Detail
-  const [selectedReq, setSelectedReq] = useState(null);
+  // Admin New Request Form
   const [adminRequestForm, setAdminRequestForm] = useState({
     salonId: "",
-    brand: "",
     productName: "",
+    brand: "",
     category: "",
     unitPackSize: "",
-    quantity: "1",
+    quantity: 1,
     priority: "MEDIUM",
     unitPrice: "",
-    note: ""
+    notes: ""
   });
-  const [saving, setSaving] = useState(false);
+
+  // Selected Detail Request
+  const [selectedReq, setSelectedReq] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -106,8 +127,8 @@ export default function SuperAdminProductsRequirementPage() {
   }, [catalog]);
 
   const availableCategories = useMemo(() => {
-    const set = new Set(catalog.map(c => c.category).filter(Boolean));
-    return Array.from(set).sort();
+    const set = new Set([...SALON_PRODUCT_CATEGORIES, ...catalog.map(c => c.category).filter(Boolean)]);
+    return Array.from(set);
   }, [catalog]);
 
   // Filtered Catalog
@@ -567,13 +588,16 @@ export default function SuperAdminProductsRequirementPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
-                <input
-                  type="text"
-                  placeholder="e.g. Hair Color, Shampoo, Spa Kit"
+                <CustomSelect
                   value={adminRequestForm.category}
                   onChange={e => setAdminRequestForm({ ...adminRequestForm, category: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                />
+                  style={{ width: "100%" }}
+                >
+                  <option value="">Select Salon Category...</option>
+                  {SALON_PRODUCT_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </CustomSelect>
               </label>
 
               <label>
@@ -900,13 +924,16 @@ export default function SuperAdminProductsRequirementPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <label>
                   <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
-                  <input
-                    type="text"
-                    placeholder="e.g. Hair Color, Hair Care"
+                  <CustomSelect
                     value={catalogForm.category}
                     onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                  />
+                    style={{ width: "100%" }}
+                  >
+                    <option value="">Select Salon Category...</option>
+                    {SALON_PRODUCT_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </CustomSelect>
                 </label>
 
                 <label>

@@ -23,6 +23,25 @@ const statusColors = {
 
 const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
+export const SALON_PRODUCT_CATEGORIES = [
+  "Hair Care (Shampoo, Conditioner)",
+  "Hair Color & Developers",
+  "Hair Treatments (Keratin, Botox, Spa)",
+  "Hair Styling (Serums, Sprays, Wax)",
+  "Skin Care & Facials",
+  "Bleach & De-Tan",
+  "Waxing & Hair Removal",
+  "Nail Care & Extensions",
+  "Pedicure & Manicure Kits",
+  "Beard & Men's Grooming",
+  "Makeup & Cosmetics",
+  "Massage & Body Spa Oils",
+  "Salon Tools & Equipment (Dryers, Scissors)",
+  "Disposables & Hygiene (Gloves, Towels, Sheets)",
+  "Sanitization & Cleaning",
+  "Other Supplies"
+];
+
 export default function ProductsRequirementPage() {
   const [requirements, setRequirements] = useState([]);
   const [catalog, setCatalog] = useState([]);
@@ -81,8 +100,8 @@ export default function ProductsRequirementPage() {
   }, [catalog]);
 
   const availableCategories = useMemo(() => {
-    const set = new Set(catalog.map(c => c.category).filter(Boolean));
-    return Array.from(set).sort();
+    const set = new Set([...SALON_PRODUCT_CATEGORIES, ...catalog.map(c => c.category).filter(Boolean)]);
+    return Array.from(set);
   }, [catalog]);
 
   // Filtered Catalog Items (Point 6)
@@ -543,13 +562,16 @@ export default function ProductsRequirementPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
-                <input
-                  type="text"
-                  placeholder="e.g. Hair Color, Shampoo, Facial Kit"
+                <CustomSelect
                   value={requestForm.category}
                   onChange={e => setRequestForm({ ...requestForm, category: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                />
+                  style={{ width: "100%" }}
+                >
+                  <option value="">Select Salon Category...</option>
+                  {SALON_PRODUCT_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </CustomSelect>
               </label>
 
               <label>
