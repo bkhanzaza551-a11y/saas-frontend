@@ -331,19 +331,29 @@ const Protected = () => {
               items: myWorkspaceItems
             }]
           : []),
-        ...(shouldShowMyWorkspace
-          ? [{
-              label: "Operations",
-              hint: "Quick access",
-              items: [
-                can("reports") && { label: "Financial Reports", to: "/admin/financial-reports" },
-                can("support") && { label: "Support Tickets", to: "/admin/support-tickets" },
-                can("attendance") && { label: "Attendance", to: "/admin/attendance" },
-                can("feedback") && { label: "Feedback", to: "/admin/feedback" },
-              ].filter(Boolean)
-            }]
-          : []),
-        ...(isOwner ? groups : [])
+        ...(isOwner
+          ? groups
+          : groups.map((group) => ({
+              ...group,
+              items: Array.isArray(group.items)
+                ? group.items.filter((item) => {
+                    if (!item || !item.to) return false;
+                    const pageKey = item.to.split("/").pop();
+                    const moduleMap = {
+                      dashboard: "dashboard", pos: "pos", "pos-dashboard": "pos",
+                      "global-dashboard": "pos", appointments: "appointments",
+                      customers: "customers", reports: "reports", trends: "reports",
+                      attendance: "attendance", "website-editor": "settings",
+                      "website-analytics": "settings", "order-dashboard": "orders",
+                      settings: "settings", "salon-details": "settings",
+                      "support-tickets": "support"
+                    };
+                    const modKey = moduleMap[pageKey] || pageKey;
+                    return can(modKey) || can(modKey, "view");
+                  })
+                : group.to ? [] : []
+            })).filter((g) => g.to || (Array.isArray(g.items) && g.items.length > 0))
+        )
       ];
 
   return (
