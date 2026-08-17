@@ -8,7 +8,9 @@ import { useAlert } from "../../context/AlertContext.jsx";
 export default function ManageCreditsPage() {
   const { showAlert } = useAlert();
   const [salons, setSalons] = useState([]);
-  const [packages, setPackages] = useState([]);
+  const [whatsappPackages, setWhatsappPackages] = useState([]);
+  const [smsPackages, setSmsPackages] = useState([]);
+  const [activePkgTab, setActivePkgTab] = useState("WHATSAPP");
   const [transactions, setTransactions] = useState([]);
   const [costs, setCosts] = useState({ whatsappCreditCost: 1, smsCreditCost: 1 });
   const [loading, setLoading] = useState(true);
@@ -17,11 +19,11 @@ export default function ManageCreditsPage() {
 
   // Package modal
   const [pkgModalOpen, setPkgModalOpen] = useState(false);
-  const [pkgForm, setPkgForm] = useState({ id: "", name: "", credits: "", price: "" });
+  const [pkgForm, setPkgForm] = useState({ id: "", name: "", credits: "", price: "", type: "WHATSAPP" });
 
   // Add credits modal
   const [addCreditsModalOpen, setAddCreditsModalOpen] = useState(false);
-  const [creditForm, setCreditForm] = useState({ salonId: "", amount: "", note: "" });
+  const [creditForm, setCreditForm] = useState({ salonId: "", amount: "", note: "", creditType: "WHATSAPP" });
 
   // Custom API modal
   const [customApiModalOpen, setCustomApiModalOpen] = useState(false);
@@ -42,14 +44,16 @@ export default function ManageCreditsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [salonsRes, pkgsRes, costsRes, txsRes] = await Promise.all([
+      const [salonsRes, whatsappPkgsRes, smsPkgsRes, costsRes, txsRes] = await Promise.all([
         api.get("/super-admin/credits/salons"),
-        api.get("/super-admin/credits/packages"),
+        api.get("/super-admin/credits/packages?type=WHATSAPP"),
+        api.get("/super-admin/credits/packages?type=SMS"),
         api.get("/super-admin/credits/costs"),
         api.get("/super-admin/credits/transactions").catch(() => ({ data: [] }))
       ]);
       setSalons(salonsRes.data || []);
-      setPackages(pkgsRes.data || []);
+      setWhatsappPackages(whatsappPkgsRes.data || []);
+      setSmsPackages(smsPkgsRes.data || []);
       setCosts(costsRes.data || { whatsappCreditCost: 1, smsCreditCost: 1 });
       setTransactions(txsRes.data || []);
     } catch (err) {
@@ -66,13 +70,15 @@ export default function ManageCreditsPage() {
         await api.patch(`/super-admin/credits/packages/${pkgForm.id}`, {
           name: pkgForm.name,
           credits: Number(pkgForm.credits),
-          price: Number(pkgForm.price)
+          price: Number(pkgForm.price),
+          type: pkgForm.type
         });
       } else {
         await api.post("/super-admin/credits/packages", {
           name: pkgForm.name,
           credits: Number(pkgForm.credits),
-          price: Number(pkgForm.price)
+          price: Number(pkgForm.price),
+          type: pkgForm.type
         });
       }
       setPkgModalOpen(false);
@@ -88,7 +94,8 @@ export default function ManageCreditsPage() {
       await api.post(`/super-admin/credits/add-credits`, {
         salonId: creditForm.salonId,
         creditsToAdd: Number(creditForm.amount),
-        reason: creditForm.note
+        reason: creditForm.note,
+        creditType: creditForm.creditType
       });
       setAddCreditsModalOpen(false);
       fetchData();
@@ -204,7 +211,7 @@ export default function ManageCreditsPage() {
             <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", padding: "10px", borderRadius: "12px", display: "flex" }}>
               <CreditCard size={24} />
             </div>
-            WhatsApp Credits
+            Credit Hub
           </h1>
           <p style={{ margin: 0, color: "#64748b", fontSize: "0.95rem", fontWeight: 500 }}>Manage communication credits, configure pricing, and monitor salon usage.</p>
         </div>
@@ -218,7 +225,7 @@ export default function ManageCreditsPage() {
             <MessageSquare size={16} /> Configure Cost
           </button>
           <button 
-            onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "" }); setPkgModalOpen(true); }}
+            onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "", type: activePkgTab }); setPkgModalOpen(true); }}
             style={{ height: 42, padding: "0 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 8, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }}
             onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "none"}
@@ -246,27 +253,39 @@ export default function ManageCreditsPage() {
 
       {/* Credit Packages Section */}
       <div style={{ marginBottom: "32px" }}>
-        <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>Available Packages</h3>
-        {packages.length === 0 ? (
-          <div style={{ background: "white", borderRadius: 16, padding: 32, textAlign: "center", border: "1px solid #e2e8f0", color: "#64748b" }}>No credit packages defined. Click "Create Package" to add one.</div>
-        ) : (
-          <div className="packages-grid">
-            {packages.map(pkg => (
-              <div key={pkg.id} style={{ background: "white", borderRadius: 16, padding: 20, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
-                <div>
-                  <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "1.05rem", marginBottom: 4 }}>{pkg.name}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#059669", background: "#ecfdf5", padding: "3px 8px", borderRadius: 12 }}>{pkg.credits.toLocaleString()} Credits</span>
-                    <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1e293b" }}>{formatCurrency(pkg.price)}</span>
-                  </div>
-                </div>
-                <button onClick={() => { setPkgForm(pkg); setPkgModalOpen(true); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: "8px", borderRadius: "8px", transition: "all 0.2s" }} title="Edit Package" onMouseOver={(e) => { e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.background = "#eef2ff"; }} onMouseOut={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "transparent"; }}>
-                  <Edit2 size={16} />
-                </button>
-              </div>
-            ))}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 0, background: "#f1f5f9", borderRadius: "12px", padding: "4px", border: "1px solid #e2e8f0" }}>
+            <button onClick={() => setActivePkgTab("WHATSAPP")} style={{ padding: "8px 20px", borderRadius: "10px", border: "none", background: activePkgTab === "WHATSAPP" ? "#fff" : "transparent", color: activePkgTab === "WHATSAPP" ? "#0f172a" : "#64748b", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: activePkgTab === "WHATSAPP" ? "0 1px 3px rgba(0,0,0,0.08)" : "none", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6 }}>
+              <MessageSquare size={14} /> WhatsApp Packages
+            </button>
+            <button onClick={() => setActivePkgTab("SMS")} style={{ padding: "8px 20px", borderRadius: "10px", border: "none", background: activePkgTab === "SMS" ? "#fff" : "transparent", color: activePkgTab === "SMS" ? "#0f172a" : "#64748b", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: activePkgTab === "SMS" ? "0 1px 3px rgba(0,0,0,0.08)" : "none", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6 }}>
+              <MessageCircle size={14} /> SMS Packages
+            </button>
           </div>
-        )}
+        </div>
+        {(() => {
+          const activePackages = activePkgTab === "WHATSAPP" ? whatsappPackages : smsPackages;
+          return activePackages.length === 0 ? (
+            <div style={{ background: "white", borderRadius: 16, padding: 32, textAlign: "center", border: "1px solid #e2e8f0", color: "#64748b" }}>No {activePkgTab === "WHATSAPP" ? "WhatsApp" : "SMS"} packages defined. Click "Create Package" to add one.</div>
+          ) : (
+            <div className="packages-grid">
+              {activePackages.map(pkg => (
+                <div key={pkg.id} style={{ background: "white", borderRadius: 16, padding: 20, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "1.05rem", marginBottom: 4 }}>{pkg.name}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#059669", background: "#ecfdf5", padding: "3px 8px", borderRadius: 12 }}>{pkg.credits.toLocaleString()} Credits</span>
+                      <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1e293b" }}>{formatCurrency(pkg.price)}</span>
+                    </div>
+                  </div>
+                  <button onClick={() => { setPkgForm(pkg); setPkgModalOpen(true); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: "8px", borderRadius: "8px", transition: "all 0.2s" }} title="Edit Package" onMouseOver={(e) => { e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.background = "#eef2ff"; }} onMouseOut={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "transparent"; }}>
+                    <Edit2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Salon Balances (Full Width Table) */}
@@ -292,13 +311,14 @@ export default function ManageCreditsPage() {
               <thead>
                 <tr style={{ background: "#f8fafc", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   <th style={{ padding: "16px 28px", fontWeight: 700, borderBottom: "1px solid #e2e8f0" }}>Salon Details</th>
-                  <th style={{ padding: "16px 28px", fontWeight: 700, textAlign: "right", borderBottom: "1px solid #e2e8f0" }}>Available Credits</th>
+                  <th style={{ padding: "16px 28px", fontWeight: 700, textAlign: "right", borderBottom: "1px solid #e2e8f0" }}>WhatsApp Credits</th>
+                  <th style={{ padding: "16px 28px", fontWeight: 700, textAlign: "right", borderBottom: "1px solid #e2e8f0" }}>SMS Credits</th>
                   <th style={{ padding: "16px 28px", fontWeight: 700, width: "200px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredSalons.length === 0 ? (
-                  <tr><td colSpan="3" style={{ padding: "40px", textAlign: "center", color: "#94a3b8", fontWeight: 500 }}>No salons found matching your search.</td></tr>
+                  <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", color: "#94a3b8", fontWeight: 500 }}>No salons found matching your search.</td></tr>
                 ) : filteredSalons.map(salon => (
                   <tr key={salon.id} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.2s" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
                     <td style={{ padding: "20px 28px" }}>
@@ -314,14 +334,30 @@ export default function ManageCreditsPage() {
                         borderRadius: "24px", 
                         fontSize: "0.95rem",
                         fontWeight: 800,
-                        background: salon.credits > 0 ? "#ecfdf5" : "#fef2f2",
-                        color: salon.credits > 0 ? "#059669" : "#dc2626",
+                        background: salon.whatsappCredits > 0 ? "#ecfdf5" : "#fef2f2",
+                        color: salon.whatsappCredits > 0 ? "#059669" : "#dc2626",
                         display: "inline-block",
                         minWidth: "80px",
                         textAlign: "center",
                         boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
                       }}>
-                        {Number(salon.credits || 0).toLocaleString()}
+                        {Number(salon.whatsappCredits || 0).toLocaleString()}
+                      </span>
+                    </td>
+                    <td style={{ padding: "20px 28px", textAlign: "right" }}>
+                      <span style={{ 
+                        padding: "8px 16px", 
+                        borderRadius: "24px", 
+                        fontSize: "0.95rem",
+                        fontWeight: 800,
+                        background: salon.smsCredits > 0 ? "#eff6ff" : "#fef2f2",
+                        color: salon.smsCredits > 0 ? "#2563eb" : "#dc2626",
+                        display: "inline-block",
+                        minWidth: "80px",
+                        textAlign: "center",
+                        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
+                      }}>
+                        {Number(salon.smsCredits || 0).toLocaleString()}
                       </span>
                     </td>
                     <td style={{ padding: "20px 28px", textAlign: "right" }}>
@@ -342,7 +378,7 @@ export default function ManageCreditsPage() {
                             whiteSpace: "nowrap",
                             opacity: salon.customWhatsappEnabled ? 0.6 : 1
                           }} 
-                          onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "" }); setAddCreditsModalOpen(true); }}
+                          onClick={() => { setCreditForm({ salonId: salon.id, amount: "", note: "", creditType: "WHATSAPP" }); setAddCreditsModalOpen(true); }}
                           onMouseOver={(e) => { 
                             if (!salon.customWhatsappEnabled) {
                               e.currentTarget.style.borderColor = "#94a3b8"; 
@@ -416,6 +452,13 @@ export default function ManageCreditsPage() {
                   <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Package Name</label>
                   <input type="text" required value={pkgForm.name} onChange={e => setPkgForm({...pkgForm, name: e.target.value})} placeholder="e.g. Starter Pack (5,000 Credits)" style={inputStyle} />
                 </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Package Type</label>
+                  <select value={pkgForm.type} onChange={e => setPkgForm({...pkgForm, type: e.target.value})} style={{ ...inputStyle, background: "#fff", appearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                    <option value="WHATSAPP">WhatsApp</option>
+                    <option value="SMS">SMS</option>
+                  </select>
+                </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Credit Amount</label>
@@ -458,6 +501,13 @@ export default function ManageCreditsPage() {
                 </p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Credit Type</label>
+                  <select value={creditForm.creditType} onChange={e => setCreditForm({...creditForm, creditType: e.target.value})} style={{ ...inputStyle, background: "#fff", appearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                    <option value="WHATSAPP">WhatsApp</option>
+                    <option value="SMS">SMS</option>
+                  </select>
+                </div>
                 <div>
                   <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Credit Amount</label>
                   <input type="number" required value={creditForm.amount} onChange={e => setCreditForm({...creditForm, amount: e.target.value})} placeholder="e.g. 500 or -150" style={{ ...inputStyle, fontSize: "1.1rem", fontWeight: 700 }} />

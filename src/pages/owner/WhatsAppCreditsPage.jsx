@@ -22,15 +22,19 @@ import { formatCurrency } from "../../utils/currency.js";
 import PageLoader from "../../components/PageLoader.jsx";
 
 export default function WhatsAppCreditsPage() {
-  const [balance, setBalance] = useState(0);
+  const [whatsappCredits, setWhatsappCredits] = useState(0);
+  const [smsCredits, setSmsCredits] = useState(0);
   const [costs, setCosts] = useState({ whatsapp: 1, sms: 1 });
-  const [packages, setPackages] = useState([]);
-  const [transactions, setTransactions] = useState([]);
+  const [whatsappPackages, setWhatsappPackages] = useState([]);
+  const [smsPackages, setSmsPackages] = useState([]);
+  const [whatsappTransactions, setWhatsappTransactions] = useState([]);
+  const [smsTransactions, setSmsTransactions] = useState([]);
   const [customApiEnabled, setCustomApiEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [purchasingId, setPurchasingId] = useState(null);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [activeChannel, setActiveChannel] = useState("WHATSAPP");
   const [activeTab, setActiveTab] = useState("ALL");
   const [copiedId, setCopiedId] = useState(null);
   const [smsUsage, setSmsUsage] = useState({ logs: [], stats: { totalCreditsUsed: 0, totalSent: 0, totalFailed: 0, total: 0 } });
@@ -49,19 +53,24 @@ export default function WhatsAppCreditsPage() {
     setLoading(true);
     setError("");
     try {
-      const [balRes, pkgRes, txnRes, smsRes] = await Promise.all([
+      const [balRes, wpkgRes, spkgRes, wtxnRes, stxnRes, smsRes] = await Promise.all([
         api.get("/owner/credits/balance"),
-        api.get("/owner/credits/packages"),
-        api.get("/owner/credits/transactions"),
+        api.get("/owner/credits/packages?type=WHATSAPP"),
+        api.get("/owner/credits/packages?type=SMS"),
+        api.get("/owner/credits/transactions?type=WHATSAPP"),
+        api.get("/owner/credits/transactions?type=SMS"),
         api.get("/owner/credits/sms-usage").catch(() => ({ data: { logs: [], stats: { totalCreditsUsed: 0, totalSent: 0, totalFailed: 0, total: 0 } } }))
       ]);
-      setBalance(balRes.data.credits || 0);
+      setWhatsappCredits(balRes.data.whatsappCredits || 0);
+      setSmsCredits(balRes.data.smsCredits || 0);
       setCustomApiEnabled(balRes.data.customWhatsappEnabled || false);
       if (balRes.data.costs) {
         setCosts(balRes.data.costs);
       }
-      setPackages(pkgRes.data || []);
-      setTransactions(txnRes.data || []);
+      setWhatsappPackages(wpkgRes.data || []);
+      setSmsPackages(spkgRes.data || []);
+      setWhatsappTransactions(wtxnRes.data || []);
+      setSmsTransactions(stxnRes.data || []);
       setSmsUsage(smsRes.data || { logs: [], stats: { totalCreditsUsed: 0, totalSent: 0, totalFailed: 0, total: 0 } });
     } catch (err) {
       setError("Could not load credit information right now. Please refresh.");
@@ -135,12 +144,17 @@ export default function WhatsAppCreditsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const currentPackages = activeChannel === "WHATSAPP" ? whatsappPackages : smsPackages;
+  const currentTransactions = activeChannel === "WHATSAPP" ? whatsappTransactions : smsTransactions;
+  const currentCredits = activeChannel === "WHATSAPP" ? whatsappCredits : smsCredits;
+  const currentCost = activeChannel === "WHATSAPP" ? costs.whatsapp : costs.sms;
+
   const filteredPackages = useMemo(() => {
-    if (activeTab === "STARTER") return packages.filter(p => p.credits <= 1000);
-    if (activeTab === "GROWTH") return packages.filter(p => p.credits > 1000 && p.credits <= 5000);
-    if (activeTab === "ENTERPRISE") return packages.filter(p => p.credits > 5000);
-    return packages;
-  }, [packages, activeTab]);
+    if (activeTab === "STARTER") return currentPackages.filter(p => p.credits <= 1000);
+    if (activeTab === "GROWTH") return currentPackages.filter(p => p.credits > 1000 && p.credits <= 5000);
+    if (activeTab === "ENTERPRISE") return currentPackages.filter(p => p.credits > 5000);
+    return currentPackages;
+  }, [currentPackages, activeTab]);
 
   if (loading) return <PageLoader title="Loading Communication Credits" message="Fetching your live messaging balance and packages..." />;
 
@@ -154,7 +168,7 @@ export default function WhatsAppCreditsPage() {
               Communication Credits
             </h1>
             <span style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-              <Zap size={13} /> Unified Wallet
+              <Zap size={13} /> Dual Wallet
             </span>
           </div>
           <p style={{ margin: 0, color: "#64748b", fontSize: 14, lineHeight: 1.5 }}>
@@ -210,54 +224,39 @@ export default function WhatsAppCreditsPage() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 28 }}>
 
-        <div style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", borderRadius: 16, padding: "26px 28px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.3)", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(59, 130, 246, 0.12)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(59, 130, 246, 0.08)", borderRadius: "50%" }} />
+        <div style={{ background: "linear-gradient(135deg, #166534 0%, #14532d 100%)", borderRadius: 16, padding: "26px 28px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(22, 101, 52, 0.3)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(74, 222, 128, 0.12)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(74, 222, 128, 0.08)", borderRadius: "50%" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em" }}>Available Balance</span>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <CreditCard size={20} color="#60a5fa" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#bbf7d0", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp Credits</span>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <MessageSquare size={20} color="#4ade80" />
             </div>
           </div>
           <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1, marginBottom: 10, letterSpacing: "-1.5px" }}>
-            {balance.toLocaleString()}
+            {whatsappCredits.toLocaleString()}
+          </div>
+          <div style={{ fontSize: 12, color: "#4ade80", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <Sparkles size={13} /> {costs.whatsapp || 1} credit per message
+          </div>
+        </div>
+
+        <div style={{ background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)", borderRadius: 16, padding: "26px 28px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(30, 64, 175, 0.3)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(96, 165, 250, 0.12)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(96, 165, 250, 0.08)", borderRadius: "50%" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#bfdbfe", textTransform: "uppercase", letterSpacing: "0.08em" }}>SMS Credits</span>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Smartphone size={20} color="#60a5fa" />
+            </div>
+          </div>
+          <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1, marginBottom: 10, letterSpacing: "-1.5px" }}>
+            {smsCredits.toLocaleString()}
           </div>
           <div style={{ fontSize: 12, color: "#60a5fa", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-            <Sparkles size={13} /> Credits for WhatsApp & SMS
-          </div>
-        </div>
-
-        <div style={{ background: "#fff", borderRadius: 16, padding: "26px 28px", border: "1px solid #e2e8f0", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp Rate</span>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <MessageSquare size={20} color="#16a34a" />
-            </div>
-          </div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: "#0f172a", marginBottom: 4, letterSpacing: "-0.5px" }}>
-            {costs.whatsapp || 1} <span style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}>credit</span>
-          </div>
-          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>per message</div>
-          <div style={{ marginTop: 14, fontSize: 12, color: "#16a34a", fontWeight: 600, display: "flex", alignItems: "center", gap: 5, background: "#f0fdf4", padding: "5px 10px", borderRadius: 8, border: "1px solid #bbf7d0" }}>
-            <CheckCircle2 size={13} /> Meta Business API Active
-          </div>
-        </div>
-
-        <div style={{ background: "#fff", borderRadius: 16, padding: "26px 28px", border: "1px solid #e2e8f0", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>SMS Rate</span>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Smartphone size={20} color="#2563eb" />
-            </div>
-          </div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: "#0f172a", marginBottom: 4, letterSpacing: "-0.5px" }}>
-            {costs.sms || 1} <span style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}>credit</span>
-          </div>
-          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>per SMS</div>
-          <div style={{ marginTop: 14, fontSize: 12, color: "#2563eb", fontWeight: 600, display: "flex", alignItems: "center", gap: 5, background: "#eff6ff", padding: "5px 10px", borderRadius: 8, border: "1px solid #bfdbfe" }}>
-            <CheckCircle2 size={13} /> DLT Registered Sender ID
+            <Sparkles size={13} /> {costs.sms || 1} credit per SMS
           </div>
         </div>
 
@@ -272,7 +271,7 @@ export default function WhatsAppCreditsPage() {
             <TrendingUp size={16} color="#2563eb" /> Usage Estimate
           </h4>
           <p style={{ margin: "0 0 14px 0", fontSize: 13.5, color: "#475569", lineHeight: 1.5 }}>
-            With <strong>{balance.toLocaleString()} credits</strong> you can send approximately:
+            With your current balances you can send approximately:
           </p>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "10px 16px", borderRadius: 10, border: "1px solid #e2e8f0", flex: "1 1 200px" }}>
@@ -281,7 +280,7 @@ export default function WhatsAppCreditsPage() {
               </div>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>
-                  {Math.floor(balance / (costs.whatsapp || 1)).toLocaleString()}
+                  {Math.floor(whatsappCredits / (costs.whatsapp || 1)).toLocaleString()}
                 </div>
                 <div style={{ fontSize: 11.5, color: "#64748b", fontWeight: 500 }}>WhatsApp messages</div>
               </div>
@@ -292,7 +291,7 @@ export default function WhatsAppCreditsPage() {
               </div>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>
-                  {Math.floor(balance / (costs.sms || 1)).toLocaleString()}
+                  {Math.floor(smsCredits / (costs.sms || 1)).toLocaleString()}
                 </div>
                 <div style={{ fontSize: 11.5, color: "#64748b", fontWeight: 500 }}>SMS messages</div>
               </div>
@@ -301,14 +300,67 @@ export default function WhatsAppCreditsPage() {
         </div>
       </div>
 
+      <div style={{ display: "flex", background: "#f1f5f9", padding: 5, borderRadius: 14, gap: 5, marginBottom: 28, border: "1px solid #e2e8f0" }}>
+        <button
+          onClick={() => { setActiveChannel("WHATSAPP"); setActiveTab("ALL"); }}
+          style={{
+            flex: 1,
+            padding: "12px 20px",
+            borderRadius: 10,
+            border: "none",
+            fontSize: 14,
+            fontWeight: activeChannel === "WHATSAPP" ? 800 : 600,
+            background: activeChannel === "WHATSAPP" ? "#fff" : "transparent",
+            color: activeChannel === "WHATSAPP" ? "#166534" : "#64748b",
+            boxShadow: activeChannel === "WHATSAPP" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8
+          }}
+        >
+          <MessageSquare size={18} /> WhatsApp Credits
+          <span style={{ fontSize: 12, fontWeight: 700, color: activeChannel === "WHATSAPP" ? "#16a34a" : "#94a3b8", background: activeChannel === "WHATSAPP" ? "#f0fdf4" : "transparent", padding: "2px 8px", borderRadius: 6 }}>
+            {whatsappCredits.toLocaleString()}
+          </span>
+        </button>
+        <button
+          onClick={() => { setActiveChannel("SMS"); setActiveTab("ALL"); }}
+          style={{
+            flex: 1,
+            padding: "12px 20px",
+            borderRadius: 10,
+            border: "none",
+            fontSize: 14,
+            fontWeight: activeChannel === "SMS" ? 800 : 600,
+            background: activeChannel === "SMS" ? "#fff" : "transparent",
+            color: activeChannel === "SMS" ? "#1e40af" : "#64748b",
+            boxShadow: activeChannel === "SMS" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8
+          }}
+        >
+          <Smartphone size={18} /> SMS Credits
+          <span style={{ fontSize: 12, fontWeight: 700, color: activeChannel === "SMS" ? "#2563eb" : "#94a3b8", background: activeChannel === "SMS" ? "#eff6ff" : "transparent", padding: "2px 8px", borderRadius: 6 }}>
+            {smsCredits.toLocaleString()}
+          </span>
+        </button>
+      </div>
+
       <div style={{ marginBottom: 40 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
           <div>
             <h2 style={{ margin: "0 0 4px 0", fontSize: 20, fontWeight: 800, color: "#0f172a" }}>
-              Select a Top-Up Package
+              {activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} Top-Up Packages
             </h2>
             <p style={{ margin: 0, color: "#64748b", fontSize: 13.5 }}>
-              Choose a package to instantly recharge your messaging wallet with Razorpay.
+              Choose a package to instantly recharge your {activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} wallet with Razorpay.
             </p>
           </div>
 
@@ -345,6 +397,7 @@ export default function WhatsAppCreditsPage() {
           {filteredPackages.map((pkg) => {
             const isPopular = pkg.credits === 2000 || pkg.name.toLowerCase().includes("growth");
             const isPurchasing = purchasingId === pkg.id;
+            const channelColor = activeChannel === "WHATSAPP" ? "#16a34a" : "#2563eb";
 
             return (
               <div
@@ -352,18 +405,18 @@ export default function WhatsAppCreditsPage() {
                 style={{
                   background: "#fff",
                   borderRadius: 16,
-                  border: isPopular ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                  border: isPopular ? `2px solid ${channelColor}` : "1px solid #e2e8f0",
                   padding: "24px 22px",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
                   position: "relative",
-                  boxShadow: isPopular ? "0 12px 30px -5px rgba(37, 99, 235, 0.15)" : "0 2px 8px rgba(0,0,0,0.02)",
+                  boxShadow: isPopular ? `0 12px 30px -5px ${activeChannel === "WHATSAPP" ? "rgba(22, 163, 74, 0.15)" : "rgba(37, 99, 235, 0.15)"}` : "0 2px 8px rgba(0,0,0,0.02)",
                   transition: "transform 0.2s, box-shadow 0.2s"
                 }}
               >
                 {isPopular && (
-                  <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#2563eb", color: "#fff", padding: "3px 12px", borderRadius: 20, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 4 }}>
+                  <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: channelColor, color: "#fff", padding: "3px 12px", borderRadius: 20, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 4 }}>
                     <Sparkles size={11} /> Most Popular
                   </div>
                 )}
@@ -372,7 +425,7 @@ export default function WhatsAppCreditsPage() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                     <div>
                       <h3 style={{ margin: "0 0 4px 0", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>{pkg.name}</h3>
-                      <p style={{ margin: 0, fontSize: 12.5, color: "#64748b", lineHeight: 1.4 }}>{pkg.description || "Multi-channel WhatsApp & SMS bundle"}</p>
+                      <p style={{ margin: 0, fontSize: 12.5, color: "#64748b", lineHeight: 1.4 }}>{pkg.description || `${activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} messaging bundle`}</p>
                     </div>
                   </div>
 
@@ -381,23 +434,23 @@ export default function WhatsAppCreditsPage() {
                       <span style={{ fontSize: 26, fontWeight: 900, color: "#0f172a" }}>{formatCurrency(pkg.price)}</span>
                       <span style={{ fontSize: 12, color: "#64748b", marginLeft: 4 }}>one-time</span>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", background: "#eff6ff", padding: "4px 8px", borderRadius: 6 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: channelColor, background: activeChannel === "WHATSAPP" ? "#f0fdf4" : "#eff6ff", padding: "4px 8px", borderRadius: 6 }}>
                       {pkg.credits.toLocaleString()} Credits
                     </span>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 24 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#334155" }}>
-                      <CheckCircle2 size={15} color="#16a34a" /> Instant POS Invoice Sharing (WhatsApp & SMS)
+                      <CheckCircle2 size={15} color={channelColor} /> Instant POS Invoice Sharing
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#334155" }}>
-                      <CheckCircle2 size={15} color="#16a34a" /> Automated Appointment Alerts & Reminders
+                      <CheckCircle2 size={15} color={channelColor} /> Automated Appointment Alerts & Reminders
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#334155" }}>
-                      <CheckCircle2 size={15} color="#16a34a" /> Marketing Campaigns & Customer Offers
+                      <CheckCircle2 size={15} color={channelColor} /> Marketing Campaigns & Customer Offers
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#334155" }}>
-                      <CheckCircle2 size={15} color="#16a34a" /> Zero Expiry Date & Priority Queue
+                      <CheckCircle2 size={15} color={channelColor} /> Zero Expiry Date & Priority Queue
                     </div>
                   </div>
                 </div>
@@ -408,7 +461,7 @@ export default function WhatsAppCreditsPage() {
                   style={{
                     width: "100%",
                     padding: "12px",
-                    background: isPopular ? "#2563eb" : "#0f172a",
+                    background: isPopular ? channelColor : "#0f172a",
                     color: "#fff",
                     border: "none",
                     borderRadius: 10,
@@ -420,7 +473,7 @@ export default function WhatsAppCreditsPage() {
                     justifyContent: "center",
                     gap: 8,
                     transition: "all 0.2s",
-                    boxShadow: isPopular ? "0 4px 14px rgba(37, 99, 235, 0.3)" : "none"
+                    boxShadow: isPopular ? `0 4px 14px ${activeChannel === "WHATSAPP" ? "rgba(22, 163, 74, 0.3)" : "rgba(37, 99, 235, 0.3)"}` : "none"
                   }}
                   onMouseEnter={e => {
                     if (!isPurchasing) e.currentTarget.style.opacity = "0.9";
@@ -442,11 +495,17 @@ export default function WhatsAppCreditsPage() {
               </div>
             );
           })}
+
+          {filteredPackages.length === 0 && (
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px 20px", color: "#94a3b8", background: "#f8fafc", borderRadius: 16, border: "1px dashed #e2e8f0" }}>
+              <HelpCircle size={28} style={{ display: "block", margin: "0 auto 8px", opacity: 0.5 }} />
+              No packages available for this filter.
+            </div>
+          )}
         </div>
       </div>
 
-      {/* SMS USAGE STATS */}
-      {smsUsage.stats.total > 0 && (
+      {activeChannel === "SMS" && smsUsage.stats.total > 0 && (
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <div>
@@ -500,11 +559,13 @@ export default function WhatsAppCreditsPage() {
       <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
         <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Recharge & Top-Up History</h3>
-            <p style={{ margin: 0, fontSize: 12.5, color: "#64748b", marginTop: 2 }}>Recent credit purchase transactions on your salon account</p>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>
+              {activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} Recharge History
+            </h3>
+            <p style={{ margin: 0, fontSize: 12.5, color: "#64748b", marginTop: 2 }}>Recent {activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} credit purchase transactions</p>
           </div>
           <span style={{ fontSize: 12, fontWeight: 600, color: "#64748b", background: "#e2e8f0", padding: "4px 10px", borderRadius: 20 }}>
-            {transactions.length} Records
+            {currentTransactions.length} Records
           </span>
         </div>
 
@@ -521,7 +582,7 @@ export default function WhatsAppCreditsPage() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((tx, idx) => (
+              {currentTransactions.map((tx, idx) => (
                 <tr key={tx.id} style={{ borderBottom: "1px solid #f1f5f9", background: idx % 2 === 0 ? "#fff" : "#fafbfc" }}>
                   <td style={{ padding: "14px 20px", color: "#475569" }}>
                     <div style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(tx.createdAt).toLocaleDateString([], { dateStyle: "medium" })}</div>
@@ -580,11 +641,11 @@ export default function WhatsAppCreditsPage() {
                 </tr>
               ))}
 
-              {transactions.length === 0 && (
+              {currentTransactions.length === 0 && (
                 <tr>
                   <td colSpan={6} style={{ textAlign: "center", padding: "40px 20px", color: "#94a3b8" }}>
                     <Clock size={28} style={{ display: "block", margin: "0 auto 8px", opacity: 0.5 }} />
-                    No credit top-up history found yet.
+                    No {activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} credit history found yet.
                   </td>
                 </tr>
               )}
