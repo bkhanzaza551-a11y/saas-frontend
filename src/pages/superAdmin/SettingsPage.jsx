@@ -4,7 +4,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
-import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
+import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
 const TABS = [
   { id: "general",       label: "General",               icon: Settings },
@@ -131,7 +131,65 @@ export default function SuperAdminSettingsPage() {
   const removeTemplate = (id) => setForm(p => ({ ...p, messageTemplates: p.messageTemplates.filter(t => t.id !== id) }));
 
   const [templateDraft, setTemplateDraft] = useState(null);
-  const editTemplate = (tpl) => setTemplateDraft(tpl ? { ...tpl } : { id: "", name: "", channel: "WHATSAPP", event: "OTP", subject: "", body: "" });
+  const [templateError, setTemplateError] = useState("");
+
+  const editTemplate = (tpl) => {
+    setTemplateError("");
+    setTemplateDraft(tpl ? { ...tpl } : { id: "", name: "", channel: "WHATSAPP", event: "OTP", subject: "", body: "" });
+  };
+
+  const insertToken = (token) => {
+    setTemplateDraft(p => {
+      const current = p.body || "";
+      return {
+        ...p,
+        body: current ? `${current} ${token}` : token
+      };
+    });
+    setTemplateError("");
+  };
+
+  const handleSaveTemplate = () => {
+    if (!templateDraft) return;
+    setTemplateError("");
+
+    const name = (templateDraft.name || "").trim();
+    if (!name || name.length < 2) {
+      setTemplateError("Template name is required (minimum 2 characters).");
+      return;
+    }
+
+    if (templateDraft.channel === "EMAIL" && (!templateDraft.subject || !templateDraft.subject.trim())) {
+      setTemplateError("Email Subject is required for email templates.");
+      return;
+    }
+
+    const body = (templateDraft.body || "").trim();
+    if (!body || body.length < 5) {
+      setTemplateError("Message body is required (minimum 5 characters).");
+      return;
+    }
+
+    // Dynamic variable validation (checks for {var}, {{var}}, {0}, {1}, etc.)
+    const hasDynamicToken = /\{[a-zA-Z0-9_]+\}|\{\{[a-zA-Z0-9_]+\}\}/.test(body);
+    if (!hasDynamicToken) {
+      setTemplateError("Message body must include at least one dynamic variable placeholder (e.g. {{otp}}, {{salonName}}, {1}). Click any token pill below to insert.");
+      return;
+    }
+
+    // Event-specific validation
+    if (templateDraft.event === "OTP") {
+      const hasOtpToken = /\{\{?otp\}?\}|\{\{?code\}?\}|\{0\}|\{1\}/i.test(body);
+      if (!hasOtpToken) {
+        setTemplateError("OTP template must include an OTP variable like {{otp}} or {1}.");
+        return;
+      }
+    }
+
+    upsertTemplate(templateDraft);
+    setTemplateDraft(null);
+    setTemplateError("");
+  };
 
   useEffect(() => {
     api.get("/super-admin/settings").then((res) => {
@@ -680,39 +738,94 @@ export default function SuperAdminSettingsPage() {
 
                   {templateDraft && (
                     <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15,23,42,0.5)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setTemplateDraft(null)}>
-                      <div style={{ background: "white", borderRadius: 16, padding: 24, width: "100%", maxWidth: 520, maxHeight: "90vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
-                        <h4 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{templateDraft.id ? "Edit Template" : "New Template"}</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                      <div style={{ background: "white", borderRadius: 16, padding: 24, width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                          <h4 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#0f172a" }}>{templateDraft.id ? "Edit Template" : "New Template"}</h4>
+                          <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 12, background: CHANNEL_COLORS[templateDraft.channel]?.bg || "#f1f5f9", color: CHANNEL_COLORS[templateDraft.channel]?.color || "#334155" }}>
+                            {templateDraft.channel}
+                          </span>
+                        </div>
+
+                        {templateError && (
+                          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", color: "#b91c1c", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                            <span>{templateError}</span>
+                          </div>
+                        )}
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
                           <Field label="Template Name">
-                            <input style={inputStyle} value={templateDraft.name} onChange={e => setTemplateDraft(p => ({ ...p, name: e.target.value }))} placeholder="Login OTP" />
+                            <input 
+                              style={{ ...inputStyle, borderColor: templateError && !templateDraft.name?.trim() ? "#ef4444" : "#cbd5e1" }} 
+                              value={templateDraft.name} 
+                              onChange={e => { setTemplateDraft(p => ({ ...p, name: e.target.value })); if (templateError) setTemplateError(""); }} 
+                              placeholder="e.g. Login OTP Alert" 
+                            />
                           </Field>
                           <Field label="Channel">
-                            <CustomSelect value={templateDraft.channel} onChange={e => setTemplateDraft(p => ({ ...p, channel: e.target.value }))}>
+                            <CustomSelect value={templateDraft.channel} onChange={e => { setTemplateDraft(p => ({ ...p, channel: e.target.value })); if (templateError) setTemplateError(""); }}>
                               <option value="EMAIL">Email</option>
                               <option value="SMS">SMS</option>
                               <option value="WHATSAPP">WhatsApp</option>
                             </CustomSelect>
                           </Field>
-                          <Field label="Event" full>
-                            <CustomSelect value={templateDraft.event} onChange={e => setTemplateDraft(p => ({ ...p, event: e.target.value }))}>
+                          <Field label="Trigger Event" full>
+                            <CustomSelect value={templateDraft.event} onChange={e => { setTemplateDraft(p => ({ ...p, event: e.target.value })); if (templateError) setTemplateError(""); }}>
                               {TEMPLATE_EVENTS.map(ev => <option key={ev.key} value={ev.key}>{ev.label}</option>)}
                             </CustomSelect>
                           </Field>
                           {templateDraft.channel === "EMAIL" && (
                             <Field label="Subject" full>
-                              <input style={inputStyle} value={templateDraft.subject || ""} onChange={e => setTemplateDraft(p => ({ ...p, subject: e.target.value }))} placeholder="Your login code" />
+                              <input 
+                                style={{ ...inputStyle, borderColor: templateError && !templateDraft.subject?.trim() ? "#ef4444" : "#cbd5e1" }} 
+                                value={templateDraft.subject || ""} 
+                                onChange={e => { setTemplateDraft(p => ({ ...p, subject: e.target.value })); if (templateError) setTemplateError(""); }} 
+                                placeholder="Your security verification code" 
+                              />
                             </Field>
                           )}
                           <Field label="Message Body" full>
-                            <textarea rows={5} style={{ ...inputStyle, resize: "vertical" }} value={templateDraft.body || ""} onChange={e => setTemplateDraft(p => ({ ...p, body: e.target.value }))} placeholder={"Your message body with {{name}}, {{link}}, etc."} />
+                            <textarea 
+                              rows={5} 
+                              style={{ ...inputStyle, resize: "vertical", borderColor: templateError && (!templateDraft.body?.trim() || !/\{[a-zA-Z0-9_]+\}|\{\{[a-zA-Z0-9_]+\}\}/.test(templateDraft.body)) ? "#ef4444" : "#cbd5e1" }} 
+                              value={templateDraft.body || ""} 
+                              onChange={e => { setTemplateDraft(p => ({ ...p, body: e.target.value })); if (templateError) setTemplateError(""); }} 
+                              placeholder={templateDraft.event === "OTP" ? "Your OTP for {{salonName}} is {{otp}}. Valid for {{minutes}} minutes." : "Hello {{name}}, your subscription for {{salonName}} expires in {{daysLeft}} days."} 
+                            />
                           </Field>
-                          <div style={{ gridColumn: "1 / -1", fontSize: 11, color: "#94a3b8" }}>
-                            Dynamic tokens: {"{{name}}"} {"{{salonName}}"} {"{{otp}}"} {"{{link}}"} {"{{amount}}"} {"{{planName}}"} {"{{daysLeft}}"} {"{{ticketId}}"} {"{{status}}"}
+
+                          {/* Interactive dynamic token pills */}
+                          <div style={{ gridColumn: "1 / -1", background: "#f8fafc", padding: 12, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                              Click to insert dynamic variable:
+                            </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                              {(templateDraft.event === "OTP" ? ["{{otp}}", "{{salonName}}", "{{minutes}}", "{1}"] :
+                                templateDraft.event === "WELCOME_MESSAGE" ? ["{{name}}", "{{salonName}}", "{{link}}", "{1}"] :
+                                templateDraft.event === "TRIAL_ENDING" ? ["{{salonName}}", "{{daysLeft}}", "{{planName}}", "{{link}}", "{1}"] :
+                                templateDraft.event === "SUBSCRIPTION_EXPIRY" ? ["{{salonName}}", "{{planName}}", "{{link}}", "{1}"] :
+                                templateDraft.event === "PAYMENT_CONFIRMATION" ? ["{{amount}}", "{{salonName}}", "{{link}}", "{1}"] :
+                                templateDraft.event === "SUPPORT_REPLY" ? ["{{ticketId}}", "{{name}}", "{{status}}", "{{link}}", "{1}"] :
+                                ["{{name}}", "{{salonName}}", "{{otp}}", "{{link}}", "{{amount}}", "{{planName}}", "{{daysLeft}}", "{{ticketId}}", "{{status}}", "{1}"]
+                              ).map(token => (
+                                <button
+                                  key={token}
+                                  type="button"
+                                  onClick={() => insertToken(token)}
+                                  style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, padding: "4px 8px", fontSize: 11, fontWeight: 700, color: "#4f46e5", cursor: "pointer", transition: "all 0.15s" }}
+                                  onMouseOver={e => { e.currentTarget.style.background = "#e0e7ff"; e.currentTarget.style.borderColor = "#818cf8"; }}
+                                  onMouseOut={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
+                                >
+                                  + {token}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
+
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-                          <button type="button" onClick={() => setTemplateDraft(null)} style={{ padding: "8px 18px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-                          <button type="button" onClick={() => { upsertTemplate(templateDraft); setTemplateDraft(null); }} style={{ padding: "8px 18px", background: "#4f46e5", color: "white", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Save Template</button>
+                          <button type="button" onClick={() => setTemplateDraft(null)} style={{ padding: "8px 18px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#475569", cursor: "pointer" }}>Cancel</button>
+                          <button type="button" onClick={handleSaveTemplate} style={{ padding: "8px 20px", background: "#4f46e5", color: "white", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.3)" }}>Save Template</button>
                         </div>
                       </div>
                     </div>
