@@ -22,7 +22,8 @@ const PERMISSION_PRESETS = [
   { label: "Support", permissions: ["dashboard", "support-tickets", "salons"] },
   { label: "Finance", permissions: ["dashboard", "finance", "subscriptions", "salons"] },
   { label: "Operations", permissions: ["dashboard", "salons", "subscriptions", "plans", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "credits", "financial-reports"] },
-  { label: "Platform Admin", permissions: ["dashboard", "salons", "plans", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance", "credits", "staff", "settings", "audit-logs"] }
+  { label: "Platform Admin", permissions: ["dashboard", "salons", "plans", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance", "credits", "staff", "settings", "audit-logs"] },
+  { label: "Super Admin", permissions: ["dashboard", "salons", "plans", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance", "credits", "staff", "settings", "audit-logs"] }
 ];
 
 const DEPARTMENTS = ["Sales", "Support", "Finance", "Operations", "Engineering", "Marketing", "HR", "Other"];
