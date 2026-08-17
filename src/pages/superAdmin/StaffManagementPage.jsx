@@ -321,7 +321,7 @@ export default function StaffManagementPage() {
                       <div style={{ display: "flex", gap: 4 }}>
                         <button onClick={() => {
                           setEditingRoleId(r.id);
-                          setRoleForm({ name: r.name, description: r.description || "", permissions: Array.isArray(r.permissions) ? r.permissions : [] });
+                          setRoleForm({ name: r.name, description: r.description || "", permissions: r.permissions && typeof r.permissions === "object" && !Array.isArray(r.permissions) ? Object.keys(r.permissions).filter(k => r.permissions[k] === true) : Array.isArray(r.permissions) ? r.permissions : [] });
                           setIsRoleModalOpen(true);
                         }} style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", padding: "4px 8px", borderRadius: 4, cursor: "pointer" }}><Pencil size={14} /></button>
                         {(!r._count?.users || r._count?.users === 0) && (
@@ -332,7 +332,7 @@ export default function StaffManagementPage() {
                   </div>
                   <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: "0.85rem", color: "#64748b" }}>Assigned to <strong>{r._count?.users || 0}</strong> users</span>
-                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}><strong>{(Array.isArray(r.permissions) ? r.permissions.length : 0)}</strong> permissions</span>
+                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}><strong>{r.permissions && typeof r.permissions === "object" && !Array.isArray(r.permissions) ? Object.keys(r.permissions).filter(k => r.permissions[k] === true).length : Array.isArray(r.permissions) ? r.permissions.length : 0}</strong> permissions</span>
                   </div>
                 </div>
               ))}

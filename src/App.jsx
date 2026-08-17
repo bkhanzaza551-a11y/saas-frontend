@@ -303,17 +303,22 @@ const Protected = () => {
         const adminPerms = auth?.user?.adminRole?.permissions;
         const pagePerms = auth?.user?.pagePermissions;
         
-        let perms = null;
-        if (Array.isArray(adminPerms) && adminPerms.length > 0) perms = adminPerms;
-        else if (Array.isArray(pagePerms) && pagePerms.length > 0) perms = pagePerms;
+        let allowedPages = null;
+        if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms) && Object.keys(adminPerms).length > 0) {
+          allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
+        } else if (Array.isArray(adminPerms) && adminPerms.length > 0) {
+          allowedPages = adminPerms;
+        } else if (Array.isArray(pagePerms) && pagePerms.length > 0) {
+          allowedPages = pagePerms;
+        }
 
-        if (!perms || perms.length === 0) return superAdminGroups;
+        if (!allowedPages || allowedPages.length === 0) return superAdminGroups;
 
         return superAdminGroups.map((group) => ({
           ...group,
           items: group.items.filter((item) => {
             const pageKey = item.to.split("/").pop();
-            return perms.includes(pageKey);
+            return allowedPages.includes(pageKey);
           })
         })).filter(group => group.items.length > 0);
       })()
@@ -442,11 +447,16 @@ const SuperAdminRoute = ({ pageKey, element }) => {
   }
   const adminPerms = auth.user?.adminRole?.permissions;
   const pagePerms = auth.user?.pagePermissions;
-  let perms = null;
-  if (Array.isArray(adminPerms) && adminPerms.length > 0) perms = adminPerms;
-  else if (Array.isArray(pagePerms) && pagePerms.length > 0) perms = pagePerms;
-  if (pageKey && Array.isArray(perms) && perms.length > 0) {
-    if (!perms.includes(pageKey)) {
+  let allowedPages = null;
+  if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms) && Object.keys(adminPerms).length > 0) {
+    allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
+  } else if (Array.isArray(adminPerms) && adminPerms.length > 0) {
+    allowedPages = adminPerms;
+  } else if (Array.isArray(pagePerms) && pagePerms.length > 0) {
+    allowedPages = pagePerms;
+  }
+  if (pageKey && Array.isArray(allowedPages) && allowedPages.length > 0) {
+    if (!allowedPages.includes(pageKey)) {
       return <AccessNotice title="Page Access Restricted" message="Your staff account does not have permission to access this page." />;
     }
   }
