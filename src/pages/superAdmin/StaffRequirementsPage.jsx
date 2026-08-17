@@ -181,9 +181,9 @@ export default function SuperAdminStaffRequirementsPage() {
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Salon Name</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Branch</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Position / Job Role</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Assigned Handler</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Vacancies</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Salary Range</th>
-                <th style={{ padding: "14px 16px", textAlign: "left" }}>Experience</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Priority</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Status</th>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Requested Date</th>
@@ -214,14 +214,16 @@ export default function SuperAdminStaffRequirementsPage() {
                         </div>
                       )}
                     </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ fontSize: "0.8rem", fontWeight: 600, color: req.department ? "#4338ca" : "#94a3b8" }}>
+                        {req.department || "Unassigned"}
+                      </span>
+                    </td>
                     <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0f172a" }}>
                       {req.count || 1} required
                     </td>
                     <td style={{ padding: "14px 16px", color: "#0f172a", fontWeight: 600 }}>
                       {req.salary || "Negotiable"}
-                    </td>
-                    <td style={{ padding: "14px 16px", color: "#475569" }}>
-                      {req.experience || "Any"}
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
@@ -266,7 +268,7 @@ export default function SuperAdminStaffRequirementsPage() {
         </div>
       )}
 
-      {/* Point 5: Request Detail Modal (Exact fields required) */}
+      {/* Point 5: Request Detail Modal (Exact fields required + Transfer) */}
       {selectedReq && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
           <div style={{ background: "#fff", width: "100%", maxWidth: 640, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
@@ -293,6 +295,27 @@ export default function SuperAdminStaffRequirementsPage() {
               <div><span style={{ color: "#64748b" }}>Priority:</span> <strong>{selectedReq.priority}</strong></div>
               <div><span style={{ color: "#64748b" }}>Current Status:</span> <strong style={{ color: statusConfig[selectedReq.status]?.color }}>{statusConfig[selectedReq.status]?.label || selectedReq.status}</strong></div>
               <div><span style={{ color: "#64748b" }}>Requested Date:</span> <strong>{new Date(selectedReq.createdAt).toLocaleDateString()}</strong></div>
+              <div>
+                <span style={{ color: "#64748b" }}>Assigned Handler:</span>{" "}
+                <strong style={{ color: "#4338ca" }}>{selectedReq.department || "Unassigned"}</strong>
+              </div>
+            </div>
+
+            {/* Point 7: Transfer / Assign Staff Handler */}
+            <div style={{ background: "#eef2ff", padding: "10px 14px", borderRadius: 8, marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.8rem", color: "#3730a3", fontWeight: 600 }}>
+                Manage Handler / Staff Assignee:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const staffName = window.prompt("Enter staff / recruiter name to assign/transfer this request to:", selectedReq.department || "");
+                  if (staffName !== null) updateRequirement(selectedReq.id, { department: staffName.trim() });
+                }}
+                style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #c7d2fe", background: "white", color: "#4f46e5", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}
+              >
+                🔄 Transfer / Assign Handler
+              </button>
             </div>
 
             {selectedReq.skills && (
