@@ -229,15 +229,16 @@ export default function SubscriptionsPage() {
 
       <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
         <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
-            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
+          <div className="search-input-wrapper" style={{ flex: 1, minWidth: 280 }}>
+            <div className="search-icon">
               <Search size={18} />
             </div>
             <input
+              className="search-input-field"
               value={q}
               placeholder="Search salon, plan, notes..."
               onChange={(e) => setQ(e.target.value)}
-              style={{ width: "100%", height: 44, padding: "0 16px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.92rem", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
               onFocus={e => e.target.style.borderColor = "#6366f1"}
               onBlur={e => e.target.style.borderColor = "#cbd5e1"}
             />

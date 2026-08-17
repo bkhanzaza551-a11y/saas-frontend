@@ -5938,10 +5938,10 @@ html, body {
 .super-admin-page textarea {
   border: 1px solid #cbd5e1 !important;
   background: #f8fafc !important;
-  border-radius: 14px !important;
-  font-size: 0.95rem !important;
-  padding: 12px 16px !important;
-  min-height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 0.92rem !important;
+  padding: 11px 16px !important;
+  min-height: 44px !important;
   transition: all 0.2s ease !important;
 }
 
@@ -5951,6 +5951,45 @@ html, body {
   border-color: #6366f1 !important;
   background: white !important;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Dedicated Search Input styles to prevent icon-text collisions */
+.super-admin-page .search-input-wrapper {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.super-admin-page .search-input-wrapper .search-icon,
+.super-admin-page .search-icon-inside,
+.super-admin-page div:has(> svg) > svg:first-child {
+  position: absolute !important;
+  left: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #94a3b8 !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2 !important;
+}
+
+.super-admin-page .search-input-wrapper input,
+.super-admin-page input.search-input-field,
+.super-admin-page input[data-search="true"],
+.super-admin-page div:has(> .search-icon) input,
+.super-admin-page div:has(> svg) input {
+  padding-left: 48px !important;
+}
+
+.super-admin-page input.filter-input-compact {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 0.9rem !important;
 }
 
 .super-admin-page .stat-card {

@@ -312,15 +312,16 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
           {/* Top Row: Search and Action Buttons */}
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, position: "relative", minWidth: 280 }}>
-              <div style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#64748b", display: "flex", pointerEvents: "none" }}>
+            <div className="search-input-wrapper" style={{ flex: 1, minWidth: 280 }}>
+              <div className="search-icon">
                 <Search size={18} />
               </div>
               <input
+                className="search-input-field"
                 value={query}
                 placeholder="Search salon by name, slug, email, phone..."
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ width: "100%", height: 42, padding: "10px 14px 10px 48px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.92rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                 onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
               />
@@ -329,7 +330,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <button 
               type="button"
               onClick={() => load(query, statusFilter, planFilter, cityFilter)} 
-              style={{ height: 42, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }}
+              style={{ height: 44, padding: "0 22px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 12, fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }}
               onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }}
               onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}
             >
@@ -339,7 +340,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <button 
               type="button"
               onClick={() => { setQuery(""); setStatusFilter(""); setPlanFilter(""); setCityFilter(""); load("", "", "", ""); }} 
-              style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
+              style={{ height: 44, padding: "0 18px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
               onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
               onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.color="#64748b"; }}
             >
@@ -380,10 +381,11 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>City</label>
               <input 
+                className="filter-input-compact"
                 value={cityFilter} 
                 placeholder="Filter by city..." 
                 onChange={(e) => setCityFilter(e.target.value)} 
-                style={{ height: 42, padding: "0 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }}
+                style={{ height: 44, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.9rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", width: "100%", boxSizing: "border-box", transition: "all 0.2s" }}
                 onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                 onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }}
               />
