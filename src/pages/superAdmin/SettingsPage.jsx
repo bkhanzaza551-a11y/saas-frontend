@@ -410,6 +410,66 @@ export default function SuperAdminSettingsPage() {
     } finally { setSaving(false); }
   };
 
+  const TAB_FIELD_MAP = {
+    general: ["systemName", "globalLogo", "defaultCurrency", "defaultCountry", "defaultTimezone", "dateFormat", "timeFormat", "defaultLanguage", "currencyOptions", "invoicePrefix", "invoiceFormat"],
+    business: ["businessName", "businessEmail", "businessPhone", "businessAddress", "businessCity", "businessState", "businessCountry", "businessPin", "taxNumber", "taxLabel", "taxRate"],
+    comms: ["notificationEmailEnabled", "notificationSmsEnabled", "notificationWhatsappEnabled", "emailProviderName", "smsProviderName", "whatsappProviderName", "emailSenderId", "smsSenderId", "whatsappSenderId", "notificationEmail", "contactEmail", "supportEmail", "whatsappNumber"],
+    notifications: ["notificationDefaults", "messageTemplates"],
+    integrations: ["integrations"],
+    policy: ["trialDays", "reminderDaysBefore", "gracePeriodDays", "autoSuspendOnExpiry", "retentionDays", "retentionWarningDays", "retentionAction", "termsUrl", "privacyUrl", "termsContent", "privacyContent", "demoBookingUrl"],
+    security: ["requireEmailVerification", "requireMobileVerification", "otpExpiryMinutes", "inviteExpiryDays", "sessionTimeoutMinutes", "maxLoginAttempts", "lockDurationMinutes", "passwordLength", "enforce2FA"],
+    maintenance: ["maintenanceMode", "maintenanceMessage", "maintenanceEndTime", "backupPolicyNote"]
+  };
+
+  const buildPayload = (fields) => {
+    const p = {};
+    for (const k of fields) {
+      if (k === "notificationDefaults") {
+        p.notificationDefaults = {
+          email: form.notificationEmailEnabled, sms: form.notificationSmsEnabled, whatsapp: form.notificationWhatsappEnabled,
+          accountOwnerInvite: form.accountOwnerInvite, accountEmailVerify: form.accountEmailVerify, accountMobileVerify: form.accountMobileVerify, accountPasswordReset: form.accountPasswordReset,
+          subTrialEnding: form.subTrialEnding, subExpiring: form.subExpiring, subExpired: form.subExpired, subGraceEnding: form.subGraceEnding, subPaymentReceived: form.subPaymentReceived, subPaymentPending: form.subPaymentPending,
+          supportTicketCreated: form.supportTicketCreated, supportReply: form.supportReply, supportTicketResolved: form.supportTicketResolved,
+          productReqSubmitted: form.productReqSubmitted, productReqApproved: form.productReqApproved, productReqRejected: form.productReqRejected, productReqCompleted: form.productReqCompleted,
+          staffReqSubmitted: form.staffReqSubmitted, staffReqUpdated: form.staffReqUpdated, staffReqCompleted: form.staffReqCompleted
+        };
+      } else if (k === "currencyOptions") {
+        p.currencyOptions = Array.isArray(form.currencyOptions) ? form.currencyOptions : form.currencyOptions.split(",").map(s => s.trim()).filter(Boolean);
+      } else if (k === "lockDurationMinutes") {
+        p.lockDuration = form.lockDurationMinutes;
+      } else {
+        p[k] = form[k];
+      }
+    }
+    return p;
+  };
+
+  const [savingTab, setSavingTab] = useState("");
+
+  const saveTab = async (tabName) => {
+    const fields = TAB_FIELD_MAP[tabName];
+    if (!fields) return;
+    setStatus({ error: "", success: "" });
+    setSavingTab(tabName);
+    try {
+      const payload = buildPayload(fields);
+      await api.post("/super-admin/settings", payload);
+      setStatus({ error: "", success: `${tabName.charAt(0).toUpperCase() + tabName.slice(1)} settings saved.` });
+      setTimeout(() => setStatus(p => ({ ...p, success: "" })), 3000);
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not save"), success: "" });
+    } finally { setSavingTab(""); }
+  };
+
+  const TabSaveButton = ({ tabName }) => (
+    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+      <button type="button" onClick={() => saveTab(tabName)} disabled={savingTab === tabName || saving}
+        style={{ padding: "7px 20px", background: savingTab === tabName ? "#94a3b8" : "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 12, cursor: savingTab === tabName ? "not-allowed" : "pointer" }}>
+        {savingTab === tabName ? "Saving..." : "Save"}
+      </button>
+    </div>
+  );
+
   if (loading) return <div className="page-shell super-admin-page"><PageLoader title="Loading settings" /></div>;
 
   return (
@@ -492,6 +552,7 @@ export default function SuperAdminSettingsPage() {
                       </CustomSelect>
                     </Field>
                   </div>
+                  <TabSaveButton tabName="general" />
                 </div>
               )}
  
@@ -535,6 +596,7 @@ export default function SuperAdminSettingsPage() {
                       Preview format: <strong>{form.invoicePrefix || "INV"}-{new Date().getFullYear()}-00001</strong> (Used automatically when Finance invoices are generated)
                     </div>
                   </div>
+                  <TabSaveButton tabName="business" />
                 </div>
               )}
  
@@ -651,6 +713,7 @@ export default function SuperAdminSettingsPage() {
                       </Field>
                     </div>
                   </div>
+                  <TabSaveButton tabName="comms" />
                 </div>
               )}
 
@@ -847,6 +910,7 @@ export default function SuperAdminSettingsPage() {
                       </div>
                     </div>
                   )}
+                  <TabSaveButton tabName="notifications" />
                 </div>
               )}
 
@@ -998,6 +1062,7 @@ export default function SuperAdminSettingsPage() {
                       </div>
                     </div>
                   </div>
+                  <TabSaveButton tabName="integrations" />
                 </div>
               )}
 
@@ -1114,6 +1179,7 @@ export default function SuperAdminSettingsPage() {
                       </div>
                     </div>
                   </div>
+                  <TabSaveButton tabName="policy" />
                 </div>
               )}
 
