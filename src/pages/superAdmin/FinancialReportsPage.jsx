@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
@@ -17,7 +19,7 @@ const localDateStr = (d = new Date()) => {
 
 const exportCsv = (rows) => {
   if (!rows.length) return;
-  const headers = ["TXN ID", "Salon", "For", "Amount", "Method", "Status", "Date", "Reference", "Notes"];
+  const headers = ["Transaction ID", "Salon", "Payment For", "Amount", "Payment Method", "Status", "Payment Date", "Reference", "Notes"];
   const csvRows = [headers.join(",")];
   rows.forEach(r => {
     csvRows.push([
@@ -65,6 +67,7 @@ const PAYMENT_STATUS_OPTIONS = [
 ];
 
 const DATE_PRESETS = [
+  { key: "all", label: "All Time", from: "", to: "" },
   { key: "today", label: "Today", from: () => new Date().toISOString().slice(0, 10), to: () => new Date().toISOString().slice(0, 10) },
   { key: "month", label: "This Month", from: () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`; }, to: () => new Date().toISOString().slice(0, 10) },
   { key: "year", label: "This Year", from: () => `${new Date().getFullYear()}-01-01`, to: () => new Date().toISOString().slice(0, 10) },
@@ -72,6 +75,11 @@ const DATE_PRESETS = [
 ];
 
 export default function FinancialReportsPage() {
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const roleName = (user?.adminRole?.name || user?.role || "Master Admin").toLowerCase();
+  const canRecordPayment = user?.role === "SUPER_ADMIN" || roleName.includes("admin") || roleName.includes("finance");
+
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [salons, setSalons] = useState([]);
@@ -79,11 +87,11 @@ export default function FinancialReportsPage() {
   const [status, setStatus] = useState({ error: "", success: "" });
 
   const [q, setQ] = useState("");
-  const [salonFilter, setSalonFilter] = useState("");
-  const [modeFilter, setModeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [paymentForFilter, setPaymentForFilter] = useState("");
-  const [datePreset, setDatePreset] = useState("month");
+  const [salonFilter, setSalonFilter] = useState(searchParams.get("salonId") || "");
+  const [modeFilter, setModeFilter] = useState(searchParams.get("mode") || "");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
+  const [paymentForFilter, setPaymentForFilter] = useState(searchParams.get("paymentFor") || "");
+  const [datePreset, setDatePreset] = useState(searchParams.get("status") || searchParams.get("salonId") || searchParams.get("paymentFor") ? "all" : "month");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -162,9 +170,11 @@ export default function FinancialReportsPage() {
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Revenue, transactions, and payment tracking</p>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button onClick={() => setIsRecordOpen(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-              <Plus size={16} /> Record Payment
-            </button>
+            {canRecordPayment && (
+              <button onClick={() => setIsRecordOpen(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                <Plus size={16} /> Record Payment
+              </button>
+            )}
             {transactions.length > 0 && (
               <button onClick={() => exportCsv(transactions)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "white", color: "#475569", border: "1px solid #e2e8f0", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
                 <Download size={16} /> Export CSV

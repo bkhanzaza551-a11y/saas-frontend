@@ -200,8 +200,14 @@ export default function SuperAdminDashboard() {
               </div>
             )}
             {data.attentionRequired.pendingPayments?.length > 0 && (
-              <div style={{ background: "#fefce8", borderRadius: 12, padding: 14, borderLeft: "4px solid #eab308", border: "1px solid #fef08a" }}>
-                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#a16207", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Overdue Payments ({data.attentionRequired.pendingPayments.length})</div>
+              <div 
+                onClick={() => navigate("/super-admin/finance?status=PENDING")}
+                style={{ background: "#fefce8", borderRadius: 12, padding: 14, borderLeft: "4px solid #eab308", border: "1px solid #fef08a", cursor: "pointer" }}
+              >
+                <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#a16207", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
+                  <span>Pending Payments ({data.attentionRequired.pendingPayments.length})</span>
+                  <span>View Finance →</span>
+                </div>
                 {data.attentionRequired.pendingPayments.slice(0, 2).map((p) => (
                   <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px dashed #fde047" }}>
                     <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.salon?.name}</span>
@@ -262,10 +268,13 @@ export default function SuperAdminDashboard() {
             <>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue</h3>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#f5f3ff", padding: "4px 10px", borderRadius: 100 }}>SaaS Health</span>
+                <Link to="/super-admin/finance" style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>View Finance →</Link>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-                <div style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden" }}>
+                <div 
+                  onClick={() => navigate("/super-admin/finance?paymentFor=Subscription")}
+                  style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden", cursor: "pointer" }}
+                >
                   <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
                   <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
                     <TrendingUp size={16} /> MRR
@@ -274,7 +283,10 @@ export default function SuperAdminDashboard() {
                     ₹{fmt(data.monthlySubscriptionRevenue)}
                   </div>
                 </div>
-                <div style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden" }}>
+                <div 
+                  onClick={() => navigate("/super-admin/finance?status=COMPLETED")}
+                  style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden", cursor: "pointer" }}
+                >
                   <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
                   <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
                     <IndianRupee size={16} /> Collected
@@ -283,7 +295,10 @@ export default function SuperAdminDashboard() {
                     ₹{fmt(data.totalSubscriptionRevenue)}
                   </div>
                 </div>
-                <div style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)", position: "relative", overflow: "hidden" }}>
+                <div 
+                  onClick={() => navigate("/super-admin/finance?status=PENDING")}
+                  style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)", position: "relative", overflow: "hidden", cursor: "pointer" }}
+                >
                   <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
                   <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
                     <Clock size={16} /> Pending
@@ -398,7 +413,13 @@ export default function SuperAdminDashboard() {
           </div>
           <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
             {payments.length ? payments.map((payment) => (
-              <div key={payment.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}>
+              <div 
+                key={payment.id} 
+                onClick={() => navigate(payment.salonId ? `/super-admin/finance?salonId=${payment.salonId}` : "/super-admin/finance")}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s", cursor: "pointer" }} 
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} 
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ 
                     width: 36, 
@@ -418,7 +439,7 @@ export default function SuperAdminDashboard() {
                   </div>
                   <div>
                     <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{payment.mode || "Payment Method"}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Successful Transaction</div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{payment.salonName || "Successful Transaction"}</div>
                   </div>
                 </div>
                 <div style={{ fontSize: "1rem", fontWeight: 850, color: "#059669" }}>+ ₹{fmt(payment.amount)}</div>
