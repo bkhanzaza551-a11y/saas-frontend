@@ -249,37 +249,6 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
               )}
             </div>
 
-            {/* User Account Profile Avatar Card - Removed for Super Admin as per Phase 1 */}
-            {!isSuperAdmin && (
-              <div className="sidebar-profile-card">
-                <div className="sidebar-avatar-wrapper">
-                  {auth?.user?.name ? (
-                    <div className="sidebar-avatar-initials">
-                      {auth.user.name.charAt(0).toUpperCase()}
-                    </div>
-                  ) : (
-                    <User size={18} />
-                  )}
-                </div>
-                <div className="sidebar-profile-info">
-                  <div className="sidebar-profile-name">{auth?.user?.name || "Admin User"}</div>
-                </div>
-              </div>
-            )}
-
-            {/* Subscription Plan Badge */}
-            {subscription?.status === "ACTIVE" && subscription?.plan && (
-              <div style={{ margin: "0 14px 12px", padding: "6px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <CreditCard size={13} style={{ color: "#10b981" }} />
-                  <span style={{ color: "#0f172a", fontSize: "0.75rem", fontWeight: 700 }}>{subscription.plan.name}</span>
-                </div>
-                {subscription.daysRemaining <= 7 && (
-                  <span style={{ color: "#d97706", fontSize: "0.7rem", fontWeight: 600 }}>{subscription.daysRemaining}d left</span>
-                )}
-              </div>
-            )}
-
             {/* Nav Groups */}
             <nav className="sidebar-nav">
               {groups.map((group) => {
