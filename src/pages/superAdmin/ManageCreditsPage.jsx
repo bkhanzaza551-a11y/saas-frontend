@@ -87,14 +87,15 @@ export default function ManageCreditsPage() {
   const handleAddCredits = async (e) => {
     e.preventDefault();
     try {
-      await api.post(`/super-admin/credits/salons/${creditForm.salonId}/add`, {
-        amount: Number(creditForm.amount),
-        note: creditForm.note
+      await api.post(`/super-admin/credits/add-credits`, {
+        salonId: creditForm.salonId,
+        creditsToAdd: Number(creditForm.amount),
+        reason: creditForm.note
       });
       setAddCreditsModalOpen(false);
       fetchData();
     } catch (err) {
-      alert("Failed to add credits");
+      showAlert("Failed to add credits");
     }
   };
 
@@ -106,7 +107,7 @@ export default function ManageCreditsPage() {
       setCostsModalOpen(false);
       fetchData();
     } catch (err) {
-      alert("Failed to update costs");
+      showAlert("Failed to update costs");
     } finally {
       setSavingCosts(false);
     }
@@ -125,7 +126,7 @@ export default function ManageCreditsPage() {
       showAlert("Custom API configured successfully");
       fetchData();
     } catch (err) {
-      alert("Failed to save custom API configuration");
+      showAlert("Failed to save custom API configuration");
     }
   };
 
@@ -556,6 +557,17 @@ export default function ManageCreditsPage() {
                     type="number" required min="0.01" step="0.01"
                     style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1.1rem", fontWeight: 700, borderColor: "#cbd5e1" }}
                     value={costs.whatsappCreditCost} onChange={e => setCosts({...costs, whatsappCreditCost: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.95rem", fontWeight: 700, color: "#334155", marginBottom: "12px" }}>
+                    <MessageSquare size={18} color="#3b82f6" />
+                    SMS Cost <span style={{ color: "#94a3b8", fontWeight: 500 }}>(Credits per SMS)</span>
+                  </label>
+                  <input 
+                    type="number" required min="0.01" step="0.01"
+                    style={{ ...inputStyle, paddingLeft: "16px", fontSize: "1.1rem", fontWeight: 700, borderColor: "#cbd5e1" }}
+                    value={costs.smsCreditCost} onChange={e => setCosts({...costs, smsCreditCost: e.target.value})} 
                   />
                 </div>
               </div>

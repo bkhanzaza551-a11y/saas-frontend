@@ -136,26 +136,6 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
       </div>
-      
-      {/* Floating Action Button */}
-      <div style={{ position: "fixed", bottom: 40, right: 40, zIndex: 1000 }}>
-        <div style={{ position: "relative" }}>
-          <button 
-            type="button"
-            onClick={() => document.getElementById("fab-menu").classList.toggle("show")}
-            style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontSize: 28, border: "none", boxShadow: "0 10px 25px rgba(79, 70, 229, 0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <Plus size={26} />
-          </button>
-          <div id="fab-menu" style={{ position: "absolute", bottom: 70, right: 0, background: "white", borderRadius: 12, boxShadow: "0 10px 25px rgba(0,0,0,0.1)", display: "none", flexDirection: "column", minWidth: 220, overflow: "hidden", border: "1px solid #e2e8f0" }}>
-            <Link to="/super-admin/salons" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 10 }}><Building2 size={16} color="#4f46e5" /> Add Salon</Link>
-            <Link to="/super-admin/sales-pipeline" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 10 }}><UserPlus size={16} color="#06b6d4" /> Add Lead</Link>
-            <Link to="/super-admin/support-tickets?new=true" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 10 }}><Ticket size={16} color="#ec4899" /> Create Support Ticket</Link>
-            <Link to="/super-admin/plans" style={{ padding: "12px 16px", textDecoration: "none", color: "#334155", fontWeight: 600, fontSize: 14, display: "flex", alignItems: "center", gap: 10 }}><FileText size={16} color="#8b5cf6" /> Create Plan</Link>
-          </div>
-          <style>{`#fab-menu.show { display: flex !important; }`}</style>
-        </div>
-      </div>
 
       {/* Attention Required Section - Embedded Clean Dashboard Widget */}
       {showAttention && roleConfig.attention && data.attentionRequired && (
