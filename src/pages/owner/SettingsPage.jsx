@@ -1289,46 +1289,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="settings-panel-card">
-          <div className="settings-panel-header-with-toggle">
-            <h3>Feedback</h3>
-            <div className="header-toggle-container">
-              <label className="toggle-switch-label">
-                <input
-                  type="checkbox"
-                  checked={form.advancedSettings.feedbackSetting.enabled}
-                  onChange={(e) => updateAdvancedObject("feedbackSetting", { enabled: e.target.checked })}
-                />
-                <span className="toggle-switch-slider" />
-              </label>
-              <span className="toggle-status-text">{form.advancedSettings.feedbackSetting.enabled ? "On" : "Off"}</span>
-            </div>
-          </div>
-          <div className="appointment-grid">
-            <div className="appointment-col">
-                <span className="sub-section-title">Send feedback notification</span>
-                <label className="checkbox-option">
-                  <input
-                    type="checkbox"
-                    checked={form.advancedSettings.feedbackSetting.sendSms}
-                    onChange={(e) => updateAdvancedObject("feedbackSetting", { sendSms: e.target.checked })}
-                  />
-                  Send feedback SMS to Guests
-                </label>
-              </div>
-              <div className="appointment-col">
-              <span className="sub-section-title">Secondary channel</span>
-              <label className="checkbox-option">
-                <input
-                  type="checkbox"
-                  checked={form.advancedSettings.feedbackSetting.sendWhatsapp}
-                  onChange={(e) => updateAdvancedObject("feedbackSetting", { sendWhatsapp: e.target.checked })}
-                />
-                Keep manual share fallback enabled
-              </label>
-            </div>
-          </div>
-        </div>
 
         <div className="settings-panel-card">
           <div className="settings-panel-header-with-toggle" style={{ borderBottom: "none", marginBottom: 0, paddingBottom: 0 }}>
