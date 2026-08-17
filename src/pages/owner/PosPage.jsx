@@ -2509,7 +2509,7 @@ export default function PosPage() {
               
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <button onClick={() => {
-                  let invoiceDetails = `Hello ${createdInvoice.customer?.name || 'Valued Customer'}!\nThank you for visiting ${context.settings?.salonName || 'our salon'}.\n\n*Invoice Details*\nInvoice #: ${createdInvoice.invoiceNumber || 'N/A'}\n\n*Items:*\n`;
+                  let invoiceDetails = `Hello ${createdInvoice.customer?.name || 'Valued Customer'}!\nThank you for visiting ${context.settings?.advancedSettings?.genericSettings?.salonName || context.settings?.salonName || 'our salon'}.\n\n*Invoice Details*\nInvoice #: ${createdInvoice.invoiceNumber || 'N/A'}\n\n*Items:*\n`;
                   if (createdInvoice.items && Array.isArray(createdInvoice.items)) {
                     createdInvoice.items.forEach(item => {
                       invoiceDetails += `- ${item.qty || 1}x ${item.itemName} @ ${formatMoney(item.price)}\n`;

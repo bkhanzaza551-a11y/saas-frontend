@@ -480,7 +480,8 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
     }
   };
 
-  const salonName = auth?.membership?.salon?.name || auth?.membership?.salonName || "Salon";
+  const settingsSalonName = posContext?.settings?.advancedSettings?.genericSettings?.salonName || "";
+  const salonName = settingsSalonName || auth?.membership?.salon?.name || auth?.membership?.salonName || "Salon";
   const salonPhone = auth?.membership?.salon?.phone || "";
   const salonAddress = auth?.membership?.salon?.address || appointment?.branch?.address || appointment?.branch?.name || "Main branch";
 

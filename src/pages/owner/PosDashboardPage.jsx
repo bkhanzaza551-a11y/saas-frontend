@@ -351,7 +351,8 @@ export default function PosDashboardPage() {
   }, [detail, invoiceDetail]);
 
   const activeInvoiceId = invoiceDetail?.id || detail?.id || null;
-  const salonName = auth?.membership?.salon?.name || auth?.membership?.salonName || "";
+  const settingsSalonName = posSettings?.advancedSettings?.genericSettings?.salonName || "";
+  const salonName = settingsSalonName || auth?.membership?.salon?.name || auth?.membership?.salonName || "";
   const salonPhone = auth?.membership?.salon?.phone || "";
   const salonAddress = auth?.membership?.salon?.address || detail?.branch?.address || detail?.branch?.name || "Main branch";
 
