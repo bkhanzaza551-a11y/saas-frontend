@@ -145,7 +145,7 @@ export default function SuperAdminDashboard() {
         data.attentionRequired.pendingStaffRequests > 0 ||
         data.attentionRequired.urgentTickets?.length > 0 ||
         data.attentionRequired.pendingPayments?.length > 0
-      ) && (
+      ) ? (
         <div style={{ marginBottom: 28, background: "#ffffff", borderRadius: 16, padding: "20px 24px", border: "1px solid #fca5a5", boxShadow: "0 4px 20px rgba(239, 68, 68, 0.08)", position: "relative" }}>
           <button onClick={() => setShowAttention(false)} style={{ position: "absolute", top: 16, right: 16, background: "#fef2f2", border: "none", color: "#991b1b", cursor: "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
             <X size={16} />
@@ -228,7 +228,7 @@ export default function SuperAdminDashboard() {
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
       <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, marginBottom: 32 }}>
         {visibleCards.map((card) => {

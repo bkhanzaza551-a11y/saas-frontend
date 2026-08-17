@@ -155,37 +155,7 @@ export default function DemoLeadsPage() {
   };
 
   useEffect(() => {
-    let active = true;
-    const run = async () => {
-      try {
-        const [leadResponse, planResponse, staffResponse] = await Promise.all([
-          api.get("/super-admin/demo-leads", {
-            params: {
-              ...(filters.q ? { q: filters.q } : {}),
-              ...(filters.status ? { status: filters.status } : {}),
-              ...(filters.assigned ? { assignedUserId: filters.assigned } : {}),
-              ...(filters.source ? { leadSource: filters.source } : {}),
-              ...(filters.from ? { createdFrom: filters.from } : {}),
-              ...(filters.to ? { createdTo: filters.to } : {}),
-              ...(filters.followUp ? { followUp: filters.followUp } : {})
-            }
-          }),
-          api.get("/super-admin/plans"),
-          api.get("/super-admin/staff", { params: { onlyActive: 1 } })
-        ]);
-        if (!active) return;
-        setRows(leadResponse.data || []);
-        setPlans(planResponse.data || []);
-        setStaff(staffResponse?.data?.users || staffResponse?.data || []);
-      } catch (error) {
-        if (!active) return;
-        setFeedback({ error: formatApiError(error, "Could not load leads."), success: "" });
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    run();
-    return () => { active = false; };
+    load(filters);
   }, [filters]);
 
   const draftsById = useMemo(() => {

@@ -139,11 +139,13 @@ export default function StaffManagementPage() {
     setStatus({ error: "", success: "" });
     setSavingRole(true);
     try {
+      const permissionsObj = Object.fromEntries(roleForm.permissions.map(p => [p, true]));
+      const payload = { ...roleForm, permissions: permissionsObj };
       if (editingRoleId) {
-        await api.patch(`/super-admin/roles/${editingRoleId}`, roleForm);
+        await api.patch(`/super-admin/roles/${editingRoleId}`, payload);
         setStatus({ error: "", success: "Role updated successfully." });
       } else {
-        await api.post("/super-admin/roles", roleForm);
+        await api.post("/super-admin/roles", payload);
         setStatus({ error: "", success: "Role created successfully." });
       }
       setIsRoleModalOpen(false);

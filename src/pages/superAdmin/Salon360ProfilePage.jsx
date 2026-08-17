@@ -127,7 +127,7 @@ export default function Salon360ProfilePage() {
   if (!data || !data.salon) return <EmptyState title="Salon Not Found" icon={Building2} message="The requested salon does not exist." />;
 
   const { salon, owner: ownerData, tickets, payments, productRequests, staffRequests, auditLogs, analytics } = data;
-  const branches = data.branches || salon.branches || [];
+  const branches = salon.branches || [];
   const featureFlags = data.featureFlags || salon.featureFlags || {};
   const subscription = data.subscription || (salon.subscriptions && salon.subscriptions[0]) || null;
   const owner = Array.isArray(ownerData) ? ownerData[0] : ownerData;

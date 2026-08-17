@@ -79,6 +79,20 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
     load(query, statusFilter);
   }, [query, statusFilter]);
 
+  useEffect(() => {
+    setSearchParams((prev) => {
+      if (planFilter) prev.set("plan", planFilter); else prev.delete("plan");
+      return prev;
+    });
+  }, [planFilter]);
+
+  useEffect(() => {
+    setSearchParams((prev) => {
+      if (cityFilter) prev.set("city", cityFilter); else prev.delete("city");
+      return prev;
+    });
+  }, [cityFilter]);
+
   const resetForm = () => {
     setForm(emptyForm);
     setEditingId("");
@@ -137,9 +151,12 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
       const res = await api.get(`/super-admin/salons/${salon.id}`);
       const full = res.data;
       setEditingId(full.id);
+      const ownerMembership = full.users?.find(u => u.role === "OWNER");
+      const owner = ownerMembership?.user;
+      const planId = full.subscriptions?.[0]?.planId || "";
       setForm({
         name: full.name || "",
-        ownerName: "", ownerEmail: "", ownerPhone: "", planId: "",
+        ownerName: owner?.name || "", ownerEmail: owner?.email || "", ownerPhone: owner?.phone || "", planId,
         city: full.city || "", address: full.address || "", state: full.state || "", country: full.country || "", pinCode: full.pinCode || ""
       });
       setIsModalOpen(true);
@@ -227,46 +244,6 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
     } finally {
       setBusyId("");
     }
-  };
-
-  const selectStyles = {
-    control: (base, state) => ({
-      ...base,
-      minHeight: "42px",
-      borderRadius: "8px",
-      borderColor: state.isFocused ? "#4f46e5" : "#e2e8f0",
-      boxShadow: state.isFocused ? "0 0 0 1px #4f46e5" : "none",
-      fontSize: "0.95rem",
-      "&:hover": { borderColor: state.isFocused ? "#4f46e5" : "#cbd5e1" },
-      background: state.isDisabled ? "#f8fafc" : "#fff"
-    }),
-    option: (base, state) => ({
-      ...base,
-      fontSize: "0.95rem",
-      backgroundColor: state.isSelected ? "#4f46e5" : state.isFocused ? "#e0e7ff" : "white",
-      color: state.isSelected ? "white" : "#334155",
-      cursor: "pointer",
-      "&:active": { backgroundColor: "#4f46e5", color: "white" }
-    }),
-    menu: (base) => ({
-      ...base,
-      borderRadius: "8px",
-      overflow: "hidden",
-      zIndex: 9999
-    }),
-    input: (base) => ({
-      ...base,
-      margin: 0,
-      padding: 0,
-      border: "none",
-      borderRadius: 0,
-      minHeight: "auto",
-      boxShadow: "none",
-      outline: "none",
-      "input:focus": {
-        boxShadow: "none",
-      }
-    })
   };
 
   const handleExportCustomers = async () => {

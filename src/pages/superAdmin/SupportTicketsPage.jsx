@@ -47,7 +47,7 @@ const getStatMeta = (status) => STATUSES.find(s => s.value === status) || STATUS
 const getPrioMeta = (p) => PRIORITIES.find(pr => pr.value === p) || PRIORITIES[1];
 
 export default function SuperAdminSupportTicketsPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { auth } = useAuth();
   const currentUserId = auth?.user?.id;
   const [rows, setRows] = useState([]);
@@ -111,7 +111,7 @@ export default function SuperAdminSupportTicketsPage() {
     Promise.all([
       api.get("/super-admin/support-tickets", { params: buildParams(filters) }),
       api.get("/super-admin/staff"),
-      api.get("/super-admin/salons")
+      api.get("/super-admin/salons?lightweight=true")
     ]).then(([response, staffRes, salonsRes]) => {
       if (!active) return;
       const data = response.data || [];
@@ -120,7 +120,7 @@ export default function SuperAdminSupportTicketsPage() {
       setSalons(salonsRes?.data || []);
       setNotes(Object.fromEntries(data.map((row) => [row.id, row.internalNote || ""])));
       setLoading(false);
-      if (searchParams.get("new") === "true") { setIsCreateModalOpen(true); window.history.replaceState({}, document.title, window.location.pathname); }
+      if (searchParams.get("new") === "true") { setIsCreateModalOpen(true); setSearchParams((prev) => { const next = new URLSearchParams(prev); next.delete("new"); return next; }); }
     }).catch((err) => {
       if (!active) return;
       setStatus({ error: formatApiError(err, "Could not load support tickets."), success: "" });

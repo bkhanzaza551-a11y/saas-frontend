@@ -21,7 +21,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     label: "Staff",
-    flags: ["attendance", "leaves", "payroll", "incentives", "memberships", "packages"]
+    flags: ["attendance", "memberships", "packages"]
   },
   {
     label: "System",
@@ -38,7 +38,7 @@ const FLAG_LABELS = {
   messageTemplates: "Message Templates", enquiries: "Enquiries", ecommerce: "E-Commerce",
   digitalCatalog: "Digital Catalog", catalogAnalytics: "Catalog Analytics",
   publicCatalog: "Public Catalog", onlineOrders: "Online Orders", customerPortal: "Customer Portal",
-  attendance: "Attendance", leaves: "Leaves", payroll: "Payroll", incentives: "Incentives",
+  attendance: "Attendance",
   memberships: "Memberships", packages: "Packages", expenses: "Expenses", feedback: "Feedback",
   notifications: "Notifications", auditLogs: "Audit Logs"
 };

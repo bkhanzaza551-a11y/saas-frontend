@@ -218,7 +218,7 @@ export default function ManageCreditsPage() {
             <MessageSquare size={16} /> Configure Cost
           </button>
           <button 
-            onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "", currency: "INR" }); setPkgModalOpen(true); }}
+            onClick={() => { setPkgForm({ id: "", name: "", credits: "", price: "" }); setPkgModalOpen(true); }}
             style={{ height: 42, padding: "0 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 8, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }}
             onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "none"}

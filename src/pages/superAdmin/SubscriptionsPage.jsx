@@ -95,7 +95,7 @@ export default function SubscriptionsPage() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [q, statusFilter, paymentFilter]);
 
   const openDetail = async (id) => {
     setDetailLoading(true);
