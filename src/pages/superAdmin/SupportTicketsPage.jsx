@@ -201,9 +201,9 @@ export default function SuperAdminSupportTicketsPage() {
         <div className="item-head">
           <div>
             <h1 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: 10 }}>
-              <Shield size={26} style={{ color: "#6366f1" }} /> Platform Support
+              <Shield size={26} style={{ color: "#6366f1" }} /> Support Tickets
             </h1>
-            <p style={{ marginBottom: 0 }}>Global helpdesk for salon support requests, internal notes, agent assignments, and responses.</p>
+            <p style={{ marginBottom: 0 }}>Manage salon support requests, agent assignments, and customer resolutions.</p>
           </div>
           <div className="badge-row">
             <button onClick={() => setIsCreateModalOpen(true)} style={{ padding: "8px 16px", borderRadius: 8, background: "#6366f1", color: "white", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
@@ -213,22 +213,20 @@ export default function SuperAdminSupportTicketsPage() {
         </div>
       </div>
 
-      {/* Clickable Metrics */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
+      {/* Point 3: 4 Clickable Summary Cards (Total Tickets, Open, Urgent, Resolved / Closed) */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 20 }}>
         {[
-          { label: "Total Queue", value: stats.total, color: "#6366f1", border: "#6366f1", filterKey: "", filterVal: "" },
-          { label: "Open", value: stats.open, color: "#ef4444", border: "#ef4444", filterKey: "status", filterVal: "OPEN" },
-          { label: "In Progress", value: stats.inProgress, color: "#2563eb", border: "#2563eb", filterKey: "status", filterVal: "IN_PROGRESS" },
-          { label: "Waiting for Salon", value: stats.waiting, color: "#d97706", border: "#d97706", filterKey: "status", filterVal: "WAITING_FOR_SALON" },
-          { label: "Urgent", value: stats.urgent, color: "#b91c1c", border: "#b91c1c", filterKey: "priority", filterVal: "URGENT" },
-          { label: "Resolved & Closed", value: stats.resolved, color: "#16a34a", border: "#16a34a", filterKey: "status", filterVal: "RESOLVED" }
+          { label: "Total Tickets", value: stats.total, color: "#6366f1", border: "#6366f1", action: () => setFilters({ ...filters, status: "", priority: "" }) },
+          { label: "Open", value: stats.open, color: "#ef4444", border: "#ef4444", action: () => setFilters({ ...filters, status: "OPEN", priority: "" }) },
+          { label: "Urgent", value: stats.urgent, color: "#b91c1c", border: "#b91c1c", action: () => setFilters({ ...filters, priority: "URGENT", status: "" }) },
+          { label: "Resolved / Closed", value: stats.resolved, color: "#16a34a", border: "#16a34a", action: () => setFilters({ ...filters, status: "RESOLVED", priority: "" }) }
         ].map(card => (
-          <div key={card.label} onClick={() => { if (card.filterKey) setFilterAndReload(card.filterKey, card.filterVal); }}
-            style={{ padding: 16, borderLeft: `4px solid ${card.border}`, background: "white", borderRadius: 10, cursor: card.filterKey ? "pointer" : "default", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", transition: "transform 0.15s" }}
+          <div key={card.label} onClick={card.action}
+            style={{ padding: 18, borderLeft: `4px solid ${card.border}`, background: "white", borderRadius: 10, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", transition: "transform 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
             onMouseLeave={e => e.currentTarget.style.transform = "none"}>
-            <div style={{ color: "#64748b", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>{card.label}</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: card.color, marginTop: 2 }}>{card.value}</div>
+            <div style={{ color: "#64748b", fontSize: 12, fontWeight: 700, textTransform: "uppercase" }}>{card.label}</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: card.color, marginTop: 4 }}>{card.value}</div>
           </div>
         ))}
       </div>
@@ -470,7 +468,7 @@ export default function SuperAdminSupportTicketsPage() {
                         style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 12, background: "#f8fafc", width: "100%", resize: "vertical", boxSizing: "border-box" }} />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assigned Agent</label>
+                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assigned To</label>
                       <CustomSelect
                         value={selectedTicket.assignedToId || ""}
                         onChange={e => {
@@ -482,8 +480,8 @@ export default function SuperAdminSupportTicketsPage() {
                         disabled={selectedTicket.status === "CLOSED"}
                         style={{ width: "100%" }}
                       >
-                        <option value="">Unassigned</option>
-                        {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "No Role"})</option>)}
+                        <option value="">-- Unassigned --</option>
+                        {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "Support Executive"})</option>)}
                       </CustomSelect>
                     </div>
                   </div>
@@ -510,7 +508,7 @@ export default function SuperAdminSupportTicketsPage() {
                               }}>
                                 {msg.message}
                                 {msg.attachmentUrl && (
-                                  <div style={{ marginTop: 8, fontSize: 11, borderTop: isAgent ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #e2e8f0", paddingTop: 6 }}>
+                                   <div style={{ marginTop: 8, fontSize: 11, borderTop: isAgent ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #e2e8f0", paddingTop: 6 }}>
                                     {isImageAttachment(msg.attachmentUrl) ? (
                                       <div>
                                         <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
@@ -588,6 +586,8 @@ export default function SuperAdminSupportTicketsPage() {
                       <div style={{ display: "flex", gap: 6 }}>
                         <button onClick={() => sendReply(selectedTicket.id, "IN_PROGRESS")}
                           style={{ background: "#4f46e5", color: "white", border: "none", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Reply</button>
+                        <button onClick={() => sendReply(selectedTicket.id, "WAITING_FOR_SALON")}
+                          style={{ background: "#d97706", color: "white", border: "none", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Reply & Wait for Salon</button>
                         <button onClick={() => sendReply(selectedTicket.id, "RESOLVED")}
                           style={{ background: "#16a34a", color: "white", border: "none", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Reply & Resolve</button>
                       </div>
