@@ -147,18 +147,51 @@ export default function AuditLogsPage() {
                       <p style={{ margin: "4px 0 0", fontSize: "0.9rem", fontWeight: 700, color: "#1e293b" }}>{row.action}</p>
                     </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.78rem", color: "#94a3b8" }}>
-                    <Clock size={13} />
-                    <span>{new Date(row.createdAt).toLocaleString()}</span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.78rem", color: "#64748b" }}>
+                      <Clock size={13} />
+                      <span>{new Date(row.createdAt).toLocaleString()}</span>
+                    </div>
+                    {row.actorName && (
+                      <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>
+                        Changed by: <strong style={{ color: "#0f172a" }}>{row.actorName}</strong>
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {row.meta && Object.keys(row.meta).length > 0 ? (
-                  <div style={{ background: "#f8fafc", border: "1px dashed #cbd5e1", borderRadius: 12, padding: "12px 16px", marginTop: 12 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "8px 16px" }}>
+                {row.summary && (
+                  <p style={{ margin: "0 0 10px 48px", fontSize: "0.82rem", color: "#475569" }}>
+                    {row.summary}
+                  </p>
+                )}
+
+                {row.meta?.changes && Object.keys(row.meta.changes).length > 0 ? (
+                  <div style={{ marginLeft: 48, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 12, marginTop: 8 }}>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#334155", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Changed Values
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {Object.entries(row.meta.changes).map(([field, diff]) => (
+                        <div key={field} style={{ display: "grid", gridTemplateColumns: "180px 1fr 20px 1fr", gap: 8, alignItems: "center", fontSize: "0.78rem", background: "white", padding: "6px 10px", borderRadius: 6, border: "1px solid #f1f5f9" }}>
+                          <span style={{ fontWeight: 700, color: "#1e293b" }}>{field.replace(/([A-Z])/g, ' $1')}</span>
+                          <span style={{ color: "#dc2626", background: "#fef2f2", padding: "2px 6px", borderRadius: 4, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {typeof diff?.from === "object" ? JSON.stringify(diff?.from) : String(diff?.from ?? "empty")}
+                          </span>
+                          <span style={{ textAlign: "center", color: "#94a3b8", fontWeight: 800 }}>→</span>
+                          <span style={{ color: "#16a34a", background: "#f0fdf4", padding: "2px 6px", borderRadius: 4, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {typeof diff?.to === "object" ? JSON.stringify(diff?.to) : String(diff?.to ?? "empty")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : row.meta && Object.keys(row.meta).length > 0 ? (
+                  <div style={{ marginLeft: 48, background: "#f8fafc", border: "1px dashed #cbd5e1", borderRadius: 10, padding: "10px 14px", marginTop: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "6px 14px" }}>
                       {Object.entries(row.meta).map(([key, val]) => (
                         <div key={key} style={{ display: "flex", fontSize: "0.78rem", gap: 6 }}>
-                          <span style={{ fontWeight: 750, color: "#64748b", textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, ' $1')}:</span>
+                          <span style={{ fontWeight: 700, color: "#64748b", textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, ' $1')}:</span>
                           <span style={{ color: "#334155", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {typeof val === "object" ? JSON.stringify(val) : String(val)}
                           </span>
@@ -167,7 +200,7 @@ export default function AuditLogsPage() {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ fontSize: "0.78rem", color: "#94a3b8", fontStyle: "italic", marginTop: 8, paddingLeft: 48 }}>No metadata context recorded</div>
+                  <div style={{ fontSize: "0.78rem", color: "#94a3b8", fontStyle: "italic", marginTop: 4, paddingLeft: 48 }}>No additional metadata recorded</div>
                 )}
               </div>
             );
