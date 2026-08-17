@@ -437,69 +437,77 @@ export default function FinancialReportsPage() {
         </div>
       )}
 
+      {/* Point 6: Transaction Detail Modal (Exact fields + View Salon shortcut) */}
       {detailTxn && (
         <div className="modal-overlay" onClick={() => setDetailTxn(null)}>
-          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
-            <div className="modal-header"><h3>Transaction Detail</h3><button className="modal-close-btn" onClick={() => setDetailTxn(null)}>&times;</button></div>
-            <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "12px 0", fontSize: "0.9rem" }}>
-              <div style={{ color: "#64748b" }}>TXN ID</div>
-              <div style={{ fontWeight: 600, fontFamily: "monospace", color: "#4f46e5" }}>{detailTxn.transactionId}</div>
-              <div style={{ color: "#64748b" }}>Salon</div>
-              <div style={{ fontWeight: 600 }}>{detailTxn.salon?.name || "—"}</div>
-              <div style={{ color: "#64748b" }}>Email</div>
-              <div>{detailTxn.salon?.email || "—"}</div>
-              <div style={{ color: "#64748b" }}>Amount</div>
-              <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{fmt(detailTxn.amount)}</div>
-              <div style={{ color: "#64748b" }}>Payment For</div>
-              <div>{detailTxn.paymentFor}</div>
-              <div style={{ color: "#64748b" }}>Method</div>
-              <div>{detailTxn.paymentMethod}</div>
-              <div style={{ color: "#64748b" }}>Status</div>
-              <div style={{ color: detailTxn.paymentStatus === "COMPLETED" ? "#10b981" : detailTxn.paymentStatus === "FAILED" ? "#ef4444" : "#d97706", fontWeight: 600 }}>{detailTxn.paymentStatus === "COMPLETED" ? "Paid" : detailTxn.paymentStatus}</div>
-              <div style={{ color: "#64748b" }}>Date</div>
-              <div>{detailTxn.paymentDate ? new Date(detailTxn.paymentDate).toLocaleString() : "—"}</div>
-              <div style={{ color: "#64748b" }}>Recorded By</div>
-              <div>{detailTxn.recordedBy || "—"}</div>
-              {detailTxn.reference && (<><div style={{ color: "#64748b" }}>Reference</div><div>{detailTxn.reference}</div></>)}
-              {detailTxn.notes && (<><div style={{ color: "#64748b" }}>Notes</div><div style={{ color: "#475569" }}>{detailTxn.notes}</div></>)}
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 540 }}>
+            <div className="modal-header">
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Transaction Detail</h3>
+              <button className="modal-close-btn" onClick={() => setDetailTxn(null)}>&times;</button>
             </div>
-            <div style={{ marginTop: 20, pt: 16, borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "12px 0", fontSize: "0.9rem", padding: "16px 0" }}>
+              <div style={{ color: "#64748b" }}>Transaction ID</div>
+              <div style={{ fontWeight: 700, fontFamily: "monospace", color: "#4f46e5" }}>{detailTxn.transactionId}</div>
+
+              <div style={{ color: "#64748b" }}>Salon</div>
+              <div style={{ fontWeight: 700, color: "#0f172a" }}>{detailTxn.salon?.name || "General / Global"}</div>
+
+              <div style={{ color: "#64748b" }}>Owner</div>
+              <div style={{ fontWeight: 600, color: "#334155" }}>{detailTxn.salon?.ownerName || "—"}</div>
+
+              <div style={{ color: "#64748b" }}>Amount</div>
+              <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#10b981" }}>{fmt(detailTxn.amount)}</div>
+
+              <div style={{ color: "#64748b" }}>Payment For</div>
+              <div style={{ fontWeight: 600 }}>{detailTxn.paymentFor || "Other Service"}</div>
+
+              <div style={{ color: "#64748b" }}>Plan / Product Ref</div>
+              <div>{detailTxn.reference || "Standard"}</div>
+
+              <div style={{ color: "#64748b" }}>Payment Method</div>
+              <div>{detailTxn.paymentMethod || "Online"}</div>
+
+              <div style={{ color: "#64748b" }}>Payment Status</div>
+              <div>
+                <span style={{
+                  color: detailTxn.paymentStatus === "COMPLETED" || detailTxn.paymentStatus === "PAID" ? "#10b981" : detailTxn.paymentStatus === "FAILED" ? "#ef4444" : "#d97706",
+                  fontWeight: 700
+                }}>
+                  {detailTxn.paymentStatus === "COMPLETED" || detailTxn.paymentStatus === "PAID" ? "Paid" : detailTxn.paymentStatus}
+                </span>
+              </div>
+
+              <div style={{ color: "#64748b" }}>Payment Date</div>
+              <div>{detailTxn.paymentDate ? new Date(detailTxn.paymentDate).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "—"}</div>
+
+              <div style={{ color: "#64748b" }}>Recorded By</div>
+              <div style={{ color: "#475569" }}>{detailTxn.recordedBy || "System Auto-Sync"}</div>
+
+              {detailTxn.notes && (
+                <>
+                  <div style={{ color: "#64748b" }}>Notes</div>
+                  <div style={{ color: "#475569", background: "#f8fafc", padding: "6px 10px", borderRadius: 6, fontSize: 13 }}>{detailTxn.notes}</div>
+                </>
+              )}
+            </div>
+
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              {detailTxn.salon?.id ? (
+                <a
+                  href={`/super-admin/salons/${detailTxn.salon.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#4f46e5", fontWeight: 700, fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
+                >
+                  View Salon →
+                </a>
+              ) : <div />}
+
               <button
-                onClick={() => {
-                  const printWin = window.open("", "_blank");
-                  printWin.document.write(`
-                    <html>
-                      <head>
-                        <title>SaaS Receipt - ${detailTxn.transactionId}</title>
-                        <style>
-                          body { font-family: sans-serif; padding: 40px; color: #0f172a; }
-                          .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
-                          .receipt-title { font-size: 24px; font-weight: bold; color: #2563eb; }
-                          .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
-                          .total { font-size: 18px; font-weight: bold; margin-top: 20px; text-align: right; color: #10b981; }
-                        </style>
-                      </head>
-                      <body>
-                        <div class="header">
-                          <div class="receipt-title">SalonNest Platform SaaS Receipt</div>
-                          <p style="color:#64748b;">Official Billing Receipt</p>
-                        </div>
-                        <div class="row"><span>Transaction ID:</span><strong>${detailTxn.transactionId}</strong></div>
-                        <div class="row"><span>Salon Name:</span><strong>${detailTxn.salon?.name || "N/A"}</strong></div>
-                        <div class="row"><span>Payment Purpose:</span><strong>${detailTxn.paymentFor}</strong></div>
-                        <div class="row"><span>Payment Mode:</span><strong>${detailTxn.paymentMethod}</strong></div>
-                        <div class="row"><span>Date:</span><strong>${detailTxn.paymentDate ? new Date(detailTxn.paymentDate).toLocaleString() : "N/A"}</strong></div>
-                        <div class="row"><span>Status:</span><strong style="color:#10b981;">PAID & VERIFIED</strong></div>
-                        <div class="total">Total Amount Paid: ₹${fmt(detailTxn.amount)}</div>
-                        <script>window.print();</script>
-                      </body>
-                    </html>
-                  `);
-                  printWin.document.close();
-                }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "#f1f5f9", color: "#1e293b", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer" }}
+                onClick={() => setDetailTxn(null)}
+                style={{ padding: "8px 18px", background: "#f1f5f9", color: "#334155", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}
               >
-                <FileText size={16} /> Print SaaS Receipt
+                Close
               </button>
             </div>
           </div>
