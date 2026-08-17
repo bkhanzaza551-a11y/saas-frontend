@@ -203,11 +203,20 @@ export default function DemoLeadsPage() {
     e.preventDefault();
     if (!leadForm.name.trim() || !leadForm.email.trim() || !leadForm.phone.trim() || !leadForm.company.trim()) return;
 
+    const phoneDigits = leadForm.phone.replace(/\D/g, "");
+    if (phoneDigits.length !== 10) {
+      setFeedback({ error: "Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).", success: "" });
+      return;
+    }
+
     setAddingLead(true);
     setDuplicateInfo(null);
     setFeedback({ error: "", success: "" });
     try {
-      await api.post("/super-admin/demo-leads", leadForm);
+      await api.post("/super-admin/demo-leads", {
+        ...leadForm,
+        phone: `+91${phoneDigits}`
+      });
       setFeedback({ error: "", success: `Lead '${leadForm.name}' added successfully!` });
       setLeadForm(emptyLeadForm);
       setIsAddModalOpen(false);
@@ -497,16 +506,15 @@ export default function DemoLeadsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
           {/* Top Row: Search and Clear Button */}
           <div style={{ display: "flex", gap: "12px", width: "100%", alignItems: "center", flexWrap: "wrap" }}>
-            <div className="search-input-wrapper" style={{ flex: 1, minWidth: "260px" }}>
-              <div className="search-icon">
+            <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
+              <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
                 <Search size={18} />
               </div>
               <input
-                className="search-input-field"
                 value={filters.q}
                 placeholder="Search leads by salon name, contact person, phone, email, lead ID..."
                 onChange={(e) => setFilterParam("q", e.target.value)}
-                style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.92rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                style={{ width: "100%", height: 44, paddingLeft: 42, paddingRight: 14, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.92rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                 onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
               />
@@ -1239,17 +1247,29 @@ export default function DemoLeadsPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+91 9876543210"
-                    value={leadForm.phone}
-                    onChange={e => setLeadForm({ ...leadForm, phone: e.target.value })}
-                    style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
-                    onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
-                    onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
-                  />
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Phone Number (10-Digit) *</label>
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 10, background: "#f8fafc", overflow: "hidden", transition: "all 0.2s" }}>
+                    <div style={{ padding: "0 12px", background: "#f1f5f9", borderRight: "1px solid #cbd5e1", color: "#475569", fontWeight: 700, fontSize: "0.85rem", height: 42, display: "flex", alignItems: "center", userSelect: "none" }}>
+                      🇮🇳 +91
+                    </div>
+                    <input
+                      type="tel"
+                      required
+                      maxLength={10}
+                      placeholder="9876543210"
+                      value={leadForm.phone}
+                      onChange={e => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                        setLeadForm({ ...leadForm, phone: val });
+                      }}
+                      style={{ width: "100%", height: 42, padding: "0 14px", border: "none", fontSize: "0.9rem", boxSizing: "border-box", outline: "none", background: "transparent", color: "#1e293b" }}
+                      onFocus={e => { e.currentTarget.parentElement.style.background = "#fff"; e.currentTarget.parentElement.style.borderColor = "#6366f1"; e.currentTarget.parentElement.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
+                      onBlur={e => { e.currentTarget.parentElement.style.background = "#f8fafc"; e.currentTarget.parentElement.style.borderColor = "#cbd5e1"; e.currentTarget.parentElement.style.boxShadow = "none"; }}
+                    />
+                  </div>
+                  {leadForm.phone && leadForm.phone.length > 0 && leadForm.phone.length < 10 && (
+                    <p style={{ margin: "4px 0 0", fontSize: "0.75rem", color: "#ef4444" }}>Enter {10 - leadForm.phone.length} more digit{10 - leadForm.phone.length > 1 ? "s" : ""}</p>
+                  )}
                 </div>
               </div>
 

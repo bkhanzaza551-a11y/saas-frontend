@@ -327,16 +327,17 @@ export default function SubscriptionsPage() {
 
       <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
         <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div className="search-input-wrapper" style={{ flex: 1, minWidth: 260 }}>
-            <div className="search-icon">
+          <div style={{ flex: 1, minWidth: 260, position: "relative" }}>
+            <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
               <Search size={18} />
             </div>
             <input
-              className="search-input-field"
               value={q}
               placeholder="Search salon name, owner, city, slug, plan..."
               onChange={(e) => setQ(e.target.value)}
-              style={{ width: "100%", height: 42, borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", height: 42, paddingLeft: 42, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+              onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+              onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
             />
           </div>
           <button 

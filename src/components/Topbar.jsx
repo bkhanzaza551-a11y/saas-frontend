@@ -850,9 +850,6 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                     Activity Log
                   </button>
                 )}
-                <div className="profile-dropdown-version">
-                  SalonNest SaaS v1.0.0
-                </div>
               </div>
             )}
           </div> : null}
