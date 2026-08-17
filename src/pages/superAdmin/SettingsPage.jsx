@@ -843,9 +843,10 @@ export default function SuperAdminSettingsPage() {
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
                           <button type="button" onClick={() => setTemplateDraft(null)} style={{ padding: "8px 18px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#475569", cursor: "pointer" }}>Cancel</button>
                           <button type="button" onClick={handleSaveTemplate} style={{ padding: "8px 20px", background: "#4f46e5", color: "white", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.3)" }}>Save Template</button>
+                        </div>
+                      </div>
                     </div>
-                </div>
-              )}
+                  )}
                 </div>
               )}
 

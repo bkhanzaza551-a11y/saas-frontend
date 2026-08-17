@@ -2914,17 +2914,55 @@ export default function PosPage() {
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))", gap:20 }}>
                     <div>
                       <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Online (📱)</label>
-                      <input type="number" min="0" step="0.01" inputMode="decimal" max={pkgPaymentTotal} placeholder="0.0" value={pkgDraft.online} onFocus={() => {
-                        const total = Math.max(0, Number(pkgDraft.price || pkgModalPkg?.price || 0));
-                        setPkgDraft(d => ({ ...d, online: String(total), offline: "", balance: "0" }));
-                      }} onChange={e=>setPkgDraft(d=>{ const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); const offline = Math.max(0, Number(d.offline || 0)); const online = clampMoneyInput(e.target.value, Math.max(0, total - offline)); const nextBalance = Math.max(0, Number((total - Number(online || 0) - offline).toFixed(2))); return { ...d, online, balance: String(nextBalance) }; })} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                      <input 
+                        type="number" 
+                        min="0" 
+                        step="0.01" 
+                        inputMode="decimal" 
+                        max={pkgPaymentTotal} 
+                        placeholder="0.0" 
+                        value={pkgDraft.online} 
+                        onFocus={(e) => {
+                          e.target.style.borderColor = "#3b82f6";
+                          const total = Math.max(0, Number(pkgDraft.price || pkgModalPkg?.price || 0));
+                          setPkgDraft(d => ({ ...d, online: String(total), offline: "", balance: "0" }));
+                        }} 
+                        onBlur={e => { e.target.style.borderColor = "#cbd5e1"; }} 
+                        onChange={e => setPkgDraft(d => { 
+                          const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); 
+                          const offline = Math.max(0, Number(d.offline || 0)); 
+                          const online = clampMoneyInput(e.target.value, Math.max(0, total - offline)); 
+                          const nextBalance = Math.max(0, Number((total - Number(online || 0) - offline).toFixed(2))); 
+                          return { ...d, online, balance: String(nextBalance) }; 
+                        })} 
+                        style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} 
+                      />
                     </div>
                     <div>
                       <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Offline / Cash (💵)</label>
-                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, pkgPaymentTotal - pkgPaymentOnline)} placeholder="0.0" value={pkgDraft.offline} onFocus={() => {
-                        const total = Math.max(0, Number(pkgDraft.price || pkgModalPkg?.price || 0));
-                        setPkgDraft(d => ({ ...d, offline: String(total), online: "", balance: "0" }));
-                      }} onChange={e=>setPkgDraft(d=>{ const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); const online = Math.max(0, Number(d.online || 0)); const offline = clampMoneyInput(e.target.value, Math.max(0, total - online)); const nextBalance = Math.max(0, Number((total - online - Number(offline || 0)).toFixed(2))); return { ...d, offline, balance: String(nextBalance) }; })} style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
+                      <input 
+                        type="number" 
+                        min="0" 
+                        step="0.01" 
+                        inputMode="decimal" 
+                        max={Math.max(0, pkgPaymentTotal - pkgPaymentOnline)} 
+                        placeholder="0.0" 
+                        value={pkgDraft.offline} 
+                        onFocus={(e) => {
+                          e.target.style.borderColor = "#3b82f6";
+                          const total = Math.max(0, Number(pkgDraft.price || pkgModalPkg?.price || 0));
+                          setPkgDraft(d => ({ ...d, offline: String(total), online: "", balance: "0" }));
+                        }} 
+                        onBlur={e => { e.target.style.borderColor = "#cbd5e1"; }} 
+                        onChange={e => setPkgDraft(d => { 
+                          const total = Math.max(0, Number(d.price || pkgModalPkg?.price || 0)); 
+                          const online = Math.max(0, Number(d.online || 0)); 
+                          const offline = clampMoneyInput(e.target.value, Math.max(0, total - online)); 
+                          const nextBalance = Math.max(0, Number((total - online - Number(offline || 0)).toFixed(2))); 
+                          return { ...d, offline, balance: String(nextBalance) }; 
+                        })} 
+                        style={{ width:"100%", padding:"8px 12px", border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.85rem", boxSizing:"border-box", outline: "none", transition: "border-color 0.2s" }} 
+                      />
                     </div>
                     <div>
                       <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Remaining Balance</label>
