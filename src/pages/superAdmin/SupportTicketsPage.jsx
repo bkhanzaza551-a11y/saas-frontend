@@ -439,12 +439,24 @@ export default function SuperAdminSupportTicketsPage() {
                 <button onClick={() => setSelectedTicket(null)} style={{ background: "transparent", border: "none", fontSize: 22, color: "#94a3b8", cursor: "pointer" }}>&times;</button>
               </div>
 
-              {/* Salon Context */}
+              {/* Point 15: Salon Context Summary inside Ticket Detail */}
               {selectedTicket.salon && (
-                <div style={{ marginTop: 12, padding: "10px 14px", background: "#f0f9ff", borderRadius: 8, border: "1px solid #bae6fd", display: "flex", gap: 20, fontSize: 12 }}>
-                  <div><span style={{ color: "#64748b" }}>Owner:</span> <strong>{selectedTicket.salon.ownerName || selectedTicket.salon.name}</strong></div>
-                  <div><span style={{ color: "#64748b" }}>Plan:</span> <strong>{selectedTicket.salon.subscriptions?.[0]?.plan?.name || "None"}</strong></div>
-                  <div><span style={{ color: "#64748b" }}>Status:</span> <strong style={{ color: selectedTicket.salon.subscriptions?.[0]?.status === "ACTIVE" ? "#16a34a" : "#d97706" }}>{selectedTicket.salon.subscriptions?.[0]?.status || "No Subscription"}</strong></div>
+                <div style={{ marginTop: 12, padding: "12px 16px", background: "#f0f9ff", borderRadius: 10, border: "1px solid #bae6fd", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, fontSize: 12 }}>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+                    <div><span style={{ color: "#64748b" }}>Salon Name:</span> <strong style={{ color: "#0f172a" }}>{selectedTicket.salon.name}</strong></div>
+                    <div><span style={{ color: "#64748b" }}>Owner:</span> <strong>{selectedTicket.salon.ownerName || selectedTicket.salon.name}</strong></div>
+                    <div><span style={{ color: "#64748b" }}>Current Plan:</span> <strong style={{ color: "#4338ca" }}>{selectedTicket.salon.subscriptions?.[0]?.plan?.name || "None"}</strong></div>
+                    <div><span style={{ color: "#64748b" }}>Subscription Status:</span> <strong style={{ color: selectedTicket.salon.subscriptions?.[0]?.status === "ACTIVE" ? "#16a34a" : "#d97706" }}>{selectedTicket.salon.subscriptions?.[0]?.status || "No Subscription"}</strong></div>
+                    <div><span style={{ color: "#64748b" }}>Contact Number:</span> <strong style={{ color: "#0f172a" }}>{selectedTicket.salon.phone || "—"}</strong></div>
+                  </div>
+                  <a
+                    href={`/super-admin/salons/${selectedTicket.salon.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: "#0284c7", fontWeight: 700, fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, background: "white", padding: "4px 10px", borderRadius: 6, border: "1px solid #bae6fd" }}
+                  >
+                    View Salon →
+                  </a>
                 </div>
               )}
 

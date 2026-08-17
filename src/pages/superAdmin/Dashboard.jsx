@@ -166,9 +166,9 @@ export default function SuperAdminDashboard() {
               <div style={{ background: "#fff1f2", borderRadius: 12, padding: 14, borderLeft: "4px solid #e11d48", border: "1px solid #ffe4e6" }}>
                 <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#be123c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Urgent Tickets ({data.attentionRequired.urgentTickets.length})</div>
                 {data.attentionRequired.urgentTickets.slice(0, 2).map((t) => (
-                  <div key={t.id} onClick={() => navigate("/super-admin/support-tickets?status=OPEN")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px dashed #fecdd3", cursor: "pointer" }}>
+                  <div key={t.id} onClick={() => navigate("/super-admin/support-tickets?priority=URGENT")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px dashed #fecdd3", cursor: "pointer" }}>
                     <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.salon?.name || "Global"}</span>
-                    <span style={{ fontSize: "0.65rem", color: "#fff", background: "#e11d48", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>HIGH</span>
+                    <span style={{ fontSize: "0.65rem", color: "#fff", background: "#e11d48", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>URGENT</span>
                   </div>
                 ))}
               </div>
