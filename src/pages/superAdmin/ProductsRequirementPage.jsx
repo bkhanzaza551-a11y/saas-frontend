@@ -699,12 +699,12 @@ export default function SuperAdminProductsRequirementPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Request ID</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Salon</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Brand & Product</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Category</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Pack Size</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Qty</th>
-                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Priority</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Status</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Date</th>
                     <th style={{ padding: "12px 14px", textAlign: "right" }}>Actions</th>
@@ -712,11 +712,14 @@ export default function SuperAdminProductsRequirementPage() {
                 </thead>
                 <tbody>
                   {filteredRequests.map((r) => {
-                    const pc = priorityColors[r.priority] || priorityColors.MEDIUM;
                     const sc = statusConfig[r.status] || statusConfig.NEW;
+                    const reqIdFormatted = `#REQ-${r.id.slice(-6).toUpperCase()}`;
 
                     return (
                       <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 14px", fontWeight: 800, color: "#6366f1", fontSize: "0.78rem" }}>
+                          {reqIdFormatted}
+                        </td>
                         <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>
                           {r.salon?.name || "General Salon"}
                         </td>
@@ -727,11 +730,6 @@ export default function SuperAdminProductsRequirementPage() {
                         <td style={{ padding: "12px 14px", color: "#475569" }}>{r.category || "—"}</td>
                         <td style={{ padding: "12px 14px", color: "#475569" }}>{r.unitPackSize || r.packSize || "Standard"}</td>
                         <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>{r.quantity || 1}</td>
-                        <td style={{ padding: "12px 14px" }}>
-                          <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
-                            {r.priority}
-                          </span>
-                        </td>
                         <td style={{ padding: "12px 14px" }}>
                           <span style={{ background: sc.bg, color: sc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
                             {sc.label}
@@ -761,7 +759,7 @@ export default function SuperAdminProductsRequirementPage() {
         </div>
       )}
 
-      {/* SECTION 4: REQUEST DETAIL & FULFILLMENT (Point 2) */}
+      {/* SECTION 4: REQUEST DETAIL & FULFILLMENT (Points 9 & 10) */}
       {activeSection === "detail" && selectedReq && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0", maxWidth: 680, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
@@ -773,7 +771,7 @@ export default function SuperAdminProductsRequirementPage() {
                 {selectedReq.productName}
               </h3>
               <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
-                From Salon: <strong>{selectedReq.salon?.name || "General"}</strong>
+                Salon: <strong>{selectedReq.salon?.name || "General Salon"}</strong>
               </div>
             </div>
             <span style={{ background: statusConfig[selectedReq.status]?.bg, color: statusConfig[selectedReq.status]?.color, padding: "4px 12px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 700 }}>
@@ -792,30 +790,50 @@ export default function SuperAdminProductsRequirementPage() {
 
           {selectedReq.note && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Salon Note</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Note from Salon</div>
               <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#334155", borderLeft: "3px solid #6366f1" }}>
                 {selectedReq.note}
               </div>
             </div>
           )}
 
-          {/* Fulfillment Status Actions */}
+          {/* Internal Admin Remarks with Live Update (Points 9 & 10) */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Internal Admin Remarks</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const rem = window.prompt("Update admin internal remarks:", selectedReq.remark || "");
+                  if (rem !== null) updateStatus(selectedReq.id, selectedReq.status, rem);
+                }}
+                style={{ background: "none", border: "none", color: "#4f46e5", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+              >
+                + Edit Note / Remark
+              </button>
+            </div>
+            <div style={{ background: "#f0fdf4", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#166534", borderLeft: "3px solid #10b981" }}>
+              {selectedReq.remark || "No internal admin remarks recorded yet."}
+            </div>
+          </div>
+
+          {/* Fulfillment Status Actions (Point 10: Approve, Reject, Add Note, Mark Completed) */}
           <div style={{ background: "#f1f5f9", padding: 16, borderRadius: 10, marginBottom: 20 }}>
-            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 10 }}>Update Fulfillment Status</div>
+            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 10 }}>Actions on Request (Point 10)</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 disabled={updatingId === selectedReq.id}
                 onClick={() => updateStatus(selectedReq.id, "APPROVED")}
                 style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#10b981", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
               >
-                ✓ Approve Request
+                ✓ Approve
               </button>
               <button
                 disabled={updatingId === selectedReq.id}
                 onClick={() => updateStatus(selectedReq.id, "COMPLETED")}
                 style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#166534", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
               >
-                ★ Mark as Completed / Delivered
+                ★ Mark Completed
               </button>
               <button
                 disabled={updatingId === selectedReq.id}

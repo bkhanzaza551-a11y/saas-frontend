@@ -470,18 +470,53 @@ export default function ProductsRequirementPage() {
         </div>
       )}
 
-      {/* SECTION 2: NEW REQUEST (Point 2) */}
+      {/* SECTION 2: NEW REQUEST (Points 2 & 7) */}
       {activeSection === "new_request" && (
-        <div className="panel-card" style={{ padding: 24, maxWidth: 640, margin: "0 auto" }}>
+        <div className="panel-card" style={{ padding: 24, maxWidth: 680, margin: "0 auto" }}>
           <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "#0f172a" }}>Submit Product Request</h3>
           <p style={{ margin: "0 0 20px", fontSize: "0.85rem", color: "#64748b" }}>
-            Fill in required details for products you need at your salon.
+            Select an item from our available catalog or enter details for a custom product requirement.
           </p>
 
           <form onSubmit={handleCreateRequest} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {/* Quick Catalog Product Selector (Point 7) */}
+            <label>
+              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>
+                Select from Available Products (Auto-fills details)
+              </span>
+              <CustomSelect
+                value={requestForm.catalogId || ""}
+                onChange={e => {
+                  const selId = e.target.value;
+                  const item = catalog.find(c => c.id === selId);
+                  if (item) {
+                    setRequestForm({
+                      ...requestForm,
+                      catalogId: item.id,
+                      brand: item.brand || "",
+                      productName: item.productName || "",
+                      category: item.category || "",
+                      unitPackSize: item.unitPackSize || item.packSize || "",
+                      unitPrice: item.defaultPrice ? String(item.defaultPrice) : ""
+                    });
+                  } else {
+                    setRequestForm({ ...requestForm, catalogId: "" });
+                  }
+                }}
+                style={{ width: "100%" }}
+              >
+                <option value="">-- Choose an Available Product (or enter manually below) --</option>
+                {catalog.filter(c => c.isActive !== false).map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.brand ? `${c.brand} — ` : ""}{c.productName} ({c.unitPackSize || c.packSize || "Standard"}) {c.availableQty > 0 ? `[In Stock: ${c.availableQty}]` : "[Out of Stock]"}
+                  </option>
+                ))}
+              </CustomSelect>
+            </label>
+
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand * (Point 4)</span>
                 <input
                   type="text"
                   required
@@ -543,7 +578,7 @@ export default function ProductsRequirementPage() {
               </label>
 
               <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Priority</span>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Priority / Urgency</span>
                 <CustomSelect
                   value={requestForm.priority}
                   onChange={e => setRequestForm({ ...requestForm, priority: e.target.value })}
@@ -569,7 +604,7 @@ export default function ProductsRequirementPage() {
             </div>
 
             <label>
-              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Notes & Specifications</span>
+              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Note / Requirement</span>
               <textarea
                 rows={3}
                 placeholder="Specific shade, brand variant, urgency details, or distributor notes..."
@@ -599,7 +634,7 @@ export default function ProductsRequirementPage() {
         </div>
       )}
 
-      {/* SECTION 3: MY REQUESTS (Point 2) */}
+      {/* SECTION 3: MY REQUESTS (Points 2 & 8) */}
       {activeSection === "my_requests" && (
         <div className="panel-card" style={{ padding: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
@@ -634,23 +669,26 @@ export default function ProductsRequirementPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
-                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Brand & Product</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Request ID</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Product</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Category</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Pack Size</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Quantity</th>
-                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Priority</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Status</th>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Date</th>
-                    <th style={{ padding: "12px 14px", textAlign: "right" }}>Actions</th>
+                    <th style={{ padding: "12px 14px", textAlign: "right" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRequests.map((r) => {
-                    const pc = priorityColors[r.priority] || priorityColors.MEDIUM;
                     const sc = statusColors[r.status] || statusColors.NEW;
+                    const reqIdFormatted = `#REQ-${r.id.slice(-6).toUpperCase()}`;
 
                     return (
                       <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 14px", fontWeight: 800, color: "#6366f1", fontSize: "0.78rem" }}>
+                          {reqIdFormatted}
+                        </td>
                         <td style={{ padding: "12px 14px" }}>
                           <div style={{ fontSize: "0.72rem", color: "#6366f1", fontWeight: 800, textTransform: "uppercase" }}>{r.brand || "—"}</div>
                           <div style={{ fontWeight: 700, color: "#0f172a" }}>{r.productName}</div>
@@ -658,11 +696,6 @@ export default function ProductsRequirementPage() {
                         <td style={{ padding: "12px 14px", color: "#475569" }}>{r.category || "—"}</td>
                         <td style={{ padding: "12px 14px", color: "#475569" }}>{r.unitPackSize || r.packSize || "Standard"}</td>
                         <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>{r.quantity || 1}</td>
-                        <td style={{ padding: "12px 14px" }}>
-                          <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
-                            {r.priority}
-                          </span>
-                        </td>
                         <td style={{ padding: "12px 14px" }}>
                           <span style={{ background: sc.bg, color: sc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
                             {sc.label}
