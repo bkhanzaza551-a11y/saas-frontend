@@ -4,7 +4,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
-import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Save } from "lucide-react";
+import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 
 const TABS = [
   { id: "general",       label: "General",               icon: Settings },
@@ -45,6 +45,18 @@ const LOG_TYPE_COLORS = {
   default:               { bg: "#f1f5f9", color: "#475569" }
 };
 
+const DEFAULT_TEMPLATES = [
+  { id: "tpl-1", name: "Owner Invitation Email", channel: "EMAIL", event: "OWNER_INVITATION", subject: "Welcome to SalonNest — Activate your salon account", body: "Hello {{name}},\n\nYou have been invited to set up your salon {{salonName}} on SalonNest.\n\nClick below to set your password:\n{{link}}\n\nBest regards,\nSalonNest Team" },
+  { id: "tpl-2", name: "Email Verification Code", channel: "EMAIL", event: "EMAIL_VERIFICATION", subject: "SalonNest — Verify your email address", body: "Your verification code is: {{otp}}. This code is valid for 10 minutes." },
+  { id: "tpl-3", name: "WhatsApp Login OTP", channel: "WHATSAPP", event: "OTP", subject: "", body: "Your SalonNest secure login OTP is {{otp}}. Valid for 10 minutes. Do not share with anyone." },
+  { id: "tpl-4", name: "Welcome Message", channel: "WHATSAPP", event: "WELCOME_MESSAGE", subject: "", body: "Welcome to SalonNest, {{name}}! 🚀 Your salon {{salonName}} is ready to streamline operations and grow revenue." },
+  { id: "tpl-5", name: "Subscription Expiry Alert", channel: "EMAIL", event: "SUBSCRIPTION_EXPIRY", subject: "Important: Your SalonNest subscription expires soon", body: "Dear {{name}},\n\nYour subscription for {{salonName}} is expiring in {{daysLeft}} days. Please renew to keep your POS and booking services active.\n\nRenew now: {{link}}" },
+  { id: "tpl-6", name: "Payment Received Confirmation", channel: "WHATSAPP", event: "PAYMENT_CONFIRMATION", subject: "", body: "Payment received! ₹{{amount}} has been credited for your {{planName}} subscription. Invoice ID: {{invoiceId}}. Thank you!" },
+  { id: "tpl-7", name: "Support Reply Notification", channel: "EMAIL", event: "SUPPORT_REPLY", subject: "Update on Ticket #{{ticketId}}", body: "Hello {{name}},\n\nOur team has responded to your ticket: \"{{ticketSubject}}\".\n\nResponse: {{replyText}}\n\nView ticket: {{link}}" },
+  { id: "tpl-8", name: "Product Request Status", channel: "WHATSAPP", event: "PRODUCT_REQUEST_STATUS", subject: "", body: "Update on Product Request #{{requestId}}: Your request status has been updated to {{status}}." },
+  { id: "tpl-9", name: "Staff Request Status", channel: "WHATSAPP", event: "STAFF_REQUEST_STATUS", subject: "", body: "Update on Staff Request #{{requestId}}: Status changed to {{status}}." }
+];
+
 export default function SuperAdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
@@ -52,14 +64,20 @@ export default function SuperAdminSettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
   const [auditLogs, setAuditLogs] = useState([]);
   const [auditLoading, setAuditLoading] = useState(false);
+  const [showSecrets, setShowSecrets] = useState({});
+  const [testingInteg, setTestingInteg] = useState("");
   const [form, setForm] = useState({
     systemName: "SalonNest", globalLogo: "", maintenanceMode: false, maintenanceMessage: "",
     taxLabel: "GST", defaultCurrency: "INR", currencyOptions: ["INR", "USD", "AED", "GBP", "EUR", "PKR"],
     defaultCountry: "India", defaultCity: "Delhi", defaultTimezone: "Asia/Kolkata", invoicePrefix: "INV", defaultLanguage: "en", invoiceFormat: "INV-{YYYY}-{00000}",
     timeFormat: "12",
     notificationEmailEnabled: true, notificationSmsEnabled: false, notificationWhatsappEnabled: true,
-    notifyAccount: true, notifySubscription: true, notifySupport: true, notifyRequests: true,
-    whatsappNumber: "", smsProviderName: "", emailProviderName: "", whatsappProviderName: "",
+    accountOwnerInvite: true, accountEmailVerify: true, accountMobileVerify: true, accountPasswordReset: true,
+    subTrialEnding: true, subExpiring: true, subExpired: true, subGraceEnding: true, subPaymentReceived: true, subPaymentPending: true,
+    supportTicketCreated: true, supportReply: true, supportTicketResolved: true,
+    productReqSubmitted: true, productReqApproved: true, productReqRejected: true, productReqCompleted: true,
+    staffReqSubmitted: true, staffReqUpdated: true, staffReqCompleted: true,
+    whatsappNumber: "", smsProviderName: "Twilio", emailProviderName: "SMTP", whatsappProviderName: "Meta Cloud API",
     contactEmail: "info@salonnest.in", supportEmail: "support@salonnest.in", notificationEmail: "alerts@salonnest.in",
     termsUrl: "/terms", privacyUrl: "/privacy", demoBookingUrl: "/book-demo",
     blogTitle: "", blogIntro: "", backupPolicyNote: "",
@@ -73,18 +91,29 @@ export default function SuperAdminSettingsPage() {
     requireEmailVerification: false, requireMobileVerification: false,
     otpExpiryMinutes: 10, passwordLength: 8, lockDurationMinutes: 15,
     dateFormat: "DD/MM/YYYY",
-    messageTemplates: [],
+    messageTemplates: DEFAULT_TEMPLATES,
     integrations: {
-      paymentGateway: { provider: "", apiKey: "", enabled: false },
-      meetings: { provider: "", apiKey: "", enabled: false },
-      communications: { provider: "", apiKey: "", enabled: false }
+      paymentGateway: { provider: "Razorpay", apiKey: "", secret: "", webhookSecret: "", mode: "TEST", enabled: true },
+      meetings: { calendarProvider: "Google Calendar", meetingProvider: "Google Meet", clientId: "", clientSecret: "", enabled: true },
+      communications: { emailProvider: "SMTP", smsProvider: "Twilio", whatsappProvider: "Meta Cloud API", enabled: true }
     }
   });
 
   const f = (key) => ({ value: form[key] ?? "", onChange: (e) => setForm(p => ({ ...p, [key]: e.target.value })) });
   const n = (key) => ({ value: form[key] ?? 0, type: "number", onChange: (e) => setForm(p => ({ ...p, [key]: Number(e.target.value) })) });
 
-  const TEMPLATE_EVENTS = ["OTP", "LEAD_CONVERTED", "DEMO_SCHEDULED", "SUBSCRIPTION_REMINDER", "SUBSCRIPTION_EXPIRY", "PAYMENT_RECEIVED"];
+  const TEMPLATE_EVENTS = [
+    { key: "OWNER_INVITATION", label: "Owner Invitation" },
+    { key: "EMAIL_VERIFICATION", label: "Email Verification" },
+    { key: "OTP", label: "OTP" },
+    { key: "WELCOME_MESSAGE", label: "Welcome Message" },
+    { key: "TRIAL_ENDING", label: "Trial Ending" },
+    { key: "SUBSCRIPTION_EXPIRY", label: "Subscription Expiry" },
+    { key: "PAYMENT_CONFIRMATION", label: "Payment Confirmation" },
+    { key: "SUPPORT_REPLY", label: "Support Reply" },
+    { key: "PRODUCT_REQUEST_STATUS", label: "Product Request Status" },
+    { key: "STAFF_REQUEST_STATUS", label: "Staff Request Status" }
+  ];
   const CHANNEL_COLORS = { EMAIL: { bg: "#dbeafe", color: "#1e40af" }, SMS: { bg: "#fef3c7", color: "#92400e" }, WHATSAPP: { bg: "#d1fae5", color: "#065f46" } };
 
   const upsertTemplate = (tpl) => {
@@ -219,6 +248,21 @@ export default function SuperAdminSettingsPage() {
       setTestingChannel("");
     }
   };
+
+  const testIntegration = async (type, provider) => {
+    setTestingInteg(type);
+    setStatus({ error: "", success: "" });
+    try {
+      const res = await api.post("/super-admin/settings/test-integration", { type, provider });
+      setStatus({ error: "", success: res.data?.message || `${type} connection verified.` });
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Connection test failed."), success: "" });
+    } finally {
+      setTestingInteg("");
+    }
+  };
+
+  const toggleShowSecret = (key) => setShowSecrets(p => ({ ...p, [key]: !p[key] }));
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -651,7 +695,7 @@ export default function SuperAdminSettingsPage() {
                           </Field>
                           <Field label="Event" full>
                             <CustomSelect value={templateDraft.event} onChange={e => setTemplateDraft(p => ({ ...p, event: e.target.value }))}>
-                              {TEMPLATE_EVENTS.map(ev => <option key={ev} value={ev}>{ev.replace(/_/g, " ")}</option>)}
+                              {TEMPLATE_EVENTS.map(ev => <option key={ev.key} value={ev.key}>{ev.label}</option>)}
                             </CustomSelect>
                           </Field>
                           {templateDraft.channel === "EMAIL" && (
@@ -660,10 +704,10 @@ export default function SuperAdminSettingsPage() {
                             </Field>
                           )}
                           <Field label="Message Body" full>
-                            <textarea rows={5} style={{ ...inputStyle, resize: "vertical" }} value={templateDraft.body || ""} onChange={e => setTemplateDraft(p => ({ ...p, body: e.target.value }))} placeholder={"Your OTP is {otp}. Valid for {minutes} minutes."} />
+                            <textarea rows={5} style={{ ...inputStyle, resize: "vertical" }} value={templateDraft.body || ""} onChange={e => setTemplateDraft(p => ({ ...p, body: e.target.value }))} placeholder={"Your message body with {{name}}, {{link}}, etc."} />
                           </Field>
                           <div style={{ gridColumn: "1 / -1", fontSize: 11, color: "#94a3b8" }}>
-                            Placeholders: {"{otp}"} {"{minutes}"} {"{salonName}"} {"{ownerName}"} {"{daysLeft}"} {"{amount}"}
+                            Dynamic tokens: {"{{name}}"} {"{{salonName}}"} {"{{otp}}"} {"{{link}}"} {"{{amount}}"} {"{{planName}}"} {"{{daysLeft}}"} {"{{ticketId}}"} {"{{status}}"}
                           </div>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
@@ -676,39 +720,153 @@ export default function SuperAdminSettingsPage() {
                 </div>
               )}
 
+              {/* Section 6: Integrations */}
               {activeTab === "integrations" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Integrations</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Manage external connections (Payment gateways, Meetings, Communications).</p>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Manage external payment gateways, meeting providers, and communication channels with secure credential handling.</p>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
-                    {[
-                      { key: "paymentGateway", title: "Payment Gateways", desc: "Stripe and Razorpay configuration", placeholder: "Stripe / Razorpay" },
-                      { key: "meetings", title: "Meetings (Zoho / Google Meet)", desc: "Video conferencing for demo leads", placeholder: "Zoho / Google Meet" },
-                      { key: "communications", title: "Communications (Twilio / Meta)", desc: "API credentials for SMS and WhatsApp", placeholder: "Twilio / Meta Cloud API" }
-                    ].map((cfg) => {
-                      const integ = form.integrations[cfg.key] || { provider: "", apiKey: "", enabled: false };
-                      return (
-                        <div key={cfg.key} style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 16 }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                            <div>
-                              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{cfg.title}</h4>
-                              <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>{cfg.desc}</p>
-                            </div>
-                            <Toggle value={Boolean(integ.enabled)} onChange={v => setForm(p => ({ ...p, integrations: { ...p.integrations, [cfg.key]: { ...p.integrations[cfg.key], enabled: v } } }))} label={integ.enabled ? "Connected" : "Disabled"} />
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* 6.1 Payment Gateway */}
+                    <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, background: "white" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Payment Gateway</h4>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: form.integrations?.paymentGateway?.enabled ? "#ecfdf5" : "#f1f5f9", color: form.integrations?.paymentGateway?.enabled ? "#059669" : "#64748b", border: `1px solid ${form.integrations?.paymentGateway?.enabled ? "#a7f3d0" : "#e2e8f0"}` }}>
+                              {form.integrations?.paymentGateway?.enabled ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                              {form.integrations?.paymentGateway?.enabled ? "Connected" : "Not Connected"}
+                            </span>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                            <Field label="Provider">
-                              <input style={inputStyle} value={integ.provider || ""} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, [cfg.key]: { ...p.integrations[cfg.key], provider: e.target.value } } }))} placeholder={cfg.placeholder} />
-                            </Field>
-                            <Field label="API Key / Credentials">
-                              <input style={inputStyle} type="password" value={integ.apiKey || ""} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, [cfg.key]: { ...p.integrations[cfg.key], apiKey: e.target.value } } }))} placeholder="sk_..." />
-                            </Field>
-                          </div>
+                          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b" }}>Automate online subscription and product payments</p>
                         </div>
-                      );
-                    })}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <Toggle value={Boolean(form.integrations?.paymentGateway?.enabled)} onChange={v => setForm(p => ({ ...p, integrations: { ...p.integrations, paymentGateway: { ...p.integrations.paymentGateway, enabled: v } } }))} label="Status" />
+                          <button type="button" disabled={testingInteg === "paymentGateway" || !form.integrations?.paymentGateway?.enabled} onClick={() => testIntegration("paymentGateway", form.integrations?.paymentGateway?.provider || "Razorpay")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.integrations?.paymentGateway?.enabled || testingInteg ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
+                            {testingInteg === "paymentGateway" ? "Testing..." : "Test Connection"}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <Field label="Provider">
+                          <CustomSelect value={form.integrations?.paymentGateway?.provider || "Razorpay"} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, paymentGateway: { ...p.integrations.paymentGateway, provider: e.target.value } } }))}>
+                            <option value="Razorpay">Razorpay (India standard)</option>
+                            <option value="Stripe">Stripe (International)</option>
+                            <option value="Cashfree">Cashfree</option>
+                            <option value="PayU">PayU</option>
+                          </CustomSelect>
+                        </Field>
+                        <Field label="Mode">
+                          <CustomSelect value={form.integrations?.paymentGateway?.mode || "TEST"} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, paymentGateway: { ...p.integrations.paymentGateway, mode: e.target.value } } }))}>
+                            <option value="TEST">Test / Sandbox Mode</option>
+                            <option value="LIVE">Live / Production Mode</option>
+                          </CustomSelect>
+                        </Field>
+                        <Field label="Key ID / Public Key">
+                          <input style={inputStyle} value={form.integrations?.paymentGateway?.apiKey || ""} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, paymentGateway: { ...p.integrations.paymentGateway, apiKey: e.target.value } } }))} placeholder="rzp_test_..." />
+                        </Field>
+                        <Field label="Key Secret (Secure)">
+                          <div style={{ position: "relative" }}>
+                            <input style={{ ...inputStyle, paddingRight: 40 }} type={showSecrets.pgSecret ? "text" : "password"} value={form.integrations?.paymentGateway?.secret || ""} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, paymentGateway: { ...p.integrations.paymentGateway, secret: e.target.value } } }))} placeholder="••••••••••••••••" />
+                            <button type="button" onClick={() => toggleShowSecret("pgSecret")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b" }}>
+                              {showSecrets.pgSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </Field>
+                      </div>
+                    </div>
+
+                    {/* 6.2 Meeting / Calendar Integration (for Sales CRM Demo Scheduling) */}
+                    <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, background: "white" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Meeting / Calendar</h4>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: form.integrations?.meetings?.enabled ? "#ecfdf5" : "#f1f5f9", color: form.integrations?.meetings?.enabled ? "#059669" : "#64748b", border: `1px solid ${form.integrations?.meetings?.enabled ? "#a7f3d0" : "#e2e8f0"}` }}>
+                              {form.integrations?.meetings?.enabled ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                              {form.integrations?.meetings?.enabled ? "Connected" : "Not Connected"}
+                            </span>
+                          </div>
+                          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b" }}>Used by Sales CRM to schedule and launch product demos</p>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <Toggle value={Boolean(form.integrations?.meetings?.enabled)} onChange={v => setForm(p => ({ ...p, integrations: { ...p.integrations, meetings: { ...p.integrations.meetings, enabled: v } } }))} label="Status" />
+                          <button type="button" disabled={testingInteg === "meetings" || !form.integrations?.meetings?.enabled} onClick={() => testIntegration("meetings", form.integrations?.meetings?.meetingProvider || "Google Meet")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.integrations?.meetings?.enabled || testingInteg ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
+                            {testingInteg === "meetings" ? "Testing..." : "Test Connection"}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <Field label="Calendar Provider">
+                          <CustomSelect value={form.integrations?.meetings?.calendarProvider || "Google Calendar"} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, meetings: { ...p.integrations.meetings, calendarProvider: e.target.value } } }))}>
+                            <option value="Google Calendar">Google Calendar</option>
+                            <option value="Microsoft Outlook">Microsoft Outlook Calendar</option>
+                            <option value="Custom CalDAV">Custom CalDAV</option>
+                          </CustomSelect>
+                        </Field>
+                        <Field label="Meeting Provider">
+                          <CustomSelect value={form.integrations?.meetings?.meetingProvider || "Google Meet"} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, meetings: { ...p.integrations.meetings, meetingProvider: e.target.value } } }))}>
+                            <option value="Google Meet">Google Meet</option>
+                            <option value="Zoom">Zoom</option>
+                            <option value="Microsoft Teams">Microsoft Teams</option>
+                          </CustomSelect>
+                        </Field>
+                        <Field label="Client ID / API Key">
+                          <input style={inputStyle} value={form.integrations?.meetings?.clientId || ""} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, meetings: { ...p.integrations.meetings, clientId: e.target.value } } }))} placeholder="client-id-..." />
+                        </Field>
+                        <Field label="Client Secret (Secure)">
+                          <div style={{ position: "relative" }}>
+                            <input style={{ ...inputStyle, paddingRight: 40 }} type={showSecrets.meetingSecret ? "text" : "password"} value={form.integrations?.meetings?.clientSecret || ""} onChange={e => setForm(p => ({ ...p, integrations: { ...p.integrations, meetings: { ...p.integrations.meetings, clientSecret: e.target.value } } }))} placeholder="••••••••••••••••" />
+                            <button type="button" onClick={() => toggleShowSecret("meetingSecret")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b" }}>
+                              {showSecrets.meetingSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </Field>
+                      </div>
+                    </div>
+
+                    {/* 6.3 Communication Integrations Summary */}
+                    <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, background: "white" }}>
+                      <h4 style={{ margin: "0 0 14px", fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Communication Integrations</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                        <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <strong style={{ fontSize: 14, color: "#1e293b" }}>Email</strong>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 12, background: form.notificationEmailEnabled ? "#ecfdf5" : "#f1f5f9", color: form.notificationEmailEnabled ? "#059669" : "#64748b" }}>
+                              {form.notificationEmailEnabled ? "Connected" : "Disabled"}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 10 }}>Provider: {form.emailProviderName || "SMTP"}</div>
+                          <button type="button" onClick={() => testChannel("email")} style={{ width: "100%", padding: "6px 0", background: "white", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Test Email</button>
+                        </div>
+
+                        <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <strong style={{ fontSize: 14, color: "#1e293b" }}>SMS</strong>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 12, background: form.notificationSmsEnabled ? "#ecfdf5" : "#f1f5f9", color: form.notificationSmsEnabled ? "#059669" : "#64748b" }}>
+                              {form.notificationSmsEnabled ? "Connected" : "Disabled"}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 10 }}>Provider: {form.smsProviderName || "Twilio"}</div>
+                          <button type="button" onClick={() => testChannel("sms")} style={{ width: "100%", padding: "6px 0", background: "white", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Test SMS</button>
+                        </div>
+
+                        <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <strong style={{ fontSize: 14, color: "#1e293b" }}>WhatsApp</strong>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 12, background: form.notificationWhatsappEnabled ? "#ecfdf5" : "#f1f5f9", color: form.notificationWhatsappEnabled ? "#059669" : "#64748b" }}>
+                              {form.notificationWhatsappEnabled ? "Connected" : "Disabled"}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 10 }}>Provider: {form.whatsappProviderName || "Meta Cloud API"}</div>
+                          <button type="button" onClick={() => testChannel("whatsapp")} style={{ width: "100%", padding: "6px 0", background: "white", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Test WhatsApp</button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
