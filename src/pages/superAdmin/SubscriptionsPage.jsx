@@ -61,11 +61,16 @@ export default function SubscriptionsPage() {
 
   const [isPlanChangeOpen, setIsPlanChangeOpen] = useState(false);
   const [planChangeSub, setPlanChangeSub] = useState(null);
-  const [planChangeForm, setPlanChangeForm] = useState({ planId: "", effectiveDate: "", reason: "" });
+  const [planChangeStep, setPlanChangeStep] = useState(1);
+  const [planChangeForm, setPlanChangeForm] = useState({ planId: "", timing: "IMMEDIATELY", effectiveDate: new Date().toISOString().slice(0, 10), reason: "" });
 
   const [isRenewOpen, setIsRenewOpen] = useState(false);
   const [renewSub, setRenewSub] = useState(null);
   const [renewForm, setRenewForm] = useState({ months: 1, paymentMethod: "OTHER", amount: 0, notes: "" });
+
+  const [isExtendTrialOpen, setIsExtendTrialOpen] = useState(false);
+  const [extendTrialSub, setExtendTrialSub] = useState(null);
+  const [extendTrialForm, setExtendTrialForm] = useState({ days: 7, reason: "" });
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historySub, setHistorySub] = useState(null);
@@ -81,6 +86,10 @@ export default function SubscriptionsPage() {
       setSubs(subRes.data);
       setPlans(planRes.data);
       setSalons(salonRes?.data || []);
+      if (detailSub) {
+        const refreshed = subRes.data.find(s => s.id === detailSub.id);
+        if (refreshed) setDetailSub(refreshed);
+      }
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not load subscriptions"), success: "" });
     } finally {
@@ -125,24 +134,33 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    if (!editingRow) return;
-    setBusyId("edit");
-    try {
-      await api.patch(`/super-admin/subscriptions/${editingRow.id}`, {
-        planId: form.planId, status: form.status, paymentStatus: form.paymentStatus,
-        endsAt: form.endsAt, manualDiscount: Number(form.manualDiscount || 0), notes: form.notes
-      });
-      setIsEditOpen(false);
-      setEditingRow(null);
-      setStatus({ error: "", success: "Subscription updated." });
-      await load();
-    } catch (err) {
-      setStatus({ error: formatApiError(err), success: "" });
-    } finally {
-      setBusyId("");
-    }
+  const openPlanChange = (sub) => {
+    setPlanChangeSub(sub);
+    setPlanChangeStep(1);
+    setPlanChangeForm({
+      planId: "",
+      timing: "IMMEDIATELY",
+      effectiveDate: new Date().toISOString().slice(0, 10),
+      reason: ""
+    });
+    setIsPlanChangeOpen(true);
+  };
+
+  const openRenew = (sub) => {
+    setRenewSub(sub);
+    setRenewForm({
+      months: 1,
+      paymentMethod: "OTHER",
+      amount: Number(sub.plan?.monthlyPrice || 0),
+      notes: ""
+    });
+    setIsRenewOpen(true);
+  };
+
+  const openExtendTrial = (sub) => {
+    setExtendTrialSub(sub);
+    setExtendTrialForm({ days: 7, reason: "" });
+    setIsExtendTrialOpen(true);
   };
 
   const handleCreate = async (e) => {
@@ -152,7 +170,7 @@ export default function SubscriptionsPage() {
       await api.post("/super-admin/subscriptions", form);
       setIsCreateOpen(false);
       setForm(emptyForm);
-      setStatus({ error: "", success: "Subscription created." });
+      setStatus({ error: "", success: "Subscription created successfully." });
       await load();
     } catch (err) {
       setStatus({ error: formatApiError(err), success: "" });
@@ -161,16 +179,23 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const handlePlanChange = async (e) => {
+  const handlePlanChangeSubmit = async (e) => {
     e.preventDefault();
     if (!planChangeSub) return;
+    if (planChangeStep === 1) {
+      setPlanChangeStep(2);
+      return;
+    }
     setBusyId("planchange");
     try {
       await api.post(`/super-admin/subscriptions/${planChangeSub.id}/change-plan`, planChangeForm);
       setIsPlanChangeOpen(false);
       setPlanChangeSub(null);
-      setStatus({ error: "", success: "Plan changed successfully." });
+      setStatus({ error: "", success: "Plan changed successfully and feature flags updated." });
       await load();
+      if (detailSub && detailSub.id === planChangeSub.id) {
+        await openDetail(planChangeSub.id);
+      }
     } catch (err) {
       setStatus({ error: formatApiError(err), success: "" });
     } finally {
@@ -188,6 +213,29 @@ export default function SubscriptionsPage() {
       setRenewSub(null);
       setStatus({ error: "", success: "Subscription renewed successfully." });
       await load();
+      if (detailSub && detailSub.id === renewSub.id) {
+        await openDetail(renewSub.id);
+      }
+    } catch (err) {
+      setStatus({ error: formatApiError(err), success: "" });
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const handleExtendTrial = async (e) => {
+    e.preventDefault();
+    if (!extendTrialSub) return;
+    setBusyId("extendtrial");
+    try {
+      await api.post(`/super-admin/subscriptions/${extendTrialSub.id}/extend-trial`, extendTrialForm);
+      setIsExtendTrialOpen(false);
+      setExtendTrialSub(null);
+      setStatus({ error: "", success: `Trial extended by ${extendTrialForm.days} day(s).` });
+      await load();
+      if (detailSub && detailSub.id === extendTrialSub.id) {
+        await openDetail(extendTrialSub.id);
+      }
     } catch (err) {
       setStatus({ error: formatApiError(err), success: "" });
     } finally {
@@ -199,7 +247,7 @@ export default function SubscriptionsPage() {
     setBusyId(id);
     try {
       await api.post(`/super-admin/subscriptions/${id}/remind`);
-      setStatus({ error: "", success: "Reminder sent to salon owner." });
+      setStatus({ error: "", success: "Renewal reminder sent to salon owner." });
     } catch (err) {
       setStatus({ error: formatApiError(err), success: "" });
     } finally {
@@ -230,7 +278,7 @@ export default function SubscriptionsPage() {
         <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Salon Subscriptions</h1>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Manage what each salon has purchased, active statuses, renewals, and lifecycle access. {displaySubs.length} subscription(s) found.</p>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Manage what each salon has purchased, renewals, trial extensions, and plan upgrades. {displaySubs.length} subscription(s) found.</p>
           </div>
           <button onClick={() => { setForm(emptyForm); setIsCreateOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
             <Plus size={16} /> + New Subscription
@@ -241,6 +289,7 @@ export default function SubscriptionsPage() {
       {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
       {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
+      {/* Subscription Status Filter Cards / Tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
         {[
           { id: "", label: "All", count: subs.length },
@@ -382,8 +431,11 @@ export default function SubscriptionsPage() {
                     <td style={{ padding: "12px 16px", textAlign: "right" }}>
                       <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                         <button onClick={() => openDetail(row.id)} title="View Subscription Details" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><Eye size={15} /></button>
-                        <button onClick={() => { setPlanChangeSub(row); setPlanChangeForm({ planId: "", effectiveDate: "", reason: "" }); setIsPlanChangeOpen(true); }} title="Change Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><ArrowRightLeft size={15} /></button>
-                        <button onClick={() => { setRenewSub(row); setRenewForm({ months: 1, paymentMethod: "OTHER", amount: Number(row.plan?.monthlyPrice || 0), notes: "" }); setIsRenewOpen(true); }} title="Renew Subscription" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><RefreshCw size={15} /></button>
+                        <button onClick={() => openPlanChange(row)} title="Change / Upgrade Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><ArrowRightLeft size={15} /></button>
+                        <button onClick={() => openRenew(row)} title="Renew Subscription" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><RefreshCw size={15} /></button>
+                        {(row.status === "TRIAL" || row.computedStatus === "TRIAL") && (
+                          <button onClick={() => openExtendTrial(row)} title="Extend Trial" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fffbeb", cursor: "pointer", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><Clock size={15} /></button>
+                        )}
                         <button onClick={() => handleReminder(row.id)} disabled={busyId === row.id} title="Send Expiry Reminder" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", opacity: busyId === row.id ? 0.5 : 1 }}><Bell size={15} /></button>
                         <button onClick={() => { setHistorySub(row); setIsHistoryOpen(true); }} title="Subscription History" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><History size={15} /></button>
                       </div>
@@ -396,6 +448,7 @@ export default function SubscriptionsPage() {
         </div>
       )}
 
+      {/* Onboard Client Subscription Modal */}
       {isCreateOpen && (
         <div className="modal-overlay" onClick={() => setIsCreateOpen(false)}>
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
@@ -460,37 +513,141 @@ export default function SubscriptionsPage() {
         </div>
       )}
 
+      {/* Plan Change Flow with Confirmation Step (Points 16 & 17) */}
       {isPlanChangeOpen && planChangeSub && (
         <div className="modal-overlay" onClick={() => setIsPlanChangeOpen(false)}>
-          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
-            <div className="modal-header"><h3>Change Plan</h3><button className="modal-close-btn" onClick={() => setIsPlanChangeOpen(false)}>&times;</button></div>
-            <div style={{ padding: "0 0 16px", fontSize: 13, color: "#64748b" }}>
-              Current: <strong>{planChangeSub.plan?.name}</strong> (₹{Number(planChangeSub.plan?.monthlyPrice || 0).toLocaleString()}/mo)
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <div className="modal-header">
+              <h3>{planChangeStep === 1 ? "Change / Upgrade Plan" : "Confirm Plan Change"}</h3>
+              <button className="modal-close-btn" onClick={() => setIsPlanChangeOpen(false)}>&times;</button>
             </div>
-            <form onSubmit={handlePlanChange} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <label>
-                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>New Plan *</span>
-                <CustomSelect
-                  value={planChangeForm.planId}
-                  required
-                  onChange={e => setPlanChangeForm({ ...planChangeForm, planId: e.target.value })}
-                  style={{ width: "100%" }}
-                >
-                  <option value="">Select new plan</option>
-                  {plans.filter(p => !p.isArchived && p.id !== planChangeSub.planId).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}
-                </CustomSelect>
-              </label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Effective Date *</span><input type="date" required value={planChangeForm.effectiveDate} onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} /></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Reason</span><textarea rows={2} value={planChangeForm.reason} onChange={e => setPlanChangeForm({ ...planChangeForm, reason: e.target.value })} placeholder="Why is the plan being changed?" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
-              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                <button type="button" onClick={() => setIsPlanChangeOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>
-                <button type="submit" disabled={busyId === "planchange"} style={{ padding: "10px 18px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" }}>{busyId === "planchange" ? "Changing..." : "Change Plan"}</button>
-              </div>
+
+            <form onSubmit={handlePlanChangeSubmit} style={{ display: "flex", flexDirection: "column", gap: 14, padding: "10px 0" }}>
+              {planChangeStep === 1 ? (
+                <>
+                  <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: 8, fontSize: 13, border: "1px solid #e2e8f0" }}>
+                    <span style={{ color: "#64748b" }}>Current Plan:</span> <strong>{planChangeSub.plan?.name}</strong> (₹{Number(planChangeSub.plan?.monthlyPrice || 0).toLocaleString()}/mo)
+                  </div>
+
+                  <label>
+                    <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>New Plan *</span>
+                    <CustomSelect
+                      value={planChangeForm.planId}
+                      required
+                      onChange={e => setPlanChangeForm({ ...planChangeForm, planId: e.target.value })}
+                      style={{ width: "100%" }}
+                    >
+                      <option value="">Select new plan package</option>
+                      {plans.filter(p => !p.isArchived && p.id !== planChangeSub.planId).map(p => (
+                        <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>
+                      ))}
+                    </CustomSelect>
+                  </label>
+
+                  <div>
+                    <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 6 }}>When should this change take effect?</span>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      <button
+                        type="button"
+                        onClick={() => setPlanChangeForm({ ...planChangeForm, timing: "IMMEDIATELY" })}
+                        style={{
+                          padding: "10px",
+                          borderRadius: 8,
+                          border: planChangeForm.timing === "IMMEDIATELY" ? "2px solid #4f46e5" : "1px solid #cbd5e1",
+                          background: planChangeForm.timing === "IMMEDIATELY" ? "#f5f3ff" : "#fff",
+                          color: planChangeForm.timing === "IMMEDIATELY" ? "#4338ca" : "#475569",
+                          fontWeight: 700,
+                          fontSize: "0.82rem",
+                          cursor: "pointer"
+                        }}
+                      >
+                        ⚡ Immediately
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPlanChangeForm({ ...planChangeForm, timing: "NEXT_RENEWAL" })}
+                        style={{
+                          padding: "10px",
+                          borderRadius: 8,
+                          border: planChangeForm.timing === "NEXT_RENEWAL" ? "2px solid #4f46e5" : "1px solid #cbd5e1",
+                          background: planChangeForm.timing === "NEXT_RENEWAL" ? "#f5f3ff" : "#fff",
+                          color: planChangeForm.timing === "NEXT_RENEWAL" ? "#4338ca" : "#475569",
+                          fontWeight: 700,
+                          fontSize: "0.82rem",
+                          cursor: "pointer"
+                        }}
+                      >
+                        📅 On Next Renewal
+                      </button>
+                    </div>
+                  </div>
+
+                  <label>
+                    <span style={{ fontSize: 12, fontWeight: 700 }}>Effective Date *</span>
+                    <input type="date" required value={planChangeForm.effectiveDate} onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                  </label>
+
+                  <label>
+                    <span style={{ fontSize: 12, fontWeight: 700 }}>Reason / Internal Note</span>
+                    <textarea rows={2} value={planChangeForm.reason} onChange={e => setPlanChangeForm({ ...planChangeForm, reason: e.target.value })} placeholder="Reason for upgrade / downgrade / negotiation..." style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} />
+                  </label>
+
+                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+                    <button type="button" onClick={() => setIsPlanChangeOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>
+                    <button type="submit" disabled={!planChangeForm.planId} style={{ padding: "10px 18px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: !planChangeForm.planId ? "not-allowed" : "pointer", opacity: !planChangeForm.planId ? 0.6 : 1 }}>
+                      Review Change &rarr;
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {(() => {
+                    const nextPlan = plans.find(p => p.id === planChangeForm.planId);
+                    const oldPrice = Number(planChangeSub.plan?.monthlyPrice || 0);
+                    const newPrice = Number(nextPlan?.monthlyPrice || 0);
+                    const isUpgrade = newPrice > oldPrice;
+
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <div style={{ padding: 14, background: isUpgrade ? "#f0fdf4" : "#fffbeb", border: `1px solid ${isUpgrade ? "#bbf7d0" : "#fde68a"}`, borderRadius: 8 }}>
+                          <strong style={{ color: isUpgrade ? "#166534" : "#92400e", fontSize: "0.95rem" }}>
+                            {isUpgrade ? "⬆️ Plan Upgrade Confirmation" : "⬇️ Plan Downgrade Confirmation"}
+                          </strong>
+                          <p style={{ margin: "6px 0 0", fontSize: "0.82rem", color: "#334155", lineHeight: 1.4 }}>
+                            {planChangeSub.salon?.name} will be migrated from <strong>{planChangeSub.plan?.name}</strong> to <strong>{nextPlan?.name}</strong>.
+                          </p>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: "0.85rem", background: "#f8fafc", padding: 12, borderRadius: 8 }}>
+                          <div><span style={{ color: "#64748b" }}>Timing:</span> <strong>{planChangeForm.timing === "IMMEDIATELY" ? "Immediate" : "On Next Renewal"}</strong></div>
+                          <div><span style={{ color: "#64748b" }}>New Price:</span> <strong>₹{newPrice.toLocaleString()}/mo</strong></div>
+                          <div><span style={{ color: "#64748b" }}>Effective:</span> <strong>{planChangeForm.effectiveDate}</strong></div>
+                          <div><span style={{ color: "#64748b" }}>Features:</span> <strong>Auto-synced</strong></div>
+                        </div>
+
+                        {planChangeForm.reason && (
+                          <div style={{ fontSize: "0.82rem", color: "#64748b" }}>
+                            <strong>Reason:</strong> <em>{planChangeForm.reason}</em>
+                          </div>
+                        )}
+
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+                          <button type="button" onClick={() => setPlanChangeStep(1)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Back</button>
+                          <button type="submit" disabled={busyId === "planchange"} style={{ padding: "10px 22px", background: "#10b981", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" }}>
+                            {busyId === "planchange" ? "Applying..." : "Confirm & Apply Change"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </>
+              )}
             </form>
           </div>
         </div>
       )}
 
+      {/* Renew Subscription Modal */}
       {isRenewOpen && renewSub && (
         <div className="modal-overlay" onClick={() => setIsRenewOpen(false)}>
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
@@ -525,25 +682,79 @@ export default function SubscriptionsPage() {
         </div>
       )}
 
+      {/* Extend Trial Modal (Point 19) */}
+      {isExtendTrialOpen && extendTrialSub && (
+        <div className="modal-overlay" onClick={() => setIsExtendTrialOpen(false)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
+            <div className="modal-header"><h3>Extend Salon Trial</h3><button className="modal-close-btn" onClick={() => setIsExtendTrialOpen(false)}>&times;</button></div>
+            <div style={{ padding: "0 0 14px", fontSize: 13, color: "#64748b" }}>
+              Salon: <strong>{extendTrialSub.salon?.name}</strong> • Current Trial End: <strong>{extendTrialSub.endsAt ? new Date(extendTrialSub.endsAt).toLocaleDateString() : "—"}</strong>
+            </div>
+            <form onSubmit={handleExtendTrial} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 6 }}>Extension Period</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {[7, 14, 30].map(d => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setExtendTrialForm({ ...extendTrialForm, days: d })}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        borderRadius: 6,
+                        border: extendTrialForm.days === d ? "2px solid #d97706" : "1px solid #cbd5e1",
+                        background: extendTrialForm.days === d ? "#fffbeb" : "#fff",
+                        color: extendTrialForm.days === d ? "#92400e" : "#475569",
+                        fontWeight: 700,
+                        fontSize: "0.82rem",
+                        cursor: "pointer"
+                      }}
+                    >
+                      +{d} Days
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>Custom Days</span>
+                <input type="number" min="1" max="90" value={extendTrialForm.days} onChange={e => setExtendTrialForm({ ...extendTrialForm, days: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
+              </label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>Reason / Note</span>
+                <textarea rows={2} value={extendTrialForm.reason} onChange={e => setExtendTrialForm({ ...extendTrialForm, reason: e.target.value })} placeholder="Why is the trial being extended?" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} />
+              </label>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button type="button" onClick={() => setIsExtendTrialOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>
+                <button type="submit" disabled={busyId === "extendtrial"} style={{ padding: "10px 18px", background: "#d97706", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" }}>
+                  {busyId === "extendtrial" ? "Extending..." : "Extend Trial"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Subscription History Modal */}
       {isHistoryOpen && historySub && (
         <div className="modal-overlay" onClick={() => setIsHistoryOpen(false)}>
-          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 600, maxHeight: "80vh", overflowY: "auto" }}>
-            <div className="modal-header"><h3>Subscription History</h3><button className="modal-close-btn" onClick={() => setIsHistoryOpen(false)}>&times;</button></div>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 620, maxHeight: "80vh", overflowY: "auto" }}>
+            <div className="modal-header"><h3>Subscription History & Activity</h3><button className="modal-close-btn" onClick={() => setIsHistoryOpen(false)}>&times;</button></div>
             <p style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>{historySub.salon?.name} — {historySub.plan?.name}</p>
             {historySub.history?.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                 {historySub.history.map((h, idx) => (
                   <div key={h.id || idx} style={{ display: "flex", gap: 12, padding: "12px 0", borderBottom: idx < historySub.history.length - 1 ? "1px solid #f1f5f9" : "none" }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: h.action?.includes("UPGRADE") ? "#10b981" : h.action?.includes("DOWN") ? "#ef4444" : "#4f46e5", marginTop: 6, flexShrink: 0 }} />
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: h.action?.includes("UPGRADE") ? "#10b981" : h.action?.includes("DOWN") ? "#ef4444" : h.action?.includes("TRIAL") ? "#d97706" : "#4f46e5", marginTop: 6, flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#334155" }}>{h.action.replace(/_/g, " ")}</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#334155" }}>{h.action.replace(/_/g, " ")}</div>
                       <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 2 }}>
                         {h.createdBy && `By: ${h.createdBy}`} {h.createdAt && `• ${new Date(h.createdAt).toLocaleString()}`}
                       </div>
                       {h.fromStatus !== h.toStatus && (
-                        <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>{h.fromStatus} → {h.toStatus}</div>
+                        <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>Status: {h.fromStatus} → {h.toStatus}</div>
                       )}
-                      {h.notes && <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 4, fontStyle: "italic" }}>{h.notes}</div>}
+                      {h.notes && <div style={{ fontSize: "0.75rem", color: "#475569", marginTop: 4, fontStyle: "italic", background: "#f8fafc", padding: "4px 8px", borderRadius: 4 }}>{h.notes}</div>}
                     </div>
                   </div>
                 ))}
@@ -555,15 +766,21 @@ export default function SubscriptionsPage() {
         </div>
       )}
 
-      {/* Subscription Detail Slide-over / Modal (Point 14) */}
+      {/* Subscription Detail Slide-over / Modal (Point 14 & 15) */}
       {detailSub && !detailLoading && (
         <div className="modal-overlay" onClick={() => setDetailSub(null)}>
-          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 740, maxHeight: "90vh", overflowY: "auto" }}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 760, maxHeight: "90vh", overflowY: "auto" }}>
             <div className="modal-header">
               <h3 style={{ margin: 0, fontSize: "1.1rem" }}>Subscription Detail</h3>
               <button className="modal-close-btn" onClick={() => setDetailSub(null)}>&times;</button>
             </div>
-            <SubscriptionDetail sub={detailSub} />
+            <SubscriptionDetail
+              sub={detailSub}
+              onRenew={() => openRenew(detailSub)}
+              onChangePlan={() => openPlanChange(detailSub)}
+              onExtendTrial={() => openExtendTrial(detailSub)}
+              onRemind={() => handleReminder(detailSub.id)}
+            />
           </div>
         </div>
       )}
@@ -571,7 +788,7 @@ export default function SubscriptionsPage() {
   );
 }
 
-function SubscriptionDetail({ sub }) {
+function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemind }) {
   const meta = COMPUTED_STATUS_META[sub.computedStatus] || COMPUTED_STATUS_META.ACTIVE;
   const planFlags = sub.plan?.featureFlags || sub.plan?.features || {};
   const salonFlags = sub.salon?.featureFlags || planFlags;
@@ -579,9 +796,10 @@ function SubscriptionDetail({ sub }) {
   const ownerName = sub.owner?.name || sub.salon?.users?.[0]?.name || sub.salon?.name || "—";
   const ownerEmail = sub.owner?.email || sub.salon?.users?.[0]?.email || sub.salon?.email || "—";
   const ownerPhone = sub.owner?.phone || sub.salon?.users?.[0]?.phone || sub.salon?.phone || "—";
+  const isTrial = sub.status === "TRIAL" || sub.computedStatus === "TRIAL";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* Top Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "14px 16px", borderRadius: 10 }}>
         <div>
@@ -593,6 +811,40 @@ function SubscriptionDetail({ sub }) {
         <span style={{ background: meta.bg, color: meta.color, padding: "5px 14px", borderRadius: 100, fontSize: "0.82rem", fontWeight: 700 }}>
           {meta.label}
         </span>
+      </div>
+
+      {/* Subscription Action Toolbar (Point 15) */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, background: "#f1f5f9", padding: "10px 14px", borderRadius: 10 }}>
+        <button
+          type="button"
+          onClick={onRenew}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, border: "none", background: "#10b981", color: "white", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer" }}
+        >
+          <RefreshCw size={14} /> Renew Subscription
+        </button>
+        <button
+          type="button"
+          onClick={onChangePlan}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer" }}
+        >
+          <ArrowRightLeft size={14} /> Upgrade / Change Plan
+        </button>
+        {isTrial && (
+          <button
+            type="button"
+            onClick={onExtendTrial}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, border: "none", background: "#d97706", color: "white", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer" }}
+          >
+            <Clock size={14} /> Extend Trial
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onRemind}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer" }}
+        >
+          <Bell size={14} /> Send Reminder
+        </button>
       </div>
 
       {/* 1. Subscription Information */}
@@ -626,16 +878,19 @@ function SubscriptionDetail({ sub }) {
         </div>
       </div>
 
-      {/* 3. Expiry Lifecycle */}
+      {/* 3. Expiry & Lifecycle (Point 19 Trial Support Included) */}
       <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16 }}>
         <h4 style={{ margin: "0 0 12px", fontSize: "0.88rem", color: "#334155", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
-          <Clock size={16} color="#f59e0b" /> 3. Expiry & Data Retention Lifecycle
+          <Clock size={16} color="#f59e0b" /> 3. Expiry & Lifecycle Access
         </h4>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 16px", fontSize: "0.85rem" }}>
-          <div><span style={{ color: "#64748b" }}>Subscription Expiry:</span> <strong>{sub.endsAt ? new Date(sub.endsAt).toLocaleDateString() : "—"}</strong></div>
+          <div><span style={{ color: "#64748b" }}>{isTrial ? "Trial Start Date:" : "Subscription Start:"}</span> <strong>{sub.startsAt ? new Date(sub.startsAt).toLocaleDateString() : "—"}</strong></div>
+          <div><span style={{ color: "#64748b" }}>{isTrial ? "Trial End Date:" : "Subscription Expiry:"}</span> <strong>{sub.endsAt ? new Date(sub.endsAt).toLocaleDateString() : "—"}</strong></div>
           <div><span style={{ color: "#64748b" }}>Access Until (+2 Days Grace):</span> <strong style={{ color: "#d97706" }}>{sub.accessUntil ? new Date(sub.accessUntil).toLocaleDateString() : "—"}</strong></div>
           <div><span style={{ color: "#64748b" }}>Retention Until (+90 Days):</span> <strong style={{ color: "#6366f1" }}>{sub.retentionUntil ? new Date(sub.retentionUntil).toLocaleDateString() : "—"}</strong></div>
-          <div><span style={{ color: "#64748b" }}>Current Expiry Stage:</span> <strong style={{ color: meta.color }}>{meta.label}</strong> ({sub.daysLeft <= 0 ? "Expired" : `${sub.daysLeft} days remaining`})</div>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={{ color: "#64748b" }}>Current Lifecycle Stage:</span> <strong style={{ color: meta.color }}>{meta.label}</strong> ({sub.daysLeft <= 0 ? "Expired" : `${sub.daysLeft} days remaining`})
+          </div>
         </div>
       </div>
 
@@ -668,7 +923,7 @@ function SubscriptionDetail({ sub }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {sub.history.map((h, idx) => (
               <div key={h.id || idx} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: idx < sub.history.length - 1 ? "1px solid #f1f5f9" : "none", fontSize: "0.8rem" }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: h.action?.includes("UPGRADE") ? "#10b981" : h.action?.includes("DOWN") ? "#ef4444" : "#4f46e5", marginTop: 5, flexShrink: 0 }} />
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: h.action?.includes("UPGRADE") ? "#10b981" : h.action?.includes("DOWN") ? "#ef4444" : h.action?.includes("TRIAL") ? "#d97706" : "#4f46e5", marginTop: 5, flexShrink: 0 }} />
                 <div>
                   <div style={{ fontWeight: 700, color: "#1e293b" }}>{h.action.replace(/_/g, " ")}</div>
                   <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
@@ -677,7 +932,7 @@ function SubscriptionDetail({ sub }) {
                   {h.fromStatus !== h.toStatus && (
                     <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>{h.fromStatus} → {h.toStatus}</div>
                   )}
-                  {h.notes && <div style={{ color: "#475569", fontSize: "0.75rem", marginTop: 2, fontStyle: "italic" }}>{h.notes}</div>}
+                  {h.notes && <div style={{ color: "#475569", fontSize: "0.75rem", marginTop: 2, fontStyle: "italic", background: "#f8fafc", padding: "4px 8px", borderRadius: 4 }}>{h.notes}</div>}
                 </div>
               </div>
             ))}
