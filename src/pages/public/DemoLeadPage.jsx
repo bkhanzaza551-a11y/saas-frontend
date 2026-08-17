@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
-import { Check, ArrowRight, Calendar, Users, CreditCard, BarChart3, Shield, Store } from "lucide-react";
+import { Check, ArrowRight, Calendar, Users, CreditCard, BarChart3, Shield, Store, AlertCircle } from "lucide-react";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
 
 const initialForm = { name: "", email: "", phone: "", company: "", message: "" };
@@ -31,7 +31,10 @@ const nextSteps = [
 ];
 
 export default function PublicDemoLeadPage() {
+  const location = useLocation();
   const [form, setForm] = useState(initialForm);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [state, setState] = useState({ error: "", success: "" });
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,13 +43,73 @@ export default function PublicDemoLeadPage() {
     api.get("/public/settings").catch(() => {});
   }, []);
 
+  const validateField = (field, value) => {
+    const val = String(value || "").trim();
+    if (field === "name") {
+      if (!val) return "Your full name is required";
+      if (val.length < 2) return "Name must be at least 2 characters";
+      return "";
+    }
+    if (field === "email") {
+      if (!val) return "Work email is required";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(val)) return "Please enter a valid work email address (e.g. name@company.com)";
+      return "";
+    }
+    if (field === "phone") {
+      if (!val) return "Phone number is required";
+      const digits = val.replace(/\D/g, "");
+      if (digits.length < 10) return "Phone number must be at least 10 digits";
+      if (digits.length > 15) return "Phone number cannot exceed 15 digits";
+      return "";
+    }
+    if (field === "company") {
+      if (!val) return "Salon / Studio name is required";
+      if (val.length < 2) return "Salon name must be at least 2 characters";
+      return "";
+    }
+    return "";
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    const err = validateField(field, form[field]);
+    setErrors(prev => ({ ...prev, [field]: err }));
+  };
+
+  const handleChange = (field, value) => {
+    let finalVal = value;
+    if (field === "phone") {
+      // Allow only digits, leading +, spaces, hyphens, and parentheses
+      finalVal = finalVal.replace(/[^0-9+\s\-()]/g, "");
+      if (finalVal.indexOf("+") > 0) {
+        finalVal = finalVal[0] + finalVal.slice(1).replace(/\+/g, "");
+      }
+    }
+    setForm(prev => ({ ...prev, [field]: finalVal }));
+    if (touched[field]) {
+      const err = validateField(field, finalVal);
+      setErrors(prev => ({ ...prev, [field]: err }));
+    }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setState({ error: "", success: "" });
 
-    const phoneDigits = form.phone.replace(/\D/g, "");
-    if (phoneDigits.length < 8) {
-      setState({ error: "Please enter a valid phone number.", success: "" });
+    // Validate all required fields
+    const newErrors = {
+      name: validateField("name", form.name),
+      email: validateField("email", form.email),
+      phone: validateField("phone", form.phone),
+      company: validateField("company", form.company)
+    };
+
+    setTouched({ name: true, email: true, phone: true, company: true });
+    setErrors(newErrors);
+
+    const hasErrors = Object.values(newErrors).some(Boolean);
+    if (hasErrors) {
+      setState({ error: "Please correct the highlighted fields before submitting.", success: "" });
       return;
     }
 
@@ -54,6 +117,8 @@ export default function PublicDemoLeadPage() {
     try {
       await api.post("/public/demo-leads", form);
       setForm(initialForm);
+      setErrors({});
+      setTouched({});
       setState({ error: "", success: "Your demo request has been received. Our team will contact you shortly." });
     } catch (err) {
       setState({ error: formatApiError(err, "Could not submit your demo request right now."), success: "" });
@@ -146,33 +211,131 @@ export default function PublicDemoLeadPage() {
                   <button onClick={() => setState({ error: "", success: "" })} style={{ padding: "12px 28px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer", color: "#334155" }}>Submit Another Request</button>
                 </div>
               ) : (
-                <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
+                    {/* Name Field */}
                     <div>
                       <label className="demo-label">Your Name *</label>
-                      <input className="demo-input" value={form.name} placeholder="Full name" required onChange={e => setForm({ ...form, name: e.target.value })} />
+                      <input
+                        className="demo-input"
+                        value={form.name}
+                        placeholder="Full name"
+                        required
+                        onChange={e => handleChange("name", e.target.value)}
+                        onBlur={() => handleBlur("name")}
+                        style={touched.name && errors.name ? { borderColor: "#ef4444", background: "#fff5f5" } : {}}
+                      />
+                      {touched.name && errors.name && (
+                        <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+                          <AlertCircle size={13} /> {errors.name}
+                        </div>
+                      )}
                     </div>
+
+                    {/* Email Field */}
                     <div>
                       <label className="demo-label">Work Email *</label>
-                      <input className="demo-input" value={form.email} type="email" placeholder="name@company.com" required onChange={e => setForm({ ...form, email: e.target.value })} />
+                      <input
+                        className="demo-input"
+                        value={form.email}
+                        type="email"
+                        placeholder="name@company.com"
+                        required
+                        onChange={e => handleChange("email", e.target.value)}
+                        onBlur={() => handleBlur("email")}
+                        style={touched.email && errors.email ? { borderColor: "#ef4444", background: "#fff5f5" } : {}}
+                      />
+                      {touched.email && errors.email && (
+                        <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+                          <AlertCircle size={13} /> {errors.email}
+                        </div>
+                      )}
                     </div>
+
+                    {/* Phone Field */}
                     <div>
                       <label className="demo-label">Phone Number *</label>
-                      <input className="demo-input" value={form.phone} type="tel" placeholder="+91 99999 99999" required onChange={e => setForm({ ...form, phone: e.target.value })} />
+                      <input
+                        className="demo-input"
+                        value={form.phone}
+                        type="tel"
+                        placeholder="+91 99999 99999"
+                        required
+                        onChange={e => handleChange("phone", e.target.value)}
+                        onBlur={() => handleBlur("phone")}
+                        style={touched.phone && errors.phone ? { borderColor: "#ef4444", background: "#fff5f5" } : {}}
+                      />
+                      {touched.phone && errors.phone ? (
+                        <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+                          <AlertCircle size={13} /> {errors.phone}
+                        </div>
+                      ) : (
+                        <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>
+                          Enter 10 to 15 digits (e.g. +91 98765 43210)
+                        </div>
+                      )}
                     </div>
+
+                    {/* Salon Name Field */}
                     <div>
                       <label className="demo-label">Salon Name *</label>
-                      <input className="demo-input" value={form.company} placeholder="Salon / Studio name" required onChange={e => setForm({ ...form, company: e.target.value })} />
+                      <input
+                        className="demo-input"
+                        value={form.company}
+                        placeholder="Salon / Studio name"
+                        required
+                        onChange={e => handleChange("company", e.target.value)}
+                        onBlur={() => handleBlur("company")}
+                        style={touched.company && errors.company ? { borderColor: "#ef4444", background: "#fff5f5" } : {}}
+                      />
+                      {touched.company && errors.company && (
+                        <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+                          <AlertCircle size={13} /> {errors.company}
+                        </div>
+                      )}
                     </div>
                   </div>
+
+                  {/* Message Field */}
                   <div>
                     <label className="demo-label">How can we help? (Optional)</label>
-                    <textarea className="demo-input" rows={4} value={form.message} placeholder="Tell us about your branch count, team size, or what you want to see." onChange={e => setForm({ ...form, message: e.target.value })} style={{ resize: "vertical" }} />
+                    <textarea
+                      className="demo-input"
+                      rows={4}
+                      value={form.message}
+                      placeholder="Tell us about your branch count, team size, or what you want to see."
+                      onChange={e => setForm({ ...form, message: e.target.value })}
+                      style={{ resize: "vertical" }}
+                    />
                   </div>
 
-                  {state.error && <p style={{ color: "#ef4444", fontSize: 13, margin: 0 }}>{state.error}</p>}
+                  {state.error && (
+                    <div style={{ padding: "12px 16px", background: "#fef2f2", border: "1px solid #fee2e2", borderRadius: 10, color: "#dc2626", fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
+                      <AlertCircle size={16} />
+                      <span>{state.error}</span>
+                    </div>
+                  )}
 
-                  <button type="submit" disabled={submitting} style={{ width: "100%", padding: "14px", background: submitting ? "#94a3b8" : "linear-gradient(135deg, #0d9488, #14b8a6)", color: "#fff", border: "none", borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: submitting ? "not-allowed" : "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    style={{
+                      width: "100%",
+                      padding: "14px",
+                      background: submitting ? "#94a3b8" : "linear-gradient(135deg, #0d9488, #14b8a6)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      fontSize: 15,
+                      cursor: submitting ? "not-allowed" : "pointer",
+                      transition: "all 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8
+                    }}
+                  >
                     {submitting ? "Submitting..." : <>Submit Demo Request <ArrowRight size={18} /></>}
                   </button>
                 </form>
@@ -191,9 +354,9 @@ export default function PublicDemoLeadPage() {
             {nextSteps.map((s, i) => (
               <div key={i} style={{ textAlign: "center", position: "relative" }}>
                 <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #0d9488, #14b8a6)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18, margin: "0 auto 16px" }}>{s.step}</div>
-                 <h4 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }}>{s.title}</h4>
-                 <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, margin: 0 }}>{s.desc}</p>
-                 {i < nextSteps.length - 1 && <ArrowRight className="step-arrow" size={20} color="#d1d5db" style={{ position: "absolute", right: -20, top: 18 }} />}
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }}>{s.title}</h4>
+                <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, margin: 0 }}>{s.desc}</p>
+                {i < nextSteps.length - 1 && <ArrowRight className="step-arrow" size={20} color="#d1d5db" style={{ position: "absolute", right: -20, top: 18 }} />}
               </div>
             ))}
           </div>
