@@ -1397,42 +1397,6 @@ export default function SettingsPage() {
 
           <div className="settings-form-grid">
             <label className="settings-input-group">
-              <span className="muted">Delivery Disclaimer</span>
-              <textarea
-                rows="3"
-                value={generic.deliveryDisclaimer}
-                onChange={(event) => updateGeneric("deliveryDisclaimer", event.target.value)}
-                placeholder="Enter Delivery Disclaimer text..."
-              />
-            </label>
-            <label className="settings-input-group">
-              <span className="muted">Pickup Disclaimer</span>
-              <textarea
-                rows="3"
-                value={generic.pickupDisclaimer}
-                onChange={(event) => updateGeneric("pickupDisclaimer", event.target.value)}
-                placeholder="Enter Pickup Disclaimer text..."
-              />
-            </label>
-            <label className="settings-input-group">
-              <span className="muted">Service List Heading</span>
-              <input
-                type="text"
-                value={generic.serviceListHeading}
-                onChange={(event) => updateGeneric("serviceListHeading", event.target.value)}
-                placeholder="Our Services"
-              />
-            </label>
-            <label className="settings-input-group">
-              <span className="muted">Product List Heading</span>
-              <input
-                type="text"
-                value={generic.productListHeading}
-                onChange={(event) => updateGeneric("productListHeading", event.target.value)}
-                placeholder="Products For Sale"
-              />
-            </label>
-            <label className="settings-input-group">
               <span className="muted">Currency :</span>
               <div style={{ padding: "10px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", fontWeight: 700, color: "#475569" }}>INR — Indian Rupee</div>
             </label>
