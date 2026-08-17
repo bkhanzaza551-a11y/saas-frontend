@@ -23,7 +23,10 @@ function loadBranch() {
 }
 
 export default function StorefrontLayout() {
-  const { slug } = useParams();
+  const { slug: urlSlug } = useParams();
+  const [resolvedSlug, setResolvedSlug] = useState(null);
+  const [resolving, setResolving] = useState(!urlSlug);
+  const slug = urlSlug || resolvedSlug;
   const [salon, setSalon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState(loadBookings);
@@ -78,6 +81,24 @@ export default function StorefrontLayout() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (urlSlug) { setResolving(false); return; }
+    const host = window.location.hostname.toLowerCase();
+    if (host.includes("vercel.app") || host.includes("localhost") || host.includes("salonnest.in")) {
+      setResolving(false);
+      return;
+    }
+    api.get("/public/domain/resolve")
+      .then(({ data }) => {
+        if (data.salonSlug) {
+          setResolvedSlug(data.salonSlug);
+          window.history.replaceState({}, "", `/site/${data.salonSlug}${window.location.search}`);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setResolving(false));
+  }, [urlSlug]);
 
   useEffect(() => { localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings)); }, [bookings]);
   useEffect(() => { sessionStorage.setItem(BRANCH_KEY, selectedBranchId); }, [selectedBranchId]);

@@ -282,7 +282,7 @@ export default function ProductsRequirementPage() {
             gap: 6
           }}
         >
-          <Package size={16} /> 1. Available Products ({catalog.length})
+          <Package size={16} /> Available Products <span style={{ background: activeSection === "available" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 7px", borderRadius: 10, fontSize: "0.75rem", fontWeight: 700 }}>{catalog.length}</span>
         </button>
 
         <button
@@ -301,7 +301,7 @@ export default function ProductsRequirementPage() {
             gap: 6
           }}
         >
-          <Plus size={16} /> 2. New Request
+          <Plus size={16} /> New Request
         </button>
 
         <button
@@ -320,7 +320,7 @@ export default function ProductsRequirementPage() {
             gap: 6
           }}
         >
-          <ListFilter size={16} /> 3. My Requests ({requirements.length})
+          <ListFilter size={16} /> My Requests <span style={{ background: activeSection === "my_requests" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 7px", borderRadius: 10, fontSize: "0.75rem", fontWeight: 700 }}>{requirements.length}</span>
         </button>
 
         {selectedDetail && (
@@ -501,7 +501,7 @@ export default function ProductsRequirementPage() {
             {/* Quick Catalog Product Selector (Point 7) */}
             <label>
               <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>
-                Select from Available Products (Auto-fills details)
+                Select from Available Products <span style={{ fontWeight: 500, color: "#64748b" }}>— Auto-fills details</span>
               </span>
               <CustomSelect
                 value={requestForm.catalogId || ""}
@@ -524,12 +524,19 @@ export default function ProductsRequirementPage() {
                 }}
                 style={{ width: "100%" }}
               >
-                <option value="">-- Choose an Available Product (or enter manually below) --</option>
-                {catalog.filter(c => c.isActive !== false).map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.brand ? `${c.brand} — ` : ""}{c.productName} ({c.unitPackSize || c.packSize || "Standard"}) {c.availableQty > 0 ? `[In Stock: ${c.availableQty}]` : "[Out of Stock]"}
-                  </option>
-                ))}
+                <option value="">Choose an Available Product or enter details manually below</option>
+                {catalog.filter(c => c.isActive !== false).map(c => {
+                  const labelParts = [];
+                  if (c.brand) labelParts.push(c.brand);
+                  labelParts.push(c.productName);
+                  if (c.unitPackSize || c.packSize) labelParts.push(c.unitPackSize || c.packSize);
+                  labelParts.push(c.availableQty > 0 ? `Stock: ${c.availableQty}` : "Out of Stock");
+                  return (
+                    <option key={c.id} value={c.id}>
+                      {labelParts.join(" — ")}
+                    </option>
+                  );
+                })}
               </CustomSelect>
             </label>
 

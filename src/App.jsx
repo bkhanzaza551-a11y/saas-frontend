@@ -7,6 +7,7 @@ import { useAuth } from "./context/AuthContext";
 import { api } from "./api/client";
 import PageLoader from "./components/PageLoader.jsx";
 import { SETTINGS_WORKSPACE_SECTIONS } from "./pages/owner/settingsWorkspaceConfig.js";
+import DomainResolver from "./components/DomainResolver.jsx";
 const lazyWithRetry = (componentImport) =>
   lazy(async () => {
     const lastReload = Number(window.sessionStorage.getItem("chunk_reload_timestamp") || 0);
@@ -540,6 +541,7 @@ export default function App() {
   return (
     <>
       <div key={location.pathname} className="route-progress active" aria-hidden="true" />
+      <DomainResolver>
       <Suspense fallback={<RouteFallback />}>
         <div className="route-stage">
           <Routes location={location}>
@@ -767,6 +769,7 @@ export default function App() {
       </Routes>
         </div>
       </Suspense>
+      </DomainResolver>
     </>
   );
 }
