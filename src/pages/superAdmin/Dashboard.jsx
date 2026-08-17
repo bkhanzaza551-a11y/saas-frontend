@@ -45,7 +45,7 @@ export default function SuperAdminDashboard() {
   }, [roleName]);
 
   const healthCards = useMemo(() => [
-    { label: "Total Salons", value: data?.totalSalons || 0, caption: "All tenants", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" },
+    { label: "Total Salons", value: data?.totalSalons || 0, caption: "All salons", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" },
     { label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons?status=ACTIVE" },
     { label: "Trial Salons", value: data?.trialSalons || 0, caption: "Recently onboarded", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons?status=TRIAL" },
     { label: "Leads", value: data?.activeDemoLeads ?? data?.demoLeadsCount ?? 0, caption: "Active leads", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" },
