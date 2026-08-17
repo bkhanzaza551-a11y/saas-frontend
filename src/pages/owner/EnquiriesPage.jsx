@@ -272,18 +272,19 @@ export default function EnquiriesPage() {
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         
-        .eq-card { background: white; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: none; transition: all 0.3s; }
+        .eq-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); transition: all 0.3s; }
         
-        .eq-input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; outline: none; transition: all 0.2s; background: #fff; }
-        .eq-input:focus { border-color: #3b82f6; box-shadow: none; }
+        .eq-input { width: 100%; height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; color: #0f172a; outline: none; transition: all 0.15s ease; background: #fff; box-sizing: border-box; }
+        .eq-input:focus { border-color: #0f172a; box-shadow: 0 0 0 1px #0f172a; }
         .eq-label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .eq-btn { padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .eq-btn-primary { background: #1e88e5; color: white; box-shadow: none; }
-        .eq-btn-primary:hover { transform: translateY(-1px); background: #1565c0; box-shadow: none; }
+        .eq-btn { height: 40px; padding: 0 18px; border-radius: 8px; font-weight: 600; font-size: 13px; letter-spacing: 0.2px; cursor: pointer; transition: all 0.15s ease; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; }
+        .eq-btn-primary { background: #0f172a; color: #ffffff; border: 1px solid #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .eq-btn-primary:hover { transform: translateY(-1px); background: #1e293b; border-color: #1e293b; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.06); }
+        .eq-btn-primary:active { transform: translateY(0); }
         
-        .eq-btn-secondary { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; }
-        .eq-btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }
+        .eq-btn-secondary { background: #ffffff; border: 1px solid #e2e8f0; color: #475569; }
+        .eq-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a; }
 
         .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -292,11 +293,11 @@ export default function EnquiriesPage() {
         .enquiries-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155; vertical-align: middle; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1200; backdrop-filter: blur(4px); }
-        .modal-content { background: white; border-radius: 16px; width: 95%; max-width: 750px; padding: 28px; box-shadow: none; animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .modal-content { background: white; border-radius: 16px; width: 95%; max-width: 750px; padding: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
         
-        .filter-bar { background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; padding: 16px 24px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 24px; }
+        .filter-bar { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 24px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
         .filter-group { display: flex; align-items: center; gap: 8px; }
-        .filter-group label { font-size: 14px; font-weight: 600; color: #475569; white-space: nowrap; }
+        .filter-group label { font-size: 13px; font-weight: 600; color: #64748b; white-space: nowrap; }
         
         .empty-records-container { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 60px 20px; text-align: center; color: #64748b; font-weight: 600; font-size: 18px; background: #fafafa; }
       `}</style>
@@ -315,13 +316,13 @@ export default function EnquiriesPage() {
 
       {mode === "enquiries" && (
         <div className="anim-fade">
-          {/* ── FILTER BAR (Matching Screenshot 1) ── */}
+          {/* ── FILTER BAR ── */}
           <div className="filter-bar">
             <div className="filter-group" style={{ flex: "1 1 200px" }}>
               <input 
                 type="text" 
                 className="eq-input" 
-                placeholder="Mobile No."
+                placeholder="Search Mobile No..."
                 value={filterPhone}
                 onChange={(e) => setFilterPhone(e.target.value)}
               />
@@ -332,7 +333,7 @@ export default function EnquiriesPage() {
               <input 
                 type="date" 
                 className="eq-input" 
-                style={{ width: "160px" }}
+                style={{ width: "155px" }}
                 value={filterFromDate}
                 onChange={(e) => setFilterFromDate(e.target.value)}
                 max={filterToDate || undefined}
@@ -344,20 +345,25 @@ export default function EnquiriesPage() {
               <input 
                 type="date" 
                 className="eq-input" 
-                style={{ width: "160px" }}
+                style={{ width: "155px" }}
                 value={filterToDate}
                 onChange={(e) => setFilterToDate(e.target.value)}
                 min={filterFromDate || undefined}
               />
             </div>
 
-            <button className="eq-btn eq-btn-secondary" style={{ height: "40px" }} onClick={() => { setFilterPhone(""); setFilterFromDate(""); setFilterToDate(""); }}>
+            <button 
+              className="eq-btn eq-btn-secondary" 
+              style={{ width: "40px", padding: 0 }} 
+              title="Reset Filters"
+              onClick={() => { setFilterPhone(""); setFilterFromDate(""); setFilterToDate(""); }}
+            >
               <RefreshCw size={15} />
             </button>
 
             <button 
               className="eq-btn eq-btn-primary" 
-              style={{ marginLeft: "auto", background: "#0284c7" }}
+              style={{ marginLeft: "auto" }}
               onClick={() => setShowModal(true)}
             >
               <Plus size={16} /> Add Enquiry
