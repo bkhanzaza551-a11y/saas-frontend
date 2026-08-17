@@ -403,14 +403,6 @@ export default function SuperAdminSettingsPage() {
                     </Field>
                     <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="India" /></Field>
                     <Field label="Timezone"><input style={inputStyle} {...f("defaultTimezone")} placeholder="Asia/Kolkata" /></Field>
-                    <Field label="Language">
-                      <CustomSelect value={form.defaultLanguage} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
-                        <option value="en">English (US)</option>
-                        <option value="en-gb">English (UK)</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                      </CustomSelect>
-                    </Field>
                     <Field label="Date Format">
                       <CustomSelect value={form.dateFormat} onChange={e => setForm(p => ({ ...p, dateFormat: e.target.value }))}>
                         <option value="DD/MM/YYYY">DD/MM/YYYY</option>
