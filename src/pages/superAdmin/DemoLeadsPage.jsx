@@ -30,12 +30,13 @@ const LEAD_SOURCES = [
 ];
 
 const LOST_REASONS = [
-  { value: "BUDGET", label: "Too Expensive / Budget Issue" },
-  { value: "COMPETITOR", label: "Chose Competitor" },
-  { value: "NO_RESPONSE", label: "No Response / Unreachable" },
-  { value: "NOT_INTERESTED", label: "Not Interested Anymore" },
-  { value: "FEATURE_GAP", label: "Missing Required Features" },
-  { value: "WRONG_FIT", label: "Wrong Fit / Not a Salon" },
+  { value: "NOT_INTERESTED", label: "Not interested" },
+  { value: "PRICE", label: "Price / Budget" },
+  { value: "NO_RESPONSE", label: "No response / Unreachable" },
+  { value: "COMPETITOR", label: "Competitor selected" },
+  { value: "NOT_QUALIFIED", label: "Not qualified" },
+  { value: "TIMING_ISSUE", label: "Timing issue" },
+  { value: "DUPLICATE", label: "Duplicate lead" },
   { value: "OTHER", label: "Other (Specify in notes)" }
 ];
 
@@ -1051,34 +1052,59 @@ export default function DemoLeadsPage() {
                         )}
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => sendPurchaseLink(row.id)}
-                        disabled={isBusy}
-                        style={{
-                          padding: "9px 12px",
-                          background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: isBusy ? "not-allowed" : "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 6
-                        }}
-                      >
-                        {isBusy && actionType === "send-pay-link" ? (
-                          <>
-                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
-                            <span>Sending Payment Link...</span>
-                          </>
-                        ) : (
-                          "Send Pay Link"
-                        )}
-                      </button>
+                      {isConverted && row.salon?.id && (
+                        <a
+                          href={`/super-admin/salons/${row.salon.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            padding: "9px 12px",
+                            background: "#0f172a",
+                            color: "#fff",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            textDecoration: "none",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6
+                          }}
+                        >
+                          <Building2 size={14} /> View Salon Profile →
+                        </a>
+                      )}
+
+                      {!isConverted && (
+                        <button
+                          type="button"
+                          onClick={() => sendPurchaseLink(row.id)}
+                          disabled={isBusy}
+                          style={{
+                            padding: "9px 12px",
+                            background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6
+                          }}
+                        >
+                          {isBusy && actionType === "send-pay-link" ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+                              <span>Sending Payment Link...</span>
+                            </>
+                          ) : (
+                            "Send Pay Link"
+                          )}
+                        </button>
+                      )}
 
                       {row.status !== "CANCELED" && !isConverted && (
                         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 12, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
