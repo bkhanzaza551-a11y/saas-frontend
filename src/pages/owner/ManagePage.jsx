@@ -35,7 +35,7 @@ const CATEGORIES = [
     items: [
       { title: "Website Editor", description: "Design homepage text, sections, themes, and banners.", to: "/admin/website-editor", icon: NotebookPen, reqPerm: "settings" },
       { title: "Manage Enquiries", description: "Track and convert leads into customers.", to: "/admin/enquiries", icon: PhoneCall, reqPerm: "enquiries", reqFlag: "enquiries" },
-      { title: "WhatsApp Credits", description: "Purchase and manage credits for WhatsApp messages.", to: "/admin/whatsapp-credits", icon: MessagesSquare, reqFlag: "whatsapp" }
+      { title: "Messaging & SMS Credits", description: "Purchase and manage credits for WhatsApp & SMS notifications.", to: "/admin/whatsapp-credits", icon: MessagesSquare, reqFlag: "whatsapp" }
     ]
   }
 ];

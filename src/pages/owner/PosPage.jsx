@@ -2549,6 +2549,27 @@ export default function PosPage() {
                   <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                   {shareLoading ? "Sending..." : "Send using WhatsApp API"}
                 </button>
+
+                <button onClick={async () => {
+                  setShareLoading(true);
+                  setShareError(null);
+                  try {
+                    await api.post(`/owner/invoices/${createdInvoice.id}/share-sms`);
+                    setToastMessage({ type: "success", title: "SMS Sent", message: "Invoice sent via SMS successfully." });
+                    setShowShareModal(false);
+                  } catch (err) {
+                    if (err.response?.status === 402) {
+                      setShareError(err.response.data.message || "Insufficient SMS credits");
+                    } else {
+                      setShareError(err.response?.data?.message || "Failed to send SMS message");
+                    }
+                  } finally {
+                    setShareLoading(false);
+                  }
+                }} disabled={shareLoading} className="pos-action-btn" style={{ background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1e40af", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: shareLoading ? 0.7 : 1, fontWeight: 600 }}>
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                  {shareLoading ? "Sending..." : "Send using SMS API"}
+                </button>
               </div>
             </div>
           </div>
