@@ -577,7 +577,7 @@ export default function SuperAdminProductsRequirementPage() {
               </label>
 
               <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size (Point 5)</span>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size</span>
                 <input
                   type="text"
                   placeholder="e.g. 50 ml, 100 ml, 500 ml, 1 L, Pack of 12"
@@ -817,9 +817,9 @@ export default function SuperAdminProductsRequirementPage() {
             </div>
           </div>
 
-          {/* Fulfillment Status Actions (Point 10: Approve, Reject, Add Note, Mark Completed) */}
+          {/* Fulfillment Status Actions (Approve, Reject, Add Note, Mark Completed) */}
           <div style={{ background: "#f1f5f9", padding: 16, borderRadius: 10, marginBottom: 20 }}>
-            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 10 }}>Actions on Request (Point 10)</div>
+            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 10 }}>Actions on Request</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 disabled={updatingId === selectedReq.id}
@@ -873,7 +873,7 @@ export default function SuperAdminProductsRequirementPage() {
             <form onSubmit={saveCatalogItem} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <label>
-                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand * (Point 4)</span>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
                   <input
                     type="text"
                     required
@@ -910,7 +910,7 @@ export default function SuperAdminProductsRequirementPage() {
                 </label>
 
                 <label>
-                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size (Point 5)</span>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size</span>
                   <input
                     type="text"
                     placeholder="e.g. 50 ml, 100 ml, 500 ml, 1 L, Pack of 12"

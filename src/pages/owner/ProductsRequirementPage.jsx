@@ -516,7 +516,7 @@ export default function ProductsRequirementPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand * (Point 4)</span>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
                 <input
                   type="text"
                   required
@@ -553,7 +553,7 @@ export default function ProductsRequirementPage() {
               </label>
 
               <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size (Point 5)</span>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size</span>
                 <input
                   type="text"
                   placeholder="e.g. 50 ml, 100 ml, 500 ml, 1 L, Pack of 12"
