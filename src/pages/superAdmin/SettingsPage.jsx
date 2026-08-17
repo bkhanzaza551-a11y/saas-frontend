@@ -79,7 +79,7 @@ export default function SuperAdminSettingsPage() {
     staffReqSubmitted: true, staffReqUpdated: true, staffReqCompleted: true,
     whatsappNumber: "", smsProviderName: "Twilio", emailProviderName: "SMTP", whatsappProviderName: "Meta Cloud API",
     contactEmail: "info@salonnest.in", supportEmail: "support@salonnest.in", notificationEmail: "alerts@salonnest.in",
-    termsUrl: "/terms", privacyUrl: "/privacy", demoBookingUrl: "/book-demo",
+    termsUrl: "/terms", privacyUrl: "/privacy", termsContent: "", privacyContent: "", demoBookingUrl: "/book-demo",
     blogTitle: "", blogIntro: "", backupPolicyNote: "",
     businessName: "SalonNest Technologies", businessEmail: "info@salonnest.in", businessPhone: "", businessAddress: "",
     businessCity: "Delhi", businessState: "Delhi", businessCountry: "India", businessPin: "",
@@ -243,6 +243,8 @@ export default function SuperAdminSettingsPage() {
         notificationEmail: d.notificationEmail || "",
         termsUrl: d.termsUrl || "/terms",
         privacyUrl: d.privacyUrl || "/privacy",
+        termsContent: d.termsContent || "",
+        privacyContent: d.privacyContent || "",
         demoBookingUrl: d.demoBookingUrl || "/book-demo",
         blogTitle: d.blogTitle || "",
         blogIntro: d.blogIntro || "",
@@ -385,7 +387,7 @@ export default function SuperAdminSettingsPage() {
         },
         whatsappNumber: form.whatsappNumber, smsProviderName: form.smsProviderName, emailProviderName: form.emailProviderName, whatsappProviderName: form.whatsappProviderName,
         contactEmail: form.contactEmail, supportEmail: form.supportEmail, notificationEmail: form.notificationEmail,
-        termsUrl: form.termsUrl, privacyUrl: form.privacyUrl, demoBookingUrl: form.demoBookingUrl,
+        termsUrl: form.termsUrl, privacyUrl: form.privacyUrl, termsContent: form.termsContent, privacyContent: form.privacyContent, demoBookingUrl: form.demoBookingUrl,
         blogTitle: form.blogTitle, blogIntro: form.blogIntro, backupPolicyNote: form.backupPolicyNote,
         businessName: form.businessName, businessEmail: form.businessEmail, businessPhone: form.businessPhone,
         businessAddress: form.businessAddress, businessCity: form.businessCity, businessState: form.businessState,
@@ -459,9 +461,10 @@ export default function SuperAdminSettingsPage() {
                     <Field label="Platform Logo">
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         {form.globalLogo && <img src={form.globalLogo} alt="Logo" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 4, border: "1px solid #e2e8f0" }} />}
-                        <input type="file" style={{ ...inputStyle, padding: "7px 10px" }} accept="image/*" onChange={(e) => {
+                        <input type="file" style={{ ...inputStyle, padding: "7px 10px" }} accept="image/png,image/jpeg,image/svg+xml,image/webp" onChange={(e) => {
                           const file = e.target.files[0];
                           if (!file) return;
+                          if (file.size > 500 * 1024) { setStatus({ error: "Logo must be under 500KB. Please compress the image.", success: "" }); e.target.value = ""; return; }
                           const r = new FileReader();
                           r.onload = (ev) => setForm(p => ({ ...p, globalLogo: ev.target.result }));
                           r.readAsDataURL(file);
@@ -840,10 +843,9 @@ export default function SuperAdminSettingsPage() {
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
                           <button type="button" onClick={() => setTemplateDraft(null)} style={{ padding: "8px 18px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#475569", cursor: "pointer" }}>Cancel</button>
                           <button type="button" onClick={handleSaveTemplate} style={{ padding: "8px 20px", background: "#4f46e5", color: "white", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.3)" }}>Save Template</button>
-                        </div>
-                      </div>
                     </div>
-                  )}
+                </div>
+              )}
                 </div>
               )}
 
@@ -1085,6 +1087,29 @@ export default function SuperAdminSettingsPage() {
                         <div style={{ background: "#0f172a", color: "white", padding: "8px 14px", borderRadius: 8, fontWeight: 700 }}>
                           7. {form.retentionAction === "PURGE" ? "Purge / Delete" : (form.retentionAction === "SOFT_DELETE" ? "Soft Delete" : (form.retentionAction === "LOCK" ? "Lock Account" : "Archive Data"))}
                         </div>
+                      </div>
+                    </div>
+
+                    {/* 7.5 Legal Policy Links & Content */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Legal Policy Links & Content</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <Field label="Terms of Service URL">
+                          <input style={inputStyle} {...f("termsUrl")} placeholder="/terms" />
+                        </Field>
+                        <Field label="Privacy Policy URL">
+                          <input style={inputStyle} {...f("privacyUrl")} placeholder="/privacy" />
+                        </Field>
+                        <Field label="Demo Booking URL">
+                          <input style={inputStyle} {...f("demoBookingUrl")} placeholder="/book-demo" />
+                        </Field>
+                        <div />
+                        <Field label="Terms of Service Content" full>
+                          <textarea rows={4} style={{ ...inputStyle, resize: "vertical", fontFamily: "monospace", fontSize: 12 }} {...f("termsContent")} placeholder="Paste your Terms of Service content here..." />
+                        </Field>
+                        <Field label="Privacy Policy Content" full>
+                          <textarea rows={4} style={{ ...inputStyle, resize: "vertical", fontFamily: "monospace", fontSize: 12 }} {...f("privacyContent")} placeholder="Paste your Privacy Policy content here..." />
+                        </Field>
                       </div>
                     </div>
                   </div>
