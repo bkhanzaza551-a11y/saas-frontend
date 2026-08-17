@@ -16,14 +16,15 @@ const TABS = [
   { id: "overview", label: "Overview", icon: Building2 },
   { id: "owner", label: "Owner", icon: User },
   { id: "branches", label: "Branches", icon: Landmark },
-  { id: "subscriptions", label: "Subscription", icon: ShieldCheck },
+  { id: "subscriptions", label: "Subscription Summary", icon: ShieldCheck },
   { id: "features", label: "Feature Access", icon: Key },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "productRequests", label: "Product Requests", icon: Package },
   { id: "staffRequests", label: "Staff Requests", icon: Users },
   { id: "support", label: "Support", icon: Ticket },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "auditLogs", label: "Audit Logs", icon: ActivityIcon }
+  { id: "activity", label: "Activity", icon: ActivityIcon },
+  { id: "dataExport", label: "Data Export", icon: Download }
 ];
 
 const statusColor = (s) => {
@@ -412,26 +413,83 @@ export default function Salon360ProfilePage() {
             </Link>
           </div>
           {subscription ? (
-            <div style={{ border: "1px solid #e2e8f0", padding: 20, borderRadius: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h4 style={{ margin: 0, color: "#4f46e5", fontSize: "1.1rem" }}>{subscription.plan?.name || "Custom Plan"}</h4>
-                <span style={{ fontWeight: 700, color: subscription.status === "ACTIVE" ? "#10b981" : "#d97706", background: subscription.status === "ACTIVE" ? "#ecfdf5" : "#fffbeb", padding: "4px 10px", borderRadius: 100, fontSize: "0.75rem" }}>{subscription.status}</span>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, fontSize: "0.9rem" }}>
-                <div><span style={{ color: "#64748b" }}>Started:</span> <span style={{ fontWeight: 500 }}>{new Date(subscription.startsAt).toLocaleDateString()}</span></div>
-                <div><span style={{ color: "#64748b" }}>Ends:</span> <span style={{ fontWeight: 500 }}>{new Date(subscription.endsAt).toLocaleDateString()}</span></div>
-                <div><span style={{ color: "#64748b" }}>Price:</span> <span style={{ fontWeight: 500 }}>₹{subscription.price || "-"}/mo</span></div>
-              </div>
-              {subscription.plan?.featureFlags && (
-                <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-                  <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Included Plan Features (Automatic Access)</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {Object.entries(subscription.plan.featureFlags).filter(([_, v]) => v).map(([k]) => (
-                      <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, border: "1px solid #bbf7d0" }}>✓ {k}</span>
-                    ))}
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ border: "1px solid #e2e8f0", padding: 20, borderRadius: 12, background: "#fafafa" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <div>
+                    <h4 style={{ margin: 0, color: "#4f46e5", fontSize: "1.15rem", fontWeight: 800 }}>{subscription.plan?.name || "Custom Plan"}</h4>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Type: {subscription.status === "TRIAL" ? "Free Trial" : "Active Paid Plan"}</div>
+                  </div>
+                  <span style={{ fontWeight: 700, color: subscription.status === "ACTIVE" ? "#10b981" : (subscription.status === "TRIAL" ? "#d97706" : "#ef4444"), background: subscription.status === "ACTIVE" ? "#ecfdf5" : (subscription.status === "TRIAL" ? "#fffbeb" : "#fef2f2"), padding: "5px 12px", borderRadius: 100, fontSize: "0.8rem" }}>
+                    {subscription.status}
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, fontSize: "0.85rem", background: "white", padding: 16, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                  <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>START DATE</span> <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(subscription.startsAt).toLocaleDateString()}</span></div>
+                  <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>EXPIRY DATE</span> <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(subscription.endsAt).toLocaleDateString()}</span></div>
+                  <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>PAYMENT STATUS</span> <span style={{ fontWeight: 600, color: subscription.status === "ACTIVE" ? "#16a34a" : "#d97706" }}>{subscription.status === "ACTIVE" ? "Paid / Active" : "Trial Active"}</span></div>
+                  <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>RENEWAL DATE</span> <span style={{ fontWeight: 600, color: "#4f46e5" }}>{new Date(subscription.endsAt).toLocaleDateString()}</span></div>
+                  <div>
+                    <span style={{ color: "#0284c7", display: "block", fontSize: 11, fontWeight: 700 }}>2-DAY ACCESS ENDS</span> 
+                    <span style={{ fontWeight: 600, color: "#0369a1" }}>
+                      {(() => { const d = new Date(subscription.endsAt); d.setDate(d.getDate() + 2); return d.toLocaleDateString(); })()}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: "#9333ea", display: "block", fontSize: 11, fontWeight: 700 }}>90-DAY RETENTION ENDS</span> 
+                    <span style={{ fontWeight: 600, color: "#7e22ce" }}>
+                      {(() => { const d = new Date(subscription.endsAt); d.setDate(d.getDate() + 90); return d.toLocaleDateString(); })()}
+                    </span>
                   </div>
                 </div>
-              )}
+
+                {subscription.plan?.featureFlags && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569", marginBottom: 8 }}>Included Plan Features (Automatic Access)</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {Object.entries(subscription.plan.featureFlags).filter(([_, v]) => v).map(([k]) => (
+                        <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, border: "1px solid #bbf7d0" }}>✓ {k}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Plan History Table */}
+              <div style={{ marginTop: 8 }}>
+                <h4 style={{ margin: "0 0 12px", fontSize: "1rem", color: "#0f172a", fontWeight: 700 }}>Plan & Subscription History</h4>
+                {salon.subscriptions?.length > 0 ? (
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ borderBottom: "2px solid #e2e8f0", color: "#64748b", fontWeight: 700, textAlign: "left" }}>
+                        <th style={{ padding: "8px 10px" }}>Plan</th>
+                        <th style={{ padding: "8px 10px" }}>Status</th>
+                        <th style={{ padding: "8px 10px" }}>Start Date</th>
+                        <th style={{ padding: "8px 10px" }}>End Date</th>
+                        <th style={{ padding: "8px 10px" }}>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {salon.subscriptions.map((s) => (
+                        <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                          <td style={{ padding: "8px 10px", fontWeight: 600, color: "#0f172a" }}>{s.plan?.name || "Custom"}</td>
+                          <td style={{ padding: "8px 10px" }}>
+                            <span style={{ background: s.status === "ACTIVE" ? "#ecfdf5" : "#fef2f2", color: s.status === "ACTIVE" ? "#10b981" : "#ef4444", padding: "2px 6px", borderRadius: 4, fontWeight: 700, fontSize: 10 }}>
+                              {s.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: "8px 10px" }}>{new Date(s.startsAt).toLocaleDateString()}</td>
+                          <td style={{ padding: "8px 10px" }}>{new Date(s.endsAt).toLocaleDateString()}</td>
+                          <td style={{ padding: "8px 10px" }}>₹{s.price || 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ color: "#64748b", fontSize: 13 }}>No past subscription history.</p>
+                )}
+              </div>
             </div>
           ) : (
             <EmptyState message="No active subscription." />
