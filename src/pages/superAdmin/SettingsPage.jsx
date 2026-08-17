@@ -53,18 +53,19 @@ export default function SuperAdminSettingsPage() {
   const [auditLogs, setAuditLogs] = useState([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [form, setForm] = useState({
-    systemName: "", globalLogo: "", maintenanceMode: false, maintenanceMessage: "",
-    taxLabel: "Tax", defaultCurrency: "PKR", currencyOptions: ["PKR", "INR", "USD"],
-    defaultCountry: "", defaultCity: "", defaultTimezone: "", invoicePrefix: "INV", defaultLanguage: "en", invoiceFormat: "standard",
+    systemName: "SalonNest", globalLogo: "", maintenanceMode: false, maintenanceMessage: "",
+    taxLabel: "GST", defaultCurrency: "INR", currencyOptions: ["INR", "USD", "AED", "GBP", "EUR", "PKR"],
+    defaultCountry: "India", defaultCity: "Delhi", defaultTimezone: "Asia/Kolkata", invoicePrefix: "INV", defaultLanguage: "en", invoiceFormat: "INV-{YYYY}-{00000}",
+    timeFormat: "12",
     notificationEmailEnabled: true, notificationSmsEnabled: false, notificationWhatsappEnabled: true,
     notifyAccount: true, notifySubscription: true, notifySupport: true, notifyRequests: true,
     whatsappNumber: "", smsProviderName: "", emailProviderName: "", whatsappProviderName: "",
-    contactEmail: "", supportEmail: "", notificationEmail: "",
+    contactEmail: "info@salonnest.in", supportEmail: "support@salonnest.in", notificationEmail: "alerts@salonnest.in",
     termsUrl: "/terms", privacyUrl: "/privacy", demoBookingUrl: "/book-demo",
     blogTitle: "", blogIntro: "", backupPolicyNote: "",
-    businessName: "", businessEmail: "", businessPhone: "", businessAddress: "",
-    businessCity: "", businessState: "", businessCountry: "", businessPin: "",
-    taxNumber: "", taxRate: 0,
+    businessName: "SalonNest Technologies", businessEmail: "info@salonnest.in", businessPhone: "", businessAddress: "",
+    businessCity: "Delhi", businessState: "Delhi", businessCountry: "India", businessPin: "",
+    taxNumber: "", taxRate: 18,
     trialDays: 14, gracePeriodDays: 2, retentionDays: 90,
     autoSuspendOnExpiry: false, reminderDaysBefore: 7,
     sessionTimeoutMinutes: 480, maxLoginAttempts: 5, enforce2FA: false,
@@ -107,19 +108,20 @@ export default function SuperAdminSettingsPage() {
       const notif = d.notificationDefaults || {};
       setForm(prev => ({
         ...prev,
-        systemName: d.systemName || "",
+        systemName: d.systemName || "SalonNest",
         globalLogo: d.globalLogo || "",
         maintenanceMode: Boolean(d.maintenanceMode),
         maintenanceMessage: d.maintenanceMessage || "",
-        taxLabel: d.taxLabel || "Tax",
-        defaultCurrency: d.defaultCurrency || "PKR",
-        currencyOptions: Array.isArray(d.currencyOptions) ? d.currencyOptions : (d.currencyOptions || "PKR,INR,USD").split(",").map(s => s.trim()).filter(Boolean),
-        defaultCountry: d.defaultCountry || "",
-        defaultCity: d.defaultCity || "",
-        defaultTimezone: d.defaultTimezone || "",
+        taxLabel: d.taxLabel || "GST",
+        defaultCurrency: d.defaultCurrency || "INR",
+        currencyOptions: Array.isArray(d.currencyOptions) && d.currencyOptions.length > 0 ? d.currencyOptions : (d.currencyOptions ? d.currencyOptions.split(",").map(s => s.trim()).filter(Boolean) : ["INR", "USD", "AED", "GBP", "EUR", "PKR"]),
+        defaultCountry: d.defaultCountry || "India",
+        defaultCity: d.defaultCity || "Delhi",
+        defaultTimezone: d.defaultTimezone || "Asia/Kolkata",
         invoicePrefix: d.invoicePrefix || "INV",
         defaultLanguage: d.defaultLanguage || "en",
-        invoiceFormat: d.invoiceFormat || "standard",
+        invoiceFormat: d.invoiceFormat || "INV-{YYYY}-{00000}",
+        timeFormat: d.timeFormat || "12",
         notificationEmailEnabled: notif.email !== false,
         notificationSmsEnabled: Boolean(notif.sms),
         notificationWhatsappEnabled: notif.whatsapp !== false,
@@ -349,17 +351,38 @@ export default function SuperAdminSettingsPage() {
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Information belonging to SalonNest as the platform/business.</p>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                    <Field label="Legal Business Name"><input style={inputStyle} {...f("businessName")} placeholder="SalonNest Tech" /></Field>
+                    <Field label="Legal Business Name"><input style={inputStyle} {...f("businessName")} placeholder="SalonNest Technologies Pvt Ltd" /></Field>
                     <Field label="Business Email"><input style={inputStyle} {...f("businessEmail")} placeholder="info@salonnest.in" /></Field>
-                    <Field label="Business Phone"><input style={inputStyle} {...f("businessPhone")} placeholder="+91300..." /></Field>
-                    <Field label="Registered Address"><input style={inputStyle} {...f("businessAddress")} placeholder="123 Main St" /></Field>
+                    <Field label="Business Phone"><input style={inputStyle} {...f("businessPhone")} placeholder="+91 98765 43210" /></Field>
+                    <Field label="Registered Address"><input style={inputStyle} {...f("businessAddress")} placeholder="123 Tech Park, MG Road" /></Field>
                     <Field label="City"><input style={inputStyle} {...f("businessCity")} placeholder="Delhi" /></Field>
                     <Field label="State"><input style={inputStyle} {...f("businessState")} placeholder="Delhi" /></Field>
                     <Field label="Country"><input style={inputStyle} {...f("businessCountry")} placeholder="India" /></Field>
                     <Field label="PIN Code"><input style={inputStyle} {...f("businessPin")} placeholder="110001" /></Field>
-                    <Field label="GST / Tax Number"><input style={inputStyle} {...f("taxNumber")} placeholder="GST-12345" /></Field>
+                    <Field label="GST / Tax Registration Number"><input style={inputStyle} {...f("taxNumber")} placeholder="07AAAAA0000A1Z5" /></Field>
                     <Field label="Tax Name"><input style={inputStyle} {...f("taxLabel")} placeholder="GST / Tax" /></Field>
-                    <Field label="Default Tax Rate (%)"><input style={inputStyle} {...n("taxRate")} placeholder="0" /></Field>
+                    <Field label="Default Tax Rate (%)"><input style={inputStyle} {...n("taxRate")} placeholder="18" /></Field>
+                  </div>
+
+                  <div style={{ height: 1, background: "#e2e8f0", margin: "28px 0 20px 0" }} />
+
+                  {/* Point 2: Invoice settings */}
+                  <div style={{ marginBottom: 16 }}>
+                    <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 800, color: "#0f172a" }}>Invoice Settings</h4>
+                    <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Auto-generated invoice numbering configuration for Finance and Subscriptions.</p>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <Field label="Invoice Prefix"><input style={inputStyle} {...f("invoicePrefix")} placeholder="INV" /></Field>
+                    <Field label="Invoice Number Format">
+                      <CustomSelect value={form.invoiceFormat} onChange={e => setForm(p => ({ ...p, invoiceFormat: e.target.value }))}>
+                        <option value="INV-{YYYY}-{00000}">INV-{new Date().getFullYear()}-00001 (Recommended)</option>
+                        <option value="INV-{YYYY}{MM}-{0000}">INV-{new Date().getFullYear()}08-0001</option>
+                        <option value="INV-{000000}">INV-000001</option>
+                      </CustomSelect>
+                    </Field>
+                    <div style={{ gridColumn: "1 / -1", padding: "10px 14px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12, color: "#475569" }}>
+                      Preview format: <strong>{form.invoicePrefix || "INV"}-{new Date().getFullYear()}-00001</strong> (Used automatically when Finance invoices are generated)
+                    </div>
                   </div>
                 </div>
               )}
