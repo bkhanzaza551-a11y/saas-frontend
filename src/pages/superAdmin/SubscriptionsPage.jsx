@@ -865,14 +865,24 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
 
       {/* 2. Billing */}
       <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16 }}>
-        <h4 style={{ margin: "0 0 12px", fontSize: "0.88rem", color: "#334155", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
-          <CreditCard size={16} color="#10b981" /> 2. Billing Details
-        </h4>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h4 style={{ margin: 0, fontSize: "0.88rem", color: "#334155", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
+            <CreditCard size={16} color="#10b981" /> 2. Billing Details
+          </h4>
+          <a
+            href={`/super-admin/finance?salonId=${sub.salonId}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: "0.78rem", color: "#4f46e5", fontWeight: 700, textDecoration: "none" }}
+          >
+            View Finance Transactions →
+          </a>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 16px", fontSize: "0.85rem" }}>
           <div><span style={{ color: "#64748b" }}>Plan Amount:</span> <strong>₹{Number(sub.plan?.monthlyPrice || 0).toLocaleString()}</strong> /month</div>
           <div><span style={{ color: "#64748b" }}>Yearly Equivalent:</span> <strong>₹{Number(sub.plan?.yearlyPrice || 0).toLocaleString()}</strong> /year</div>
           <div><span style={{ color: "#64748b" }}>Billing Cycle:</span> <strong>{sub.billingCycle || "Monthly"}</strong></div>
-          <div><span style={{ color: "#64748b" }}>Payment Status:</span> <span style={{ color: sub.paymentStatus === "COMPLETED" ? "#10b981" : "#d97706", fontWeight: 700 }}>{sub.paymentStatus || "PENDING"}</span></div>
+          <div><span style={{ color: "#64748b" }}>Payment Status:</span> <span style={{ color: sub.paymentStatus === "COMPLETED" ? "#10b981" : "#d97706", fontWeight: 700 }}>{sub.paymentStatus === "COMPLETED" ? "Paid" : sub.paymentStatus || "PENDING"}</span></div>
           {sub.manualDiscount > 0 && <div><span style={{ color: "#64748b" }}>Manual Discount:</span> <strong>₹{Number(sub.manualDiscount).toLocaleString()}</strong></div>}
           <div><span style={{ color: "#64748b" }}>Next Renewal:</span> <strong>{sub.endsAt ? new Date(sub.endsAt).toLocaleDateString() : "—"}</strong></div>
         </div>
