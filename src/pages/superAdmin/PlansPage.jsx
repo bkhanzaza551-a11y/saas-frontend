@@ -180,9 +180,39 @@ export default function PlansPage() {
     }
   };
 
+  const pricingWarning = useMemo(() => {
+    const m = Number(form.monthlyPrice || 0);
+    const y = Number(form.yearlyPrice || 0);
+    if (m > 0 && y > 0 && y < m) {
+      return `⚠️ Warning: Yearly Price (₹${y.toLocaleString()}) is lower than a single Monthly Price (₹${m.toLocaleString()}).`;
+    }
+    if (m > 0 && y > m * 12) {
+      return `💡 Notice: Yearly Price (₹${y.toLocaleString()}) is higher than paying 12 individual months (₹${(m * 12).toLocaleString()}).`;
+    }
+    if (m === 0 && !form.isCustom && Number(form.trialDays || 0) === 0) {
+      return `💡 Notice: This plan is configured as Free (₹0/month).`;
+    }
+    return null;
+  }, [form.monthlyPrice, form.yearlyPrice, form.isCustom, form.trialDays]);
+
   const savePlan = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return setStatus({ error: "Plan name is required", success: "" });
+    const trimmedName = form.name.trim();
+    if (!trimmedName) return setStatus({ error: "Plan name is required.", success: "" });
+
+    if (Number(form.monthlyPrice) < 0 || Number(form.yearlyPrice) < 0) {
+      return setStatus({ error: "Pricing cannot be negative.", success: "" });
+    }
+    if (Number(form.trialDays) < 0 || Number(form.branchLimit) < 0 || Number(form.userLimit) < 0 || Number(form.customerLimit) < 0 || Number(form.invoiceLimit) < 0 || Number(form.storageLimit) < 0) {
+      return setStatus({ error: "Limits and trial days cannot be negative.", success: "" });
+    }
+
+    // Client-side duplicate name check against active plans
+    const isDuplicate = plans.some(p => p.id !== editingId && !p.isArchived && p.name.trim().toLowerCase() === trimmedName.toLowerCase());
+    if (isDuplicate) {
+      return setStatus({ error: `An active plan named "${trimmedName}" already exists. Please choose a unique name.`, success: "" });
+    }
+
     setSaving(true);
     setStatus({ error: "", success: "" });
     try {
@@ -342,6 +372,12 @@ export default function PlansPage() {
                   <input type="number" min="0" value={form.trialDays} onChange={e => setForm({ ...form, trialDays: Number(e.target.value) })} />
                 </label>
               </div>
+
+              {pricingWarning && (
+                <div style={{ padding: "8px 12px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, color: "#92400e", fontSize: "0.82rem", fontWeight: 600 }}>
+                  {pricingWarning}
+                </div>
+              )}
 
               <div>
                 <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>Usage Limits</h4>
