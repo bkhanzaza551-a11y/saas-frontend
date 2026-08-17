@@ -36,6 +36,7 @@ export default function SuperAdminStaffRequirementsPage() {
   const [updatingId, setUpdatingId] = useState(null);
   const [selectedReq, setSelectedReq] = useState(null);
   const [internalNotesText, setInternalNotesText] = useState("");
+  const [handlerInput, setHandlerInput] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -244,6 +245,7 @@ export default function SuperAdminStaffRequirementsPage() {
                           onClick={() => {
                             setSelectedReq(req);
                             setInternalNotesText(req.internalNotes || "");
+                            setHandlerInput(req.department || "");
                           }}
                           style={{
                             padding: "6px 14px",
@@ -301,21 +303,33 @@ export default function SuperAdminStaffRequirementsPage() {
               </div>
             </div>
 
-            {/* Point 7: Transfer / Assign Staff Handler */}
-            <div style={{ background: "#eef2ff", padding: "10px 14px", borderRadius: 8, marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.8rem", color: "#3730a3", fontWeight: 600 }}>
-                Manage Handler / Staff Assignee:
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  const staffName = window.prompt("Enter staff / recruiter name to assign/transfer this request to:", selectedReq.department || "");
-                  if (staffName !== null) updateRequirement(selectedReq.id, { department: staffName.trim() });
-                }}
-                style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #c7d2fe", background: "white", color: "#4f46e5", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}
-              >
-                🔄 Transfer / Assign Handler
-              </button>
+            {/* Manage Handler / Staff Assignee */}
+            <div style={{ background: "#eef2ff", padding: "12px 16px", borderRadius: 10, marginBottom: 14, border: "1px solid #e0e7ff" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.8rem", color: "#3730a3", fontWeight: 700 }}>
+                  Manage Handler / Recruiter Assignee:
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "#4338ca", fontWeight: 600 }}>
+                  {selectedReq.department ? `Assigned: ${selectedReq.department}` : "Unassigned"}
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  type="text"
+                  placeholder="Enter recruiter / staff name (e.g. Priya HR, Ankit Verma)..."
+                  value={handlerInput}
+                  onChange={e => setHandlerInput(e.target.value)}
+                  style={{ flex: 1, padding: "8px 12px", borderRadius: 8, border: "1px solid #c7d2fe", fontSize: 13, background: "white" }}
+                />
+                <button
+                  type="button"
+                  disabled={updatingId === selectedReq.id}
+                  onClick={() => updateRequirement(selectedReq.id, { department: handlerInput.trim() })}
+                  style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", whiteSpace: "nowrap" }}
+                >
+                  ✓ Update Assignee
+                </button>
+              </div>
             </div>
 
             {selectedReq.skills && (
