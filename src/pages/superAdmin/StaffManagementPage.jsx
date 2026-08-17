@@ -33,7 +33,7 @@ const PERMISSION_PRESETS = [
   { label: "Super Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "product-requests", "staff-requests", "support-tickets", "finance", "platform"] }
 ];
 
-const DEPARTMENTS = ["Sales", "Support", "Finance", "Operations", "Engineering", "Marketing", "HR", "Other"];
+const DEPARTMENTS = ["Sales", "Support", "Finance", "Operations", "Administration", "Marketing", "HR", "Other"];
 
 export default function StaffManagementPage() {
   const { showConfirm } = useAlert();
@@ -46,10 +46,14 @@ export default function StaffManagementPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterRole, setFilterRole] = useState("");
+  const [filterDepartment, setFilterDepartment] = useState("");
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [userForm, setUserForm] = useState(emptyUserForm);
   const [editingUserId, setEditingUserId] = useState("");
+  const [editingUserObj, setEditingUserObj] = useState(null);
+  const [userActivities, setUserActivities] = useState([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
 
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -77,6 +81,34 @@ export default function StaffManagementPage() {
 
   useEffect(() => { loadData(); }, []);
 
+  const openEditUser = async (user) => {
+    setEditingUserId(user.id);
+    setEditingUserObj(user);
+    setUserForm({ email: user.email, name: user.name, adminRoleId: user.adminRoleId || "", department: user.department || "" });
+    setIsUserModalOpen(true);
+    setLoadingActivities(true);
+    try {
+      const actRes = await api.get(`/super-admin/team/${user.id}/activity`);
+      setUserActivities(actRes.data || []);
+    } catch (e) {
+      setUserActivities([]);
+    } finally {
+      setLoadingActivities(false);
+    }
+  };
+
+  const handleResetPassword = async (userId) => {
+    const confirmed = await showConfirm("Send password reset link to this user's email?");
+    if (!confirmed) return;
+    setStatus({ error: "", success: "" });
+    try {
+      const res = await api.post(`/super-admin/team/${userId}/reset-password`, {});
+      setStatus({ error: "", success: res.data?.message || "Password reset link sent." });
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Could not reset password"), success: "" });
+    }
+  };
+
   const submitUser = async (e) => {
     e.preventDefault();
     if (!userForm.name || !userForm.adminRoleId) return setStatus({ error: "Name and Role are required.", success: "" });
@@ -94,6 +126,7 @@ export default function StaffManagementPage() {
       setIsUserModalOpen(false);
       setUserForm(emptyUserForm);
       setEditingUserId("");
+      setEditingUserObj(null);
       await loadData();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not save user"), success: "" });
@@ -110,6 +143,9 @@ export default function StaffManagementPage() {
       else await api.patch(`/super-admin/team/${id}/deactivate`);
       setStatus({ error: "", success: `Team member ${isCurrentlyActive ? "deactivated" : "activated"} successfully.` });
       await loadData();
+      if (editingUserObj && editingUserObj.id === id) {
+        setEditingUserObj({ ...editingUserObj, isActive: !isCurrentlyActive });
+      }
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not update status"), success: "" });
     }
@@ -180,11 +216,21 @@ export default function StaffManagementPage() {
     }
   };
 
+  // Point 14: Search by name, email, role, department + Filters
   const filteredStaff = staff.filter(s => {
-    if (search && !s.name?.toLowerCase().includes(search.toLowerCase()) && !s.email?.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search) {
+      const query = search.toLowerCase();
+      const matchName = s.name?.toLowerCase().includes(query);
+      const matchEmail = s.email?.toLowerCase().includes(query);
+      const matchRole = s.adminRole?.name?.toLowerCase().includes(query);
+      const matchDept = s.department?.toLowerCase().includes(query);
+      if (!matchName && !matchEmail && !matchRole && !matchDept) return false;
+    }
     if (filterStatus === "active" && !s.isActive) return false;
-    if (filterStatus === "inactive" && s.isActive) return false;
+    if (filterStatus === "invited" && (s.isActive || !s.passwordSetupRequired)) return false;
+    if (filterStatus === "inactive" && (s.isActive || s.passwordSetupRequired)) return false;
     if (filterRole && String(s.adminRoleId) !== String(filterRole)) return false;
+    if (filterDepartment && s.department !== filterDepartment) return false;
     return true;
   });
 
@@ -215,15 +261,16 @@ export default function StaffManagementPage() {
 
       {activeTab === "team" && (
         <>
+          {/* Point 14: Search & Filters by Name, Email, Role, Department, Status */}
           <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 260, position: "relative" }}>
+            <div style={{ flex: 1, minWidth: 240, position: "relative" }}>
               <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                 <Search size={16} />
               </div>
               <input 
                 value={search} 
                 onChange={e => setSearch(e.target.value)} 
-                placeholder="Search name, email..."
+                placeholder="Search name, email, role, department..."
                 style={{ width: "100%", height: 42, padding: "10px 14px 10px 40px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }} 
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                 onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
@@ -236,17 +283,26 @@ export default function StaffManagementPage() {
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
-              <option value="inactive">Inactive / Deactivated</option>
+              <option value="invited">Invitation Sent</option>
+              <option value="inactive">Deactivated</option>
+            </CustomSelect>
+            <CustomSelect
+              value={filterDepartment}
+              onChange={e => setFilterDepartment(e.target.value)}
+              style={{ minWidth: 160, height: 42 }}
+            >
+              <option value="">All Departments</option>
+              {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
             </CustomSelect>
             <CustomSelect
               value={filterRole}
               onChange={e => setFilterRole(e.target.value)}
-              style={{ minWidth: 170, height: 42 }}
+              style={{ minWidth: 160, height: 42 }}
             >
               <option value="">All Roles</option>
               {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
             </CustomSelect>
-            <button onClick={() => { setUserForm(emptyUserForm); setEditingUserId(""); setIsUserModalOpen(true); }}
+            <button onClick={() => { setUserForm(emptyUserForm); setEditingUserId(""); setEditingUserObj(null); setIsUserModalOpen(true); }}
               style={{ display: "flex", alignItems: "center", gap: 6, height: 42, padding: "0 20px", borderRadius: 10, background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.85rem", border: "none", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s", whiteSpace: "nowrap" }}
               onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }} 
               onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}
@@ -255,8 +311,8 @@ export default function StaffManagementPage() {
             </button>
           </div>
 
-          {/* Point 6: Exact 8 columns in Team List */}
-          {filteredStaff.length === 0 ? <EmptyState title="No Team Members" message="Invite someone to join the admin team." /> : (
+          {/* Point 6 & 15: Exact 8 columns & Account Status (Active, Invitation Sent, Deactivated) */}
+          {filteredStaff.length === 0 ? <EmptyState title="No Team Members" message="No team members match the search filters." /> : (
             <div className="panel-card" style={{ overflow: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -273,40 +329,40 @@ export default function StaffManagementPage() {
                 </thead>
                 <tbody>
                   {filteredStaff.map((s) => {
-                    const statusLabel = s.isActive ? "Active" : s.passwordSetupRequired ? "Invited" : "Deactivated";
+                    const statusLabel = s.isActive ? "Active" : s.passwordSetupRequired ? "Invitation Sent" : "Deactivated";
                     const statusStyle = s.isActive ? badgeStyleActive : s.passwordSetupRequired ? badgeStylePending : badgeStyleInactive;
 
                     return (
                       <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={tdStyle}><strong>{s.name}</strong></td>
+                        <td style={tdStyle}>
+                          <strong style={{ color: "#0f172a", cursor: "pointer" }} onClick={() => openEditUser(s)}>{s.name}</strong>
+                        </td>
                         <td style={tdStyle}>{s.email}</td>
                         <td style={tdStyle}>
                           <span style={{ background: "#eef2ff", color: "#4f46e5", padding: "3px 8px", borderRadius: 6, fontWeight: 700, fontSize: 11 }}>
                             {s.adminRole?.name || "No Role"}
                           </span>
                         </td>
-                        <td style={tdStyle}>{s.department || "—"}</td>
+                        <td style={tdStyle}>
+                          <span style={{ fontWeight: 600, color: "#475569" }}>{s.department || "General"}</span>
+                        </td>
                         <td style={tdStyle}>
                           <span style={statusStyle}>
                             {statusLabel}
                           </span>
                         </td>
-                        <td style={tdStyle}>{s.lastLoginAt ? new Date(s.lastLoginAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "Never"}</td>
+                        <td style={tdStyle}>{s.lastLoginAt ? new Date(s.lastLoginAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Never"}</td>
                         <td style={tdStyle}>{s.createdAt ? new Date(s.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}</td>
                         <td style={{ ...tdStyle, textAlign: "right" }}>
                           <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                             {!s.isActive && s.passwordSetupRequired && (
-                              <button onClick={() => resendInvite(s.id)} title="Resend Invitation" style={{ background: "#eef2ff", color: "#4f46e5", border: "1px solid #c7d2fe", padding: "6px 10px", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700 }}>
+                              <button onClick={() => resendInvite(s.id)} title="Resend Invitation Email" style={{ background: "#eef2ff", color: "#4f46e5", border: "1px solid #c7d2fe", padding: "6px 10px", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700 }}>
                                 <Mail size={12} /> Resend
                               </button>
                             )}
-                            <button onClick={() => {
-                              setEditingUserId(s.id);
-                              setUserForm({ email: s.email, name: s.name, adminRoleId: s.adminRoleId || "", department: s.department || "" });
-                              setIsUserModalOpen(true);
-                            }} title="Edit Member" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", padding: "6px 8px", borderRadius: 6, cursor: "pointer" }}><Pencil size={13} /></button>
+                            <button onClick={() => openEditUser(s)} title="Edit Member & Controls" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", padding: "6px 8px", borderRadius: 6, cursor: "pointer" }}><Pencil size={13} /></button>
                             
-                            {/* Point 7: Deactivate / Activate action */}
+                            {/* Point 7: Deactivate / Reactivate action */}
                             <button 
                               onClick={() => toggleUserActive(s.id, s.isActive)}
                               title={s.isActive ? "Deactivate Member" : "Activate Member"}
@@ -381,10 +437,10 @@ export default function StaffManagementPage() {
         </>
       )}
 
-      {/* USER MODAL */}
+      {/* Point 13: Improved Edit Staff Member Screen with Activity, Reset Password & Controls */}
       {isUserModalOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={() => setIsUserModalOpen(false)}>
-          <div style={{ background: "white", width: "100%", maxWidth: 500, borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: "white", width: "100%", maxWidth: editingUserId ? 640 : 500, borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{editingUserId ? "Edit Team Member" : "Invite Staff"}</h3>
               <button onClick={() => setIsUserModalOpen(false)} style={{ background: "transparent", border: "none", fontSize: 22, color: "#94a3b8", cursor: "pointer" }}>&times;</button>
@@ -402,6 +458,8 @@ export default function StaffManagementPage() {
                   style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", background: editingUserId ? "#f1f5f9" : "white" }} />
                 {!editingUserId && <small style={{ color: "#64748b", fontSize: 11 }}>Invite link will be sent to set password.</small>}
               </div>
+              
+              {/* Point 11: Department */}
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Department</label>
                 <CustomSelect
@@ -413,6 +471,8 @@ export default function StaffManagementPage() {
                   {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                 </CustomSelect>
               </div>
+
+              {/* Point 3: Role is mandatory */}
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Role *</label>
                 <CustomSelect
@@ -425,9 +485,61 @@ export default function StaffManagementPage() {
                   {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </CustomSelect>
               </div>
+
+              {/* Point 12 & 13: Account Status, Controls, Reset Password & Activity for Editing User */}
+              {editingUserId && editingUserObj && (
+                <div style={{ marginTop: 10, paddingTop: 14, borderTop: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div>
+                      <span style={{ fontSize: 12, color: "#64748b", display: "block" }}>Account Status</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: editingUserObj.isActive ? "#10b981" : editingUserObj.passwordSetupRequired ? "#d97706" : "#ef4444" }}>
+                        {editingUserObj.isActive ? "Active" : editingUserObj.passwordSetupRequired ? "Invitation Sent" : "Deactivated"}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button 
+                        type="button"
+                        onClick={() => handleResetPassword(editingUserId)}
+                        style={{ padding: "6px 12px", background: "#f8fafc", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        Reset Password
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => toggleUserActive(editingUserId, editingUserObj.isActive)}
+                        style={{ padding: "6px 12px", background: editingUserObj.isActive ? "#fef2f2" : "#f0fdf4", color: editingUserObj.isActive ? "#dc2626" : "#16a34a", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        {editingUserObj.isActive ? "Deactivate" : "Activate"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Point 12: Recent Activity Audit Feed */}
+                  <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Clock size={14} color="#6366f1" /> Recent Activity
+                    </div>
+                    {loadingActivities ? (
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Loading activity...</div>
+                    ) : userActivities.length === 0 ? (
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>No recent activity logged for this member.</div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 120, overflowY: "auto" }}>
+                        {userActivities.slice(0, 5).map(a => (
+                          <div key={a.id} style={{ fontSize: 11, color: "#475569", display: "flex", justifyContent: "space-between", borderBottom: "1px dashed #e2e8f0", paddingBottom: 4 }}>
+                            <span><strong>{a.action}</strong>: {a.summary || a.module}</span>
+                            <span style={{ color: "#94a3b8" }}>{new Date(a.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
                 <button type="button" onClick={() => setIsUserModalOpen(false)} style={{ padding: "9px 16px", background: "white", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Cancel</button>
-                <button type="submit" disabled={savingUser} style={{ padding: "9px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{savingUser ? "Saving..." : editingUserId ? "Update" : "Send Invite"}</button>
+                <button type="submit" disabled={savingUser} style={{ padding: "9px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{savingUser ? "Saving..." : editingUserId ? "Update Member" : "Send Invite"}</button>
               </div>
             </form>
           </div>
