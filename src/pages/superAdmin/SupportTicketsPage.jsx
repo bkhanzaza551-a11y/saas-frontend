@@ -467,14 +467,39 @@ export default function SuperAdminSupportTicketsPage() {
                     {selectedTicket.description}
                   </div>
 
-                  {/* Internal Notes + Agent */}
+                  {/* Point 8: Internal Notes (Shows who created it, timestamped, preserved history) */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
                     <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Internal Notes (hidden from salon)</label>
-                      <textarea rows={2} value={notes[selectedTicket.id] || ""}
+                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>
+                        Internal Notes (hidden from salon)
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={notes[selectedTicket.id] || ""}
+                        placeholder="Add internal note (auto timestamped on save)..."
                         onChange={(e) => setNotes({ ...notes, [selectedTicket.id]: e.target.value })}
                         disabled={selectedTicket.status === "CLOSED"}
-                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 12, background: "#f8fafc", width: "100%", resize: "vertical", boxSizing: "border-box" }} />
+                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 12, background: "#f8fafc", width: "100%", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
+                      />
+                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+                        <button
+                          type="button"
+                          disabled={selectedTicket.status === "CLOSED" || !notes[selectedTicket.id]?.trim()}
+                          onClick={() => {
+                            const newText = (notes[selectedTicket.id] || "").trim();
+                            if (!newText) return;
+                            const authorName = auth?.user?.name || "Support Staff";
+                            const timestamp = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + ", " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                            const isAlreadyFormatted = newText.includes(" — ");
+                            const finalNote = isAlreadyFormatted ? newText : `${authorName} — ${timestamp}\n${newText}`;
+                            updateTicket(selectedTicket.id, { internalNote: finalNote });
+                            setNotes({ ...notes, [selectedTicket.id]: finalNote });
+                          }}
+                          style={{ background: "#f1f5f9", color: "#334155", border: "1px solid #cbd5e1", padding: "4px 10px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}
+                        >
+                          📝 Save Note
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assigned To</label>
@@ -495,36 +520,49 @@ export default function SuperAdminSupportTicketsPage() {
                     </div>
                   </div>
 
-                  {/* Conversation Thread */}
+                  {/* Point 9: Conversation Thread (Differentiated Salon Owner / Support Agent / Super Admin with Sender, Date, Time & Attachments) */}
                   {selectedTicket.messages?.length > 0 && (
                     <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16, marginBottom: 20 }}>
                       <h5 style={{ margin: "0 0 12px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Conversation ({selectedTicket.messages.length})</h5>
                       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                         {selectedTicket.messages.map((msg) => {
-                          const isAgent = msg.authorType === "SUPER_ADMIN" || msg.authorType === "SUPPORT" || msg.authorType === "SYSTEM";
-                          const authorLabel = msg.authorType === "SUPER_ADMIN" ? "Support Agent" : msg.authorType === "SALON" ? "Salon Owner" : msg.authorType;
+                          const isSuperAdmin = msg.authorType === "SUPER_ADMIN";
+                          const isSupport = msg.authorType === "SUPPORT" || msg.authorType === "SYSTEM";
+                          const isSalon = msg.authorType === "SALON";
+                          const authorLabel = isSuperAdmin ? "Super Admin" : isSupport ? "Support Agent" : "Salon Owner";
+                          const badgeBg = isSuperAdmin ? "#ede9fe" : isSupport ? "#e0e7ff" : "#f1f5f9";
+                          const badgeColor = isSuperAdmin ? "#6d28d9" : isSupport ? "#3730a3" : "#334155";
+                          const msgDate = new Date(msg.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+                          const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
                           return (
-                            <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignSelf: isAgent ? "flex-end" : "flex-start", maxWidth: "85%" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 10, color: "#94a3b8", marginBottom: 3, padding: "0 4px" }}>
-                                <strong>{msg.authorName} ({authorLabel})</strong>
-                                <span>{new Date(msg.createdAt).toLocaleString()}</span>
+                            <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignSelf: isSalon ? "flex-start" : "flex-end", maxWidth: "85%" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 11, color: "#64748b", marginBottom: 4, padding: "0 4px" }}>
+                                <span>
+                                  <strong style={{ color: "#0f172a" }}>{msg.authorName}</strong>{" "}
+                                  <span style={{ background: badgeBg, color: badgeColor, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
+                                    {authorLabel}
+                                  </span>
+                                </span>
+                                <span style={{ fontSize: 10, color: "#94a3b8" }}>{msgDate} at {msgTime}</span>
                               </div>
                               <div style={{
-                                background: isAgent ? "linear-gradient(135deg, #4f46e5, #3b82f6)" : "#f1f5f9",
-                                color: isAgent ? "white" : "#0f172a",
-                                borderRadius: isAgent ? "14px 14px 0 14px" : "14px 14px 14px 0",
+                                background: isSalon ? "#f8fafc" : isSuperAdmin ? "linear-gradient(135deg, #7c3aed, #6366f1)" : "linear-gradient(135deg, #4f46e5, #3b82f6)",
+                                color: isSalon ? "#0f172a" : "white",
+                                border: isSalon ? "1px solid #e2e8f0" : "none",
+                                borderRadius: isSalon ? "14px 14px 14px 0" : "14px 14px 0 14px",
                                 padding: "12px 16px", fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap"
                               }}>
                                 {msg.message}
                                 {msg.attachmentUrl && (
-                                   <div style={{ marginTop: 8, fontSize: 11, borderTop: isAgent ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #e2e8f0", paddingTop: 6 }}>
+                                   <div style={{ marginTop: 8, fontSize: 11, borderTop: isSalon ? "1px dashed #cbd5e1" : "1px dashed rgba(255,255,255,0.3)", paddingTop: 6 }}>
                                     {isImageAttachment(msg.attachmentUrl) ? (
                                       <div>
                                         <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
-                                        <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isAgent ? "#a5b4fc" : "#2563eb", textDecoration: "underline", fontWeight: 600 }}>View Full Image &rarr;</a>
+                                        <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isSalon ? "#2563eb" : "#a5b4fc", textDecoration: "underline", fontWeight: 600 }}>View Full Image &rarr;</a>
                                       </div>
                                     ) : (
-                                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: isAgent ? "#ffffff" : "#2563eb", textDecoration: "underline", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: isSalon ? "#2563eb" : "#ffffff", textDecoration: "underline", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
                                         <Paperclip size={11} /> {getAttachmentLabel(msg.attachmentUrl)} &rarr;
                                       </a>
                                     )}
