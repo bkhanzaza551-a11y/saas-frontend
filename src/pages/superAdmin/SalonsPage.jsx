@@ -555,7 +555,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                   <th style={{ padding: "12px 16px" }}>Owner & Verification</th>
                   <th style={{ padding: "12px 16px" }}>Active Plan</th>
                   <th style={{ padding: "12px 16px" }}>Status</th>
-                  <th style={{ padding: "12px 16px", textAlign: "right" }}>Actions</th>
+                  <th style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -612,26 +612,26 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                           {statusLabel}
                         </span>
                       </td>
-                      <td style={{ padding: "14px 16px", textAlign: "right" }} onClick={(e) => e.stopPropagation()}>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", flexWrap: "wrap" }}>
-                          <button type="button" onClick={() => openDetail(salon.id)} disabled={isBusy} style={{ padding: "6px 10px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                      <td style={{ padding: "14px 16px", textAlign: "right", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: "inline-flex", gap: 6, justifyContent: "flex-end", alignItems: "center", flexWrap: "nowrap" }}>
+                          <button type="button" onClick={() => openDetail(salon.id)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                             View
                           </button>
                           {isOwnerPending && (
-                            <button type="button" onClick={() => handleResendSalonOwnerInvite(salon.id)} disabled={isBusy} title="Resend Account Setup Invitation" style={{ padding: "6px 10px", background: "#e0e7ff", color: "#4338ca", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                            <button type="button" onClick={() => handleResendSalonOwnerInvite(salon.id)} disabled={isBusy} title="Resend Account Setup Invitation" style={{ padding: "6px 12px", background: "#e0e7ff", color: "#4338ca", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                               Resend Invite
                             </button>
                           )}
-                          <button type="button" onClick={() => startEdit(salon)} disabled={isBusy} style={{ padding: "6px 10px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                          <button type="button" onClick={() => startEdit(salon)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                             Edit
                           </button>
                           {salon.status !== "ACTIVE" && (
-                            <button type="button" onClick={() => updateStatus(salon.id, "ACTIVE")} disabled={isBusy} style={{ padding: "6px 10px", background: "#ecfdf5", color: "#10b981", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                            <button type="button" onClick={() => updateStatus(salon.id, "ACTIVE")} disabled={isBusy} style={{ padding: "6px 12px", background: "#ecfdf5", color: "#10b981", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                               Activate
                             </button>
                           )}
                           {salon.status === "ACTIVE" && (
-                            <button type="button" onClick={() => updateStatus(salon.id, "SUSPENDED")} disabled={isBusy} style={{ padding: "6px 10px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                            <button type="button" onClick={() => updateStatus(salon.id, "SUSPENDED")} disabled={isBusy} style={{ padding: "6px 12px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                               Suspend
                             </button>
                           )}
