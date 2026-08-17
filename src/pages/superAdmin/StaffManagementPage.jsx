@@ -261,54 +261,88 @@ export default function StaffManagementPage() {
 
       {activeTab === "team" && (
         <>
-          {/* Point 14: Search & Filters by Name, Email, Role, Department, Status */}
-          <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 240, position: "relative" }}>
-              <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
-                <Search size={16} />
+          {/* Search & Filters Section */}
+          <div style={{ background: "#fff", borderRadius: 16, padding: "20px 24px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)" }}>
+            
+            {/* Top Search & Invite Row */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: 280, position: "relative" }}>
+                <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
+                  <Search size={18} />
+                </div>
+                <input 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  placeholder="Search name, email, role, department..."
+                  style={{ width: "100%", height: 42, paddingLeft: 42, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }} 
+                  onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+                  onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
+                />
               </div>
-              <input 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-                placeholder="Search name, email, role, department..."
-                style={{ width: "100%", height: 42, padding: "10px 14px 10px 40px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }} 
-                onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
-                onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
-              />
+
+              <button onClick={() => { setUserForm(emptyUserForm); setEditingUserId(""); setEditingUserObj(null); setIsUserModalOpen(true); }}
+                style={{ display: "flex", alignItems: "center", gap: 6, height: 42, padding: "0 20px", borderRadius: 10, background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.85rem", border: "none", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s", whiteSpace: "nowrap" }}
+                onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }} 
+                onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}
+              >
+                <Plus size={16} /> Invite Staff
+              </button>
             </div>
-            <CustomSelect
-              value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
-              style={{ minWidth: 150, height: 42 }}
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="invited">Invitation Sent</option>
-              <option value="inactive">Deactivated</option>
-            </CustomSelect>
-            <CustomSelect
-              value={filterDepartment}
-              onChange={e => setFilterDepartment(e.target.value)}
-              style={{ minWidth: 160, height: 42 }}
-            >
-              <option value="">All Departments</option>
-              {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
-            </CustomSelect>
-            <CustomSelect
-              value={filterRole}
-              onChange={e => setFilterRole(e.target.value)}
-              style={{ minWidth: 160, height: 42 }}
-            >
-              <option value="">All Roles</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </CustomSelect>
-            <button onClick={() => { setUserForm(emptyUserForm); setEditingUserId(""); setEditingUserObj(null); setIsUserModalOpen(true); }}
-              style={{ display: "flex", alignItems: "center", gap: 6, height: 42, padding: "0 20px", borderRadius: 10, background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.85rem", border: "none", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s", whiteSpace: "nowrap" }}
-              onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }} 
-              onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}
-            >
-              <Plus size={16} /> Invite Staff
-            </button>
+
+            {/* Dropdowns Row with clear Labels */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, alignItems: "end" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Account Status</label>
+                <CustomSelect
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="invited">Invitation Sent</option>
+                  <option value="inactive">Deactivated</option>
+                </CustomSelect>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Department</label>
+                <CustomSelect
+                  value={filterDepartment}
+                  onChange={e => setFilterDepartment(e.target.value)}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">All Departments</option>
+                  {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                </CustomSelect>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Admin Role</label>
+                <CustomSelect
+                  value={filterRole}
+                  onChange={e => setFilterRole(e.target.value)}
+                  style={{ width: "100%" }}
+                >
+                  <option value="">All Roles</option>
+                  {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                </CustomSelect>
+              </div>
+
+              {(search || filterStatus || filterDepartment || filterRole) && (
+                <div>
+                  <button
+                    onClick={() => { setSearch(""); setFilterStatus(""); setFilterDepartment(""); setFilterRole(""); }}
+                    style={{ height: 42, width: "100%", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", color: "#64748b", transition: "all 0.2s" }}
+                    onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
+                    onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1"; e.currentTarget.style.color="#64748b"; }}
+                  >
+                    ✕ Reset Filters
+                  </button>
+                </div>
+              )}
+            </div>
+
           </div>
 
           {/* Point 6 & 15: Exact 8 columns & Account Status (Active, Invitation Sent, Deactivated) */}
