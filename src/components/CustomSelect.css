@@ -65,7 +65,7 @@
 }
 
 .custom-select-portal {
-  position: absolute;
+  position: fixed;
   z-index: 99999;
   pointer-events: none;
 }

@@ -164,21 +164,23 @@ export default function CustomSelect({
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.bottom;
-    const dropdownHeight = 250;
-    const shouldOpenUpward = spaceBelow < dropdownHeight && rect.top > dropdownHeight;
+    const dropdownHeight = 220;
+    const shouldOpenUpward = spaceBelow < 150 && rect.top > dropdownHeight;
 
     if (shouldOpenUpward) {
       setDropdownStyle({
-        bottom: (document.documentElement.scrollHeight - (rect.top + window.scrollY)) + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width,
+        position: "fixed",
+        bottom: `${Math.max(8, window.innerHeight - rect.top + 4)}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
         transformOrigin: "bottom center"
       });
     } else {
       setDropdownStyle({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width,
+        position: "fixed",
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
         transformOrigin: "top center"
       });
     }
