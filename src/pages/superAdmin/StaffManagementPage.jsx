@@ -11,19 +11,26 @@ const emptyUserForm = { email: "", name: "", adminRoleId: "", department: "" };
 const emptyRoleForm = { name: "", description: "", permissions: [] };
 
 const PAGE_GROUP_LABELS = {
-  "Platform": ["dashboard", "salons", "plans", "subscriptions"],
-  "Sales & CRM": ["sales-pipeline"],
-  "Operations": ["demo-leads", "support-tickets", "product-requests", "staff-requests", "credits", "financial-reports"],
-  "Staff & System": ["staff", "settings", "audit-logs"]
+  "Platform": [
+    "dashboard",
+    "sales-pipeline",
+    "salons",
+    "subscriptions",
+    "product-requests",
+    "staff-requests",
+    "support-tickets",
+    "finance",
+    "platform"
+  ]
 };
 
 const PERMISSION_PRESETS = [
-  { label: "Sales", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans"] },
+  { label: "Sales", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions"] },
   { label: "Support", permissions: ["dashboard", "support-tickets", "salons"] },
   { label: "Finance", permissions: ["dashboard", "finance", "subscriptions", "salons"] },
-  { label: "Operations", permissions: ["dashboard", "salons", "subscriptions", "plans", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "credits", "financial-reports"] },
-  { label: "Platform Admin", permissions: ["dashboard", "salons", "plans", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance", "credits", "staff", "settings", "audit-logs"] },
-  { label: "Super Admin", permissions: ["dashboard", "salons", "plans", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance", "credits", "staff", "settings", "audit-logs"] }
+  { label: "Operations", permissions: ["dashboard", "salons", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance"] },
+  { label: "Platform Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "product-requests", "staff-requests", "support-tickets", "finance", "platform"] },
+  { label: "Super Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "product-requests", "staff-requests", "support-tickets", "finance", "platform"] }
 ];
 
 const DEPARTMENTS = ["Sales", "Support", "Finance", "Operations", "Engineering", "Marketing", "HR", "Other"];
@@ -81,7 +88,7 @@ export default function StaffManagementPage() {
         await api.patch(`/super-admin/team/${editingUserId}`, { name: userForm.name, department: userForm.department, adminRoleId: userForm.adminRoleId });
         setStatus({ error: "", success: "User updated successfully." });
       } else {
-        const res = await api.post("/super-admin/team/invite", userForm);
+        await api.post("/super-admin/team/invite", userForm);
         setStatus({ error: "", success: "Invite sent successfully." });
       }
       setIsUserModalOpen(false);
@@ -93,12 +100,15 @@ export default function StaffManagementPage() {
     } finally { setSavingUser(false); }
   };
 
-  const toggleUserActive = async (id, isActive) => {
+  const toggleUserActive = async (id, isCurrentlyActive) => {
     setStatus({ error: "", success: "" });
+    const actionLabel = isCurrentlyActive ? "deactivate" : "activate";
+    const confirmed = await showConfirm(`Are you sure you want to ${actionLabel} this team member?`);
+    if (!confirmed) return;
     try {
-      if (isActive) await api.patch(`/super-admin/team/${id}/activate`);
+      if (!isCurrentlyActive) await api.patch(`/super-admin/team/${id}/activate`);
       else await api.patch(`/super-admin/team/${id}/deactivate`);
-      setStatus({ error: "", success: `User ${isActive ? "activated" : "deactivated"}.` });
+      setStatus({ error: "", success: `Team member ${isCurrentlyActive ? "deactivated" : "activated"} successfully.` });
       await loadData();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not update status"), success: "" });
@@ -108,7 +118,7 @@ export default function StaffManagementPage() {
   const resendInvite = async (id) => {
     setStatus({ error: "", success: "" });
     try {
-      const res = await api.post(`/super-admin/team/${id}/resend-invite`);
+      await api.post(`/super-admin/team/${id}/resend-invite`);
       setStatus({ error: "", success: "Invite resent successfully." });
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not resend invite"), success: "" });
@@ -226,7 +236,7 @@ export default function StaffManagementPage() {
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="inactive">Inactive / Deactivated</option>
             </CustomSelect>
             <CustomSelect
               value={filterRole}
@@ -245,6 +255,7 @@ export default function StaffManagementPage() {
             </button>
           </div>
 
+          {/* Point 6: Exact 8 columns in Team List */}
           {filteredStaff.length === 0 ? <EmptyState title="No Team Members" message="Invite someone to join the admin team." /> : (
             <div className="panel-card" style={{ overflow: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -256,42 +267,70 @@ export default function StaffManagementPage() {
                     <th style={thStyle}>Department</th>
                     <th style={thStyle}>Status</th>
                     <th style={thStyle}>Last Login</th>
-                    <th style={thStyle}>Created</th>
+                    <th style={thStyle}>Created Date</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStaff.map((s) => (
-                    <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      <td style={tdStyle}><strong>{s.name}</strong></td>
-                      <td style={tdStyle}>{s.email}</td>
-                      <td style={tdStyle}>{s.adminRole?.name || "No Role"}</td>
-                      <td style={tdStyle}>{s.department || "—"}</td>
-                      <td style={tdStyle}>
-                        <span style={s.isActive ? badgeStyleActive : s.passwordSetupRequired ? badgeStylePending : badgeStyleInactive}>
-                          {s.isActive ? "Active" : s.passwordSetupRequired ? "Invited" : "Inactive"}
-                        </span>
-                      </td>
-                      <td style={tdStyle}>{s.lastLoginAt ? new Date(s.lastLoginAt).toLocaleDateString() : "Never"}</td>
-                      <td style={tdStyle}>{s.createdAt ? new Date(s.createdAt).toLocaleDateString() : ""}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>
-                        <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                          {!s.isActive && s.passwordSetupRequired && (
-                            <button onClick={() => resendInvite(s.id)} title="Resend Invite" style={{ background: "#eef2ff", color: "#4f46e5", border: "none", padding: "4px 8px", borderRadius: 4, cursor: "pointer" }}><Mail size={13} /></button>
-                          )}
-                          <button onClick={() => {
-                            setEditingUserId(s.id);
-                            setUserForm({ email: s.email, name: s.name, adminRoleId: s.adminRoleId || "", department: s.department || "" });
-                            setIsUserModalOpen(true);
-                          }} style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", padding: "4px 8px", borderRadius: 4, cursor: "pointer" }}><Pencil size={13} /></button>
-                          <button onClick={() => toggleUserActive(s.id, !s.isActive)}
-                            style={{ background: s.isActive ? "#fef2f2" : "#f0fdf4", color: s.isActive ? "#dc2626" : "#16a34a", border: "none", padding: "4px 8px", borderRadius: 4, cursor: "pointer" }}>
-                            {s.isActive ? <X size={13} /> : <Check size={13} />}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredStaff.map((s) => {
+                    const statusLabel = s.isActive ? "Active" : s.passwordSetupRequired ? "Invited" : "Deactivated";
+                    const statusStyle = s.isActive ? badgeStyleActive : s.passwordSetupRequired ? badgeStylePending : badgeStyleInactive;
+
+                    return (
+                      <tr key={s.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={tdStyle}><strong>{s.name}</strong></td>
+                        <td style={tdStyle}>{s.email}</td>
+                        <td style={tdStyle}>
+                          <span style={{ background: "#eef2ff", color: "#4f46e5", padding: "3px 8px", borderRadius: 6, fontWeight: 700, fontSize: 11 }}>
+                            {s.adminRole?.name || "No Role"}
+                          </span>
+                        </td>
+                        <td style={tdStyle}>{s.department || "—"}</td>
+                        <td style={tdStyle}>
+                          <span style={statusStyle}>
+                            {statusLabel}
+                          </span>
+                        </td>
+                        <td style={tdStyle}>{s.lastLoginAt ? new Date(s.lastLoginAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "Never"}</td>
+                        <td style={tdStyle}>{s.createdAt ? new Date(s.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}</td>
+                        <td style={{ ...tdStyle, textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            {!s.isActive && s.passwordSetupRequired && (
+                              <button onClick={() => resendInvite(s.id)} title="Resend Invitation" style={{ background: "#eef2ff", color: "#4f46e5", border: "1px solid #c7d2fe", padding: "6px 10px", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700 }}>
+                                <Mail size={12} /> Resend
+                              </button>
+                            )}
+                            <button onClick={() => {
+                              setEditingUserId(s.id);
+                              setUserForm({ email: s.email, name: s.name, adminRoleId: s.adminRoleId || "", department: s.department || "" });
+                              setIsUserModalOpen(true);
+                            }} title="Edit Member" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", padding: "6px 8px", borderRadius: 6, cursor: "pointer" }}><Pencil size={13} /></button>
+                            
+                            {/* Point 7: Deactivate / Activate action */}
+                            <button 
+                              onClick={() => toggleUserActive(s.id, s.isActive)}
+                              title={s.isActive ? "Deactivate Member" : "Activate Member"}
+                              style={{
+                                background: s.isActive ? "#fef2f2" : "#f0fdf4",
+                                color: s.isActive ? "#dc2626" : "#16a34a",
+                                border: `1px solid ${s.isActive ? "#fecaca" : "#bbf7d0"}`,
+                                padding: "6px 10px",
+                                borderRadius: 6,
+                                cursor: "pointer",
+                                fontSize: 11,
+                                fontWeight: 700,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4
+                              }}
+                            >
+                              {s.isActive ? <><X size={12} /> Deactivate</> : <><Check size={12} /> Activate</>}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
