@@ -73,6 +73,7 @@ export default function UsersPage() {
   const [selectedId, setSelectedId] = useState("");
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState(makeEmptyForm);
+  const [tabFilter, setTabFilter] = useState("all");
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [staffOtpStep, setStaffOtpStep] = useState(1);
@@ -184,7 +185,7 @@ export default function UsersPage() {
   const load = async (branchId = selectedBranchId) => {
     try {
       const [usersResponse, servicesResponse, rolesResponse, designationsResponse] = await Promise.all([
-        api.get("/owner/users", { params: branchId ? { branchId } : {} }),
+        api.get("/owner/users", { params: { includeArchived: "true", ...(branchId ? { branchId } : {}) } }),
         api.get("/owner/services", { params: branchId ? { branchId } : {} }),
         api.get("/owner/custom-roles"),
         api.get("/owner/designations")
@@ -217,8 +218,10 @@ export default function UsersPage() {
   }, []);
 
   const filteredRows = useMemo(() => {
-    if (!deferredQuery) return rows;
     return rows.filter((row) => {
+      if (tabFilter === "active" && row.isArchived) return false;
+      if (tabFilter === "archived" && !row.isArchived) return false;
+      if (!deferredQuery) return true;
       const haystack = [
         row.user?.name,
         row.user?.email,
@@ -230,7 +233,7 @@ export default function UsersPage() {
       ].filter(Boolean).join(" ").toLowerCase();
       return haystack.includes(deferredQuery);
     });
-  }, [deferredQuery, rows]);
+  }, [deferredQuery, rows, tabFilter]);
 
   const selectedRow = useMemo(() => {
     if (!filteredRows.length) return null;
@@ -457,6 +460,15 @@ export default function UsersPage() {
     }
   };
 
+  const unarchiveUser = async (row) => {
+    try {
+      await api.patch(`/owner/users/${row.id}/unarchive`);
+      await load(selectedBranchId);
+    } catch (err) {
+      alert("Failed to unarchive user.");
+    }
+  };
+
   const handleDirectorySelect = (rowId) => {
     startTransition(() => {
       setSelectedId(rowId);
@@ -544,11 +556,67 @@ export default function UsersPage() {
             <input
               type="text"
               className="hub-search-input"
-              style={{ width: '100%', boxSizing: 'border-box', marginBottom: 8 }}
+              style={{ width: '100%', boxSizing: 'border-box', marginBottom: 10 }}
               value={query}
               placeholder="Search staff..."
               onChange={(event) => setQuery(event.target.value)}
             />
+            <div style={{ display: 'flex', gap: 4, background: '#e2e8f0', padding: 3, borderRadius: 8 }}>
+              <button
+                type="button"
+                onClick={() => setTabFilter("all")}
+                style={{
+                  flex: 1,
+                  padding: "5px 0",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  borderRadius: 6,
+                  border: "none",
+                  background: tabFilter === "all" ? "#ffffff" : "transparent",
+                  color: tabFilter === "all" ? "#0f172a" : "#64748b",
+                  cursor: "pointer",
+                  boxShadow: tabFilter === "all" ? "0 1px 2px rgba(0,0,0,0.06)" : "none"
+                }}
+              >
+                All ({rows.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabFilter("active")}
+                style={{
+                  flex: 1,
+                  padding: "5px 0",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  borderRadius: 6,
+                  border: "none",
+                  background: tabFilter === "active" ? "#ffffff" : "transparent",
+                  color: tabFilter === "active" ? "#16a34a" : "#64748b",
+                  cursor: "pointer",
+                  boxShadow: tabFilter === "active" ? "0 1px 2px rgba(0,0,0,0.06)" : "none"
+                }}
+              >
+                Active ({rows.filter(r => !r.isArchived).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabFilter("archived")}
+                style={{
+                  flex: 1,
+                  padding: "5px 0",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  borderRadius: 6,
+                  border: "none",
+                  background: tabFilter === "archived" ? "#ffffff" : "transparent",
+                  color: tabFilter === "archived" ? "#dc2626" : "#64748b",
+                  cursor: "pointer",
+                  boxShadow: tabFilter === "archived" ? "0 1px 2px rgba(0,0,0,0.06)" : "none"
+                }}
+              >
+                Archived ({rows.filter(r => r.isArchived).length})
+              </button>
+            </div>
           </div>
 
           <div className="hub-list" style={{ flex: 1, overflowY: 'auto' }}>
@@ -564,7 +632,11 @@ export default function UsersPage() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                     <strong style={{ color: isActive ? '#2563eb' : '#0f172a' }}>{row.user?.name}</strong>
-                    <span className={`staff-status-dot ${row.user?.isActive ? "live" : "muted"}`} style={{ width: 8, height: 8, borderRadius: '50%', background: row.user?.isActive ? '#10b981' : '#94a3b8' }} />
+                    {row.isArchived ? (
+                      <span style={{ fontSize: 10, background: '#fef2f2', color: '#dc2626', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>Archived</span>
+                    ) : (
+                      <span className={`staff-status-dot ${row.user?.isActive ? "live" : "muted"}`} style={{ width: 8, height: 8, borderRadius: '50%', background: row.user?.isActive ? '#10b981' : '#94a3b8' }} />
+                    )}
                   </div>
                   <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4 }}>
                     {row.roleTitle || row.customRole?.name || resolveRoleLabel(row.salonRole)}
@@ -599,7 +671,9 @@ export default function UsersPage() {
                     <div>
                       <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 10 }}>
                         {selectedRow.user?.name}
-                        {selectedRow.user?.isActive ? (
+                        {selectedRow.isArchived ? (
+                          <span style={{ fontSize: 11, background: '#fef2f2', color: '#dc2626', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #fecaca' }}>ARCHIVED</span>
+                        ) : selectedRow.user?.isActive ? (
                           <span style={{ fontSize: 11, background: '#ecfdf5', color: '#065f46', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #a7f3d0', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }}></span> ACTIVE
                           </span>
@@ -611,22 +685,36 @@ export default function UsersPage() {
                     </div>
                   </div>
                   <div className="responsive-profile-header-actions" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    <button
-                      type="button"
-                      onClick={() => toggleUserStatus(selectedRow)}
-                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
-                    >
-                      {selectedRow.user?.isActive ? "Deactivate Login" : "Activate Login"}
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => archiveUser(selectedRow)}
-                      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                      onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
-                    >
-                      Archive Profile
-                    </button>
+                    {!selectedRow.isArchived && (
+                      <button
+                        type="button"
+                        onClick={() => toggleUserStatus(selectedRow)}
+                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
+                      >
+                        {selectedRow.user?.isActive ? "Deactivate Login" : "Activate Login"}
+                      </button>
+                    )}
+                    {selectedRow.isArchived ? (
+                      <button 
+                        type="button" 
+                        onClick={() => unarchiveUser(selectedRow)}
+                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#f0fdf4', color: '#16a34a', transition: 'all 0.15s ease' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#dcfce7'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#f0fdf4'}
+                      >
+                        Unarchive Profile
+                      </button>
+                    ) : (
+                      <button 
+                        type="button" 
+                        onClick={() => archiveUser(selectedRow)}
+                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
+                      >
+                        Archive Profile
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
