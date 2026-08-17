@@ -90,7 +90,8 @@ export default function SuperAdminSettingsPage() {
     sessionTimeoutMinutes: 480, maxLoginAttempts: 5, enforce2FA: false,
     emailSenderId: "", smsSenderId: "", whatsappSenderId: "",
     requireEmailVerification: false, requireMobileVerification: false,
-    otpExpiryMinutes: 10, passwordLength: 8, lockDurationMinutes: 15,
+    otpExpiryMinutes: 10, inviteExpiryDays: 7, passwordLength: 8, lockDurationMinutes: 15,
+    maintenanceEndTime: "",
     dateFormat: "DD/MM/YYYY",
     messageTemplates: DEFAULT_TEMPLATES,
     integrations: {
@@ -215,8 +216,10 @@ export default function SuperAdminSettingsPage() {
         requireEmailVerification: Boolean(d.requireEmailVerification),
         requireMobileVerification: Boolean(d.requireMobileVerification),
         otpExpiryMinutes: d.otpExpiryMinutes ?? 10,
+        inviteExpiryDays: d.inviteExpiryDays ?? 7,
         passwordLength: d.passwordLength ?? 8,
         lockDurationMinutes: d.lockDuration ?? d.lockDurationMinutes ?? 15,
+        maintenanceEndTime: d.maintenanceEndTime || "",
         messageTemplates: Array.isArray(d.messageTemplates) ? d.messageTemplates : [],
         integrations: {
           paymentGateway: { provider: "", apiKey: "", enabled: false, ...(d.integrations?.paymentGateway || {}) },
@@ -322,7 +325,8 @@ export default function SuperAdminSettingsPage() {
         autoSuspendOnExpiry: form.autoSuspendOnExpiry, reminderDaysBefore: form.reminderDaysBefore,
         sessionTimeoutMinutes: form.sessionTimeoutMinutes, maxLoginAttempts: form.maxLoginAttempts, enforce2FA: form.enforce2FA,
         requireEmailVerification: form.requireEmailVerification, requireMobileVerification: form.requireMobileVerification,
-        otpExpiryMinutes: form.otpExpiryMinutes, passwordLength: form.passwordLength, lockDurationMinutes: form.lockDurationMinutes,
+        otpExpiryMinutes: form.otpExpiryMinutes, inviteExpiryDays: form.inviteExpiryDays, passwordLength: form.passwordLength, lockDurationMinutes: form.lockDurationMinutes,
+        maintenanceEndTime: form.maintenanceEndTime,
         dateFormat: form.dateFormat, messageTemplates: form.messageTemplates, integrations: form.integrations
       });
       setStatus({ error: "", success: "Settings saved successfully." });
@@ -968,70 +972,135 @@ export default function SuperAdminSettingsPage() {
                 </div>
               )}
 
+              {/* Section 8: Security Settings */}
               {activeTab === "security" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Security Configuration</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Session limits, login lockout thresholds and two-factor enforcement.</p>
+                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Security Settings</h3>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Authentication policies, session timeouts, verification requirements, and account protection thresholds.</p>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-                    <Field label="Session Timeout (minutes)">
-                      <input style={inputStyle} {...n("sessionTimeoutMinutes")} min={30} max={10080} />
-                      <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>= {Math.round(Number(form.sessionTimeoutMinutes) / 60)} hours</span>
-                    </Field>
-                    <Field label="Max Login Attempts (before lockout)"><input style={inputStyle} {...n("maxLoginAttempts")} min={3} max={20} /></Field>
-                    
-                    <Field label="Lockout Duration (minutes)"><input style={inputStyle} {...n("lockDurationMinutes")} min={5} max={1440} /></Field>
-                    <Field label="OTP Expiry (minutes)"><input style={inputStyle} {...n("otpExpiryMinutes")} min={1} max={60} /></Field>
-                    <Field label="Min Password Length"><input style={inputStyle} {...n("passwordLength")} min={6} max={32} /></Field>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
-                    <Toggle value={form.requireEmailVerification} onChange={v => setForm(p => ({ ...p, requireEmailVerification: v }))} label="Require Email Verification on Signup" />
-                    <Toggle value={form.requireMobileVerification} onChange={v => setForm(p => ({ ...p, requireMobileVerification: v }))} label="Require Mobile OTP Verification on Signup" />
-                    <Toggle value={form.enforce2FA} onChange={v => setForm(p => ({ ...p, enforce2FA: v }))} label="Enforce Two-Factor Authentication (2FA) for all Super Admins" />
-                  </div>
-                  <div style={{ padding: 16, background: "#f0fdf4", borderRadius: 12, border: "1px solid #bbf7d0" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#166534", marginBottom: 4 }}>Current Security Summary</div>
-                    <div style={{ fontSize: 12, color: "#15803d" }}>
-                      Session timeout: <strong>{form.sessionTimeoutMinutes} min</strong> &bull; Max failed logins: <strong>{form.maxLoginAttempts}</strong> &bull; 2FA: <strong>{form.enforce2FA ? "Enforced" : "Optional"}</strong>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* Verification Toggles */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Verification Rules</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Toggle value={form.requireEmailVerification} onChange={v => setForm(p => ({ ...p, requireEmailVerification: v }))} label="Require Email Verification" />
+                        <Toggle value={form.requireMobileVerification} onChange={v => setForm(p => ({ ...p, requireMobileVerification: v }))} label="Require Mobile Verification" />
+                      </div>
+                    </div>
+
+                    {/* Expiries & Timeouts */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Timeouts & Expiries</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                        <Field label="OTP Expiry Time (Minutes)">
+                          <input style={inputStyle} {...n("otpExpiryMinutes")} min={1} max={60} placeholder="10" />
+                        </Field>
+                        <Field label="Invitation Link Expiry (Days)">
+                          <input style={inputStyle} {...n("inviteExpiryDays")} min={1} max={30} placeholder="7" />
+                        </Field>
+                        <Field label="Session Timeout (Minutes)">
+                          <input style={inputStyle} {...n("sessionTimeoutMinutes")} min={15} max={10080} placeholder="480" />
+                          <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>= {Math.round(Number(form.sessionTimeoutMinutes || 480) / 60)} hours</span>
+                        </Field>
+                      </div>
+                    </div>
+
+                    {/* Lockout & Passwords */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Account Protection & Passwords</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                        <Field label="Maximum Failed Login Attempts">
+                          <input style={inputStyle} {...n("maxLoginAttempts")} min={3} max={20} placeholder="5" />
+                        </Field>
+                        <Field label="Account Lock Duration (Minutes)">
+                          <input style={inputStyle} {...n("lockDurationMinutes")} min={5} max={1440} placeholder="15" />
+                        </Field>
+                        <Field label="Password Minimum Length">
+                          <input style={inputStyle} {...n("passwordLength")} min={6} max={32} placeholder="8" />
+                        </Field>
+                      </div>
+                      <div style={{ marginTop: 14 }}>
+                        <Toggle value={form.enforce2FA} onChange={v => setForm(p => ({ ...p, enforce2FA: v }))} label="Enforce Two-Factor Authentication (2FA) for Admins" />
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* Section 9: Maintenance & System Status */}
               {activeTab === "maintenance" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Maintenance Mode</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control maintenance mode and manage backup exports.</p>
+                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Maintenance & System Status</h3>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Monitor live platform health, schedule maintenance windows, and manage system backups.</p>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-                    <Toggle value={form.maintenanceMode} onChange={v => setForm(p => ({ ...p, maintenanceMode: v }))} label="Enable Maintenance Mode - locks out all salon owners" />
-                    <Field label="Custom Maintenance Message">
-                      <textarea rows={2} style={{ ...inputStyle, resize: "vertical" }} {...f("maintenanceMessage")} placeholder="We are performing scheduled maintenance. We will be back in 30 minutes." />
-                    </Field>
-                  </div>
-                  
-                  <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>System Data & Backup Export</h4>
-                      <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Export platform configuration settings, policies, and system metadata as JSON dump.</p>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* Platform Status Card */}
+                    <div style={{ padding: 20, background: form.maintenanceMode ? "#fef2f2" : "#ecfdf5", border: `1px solid ${form.maintenanceMode ? "#fecaca" : "#a7f3d0"}`, borderRadius: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        <div style={{ width: 12, height: 12, borderRadius: "50%", background: form.maintenanceMode ? "#ef4444" : "#10b981", boxShadow: `0 0 0 4px ${form.maintenanceMode ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)"}` }} />
+                        <span style={{ fontSize: 16, fontWeight: 800, color: form.maintenanceMode ? "#991b1b" : "#065f46" }}>
+                          Platform Status: {form.maintenanceMode ? "Maintenance Mode Active" : "System Operational"}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 13, color: form.maintenanceMode ? "#7f1d1d" : "#047857" }}>
+                        {form.maintenanceMode 
+                          ? "Salon users are temporarily locked out from logging in. Only Super Admins have platform access." 
+                          : "All platform services, APIs, salons, POS, and customer portals are running normally."}
+                      </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(form, null, 2));
-                        const downloadAnchor = document.createElement("a");
-                        downloadAnchor.setAttribute("href", dataStr);
-                        downloadAnchor.setAttribute("download", `salonnest_platform_backup_${new Date().toISOString().split("T")[0]}.json`);
-                        document.body.appendChild(downloadAnchor);
-                        downloadAnchor.click();
-                        downloadAnchor.remove();
-                      }}
-                      style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#ffffff", color: "#1e293b", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
-                    >
-                      Export System Backup
-                    </button>
+
+                    {/* Maintenance Controls */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <div style={{ marginBottom: 14 }}>
+                        <Toggle 
+                          value={form.maintenanceMode} 
+                          onChange={v => {
+                            if (v) {
+                              const confirmEnable = window.confirm("Warning: Salon users will temporarily be unable to use the platform. Are you sure you want to enable Maintenance Mode?");
+                              if (!confirmEnable) return;
+                            }
+                            setForm(p => ({ ...p, maintenanceMode: v }));
+                          }} 
+                          label="Enable Maintenance Mode" 
+                        />
+                      </div>
+                      
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <Field label="Maintenance Message" full>
+                          <textarea rows={3} style={{ ...inputStyle, resize: "vertical" }} {...f("maintenanceMessage")} placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly." />
+                        </Field>
+                        <Field label="Expected End Time (Optional)" full>
+                          <input style={inputStyle} type="text" {...f("maintenanceEndTime")} placeholder="e.g. 2026-08-18 04:00 AM IST" />
+                        </Field>
+                      </div>
+                    </div>
+
+                    {/* System Backup */}
+                    <div style={{ background: "#f8fafc", padding: 18, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>System Data & Configuration Export</h4>
+                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Export platform configuration settings, policies, templates, and system metadata as JSON dump.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(form, null, 2));
+                          const downloadAnchor = document.createElement("a");
+                          downloadAnchor.setAttribute("href", dataStr);
+                          downloadAnchor.setAttribute("download", `salonnest_platform_backup_${new Date().toISOString().split("T")[0]}.json`);
+                          document.body.appendChild(downloadAnchor);
+                          downloadAnchor.click();
+                          downloadAnchor.remove();
+                        }}
+                        style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#ffffff", color: "#1e293b", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
+                      >
+                        Export System Backup
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
