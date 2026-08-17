@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { api } from "../api/client";
 
-function isCustomDomain() {
+const BASE_DOMAIN = "salonnest.in";
+
+function getSubdomain() {
   const host = window.location.hostname.toLowerCase();
-  return !host.includes("vercel.app") && !host.includes("localhost") && !host.includes("salonnest.in") && !host.includes("127.0.0.1");
+  if (host.includes("vercel.app") || host.includes("localhost") || host.includes("127.0.0.1")) return null;
+  if (host === BASE_DOMAIN || host === `www.${BASE_DOMAIN}`) return null;
+  const sub = host.replace(`.${BASE_DOMAIN}`, "").replace(BASE_DOMAIN, "").trim();
+  if (!sub || sub.includes(".") || sub === "www") return null;
+  return sub;
 }
 
 export default function DomainResolver({ children }) {
@@ -13,7 +19,8 @@ export default function DomainResolver({ children }) {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    if (!isCustomDomain()) {
+    const subdomain = getSubdomain();
+    if (!subdomain) {
       setResolved(false);
       setChecking(false);
       return;
@@ -25,11 +32,8 @@ export default function DomainResolver({ children }) {
     }
     api.get("/public/domain/resolve")
       .then(({ data }) => {
-        if (data.salonSlug) {
-          setResolved(data.salonSlug);
-        } else {
-          setResolved(false);
-        }
+        if (data.salonSlug) setResolved(data.salonSlug);
+        else setResolved(false);
       })
       .catch(() => setResolved(false))
       .finally(() => setChecking(false));

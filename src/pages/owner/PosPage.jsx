@@ -2554,7 +2554,18 @@ export default function PosPage() {
             </div>
 
             {shareError && (
-              <div style={{ marginTop: 16, color: "#dc2626", fontSize: "14px", fontWeight: 500, textAlign: "center" }}>
+              <div style={{
+                marginTop: 16,
+                padding: "10px 14px",
+                borderRadius: 8,
+                background: "#fef2f2",
+                border: "1px solid #fee2e2",
+                color: "#dc2626",
+                fontSize: "13px",
+                fontWeight: 500,
+                lineHeight: 1.4,
+                textAlign: "center"
+              }}>
                 {shareError}
               </div>
             )}

@@ -85,7 +85,8 @@ export default function StorefrontLayout() {
   useEffect(() => {
     if (urlSlug) { setResolving(false); return; }
     const host = window.location.hostname.toLowerCase();
-    if (host.includes("vercel.app") || host.includes("localhost") || host.includes("salonnest.in")) {
+    const isSubdomain = host.includes("salonnest.in") && !host.startsWith("www.") && host !== "salonnest.in";
+    if (host.includes("vercel.app") || host.includes("localhost") || !isSubdomain) {
       setResolving(false);
       return;
     }

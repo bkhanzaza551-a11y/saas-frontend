@@ -1,194 +1,159 @@
-import { useEffect, useState } from "react";
-import { Globe, CheckCircle, XCircle, AlertTriangle, Copy, ExternalLink, Trash2, RefreshCw } from "lucide-react";
-import { api } from "../../api/client";
-
-const STATUS_COLORS = {
-  NONE: { bg: "bg-gray-100", text: "text-gray-600", label: "No Domain" },
-  PENDING: { bg: "bg-amber-100", text: "text-amber-700", label: "Pending Verification" },
-  ACTIVE: { bg: "bg-emerald-100", text: "text-emerald-700", label: "Active" },
-  FAILED: { bg: "bg-red-100", text: "text-red-700", label: "Verification Failed" },
-};
+import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { Globe, CheckCircle, XCircle, Copy, Trash2, ExternalLink } from "lucide-react";
+import toast from "react-hot-toast";
+import { api } from "../../lib/axios";
 
 export default function DomainSettingsPage() {
-  const [domain, setDomain] = useState("");
-  const [savedDomain, setSavedDomain] = useState("");
+  const [subdomain, setSubdomain] = useState("");
+  const [savedSubdomain, setSavedSubdomain] = useState("");
   const [status, setStatus] = useState("NONE");
-  const [token, setToken] = useState("");
-  const [cnameTarget, setCnameTarget] = useState("");
+  const [url, setUrl] = useState("");
   const [slug, setSlug] = useState("");
   const [loading, setLoading] = useState(true);
-  const [verifying, setVerifying] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState({ error: "", success: "" });
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    setFeedback({ error: "", success: "Copied to clipboard!" });
-    setTimeout(() => setFeedback(f => ({ ...f, success: "" })), 3000);
-  };
+  const [checking, setChecking] = useState(false);
+  const [avail, setAvail] = useState(null);
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   useEffect(() => {
     api.get("/owner/domain/settings").then(({ data }) => {
-      setSavedDomain(data.domain || "");
-      setDomain(data.domain || "");
+      setSavedSubdomain(data.subdomain || "");
+      setSubdomain(data.subdomain || "");
       setStatus(data.status || "NONE");
-      setToken(data.verificationToken || "");
-      setCnameTarget(data.cnameTarget || "cname.vercel-dns.com");
+      setUrl(data.url || "");
       setSlug(data.salon?.slug || "");
       setLoading(false);
-    }).catch(() => { setLoading(false); setFeedback({ error: "Failed to load domain settings", success: "" }); });
+    }).catch(() => { setLoading(false); toast.error("Failed to load domain settings"); });
   }, []);
 
+  const checkAvailability = useCallback((name) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (!name || name.length < 3) { setAvail(null); return; }
+    const timer = setTimeout(() => {
+      setChecking(true);
+      api.get(`/owner/domain/check?name=${name}`).then(({ data }) => {
+        setAvail(data.available);
+        if (!data.available) toast.error(data.message);
+      }).catch(() => setAvail(null)).finally(() => setChecking(false));
+    }, 400);
+    setDebounceTimer(timer);
+  }, [debounceTimer]);
+
+  const handleSubdomainChange = (val) => {
+    const clean = val.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/--+/g, "-").replace(/^-|-$/g, "");
+    setSubdomain(clean);
+    setAvail(null);
+    checkAvailability(clean);
+  };
+
   const handleSave = async () => {
-    if (!domain.trim()) return setFeedback({ error: "Enter a domain", success: "" });
+    if (!subdomain.trim() || subdomain.length < 3) return toast.error("Minimum 3 characters");
     setSaving(true);
-    setFeedback({ error: "", success: "" });
     try {
-      const { data } = await api.post("/owner/domain/set", { domain: domain.trim() });
-      setSavedDomain(data.domain);
+      const { data } = await api.post("/owner/domain/set", { subdomain: subdomain.trim() });
+      setSavedSubdomain(data.subdomain);
       setStatus(data.status);
-      setToken(data.verificationToken);
-      setFeedback({ error: "", success: "Domain saved! Now configure DNS and verify." });
+      setUrl(data.url);
+      toast.success(`Your website is live at ${data.url}`);
     } catch (err) {
-      setFeedback({ error: err.response?.data?.message || "Failed to save domain", success: "" });
+      toast.error(err.response?.data?.message || "Failed to save");
     } finally { setSaving(false); }
   };
 
-  const handleVerify = async () => {
-    setVerifying(true);
-    setFeedback({ error: "", success: "" });
-    try {
-      const { data } = await api.post("/owner/domain/verify");
-      setStatus(data.status);
-      if (data.status === "ACTIVE") setFeedback({ error: "", success: "Domain verified! Your website is live." });
-      else setFeedback({ error: data.message || "Verification failed", success: "" });
-    } catch (err) {
-      setStatus("FAILED");
-      setFeedback({ error: err.response?.data?.message || "Verification failed", success: "" });
-    } finally { setVerifying(false); }
-  };
-
   const handleRemove = async () => {
-    if (!confirm("Remove custom domain? Your site will revert to the default URL.")) return;
+    if (!confirm("Remove subdomain? Your site will only be available at the default URL.")) return;
     try {
       await api.delete("/owner/domain/remove");
-      setSavedDomain(""); setDomain(""); setStatus("NONE"); setToken("");
-      setFeedback({ error: "", success: "Domain removed" });
-    } catch { setFeedback({ error: "Failed to remove domain", success: "" }); }
+      setSavedSubdomain(""); setSubdomain(""); setStatus("NONE"); setUrl(""); setAvail(null);
+      toast.success("Subdomain removed");
+    } catch { toast.error("Failed to remove"); }
   };
 
-  if (loading) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 250 }}><RefreshCw className="animate-spin" size={24} color="#ec4899" /></div>;
-
-  const statusInfo = STATUS_COLORS[status] || STATUS_COLORS.NONE;
-  const defaultUrl = `https://salonnest.in/site/${slug}`;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600" /></div>;
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ padding: 8, background: "#fce7f3", borderRadius: 8 }}><Globe size={20} color="#db2777" /></div>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-pink-100 rounded-lg"><Globe className="h-5 w-5 text-pink-600" /></div>
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#0f172a" }}>Custom Domain</h2>
-          <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>Connect your own domain to your salon website</p>
+          <h2 className="text-xl font-bold text-gray-900">Website Subdomain</h2>
+          <p className="text-sm text-gray-500">Get a free subdomain for your salon website</p>
         </div>
       </div>
 
-      {feedback.error && <div style={{ padding: "10px 14px", background: "#fef2f2", color: "#dc2626", borderRadius: 8, fontSize: 13, fontWeight: 600 }}>{feedback.error}</div>}
-      {feedback.success && <div style={{ padding: "10px 14px", background: "#f0fdf4", color: "#16a34a", borderRadius: 8, fontSize: 13, fontWeight: 600 }}>{feedback.success}</div>}
-
       {/* Current Status */}
-      <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>Status</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: "#f1f5f9", color: "#475569" }}>
-            {status === "ACTIVE" ? <CheckCircle size={14} color="#16a34a" /> : status === "FAILED" ? <XCircle size={14} color="#dc2626" /> : <AlertTriangle size={14} color="#f59e0b" />}
-            {statusInfo.label}
-          </span>
-        </div>
-        <div style={{ background: "#f8fafc", borderRadius: 8, padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 11, color: "#64748b" }}>Default URL</span>
-            <button type="button" onClick={() => copyToClipboard(defaultUrl)} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#db2777", background: "none", border: "none", cursor: "pointer", fontWeight: 700 }}><Copy size={12} /> Copy</button>
+      {savedSubdomain && (
+        <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl border border-pink-200 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-pink-800">Your Website</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+              <CheckCircle className="h-3.5 w-3.5" /> Live
+            </span>
           </div>
-          <p style={{ margin: 0, fontSize: 13, fontFamily: "monospace", color: "#1e293b", wordBreak: "break-all" }}>{defaultUrl}</p>
-          {savedDomain && (
-            <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid #e2e8f0" }}>
-                <span style={{ fontSize: 11, color: "#64748b" }}>Custom Domain</span>
-                <a href={`https://${savedDomain}`} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#db2777", textDecoration: "none", fontWeight: 700 }}><ExternalLink size={12} /> Visit</a>
-              </div>
-              <p style={{ margin: 0, fontSize: 13, fontFamily: "monospace", color: "#1e293b", wordBreak: "break-all" }}>https://{savedDomain}</p>
-            </>
+          <div className="flex items-center gap-3 bg-white rounded-lg p-3 border border-pink-200">
+            <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm font-mono text-pink-700 hover:text-pink-800 truncate flex items-center gap-2">
+              {url} <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+            </a>
+            <button onClick={() => { navigator.clipboard.writeText(url); toast.success("Copied!"); }} className="p-2 text-pink-500 hover:text-pink-700 hover:bg-pink-50 rounded-lg transition-colors">
+              <Copy className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="mt-3 flex items-center gap-2 text-xs text-pink-600">
+            <span>Also available at:</span>
+            <button onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); toast.success("Copied!"); }} className="font-mono hover:underline">
+              salonnest.in/site/{slug}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Subdomain Input */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">{savedSubdomain ? "Change Subdomain" : "Set Your Subdomain"}</h3>
+        <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-pink-500 focus-within:border-pink-500">
+          <input
+            value={subdomain}
+            onChange={(e) => handleSubdomainChange(e.target.value)}
+            placeholder="beautyworld"
+            maxLength={63}
+            className="flex-1 px-4 py-2.5 text-sm border-0 focus:outline-none focus:ring-0"
+          />
+          <span className="px-4 py-2.5 bg-gray-50 border-l border-gray-300 text-sm text-gray-500 font-mono">.salonnest.in</span>
+        </div>
+        {/* Availability indicator */}
+        <div className="mt-2 min-h-[20px]">
+          {checking && <p className="text-xs text-gray-400">Checking availability...</p>}
+          {!checking && avail === true && (
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-emerald-600 flex items-center gap-1">
+              <CheckCircle className="h-3.5 w-3.5" /> Available!
+            </motion.p>
+          )}
+          {!checking && avail === false && subdomain.length >= 3 && (
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 flex items-center gap-1">
+              <XCircle className="h-3.5 w-3.5" /> Not available
+            </motion.p>
+          )}
+        </div>
+        <p className="text-xs text-gray-400 mt-1">Lowercase letters, numbers, and hyphens. 3-63 characters.</p>
+        <div className="flex gap-2 mt-4">
+          <button onClick={handleSave} disabled={saving || !subdomain.trim() || subdomain.length < 3 || avail === false} className="px-5 py-2.5 bg-pink-600 text-white text-sm font-medium rounded-lg hover:bg-pink-700 disabled:opacity-50 transition-colors">
+            {saving ? "Saving..." : savedSubdomain ? "Update" : "Activate"}
+          </button>
+          {savedSubdomain && (
+            <button onClick={handleRemove} className="px-4 py-2.5 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1.5">
+              <Trash2 className="h-4 w-4" /> Remove
+            </button>
           )}
         </div>
       </div>
 
-      {/* Domain Input */}
-      <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 12px" }}>{savedDomain ? "Update Domain" : "Add Custom Domain"}</h3>
-        <div style={{ display: "flex", gap: 10 }}>
-          <input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="www.mysalon.com" style={{ flex: 1, padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, outline: "none" }} />
-          <button type="button" onClick={handleSave} disabled={saving || !domain.trim()} style={{ padding: "10px 20px", background: "#db2777", color: "white", fontSize: 13, fontWeight: 700, borderRadius: 8, border: "none", cursor: "pointer", opacity: saving || !domain.trim() ? 0.5 : 1 }}>
-            {saving ? "Saving..." : "Save"}
-          </button>
-        </div>
-        {savedDomain && status !== "ACTIVE" && (
-          <button type="button" onClick={handleVerify} disabled={verifying} style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "#16a34a", color: "white", fontSize: 13, fontWeight: 700, borderRadius: 8, border: "none", cursor: "pointer" }}>
-            <RefreshCw size={14} className={verifying ? "animate-spin" : ""} />
-            {verifying ? "Verifying..." : "Verify Domain"}
-          </button>
-        )}
-        {savedDomain && (
-          <button type="button" onClick={handleRemove} style={{ marginTop: 12, marginLeft: 10, display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", color: "#dc2626", background: "#fef2f2", fontSize: 13, fontWeight: 700, borderRadius: 8, border: "none", cursor: "pointer" }}>
-            <Trash2 size={14} /> Remove Domain
-          </button>
-        )}
+      {/* Info */}
+      <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
+        <p className="text-xs text-blue-800 leading-relaxed">
+          <strong>How it works:</strong> Once activated, your salon website will be live at <code className="bg-blue-100 px-1 rounded">https://{subdomain || "yourname"}.salonnest.in</code>. Share this link with your clients to let them browse services and book appointments online. No DNS setup required — it works instantly!
+        </p>
       </div>
-
-      {/* DNS Setup Instructions */}
-      {savedDomain && status !== "ACTIVE" && (
-        <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-          <div style={{ padding: 18, borderBottom: "1px solid #f1f5f9" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0 }}>DNS Setup Instructions</h3>
-            <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0" }}>Add these records in your domain registrar (GoDaddy, Namecheap, Cloudflare, etc.)</p>
-          </div>
-          <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* Option 1: CNAME */}
-            <div style={{ background: "#eff6ff", borderRadius: 8, padding: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ padding: "2px 6px", background: "#bfdbfe", color: "#1e40af", fontSize: 10, fontWeight: 800, borderRadius: 4 }}>OPTION 1</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#1e3a8a" }}>CNAME Record (Recommended)</span>
-              </div>
-              <div style={{ background: "#ffffff", borderRadius: 8, border: "1px solid #bfdbfe", overflow: "hidden" }}>
-                <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-                  <thead><tr style={{ background: "#eff6ff", borderBottom: "1px solid #bfdbfe" }}>
-                    <th style={{ padding: "6px 12px", textAlign: "left", color: "#1d4ed8" }}>Type</th>
-                    <th style={{ padding: "6px 12px", textAlign: "left", color: "#1d4ed8" }}>Name</th>
-                    <th style={{ padding: "6px 12px", textAlign: "left", color: "#1d4ed8" }}>Value</th>
-                  </tr></thead>
-                  <tbody><tr>
-                    <td style={{ padding: "8px 12px", fontFamily: "monospace", color: "#1e40af" }}>CNAME</td>
-                    <td style={{ padding: "8px 12px", fontFamily: "monospace", color: "#1e293b" }}>{savedDomain.split(".")[0]}</td>
-                    <td style={{ padding: "8px 12px", fontFamily: "monospace", color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
-                      {cnameTarget}
-                      <button type="button" onClick={() => copyToClipboard(cnameTarget)} style={{ background: "none", border: "none", cursor: "pointer", color: "#db2777" }}><Copy size={12} /></button>
-                    </td>
-                  </tr></tbody>
-                </table>
-              </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: 12, background: "#fffbeb", borderRadius: 8, border: "1px solid #fef3c7" }}>
-              <AlertTriangle size={16} color="#d97706" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div style={{ fontSize: 12, color: "#92400e" }}>
-                <p style={{ fontWeight: 700, margin: "0 0 4px" }}>Important Notes:</p>
-                <ul style={{ margin: 0, paddingLeft: 16, lineHeight: 1.5 }}>
-                  <li>DNS propagation takes 5-30 minutes (sometimes up to 48 hours)</li>
-                  <li>SSL certificate is automatically provisioned by Vercel</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
