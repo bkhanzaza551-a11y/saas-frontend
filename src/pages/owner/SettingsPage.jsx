@@ -14,6 +14,7 @@ import { SETTINGS_WORKSPACE_SECTIONS, getSettingsSection } from "./settingsWorks
 import "./SettingsPage.css";
 
 import CustomSelect from "../../components/CustomSelect";
+import DomainSettingsPage from "./DomainSettingsPage";
 
 const WEEK_DAYS = [
   { key: "sun", label: "Sun", dayOfWeekValue: 0 },
@@ -5105,6 +5106,8 @@ export default function SettingsPage() {
         return renderPnlIncomeTaxesSection();
       case "ui-settings":
         return renderUiSettingsSection();
+      case "domain":
+        return <DomainSettingsPage />;
       default:
         return renderGenericSection();
     }

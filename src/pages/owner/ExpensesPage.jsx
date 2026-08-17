@@ -940,33 +940,32 @@ export default function ExpensesPage() {
                     <Receipt size={24} color="#2563eb" />
                     Expenses Overview
                   </h1>
-                {/* Filter Row Panel - Single Clean Row */}
+                {/* Filter Row Panel - 2 Clean Rows, No Horizontal Scroll */}
                 <div 
                   className="expenses-filter-panel" 
                   style={{
                     background: "#ffffff",
                     borderRadius: 14,
                     border: "1px solid #e2e8f0",
-                    padding: "12px 18px",
+                    padding: "16px 18px",
                     display: "flex",
-                    alignItems: "center",
-                    gap: 12,
+                    flexDirection: "column",
+                    gap: 14,
                     boxShadow: "0 2px 10px rgba(15, 23, 42, 0.03)",
-                    marginBottom: 20,
-                    overflowX: "auto",
-                    whiteSpace: "nowrap"
+                    marginBottom: 20
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, flexWrap: "nowrap" }}>
+                  {/* Row 1: Filter Inputs */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
                     {/* Paymode */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <Wallet size={14} color="#2563eb" /> Paymode:
                       </span>
                       <CustomSelect 
                         value={filters.paymentMode}
                         onChange={(e) => setFilters({ ...filters, paymentMode: e.target.value })}
-                        style={{ width: 100, height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1" }}
+                        style={{ width: 110, height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1" }}
                       >
                         <option value="">All</option>
                         <option value="CASH">CASH</option>
@@ -979,14 +978,14 @@ export default function ExpensesPage() {
                     </div>
 
                     {/* Expense Type */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <FolderKanban size={14} color="#2563eb" /> Expense Type:
                       </span>
                       <CustomSelect 
                         value={filters.categoryId}
                         onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
-                        style={{ width: 130, height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1" }}
+                        style={{ width: 140, height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1" }}
                       >
                         <option value="">All Categories</option>
                         {categories.map(c => (
@@ -996,7 +995,7 @@ export default function ExpensesPage() {
                     </div>
 
                     {/* From */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <Calendar size={14} color="#2563eb" /> From:
                       </span>
@@ -1010,7 +1009,7 @@ export default function ExpensesPage() {
                     </div>
 
                     {/* To */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <Calendar size={14} color="#2563eb" /> To:
                       </span>
@@ -1024,14 +1023,14 @@ export default function ExpensesPage() {
                     </div>
                   </div>
 
-                  {/* Buttons Group */}
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0, marginLeft: "auto" }}>
+                  {/* Row 2: Action Buttons */}
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
                     <button 
                       type="button"
                       onClick={loadData}
                       style={{
                         height: 36,
-                        padding: "0 14px",
+                        padding: "0 16px",
                         borderRadius: 8,
                         background: "#ffffff",
                         color: "#334155",
@@ -1041,7 +1040,7 @@ export default function ExpensesPage() {
                         cursor: "pointer",
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: 5,
+                        gap: 6,
                         boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
                         transition: "all 0.15s ease"
                       }}
@@ -1055,24 +1054,24 @@ export default function ExpensesPage() {
                       onClick={() => { setEditingExpenseId(null); setForm({ ...emptyForm, branchId: selectedBranchId || "" }); setStatus({ error: "", success: "" }); setShowAddModal(true); }}
                       style={{
                         height: 36,
-                        padding: "0 14px",
+                        padding: "0 16px",
                         borderRadius: 8,
-                        background: "#ffffff",
-                        color: "#0f172a",
-                        border: "1px solid #cbd5e1",
+                        background: "#2563eb",
+                        color: "#ffffff",
+                        border: "none",
                         fontWeight: 700,
                         fontSize: 12,
                         cursor: "pointer",
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: 5,
-                        boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                        gap: 6,
+                        boxShadow: "0 2px 4px rgba(37, 99, 235, 0.2)",
                         transition: "all 0.15s ease"
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"}
-                      onMouseLeave={(e) => e.currentTarget.style.background = "#ffffff"}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "#1d4ed8"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = "#2563eb"}
                     >
-                      <Plus size={14} color="#2563eb" /> Add Expense
+                      <Plus size={14} color="#ffffff" /> Add Expense
                     </button>
                   </div>
                 </div>

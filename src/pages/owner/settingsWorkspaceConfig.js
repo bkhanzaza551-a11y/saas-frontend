@@ -12,7 +12,8 @@ export const SETTINGS_WORKSPACE_SECTIONS = [
   { key: "terms-and-conditions", label: "Terms & Conditions", to: "/admin/settings/terms-and-conditions", hint: "Policies" },
   { key: "pnl-categories", label: "PNL Categories", to: "/admin/settings/pnl-categories", hint: "Profit buckets" },
   { key: "pnl-income-taxes", label: "PNL Income Taxes", to: "/admin/settings/pnl-income-taxes", hint: "Tax buckets" },
-  { key: "ui-settings", label: "UI Settings", to: "/admin/settings/ui-settings", hint: "Theme customizer" }
+  { key: "ui-settings", label: "UI Settings", to: "/admin/settings/ui-settings", hint: "Theme customizer" },
+  { key: "domain", label: "Custom Domain", to: "/admin/settings/domain", hint: "Website domain" }
 ];
 
 const legacyPathMap = {
