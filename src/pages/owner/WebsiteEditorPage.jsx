@@ -674,7 +674,14 @@ export default function WebsiteEditorPage() {
                 style={{ width: "100%", height: "100%", border: "none", background: "#ffffff" }}
                 onLoad={(e) => {
                   if (e.target.contentWindow) {
-                    e.target.contentWindow.postMessage({ type: 'UPDATE_WEBSITE_CONFIG', config }, '*');
+                    const msg = { type: 'UPDATE_WEBSITE_CONFIG', config };
+                    e.target.contentWindow.postMessage(msg, '*');
+                    const retry = (delay) => setTimeout(() => {
+                      try { e.target.contentWindow?.postMessage(msg, '*'); } catch {}
+                    }, delay);
+                    retry(500);
+                    retry(1500);
+                    retry(3000);
                   }
                 }}
                 title="Storefront Live Preview"

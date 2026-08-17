@@ -368,6 +368,7 @@ export default function StorefrontLayout() {
                   <div ref={branchDropdownRef} style={{ position: "relative" }}>
                     <button 
                       onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
+                      className="sf-branch-btn"
                       style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "100px", outline: "none", cursor: "pointer", fontSize: "0.95rem", fontWeight: 500, fontFamily: 'inherit', color: "var(--text-main)", transition: "all 0.2s" }}
                     >
                       <MapPin size={16} color="var(--text-muted)" />

@@ -822,7 +822,49 @@ a {
 @media (max-width: 900px) {
   .sf-nav-links { display: none; }
   .sf-mobile-menu-btn { display: block; }
-  .sf-header-actions select { display: none; } /* Hide branch select on mobile to save space, rely on modal */
+  .sf-header-actions select { display: none; }
+
+  .sf-header { padding: 14px 0; }
+  .sf-header.scrolled { padding: 10px 0; }
+
+  .sf-nav-container {
+    padding: 0 16px;
+    gap: 8px;
+  }
+
+  .sf-brand {
+    font-size: 1.15rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 45%;
+  }
+
+  .sf-header-actions {
+    gap: 4px !important;
+    flex-shrink: 0;
+  }
+
+  .sf-branch-btn {
+    padding: 8px 10px !important;
+    font-size: 0 !important;
+    gap: 4px !important;
+  }
+
+  .sf-branch-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .sf-branch-btn svg:last-child {
+    display: none;
+  }
+
+  .sf-header-actions a {
+    padding: 8px 10px;
+  }
 }
 
 @media (max-width: 768px) {
