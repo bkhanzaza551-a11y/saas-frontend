@@ -17,7 +17,7 @@ export default function ManageCreditsPage() {
 
   // Package modal
   const [pkgModalOpen, setPkgModalOpen] = useState(false);
-  const [pkgForm, setPkgForm] = useState({ id: "", name: "", credits: "", price: "", currency: "INR" });
+  const [pkgForm, setPkgForm] = useState({ id: "", name: "", credits: "", price: "" });
 
   // Add credits modal
   const [addCreditsModalOpen, setAddCreditsModalOpen] = useState(false);
@@ -66,15 +66,13 @@ export default function ManageCreditsPage() {
         await api.patch(`/super-admin/credits/packages/${pkgForm.id}`, {
           name: pkgForm.name,
           credits: Number(pkgForm.credits),
-          price: Number(pkgForm.price),
-          currency: pkgForm.currency
+          price: Number(pkgForm.price)
         });
       } else {
         await api.post("/super-admin/credits/packages", {
           name: pkgForm.name,
           credits: Number(pkgForm.credits),
-          price: Number(pkgForm.price),
-          currency: pkgForm.currency
+          price: Number(pkgForm.price)
         });
       }
       setPkgModalOpen(false);

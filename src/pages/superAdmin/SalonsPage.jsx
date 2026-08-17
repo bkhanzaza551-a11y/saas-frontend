@@ -16,17 +16,16 @@ const featureFlagKeys = [
   "ecommerce", "digitalCatalog", "catalogAnalytics", "feedback", "reports", "memberships",
   "packages", "loyalty", "couponsGiftCards", "whatsapp", "enquiries", "expenses",
   "attendance", "customerPortal", "publicCatalog",
-  "onlineOrders", "messageTemplates", "notifications", "auditLogs", "advancedReports",
-  "staffRequirements", "productRequirements"
+  "onlineOrders", "messageTemplates", "notifications", "auditLogs", "advancedReports"
 ];
 const defaultFlags = {
   pos: true, appointments: false, inventory: false, crm: true, 
-  ecommerce: false, digitalCatalog: false,
+  ecommerce: false, digitalCatalog: true,
   catalogAnalytics: false, feedback: false, reports: true, memberships: false, packages: false,
   loyalty: false, couponsGiftCards: false, whatsapp: false, enquiries: false, expenses: false,
-  attendance: false, customerPortal: false,
+  attendance: false, leaves: true, customerPortal: false,
   publicCatalog: true, onlineOrders: false, messageTemplates: false, notifications: true,
-  auditLogs: true, advancedReports: true, staffRequirements: false, productRequirements: false
+  auditLogs: true, advancedReports: true
 };
 const emptyForm = {
   name: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
@@ -46,8 +45,8 @@ export default function SalonsPage() {
     });
   };
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
-const [planFilter, setPlanFilter] = useState("");
-const [cityFilter, setCityFilter] = useState("");
+const [planFilter, setPlanFilter] = useState(searchParams.get("plan") || "");
+const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
   const [selectedSalon, setSelectedSalon] = useState(null);
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState(emptyForm);

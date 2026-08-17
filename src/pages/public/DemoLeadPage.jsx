@@ -269,20 +269,28 @@ export default function PublicDemoLeadPage() {
                       >
                         <div
                           style={{
-                            padding: "0 12px",
+                            padding: "0 14px",
                             background: "#f8fafc",
                             borderRight: "1px solid #e2e8f0",
-                            color: "#334155",
+                            color: "#1e293b",
                             fontWeight: 700,
                             fontSize: 14,
-                            display: "flex",
+                            display: "inline-flex",
                             alignItems: "center",
-                            gap: 4,
-                            height: 44,
+                            justifyContent: "center",
+                            gap: 7,
+                            height: 46,
+                            lineHeight: 1,
                             userSelect: "none"
                           }}
                         >
-                          🇮🇳 +91
+                          <svg width="18" height="13" viewBox="0 0 18 13" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 2, flexShrink: 0, boxShadow: "0 0 1px rgba(0,0,0,0.3)" }}>
+                            <rect width="18" height="4.33" fill="#FF9933"/>
+                            <rect y="4.33" width="18" height="4.33" fill="#FFFFFF"/>
+                            <rect y="8.66" width="18" height="4.33" fill="#138808"/>
+                            <circle cx="9" cy="6.5" r="1.5" fill="#000080"/>
+                          </svg>
+                          <span>+91</span>
                         </div>
                         <input
                           className="demo-input"
