@@ -156,7 +156,7 @@ export default function DemoLeadsPage() {
           }
         }),
         api.get("/super-admin/plans"),
-        api.get("/super-admin/staff", { params: { onlyActive: 1 } })
+        api.get("/super-admin/staff", { params: { onlyActive: 1, role: "Sales" } })
       ]);
       setRows(leadResponse.data || []);
       setPlans(planResponse.data || []);

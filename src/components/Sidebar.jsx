@@ -177,13 +177,6 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
         {isMiniRail ? (
           /* Dedicated Mini Rail Mode */
           <div className="mini-rail-container">
-            {/* Top User Profile Avatar */}
-            <div className="mini-rail-profile">
-              <div className="mini-rail-avatar">
-                {auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : "A"}
-              </div>
-            </div>
-
             {/* Vertical Stacked Icon Rail */}
             <div className="mini-rail-items">
               {allNavItems.map((item) => {

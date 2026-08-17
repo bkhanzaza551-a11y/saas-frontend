@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
 import { Globe, CheckCircle, XCircle, Copy, Trash2, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
-import { api } from "../../lib/axios";
+import { api } from "../../api/client";
 
 export default function DomainSettingsPage() {
   const [subdomain, setSubdomain] = useState("");
@@ -125,14 +124,14 @@ export default function DomainSettingsPage() {
         <div className="mt-2 min-h-[20px]">
           {checking && <p className="text-xs text-gray-400">Checking availability...</p>}
           {!checking && avail === true && (
-            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-emerald-600 flex items-center gap-1">
+            <p className="text-xs text-emerald-600 flex items-center gap-1">
               <CheckCircle className="h-3.5 w-3.5" /> Available!
-            </motion.p>
+            </p>
           )}
           {!checking && avail === false && subdomain.length >= 3 && (
-            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 flex items-center gap-1">
+            <p className="text-xs text-red-500 flex items-center gap-1">
               <XCircle className="h-3.5 w-3.5" /> Not available
-            </motion.p>
+            </p>
           )}
         </div>
         <p className="text-xs text-gray-400 mt-1">Lowercase letters, numbers, and hyphens. 3-63 characters.</p>
