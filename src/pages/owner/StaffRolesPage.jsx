@@ -90,7 +90,7 @@ function ModulePermRow({ moduleKey, permissions, onToggle, disabled, groupColor 
       flexWrap: "wrap",
     }}>
       {/* module name */}
-      <div style={{ minWidth: 130, display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ width: 220, minWidth: 220, flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{
           width: 6, height: 6, borderRadius: "50%",
           background: groupColor, flexShrink: 0,
@@ -101,7 +101,7 @@ function ModulePermRow({ moduleKey, permissions, onToggle, disabled, groupColor 
       </div>
 
       {/* action chips */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", flex: 1 }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
         {ACTIONS.map((action) => (
           <PermissionChip
             key={action}
@@ -119,6 +119,7 @@ function ModulePermRow({ moduleKey, permissions, onToggle, disabled, groupColor 
         onClick={toggleAll}
         disabled={disabled}
         style={{
+          marginLeft: "auto",
           fontSize: 11,
           color: allChecked ? "#ef4444" : "#3b82f6",
           background: "none",
@@ -460,11 +461,11 @@ export default function StaffRolesPage() {
                                 borderRadius: 8, background: '#fafafa', border: '1px solid #f1f5f9',
                                 gap: 12, flexWrap: 'wrap',
                               }}>
-                                <div style={{ minWidth: 140, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <div style={{ width: 220, minWidth: 220, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: group.color, flexShrink: 0 }} />
                                   <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{group.labels?.[moduleKey] || pretty(moduleKey)}</span>
                                 </div>
-                                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                                   {ACTIONS.map((action) => (
                                     <PermissionChip
                                       key={action}
@@ -478,6 +479,7 @@ export default function StaffRolesPage() {
                                   type="button"
                                   onClick={() => toggleRoleModuleAll(moduleKey)}
                                   style={{
+                                    marginLeft: 'auto',
                                     fontSize: 11, fontWeight: 600, color: '#ef4444', background: 'none',
                                     border: '1.5px solid #fecaca', borderRadius: 6, cursor: 'pointer',
                                     padding: '4px 10px', whiteSpace: 'nowrap', transition: 'all 0.15s',
@@ -602,13 +604,13 @@ export default function StaffRolesPage() {
                                       borderRadius: 8, background: "white", border: "1px solid #f1f5f9",
                                       gap: 12, flexWrap: "wrap",
                                     }}>
-                                      <div style={{ minWidth: 140, display: "flex", alignItems: "center", gap: 8 }}>
+                                      <div style={{ width: 220, minWidth: 220, flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
                                         <span style={{ width: 7, height: 7, borderRadius: "50%", background: group.color, flexShrink: 0 }} />
                                         <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>
                                           {group.labels?.[moduleKey] || pretty(moduleKey)}
                                         </span>
                                       </div>
-                                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", flex: 1 }}>
+                                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                                         {ACTIONS.map((action) => (
                                           <PermissionChip
                                             key={action}
@@ -624,6 +626,7 @@ export default function StaffRolesPage() {
                                         disabled={isSaving}
                                         onClick={() => toggleAll(row, moduleKey, false)}
                                         style={{
+                                          marginLeft: "auto",
                                           fontSize: 11, fontWeight: 600, color: '#ef4444', background: 'none',
                                           border: '1.5px solid #fecaca', borderRadius: 6, cursor: isSaving ? 'not-allowed' : 'pointer',
                                           padding: '4px 10px', whiteSpace: 'nowrap', opacity: isSaving ? 0.6 : 1, transition: 'all 0.15s',

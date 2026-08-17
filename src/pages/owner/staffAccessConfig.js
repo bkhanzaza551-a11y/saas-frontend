@@ -64,7 +64,7 @@ export const MODULE_GROUPS = [
     modules: [
       { key: "catalog", label: "Website Catalogue" },
       { key: "catalogAnalytics", label: "Catalogue Analytics" },
-      { key: "ecommerce", label: "Orders" },
+      { key: "ecommerce", label: "Bookings" },
       { key: "customerPortalSettings", label: "Staff Portal Settings" },
       { key: "auditLogs", label: "Audit Logs" }
     ]
