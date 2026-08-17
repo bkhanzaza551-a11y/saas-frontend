@@ -416,15 +416,16 @@ export default function SuperAdminDashboard() {
               <div 
                 key={payment.id} 
                 onClick={() => navigate(payment.salonId ? `/super-admin/finance?salonId=${payment.salonId}` : "/super-admin/finance")}
-                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s", cursor: "pointer" }} 
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", transition: "all 0.2s", cursor: "pointer", gap: 12 }} 
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.transform = "translateY(-1px)"; }} 
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#f1f5f9"; e.currentTarget.style.transform = "none"; }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
                   <div style={{ 
                     width: 36, 
                     height: 36, 
                     borderRadius: 10, 
+                    flexShrink: 0,
                     background: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#fef3c7" : "#dbeafe", 
                     color: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#d97706" : "#2563eb", 
                     display: "flex", 
@@ -437,12 +438,12 @@ export default function SuperAdminDashboard() {
                   }}>
                     {(payment.mode || "Pay").substring(0, 3)}
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{payment.mode || "Payment Method"}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{payment.salonName || "Successful Transaction"}</div>
+                  <div style={{ minWidth: 0, overflow: "hidden" }}>
+                    <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{payment.mode || "Payment Method"}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{payment.salonName || "Successful Transaction"}</div>
                   </div>
                 </div>
-                <div style={{ fontSize: "1rem", fontWeight: 850, color: "#059669" }}>+ ₹{fmt(payment.amount)}</div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 850, color: "#059669", whiteSpace: "nowrap", flexShrink: 0, textAlign: "right" }}>+ ₹{fmt(payment.amount)}</div>
               </div>
             )) : <EmptyState title="No recent payments" message="Payment entries appear here." />}
           </div>
