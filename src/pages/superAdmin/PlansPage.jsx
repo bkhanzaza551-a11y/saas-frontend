@@ -130,6 +130,56 @@ export default function PlansPage() {
     });
   };
 
+  const [filterTab, setFilterTab] = useState("all");
+  const [archiveModalData, setArchiveModalData] = useState(null);
+  const [editWarningData, setEditWarningData] = useState(null);
+
+  const filteredPlans = useMemo(() => {
+    return plans.filter(p => {
+      if (filterTab === "standard") return !p.isCustom && !p.isArchived;
+      if (filterTab === "custom") return p.isCustom && !p.isArchived;
+      if (filterTab === "archived") return p.isArchived;
+      return !p.isArchived;
+    });
+  }, [plans, filterTab]);
+
+  const handleArchive = async (plan) => {
+    try {
+      if (plan.isArchived) {
+        await api.post(`/super-admin/plans/${plan.id}/unarchive`);
+        setStatus({ error: "", success: `Plan "${plan.name}" restored to Active.` });
+      } else {
+        await api.post(`/super-admin/plans/${plan.id}/archive`);
+        setStatus({ error: "", success: `Plan "${plan.name}" archived successfully.` });
+      }
+      setArchiveModalData(null);
+      await load();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Action failed"), success: "" });
+      setArchiveModalData(null);
+    }
+  };
+
+  const handleConfirmEditWithScope = async (syncActiveSalons) => {
+    if (!editWarningData) return;
+    setSaving(true);
+    try {
+      await api.patch(`/super-admin/plans/${editingId}`, {
+        ...form,
+        force: true,
+        syncActiveSalons
+      });
+      setStatus({ error: "", success: `Plan updated successfully (${syncActiveSalons ? "Applied to all existing active salons" : "Applied to future subscriptions only"}).` });
+      setEditWarningData(null);
+      setIsModalOpen(false);
+      await load();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not update plan"), success: "" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const savePlan = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) return setStatus({ error: "Plan name is required", success: "" });
@@ -139,24 +189,21 @@ export default function PlansPage() {
       if (editingId) {
         await api.patch(`/super-admin/plans/${editingId}`, form);
         setStatus({ error: "", success: "Plan updated." });
+        setIsModalOpen(false);
+        await load();
       } else {
         await api.post("/super-admin/plans", form);
         setStatus({ error: "", success: "Plan created." });
+        setIsModalOpen(false);
+        await load();
       }
-      setIsModalOpen(false);
-      await load();
     } catch (err) {
       const msg = formatApiError(err, "Could not save plan");
       if (err?.response?.status === 409 && err?.response?.data?.requiresConfirmation && editingId) {
-        const confirmed = await showConfirm(`${err.response.data.message}\n\nProceed anyway?`);
-        if (confirmed) {
-          try {
-            await api.patch(`/super-admin/plans/${editingId}`, { ...form, force: true });
-            setStatus({ error: "", success: "Plan updated (active subscriptions affected)." });
-            setIsModalOpen(false);
-            await load();
-          } catch (e2) { setStatus({ error: formatApiError(e2), success: "" }); }
-        }
+        setEditWarningData({
+          message: err.response.data.message,
+          activeSubscriptions: err.response.data.activeSubscriptions
+        });
       } else {
         setStatus({ error: msg, success: "" });
       }
@@ -164,20 +211,6 @@ export default function PlansPage() {
       setSaving(false);
     }
   };
-
-  const handleDelete = async (plan) => {
-    try {
-      await api.delete(`/super-admin/plans/${plan.id}`);
-      setStatus({ error: "", success: `Plan "${plan.name}" deleted.` });
-      setConfirmDelete(null);
-      await load();
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not delete plan"), success: "" });
-      setConfirmDelete(null);
-    }
-  };
-
-  const activePlans = plans;
 
   if (loading) return <div className="page-shell"><PageLoader /></div>;
 
@@ -227,7 +260,7 @@ export default function PlansPage() {
         <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Plans & Pricing Packages</h1>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Define what we sell with standard packages, usage limits, and module access. {activePlans.length} active plan(s).</p>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Define what we sell with standard and custom packages, usage limits, and module access.</p>
           </div>
           <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
             <Plus size={16} /> + New Plan
@@ -238,12 +271,43 @@ export default function PlansPage() {
       {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
       {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
-      {activePlans.length === 0 ? (
-        <EmptyState title="No Plans" message="Create your first plan to get started." />
+      {/* Plan Filter Tabs: All, Standard, Custom, Archived */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+        {[
+          { id: "all", label: "All Active Plans", count: plans.filter(p => !p.isArchived).length },
+          { id: "standard", label: "Standard Plans", count: plans.filter(p => !p.isCustom && !p.isArchived).length },
+          { id: "custom", label: "Custom / Negotiated Plans", count: plans.filter(p => p.isCustom && !p.isArchived).length },
+          { id: "archived", label: "Archived Plans", count: plans.filter(p => p.isArchived).length }
+        ].map(t => {
+          const active = filterTab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setFilterTab(t.id)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 8,
+                border: "none",
+                background: active ? "#4f46e5" : "#f1f5f9",
+                color: active ? "white" : "#475569",
+                fontWeight: active ? 700 : 600,
+                fontSize: "0.82rem",
+                cursor: "pointer",
+                transition: "all 0.15s"
+              }}
+            >
+              {t.label} ({t.count})
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredPlans.length === 0 ? (
+        <EmptyState title="No Plans Found" message={`No ${filterTab} plans available.`} />
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
-          {activePlans.map(plan => (
-            <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onDelete={setConfirmDelete} />
+          {filteredPlans.map(plan => (
+            <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onArchive={(p) => setArchiveModalData(p)} />
           ))}
         </div>
       )}
@@ -363,38 +427,108 @@ export default function PlansPage() {
         </div>
       )}
 
-      {confirmDelete && (
-        <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
-          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
+      {/* Edit Warning Modal for Plans In-Use */}
+      {editWarningData && (
+        <div className="modal-overlay" onClick={() => setEditWarningData(null)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
             <div className="modal-header">
-              <h3>Delete Plan</h3>
-              <button className="modal-close-btn" onClick={() => setConfirmDelete(null)}>&times;</button>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <AlertTriangle size={20} color="#f59e0b" />
+                <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Plan In-Use Protection Warning</h3>
+              </div>
+              <button className="modal-close-btn" onClick={() => setEditWarningData(null)}>&times;</button>
             </div>
-            {confirmDelete.activeSubscriptions > 0 ? (
+            <div style={{ padding: "12px 0 20px" }}>
+              <p style={{ color: "#334155", fontSize: "0.9rem", lineHeight: 1.5, margin: "0 0 16px" }}>
+                This plan is currently assigned to <strong>{editWarningData.activeSubscriptions} active salon(s)</strong>. Please choose how you want to apply these changes:
+              </p>
+
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: 12, background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8, fontSize: 13, color: "#991b1b" }}>
-                  <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <strong>Cannot Delete Plan:</strong> This plan has <strong>{confirmDelete.activeSubscriptions}</strong> active subscription(s) in salons. You must migrate those salons to another plan first.
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
-                  <button onClick={() => setConfirmDelete(null)} style={{ padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Close</button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleConfirmEditWithScope(false)}
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: 10,
+                    border: "2px solid #e0e7ff",
+                    background: "#f5f3ff",
+                    textAlign: "left",
+                    cursor: "pointer"
+                  }}
+                >
+                  <strong style={{ display: "block", color: "#4338ca", fontSize: "0.9rem" }}>Option 1: Future Subscriptions Only (Recommended)</strong>
+                  <span style={{ fontSize: "0.78rem", color: "#6b7280", marginTop: 2, display: "block" }}>
+                    Keeps existing salons' current features and prices intact. Only newly assigned salons will receive the updated plan package.
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleConfirmEditWithScope(true)}
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: 10,
+                    border: "2px solid #fee2e2",
+                    background: "#fff5f5",
+                    textAlign: "left",
+                    cursor: "pointer"
+                  }}
+                >
+                  <strong style={{ display: "block", color: "#b91c1c", fontSize: "0.9rem" }}>Option 2: Update All Active Salons Immediately</strong>
+                  <span style={{ fontSize: "0.78rem", color: "#6b7280", marginTop: 2, display: "block" }}>
+                    Synchronizes new feature flags and limits to all {editWarningData.activeSubscriptions} currently active salons immediately.
+                  </span>
+                </button>
               </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <p style={{ color: "#475569", fontSize: "0.9rem", margin: 0 }}>
-                  Are you sure you want to delete the plan <strong>"{confirmDelete.name}"</strong>? This action cannot be undone.
-                </p>
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
-                  <button onClick={() => setConfirmDelete(null)} style={{ padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Cancel</button>
-                  <button onClick={() => handleDelete(confirmDelete)} style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: "#ef4444", color: "white", fontWeight: 600, cursor: "pointer" }}>
-                    Delete Plan
-                  </button>
-                </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
+              <button type="button" onClick={() => setEditWarningData(null)} style={{ padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600, fontSize: "0.85rem" }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive / Unarchive Modal */}
+      {archiveModalData && (
+        <div className="modal-overlay" onClick={() => setArchiveModalData(null)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
+            <div className="modal-header">
+              <h3>{archiveModalData.isArchived ? "Restore Plan" : "Archive Plan"}</h3>
+              <button className="modal-close-btn" onClick={() => setArchiveModalData(null)}>&times;</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "10px 0" }}>
+              <p style={{ color: "#475569", fontSize: "0.9rem", margin: 0, lineHeight: 1.5 }}>
+                {archiveModalData.isArchived ? (
+                  <>Are you sure you want to restore the plan <strong>"{archiveModalData.name}"</strong> to Active status? It will become available for new salon assignments.</>
+                ) : (
+                  <>
+                    Are you sure you want to archive <strong>"{archiveModalData.name}"</strong>?
+                    <br /><br />
+                    • It will <strong>NOT</strong> be available for new salon assignments.<br />
+                    • Existing subscriptions and billing history will remain <strong>100% intact</strong>.
+                  </>
+                )}
+              </p>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+                <button onClick={() => setArchiveModalData(null)} style={{ padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", cursor: "pointer", fontWeight: 600 }}>Cancel</button>
+                <button
+                  onClick={() => handleArchive(archiveModalData)}
+                  style={{
+                    padding: "8px 18px",
+                    border: "none",
+                    borderRadius: 6,
+                    background: archiveModalData.isArchived ? "#10b981" : "#f59e0b",
+                    color: "white",
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  {archiveModalData.isArchived ? "Restore to Active" : "Archive Plan"}
+                </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
@@ -402,75 +536,102 @@ export default function PlansPage() {
   );
 }
 
-function PlanCard({ plan, onEdit, onDelete }) {
+function PlanCard({ plan, onEdit, onArchive }) {
   const flags = plan.featureFlags || plan.features || {};
   const enabledCount = ALL_FLAGS.filter(f => flags[f]).length;
   const activeCount = plan.activeSubscriptions || 0;
+  const trialCount = plan.trialSubscriptions || 0;
+  const isArchived = plan.isArchived;
 
   return (
-    <div style={{ background: "white", borderRadius: 14, border: plan.isPopular ? "2px solid #4f46e5" : "1px solid #e2e8f0", padding: 24, position: "relative" }}>
-      {plan.isPopular && (
+    <div style={{ background: "white", borderRadius: 14, border: isArchived ? "1px dashed #cbd5e1" : (plan.isPopular ? "2px solid #4f46e5" : "1px solid #e2e8f0"), padding: 24, position: "relative", opacity: isArchived ? 0.75 : 1 }}>
+      {plan.isPopular && !isArchived && (
         <div style={{ position: "absolute", top: -10, right: 16, background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", padding: "3px 10px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-          <Star size={10} fill="white" /> Popular
+          <Star size={10} fill="white" /> Most Popular
         </div>
       )}
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
         <div>
-          <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>{plan.name}</h3>
-          {plan.isCustom && <span style={{ fontSize: "0.7rem", color: "#8b5cf6", fontWeight: 600 }}>Custom</span>}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: "1.15rem", color: "#0f172a" }}>{plan.name}</h3>
+            {isArchived ? (
+              <span style={{ fontSize: "0.7rem", background: "#f1f5f9", color: "#64748b", fontWeight: 700, padding: "2px 8px", borderRadius: 100 }}>Archived</span>
+            ) : (
+              <span style={{ fontSize: "0.7rem", background: "#ecfdf5", color: "#059669", fontWeight: 700, padding: "2px 8px", borderRadius: 100 }}>Active</span>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+            {plan.isCustom ? (
+              <span style={{ fontSize: "0.7rem", color: "#7c3aed", background: "#f5f3ff", fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>Custom Plan</span>
+            ) : (
+              <span style={{ fontSize: "0.7rem", color: "#0284c7", background: "#f0f9ff", fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>Standard Plan</span>
+            )}
+          </div>
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => onEdit(plan)} title="Edit Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
             <Edit2 size={15} />
           </button>
-          <button onClick={() => onDelete(plan)} title="Delete Plan" style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", cursor: "pointer", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
-            <Trash2 size={15} />
+          <button onClick={() => onArchive(plan)} title={isArchived ? "Restore to Active" : "Archive Plan"} style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 8, background: isArchived ? "#ecfdf5" : "#fffbeb", cursor: "pointer", color: isArchived ? "#059669" : "#d97706", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700 }}>
+            {isArchived ? "Restore" : "Archive"}
           </button>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+      {plan.description && (
+        <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "0 0 12px", lineHeight: 1.4 }}>
+          {plan.description}
+        </p>
+      )}
+
+      <div style={{ display: "flex", gap: 16, marginBottom: 16, background: "#f8fafc", padding: "10px 12px", borderRadius: 8 }}>
         <div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.monthlyPrice).toLocaleString()}</div>
-          <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>per month</div>
+          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.monthlyPrice).toLocaleString()}</div>
+          <div style={{ fontSize: "0.7rem", color: "#64748b" }}>/month</div>
         </div>
-        <div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.yearlyPrice).toLocaleString()}</div>
-          <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>per year</div>
+        <div style={{ borderLeft: "1px solid #e2e8f0", paddingLeft: 16 }}>
+          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.yearlyPrice).toLocaleString()}</div>
+          <div style={{ fontSize: "0.7rem", color: "#64748b" }}>/year</div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 16, fontSize: "0.8rem" }}>
         {[
           { label: "Branches", val: plan.branchLimit },
           { label: "Staff", val: plan.userLimit },
           { label: "Customers", val: plan.customerLimit },
-          { label: "Invoices", val: plan.invoiceLimit }
+          { label: "Invoices", val: plan.invoiceLimit },
+          { label: "Storage", val: plan.storageLimit ? `${plan.storageLimit} MB` : "Unlimited" }
         ].map(l => (
-          <div key={l.label} style={{ fontSize: "0.8rem", color: "#64748b" }}>
-            <span style={{ fontWeight: 600, color: "#334155" }}>{l.val === 9999 ? "∞" : (l.val ?? 0).toLocaleString()}</span> {l.label}
+          <div key={l.label} style={{ color: "#64748b" }}>
+            <span style={{ fontWeight: 700, color: "#334155" }}>{l.val === 9999 ? "∞" : l.val}</span> {l.label}
           </div>
         ))}
       </div>
 
       <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 12, marginBottom: 12 }}>
-        <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: 6 }}>{enabledCount}/{ALL_FLAGS.length} features enabled</div>
+        <div style={{ fontSize: "0.75rem", color: "#334155", fontWeight: 700, marginBottom: 6 }}>
+          ⚡ {enabledCount} of {ALL_FLAGS.length} Features Included
+        </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-          {ALL_FLAGS.filter(f => flags[f]).slice(0, 8).map(f => (
+          {ALL_FLAGS.filter(f => flags[f]).slice(0, 6).map(f => (
             <span key={f} style={{ background: "#f0fdf4", color: "#16a34a", padding: "2px 6px", borderRadius: 4, fontSize: "0.65rem", fontWeight: 600 }}>{FLAG_LABELS[f] || f}</span>
           ))}
-          {enabledCount > 8 && <span style={{ fontSize: "0.65rem", color: "#94a3b8" }}>+{enabledCount - 8} more</span>}
+          {enabledCount > 6 && <span style={{ fontSize: "0.65rem", color: "#64748b", background: "#f1f5f9", padding: "2px 6px", borderRadius: 4, fontWeight: 600 }}>+{enabledCount - 6} more</span>}
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: activeCount > 0 ? "#10b981" : "#94a3b8" }}>
-        <Users size={13} /> {activeCount} active subscription{activeCount !== 1 ? "s" : ""}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 10, fontSize: "0.78rem" }}>
+        <div style={{ fontWeight: 700, color: activeCount > 0 ? "#10b981" : "#64748b" }}>
+          🏢 {activeCount} Active Salon{activeCount !== 1 ? "s" : ""}
+        </div>
+        {trialCount > 0 && (
+          <div style={{ fontWeight: 700, color: "#d97706" }}>
+            ⏳ {trialCount} Trial Salon{trialCount !== 1 ? "s" : ""}
+          </div>
+        )}
       </div>
-
-      {plan.trialDays > 0 && (
-        <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 6 }}>Includes {plan.trialDays}-day trial</div>
-      )}
     </div>
   );
 }
