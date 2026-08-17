@@ -16,6 +16,8 @@ const PIPELINE = [
   { value: "CANCELED", label: "Lost", color: "#ef4444", bg: "#fef2f2" }
 ];
 
+const getStatusMeta = (status) => PIPELINE.find(s => s.value === status) || PIPELINE[0];
+
 const LEAD_SOURCES = [
   "Website",
   "Google Ads",
