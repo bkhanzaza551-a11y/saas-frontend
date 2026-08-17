@@ -64,8 +64,8 @@ export default function OwnerLayout() {
   }
 
   // Check subscription status
-  const isExpired = subscription?.status === "EXPIRED" || subscription?.status === "RESTRICTED";
-  // Allow access to settings/subscription even if expired
+  const isExpired = subscription?.status === "EXPIRED" || subscription?.status === "SUSPENDED";
+  // Allow access to settings even if expired
   const isSubscriptionPage = location.pathname.includes("/settings");
 
   if (isExpired && !isSubscriptionPage && auth?.membership?.salonRole === "SALON_OWNER") {
@@ -74,9 +74,9 @@ export default function OwnerLayout() {
         <div className="panel-card" style={{ textAlign: "center", maxWidth: 500, margin: "auto" }}>
           <h2 style={{ color: "var(--danger-color, #ef4444)" }}>Subscription {subscription.status.toLowerCase()}</h2>
           <p className="muted" style={{ marginBottom: 20 }}>
-            Your salon subscription has ended. Please renew your plan to regain full access to your workspace.
+            Your salon subscription has ended. Please contact your administrator to renew your plan and regain full access.
           </p>
-          <button className="sf-btn sf-btn-primary" onClick={() => nav("/admin/settings/subscription")}>View Subscription Options</button>
+          <button className="sf-btn sf-btn-primary" onClick={() => nav("/admin/settings")}>Contact Support</button>
         </div>
       </div>
     );

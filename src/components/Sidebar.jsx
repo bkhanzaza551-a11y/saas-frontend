@@ -268,7 +268,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
             )}
 
             {/* Subscription Plan Badge */}
-            {subscription?.active && subscription?.plan && (
+            {subscription?.status === "ACTIVE" && subscription?.plan && (
               <div style={{ margin: "0 14px 12px", padding: "6px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <CreditCard size={13} style={{ color: "#10b981" }} />
