@@ -13,7 +13,9 @@ import {
   Copy,
   Check,
   ArrowRight,
-  Send
+  Send,
+  TrendingUp,
+  Calculator
 } from "lucide-react";
 import { api } from "../../api/client";
 import { formatCurrency } from "../../utils/currency.js";
@@ -31,6 +33,7 @@ export default function WhatsAppCreditsPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [activeTab, setActiveTab] = useState("ALL");
   const [copiedId, setCopiedId] = useState(null);
+  const [smsUsage, setSmsUsage] = useState({ logs: [], stats: { totalCreditsUsed: 0, totalSent: 0, totalFailed: 0, total: 0 } });
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -46,10 +49,11 @@ export default function WhatsAppCreditsPage() {
     setLoading(true);
     setError("");
     try {
-      const [balRes, pkgRes, txnRes] = await Promise.all([
+      const [balRes, pkgRes, txnRes, smsRes] = await Promise.all([
         api.get("/owner/credits/balance"),
         api.get("/owner/credits/packages"),
-        api.get("/owner/credits/transactions")
+        api.get("/owner/credits/transactions"),
+        api.get("/owner/credits/sms-usage").catch(() => ({ data: { logs: [], stats: { totalCreditsUsed: 0, totalSent: 0, totalFailed: 0, total: 0 } } }))
       ]);
       setBalance(balRes.data.credits || 0);
       setCustomApiEnabled(balRes.data.customWhatsappEnabled || false);
@@ -58,6 +62,7 @@ export default function WhatsAppCreditsPage() {
       }
       setPackages(pkgRes.data || []);
       setTransactions(txnRes.data || []);
+      setSmsUsage(smsRes.data || { logs: [], stats: { totalCreditsUsed: 0, totalSent: 0, totalFailed: 0, total: 0 } });
     } catch (err) {
       setError("Could not load credit information right now. Please refresh.");
     } finally {
@@ -81,7 +86,6 @@ export default function WhatsAppCreditsPage() {
         return;
       }
 
-      // Create Order on backend
       const orderRes = await api.post("/owner/credits/create-order", { packageId: pkg.id });
       const { orderId, amount, currency, key: razorpayKey } = orderRes.data;
 
@@ -142,13 +146,12 @@ export default function WhatsAppCreditsPage() {
 
   return (
     <div style={{ padding: "24px 32px", maxWidth: 1280, margin: "0 auto", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      
-      {/* HEADER SECTION */}
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 16 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
-              Messaging & Communication Credits
+              Communication Credits
             </h1>
             <span style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
               <Zap size={13} /> Unified Wallet
@@ -182,7 +185,6 @@ export default function WhatsAppCreditsPage() {
         </button>
       </div>
 
-      {/* ALERT MESSAGES */}
       {error && (
         <div style={{ padding: "14px 18px", background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 10, marginBottom: 24, fontSize: 14, fontWeight: 500 }}>
           {error}
@@ -194,7 +196,6 @@ export default function WhatsAppCreditsPage() {
         </div>
       )}
 
-      {/* CUSTOM WHATSAPP API NOTICE */}
       {customApiEnabled && (
         <div style={{ background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)", border: "1px solid #a7f3d0", borderRadius: 14, padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "flex-start", gap: 16 }}>
           <div style={{ background: "#10b981", color: "#fff", borderRadius: 10, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -209,77 +210,97 @@ export default function WhatsAppCreditsPage() {
         </div>
       )}
 
-      {/* TOP METRICS SUMMARY CARDS */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18, marginBottom: 32 }}>
-        
-        {/* Available Credits Card */}
-        <div style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", borderRadius: 14, padding: "22px 24px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.25)", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: -15, right: -15, width: 90, height: 90, background: "rgba(59, 130, 246, 0.15)", borderRadius: "50%" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>Available Balance</span>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <CreditCard size={18} color="#60a5fa" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, marginBottom: 28 }}>
+
+        <div style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", borderRadius: 16, padding: "26px 28px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.3)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(59, 130, 246, 0.12)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(59, 130, 246, 0.08)", borderRadius: "50%" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em" }}>Available Balance</span>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <CreditCard size={20} color="#60a5fa" />
             </div>
           </div>
-          <div style={{ fontSize: 36, fontWeight: 900, color: "#fff", lineHeight: 1, marginBottom: 8, letterSpacing: "-1px" }}>
+          <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1, marginBottom: 10, letterSpacing: "-1.5px" }}>
             {balance.toLocaleString()}
           </div>
-          <div style={{ fontSize: 12, color: "#38bdf8", fontWeight: 500 }}>
-            Unified for WhatsApp & SMS dispatches
+          <div style={{ fontSize: 12, color: "#60a5fa", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <Sparkles size={13} /> Credits for WhatsApp & SMS
           </div>
         </div>
 
-        {/* WhatsApp Channel Rate Card */}
-        <div style={{ background: "#fff", borderRadius: 14, padding: "22px 24px", border: "1px solid #e2e8f0", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>WhatsApp Messages</span>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <MessageSquare size={18} color="#16a34a" />
+        <div style={{ background: "#fff", borderRadius: 16, padding: "26px 28px", border: "1px solid #e2e8f0", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp Rate</span>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <MessageSquare size={20} color="#16a34a" />
             </div>
           </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>
-            {costs.whatsapp || 1} Credit <span style={{ fontSize: 13, fontWeight: 500, color: "#64748b" }}>/ message</span>
+          <div style={{ fontSize: 28, fontWeight: 900, color: "#0f172a", marginBottom: 4, letterSpacing: "-0.5px" }}>
+            {costs.whatsapp || 1} <span style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}>credit</span>
           </div>
-          <div style={{ fontSize: 12, color: "#16a34a", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>per message</div>
+          <div style={{ marginTop: 14, fontSize: 12, color: "#16a34a", fontWeight: 600, display: "flex", alignItems: "center", gap: 5, background: "#f0fdf4", padding: "5px 10px", borderRadius: 8, border: "1px solid #bbf7d0" }}>
             <CheckCircle2 size={13} /> Meta Business API Active
           </div>
         </div>
 
-        {/* SMS Channel Rate Card */}
-        <div style={{ background: "#fff", borderRadius: 14, padding: "22px 24px", border: "1px solid #e2e8f0", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Transactional SMS</span>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Smartphone size={18} color="#2563eb" />
+        <div style={{ background: "#fff", borderRadius: 16, padding: "26px 28px", border: "1px solid #e2e8f0", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>SMS Rate</span>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Smartphone size={20} color="#2563eb" />
             </div>
           </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>
-            {costs.sms || 1} Credit <span style={{ fontSize: 13, fontWeight: 500, color: "#64748b" }}>/ SMS</span>
+          <div style={{ fontSize: 28, fontWeight: 900, color: "#0f172a", marginBottom: 4, letterSpacing: "-0.5px" }}>
+            {costs.sms || 1} <span style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}>credit</span>
           </div>
-          <div style={{ fontSize: 12, color: "#2563eb", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>per SMS</div>
+          <div style={{ marginTop: 14, fontSize: 12, color: "#2563eb", fontWeight: 600, display: "flex", alignItems: "center", gap: 5, background: "#eff6ff", padding: "5px 10px", borderRadius: 8, border: "1px solid #bfdbfe" }}>
             <CheckCircle2 size={13} /> DLT Registered Sender ID
-          </div>
-        </div>
-
-        {/* Expiry / Platform Guarantee */}
-        <div style={{ background: "#fff", borderRadius: 14, padding: "22px 24px", border: "1px solid #e2e8f0", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Validity & Policy</span>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: "#fef3c7", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <ShieldCheck size={18} color="#d97706" />
-            </div>
-          </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>
-            Zero Expiry
-          </div>
-          <div style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>
-            Credits never expire on active salons
           </div>
         </div>
 
       </div>
 
-      {/* PACKAGES SECTION */}
+      <div style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", borderRadius: 16, padding: "22px 28px", marginBottom: 32, border: "1px solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: 18 }}>
+        <div style={{ background: "#fff", borderRadius: 12, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+          <Calculator size={20} color="#2563eb" />
+        </div>
+        <div style={{ flex: 1 }}>
+          <h4 style={{ margin: "0 0 10px 0", fontSize: 15, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+            <TrendingUp size={16} color="#2563eb" /> Usage Estimate
+          </h4>
+          <p style={{ margin: "0 0 14px 0", fontSize: 13.5, color: "#475569", lineHeight: 1.5 }}>
+            With <strong>{balance.toLocaleString()} credits</strong> you can send approximately:
+          </p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "10px 16px", borderRadius: 10, border: "1px solid #e2e8f0", flex: "1 1 200px" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <MessageSquare size={18} color="#16a34a" />
+              </div>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>
+                  {Math.floor(balance / (costs.whatsapp || 1)).toLocaleString()}
+                </div>
+                <div style={{ fontSize: 11.5, color: "#64748b", fontWeight: 500 }}>WhatsApp messages</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "10px 16px", borderRadius: 10, border: "1px solid #e2e8f0", flex: "1 1 200px" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Smartphone size={18} color="#2563eb" />
+              </div>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>
+                  {Math.floor(balance / (costs.sms || 1)).toLocaleString()}
+                </div>
+                <div style={{ fontSize: 11.5, color: "#64748b", fontWeight: 500 }}>SMS messages</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div style={{ marginBottom: 40 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
           <div>
@@ -291,7 +312,6 @@ export default function WhatsAppCreditsPage() {
             </p>
           </div>
 
-          {/* Filter Tabs */}
           <div style={{ display: "flex", background: "#f1f5f9", padding: 4, borderRadius: 10, gap: 4 }}>
             {[
               { id: "ALL", label: "All Packages" },
@@ -321,7 +341,6 @@ export default function WhatsAppCreditsPage() {
           </div>
         </div>
 
-        {/* Packages Grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
           {filteredPackages.map((pkg) => {
             const isPopular = pkg.credits === 2000 || pkg.name.toLowerCase().includes("growth");
@@ -357,7 +376,6 @@ export default function WhatsAppCreditsPage() {
                     </div>
                   </div>
 
-                  {/* Pricing Box */}
                   <div style={{ margin: "16px 0 20px 0", padding: "14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #f1f5f9", display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
                     <div>
                       <span style={{ fontSize: 26, fontWeight: 900, color: "#0f172a" }}>{formatCurrency(pkg.price)}</span>
@@ -368,7 +386,6 @@ export default function WhatsAppCreditsPage() {
                     </span>
                   </div>
 
-                  {/* Features List */}
                   <div style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 24 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#334155" }}>
                       <CheckCircle2 size={15} color="#16a34a" /> Instant POS Invoice Sharing (WhatsApp & SMS)
@@ -428,8 +445,59 @@ export default function WhatsAppCreditsPage() {
         </div>
       </div>
 
-      {/* TRANSACTION HISTORY TABLE */}
-      <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+      {/* SMS USAGE STATS */}
+      {smsUsage.stats.total > 0 && (
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div>
+              <h2 style={{ margin: "0 0 4px 0", fontSize: 20, fontWeight: 800, color: "#0f172a" }}>SMS Usage</h2>
+              <p style={{ margin: 0, color: "#64748b", fontSize: 13.5 }}>Your recent SMS sending activity</p>
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #bbf7d0" }}>{smsUsage.stats.totalSent} Sent</span>
+              <span style={{ background: "#fef2f2", color: "#dc2626", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #fecaca" }}>{smsUsage.stats.totalFailed} Failed</span>
+              <span style={{ background: "#eff6ff", color: "#2563eb", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #bfdbfe" }}>{smsUsage.stats.totalCreditsUsed} Credits Used</span>
+            </div>
+          </div>
+          <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: 700, fontSize: 12, textTransform: "uppercase" }}>
+                  <th style={{ padding: "12px 20px" }}>Date</th>
+                  <th style={{ padding: "12px 20px" }}>Phone</th>
+                  <th style={{ padding: "12px 20px" }}>Provider</th>
+                  <th style={{ padding: "12px 20px" }}>Credits</th>
+                  <th style={{ padding: "12px 20px" }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {smsUsage.logs.slice(0, 20).map((log) => (
+                  <tr key={log.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <td style={{ padding: "12px 20px", color: "#475569" }}>
+                      <div style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(log.createdAt).toLocaleDateString([], { dateStyle: "medium" })}</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(log.createdAt).toLocaleTimeString([], { timeStyle: "short" })}</div>
+                    </td>
+                    <td style={{ padding: "12px 20px", fontWeight: 600, color: "#0f172a", fontFamily: "monospace" }}>{log.phone}</td>
+                    <td style={{ padding: "12px 20px", color: "#64748b", textTransform: "capitalize" }}>{log.provider || "-"}</td>
+                    <td style={{ padding: "12px 20px" }}>
+                      <span style={{ fontWeight: 800, color: log.creditsUsed > 0 ? "#2563eb" : "#64748b", background: log.creditsUsed > 0 ? "#eff6ff" : "#f8fafc", padding: "4px 10px", borderRadius: 6, fontSize: 12, border: `1px solid ${log.creditsUsed > 0 ? "#bfdbfe" : "#e2e8f0"}` }}>
+                        {log.creditsUsed || 0}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px 20px" }}>
+                      <span style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: log.status === "SENT" ? "#ecfdf5" : "#fef2f2", color: log.status === "SENT" ? "#059669" : "#dc2626" }}>
+                        {log.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
         <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Recharge & Top-Up History</h3>
@@ -443,18 +511,18 @@ export default function WhatsAppCreditsPage() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
             <thead>
-              <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: 700, fontSize: 12, textTransform: "uppercase" }}>
-                <th style={{ padding: "12px 20px" }}>Date & Time</th>
-                <th style={{ padding: "12px 20px" }}>Package</th>
-                <th style={{ padding: "12px 20px" }}>Credits</th>
-                <th style={{ padding: "12px 20px" }}>Amount Paid</th>
-                <th style={{ padding: "12px 20px" }}>Status</th>
-                <th style={{ padding: "12px 20px" }}>Payment Ref</th>
+              <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0", color: "#475569", fontWeight: 700, fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ padding: "14px 20px" }}>Date & Time</th>
+                <th style={{ padding: "14px 20px" }}>Package</th>
+                <th style={{ padding: "14px 20px" }}>Credits</th>
+                <th style={{ padding: "14px 20px" }}>Amount Paid</th>
+                <th style={{ padding: "14px 20px" }}>Status</th>
+                <th style={{ padding: "14px 20px" }}>Payment Ref</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((tx) => (
-                <tr key={tx.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+              {transactions.map((tx, idx) => (
+                <tr key={tx.id} style={{ borderBottom: "1px solid #f1f5f9", background: idx % 2 === 0 ? "#fff" : "#fafbfc" }}>
                   <td style={{ padding: "14px 20px", color: "#475569" }}>
                     <div style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(tx.createdAt).toLocaleDateString([], { dateStyle: "medium" })}</div>
                     <div style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(tx.createdAt).toLocaleTimeString([], { timeStyle: "short" })}</div>
