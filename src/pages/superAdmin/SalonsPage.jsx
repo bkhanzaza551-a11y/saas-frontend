@@ -263,6 +263,18 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
     }
   };
 
+  const handleResendSalonOwnerInvite = async (salonId) => {
+    setBusyId(salonId);
+    try {
+      const res = await api.post(`/super-admin/salons/${salonId}/resend-owner-invite`);
+      setStatus({ error: "", success: res.data.message || "Invitation email resent to salon owner." });
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to resend owner invitation"), success: "" });
+    } finally {
+      setBusyId("");
+    }
+  };
+
   const handleExportCustomers = async () => {
     try {
       const res = await api.get("/super-admin/export-customers", { responseType: "blob" });
@@ -378,6 +390,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                 <option value="">All Statuses</option>
                 <option value="ACTIVE">Active</option>
                 <option value="TRIAL">Trial</option>
+                <option value="PENDING_VERIFICATION">Pending Verification</option>
                 <option value="SUSPENDED">Suspended</option>
                 <option value="EXPIRED">Expired</option>
               </CustomSelect>
@@ -537,10 +550,10 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
-                  <th style={{ padding: "12px 16px" }}>Salon Name</th>
-                  <th style={{ padding: "12px 16px" }}>Slug / Business Type</th>
-                  <th style={{ padding: "12px 16px" }}>Contact Info</th>
-                  <th style={{ padding: "12px 16px" }}>Active Subscription</th>
+                  <th style={{ padding: "12px 16px" }}>Salon Name & Slug</th>
+                  <th style={{ padding: "12px 16px" }}>City / Location</th>
+                  <th style={{ padding: "12px 16px" }}>Owner & Verification</th>
+                  <th style={{ padding: "12px 16px" }}>Active Plan</th>
                   <th style={{ padding: "12px 16px" }}>Status</th>
                   <th style={{ padding: "12px 16px", textAlign: "right" }}>Actions</th>
                 </tr>
@@ -549,21 +562,45 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                 {salons.map((salon) => {
                   const planName = salon.subscriptions?.[0]?.plan?.name || "No active plan";
                   const isBusy = busyId === salon.id;
+                  const ownerMembership = salon.users?.find(u => u.salonRole === "SALON_OWNER") || salon.users?.[0];
+                  const ownerUser = ownerMembership?.user;
+                  const isOwnerPending = ownerUser?.passwordSetupRequired;
+
                   let statusBg = "#f1f5f9", statusColor = "#64748b", statusLabel = salon.status;
                   if (salon.status === "ACTIVE") { statusBg = "#ecfdf5"; statusColor = "#10b981"; }
                   else if (salon.status === "SUSPENDED") { statusBg = "#fef2f2"; statusColor = "#ef4444"; }
-                  else if (salon.status === "TRIAL") { statusBg = "#fffbeb"; statusColor = "#d97706"; statusLabel = "Pending"; }
+                  else if (salon.status === "TRIAL") { statusBg = "#fffbeb"; statusColor = "#d97706"; statusLabel = "Trial"; }
                   
                   return (
                     <tr key={salon.id} onClick={() => openDetail(salon.id)} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.2s", cursor: "pointer" }} className="table-row-hover">
-                      <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0f172a" }}>{salon.name}</td>
-                      <td style={{ padding: "14px 16px", color: "#475569" }}>
-                        <div>{salon.slug}</div>
-                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{salon.businessType || "Salon"}</div>
+                      <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0f172a" }}>
+                        <div>{salon.name}</div>
+                        <div style={{ fontSize: 11, color: "#64748b", fontWeight: 500, marginTop: 2 }}>{salon.slug}</div>
                       </td>
                       <td style={{ padding: "14px 16px", color: "#475569" }}>
-                        <div>{salon.email || "No email"}</div>
-                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{salon.phone || "No phone"}</div>
+                        <div style={{ fontWeight: 600, color: "#1e293b" }}>{salon.city || "-"}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{salon.country || "India"}</div>
+                      </td>
+                      <td style={{ padding: "14px 16px", color: "#475569" }}>
+                        {ownerUser ? (
+                          <div>
+                            <div style={{ fontWeight: 600, color: "#0f172a" }}>{ownerUser.name}</div>
+                            <div style={{ fontSize: 11, color: "#64748b" }}>{ownerUser.email}</div>
+                            <div style={{ marginTop: 4 }}>
+                              {isOwnerPending ? (
+                                <span style={{ background: "#fef3c7", color: "#92400e", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>
+                                  ⏳ Invitation Pending
+                                </span>
+                              ) : (
+                                <span style={{ background: "#ecfdf5", color: "#065f46", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>
+                                  ✓ Verified
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <span style={{ color: "#94a3b8", fontSize: 11 }}>No owner linked</span>
+                        )}
                       </td>
                       <td style={{ padding: "14px 16px" }}>
                         <span style={{ background: "#f5f3ff", color: "#8b5cf6", fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>
@@ -576,20 +613,25 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                         </span>
                       </td>
                       <td style={{ padding: "14px 16px", textAlign: "right" }} onClick={(e) => e.stopPropagation()}>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                          <button type="button" onClick={() => openDetail(salon.id)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-                            View Profile
+                        <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", flexWrap: "wrap" }}>
+                          <button type="button" onClick={() => openDetail(salon.id)} disabled={isBusy} style={{ padding: "6px 10px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                            View
                           </button>
-                          <button type="button" onClick={() => startEdit(salon)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+                          {isOwnerPending && (
+                            <button type="button" onClick={() => handleResendSalonOwnerInvite(salon.id)} disabled={isBusy} title="Resend Account Setup Invitation" style={{ padding: "6px 10px", background: "#e0e7ff", color: "#4338ca", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+                              Resend Invite
+                            </button>
+                          )}
+                          <button type="button" onClick={() => startEdit(salon)} disabled={isBusy} style={{ padding: "6px 10px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
                             Edit
                           </button>
                           {salon.status !== "ACTIVE" && (
-                            <button type="button" onClick={() => updateStatus(salon.id, "ACTIVE")} disabled={isBusy} style={{ padding: "6px 12px", background: "#ecfdf5", color: "#10b981", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+                            <button type="button" onClick={() => updateStatus(salon.id, "ACTIVE")} disabled={isBusy} style={{ padding: "6px 10px", background: "#ecfdf5", color: "#10b981", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
                               Activate
                             </button>
                           )}
                           {salon.status === "ACTIVE" && (
-                            <button type="button" onClick={() => updateStatus(salon.id, "SUSPENDED")} disabled={isBusy} style={{ padding: "6px 12px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+                            <button type="button" onClick={() => updateStatus(salon.id, "SUSPENDED")} disabled={isBusy} style={{ padding: "6px 10px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
                               Suspend
                             </button>
                           )}

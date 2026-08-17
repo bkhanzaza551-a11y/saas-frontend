@@ -157,55 +157,81 @@ export default function Salon360ProfilePage() {
 
   const { salon, owner: ownerData, tickets, payments, productRequests, staffRequests, auditLogs, analytics } = data;
   const branches = salon.branches || [];
-  const featureFlags = data.featureFlags || salon.featureFlags || {};
-  const subscription = data.subscription || (salon.subscriptions && salon.subscriptions[0]) || null;
-  const owner = Array.isArray(ownerData) ? ownerData[0] : ownerData;
-  const sc = statusColor(salon.status);
+  const subscription = salon.subscriptions?.[0];
+  const featureFlags = salon.featureFlags;
+  const owner = ownerData || salon.users?.find(u => u.salonRole === "SALON_OWNER")?.user || salon.users?.[0]?.user;
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
-      <button onClick={() => navigate("/super-admin/salons")} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "#64748b", cursor: "pointer", marginBottom: 20, fontWeight: 600 }}>
-        <ArrowLeft size={16} /> Back to Salons
-      </button>
-
-      {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
-      {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#0f172a" }}>{salon.name}</h1>
-            <span style={{ background: sc.bg, color: sc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>{salon.status}</span>
-          </div>
-          <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>{salon.slug} • {salon.businessType || "Salon"} • {salon.city || "N/A"}</p>
-        </div>
-        <button onClick={handleToggleSuspend} disabled={busyAction === "suspend"} style={{ padding: "8px 16px", borderRadius: 6, fontWeight: 600, border: "none", cursor: busyAction === "suspend" ? "not-allowed" : "pointer", background: salon.status === "SUSPENDED" ? "#ecfdf5" : "#fef2f2", color: salon.status === "SUSPENDED" ? "#10b981" : "#ef4444", opacity: busyAction === "suspend" ? 0.6 : 1 }}>
-          {busyAction === "suspend" ? "Processing..." : salon.status === "SUSPENDED" ? "Unsuspend Salon" : "Suspend Salon"}
+    <div style={{ padding: "24px 32px", maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <button onClick={() => navigate("/super-admin/salons")} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.9rem", fontWeight: 600 }}>
+          <ArrowLeft size={16} /> Back to Salons
+        </button>
+        <button onClick={loadData} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: "white", cursor: "pointer", fontSize: "0.85rem" }}>
+          <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #e2e8f0", marginBottom: 24, overflowX: "auto" }}>
-        {TABS.map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ padding: "12px 16px", background: "none", border: "none", borderBottom: activeTab === tab.id ? "2px solid #4f46e5" : "2px solid transparent", color: activeTab === tab.id ? "#4f46e5" : "#64748b", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-            <tab.icon size={15} /> {tab.label}
+      {status.error && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", padding: "10px 16px", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
+      {status.success && <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#16a34a", padding: "10px 16px", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
+
+      <div style={{ background: "white", borderRadius: 12, padding: 24, border: "1px solid #e2e8f0", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 12, background: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800, fontSize: "1.4rem" }}>
+            {salon.name?.[0]?.toUpperCase() || "S"}
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a" }}>{salon.name}</h2>
+              <span style={{ background: statusColor(salon.status).bg, color: statusColor(salon.status).color, padding: "3px 10px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>
+                {salon.status}
+              </span>
+            </div>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>
+              Slug: <strong>{salon.slug}</strong> • City: <strong>{salon.city || "-"}</strong> • Created: {new Date(salon.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={handleToggleSuspend} disabled={busyAction === "suspend"} style={{ padding: "8px 16px", borderRadius: 6, fontWeight: 600, border: "none", cursor: busyAction === "suspend" ? "not-allowed" : "pointer", background: salon.status === "SUSPENDED" ? "#ecfdf5" : "#fef2f2", color: salon.status === "SUSPENDED" ? "#10b981" : "#ef4444", opacity: busyAction === "suspend" ? 0.6 : 1 }}>
+            {busyAction === "suspend" ? "Processing..." : salon.status === "SUSPENDED" ? "Unsuspend Salon" : "Suspend Salon"}
           </button>
-        ))}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #e2e8f0", marginBottom: 24, overflowX: "auto" }}>
+        {TABS.map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", background: "none", border: "none", borderBottom: isActive ? "2px solid #4f46e5" : "2px solid transparent", color: isActive ? "#4f46e5" : "#64748b", fontWeight: isActive ? 700 : 500, cursor: "pointer", fontSize: "0.9rem", whiteSpace: "nowrap" }}>
+              <Icon size={16} /> {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === "overview" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
           <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-            <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Salon Details</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "12px 0", fontSize: "0.9rem" }}>
-              <div style={{ color: "#64748b" }}>Created</div><div style={{ color: "#334155", fontWeight: 500 }}>{new Date(salon.createdAt).toLocaleDateString()}</div>
+            <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Salon Information</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "12px 0", fontSize: "0.9rem" }}>
+              <div style={{ color: "#64748b" }}>Salon Name</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.name}</div>
               <div style={{ color: "#64748b" }}>Slug</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.slug}</div>
-              <div style={{ color: "#64748b" }}>Business Type</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.businessType || "-"}</div>
-              <div style={{ color: "#64748b" }}>City</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.city || "-"}</div>
-              <div style={{ color: "#64748b" }}>Address</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.address || "-"}</div>
-              <div style={{ color: "#64748b" }}>State</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.state || "-"}</div>
-              <div style={{ color: "#64748b" }}>PIN Code</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.pinCode || "-"}</div>
               <div style={{ color: "#64748b" }}>Email</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.email || "-"}</div>
               <div style={{ color: "#64748b" }}>Phone</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.phone || "-"}</div>
+              <div style={{ color: "#64748b" }}>City</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.city || "-"}</div>
+              <div style={{ color: "#64748b" }}>Address</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.address || "-"}</div>
+              <div style={{ color: "#64748b" }}>State / Country</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.state ? `${salon.state}, ` : ""}{salon.country || "-"}</div>
+              <div style={{ color: "#64748b" }}>PIN Code</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.pinCode || "-"}</div>
+              <div style={{ color: "#64748b" }}>Timezone</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.timezone || "-"}</div>
+              <div style={{ color: "#64748b" }}>Currency / Tax</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.currency || "INR"} / {salon.taxRate != null ? `${salon.taxRate}%` : "0%"}</div>
+              <div style={{ color: "#64748b" }}>Status</div>
+              <div>
+                <span style={{ background: statusColor(salon.status).bg, color: statusColor(salon.status).color, padding: "2px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>
+                  {salon.status}
+                </span>
+              </div>
               {salon.status === "SUSPENDED" && (
                 <>
                   <div style={{ color: "#ef4444", fontWeight: 600 }}>Suspend Reason</div>
@@ -243,14 +269,86 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "owner" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Owner Details</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Owner & Verification Profile</h3>
+            {owner && (
+              <button
+                type="button"
+                onClick={handleResendOwnerInvite}
+                disabled={busyAction === "resend-invite"}
+                style={{
+                  padding: "8px 16px",
+                  background: "#4f46e5",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  cursor: busyAction === "resend-invite" ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <Mail size={14} /> {busyAction === "resend-invite" ? "Sending..." : "Resend Invitation"}
+              </button>
+            )}
+          </div>
           {owner ? (
-            <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "12px 0", fontSize: "0.9rem" }}>
-              <div style={{ color: "#64748b" }}>Name</div><div style={{ color: "#334155", fontWeight: 500 }}>{owner.name}</div>
-              <div style={{ color: "#64748b" }}>Email</div><div style={{ color: "#334155", fontWeight: 500 }}>{owner.email}</div>
-              <div style={{ color: "#64748b" }}>Phone</div><div style={{ color: "#334155", fontWeight: 500 }}>{owner.phone || salon.phone || "-"}</div>
-              <div style={{ color: "#64748b" }}>Role</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.ownerRole || "SALON_OWNER"}</div>
-              <div style={{ color: "#64748b" }}>Joined</div><div style={{ color: "#334155", fontWeight: 500 }}>{owner.createdAt ? new Date(owner.createdAt).toLocaleDateString() : "-"}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "14px 0", fontSize: "0.9rem" }}>
+              <div style={{ color: "#64748b" }}>Owner Name</div><div style={{ color: "#0f172a", fontWeight: 600 }}>{owner.name}</div>
+              <div style={{ color: "#64748b" }}>Email Address</div><div style={{ color: "#0f172a", fontWeight: 500 }}>{owner.email}</div>
+              <div style={{ color: "#64748b" }}>Phone Number</div><div style={{ color: "#0f172a", fontWeight: 500 }}>{owner.phone || salon.phone || "-"}</div>
+              <div style={{ color: "#64748b" }}>System Role</div><div style={{ color: "#4f46e5", fontWeight: 700 }}>SALON_OWNER</div>
+              
+              <div style={{ color: "#64748b" }}>Email / Password Setup</div>
+              <div>
+                {owner.passwordSetupRequired ? (
+                  <span style={{ background: "#fef3c7", color: "#92400e", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
+                    ⏳ Pending Setup (Invitation Sent)
+                  </span>
+                ) : (
+                  <span style={{ background: "#ecfdf5", color: "#065f46", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
+                    ✓ Email Verified & Password Active
+                  </span>
+                )}
+              </div>
+
+              <div style={{ color: "#64748b" }}>Mobile Verification</div>
+              <div>
+                {owner.isPhoneVerified ? (
+                  <span style={{ background: "#ecfdf5", color: "#065f46", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
+                    ✓ Mobile OTP Verified
+                  </span>
+                ) : (
+                  <span style={{ background: "#f1f5f9", color: "#475569", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600 }}>
+                    Pending Verification
+                  </span>
+                )}
+              </div>
+
+              <div style={{ color: "#64748b" }}>Account Status</div>
+              <div>
+                {owner.isActive !== false ? (
+                  <span style={{ background: "#ecfdf5", color: "#065f46", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
+                    Active
+                  </span>
+                ) : (
+                  <span style={{ background: "#fee2e2", color: "#991b1b", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
+                    Inactive
+                  </span>
+                )}
+              </div>
+
+              <div style={{ color: "#64748b" }}>Last Login</div>
+              <div style={{ color: "#334155", fontWeight: 500 }}>
+                {owner.lastLoginAt ? new Date(owner.lastLoginAt).toLocaleString() : "Never Logged In"}
+              </div>
+
+              <div style={{ color: "#64748b" }}>Account Created</div>
+              <div style={{ color: "#334155", fontWeight: 500 }}>
+                {owner.createdAt ? new Date(owner.createdAt).toLocaleString() : "-"}
+              </div>
             </div>
           ) : (
             <p style={{ color: "#64748b" }}>No owner assigned.</p>
