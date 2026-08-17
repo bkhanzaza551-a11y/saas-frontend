@@ -140,6 +140,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
   };
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [suspendModalData, setSuspendModalData] = useState(null);
 
   const openDetail = async (salonId) => {
     navigate(`/super-admin/salons/${salonId}`);
@@ -161,62 +162,52 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
       });
       setIsModalOpen(true);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load salon details for editing."), success: "" });
+      setStatus({ error: formatApiError(err, "Failed to load salon details for editing"), success: "" });
     } finally {
       setDetailLoading(false);
     }
   };
 
   const toggleFeature = async (salonId, key) => {
-    let nextFlags;
-    let previousFlags;
-
+    let previousFlags = {};
+    let nextFlags = {};
+    const reason = window.prompt(`Enter reason for manual override of ${key}:`, "Special requirement");
+    if (reason === null) return;
+    
     setSelectedSalon((prev) => {
-      if (prev?.id !== salonId) return prev;
+      if (!prev) return prev;
       previousFlags = { ...prev.featureFlags };
       nextFlags = { ...defaultFlags, ...(prev.featureFlags || {}), [key]: !(prev.featureFlags?.[key]) };
       return { ...prev, featureFlags: nextFlags };
     });
-
-    setSalons((prev) => prev.map((s) => {
-      if (s.id !== salonId) return s;
-      if (!previousFlags) {
+    setSalons((prev) =>
+      prev.map((s) => {
+        if (s.id !== salonId) return s;
         previousFlags = { ...s.featureFlags };
         nextFlags = { ...defaultFlags, ...(s.featureFlags || {}), [key]: !(s.featureFlags?.[key]) };
-      }
-      return { ...s, featureFlags: nextFlags };
-    }));
-
+        return { ...s, featureFlags: nextFlags };
+      })
+    );
     try {
-      await api.patch(`/super-admin/salons/${salonId}/features`, { featureFlags: nextFlags });
+      await api.patch(`/super-admin/salons/${salonId}/features`, { featureFlags: nextFlags, overrideReason: reason });
+      setStatus({ error: "", success: `Feature '${key}' updated with override reason.` });
     } catch (err) {
-      if (previousFlags) {
-        setSelectedSalon((prev) => prev?.id === salonId ? { ...prev, featureFlags: previousFlags } : prev);
-        setSalons((prev) => prev.map((s) => s.id === salonId ? { ...s, featureFlags: previousFlags } : s));
-      }
+      setSelectedSalon((prev) => prev?.id === salonId ? { ...prev, featureFlags: previousFlags } : prev);
+      setSalons((prev) => prev.map((s) => s.id === salonId ? { ...s, featureFlags: previousFlags } : s));
       setStatus({ error: formatApiError(err, "Could not toggle feature"), success: "" });
-    }
-  };
-  const exportData = async (salonId, type) => {
-    try {
-      const response = await api.get(`/super-admin/salons/${salonId}/export/${type}`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${type}-export.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) {
-      setStatus({ error: formatApiError(err, `Could not export ${type}`), success: "" });
     }
   };
 
   const impersonate = async (salonId) => {
     setBusyId(salonId);
     try {
-      const res = await api.post(`/super-admin/salons/${salonId}/impersonate`);
-      setStatus({ error: "", success: res.data.message });
+      const response = await api.post(`/super-admin/salons/${salonId}/impersonate`);
+      const { token, user } = response.data;
+      if (token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        window.location.href = "/admin/dashboard";
+      }
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not impersonate salon"), success: "" });
     } finally {
@@ -225,22 +216,48 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
   };
 
   const updateStatus = async (salonId, newStatus) => {
-    let payload = { status: newStatus };
-    
     if (newStatus === "SUSPENDED") {
-      const reason = window.prompt("Enter reason for suspension:");
-      if (reason === null) return;
-      payload.reason = reason;
-      payload.internalNote = `Suspended by admin: ${reason}`;
+      const target = salons.find(s => s.id === salonId) || selectedSalon;
+      setSuspendModalData({
+        salonId,
+        salonName: target?.name || "Salon",
+        reason: "Non-Payment / Overdue",
+        internalNote: ""
+      });
+      return;
     }
     
     setBusyId(salonId);
     try {
-      await api.patch(`/super-admin/salons/${salonId}/status`, payload);
+      await api.patch(`/super-admin/salons/${salonId}/status`, { status: newStatus, reason: "Reactivated by admin" });
       setStatus({ error: "", success: `Salon status updated to ${newStatus}.` });
       await load();
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not update status"), success: "" });
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const handleConfirmSuspend = async () => {
+    if (!suspendModalData) return;
+    const { salonId, reason, internalNote } = suspendModalData;
+    if (!reason.trim()) {
+      setStatus({ error: "Please specify a suspension reason.", success: "" });
+      return;
+    }
+    setBusyId(salonId);
+    try {
+      await api.patch(`/super-admin/salons/${salonId}/status`, {
+        status: "SUSPENDED",
+        reason: reason.trim(),
+        internalNote: internalNote || `Suspended by admin: ${reason.trim()}`
+      });
+      setStatus({ error: "", success: `Salon suspended successfully.` });
+      setSuspendModalData(null);
+      await load();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not suspend salon"), success: "" });
     } finally {
       setBusyId("");
     }
@@ -761,6 +778,71 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
 
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Suspend Salon Modal */}
+      {suspendModalData && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 480, borderRadius: 16, padding: "24px 28px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#dc2626" }}>
+                <AlertCircle size={20} />
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#991b1b" }}>Suspend Salon</h3>
+              </div>
+              <button onClick={() => setSuspendModalData(null)} style={{ border: "none", background: "#f1f5f9", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", color: "#64748b" }}>✕</button>
+            </div>
+
+            <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "#475569" }}>
+              Suspending <strong>{suspendModalData.salonName}</strong> will immediately disable customer booking, staff access, and pause active subscriptions.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", marginBottom: 6 }}>Reason for Suspension *</label>
+                <select
+                  value={suspendModalData.reason}
+                  onChange={(e) => setSuspendModalData({ ...suspendModalData, reason: e.target.value })}
+                  style={{ width: "100%", height: 40, borderRadius: 8, border: "1px solid #cbd5e1", padding: "0 10px", fontSize: "0.85rem" }}
+                >
+                  <option value="Non-Payment / Overdue">Non-Payment / Overdue</option>
+                  <option value="Terms of Service Violation">Terms of Service Violation</option>
+                  <option value="Salon Owner Request">Salon Owner Request</option>
+                  <option value="Fraud / Suspicious Activity">Fraud / Suspicious Activity</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", marginBottom: 6 }}>Internal Notes</label>
+                <textarea
+                  rows={3}
+                  value={suspendModalData.internalNote}
+                  onChange={(e) => setSuspendModalData({ ...suspendModalData, internalNote: e.target.value })}
+                  placeholder="Add specific details or audit notes for this suspension..."
+                  style={{ width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", padding: 10, fontSize: "0.85rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => setSuspendModalData(null)}
+                  style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#64748b", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmSuspend}
+                  disabled={busyId === suspendModalData.salonId}
+                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#dc2626", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  {busyId === suspendModalData.salonId ? "Suspending..." : "Confirm Suspension"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

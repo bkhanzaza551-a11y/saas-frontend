@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
@@ -9,7 +9,7 @@ import {
   ArrowLeft, Building2, User, CreditCard, Ticket, ShieldCheck,
   Landmark, Key, Package, Users, BarChart3, Activity as ActivityIcon,
   Download, RefreshCw, Eye, Calendar, Clock, CheckCircle2, XCircle,
-  AlertTriangle, Scissors, Mail, Phone, MapPin
+  AlertTriangle, Scissors, Mail, Phone, MapPin, AlertCircle
 } from "lucide-react";
 
 const TABS = [
@@ -23,8 +23,7 @@ const TABS = [
   { id: "staffRequests", label: "Staff Requests", icon: Users },
   { id: "support", label: "Support", icon: Ticket },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "activity", label: "Activity", icon: ActivityIcon },
-  { id: "dataExport", label: "Data Export", icon: Download },
+  { id: "auditLogs", label: "Audit Logs", icon: ActivityIcon }
 ];
 
 const statusColor = (s) => {
@@ -34,10 +33,12 @@ const statusColor = (s) => {
   return { bg: "#f1f5f9", color: "#64748b" };
 };
 
-const FeatureFlagCard = ({ label, enabled }) => (
+const FeatureFlagCard = ({ label, enabled, onToggle }) => (
   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: enabled ? "#f0fdf4" : "#fef2f2", border: `1px solid ${enabled ? "#bbf7d0" : "#fecaca"}`, borderRadius: 8 }}>
     <span style={{ fontSize: "0.85rem", fontWeight: 500, color: "#334155" }}>{label}</span>
-    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: enabled ? "#16a34a" : "#dc2626" }}>{enabled ? "ON" : "OFF"}</span>
+    <button onClick={onToggle} style={{ fontSize: "0.75rem", fontWeight: 700, color: enabled ? "#16a34a" : "#dc2626", background: "none", border: "none", cursor: "pointer" }}>
+      {enabled ? "ON" : "OFF"}
+    </button>
   </div>
 );
 
@@ -46,20 +47,22 @@ export default function Salon360ProfilePage() {
   const navigate = useNavigate();
   const { showConfirm } = useAlert();
 
+  const [activeTab, setActiveTab] = useState("overview");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
-  const [activeTab, setActiveTab] = useState("overview");
   const [busyAction, setBusyAction] = useState("");
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [suspendReason, setSuspendReason] = useState("Non-Payment / Overdue");
+  const [suspendNote, setSuspendNote] = useState("");
 
   const loadData = useCallback(async () => {
-    setLoading(true);
-    setStatus({ error: "", success: "" });
     try {
-      const res = await api.get(`/super-admin/salons/${id}/full`);
+      setLoading(true);
+      const res = await api.get(`/super-admin/salons/${id}/360`);
       setData(res.data);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load salon details."), success: "" });
+      setStatus({ error: formatApiError(err), success: "" });
     } finally {
       setLoading(false);
     }
@@ -82,23 +85,49 @@ export default function Salon360ProfilePage() {
         }
       });
     } else {
-      const reason = window.prompt("Enter the reason for suspension (required):");
-      if (reason && reason.trim()) {
-        showConfirm(`Suspend this salon? Reason: ${reason}`, async () => {
-          setBusyAction("suspend");
-          try {
-            await api.patch(`/super-admin/salons/${id}/status`, { status: "SUSPENDED", reason: reason.trim(), internalNote: `Suspended by admin: ${reason.trim()}` });
-            setStatus({ error: "", success: "Salon suspended." });
-            await loadData();
-          } catch (err) {
-            setStatus({ error: formatApiError(err), success: "" });
-          } finally {
-            setBusyAction("");
-          }
-        });
-      } else if (reason !== null) {
-        window.alert("Suspension reason is required.");
-      }
+      setIsSuspendModalOpen(true);
+    }
+  };
+
+  const handleConfirmSuspend = async () => {
+    if (!suspendReason.trim()) {
+      setStatus({ error: "Suspension reason is required.", success: "" });
+      return;
+    }
+    setBusyAction("suspend");
+    try {
+      await api.patch(`/super-admin/salons/${id}/status`, {
+        status: "SUSPENDED",
+        reason: suspendReason.trim(),
+        internalNote: suspendNote || `Suspended by admin: ${suspendReason.trim()}`
+      });
+      setStatus({ error: "", success: "Salon suspended successfully." });
+      setIsSuspendModalOpen(false);
+      await loadData();
+    } catch (err) {
+      setStatus({ error: formatApiError(err), success: "" });
+    } finally {
+      setBusyAction("");
+    }
+  };
+
+  const toggleFeatureOverride = async (key, currentVal) => {
+    const reason = window.prompt(`Enter reason for manual override of ${key}:`, "Special operational override");
+    if (reason === null) return;
+    const currentFlags = data?.salon?.featureFlags || {};
+    const nextFlags = { ...currentFlags, [key]: !currentVal };
+    setBusyAction(`feature-${key}`);
+    try {
+      await api.patch(`/super-admin/salons/${id}/features`, {
+        featureFlags: nextFlags,
+        overrideReason: reason
+      });
+      setStatus({ error: "", success: `Feature '${key}' updated with override reason.` });
+      await loadData();
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not update feature flag"), success: "" });
+    } finally {
+      setBusyAction("");
     }
   };
 
@@ -263,7 +292,27 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "subscriptions" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Current Subscription</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Current Subscription</h3>
+            <Link
+              to={`/super-admin/subscriptions?q=${encodeURIComponent(salon.name)}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 16px",
+                background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+                color: "#fff",
+                borderRadius: 8,
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)"
+              }}
+            >
+              Manage Subscription in Subscriptions Module →
+            </Link>
+          </div>
           {subscription ? (
             <div style={{ border: "1px solid #e2e8f0", padding: 20, borderRadius: 10 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -277,10 +326,10 @@ export default function Salon360ProfilePage() {
               </div>
               {subscription.plan?.featureFlags && (
                 <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-                  <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Plan Features</div>
+                  <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Included Plan Features (Automatic Access)</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {Object.entries(subscription.plan.featureFlags).filter(([_, v]) => v).map(([k]) => (
-                      <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600 }}>{k}</span>
+                      <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, border: "1px solid #bbf7d0" }}>✓ {k}</span>
                     ))}
                   </div>
                 </div>
@@ -294,12 +343,52 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "features" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Feature Access</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Feature Access & Manual Overrides</h3>
+              <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#64748b" }}>Plan features are automatically granted. Manual overrides require a special exception reason.</p>
+            </div>
+          </div>
           {featureFlags && Object.keys(featureFlags).length > 0 ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-              {Object.entries(featureFlags).sort(([a], [b]) => a.localeCompare(b)).map(([key, enabled]) => (
-                <FeatureFlagCard key={key} label={key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())} enabled={!!enabled} />
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
+              {Object.entries(featureFlags).sort(([a], [b]) => a.localeCompare(b)).map(([key, enabled]) => {
+                const planIncluded = subscription?.plan?.featureFlags?.[key] === true;
+                const isOverridden = enabled !== planIncluded;
+                return (
+                  <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: enabled ? "#f0fdf4" : "#f8fafc", border: `1px solid ${enabled ? "#bbf7d0" : "#e2e8f0"}`, borderRadius: 10 }}>
+                    <div>
+                      <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b" }}>{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</div>
+                      <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                        {planIncluded ? (
+                          <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#15803d", background: "#dcfce7", padding: "2px 6px", borderRadius: 4 }}>Included in Plan</span>
+                        ) : (
+                          <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "#64748b", background: "#f1f5f9", padding: "2px 6px", borderRadius: 4 }}>Not in Plan</span>
+                        )}
+                        {isOverridden && (
+                          <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "#b45309", background: "#fef3c7", padding: "2px 6px", borderRadius: 4 }}>⚡ Manual Override</span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => toggleFeatureOverride(key, enabled)}
+                      disabled={busyAction === `feature-${key}`}
+                      style={{
+                        padding: "6px 12px",
+                        fontSize: "0.75rem",
+                        fontWeight: 800,
+                        color: enabled ? "#16a34a" : "#dc2626",
+                        background: enabled ? "#dcfce7" : "#fee2e2",
+                        border: `1px solid ${enabled ? "#86efac" : "#fca5a5"}`,
+                        borderRadius: 6,
+                        cursor: "pointer"
+                      }}
+                    >
+                      {busyAction === `feature-${key}` ? "Saving..." : (enabled ? "ENABLED" : "DISABLED")}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <EmptyState message="No feature flags configured for this salon." />
@@ -543,6 +632,71 @@ export default function Salon360ProfilePage() {
                 <Download size={15} /> {busyAction === `export-${exp.type}` ? "Exporting..." : exp.label}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Suspend Salon Modal */}
+      {isSuspendModalOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 480, borderRadius: 16, padding: "24px 28px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#dc2626" }}>
+                <AlertCircle size={20} />
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#991b1b" }}>Suspend Salon</h3>
+              </div>
+              <button onClick={() => setIsSuspendModalOpen(false)} style={{ border: "none", background: "#f1f5f9", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", color: "#64748b" }}>✕</button>
+            </div>
+
+            <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "#475569" }}>
+              Suspending <strong>{salon.name}</strong> will immediately revoke login access for all staff and pause public client booking.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", marginBottom: 6 }}>Reason for Suspension *</label>
+                <select
+                  value={suspendReason}
+                  onChange={(e) => setSuspendReason(e.target.value)}
+                  style={{ width: "100%", height: 40, borderRadius: 8, border: "1px solid #cbd5e1", padding: "0 10px", fontSize: "0.85rem" }}
+                >
+                  <option value="Non-Payment / Overdue">Non-Payment / Overdue</option>
+                  <option value="Terms of Service Violation">Terms of Service Violation</option>
+                  <option value="Salon Owner Request">Salon Owner Request</option>
+                  <option value="Fraud / Suspicious Activity">Fraud / Suspicious Activity</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", marginBottom: 6 }}>Internal Notes</label>
+                <textarea
+                  rows={3}
+                  value={suspendNote}
+                  onChange={(e) => setSuspendNote(e.target.value)}
+                  placeholder="Add specific details or audit notes for this suspension..."
+                  style={{ width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", padding: 10, fontSize: "0.85rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => setIsSuspendModalOpen(false)}
+                  style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#64748b", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmSuspend}
+                  disabled={busyAction === "suspend"}
+                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#dc2626", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  {busyAction === "suspend" ? "Suspending..." : "Confirm Suspension"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
