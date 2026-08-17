@@ -5,7 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { CheckCircle, XCircle, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2 } from "lucide-react";
 
 const PIPELINE = [
   { value: "NEW", label: "New", color: "#3b82f6", bg: "#eff6ff" },
@@ -28,39 +28,23 @@ const LEAD_SOURCES = [
 ];
 
 const LOST_REASONS = [
-  { label: "Not Interested", value: "NOT_INTERESTED" },
-  { label: "Price", value: "PRICE" },
-  { label: "No Response", value: "NO_RESPONSE" },
-  { label: "Competitor Selected", value: "COMPETITOR" },
-  { label: "Not Qualified", value: "NOT_QUALIFIED" },
-  { label: "Timing Issue", value: "TIMING_ISSUE" },
-  { label: "Duplicate Lead", value: "DUPLICATE" },
-  { label: "Other", value: "OTHER" }
+  { value: "BUDGET", label: "Too Expensive / Budget Issue" },
+  { value: "COMPETITOR", label: "Chose Competitor" },
+  { value: "NO_RESPONSE", label: "No Response / Unreachable" },
+  { value: "NOT_INTERESTED", label: "Not Interested Anymore" },
+  { value: "FEATURE_GAP", label: "Missing Required Features" },
+  { value: "WRONG_FIT", label: "Wrong Fit / Not a Salon" },
+  { value: "OTHER", label: "Other (Specify in notes)" }
 ];
 
 const ACTIVITY_META = {
-  LEAD_CREATED: { label: "Lead created", color: "#3b82f6", bg: "#eff6ff" },
-  LEAD_ASSIGNED: { label: "Assigned", color: "#8b5cf6", bg: "#f5f3ff" },
-  LEAD_CONTACTED: { label: "Contacted", color: "#10b981", bg: "#ecfdf5" },
-  DEMO_SCHEDULED: { label: "Demo scheduled", color: "#f59e0b", bg: "#fffbeb" },
-  FOLLOWUP_SET: { label: "Follow-up set", color: "#0ea5e9", bg: "#f0f9ff" },
-  PURCHASE_LINK_SENT: { label: "Purchase link sent", color: "#0ea5e9", bg: "#f0f9ff" },
-  LEAD_CONVERTED: { label: "Converted", color: "#16a34a", bg: "#ecfdf5" },
-  LEAD_LOST: { label: "Lost", color: "#ef4444", bg: "#fef2f2" },
-  INVITE_RESENT: { label: "Invite resent", color: "#64748b", bg: "#f1f5f9" }
-};
-
-const getStatusMeta = (status) => PIPELINE.find(s => s.value === status) || PIPELINE[0];
-
-const emptyDraft = {
-  planId: "",
-  salonName: "",
-  businessType: "Salon",
-  trialDays: 30,
-  reviewNote: "",
-  meetingScheduledAt: "",
-  meetingLink: "",
-  billingCycle: "monthly"
+  LEAD_CREATED: { label: "Lead Inquired", color: "#3b82f6", bg: "#eff6ff" },
+  MARKED_CONTACTED: { label: "Marked Contacted", color: "#8b5cf6", bg: "#f5f3ff" },
+  MEETING_SCHEDULED: { label: "Demo Scheduled", color: "#f59e0b", bg: "#fffbeb" },
+  PURCHASE_LINK_SENT: { label: "Pay Link Sent", color: "#6366f1", bg: "#e0e7ff" },
+  LEAD_CONVERTED: { label: "Converted to Salon", color: "#10b981", bg: "#ecfdf5" },
+  LEAD_REJECTED: { label: "Marked as Lost", color: "#ef4444", bg: "#fef2f2" },
+  NOTE_ADDED: { label: "Note Added", color: "#64748b", bg: "#f1f5f9" }
 };
 
 const emptyLeadForm = {
@@ -68,19 +52,34 @@ const emptyLeadForm = {
   email: "",
   phone: "",
   company: "",
-  leadSource: "Website",
+  planId: "",
+  source: "Website",
   message: "",
-  leadNotes: "",
+  city: "Mumbai"
+};
+
+const emptyDraft = {
+  salonName: "",
+  planId: "",
+  trialDays: 30,
+  meetingScheduledAt: "",
+  meetingLink: "",
   assignedUserId: "",
-  nextFollowUpAt: ""
+  nextFollowUpAt: "",
+  lostReason: "",
+  lostNotes: "",
+  leadNotes: "",
+  city: "Mumbai",
+  billingCycle: "monthly"
 };
 
 export default function DemoLeadsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [rows, setRows] = useState([]);
   const [plans, setPlans] = useState([]);
   const [staff, setStaff] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
 
+  // URL-driven filters
   const filters = useMemo(() => ({
     q: searchParams.get("q") || "",
     status: searchParams.get("status") || "",
@@ -91,12 +90,16 @@ export default function DemoLeadsPage() {
     followUp: searchParams.get("followUp") || ""
   }), [searchParams]);
 
-  const setFilters = (next) => {
-    const patch = typeof next === "function" ? next(filters) : next;
-    setSearchParams((prev) => {
-      const keys = ["q", "status", "assigned", "source", "from", "to", "followUp"];
-      keys.forEach((k) => {
-        const v = patch[k];
+  const setFilterParam = (key, val) => {
+    setSearchParams(prev => {
+      if (val) prev.set(key, val); else prev.delete(key);
+      return prev;
+    });
+  };
+
+  const setFilterParams = (patch) => {
+    setSearchParams(prev => {
+      Object.entries(patch).forEach(([k, v]) => {
         if (v) prev.set(k, v); else prev.delete(k);
       });
       return prev;
@@ -105,6 +108,7 @@ export default function DemoLeadsPage() {
 
   const [drafts, setDrafts] = useState({});
   const [busyId, setBusyId] = useState("");
+  const [actionType, setActionType] = useState("");
   const [feedback, setFeedback] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
   const [lastApprovedLead, setLastApprovedLead] = useState(null);
@@ -211,6 +215,8 @@ export default function DemoLeadsPage() {
   };
 
   const generateZohoMeetingLink = async (leadId) => {
+    setBusyId(leadId);
+    setActionType("generate-link");
     try {
       const res = await api.post(`/super-admin/demo-leads/${leadId}/create-zoho-meeting`, {});
       if (res.data?.meetingUrl) {
@@ -220,6 +226,9 @@ export default function DemoLeadsPage() {
       console.warn("Backend Zoho API call failed, generating room URL:", err);
       const meetCode = `rsp-${Math.random().toString(36).substring(2, 8)}`;
       updateDraft(leadId, "meetingLink", `https://meeting.zoho.com/meeting/join?key=${meetCode}`);
+    } finally {
+      setBusyId("");
+      setActionType("");
     }
   };
 
@@ -247,6 +256,7 @@ export default function DemoLeadsPage() {
 
   const markContacted = async (leadId) => {
     setBusyId(leadId);
+    setActionType("mark-contacted");
     setFeedback({ error: "", success: "" });
     try {
       await api.post(`/super-admin/demo-leads/${leadId}/contacted`);
@@ -256,16 +266,19 @@ export default function DemoLeadsPage() {
       setFeedback({ error: formatApiError(error, "Could not update lead status."), success: "" });
     } finally {
       setBusyId("");
+      setActionType("");
     }
   };
 
   const scheduleMeeting = async (leadId) => {
     setBusyId(leadId);
+    setActionType("save-demo");
     setFeedback({ error: "", success: "" });
     const draft = draftsById[leadId];
     if (!draft.meetingScheduledAt || !draft.meetingLink) {
       setFeedback({ error: "Please fill meeting date/time and meeting link before scheduling.", success: "" });
       setBusyId("");
+      setActionType("");
       return;
     }
     try {
@@ -279,16 +292,19 @@ export default function DemoLeadsPage() {
       setFeedback({ error: formatApiError(error, "Could not schedule meeting."), success: "" });
     } finally {
       setBusyId("");
+      setActionType("");
     }
   };
 
   const sendPurchaseLink = async (leadId) => {
     setBusyId(leadId);
+    setActionType("send-pay-link");
     setFeedback({ error: "", success: "" });
     const draft = draftsById[leadId];
     if (!draft.planId) {
       setFeedback({ error: "Please select a subscription plan before sending the purchase link.", success: "" });
       setBusyId("");
+      setActionType("");
       return;
     }
     try {
@@ -299,17 +315,20 @@ export default function DemoLeadsPage() {
       setFeedback({ error: formatApiError(error, "Could not send purchase link."), success: "" });
     } finally {
       setBusyId("");
+      setActionType("");
     }
   };
 
   const approveLead = async (leadId) => {
     setBusyId(leadId);
+    setActionType("convert");
     setFeedback({ error: "", success: "" });
     setLastApprovedLead(null);
     const draft = draftsById[leadId];
     if (!draft.planId) {
       setFeedback({ error: "Please select a subscription plan before creating the salon.", success: "" });
       setBusyId("");
+      setActionType("");
       return;
     }
     try {
@@ -317,30 +336,34 @@ export default function DemoLeadsPage() {
       setLastApprovedLead(response.data);
       setFeedback({
         error: response.data.emailError ? `Salon created but email failed: ${response.data.emailError}` : "",
-        success: response.data.owner.isDemoAccount
-          ? `Demo salon created for ${response.data.owner.email}. Salon: ${response.data.salon.name}`
-          : `Salon created. Login details sent to ${response.data.owner.email}.`
+        success: response.data.owner?.isDemoAccount
+          ? `Demo salon created for ${response.data.owner?.email}. Salon: ${response.data.salon?.name}`
+          : `Salon created. Login details sent to ${response.data.owner?.email}.`
       });
       await load();
     } catch (error) {
       setFeedback({ error: formatApiError(error, "Could not create salon."), success: "" });
     } finally {
       setBusyId("");
+      setActionType("");
     }
   };
 
   const rejectLead = async (leadId) => {
     setBusyId(leadId);
+    setActionType("reject");
     setFeedback({ error: "", success: "" });
     const draft = draftsById[leadId];
     if (!draft.lostReason) {
       setFeedback({ error: "Please select a reason for marking as lost.", success: "" });
       setBusyId("");
+      setActionType("");
       return;
     }
     if (draft.lostReason === "OTHER" && !(draft.lostNotes || "").trim()) {
       setFeedback({ error: "Please add notes describing the 'Other' reason.", success: "" });
       setBusyId("");
+      setActionType("");
       return;
     }
     try {
@@ -355,6 +378,7 @@ export default function DemoLeadsPage() {
       setFeedback({ error: formatApiError(error, "Could not mark lead as lost."), success: "" });
     } finally {
       setBusyId("");
+      setActionType("");
     }
   };
 
@@ -716,8 +740,31 @@ export default function DemoLeadsPage() {
 
                 {/* Quick Action */}
                 {row.status === "NEW" && !isConverted && (
-                  <button onClick={() => { markContacted(row.id); closeDetailModal(); }} disabled={isBusy} style={{ padding: "10px 16px", background: "#8b5cf6", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", alignSelf: "flex-start" }}>
-                    ✓ Mark as Contacted
+                  <button
+                    onClick={() => { markContacted(row.id); }}
+                    disabled={isBusy}
+                    style={{
+                      padding: "10px 16px",
+                      background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "#8b5cf6",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: isBusy ? "not-allowed" : "pointer",
+                      alignSelf: "flex-start",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6
+                    }}
+                  >
+                    {isBusy && actionType === "mark-contacted" ? (
+                      <>
+                        <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
+                      </>
+                    ) : (
+                      "✓ Mark as Contacted"
+                    )}
                   </button>
                 )}
 
@@ -736,11 +783,65 @@ export default function DemoLeadsPage() {
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Meeting Link</label>
                         <div style={{ display: "flex", gap: 6 }}>
                           <input disabled={isConverted} type="text" placeholder="https://meeting.zoho.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
-                          <button type="button" disabled={isConverted} onClick={() => generateZohoMeetingLink(row.id)} style={{ padding: "6px 10px", background: "#e0e7ff", color: "#4338ca", border: "1px solid #c7d2fe", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Link</button>
+                          <button
+                            type="button"
+                            disabled={isConverted || (isBusy && actionType === "generate-link")}
+                            onClick={() => generateZohoMeetingLink(row.id)}
+                            style={{
+                              padding: "6px 10px",
+                              background: "#e0e7ff",
+                              color: "#4338ca",
+                              border: "1px solid #c7d2fe",
+                              borderRadius: 8,
+                              fontSize: 11,
+                              fontWeight: 700,
+                              cursor: isConverted || (isBusy && actionType === "generate-link") ? "not-allowed" : "pointer",
+                              whiteSpace: "nowrap",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4
+                            }}
+                          >
+                            {isBusy && actionType === "generate-link" ? (
+                              <>
+                                <Loader2 size={11} style={{ animation: "spin 1s linear infinite" }} /> Generating...
+                              </>
+                            ) : (
+                              "+ Link"
+                            )}
+                          </button>
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <button type="button" onClick={() => scheduleMeeting(row.id)} disabled={isBusy || isConverted} style={{ flex: 1, padding: "9px 10px", background: "#f59e0b", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Save Demo</button>
+                        <button
+                          type="button"
+                          onClick={() => scheduleMeeting(row.id)}
+                          disabled={isBusy || isConverted}
+                          style={{
+                            flex: 1,
+                            padding: "9px 10px",
+                            background: isBusy && actionType === "save-demo" ? "#d97706" : "#f59e0b",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: isBusy || isConverted ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6
+                          }}
+                        >
+                          {isBusy && actionType === "save-demo" ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+                              <span>Saving Demo...</span>
+                            </>
+                          ) : (
+                            "Save Demo"
+                          )}
+                        </button>
                         <button type="button" onClick={() => openZohoCalendarInvite(row)} style={{ padding: "9px 10px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Calendar</button>
                       </div>
                     </div>
@@ -807,17 +908,98 @@ export default function DemoLeadsPage() {
                           </div>
                         </div>
                       </div>
-                      <button type="button" onClick={() => approveLead(row.id)} disabled={isBusy || isConverted} style={{ padding: "9px 12px", background: isConverted ? "#d1fae5" : "#10b981", color: isConverted ? "#065f46" : "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: isConverted ? "not-allowed" : "pointer" }}>
-                        {isConverted ? "✓ Already Converted" : "Convert & Create Salon"}
+                      <button
+                        type="button"
+                        onClick={() => approveLead(row.id)}
+                        disabled={isBusy || isConverted}
+                        style={{
+                          padding: "9px 12px",
+                          background: isConverted ? "#d1fae5" : (isBusy && actionType === "convert" ? "#059669" : "#10b981"),
+                          color: isConverted ? "#065f46" : "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: isConverted || isBusy ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6
+                        }}
+                      >
+                        {isBusy && actionType === "convert" ? (
+                          <>
+                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+                            <span>Creating Salon & Sending Login...</span>
+                          </>
+                        ) : isConverted ? (
+                          "✓ Already Converted"
+                        ) : (
+                          "Convert & Create Salon"
+                        )}
                       </button>
-                      <button type="button" onClick={() => sendPurchaseLink(row.id)} disabled={isBusy} style={{ padding: "9px 12px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Send Pay Link</button>
+
+                      <button
+                        type="button"
+                        onClick={() => sendPurchaseLink(row.id)}
+                        disabled={isBusy}
+                        style={{
+                          padding: "9px 12px",
+                          background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: isBusy ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6
+                        }}
+                      >
+                        {isBusy && actionType === "send-pay-link" ? (
+                          <>
+                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+                            <span>Sending Payment Link...</span>
+                          </>
+                        ) : (
+                          "Send Pay Link"
+                        )}
+                      </button>
 
                       {row.status !== "CANCELED" && !isConverted && (
                         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 12, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
                           <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{ label: "Select Reason...", value: "" }, ...LOST_REASONS.map(r => ({ label: r.label, value: r.value }))]} />
                           <textarea rows={2} placeholder={draft.lostReason === "OTHER" ? "Notes required for 'Other'..." : "Optional notes on why we lost this lead..."} value={draft.lostNotes || ""} onChange={e => updateDraft(row.id, "lostNotes", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box" }} />
-                          <button type="button" onClick={() => rejectLead(row.id)} disabled={isBusy} style={{ padding: "9px 10px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Mark as Lost</button>
+                          <button
+                            type="button"
+                            onClick={() => rejectLead(row.id)}
+                            disabled={isBusy}
+                            style={{
+                              padding: "9px 10px",
+                              background: isBusy && actionType === "reject" ? "#dc2626" : "#ef4444",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: isBusy ? "not-allowed" : "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 6
+                            }}
+                          >
+                            {isBusy && actionType === "reject" ? (
+                              <>
+                                <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
+                              </>
+                            ) : (
+                              "Mark as Lost"
+                            )}
+                          </button>
                         </div>
                       )}
                     </div>
