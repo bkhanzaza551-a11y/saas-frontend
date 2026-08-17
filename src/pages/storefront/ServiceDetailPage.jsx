@@ -43,7 +43,8 @@ export default function ServiceDetailPage() {
     window.scrollTo(0, 0);
     if (!salon?.slug) return;
     setLoading(true);
-    api.get(`/public/salon/${salon.slug}/storefront-services`)
+    const params = selectedBranchId ? { branchId: selectedBranchId } : {};
+    api.get(`/public/salon/${salon.slug}/storefront-services`, { params })
       .then(res => {
         const services = res.data?.services || [];
         setAllServices(services);
@@ -52,7 +53,7 @@ export default function ServiceDetailPage() {
       })
       .catch(() => setService(null))
       .finally(() => setLoading(false));
-  }, [salon?.slug, id]);
+  }, [salon?.slug, id, selectedBranchId]);
 
   useEffect(() => {
     if (service?.staffAssignments?.length) {
