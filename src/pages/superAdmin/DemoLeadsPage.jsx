@@ -40,11 +40,18 @@ const LOST_REASONS = [
 ];
 
 const ACTIVITY_META = {
-  LEAD_CREATED: { label: "Lead Inquired", color: "#3b82f6", bg: "#eff6ff" },
-  MARKED_CONTACTED: { label: "Marked Contacted", color: "#8b5cf6", bg: "#f5f3ff" },
+  LEAD_CREATED: { label: "Lead Created", color: "#3b82f6", bg: "#eff6ff" },
+  LEAD_ASSIGNED: { label: "Lead Assigned", color: "#8b5cf6", bg: "#f5f3ff" },
+  LEAD_CONTACTED: { label: "Contacted", color: "#6366f1", bg: "#e0e7ff" },
+  MARKED_CONTACTED: { label: "Contacted", color: "#6366f1", bg: "#e0e7ff" },
+  FOLLOWUP_SET: { label: "Follow-up Scheduled", color: "#06b6d4", bg: "#ecfeff" },
+  FOLLOWUP_COMPLETED: { label: "Follow-up Completed", color: "#10b981", bg: "#ecfdf5" },
+  DEMO_SCHEDULED: { label: "Demo Scheduled", color: "#f59e0b", bg: "#fffbeb" },
   MEETING_SCHEDULED: { label: "Demo Scheduled", color: "#f59e0b", bg: "#fffbeb" },
-  PURCHASE_LINK_SENT: { label: "Pay Link Sent", color: "#6366f1", bg: "#e0e7ff" },
+  INVITE_RESENT: { label: "Invite Resent", color: "#d97706", bg: "#fef3c7" },
+  PURCHASE_LINK_SENT: { label: "Payment Link Sent", color: "#3b82f6", bg: "#eff6ff" },
   LEAD_CONVERTED: { label: "Converted to Salon", color: "#10b981", bg: "#ecfdf5" },
+  LEAD_LOST: { label: "Marked as Lost", color: "#ef4444", bg: "#fef2f2" },
   LEAD_REJECTED: { label: "Marked as Lost", color: "#ef4444", bg: "#fef2f2" },
   NOTE_ADDED: { label: "Note Added", color: "#64748b", bg: "#f1f5f9" }
 };
@@ -234,13 +241,13 @@ export default function DemoLeadsPage() {
     }
   };
 
-  const openZohoCalendarInvite = (row) => {
-    const draft = draftsById[row.id];
+  const openCalendarInvite = (row, type = "google") => {
+    const draft = draftsById[row.id] || {};
     const meetingTime = draft.meetingScheduledAt ? new Date(draft.meetingScheduledAt) : new Date();
     const meetLink = draft.meetingLink || "https://meeting.zoho.com";
 
     const title = `SalonNest Product Demo - ${row.company || row.name}`;
-    const description = `Product Demo walkthrough for ${row.name} (${row.phone}).\n\nZoho Meeting: ${meetLink}\nEmail: ${row.email}`;
+    const description = `Product Demo walkthrough for ${row.name} (${row.phone}).\n\nMeeting: ${meetLink}\nEmail: ${row.email}`;
 
     const pad = (n) => String(n).padStart(2, "0");
     const y = meetingTime.getFullYear();
@@ -252,8 +259,13 @@ export default function DemoLeadsPage() {
     const endTime = new Date(meetingTime.getTime() + 60 * 60 * 1000);
     const endStr = `${endTime.getFullYear()}${pad(endTime.getMonth() + 1)}${pad(endTime.getDate())}T${pad(endTime.getHours())}${pad(endTime.getMinutes())}00`;
 
-    const calUrl = `https://calendar.zoho.com/calendar#action=addEvent&title=${encodeURIComponent(title)}&sdate=${startStr}&edate=${endStr}&desc=${encodeURIComponent(description)}&location=${encodeURIComponent(meetLink)}`;
-    window.open(calUrl, "_blank");
+    if (type === "google") {
+      const gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(meetLink)}`;
+      window.open(gUrl, "_blank");
+    } else {
+      const calUrl = `https://calendar.zoho.com/calendar#action=addEvent&title=${encodeURIComponent(title)}&sdate=${startStr}&edate=${endStr}&desc=${encodeURIComponent(description)}&location=${encodeURIComponent(meetLink)}`;
+      window.open(calUrl, "_blank");
+    }
   };
 
   const markContacted = async (leadId) => {
@@ -266,6 +278,42 @@ export default function DemoLeadsPage() {
       await load();
     } catch (error) {
       setFeedback({ error: formatApiError(error, "Could not update lead status."), success: "" });
+    } finally {
+      setBusyId("");
+      setActionType("");
+    }
+  };
+
+  const saveFollowUp = async (leadId) => {
+    setBusyId(leadId);
+    setActionType("save-followup");
+    setFeedback({ error: "", success: "" });
+    const draft = draftsById[leadId] || {};
+    try {
+      await api.put(`/super-admin/demo-leads/${leadId}`, {
+        nextFollowUpAt: draft.nextFollowUpAt || null,
+        leadNotes: draft.leadNotes || ""
+      });
+      setFeedback({ error: "", success: "Follow-up saved and logged in timeline." });
+      await load();
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to save follow-up"), success: "" });
+    } finally {
+      setBusyId("");
+      setActionType("");
+    }
+  };
+
+  const markFollowUpCompleted = async (leadId) => {
+    setBusyId(leadId);
+    setActionType("complete-followup");
+    setFeedback({ error: "", success: "" });
+    try {
+      await api.post(`/super-admin/demo-leads/${leadId}/follow-up-completed`);
+      setFeedback({ error: "", success: "Follow-up marked as completed." });
+      await load();
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to mark follow-up completed"), success: "" });
     } finally {
       setBusyId("");
       setActionType("");
@@ -288,7 +336,7 @@ export default function DemoLeadsPage() {
         meetingScheduledAt: draft.meetingScheduledAt,
         meetingLink: draft.meetingLink
       });
-      setFeedback({ error: "", success: "Demo scheduled and invitation details saved." });
+      setFeedback({ error: "", success: "Demo invitation email sent and scheduled." });
       await load();
     } catch (error) {
       setFeedback({ error: formatApiError(error, "Could not schedule meeting."), success: "" });
@@ -741,34 +789,91 @@ export default function DemoLeadsPage() {
                   </div>
                 </div>
 
-                {/* Quick Action */}
-                {row.status === "NEW" && !isConverted && (
-                  <button
-                    onClick={() => { markContacted(row.id); }}
-                    disabled={isBusy}
-                    style={{
-                      padding: "10px 16px",
-                      background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "#8b5cf6",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 10,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: isBusy ? "not-allowed" : "pointer",
-                      alignSelf: "flex-start",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6
-                    }}
-                  >
-                    {isBusy && actionType === "mark-contacted" ? (
-                      <>
-                        <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
-                      </>
-                    ) : (
-                      "✓ Mark as Contacted"
+                {/* Quick Actions Bar */}
+                {!isConverted && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+                    {row.status === "NEW" && (
+                      <button
+                        onClick={() => { markContacted(row.id); }}
+                        disabled={isBusy}
+                        style={{
+                          padding: "9px 16px",
+                          background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "#8b5cf6",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: isBusy ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6
+                        }}
+                      >
+                        {isBusy && actionType === "mark-contacted" ? (
+                          <>
+                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
+                          </>
+                        ) : (
+                          "✓ Mark as Contacted"
+                        )}
+                      </button>
                     )}
-                  </button>
+
+                    <button
+                      onClick={() => saveFollowUp(row.id)}
+                      disabled={isBusy}
+                      style={{
+                        padding: "9px 16px",
+                        background: isBusy && actionType === "save-followup" ? "#0284c7" : "#0ea5e9",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: isBusy ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6
+                      }}
+                    >
+                      {isBusy && actionType === "save-followup" ? (
+                        <>
+                          <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Saving...
+                        </>
+                      ) : (
+                        "Save Follow-Up"
+                      )}
+                    </button>
+
+                    {row.nextFollowUpAt && (
+                      <button
+                        onClick={() => markFollowUpCompleted(row.id)}
+                        disabled={isBusy}
+                        style={{
+                          padding: "9px 16px",
+                          background: "#ecfdf5",
+                          color: "#065f46",
+                          border: "1px solid #a7f3d0",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: isBusy ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6
+                        }}
+                      >
+                        {isBusy && actionType === "complete-followup" ? (
+                          <>
+                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Completing...
+                          </>
+                        ) : (
+                          "✓ Follow-Up Done"
+                        )}
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -815,13 +920,14 @@ export default function DemoLeadsPage() {
                           </button>
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <button
                           type="button"
                           onClick={() => scheduleMeeting(row.id)}
                           disabled={isBusy || isConverted}
                           style={{
                             flex: 1,
+                            minWidth: 150,
                             padding: "9px 10px",
                             background: isBusy && actionType === "save-demo" ? "#d97706" : "#f59e0b",
                             color: "#fff",
@@ -839,13 +945,16 @@ export default function DemoLeadsPage() {
                           {isBusy && actionType === "save-demo" ? (
                             <>
                               <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
-                              <span>Saving Demo...</span>
+                              <span>Sending Invite...</span>
                             </>
                           ) : (
-                            "Save Demo"
+                            "Send & Email Invite"
                           )}
                         </button>
-                        <button type="button" onClick={() => openZohoCalendarInvite(row)} style={{ padding: "9px 10px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Calendar</button>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button type="button" onClick={() => openCalendarInvite(row, "google")} title="Add to Google Calendar" style={{ padding: "9px 10px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Google Cal</button>
+                          <button type="button" onClick={() => openCalendarInvite(row, "zoho")} title="Add to Zoho Calendar" style={{ padding: "9px 10px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>Zoho Cal</button>
+                        </div>
                       </div>
                     </div>
                   </div>
