@@ -58,8 +58,7 @@ export default function PublicDemoLeadPage() {
     if (field === "phone") {
       if (!val) return "Phone number is required";
       const digits = val.replace(/\D/g, "");
-      if (digits.length < 10) return "Phone number must be at least 10 digits";
-      if (digits.length > 15) return "Phone number cannot exceed 15 digits";
+      if (digits.length !== 10) return "Please enter a valid 10-digit mobile number";
       return "";
     }
     if (field === "company") {
@@ -79,11 +78,8 @@ export default function PublicDemoLeadPage() {
   const handleChange = (field, value) => {
     let finalVal = value;
     if (field === "phone") {
-      // Allow only digits, leading +, spaces, hyphens, and parentheses
-      finalVal = finalVal.replace(/[^0-9+\s\-()]/g, "");
-      if (finalVal.indexOf("+") > 0) {
-        finalVal = finalVal[0] + finalVal.slice(1).replace(/\+/g, "");
-      }
+      // Allow only digits and limit to strictly 10 digits
+      finalVal = value.replace(/\D/g, "").slice(0, 10);
     }
     setForm(prev => ({ ...prev, [field]: finalVal }));
     if (touched[field]) {
@@ -115,7 +111,12 @@ export default function PublicDemoLeadPage() {
 
     setSubmitting(true);
     try {
-      await api.post("/public/demo-leads", form);
+      const cleanDigits = form.phone.replace(/\D/g, "").slice(0, 10);
+      const payload = {
+        ...form,
+        phone: `+91${cleanDigits}`
+      };
+      await api.post("/public/demo-leads", payload);
       setForm(initialForm);
       setErrors({});
       setTouched({});
@@ -255,23 +256,61 @@ export default function PublicDemoLeadPage() {
                     {/* Phone Field */}
                     <div>
                       <label className="demo-label">Phone Number *</label>
-                      <input
-                        className="demo-input"
-                        value={form.phone}
-                        type="tel"
-                        placeholder="+91 99999 99999"
-                        required
-                        onChange={e => handleChange("phone", e.target.value)}
-                        onBlur={() => handleBlur("phone")}
-                        style={touched.phone && errors.phone ? { borderColor: "#ef4444", background: "#fff5f5" } : {}}
-                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          borderRadius: 8,
+                          border: `1px solid ${touched.phone && errors.phone ? "#ef4444" : "#e2e8f0"}`,
+                          background: touched.phone && errors.phone ? "#fff5f5" : "#fff",
+                          overflow: "hidden",
+                          transition: "border-color 0.2s"
+                        }}
+                      >
+                        <div
+                          style={{
+                            padding: "0 12px",
+                            background: "#f8fafc",
+                            borderRight: "1px solid #e2e8f0",
+                            color: "#334155",
+                            fontWeight: 700,
+                            fontSize: 14,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            height: 44,
+                            userSelect: "none"
+                          }}
+                        >
+                          🇮🇳 +91
+                        </div>
+                        <input
+                          className="demo-input"
+                          value={form.phone}
+                          type="tel"
+                          maxLength={10}
+                          placeholder="9876543210"
+                          required
+                          onChange={e => handleChange("phone", e.target.value)}
+                          onBlur={() => handleBlur("phone")}
+                          style={{
+                            border: "none",
+                            borderRadius: 0,
+                            height: 44,
+                            flex: 1,
+                            padding: "0 12px",
+                            background: "transparent",
+                            outline: "none"
+                          }}
+                        />
+                      </div>
                       {touched.phone && errors.phone ? (
                         <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
                           <AlertCircle size={13} /> {errors.phone}
                         </div>
                       ) : (
                         <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>
-                          Enter 10 to 15 digits (e.g. +91 98765 43210)
+                          Enter your 10-digit mobile number
                         </div>
                       )}
                     </div>

@@ -5,7 +5,7 @@ import EmptyState from "../../components/EmptyState";
 import { formatApiError } from "../../utils/apiError";
 import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
-import { Clock, User, Calendar, MapPin, Tag, CheckCircle, Edit, FileText, XCircle, AlertCircle, RefreshCw } from "lucide-react";
+import { Clock, User, Calendar, MapPin, Tag, CheckCircle, Edit, FileText, XCircle, AlertCircle, RefreshCw, MessageSquare } from "lucide-react";
 
 import CustomSelect from "../../components/CustomSelect";
 
@@ -28,6 +28,9 @@ export default function AppointmentDetailPage() {
   const [showBillPreview, setShowBillPreview] = useState(false);
   const [consumableOverrides, setConsumableOverrides] = useState({});
   const [creating, setCreating] = useState(false);
+
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
+  const [whatsappResult, setWhatsappResult] = useState({ error: "", success: "" });
 
   const load = async () => {
     try {
@@ -99,6 +102,32 @@ export default function AppointmentDetailPage() {
   const updateOverride = useCallback((key, value) => {
     setConsumableOverrides((prev) => ({ ...prev, [key]: value }));
   }, []);
+
+  const shareViaWhatsAppApi = async () => {
+    setWhatsappResult({ error: "", success: "" });
+    setWhatsappLoading(true);
+    try {
+      await api.post(`/owner/appointments/${id}/share-whatsapp`);
+      setWhatsappResult({ error: "", success: "Appointment confirmation sent via WhatsApp!" });
+    } catch (err) {
+      setWhatsappResult({ error: err.response?.data?.message || "Failed to send WhatsApp message", success: "" });
+    } finally {
+      setWhatsappLoading(false);
+    }
+  };
+
+  const shareViaWhatsAppWeb = () => {
+    if (!appointment?.customer?.phone) {
+      setWhatsappResult({ error: "Customer has no phone number", success: "" });
+      return;
+    }
+    const rawDigits = appointment.customer.phone.replace(/[^\d]/g, "");
+    const phone = rawDigits.startsWith("91") ? rawDigits : `91${rawDigits}`;
+    const startStr = new Date(appointment.startAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+    const services = (appointment.items || []).map(i => i.service?.name).filter(Boolean).join(", ");
+    const text = encodeURIComponent(`Hello ${appointment.customer?.name || "Customer"}! 🌟\n\nYour appointment at ${appointment.branch?.name || "Salon"} is scheduled for *${startStr}*.\n\nBooked Services: ${services || "Salon Services"}\n\nThank you for booking with us!`);
+    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${text}`, "_blank");
+  };
 
   const convertToInvoice = async () => {
     setStatus((current) => ({ ...current, error: "", success: "" }));
@@ -309,6 +338,21 @@ export default function AppointmentDetailPage() {
                 <button type="button" onClick={cancelAppointment} disabled={appointment.status === "CANCELLED"} style={{ padding: "12px", background: "none", color: appointment.status === "CANCELLED" ? "#fca5a5" : "#ef4444", border: appointment.status === "CANCELLED" ? "1px solid #fecaca" : "1px solid #f87171", borderRadius: 8, fontWeight: 600, fontSize: 14, cursor: appointment.status === "CANCELLED" ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 12 }}>
                   <XCircle size={16} /> Cancel Appointment
                 </button>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>WhatsApp Sharing</div>
+                  
+                  {whatsappResult.error && <div style={{ fontSize: 12, color: "#dc2626", background: "#fef2f2", padding: "8px 12px", borderRadius: 6, border: "1px solid #fecaca" }}>{whatsappResult.error}</div>}
+                  {whatsappResult.success && <div style={{ fontSize: 12, color: "#16a34a", background: "#f0fdf4", padding: "8px 12px", borderRadius: 6, border: "1px solid #bbf7d0" }}>{whatsappResult.success}</div>}
+
+                  <button type="button" onClick={shareViaWhatsAppApi} disabled={whatsappLoading || !appointment.customer?.phone} style={{ padding: "10px 14px", background: "#25D366", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: appointment.customer?.phone ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#1eb954"} onMouseLeave={e => e.currentTarget.style.background = "#25D366"}>
+                    <MessageSquare size={16} /> {whatsappLoading ? "Sending..." : "Send using WhatsApp API"}
+                  </button>
+
+                  <button type="button" onClick={shareViaWhatsAppWeb} disabled={!appointment.customer?.phone} style={{ padding: "10px 14px", background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: appointment.customer?.phone ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#dcfce7"} onMouseLeave={e => e.currentTarget.style.background = "#f0fdf4"}>
+                    Share via WhatsApp Web
+                  </button>
+                </div>
               </div>
             </div>
 
