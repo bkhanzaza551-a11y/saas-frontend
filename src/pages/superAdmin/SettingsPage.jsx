@@ -125,10 +125,26 @@ export default function SuperAdminSettingsPage() {
         notificationEmailEnabled: notif.email !== false,
         notificationSmsEnabled: Boolean(notif.sms),
         notificationWhatsappEnabled: notif.whatsapp !== false,
-        notifyAccount: notif.account !== false,
-        notifySubscription: notif.subscription !== false,
-        notifySupport: notif.support !== false,
-        notifyRequests: notif.requests !== false,
+        accountOwnerInvite: notif.accountOwnerInvite !== false,
+        accountEmailVerify: notif.accountEmailVerify !== false,
+        accountMobileVerify: notif.accountMobileVerify !== false,
+        accountPasswordReset: notif.accountPasswordReset !== false,
+        subTrialEnding: notif.subTrialEnding !== false,
+        subExpiring: notif.subExpiring !== false,
+        subExpired: notif.subExpired !== false,
+        subGraceEnding: notif.subGraceEnding !== false,
+        subPaymentReceived: notif.subPaymentReceived !== false,
+        subPaymentPending: notif.subPaymentPending !== false,
+        supportTicketCreated: notif.supportTicketCreated !== false,
+        supportReply: notif.supportReply !== false,
+        supportTicketResolved: notif.supportTicketResolved !== false,
+        productReqSubmitted: notif.productReqSubmitted !== false,
+        productReqApproved: notif.productReqApproved !== false,
+        productReqRejected: notif.productReqRejected !== false,
+        productReqCompleted: notif.productReqCompleted !== false,
+        staffReqSubmitted: notif.staffReqSubmitted !== false,
+        staffReqUpdated: notif.staffReqUpdated !== false,
+        staffReqCompleted: notif.staffReqCompleted !== false,
         whatsappNumber: d.whatsappNumber || "",
         smsProviderName: d.smsProviderName || "",
         emailProviderName: d.emailProviderName || "",
@@ -224,10 +240,26 @@ export default function SuperAdminSettingsPage() {
           email: form.notificationEmailEnabled, 
           sms: form.notificationSmsEnabled, 
           whatsapp: form.notificationWhatsappEnabled,
-          account: form.notifyAccount,
-          subscription: form.notifySubscription,
-          support: form.notifySupport,
-          requests: form.notifyRequests
+          accountOwnerInvite: form.accountOwnerInvite,
+          accountEmailVerify: form.accountEmailVerify,
+          accountMobileVerify: form.accountMobileVerify,
+          accountPasswordReset: form.accountPasswordReset,
+          subTrialEnding: form.subTrialEnding,
+          subExpiring: form.subExpiring,
+          subExpired: form.subExpired,
+          subGraceEnding: form.subGraceEnding,
+          subPaymentReceived: form.subPaymentReceived,
+          subPaymentPending: form.subPaymentPending,
+          supportTicketCreated: form.supportTicketCreated,
+          supportReply: form.supportReply,
+          supportTicketResolved: form.supportTicketResolved,
+          productReqSubmitted: form.productReqSubmitted,
+          productReqApproved: form.productReqApproved,
+          productReqRejected: form.productReqRejected,
+          productReqCompleted: form.productReqCompleted,
+          staffReqSubmitted: form.staffReqSubmitted,
+          staffReqUpdated: form.staffReqUpdated,
+          staffReqCompleted: form.staffReqCompleted
         },
         whatsappNumber: form.whatsappNumber, smsProviderName: form.smsProviderName, emailProviderName: form.emailProviderName, whatsappProviderName: form.whatsappProviderName,
         contactEmail: form.contactEmail, supportEmail: form.supportEmail, notificationEmail: form.notificationEmail,
@@ -390,75 +422,181 @@ export default function SuperAdminSettingsPage() {
               {activeTab === "comms" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Communications & Providers</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Contact mailboxes and external provider configurations.</p>
+                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Communications</h3>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control how SalonNest sends email, SMS, and WhatsApp communications.</p>
                   </div>
- 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                    <Field label="Contact Email"><input style={inputStyle} type="email" {...f("contactEmail")} placeholder="info@salonnest.in" /></Field>
-                    <Field label="Support Email"><input style={inputStyle} type="email" {...f("supportEmail")} placeholder="support@salonnest.in" /></Field>
-                    <Field label="Notification Email" full><input style={inputStyle} type="email" {...f("notificationEmail")} placeholder="alerts@salonnest.in" /></Field>
-                    
-                    <div style={{ gridColumn: "1 / -1", height: 1, background: "#e2e8f0", margin: "8px 0" }} />
- 
-                    <div style={{ gridColumn: "1 / -1", padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                      <Field label="Test Recipient Email (for Test buttons)">
-                        <input style={inputStyle} type="email" value={testRecipient.email} onChange={e => setTestRecipient(p => ({ ...p, email: e.target.value }))} placeholder="test@yourcompany.com" />
+
+                  {/* Test Recipient Section */}
+                  <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+                    <Field label="Test Recipient Email">
+                      <input style={inputStyle} type="email" value={testRecipient.email} onChange={e => setTestRecipient(p => ({ ...p, email: e.target.value }))} placeholder="test@yourcompany.com" />
+                    </Field>
+                    <Field label="Test Recipient Phone">
+                      <input style={inputStyle} value={testRecipient.phone} onChange={e => setTestRecipient(p => ({ ...p, phone: e.target.value }))} placeholder="+91 98765 43210" />
+                    </Field>
+                  </div>
+
+                  {/* Section 3.1: Email */}
+                  <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18, marginBottom: 20 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <div>
+                        <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Email</h4>
+                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>System transactional emails and notifications</p>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <Toggle value={form.notificationEmailEnabled} onChange={v => setForm(p => ({ ...p, notificationEmailEnabled: v }))} label="Enable Email" />
+                        <button type="button" disabled={!form.notificationEmailEnabled || !!testingChannel} onClick={() => testChannel("email")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.notificationEmailEnabled || testingChannel ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
+                          {testingChannel === "email" ? "Sending..." : "Test Email"}
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      <Field label="Email Provider">
+                        <CustomSelect value={form.emailProviderName || "SMTP"} onChange={e => setForm(p => ({ ...p, emailProviderName: e.target.value }))}>
+                          <option value="SMTP">SMTP (Configured Server)</option>
+                          <option value="Resend">Resend (API)</option>
+                          <option value="SendGrid">SendGrid (API)</option>
+                          <option value="Amazon SES">Amazon SES</option>
+                          <option value="Postmark">Postmark</option>
+                        </CustomSelect>
                       </Field>
-                      <Field label="Test Recipient Phone (for Test buttons)">
-                        <input style={inputStyle} value={testRecipient.phone} onChange={e => setTestRecipient(p => ({ ...p, phone: e.target.value }))} placeholder="+919876543210" />
+                      <Field label="Sender Name">
+                        <input style={inputStyle} {...f("emailSenderId")} placeholder="SalonNest" />
+                      </Field>
+                      <Field label="Sender Email">
+                        <input style={inputStyle} type="email" {...f("notificationEmail")} placeholder="alerts@salonnest.in" />
+                      </Field>
+                      <Field label="Reply-to Email">
+                        <input style={inputStyle} type="email" {...f("contactEmail")} placeholder="support@salonnest.in" />
+                      </Field>
+                      <Field label="Support Email" full>
+                        <input style={inputStyle} type="email" {...f("supportEmail")} placeholder="help@salonnest.in" />
                       </Field>
                     </div>
- 
-                    <Field label="Email Provider"><input style={inputStyle} {...f("emailProviderName")} placeholder="SMTP / Resend" /></Field>
-                    <Field label="Email Sender ID (Name/Email)">
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <input style={{ ...inputStyle, flex: 1 }} {...f("emailSenderId")} placeholder="SalonNest <alerts@salonnest.in>" />
-                        <button type="button" disabled={!!testingChannel} onClick={() => testChannel("email")} style={{ padding: "0 12px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, cursor: testingChannel ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 600 }}>{testingChannel === "email" ? "Sending..." : "Test"}</button>
+                  </div>
+
+                  {/* Section 3.2: SMS */}
+                  <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18, marginBottom: 20 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <div>
+                        <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>SMS</h4>
+                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Instant mobile text alerts and OTPs</p>
                       </div>
-                    </Field>
- 
-                    <Field label="SMS Provider"><input style={inputStyle} {...f("smsProviderName")} placeholder="Twilio" /></Field>
-                    <Field label="SMS Sender ID">
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <input style={{ ...inputStyle, flex: 1 }} {...f("smsSenderId")} placeholder="SLNNST" />
-                        <button type="button" disabled={!!testingChannel} onClick={() => testChannel("sms")} style={{ padding: "0 12px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, cursor: testingChannel ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 600 }}>{testingChannel === "sms" ? "Sending..." : "Test"}</button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <Toggle value={form.notificationSmsEnabled} onChange={v => setForm(p => ({ ...p, notificationSmsEnabled: v }))} label="Enable SMS" />
+                        <button type="button" disabled={!form.notificationSmsEnabled || !!testingChannel} onClick={() => testChannel("sms")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.notificationSmsEnabled || testingChannel ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
+                          {testingChannel === "sms" ? "Sending..." : "Test SMS"}
+                        </button>
                       </div>
-                    </Field>
-                    
-                    <Field label="WhatsApp Provider"><input style={inputStyle} {...f("whatsappProviderName")} placeholder="Meta Cloud API" /></Field>
-                    <Field label="WhatsApp Sender ID (Number/Name)">
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <input style={{ ...inputStyle, flex: 1 }} {...f("whatsappSenderId")} placeholder="+1234567890" />
-                        <button type="button" disabled={!!testingChannel} onClick={() => testChannel("whatsapp")} style={{ padding: "0 12px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, cursor: testingChannel ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 600 }}>{testingChannel === "whatsapp" ? "Sending..." : "Test"}</button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      <Field label="SMS Provider">
+                        <CustomSelect value={form.smsProviderName || "Twilio"} onChange={e => setForm(p => ({ ...p, smsProviderName: e.target.value }))}>
+                          <option value="Twilio">Twilio</option>
+                          <option value="Msg91">Msg91 (India DLT)</option>
+                          <option value="Fast2SMS">Fast2SMS</option>
+                          <option value="AWS SNS">AWS SNS</option>
+                        </CustomSelect>
+                      </Field>
+                      <Field label="Sender ID / Number">
+                        <input style={inputStyle} {...f("smsSenderId")} placeholder="SLNNST / +1234567890" />
+                      </Field>
+                    </div>
+                  </div>
+
+                  {/* Section 3.3: WhatsApp */}
+                  <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <div>
+                        <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>WhatsApp</h4>
+                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Business messaging and real-time confirmations</p>
                       </div>
-                    </Field>
-                    <Field label="WhatsApp Connected Number"><input style={inputStyle} {...f("whatsappNumber")} placeholder="+1234567890" /></Field>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <Toggle value={form.notificationWhatsappEnabled} onChange={v => setForm(p => ({ ...p, notificationWhatsappEnabled: v }))} label="Enable WhatsApp" />
+                        <button type="button" disabled={!form.notificationWhatsappEnabled || !!testingChannel} onClick={() => testChannel("whatsapp")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.notificationWhatsappEnabled || testingChannel ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
+                          {testingChannel === "whatsapp" ? "Sending..." : "Test WhatsApp"}
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      <Field label="WhatsApp Provider">
+                        <CustomSelect value={form.whatsappProviderName || "Meta Cloud API"} onChange={e => setForm(p => ({ ...p, whatsappProviderName: e.target.value }))}>
+                          <option value="Meta Cloud API">Meta Cloud API (Official)</option>
+                          <option value="Twilio WhatsApp">Twilio WhatsApp</option>
+                          <option value="Wati">Wati</option>
+                          <option value="Interakt">Interakt</option>
+                        </CustomSelect>
+                      </Field>
+                      <Field label="WhatsApp Business Number">
+                        <input style={inputStyle} {...f("whatsappNumber")} placeholder="+91 98765 43210" />
+                      </Field>
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* Section 4: Notification Settings */}
               {activeTab === "notifications" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Notifications</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Granular notification toggles and channels.</p>
+                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Notification Settings</h3>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control what SalonNest automatically notifies users about.</p>
                   </div>
                   
-                  <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Channels</h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-                    <Toggle value={form.notificationEmailEnabled} onChange={v => setForm(p => ({ ...p, notificationEmailEnabled: v }))} label="Email Notifications" />
-                    <Toggle value={form.notificationSmsEnabled} onChange={v => setForm(p => ({ ...p, notificationSmsEnabled: v }))} label="SMS Notifications" />
-                    <Toggle value={form.notificationWhatsappEnabled} onChange={v => setForm(p => ({ ...p, notificationWhatsappEnabled: v }))} label="WhatsApp Notifications" />
-                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* 4.1 Account Notifications */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Account</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Toggle value={form.accountOwnerInvite ?? true} onChange={v => setForm(p => ({ ...p, accountOwnerInvite: v }))} label="Owner invitation" />
+                        <Toggle value={form.accountEmailVerify ?? true} onChange={v => setForm(p => ({ ...p, accountEmailVerify: v }))} label="Email verification" />
+                        <Toggle value={form.accountMobileVerify ?? true} onChange={v => setForm(p => ({ ...p, accountMobileVerify: v }))} label="Mobile verification" />
+                        <Toggle value={form.accountPasswordReset ?? true} onChange={v => setForm(p => ({ ...p, accountPasswordReset: v }))} label="Password reset" />
+                      </div>
+                    </div>
 
-                  <div style={{ marginBottom: 24 }}>
-                    <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Notification Events</h4>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      <Toggle value={form.notifyAccount} onChange={v => setForm(p => ({ ...p, notifyAccount: v }))} label="Account Activities" />
-                      <Toggle value={form.notifySubscription} onChange={v => setForm(p => ({ ...p, notifySubscription: v }))} label="Subscription Alerts" />
-                      <Toggle value={form.notifySupport} onChange={v => setForm(p => ({ ...p, notifySupport: v }))} label="Support Tickets" />
-                      <Toggle value={form.notifyRequests} onChange={v => setForm(p => ({ ...p, notifyRequests: v }))} label="System Requests" />
+                    {/* 4.2 Subscription Notifications */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Subscription</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Toggle value={form.subTrialEnding ?? true} onChange={v => setForm(p => ({ ...p, subTrialEnding: v }))} label="Trial ending" />
+                        <Toggle value={form.subExpiring ?? true} onChange={v => setForm(p => ({ ...p, subExpiring: v }))} label="Subscription expiring" />
+                        <Toggle value={form.subExpired ?? true} onChange={v => setForm(p => ({ ...p, subExpired: v }))} label="Subscription expired" />
+                        <Toggle value={form.subGraceEnding ?? true} onChange={v => setForm(p => ({ ...p, subGraceEnding: v }))} label="2-day access ending" />
+                        <Toggle value={form.subPaymentReceived ?? true} onChange={v => setForm(p => ({ ...p, subPaymentReceived: v }))} label="Payment received" />
+                        <Toggle value={form.subPaymentPending ?? true} onChange={v => setForm(p => ({ ...p, subPaymentPending: v }))} label="Payment pending" />
+                      </div>
+                    </div>
+
+                    {/* 4.3 Support Notifications */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Support</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Toggle value={form.supportTicketCreated ?? true} onChange={v => setForm(p => ({ ...p, supportTicketCreated: v }))} label="Ticket created" />
+                        <Toggle value={form.supportReply ?? true} onChange={v => setForm(p => ({ ...p, supportReply: v }))} label="Support reply" />
+                        <Toggle value={form.supportTicketResolved ?? true} onChange={v => setForm(p => ({ ...p, supportTicketResolved: v }))} label="Ticket resolved" />
+                      </div>
+                    </div>
+
+                    {/* 4.4 Product Requests Notifications */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Product Requests</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Toggle value={form.productReqSubmitted ?? true} onChange={v => setForm(p => ({ ...p, productReqSubmitted: v }))} label="Request submitted" />
+                        <Toggle value={form.productReqApproved ?? true} onChange={v => setForm(p => ({ ...p, productReqApproved: v }))} label="Approved" />
+                        <Toggle value={form.productReqRejected ?? true} onChange={v => setForm(p => ({ ...p, productReqRejected: v }))} label="Rejected" />
+                        <Toggle value={form.productReqCompleted ?? true} onChange={v => setForm(p => ({ ...p, productReqCompleted: v }))} label="Completed" />
+                      </div>
+                    </div>
+
+                    {/* 4.5 Staff Requests Notifications */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Staff Requests</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <Toggle value={form.staffReqSubmitted ?? true} onChange={v => setForm(p => ({ ...p, staffReqSubmitted: v }))} label="Request submitted" />
+                        <Toggle value={form.staffReqUpdated ?? true} onChange={v => setForm(p => ({ ...p, staffReqUpdated: v }))} label="Status updated" />
+                        <Toggle value={form.staffReqCompleted ?? true} onChange={v => setForm(p => ({ ...p, staffReqCompleted: v }))} label="Completed" />
+                      </div>
                     </div>
                   </div>
 
