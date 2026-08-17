@@ -102,7 +102,7 @@ export default function SuperAdminSettingsPage() {
   });
 
   const f = (key) => ({ value: form[key] ?? "", onChange: (e) => setForm(p => ({ ...p, [key]: e.target.value })) });
-  const n = (key) => ({ value: form[key] ?? 0, type: "number", onChange: (e) => setForm(p => ({ ...p, [key]: Number(e.target.value) })) });
+  const n = (key) => ({ value: form[key] ?? "", type: "number", onChange: (e) => setForm(p => ({ ...p, [key]: e.target.value === "" ? null : Number(e.target.value) })) });
 
   const TEMPLATE_EVENTS = [
     { key: "OWNER_INVITATION", label: "Owner Invitation" },
@@ -298,6 +298,14 @@ export default function SuperAdminSettingsPage() {
   const [testingChannel, setTestingChannel] = useState("");
   const [testRecipient, setTestRecipient] = useState({ email: "", phone: "" });
   const testChannel = async (channel) => {
+    if (channel === "email" && !testRecipient.email?.trim()) {
+      setStatus({ error: "Enter a test email address first.", success: "" });
+      return;
+    }
+    if (channel !== "email" && !testRecipient.phone?.trim()) {
+      setStatus({ error: "Enter a test phone number first.", success: "" });
+      return;
+    }
     setTestingChannel(channel);
     setStatus({ error: "", success: "" });
     try {
@@ -335,7 +343,13 @@ export default function SuperAdminSettingsPage() {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (form.maintenanceMode && !window.confirm("Enable maintenance mode? Salon owners will be locked out until disabled.")) return;
+    if (form.maintenanceMode && !window.confirm("⚠️ Final check: Maintenance mode is ON. Salon owners will be locked out. Save anyway?")) return;
+    if (!form.systemName?.trim()) { setStatus({ error: "System Name is required.", success: "" }); return; }
+    const emailFields = ["businessEmail", "contactEmail", "supportEmail", "notificationEmail"];
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    for (const f of emailFields) {
+      if (form[f] && !emailRe.test(form[f])) { setStatus({ error: `${f} is not a valid email address.`, success: "" }); return; }
+    }
     setStatus({ error: "", success: "" });
     setSaving(true);
     try {
@@ -343,7 +357,7 @@ export default function SuperAdminSettingsPage() {
         systemName: form.systemName, globalLogo: form.globalLogo, maintenanceMode: form.maintenanceMode, maintenanceMessage: form.maintenanceMessage,
         taxLabel: form.taxLabel, defaultCurrency: form.defaultCurrency,
         currencyOptions: Array.isArray(form.currencyOptions) ? form.currencyOptions : form.currencyOptions.split(",").map(s => s.trim()).filter(Boolean),
-        defaultCountry: form.defaultCountry, defaultCity: form.defaultCity, defaultTimezone: form.defaultTimezone, invoicePrefix: form.invoicePrefix, defaultLanguage: form.defaultLanguage, invoiceFormat: form.invoiceFormat,
+        defaultCountry: form.defaultCountry, defaultCity: form.defaultCity, defaultTimezone: form.defaultTimezone, invoicePrefix: form.invoicePrefix, defaultLanguage: form.defaultLanguage, invoiceFormat: form.invoiceFormat, timeFormat: form.timeFormat,
         notificationDefaults: { 
           email: form.notificationEmailEnabled, 
           sms: form.notificationSmsEnabled, 
@@ -1205,6 +1219,28 @@ export default function SuperAdminSettingsPage() {
                       >
                         Export System Backup
                       </button>
+                    </div>
+
+                    {/* Audit Logs */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Recent Audit Logs</h4>
+                      {auditLoading ? (
+                        <p style={{ fontSize: 13, color: "#94a3b8" }}>Loading audit logs...</p>
+                      ) : auditLogs.length === 0 ? (
+                        <p style={{ fontSize: 13, color: "#94a3b8" }}>No audit logs yet.</p>
+                      ) : (
+                        <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                          {auditLogs.map((log, i) => (
+                            <div key={log.id || i} style={{ padding: "8px 0", borderBottom: i < auditLogs.length - 1 ? "1px solid #f1f5f9" : "none", fontSize: 13 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span style={{ fontWeight: 600, color: "#1e293b" }}>{log.action}</span>
+                                <span style={{ fontSize: 11, color: "#94a3b8" }}>{log.createdAt ? new Date(log.createdAt).toLocaleString() : ""}</span>
+                              </div>
+                              {log.summary && <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>{log.summary}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
