@@ -556,6 +556,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                     try {
                       await api.post(`/owner/invoices/${createdInvoice.id}/share-whatsapp`);
                       setShowShareModal(false);
+                      alert("WhatsApp message sent successfully");
                     } catch (err) {
                       if (err.response?.status === 402) {
                         setShareError(err.response.data.message || "Insufficient credits");
@@ -576,6 +577,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                     try {
                       await api.post(`/owner/invoices/${createdInvoice.id}/share-sms`);
                       setShowShareModal(false);
+                      alert("SMS sent successfully");
                     } catch (err) {
                       if (err.response?.status === 402) {
                         setShareError(err.response.data.message || "Insufficient SMS credits");

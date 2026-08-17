@@ -628,7 +628,7 @@ export default function App() {
           <Route path="/admin/enquiries" element={<OwnerRoute moduleKey="enquiries" featureKey="enquiries" element={<EnquiriesPage />} />} />
           <Route path="/admin/enquiries/follow-ups" element={<OwnerRoute moduleKey="enquiries" featureKey="enquiries" element={<EnquiriesPage />} />} />
           <Route path="/admin/enquiries/reports" element={<OwnerRoute moduleKey="enquiries" featureKey="enquiries" element={<EnquiriesPage />} />} />
-          <Route path="/admin/whatsapp-credits" element={<WhatsAppCreditsPage />} />
+          <Route path="/admin/whatsapp-credits" element={<OwnerRoute moduleKey="settings" featureKey="pos" element={<WhatsAppCreditsPage />} />} />
           <Route path="/admin/expenses" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
           <Route path="/admin/expenses/dashboard" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
           <Route path="/admin/expenses/types" element={<OwnerRoute moduleKey="expenses" featureKey="expenses" element={<ExpensesPage />} />} />
