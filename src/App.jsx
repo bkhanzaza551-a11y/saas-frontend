@@ -283,7 +283,7 @@ const Protected = () => {
       hint: "Super Admin Workspace",
       items: [
         { label: "Dashboard", to: "/super-admin/dashboard" },
-        { label: "Leads", to: "/super-admin/sales-pipeline" },
+        { label: "Sales CRM", to: "/super-admin/sales-pipeline" },
         { label: "Salon Management", to: "/super-admin/salons" },
         { label: "Subscription", to: "/super-admin/subscriptions" },
         { label: "Plans", to: "/super-admin/plans" },
