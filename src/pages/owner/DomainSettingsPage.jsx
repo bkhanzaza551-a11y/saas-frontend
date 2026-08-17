@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import { Globe, CheckCircle, XCircle, Copy, Trash2, ExternalLink } from "lucide-react";
-import toast from "react-hot-toast";
 import { api } from "../../api/client";
 
 export default function DomainSettingsPage() {
@@ -14,6 +13,7 @@ export default function DomainSettingsPage() {
   const [checking, setChecking] = useState(false);
   const [avail, setAvail] = useState(null);
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const [message, setMessage] = useState({ error: "", success: "" });
 
   useEffect(() => {
     api.get("/owner/domain/settings").then(({ data }) => {
@@ -23,7 +23,7 @@ export default function DomainSettingsPage() {
       setUrl(data.url || "");
       setSlug(data.salon?.slug || "");
       setLoading(false);
-    }).catch(() => { setLoading(false); toast.error("Failed to load domain settings"); });
+    }).catch(() => { setLoading(false); setMessage({ error: "Failed to load domain settings", success: "" }); });
   }, []);
 
   const checkAvailability = useCallback((name) => {
@@ -33,7 +33,7 @@ export default function DomainSettingsPage() {
       setChecking(true);
       api.get(`/owner/domain/check?name=${name}`).then(({ data }) => {
         setAvail(data.available);
-        if (!data.available) toast.error(data.message);
+        if (!data.available) setMessage({ error: data.message || "Domain not available", success: "" });
       }).catch(() => setAvail(null)).finally(() => setChecking(false));
     }, 400);
     setDebounceTimer(timer);
@@ -47,16 +47,17 @@ export default function DomainSettingsPage() {
   };
 
   const handleSave = async () => {
-    if (!subdomain.trim() || subdomain.length < 3) return toast.error("Minimum 3 characters");
+    if (!subdomain.trim() || subdomain.length < 3) return setMessage({ error: "Minimum 3 characters required", success: "" });
     setSaving(true);
+    setMessage({ error: "", success: "" });
     try {
       const { data } = await api.post("/owner/domain/set", { subdomain: subdomain.trim() });
       setSavedSubdomain(data.subdomain);
       setStatus(data.status);
       setUrl(data.url);
-      toast.success(`Your website is live at ${data.url}`);
+      setMessage({ error: "", success: `Your website is live at ${data.url}` });
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save");
+      setMessage({ error: err.response?.data?.message || "Failed to save", success: "" });
     } finally { setSaving(false); }
   };
 
@@ -65,8 +66,8 @@ export default function DomainSettingsPage() {
     try {
       await api.delete("/owner/domain/remove");
       setSavedSubdomain(""); setSubdomain(""); setStatus("NONE"); setUrl(""); setAvail(null);
-      toast.success("Subdomain removed");
-    } catch { toast.error("Failed to remove"); }
+      setMessage({ error: "", success: "Subdomain removed" });
+    } catch { setMessage({ error: "Failed to remove", success: "" }); }
   };
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600" /></div>;
@@ -81,6 +82,17 @@ export default function DomainSettingsPage() {
         </div>
       </div>
 
+      {message.error && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+          {message.error}
+        </div>
+      )}
+      {message.success && (
+        <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+          {message.success}
+        </div>
+      )}
+
       {/* Current Status */}
       {savedSubdomain && (
         <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl border border-pink-200 p-5">
@@ -94,13 +106,13 @@ export default function DomainSettingsPage() {
             <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm font-mono text-pink-700 hover:text-pink-800 truncate flex items-center gap-2">
               {url} <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
             </a>
-            <button onClick={() => { navigator.clipboard.writeText(url); toast.success("Copied!"); }} className="p-2 text-pink-500 hover:text-pink-700 hover:bg-pink-50 rounded-lg transition-colors">
+            <button onClick={() => { navigator.clipboard.writeText(url); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} className="p-2 text-pink-500 hover:text-pink-700 hover:bg-pink-50 rounded-lg transition-colors">
               <Copy className="h-4 w-4" />
             </button>
           </div>
           <div className="mt-3 flex items-center gap-2 text-xs text-pink-600">
             <span>Also available at:</span>
-            <button onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); toast.success("Copied!"); }} className="font-mono hover:underline">
+            <button onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} className="font-mono hover:underline">
               salonnest.in/site/{slug}
             </button>
           </div>
