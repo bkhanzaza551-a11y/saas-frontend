@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Package, Plus, Eye, Edit2, Trash2, ShoppingCart, Search } from "lucide-react";
+import CustomSelect from "../../components/CustomSelect";
+import { Package, Plus, Eye, Edit2, Trash2, ShoppingCart, Search, Filter, Layers, ListFilter, FileText } from "lucide-react";
 
 const priorityColors = {
   LOW: { bg: "#f0fdf4", color: "#166534" },
@@ -13,11 +14,11 @@ const priorityColors = {
 };
 
 const statusColors = {
-  NEW: { bg: "#eff6ff", color: "#2563eb" },
-  PENDING: { bg: "#fffbeb", color: "#d97706" },
-  APPROVED: { bg: "#ecfdf5", color: "#10b981" },
-  REJECTED: { bg: "#fef2f2", color: "#ef4444" },
-  COMPLETED: { bg: "#f0fdf4", color: "#166534" }
+  NEW: { bg: "#eff6ff", color: "#2563eb", label: "New" },
+  PENDING: { bg: "#fffbeb", color: "#d97706", label: "Pending" },
+  APPROVED: { bg: "#ecfdf5", color: "#10b981", label: "Approved" },
+  REJECTED: { bg: "#fef2f2", color: "#ef4444", label: "Rejected" },
+  COMPLETED: { bg: "#f0fdf4", color: "#166534", label: "Completed" }
 };
 
 const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
@@ -27,12 +28,32 @@ export default function ProductsRequirementPage() {
   const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
-  const [filter, setFilter] = useState("");
-  const [catalogSearch, setCatalogSearch] = useState("");
-  const [viewDetailReq, setViewDetailReq] = useState(null);
-  const [statusUpdateReq, setStatusUpdateReq] = useState(null);
-  const [requestModal, setRequestModal] = useState(null);
-  const [requestForm, setRequestForm] = useState({ quantity: "1", priority: "MEDIUM", note: "" });
+
+  // 4 Sections: "available" | "new_request" | "my_requests" | "detail"
+  const [activeSection, setActiveSection] = useState("available");
+
+  // Filters for Available Products (Point 6)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("");
+
+  // Filter for My Requests
+  const [requestStatusFilter, setRequestStatusFilter] = useState("");
+
+  // Detail View & Request Form States
+  const [selectedDetail, setSelectedDetail] = useState(null);
+  const [requestForm, setRequestForm] = useState({
+    catalogId: "",
+    brand: "",
+    productName: "",
+    category: "",
+    unitPackSize: "",
+    quantity: "1",
+    priority: "MEDIUM",
+    unitPrice: "",
+    note: ""
+  });
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -45,7 +66,7 @@ export default function ProductsRequirementPage() {
       setRequirements(resReq.data || []);
       setCatalog(resCat.data || []);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not load data"), success: "" });
+      setStatus({ error: formatApiError(err, "Could not load products data"), success: "" });
     } finally {
       setLoading(false);
     }
@@ -53,36 +74,94 @@ export default function ProductsRequirementPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const openRequestModal = (product) => {
-    setRequestModal(product);
+  // Unique brands & categories for filter dropdowns
+  const availableBrands = useMemo(() => {
+    const set = new Set(catalog.map(c => c.brand).filter(Boolean));
+    return Array.from(set).sort();
+  }, [catalog]);
+
+  const availableCategories = useMemo(() => {
+    const set = new Set(catalog.map(c => c.category).filter(Boolean));
+    return Array.from(set).sort();
+  }, [catalog]);
+
+  // Filtered Catalog Items (Point 6)
+  const filteredCatalog = useMemo(() => {
+    return catalog.filter(item => {
+      const itemStatus = item.isActive === false ? "INACTIVE" : (item.availableQty > 0 ? "AVAILABLE" : "OUT_OF_STOCK");
+      
+      if (availabilityFilter && availabilityFilter !== itemStatus) return false;
+      if (brandFilter && item.brand !== brandFilter) return false;
+      if (categoryFilter && item.category !== categoryFilter) return false;
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const pName = (item.productName || "").toLowerCase();
+        const bName = (item.brand || "").toLowerCase();
+        const cName = (item.category || "").toLowerCase();
+        const pack = (item.unitPackSize || item.packSize || "").toLowerCase();
+        if (!pName.includes(q) && !bName.includes(q) && !cName.includes(q) && !pack.includes(q)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [catalog, searchQuery, brandFilter, categoryFilter, availabilityFilter]);
+
+  const filteredRequests = useMemo(() => {
+    if (!requestStatusFilter) return requirements;
+    return requirements.filter(r => r.status === requestStatusFilter);
+  }, [requirements, requestStatusFilter]);
+
+  const openNewRequestWithProduct = (product) => {
     setRequestForm({
+      catalogId: product.id,
+      brand: product.brand || "",
+      productName: product.productName || "",
+      category: product.category || "",
+      unitPackSize: product.unitPackSize || product.packSize || "",
       quantity: "1",
       priority: "MEDIUM",
+      unitPrice: product.defaultPrice ? String(product.defaultPrice) : "",
       note: ""
     });
+    setActiveSection("new_request");
   };
 
-  const submitRequest = async () => {
-    if (!requestModal) return;
+  const handleCreateRequest = async (e) => {
+    e.preventDefault();
+    if (!requestForm.productName.trim()) {
+      setStatus({ error: "Product name is required", success: "" });
+      return;
+    }
     setSaving(true);
     try {
       await api.post("/owner/product-requirements", {
-        catalogId: requestModal.id,
-        productName: requestModal.productName,
-        description: requestModal.description,
-        category: requestModal.category,
-        brand: requestModal.brand,
-        packSize: requestModal.packSize,
-        unitPackSize: requestModal.unitPackSize,
-        unitPrice: requestModal.defaultPrice,
-        quantity: requestForm.quantity,
+        catalogId: requestForm.catalogId || null,
+        productName: requestForm.productName,
+        brand: requestForm.brand,
+        category: requestForm.category,
+        packSize: requestForm.unitPackSize,
+        unitPackSize: requestForm.unitPackSize,
+        unitPrice: requestForm.unitPrice ? parseFloat(requestForm.unitPrice) : null,
+        quantity: parseInt(requestForm.quantity, 10) || 1,
         priority: requestForm.priority,
         note: requestForm.note
       });
-      setStatus({ error: "", success: `Request submitted for ${requestModal.productName}` });
-      setRequestModal(null);
-      setRequestForm({ quantity: "1", priority: "MEDIUM", note: "" });
+      setStatus({ error: "", success: `Requirement submitted for "${requestForm.productName}"!` });
+      setRequestForm({
+        catalogId: "",
+        brand: "",
+        productName: "",
+        category: "",
+        unitPackSize: "",
+        quantity: "1",
+        priority: "MEDIUM",
+        unitPrice: "",
+        note: ""
+      });
       await load();
+      setActiveSection("my_requests");
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not submit request"), success: "" });
     } finally {
@@ -90,307 +169,595 @@ export default function ProductsRequirementPage() {
     }
   };
 
-  const updateStatus = async (id, newStatus) => {
-    try {
-      await api.patch(`/owner/product-requirements/${id}`, { status: newStatus });
-      setStatus({ error: "", success: "Status updated." });
-      setStatusUpdateReq(null);
-      await load();
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not update status"), success: "" });
-    }
-  };
-
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this requirement?")) return;
+    if (!window.confirm("Are you sure you want to delete this request?")) return;
     try {
       await api.delete(`/owner/product-requirements/${id}`);
+      setStatus({ error: "", success: "Request deleted successfully." });
+      if (selectedDetail && selectedDetail.id === id) {
+        setSelectedDetail(null);
+        setActiveSection("my_requests");
+      }
       await load();
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Failed to delete"), success: "" });
+      setStatus({ error: formatApiError(err, "Failed to delete request"), success: "" });
     }
   };
 
-  const filteredCatalog = catalogSearch
-    ? catalog.filter(c => c.productName.toLowerCase().includes(catalogSearch.toLowerCase()) || (c.category && c.category.toLowerCase().includes(catalogSearch.toLowerCase())))
-    : catalog;
-
-  const filtered = requirements.filter((r) => !filter || r.status === filter);
-
-  if (loading) return <div className="page-shell"><PageLoader title="Loading products" /></div>;
+  if (loading) return <div className="page-shell"><PageLoader title="Loading Product Requests" /></div>;
 
   return (
     <div className="page-shell">
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head">
+      {/* Header */}
+      <div className="hero-card" style={{ padding: "20px 24px", marginBottom: 20 }}>
+        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h1 style={{ marginTop: 0 }}>Product Requirements</h1>
-            <p style={{ marginBottom: 0 }}>Browse available products and submit requests.</p>
+            <h1 style={{ margin: 0, fontSize: "1.4rem" }}>Product Requests</h1>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>
+              Explore available catalog items, place new orders/requirements, and track request status.
+            </p>
           </div>
+          <button
+            onClick={() => {
+              setRequestForm({
+                catalogId: "",
+                brand: "",
+                productName: "",
+                category: "",
+                unitPackSize: "",
+                quantity: "1",
+                priority: "MEDIUM",
+                unitPrice: "",
+                note: ""
+              });
+              setActiveSection("new_request");
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "10px 18px",
+              background: "#4f46e5",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)"
+            }}
+          >
+            <Plus size={16} /> + New Request
+          </button>
         </div>
       </div>
 
-      {status.error && <div style={{ background: "#fef2f2", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", justifyContent: "space-between" }}>{status.error} <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#991b1b", cursor: "pointer" }}>✕</button></div>}
-      {status.success && <div style={{ background: "#ecfdf5", color: "#065f46", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", justifyContent: "space-between" }}>{status.success} <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#065f46", cursor: "pointer" }}>✕</button></div>}
-
-      {/* Available Products Section */}
-      <div className="panel-card" style={{ padding: 24, marginBottom: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
-          <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8 }}><Package size={20} /> Available Products</h3>
-          <div style={{ position: "relative", width: 300 }}>
-            <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={catalogSearch}
-              onChange={e => setCatalogSearch(e.target.value)}
-              style={{ width: "100%", padding: "10px 12px 10px 36px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, boxSizing: "border-box" }}
-            />
-          </div>
+      {status.error && (
+        <div style={{ background: "#fef2f2", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.error}</span>
+          <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#991b1b", cursor: "pointer" }}>✕</button>
         </div>
-        {filteredCatalog.length === 0 ? (
-          <EmptyState title="No Products Available" message="No products in the catalog yet." />
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
-            {filteredCatalog.map((product) => (
-              <div key={product.id} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: 16, cursor: "pointer", transition: "all 0.2s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "#4f46e5"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(79, 70, 229, 0.15)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.boxShadow = "none"; }}
-                onClick={() => openRequestModal(product)}
-              >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: "#fdf4ff", color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <Package size={20} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{product.productName}</h4>
-                    {product.brand && <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>{product.brand}</p>}
-                  </div>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13, color: "#475569" }}>
-                  {product.category && <div>Category: <b style={{ color: "#334155" }}>{product.category}</b></div>}
-                  {product.packSize && <div>Pack Size: <b style={{ color: "#334155" }}>{product.packSize}</b></div>}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
-                    <span style={{ fontWeight: 700, color: "#0f172a", fontSize: 16 }}>{product.defaultPrice ? `₹${fmt(product.defaultPrice)}` : "Price N/A"}</span>
-                    <span style={{ fontSize: 12, color: product.availableQty > 0 ? "#10b981" : "#ef4444", fontWeight: 600 }}>
-                      {product.availableQty > 0 ? `${product.availableQty} in stock` : "Out of stock"}
-                    </span>
-                  </div>
-                </div>
-                <button style={{ width: "100%", marginTop: 12, padding: "10px 16px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                  <ShoppingCart size={14} /> Request This Product
+      )}
+      {status.success && (
+        <div style={{ background: "#ecfdf5", color: "#065f46", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.success}</span>
+          <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#065f46", cursor: "pointer" }}>✕</button>
+        </div>
+      )}
+
+      {/* 4 Section Navigation Tabs (Point 2) */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 10 }}>
+        <button
+          onClick={() => setActiveSection("available")}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: activeSection === "available" ? "#4f46e5" : "#f1f5f9",
+            color: activeSection === "available" ? "white" : "#475569",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6
+          }}
+        >
+          <Package size={16} /> 1. Available Products ({catalog.length})
+        </button>
+
+        <button
+          onClick={() => setActiveSection("new_request")}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: activeSection === "new_request" ? "#4f46e5" : "#f1f5f9",
+            color: activeSection === "new_request" ? "white" : "#475569",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6
+          }}
+        >
+          <Plus size={16} /> 2. New Request
+        </button>
+
+        <button
+          onClick={() => setActiveSection("my_requests")}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: activeSection === "my_requests" ? "#4f46e5" : "#f1f5f9",
+            color: activeSection === "my_requests" ? "white" : "#475569",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6
+          }}
+        >
+          <ListFilter size={16} /> 3. My Requests ({requirements.length})
+        </button>
+
+        {selectedDetail && (
+          <button
+            onClick={() => setActiveSection("detail")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              border: "none",
+              background: activeSection === "detail" ? "#4f46e5" : "#f1f5f9",
+              color: activeSection === "detail" ? "white" : "#475569",
+              fontWeight: 700,
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6
+            }}
+          >
+            <FileText size={16} /> 4. Request Detail
+          </button>
+        )}
+      </div>
+
+      {/* SECTION 1: AVAILABLE PRODUCTS (Points 3, 4, 5, 6) */}
+      {activeSection === "available" && (
+        <div className="panel-card" style={{ padding: 24 }}>
+          {/* Search & Filter Controls (Point 6) */}
+          <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 12, alignItems: "center" }}>
+              <div style={{ position: "relative" }}>
+                <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                <input
+                  type="text"
+                  placeholder="Search Product Name, Brand, Category, Pack Size..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px 10px 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <CustomSelect value={brandFilter} onChange={e => setBrandFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">All Brands</option>
+                {availableBrands.map(b => <option key={b} value={b}>{b}</option>)}
+              </CustomSelect>
+
+              <CustomSelect value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">All Categories</option>
+                {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}
+              </CustomSelect>
+
+              <CustomSelect value={availabilityFilter} onChange={e => setAvailabilityFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">All Availability</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="OUT_OF_STOCK">Out of Stock</option>
+                <option value="INACTIVE">Inactive</option>
+              </CustomSelect>
+            </div>
+            
+            {(searchQuery || brandFilter || categoryFilter || availabilityFilter) && (
+              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Showing {filteredCatalog.length} of {catalog.length} available product(s)</span>
+                <button
+                  onClick={() => { setSearchQuery(""); setBrandFilter(""); setCategoryFilter(""); setAvailabilityFilter(""); }}
+                  style={{ background: "none", border: "none", color: "#4f46e5", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer" }}
+                >
+                  Reset Filters
                 </button>
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
 
-      {/* My Requests Section */}
-      <div className="panel-card" style={{ padding: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ margin: 0 }}>My Requests ({requirements.length})</h3>
-          <div style={{ display: "flex", gap: 8 }}>
-            {["", "NEW", "PENDING", "APPROVED", "REJECTED", "COMPLETED"].map((s) => (
-              <button key={s} type="button" onClick={() => setFilter(s)} style={{ padding: "6px 12px", borderRadius: 8, border: "none", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", background: filter === s ? "#4f46e5" : "#f1f5f9", color: filter === s ? "white" : "#64748b" }}>
-                {s || "All"}
-              </button>
-            ))}
-          </div>
-        </div>
-        {filtered.length === 0 ? <EmptyState title="No requests yet" message="Click on a product above to submit a request." /> : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {filtered.map((r) => {
-              const pc = priorityColors[r.priority] || priorityColors.MEDIUM;
-              const sc = statusColors[r.status] || statusColors.NEW;
-              return (
-                <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
-                  <div style={{ display: "flex", gap: 20, alignItems: "center", flex: 1 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fdf4ff", color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center" }}><Package size={18} /></div>
-                    <div style={{ minWidth: 180 }}>
-                      <div style={{ fontWeight: 700, color: "#0f172a" }}>{r.productName || "General"}</div>
-                      <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>{r.description || "No description"}</div>
+          {/* Product Cards List (Order: Brand -> Product Name -> Category -> Unit / Pack Size -> Availability) (Point 4 & 5) */}
+          {filteredCatalog.length === 0 ? (
+            <EmptyState title="No Products Match" message="No available products match your filter criteria." />
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+              {filteredCatalog.map((product) => {
+                const isAvail = product.isActive !== false && product.availableQty > 0;
+                const packText = product.unitPackSize || product.packSize || "Standard";
+
+                return (
+                  <div
+                    key={product.id}
+                    style={{
+                      background: "white",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 12,
+                      padding: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
+                      transition: "all 0.15s"
+                    }}
+                  >
+                    <div>
+                      {/* 1. Brand */}
+                      <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                        {product.brand || "Standard Brand"}
+                      </div>
+
+                      {/* 2. Product Name */}
+                      <h4 style={{ margin: "0 0 6px", fontSize: "1rem", fontWeight: 700, color: "#0f172a" }}>
+                        {product.productName}
+                      </h4>
+
+                      {/* 3. Category & 4. Unit / Pack Size */}
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                        <span style={{ background: "#f1f5f9", color: "#475569", padding: "2px 8px", borderRadius: 6, fontSize: "0.72rem", fontWeight: 600 }}>
+                          Category: {product.category || "General"}
+                        </span>
+                        <span style={{ background: "#eff6ff", color: "#1e40af", padding: "2px 8px", borderRadius: 6, fontSize: "0.72rem", fontWeight: 700 }}>
+                          Pack: {packText}
+                        </span>
+                      </div>
+
+                      {/* 5. Availability Status & Qty */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "8px 12px", borderRadius: 8, fontSize: "0.8rem", marginBottom: 12 }}>
+                        <div>
+                          <span style={{ color: "#64748b" }}>Status: </span>
+                          <strong style={{ color: isAvail ? "#16a34a" : "#dc2626" }}>
+                            {product.isActive === false ? "Inactive" : (product.availableQty > 0 ? "Available" : "Out of Stock")}
+                          </strong>
+                        </div>
+                        <div style={{ fontWeight: 700, color: "#334155" }}>
+                          Qty: {product.availableQty || 0}
+                        </div>
+                      </div>
+
+                      {product.description && (
+                        <p style={{ margin: "0 0 12px", fontSize: "0.78rem", color: "#64748b", lineHeight: 1.4 }}>
+                          {product.description}
+                        </p>
+                      )}
                     </div>
-                    <div style={{ minWidth: 100 }}>
-                      <div style={{ fontSize: "0.85rem", color: "#475569" }}>{r.category || "-"}</div>
-                      <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>x{r.quantity || 1} {r.packSize && `(${r.packSize})`}</div>
-                    </div>
-                    <div style={{ fontSize: "0.85rem", color: "#64748b" }}>{r.unitPrice ? "\u20B9" + fmt(r.unitPrice) : "-"}</div>
-                  </div>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                    <span style={{ background: pc.bg, color: pc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>{r.priority}</span>
-                    <span style={{ background: sc.bg, color: sc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>{r.status}</span>
-                    <button type="button" onClick={() => setViewDetailReq(r)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4 }} title="View Detail">
-                      <Eye size={14} />
-                    </button>
-                    <button type="button" onClick={() => setStatusUpdateReq(r)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4 }} title="Update Status">
-                      <Edit2 size={14} />
-                    </button>
-                    {r.status === "NEW" && (
-                      <button type="button" onClick={() => handleDelete(r.id)} className="btn btn-secondary" style={{ padding: "6px", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 4, color: "#ef4444" }} title="Delete">
-                        <Trash2 size={14} />
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
+                      <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#0f172a" }}>
+                        {product.defaultPrice ? `₹${fmt(product.defaultPrice)}` : "Price on Request"}
+                      </div>
+                      <button
+                        onClick={() => openNewRequestWithProduct(product)}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          padding: "8px 14px",
+                          background: "#0f172a",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: "0.8rem",
+                          fontWeight: 700,
+                          cursor: "pointer"
+                        }}
+                      >
+                        <ShoppingCart size={14} /> Request
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Request Modal - Click on product */}
-      {requestModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 480, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Request Product</h2>
-              <button onClick={() => setRequestModal(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+      {/* SECTION 2: NEW REQUEST (Point 2) */}
+      {activeSection === "new_request" && (
+        <div className="panel-card" style={{ padding: 24, maxWidth: 640, margin: "0 auto" }}>
+          <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "#0f172a" }}>Submit Product Request</h3>
+          <p style={{ margin: "0 0 20px", fontSize: "0.85rem", color: "#64748b" }}>
+            Fill in required details for products you need at your salon.
+          </p>
+
+          <form onSubmit={handleCreateRequest} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. L'Oréal Professional, Wella, Schwarzkopf"
+                  value={requestForm.brand}
+                  onChange={e => setRequestForm({ ...requestForm, brand: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Product Name *</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Majirel Hair Color 5.1"
+                  value={requestForm.productName}
+                  onChange={e => setRequestForm({ ...requestForm, productName: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
             </div>
 
-            {/* Product Info Card */}
-            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: 16, marginBottom: 20 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#fdf4ff", color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Package size={20} />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{requestModal.productName}</h3>
-                  {requestModal.brand && <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>{requestModal.brand}</p>}
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13, color: "#475569" }}>
-                {requestModal.category && <div>Category: <b>{requestModal.category}</b></div>}
-                {requestModal.packSize && <div>Pack Size: <b>{requestModal.packSize}</b></div>}
-                {requestModal.defaultPrice && <div>Price: <b style={{ color: "#10b981" }}>₹{fmt(requestModal.defaultPrice)}</b></div>}
-                <div>Stock: <b style={{ color: requestModal.availableQty > 0 ? "#10b981" : "#ef4444" }}>{requestModal.availableQty || 0}</b></div>
-              </div>
-              {requestModal.description && (
-                <p style={{ margin: "12px 0 0", fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>{requestModal.description}</p>
-              )}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
+                <input
+                  type="text"
+                  placeholder="e.g. Hair Color, Shampoo, Facial Kit"
+                  value={requestForm.category}
+                  onChange={e => setRequestForm({ ...requestForm, category: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size (Point 5)</span>
+                <input
+                  type="text"
+                  placeholder="e.g. 50 ml, 100 ml, 500 ml, 1 L, Pack of 12"
+                  value={requestForm.unitPackSize}
+                  onChange={e => setRequestForm({ ...requestForm, unitPackSize: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
             </div>
 
-            {/* Request Form */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Quantity *</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Quantity *</span>
                 <input
                   type="number"
                   min="1"
+                  required
                   value={requestForm.quantity}
                   onChange={e => setRequestForm({ ...requestForm, quantity: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
                 />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Priority</label>
-                <select
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Priority</span>
+                <CustomSelect
                   value={requestForm.priority}
                   onChange={e => setRequestForm({ ...requestForm, priority: e.target.value })}
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", background: "#fff" }}
+                  style={{ width: "100%" }}
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
                   <option value="HIGH">High</option>
                   <option value="URGENT">Urgent</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4, color: "#475569" }}>Note (Optional)</label>
-                <textarea
-                  rows={2}
-                  value={requestForm.note}
-                  onChange={e => setRequestForm({ ...requestForm, note: e.target.value })}
-                  placeholder="Any additional notes..."
-                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
+                </CustomSelect>
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Est. Price (INR)</span>
+                <input
+                  type="number"
+                  placeholder="Optional"
+                  value={requestForm.unitPrice}
+                  onChange={e => setRequestForm({ ...requestForm, unitPrice: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
                 />
-              </div>
+              </label>
             </div>
 
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
-              <button 
-                type="button" 
-                onClick={() => setRequestModal(null)} 
-                style={{ height: 42, padding: "0 20px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10, color: "#475569", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
-                onMouseOver={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#0f172a"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#475569"; }}
+            <label>
+              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Notes & Specifications</span>
+              <textarea
+                rows={3}
+                placeholder="Specific shade, brand variant, urgency details, or distributor notes..."
+                value={requestForm.note}
+                onChange={e => setRequestForm({ ...requestForm, note: e.target.value })}
+                style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+              />
+            </label>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 10 }}>
+              <button
+                type="button"
+                onClick={() => setActiveSection("available")}
+                style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
               >
                 Cancel
               </button>
-              
               <button
-                type="button"
-                onClick={submitRequest}
-                disabled={saving || !requestForm.quantity || parseInt(requestForm.quantity) < 1}
-                style={{ 
-                  height: 42, padding: "0 24px", background: "#0f172a", border: "1px solid #0f172a", borderRadius: 10, color: "#fff", fontSize: "0.9rem", fontWeight: 600, cursor: (saving || !requestForm.quantity || parseInt(requestForm.quantity) < 1) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s", opacity: (saving || !requestForm.quantity || parseInt(requestForm.quantity) < 1) ? 0.6 : 1, boxShadow: "0 4px 12px rgba(15,23,42,0.15)"
-                }}
-                onMouseOver={e => { if(!saving && requestForm.quantity && parseInt(requestForm.quantity) >= 1) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(15,23,42,0.2)"; } }}
-                onMouseOut={e => { if(!saving && requestForm.quantity && parseInt(requestForm.quantity) >= 1) { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(15,23,42,0.15)"; } }}
+                type="submit"
+                disabled={saving}
+                style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
               >
-                {saving ? "Submitting..." : <><ShoppingCart size={16} /> Submit Request</>}
+                {saving ? "Submitting..." : "Submit Product Request"}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
 
-      {/* View Detail Modal */}
-      {viewDetailReq && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 520, borderRadius: 20, boxShadow: "0 25px 60px rgba(0,0,0,0.18)", overflow: "hidden" }}>
-            <div style={{ height: 5, background: "linear-gradient(90deg, #475569, #334155, #0f172a)" }} />
-            <div style={{ padding: "20px 24px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 12, background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <Package size={18} color="white" />
-                  </div>
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a", lineHeight: 1.3 }}>{viewDetailReq.productName}</h2>
-                    <span style={{ fontSize: "0.75rem", color: "#64748b" }}>{viewDetailReq.category || "Uncategorized"}</span>
-                  </div>
-                </div>
+      {/* SECTION 3: MY REQUESTS (Point 2) */}
+      {activeSection === "my_requests" && (
+        <div className="panel-card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+            <h3 style={{ margin: 0, fontSize: "1.1rem" }}>My Requests ({filteredRequests.length})</h3>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {["", "NEW", "PENDING", "APPROVED", "REJECTED", "COMPLETED"].map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setRequestStatusFilter(st)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: "none",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    background: requestStatusFilter === st ? "#4f46e5" : "#f1f5f9",
+                    color: requestStatusFilter === st ? "white" : "#64748b"
+                  }}
+                >
+                  {st ? statusColors[st]?.label || st : "All"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredRequests.length === 0 ? (
+            <EmptyState title="No Requests Found" message="You have not submitted any product requirements in this filter." />
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Brand & Product</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Category</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Pack Size</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Quantity</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Priority</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Status</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Date</th>
+                    <th style={{ padding: "12px 14px", textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRequests.map((r) => {
+                    const pc = priorityColors[r.priority] || priorityColors.MEDIUM;
+                    const sc = statusColors[r.status] || statusColors.NEW;
+
+                    return (
+                      <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 14px" }}>
+                          <div style={{ fontSize: "0.72rem", color: "#6366f1", fontWeight: 800, textTransform: "uppercase" }}>{r.brand || "—"}</div>
+                          <div style={{ fontWeight: 700, color: "#0f172a" }}>{r.productName}</div>
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#475569" }}>{r.category || "—"}</td>
+                        <td style={{ padding: "12px 14px", color: "#475569" }}>{r.unitPackSize || r.packSize || "Standard"}</td>
+                        <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>{r.quantity || 1}</td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
+                            {r.priority}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <span style={{ background: sc.bg, color: sc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
+                            {sc.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#64748b", fontSize: 12 }}>
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: "12px 14px", textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => { setSelectedDetail(r); setActiveSection("detail"); }}
+                              title="View Details"
+                              style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#3b82f6", cursor: "pointer" }}
+                            >
+                              <Eye size={14} />
+                            </button>
+                            {r.status === "NEW" && (
+                              <button
+                                onClick={() => handleDelete(r.id)}
+                                title="Delete"
+                                style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#ef4444", cursor: "pointer" }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECTION 4: REQUEST DETAIL (Point 2) */}
+      {activeSection === "detail" && selectedDetail && (
+        <div className="panel-card" style={{ padding: 24, maxWidth: 640, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#6366f1", textTransform: "uppercase" }}>
+                Brand: {selectedDetail.brand || "—"}
               </div>
-              <button onClick={() => setViewDetailReq(null)} style={{ border: "none", background: "#f1f5f9", cursor: "pointer", width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#64748b" }}>✕</button>
+              <h3 style={{ margin: "2px 0 0", fontSize: "1.2rem", color: "#0f172a" }}>
+                {selectedDetail.productName}
+              </h3>
             </div>
-            <div style={{ padding: "12px 24px 0", display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {(() => { const sc = statusColors[viewDetailReq.status] || statusColors.NEW; return <span style={{ background: sc.bg, color: sc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>{viewDetailReq.status}</span>; })()}
-              {(() => { const pc = priorityColors[viewDetailReq.priority] || priorityColors.MEDIUM; return <span style={{ background: pc.bg, color: pc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>{viewDetailReq.priority} Priority</span>; })()}
-            </div>
-            <div style={{ padding: "20px 24px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px" }}>
-                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Quantity</div>
-                  <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{viewDetailReq.quantity || 1}</div>
-                </div>
-                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px" }}>
-                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Unit Price</div>
-                  <div style={{ fontSize: "1rem", fontWeight: 700, color: viewDetailReq.unitPrice ? "#0f172a" : "#94a3b8" }}>{viewDetailReq.unitPrice ? "\u20B9" + fmt(viewDetailReq.unitPrice) : "N/A"}</div>
-                </div>
-                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px" }}>
-                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Est. Total</div>
-                  <div style={{ fontSize: "1rem", fontWeight: 700, color: viewDetailReq.unitPrice ? "#10b981" : "#94a3b8" }}>{viewDetailReq.unitPrice ? "\u20B9" + fmt(viewDetailReq.unitPrice * (viewDetailReq.quantity || 1)) : "N/A"}</div>
-                </div>
+            <span style={{ background: statusColors[selectedDetail.status]?.bg, color: statusColors[selectedDetail.status]?.color, padding: "4px 12px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 700 }}>
+              {statusColors[selectedDetail.status]?.label || selectedDetail.status}
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, background: "#f8fafc", padding: 16, borderRadius: 10, marginBottom: 16, fontSize: "0.85rem" }}>
+            <div><span style={{ color: "#64748b" }}>Category:</span> <strong>{selectedDetail.category || "—"}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Pack Size:</span> <strong>{selectedDetail.unitPackSize || selectedDetail.packSize || "Standard"}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Quantity:</span> <strong>{selectedDetail.quantity || 1}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Priority:</span> <strong>{selectedDetail.priority}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Est. Price:</span> <strong>{selectedDetail.unitPrice ? `₹${fmt(selectedDetail.unitPrice)}` : "—"}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Requested On:</span> <strong>{new Date(selectedDetail.createdAt).toLocaleDateString()}</strong></div>
+          </div>
+
+          {selectedDetail.note && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Salon Note</div>
+              <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#334155", borderLeft: "3px solid #6366f1" }}>
+                {selectedDetail.note}
               </div>
-              {viewDetailReq.description && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Description</div>
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", fontSize: "0.88rem", color: "#334155", lineHeight: 1.6, borderLeft: "3px solid #334155" }}>{viewDetailReq.description}</div>
-                </div>
-              )}
-              {viewDetailReq.note && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Note</div>
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", fontSize: "0.88rem", color: "#334155", lineHeight: 1.6 }}>{viewDetailReq.note}</div>
-                </div>
-              )}
-              <div style={{ height: 1, background: "#e2e8f0", margin: "4px 0 16px" }} />
-              <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Created {new Date(viewDetailReq.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
             </div>
-            <div style={{ padding: "0 24px 20px", display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setViewDetailReq(null)} className="btn btn-primary" style={{ padding: "8px 20px", fontSize: "0.82rem", background: "#0f172a", border: "none" }}>Close</button>
+          )}
+
+          {selectedDetail.remark && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Admin Remark</div>
+              <div style={{ background: "#ecfdf5", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#065f46", borderLeft: "3px solid #10b981" }}>
+                {selectedDetail.remark}
+              </div>
             </div>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+            <button
+              onClick={() => setActiveSection("my_requests")}
+              style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+            >
+              Back to Requests
+            </button>
+            <button
+              onClick={() => openNewRequestWithProduct(selectedDetail)}
+              style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+            >
+              Re-order This Item
+            </button>
           </div>
         </div>
       )}

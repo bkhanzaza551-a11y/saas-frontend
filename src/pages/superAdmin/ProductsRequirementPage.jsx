@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { Clock, CheckCircle, X, ExternalLink, Calendar, Users, Package, Briefcase, Plus, Edit2, Trash2, Mail, Phone } from "lucide-react";
+import { Clock, CheckCircle, X, ExternalLink, Calendar, Users, Package, Briefcase, Plus, Edit2, Trash2, Mail, Phone, Search, Filter, Layers, ListFilter, FileText } from "lucide-react";
 
 const statusConfig = {
   NEW: { label: "New", color: "#2563eb", bg: "#eff6ff", icon: Clock },
@@ -16,50 +16,82 @@ const statusConfig = {
 };
 
 const priorityColors = {
-  LOW: "#10b981",
-  MEDIUM: "#f59e0b",
-  HIGH: "#ef4444",
-  URGENT: "#dc2626"
+  LOW: { bg: "#f0fdf4", color: "#166534" },
+  MEDIUM: { bg: "#fffbeb", color: "#d97706" },
+  HIGH: { bg: "#fff7ed", color: "#c2410c" },
+  URGENT: { bg: "#fef2f2", color: "#dc2626" }
 };
+
+const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
 
 const emptyCatalog = {
   productName: "",
   description: "",
   category: "",
   brand: "",
-  packSize: "",
   unitPackSize: "",
   defaultPrice: "",
-  availableQty: "0"
+  availableQty: "0",
+  isActive: true,
+  notes: ""
 };
 
 export default function SuperAdminProductsRequirementPage() {
   const [requirements, setRequirements] = useState([]);
   const [catalog, setCatalog] = useState([]);
+  const [salons, setSalons] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState({ error: "", success: "" });
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("requests");
-  const [filter, setFilter] = useState(searchParams.get("status") || "ALL");
-  const [updatingId, setUpdatingId] = useState(null);
-  const [selectedReq, setSelectedReq] = useState(null);
+
+  // 4 Sections: "available" | "new_request" | "requests" | "detail"
+  const [activeSection, setActiveSection] = useState("available");
+
+  // Filters for Available Products (Point 6)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("");
+
+  // Filters for Requests
+  const [requestFilter, setRequestFilter] = useState(searchParams.get("status") || "ALL");
+  const [salonFilter, setSalonFilter] = useState("");
+
+  // Catalog Form & Modals
   const [catalogForm, setCatalogForm] = useState(emptyCatalog);
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [editCatalogItem, setEditCatalogItem] = useState(null);
-  const [catalogSearch, setCatalogSearch] = useState("");
+
+  // New Request Form & Detail
+  const [selectedReq, setSelectedReq] = useState(null);
+  const [adminRequestForm, setAdminRequestForm] = useState({
+    salonId: "",
+    brand: "",
+    productName: "",
+    category: "",
+    unitPackSize: "",
+    quantity: "1",
+    priority: "MEDIUM",
+    unitPrice: "",
+    note: ""
+  });
+  const [saving, setSaving] = useState(false);
+  const [updatingId, setUpdatingId] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError("");
+    setStatus({ error: "", success: "" });
     try {
-      const [resReqs, resCat] = await Promise.all([
+      const [resReqs, resCat, resSalons] = await Promise.all([
         api.get("/super-admin/product-requirements"),
-        api.get("/super-admin/product-catalog")
+        api.get("/super-admin/product-catalog"),
+        api.get("/super-admin/salons").catch(() => ({ data: [] }))
       ]);
       setRequirements(resReqs.data || []);
       setCatalog(resCat.data || []);
+      setSalons(resSalons.data || []);
     } catch (err) {
-      setError(formatApiError(err, "Failed to load data"));
+      setStatus({ error: formatApiError(err, "Failed to load product data"), success: "" });
     } finally {
       setLoading(false);
     }
@@ -67,47 +99,88 @@ export default function SuperAdminProductsRequirementPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id, status, internalNotes) => {
-    setUpdatingId(id);
-    try {
-      const data = { status };
-      if (internalNotes !== undefined) data.internalNotes = internalNotes;
-      await api.patch(`/super-admin/product-requirements/${id}`, data);
-      load();
-      if (selectedReq && selectedReq.id === id) {
-        setSelectedReq({ ...selectedReq, status, internalNotes: internalNotes !== undefined ? internalNotes : selectedReq.internalNotes });
+  // Unique brands & categories
+  const availableBrands = useMemo(() => {
+    const set = new Set(catalog.map(c => c.brand).filter(Boolean));
+    return Array.from(set).sort();
+  }, [catalog]);
+
+  const availableCategories = useMemo(() => {
+    const set = new Set(catalog.map(c => c.category).filter(Boolean));
+    return Array.from(set).sort();
+  }, [catalog]);
+
+  // Filtered Catalog
+  const filteredCatalog = useMemo(() => {
+    return catalog.filter(item => {
+      const itemStatus = item.isActive === false ? "INACTIVE" : (item.availableQty > 0 ? "AVAILABLE" : "OUT_OF_STOCK");
+      if (availabilityFilter && availabilityFilter !== itemStatus) return false;
+      if (brandFilter && item.brand !== brandFilter) return false;
+      if (categoryFilter && item.category !== categoryFilter) return false;
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const pName = (item.productName || "").toLowerCase();
+        const bName = (item.brand || "").toLowerCase();
+        const cName = (item.category || "").toLowerCase();
+        const pack = (item.unitPackSize || item.packSize || "").toLowerCase();
+        if (!pName.includes(q) && !bName.includes(q) && !cName.includes(q) && !pack.includes(q)) {
+          return false;
+        }
       }
-    } catch (err) {
-      alert(formatApiError(err, "Failed to update status"));
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+      return true;
+    });
+  }, [catalog, searchQuery, brandFilter, categoryFilter, availabilityFilter]);
+
+  // Filtered Requests
+  const filteredRequests = useMemo(() => {
+    return requirements.filter(r => {
+      if (requestFilter !== "ALL" && r.status !== requestFilter) return false;
+      if (salonFilter && r.salonId !== salonFilter) return false;
+      return true;
+    });
+  }, [requirements, requestFilter, salonFilter]);
 
   const saveCatalogItem = async (e) => {
     e.preventDefault();
+    if (!catalogForm.productName.trim() || !catalogForm.brand.trim()) {
+      setStatus({ error: "Brand and Product Name are mandatory.", success: "" });
+      return;
+    }
+    setSaving(true);
     try {
       if (editCatalogItem) {
-        await api.patch(`/super-admin/product-catalog/${editCatalogItem.id}`, catalogForm);
+        await api.patch(`/super-admin/product-catalog/${editCatalogItem.id}`, {
+          ...catalogForm,
+          packSize: catalogForm.unitPackSize
+        });
+        setStatus({ error: "", success: "Product catalog item updated successfully." });
       } else {
-        await api.post("/super-admin/product-catalog", catalogForm);
+        await api.post("/super-admin/product-catalog", {
+          ...catalogForm,
+          packSize: catalogForm.unitPackSize
+        });
+        setStatus({ error: "", success: "New product added to catalog." });
       }
       setCatalogForm(emptyCatalog);
       setShowCatalogModal(false);
       setEditCatalogItem(null);
       await load();
     } catch (err) {
-      alert(formatApiError(err, "Failed to save"));
+      setStatus({ error: formatApiError(err, "Failed to save product"), success: "" });
+    } finally {
+      setSaving(false);
     }
   };
 
   const deleteCatalogItem = async (id) => {
-    if (!window.confirm("Delete this catalog item?")) return;
+    if (!window.confirm("Are you sure you want to delete this catalog product?")) return;
     try {
       await api.delete(`/super-admin/product-catalog/${id}`);
+      setStatus({ error: "", success: "Product removed from catalog." });
       await load();
     } catch (err) {
-      alert(formatApiError(err, "Failed to delete"));
+      setStatus({ error: formatApiError(err, "Failed to delete"), success: "" });
     }
   };
 
@@ -118,364 +191,768 @@ export default function SuperAdminProductsRequirementPage() {
       description: item.description || "",
       category: item.category || "",
       brand: item.brand || "",
-      packSize: item.packSize || "",
-      unitPackSize: item.unitPackSize || "",
+      unitPackSize: item.unitPackSize || item.packSize || "",
       defaultPrice: item.defaultPrice ? String(item.defaultPrice) : "",
-      availableQty: String(item.availableQty || 0)
+      availableQty: String(item.availableQty || 0),
+      isActive: item.isActive !== false,
+      notes: item.notes || ""
     });
     setShowCatalogModal(true);
   };
 
-  const filtered = filter === "ALL" ? requirements : requirements.filter(r => r.status === filter);
-  const filteredCatalog = catalogSearch
-    ? catalog.filter(c => c.productName.toLowerCase().includes(catalogSearch.toLowerCase()) || (c.category && c.category.toLowerCase().includes(catalogSearch.toLowerCase())))
-    : catalog;
-
-  const counts = {
-    ALL: requirements.length,
-    NEW: requirements.filter(r => r.status === "NEW").length,
-    PENDING: requirements.filter(r => r.status === "PENDING").length,
-    APPROVED: requirements.filter(r => r.status === "APPROVED").length,
-    REJECTED: requirements.filter(r => r.status === "REJECTED").length,
-    COMPLETED: requirements.filter(r => r.status === "COMPLETED").length
+  const updateStatus = async (id, newStatus, remark) => {
+    setUpdatingId(id);
+    try {
+      const data = { status: newStatus };
+      if (remark !== undefined) data.remark = remark;
+      await api.patch(`/super-admin/product-requirements/${id}`, data);
+      setStatus({ error: "", success: `Request marked as ${newStatus}` });
+      await load();
+      if (selectedReq && selectedReq.id === id) {
+        setSelectedReq({ ...selectedReq, status: newStatus, remark: remark !== undefined ? remark : selectedReq.remark });
+      }
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to update status"), success: "" });
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
-  if (loading) return <div className="page-shell super-admin-page"><PageLoader title="Loading product requirements" /></div>;
+  const handleCreateAdminRequest = async (e) => {
+    e.preventDefault();
+    if (!adminRequestForm.productName.trim() || !adminRequestForm.brand.trim()) {
+      setStatus({ error: "Brand and Product Name are required.", success: "" });
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.post("/super-admin/product-requirements", {
+        salonId: adminRequestForm.salonId || null,
+        productName: adminRequestForm.productName,
+        brand: adminRequestForm.brand,
+        category: adminRequestForm.category,
+        packSize: adminRequestForm.unitPackSize,
+        unitPackSize: adminRequestForm.unitPackSize,
+        unitPrice: adminRequestForm.unitPrice ? parseFloat(adminRequestForm.unitPrice) : null,
+        quantity: parseInt(adminRequestForm.quantity, 10) || 1,
+        priority: adminRequestForm.priority,
+        note: adminRequestForm.note
+      });
+      setStatus({ error: "", success: `Created product request for "${adminRequestForm.productName}"!` });
+      setAdminRequestForm({
+        salonId: "",
+        brand: "",
+        productName: "",
+        category: "",
+        unitPackSize: "",
+        quantity: "1",
+        priority: "MEDIUM",
+        unitPrice: "",
+        note: ""
+      });
+      await load();
+      setActiveSection("requests");
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not create request"), success: "" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div className="page-shell super-admin-page"><PageLoader title="Loading Product Requests" /></div>;
 
   return (
     <div className="page-shell super-admin-page">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Product Requirements</h1>
-          <p style={{ fontSize: 14, color: "#64748b", marginTop: 4 }}>Manage product catalog and salon product requests</p>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Product Requests</h1>
+          <p style={{ fontSize: 14, color: "#64748b", marginTop: 4 }}>
+            Maintain product catalog inventory, receive salon orders, and fulfill requests.
+          </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setActiveTab("catalog")} style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: activeTab === "catalog" ? "2px solid #0f172a" : "1px solid #e2e8f0", cursor: "pointer", background: activeTab === "catalog" ? "#0f172a" : "#fff", color: activeTab === "catalog" ? "#fff" : "#475569" }}>
-            Available Products
-          </button>
-          <button onClick={() => setActiveTab("requests")} style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: activeTab === "requests" ? "2px solid #0f172a" : "1px solid #e2e8f0", cursor: "pointer", background: activeTab === "requests" ? "#0f172a" : "#fff", color: activeTab === "requests" ? "#fff" : "#475569" }}>
-            Product Requests
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={() => {
+              setEditCatalogItem(null);
+              setCatalogForm(emptyCatalog);
+              setShowCatalogModal(true);
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "9px 16px",
+              borderRadius: 8,
+              background: "#0f172a",
+              color: "white",
+              border: "none",
+              fontWeight: 700,
+              fontSize: "0.85rem",
+              cursor: "pointer"
+            }}
+          >
+            <Plus size={16} /> + Add Catalog Product
           </button>
         </div>
       </div>
 
-      {error && <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", borderRadius: 8, marginBottom: 16 }}>{error}</div>}
+      {status.error && (
+        <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", borderRadius: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.error}</span>
+          <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer" }}>✕</button>
+        </div>
+      )}
+      {status.success && (
+        <div style={{ padding: "12px 16px", background: "#ecfdf5", color: "#065f46", borderRadius: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.success}</span>
+          <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#065f46", cursor: "pointer" }}>✕</button>
+        </div>
+      )}
 
-      {activeTab === "catalog" && (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
-            <input type="text" placeholder="Search products..." value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, width: 300 }} />
-            <button onClick={() => { setEditCatalogItem(null); setCatalogForm(emptyCatalog); setShowCatalogModal(true); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", background: "#0f172a", color: "#fff", fontSize: 13, fontWeight: 600 }}>
-              <Plus size={14} /> Add Product
-            </button>
+      {/* 4 Sections Tabs (Point 2) */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 10 }}>
+        <button
+          onClick={() => setActiveSection("available")}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: activeSection === "available" ? "#0f172a" : "#f1f5f9",
+            color: activeSection === "available" ? "white" : "#475569",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6
+          }}
+        >
+          <Package size={16} /> 1. Available Products ({catalog.length})
+        </button>
+
+        <button
+          onClick={() => setActiveSection("new_request")}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: activeSection === "new_request" ? "#0f172a" : "#f1f5f9",
+            color: activeSection === "new_request" ? "white" : "#475569",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6
+          }}
+        >
+          <Plus size={16} /> 2. New Request
+        </button>
+
+        <button
+          onClick={() => setActiveSection("requests")}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: activeSection === "requests" ? "#0f172a" : "#f1f5f9",
+            color: activeSection === "requests" ? "white" : "#475569",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6
+          }}
+        >
+          <ListFilter size={16} /> 3. Salon Requests ({requirements.length})
+        </button>
+
+        {selectedReq && (
+          <button
+            onClick={() => setActiveSection("detail")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              border: "none",
+              background: activeSection === "detail" ? "#0f172a" : "#f1f5f9",
+              color: activeSection === "detail" ? "white" : "#475569",
+              fontWeight: 700,
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6
+            }}
+          >
+            <FileText size={16} /> 4. Request Detail
+          </button>
+        )}
+      </div>
+
+      {/* SECTION 1: AVAILABLE PRODUCTS (Catalog List) (Points 3, 4, 5, 6) */}
+      {activeSection === "available" && (
+        <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
+          {/* Search and Filters (Point 6) */}
+          <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 12, alignItems: "center" }}>
+              <div style={{ position: "relative" }}>
+                <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                <input
+                  type="text"
+                  placeholder="Search Product Name, Brand, Category, Pack Size..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px 10px 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <CustomSelect value={brandFilter} onChange={e => setBrandFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">All Brands</option>
+                {availableBrands.map(b => <option key={b} value={b}>{b}</option>)}
+              </CustomSelect>
+
+              <CustomSelect value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">All Categories</option>
+                {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}
+              </CustomSelect>
+
+              <CustomSelect value={availabilityFilter} onChange={e => setAvailabilityFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">All Availability</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="OUT_OF_STOCK">Out of Stock</option>
+                <option value="INACTIVE">Inactive</option>
+              </CustomSelect>
+            </div>
+
+            {(searchQuery || brandFilter || categoryFilter || availabilityFilter) && (
+              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Showing {filteredCatalog.length} of {catalog.length} available product(s)</span>
+                <button
+                  onClick={() => { setSearchQuery(""); setBrandFilter(""); setCategoryFilter(""); setAvailabilityFilter(""); }}
+                  style={{ background: "none", border: "none", color: "#4f46e5", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer" }}
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
           </div>
+
+          {/* Product Items Table/Cards (Order: Brand -> Product Name -> Category -> Unit / Pack Size -> Availability) (Points 3, 4, 5) */}
           {filteredCatalog.length === 0 ? (
-            <EmptyState title="No Products" message="No products in the catalog yet." />
+            <EmptyState title="No Products" message="No catalog products match your search/filter criteria." />
           ) : (
-            <div style={{ display: "grid", gap: 12 }}>
-              {filteredCatalog.map((item) => (
-                <div key={item.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", gap: 20, alignItems: "center", flex: 1 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fdf4ff", color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center" }}><Package size={18} /></div>
-                    <div style={{ minWidth: 200 }}>
-                      <div style={{ fontWeight: 700, color: "#0f172a" }}>{item.productName}</div>
-                      <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>{item.description || "No description"}</div>
-                    </div>
-                    <div style={{ minWidth: 100 }}><span style={{ fontSize: "0.78rem", color: "#64748b" }}>{item.category || "N/A"}</span></div>
-                    <div style={{ minWidth: 80 }}><span style={{ fontSize: "0.78rem", color: "#64748b" }}>{item.brand || "N/A"}</span></div>
-                    <div style={{ minWidth: 60 }}><span style={{ fontSize: "0.78rem", color: "#64748b" }}>{item.packSize || "N/A"}</span></div>
-                    <div style={{ minWidth: 80 }}><span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#0f172a" }}>{item.defaultPrice ? `₹${item.defaultPrice}` : "N/A"}</span></div>
-                    <div style={{ minWidth: 60 }}><span style={{ fontSize: "0.78rem", color: "#10b981", fontWeight: 600 }}>{item.availableQty} in stock</span></div>
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => openEditCatalog(item)} style={{ padding: 6, border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff", cursor: "pointer", color: "#475569" }}><Edit2 size={14} /></button>
-                    <button onClick={() => deleteCatalogItem(item.id)} style={{ padding: 6, border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff", cursor: "pointer", color: "#ef4444" }}><Trash2 size={14} /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>1. Brand</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>2. Product Name</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>3. Category</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>4. Unit / Pack Size</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>5. Available Qty & Status</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Unit Price</th>
+                    <th style={{ padding: "12px 14px", textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCatalog.map((item) => {
+                    const isAvail = item.isActive !== false && item.availableQty > 0;
+                    const statusLabel = item.isActive === false ? "Inactive" : (item.availableQty > 0 ? "Available" : "Out of Stock");
+                    const statusColor = item.isActive === false ? "#64748b" : (item.availableQty > 0 ? "#16a34a" : "#dc2626");
+                    const statusBg = item.isActive === false ? "#f1f5f9" : (item.availableQty > 0 ? "#ecfdf5" : "#fef2f2");
 
-      {activeTab === "requests" && (
-        <div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-            {["ALL", "NEW", "PENDING", "APPROVED", "REJECTED", "COMPLETED"].map(key => (
-              <button key={key} onClick={() => setFilter(key)} style={{
-                padding: "8px 16px", borderRadius: 20, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer",
-                background: filter === key ? "#0f172a" : "#f1f5f9",
-                color: filter === key ? "#fff" : "#64748b"
-              }}>
-                {key === "ALL" ? "All" : statusConfig[key]?.label} ({counts[key] || 0})
-              </button>
-            ))}
-          </div>
-
-          {filtered.length === 0 ? (
-            <EmptyState title="No Requirements" message={filter === "ALL" ? "No product requirements submitted yet." : `No ${statusConfig[filter]?.label.toLowerCase()} requirements.`} />
-          ) : (
-            <div style={{ display: "grid", gap: 16 }}>
-              {filtered.map((req) => {
-                const status = statusConfig[req.status] || statusConfig.NEW;
-                const StatusIcon = status.icon;
-                return (
-                  <div key={req.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "20px 24px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-                      <div style={{ flex: 1, minWidth: 280 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
-                          <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", margin: 0 }}>{req.productName}</h3>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: status.color, background: status.bg }}>
-                            <StatusIcon size={12} /> {status.label}
-                          </span>
-                        </div>
-                        {req.salon && (
-                          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 4px" }}>
-                            Salon: <b style={{ color: "#334155" }}>{req.salon.name}</b>
-                            {req.salon.slug && <span style={{ color: "#94a3b8" }}> ({req.salon.slug})</span>}
-                          </p>
-                        )}
-                        {req.owner && (
-                          <div style={{ display: "flex", gap: 12, fontSize: 12, color: "#64748b", marginTop: 4, flexWrap: "wrap" }}>
-                            {req.owner.name && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Users size={12} /> {req.owner.name}</span>}
-                            {req.owner.email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Mail size={12} /> {req.owner.email}</span>}
-                            {req.owner.phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Phone size={12} /> {req.owner.phone}</span>}
+                    return (
+                      <tr key={item.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 14px", fontWeight: 800, color: "#6366f1", textTransform: "uppercase", fontSize: "0.78rem" }}>
+                          {item.brand || "—"}
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <div style={{ fontWeight: 700, color: "#0f172a" }}>{item.productName}</div>
+                          {item.description && <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{item.description}</div>}
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#475569" }}>
+                          {item.category || "—"}
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#1e40af", fontWeight: 600 }}>
+                          {item.unitPackSize || item.packSize || "Standard"}
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ background: statusBg, color: statusColor, padding: "3px 8px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
+                              {statusLabel}
+                            </span>
+                            <span style={{ fontWeight: 700, color: "#334155" }}>({item.availableQty || 0} in stock)</span>
                           </div>
-                        )}
-                        {req.description && <p style={{ fontSize: 14, color: "#475569", margin: "8px 0" }}>{req.description}</p>}
-                        <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginTop: 8 }}>
-                          <span>Category: <b style={{ color: "#334155" }}>{req.category || "N/A"}</b></span>
-                          <span>Brand: <b style={{ color: "#334155" }}>{req.brand || "N/A"}</b></span>
-                          <span>Quantity: <b style={{ color: "#334155" }}>{req.quantity} {req.packSize && `(${req.packSize})`}</b></span>
-                          <span>Priority: <b style={{ color: priorityColors[req.priority] || "#334155" }}>{req.priority}</b></span>
-                        </div>
-                        <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>
-                          Submitted: {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-                        </p>
-                      </div>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-start" }}>
-                        <button onClick={() => setSelectedReq(req)} style={{
-                          padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: "1px solid #cbd5e1", cursor: "pointer",
-                          background: "#fff", color: "#475569", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s"
-                        }}>
-                          <ExternalLink size={14} /> View Details
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {selectedReq && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)" }} onClick={() => setSelectedReq(null)} />
-          <div style={{ background: "#fff", width: "100%", maxWidth: 700, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", position: "relative", zIndex: 1, display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
-            <div style={{ padding: "24px 32px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "#f8fafc", borderRadius: "16px 16px 0 0" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
-                  <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>{selectedReq.productName}</h2>
-                  {(() => {
-                    const status = statusConfig[selectedReq.status] || statusConfig.NEW;
-                    const StatusIcon = status.icon;
-                    return (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: status.color, background: status.bg }}>
-                        <StatusIcon size={14} /> {status.label}
-                      </span>
-                    );
-                  })()}
-                </div>
-                {selectedReq.salon && (
-                  <p style={{ margin: 0, fontSize: 14, color: "#64748b", display: "flex", alignItems: "center", gap: 6 }}>
-                    <Users size={14} /> Salon: <span style={{ fontWeight: 600, color: "#334155" }}>{selectedReq.salon.name}</span>
-                  </p>
-                )}
-                {selectedReq.owner && (
-                  <div style={{ margin: "8px 0 0", padding: "10px 14px", background: "#f0f9ff", borderRadius: 8, border: "1px solid #bae6fd", display: "flex", flexDirection: "column", gap: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#0369a1", textTransform: "uppercase", letterSpacing: "0.05em" }}>Owner Details</span>
-                    <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#334155" }}>
-                      <span><b>{selectedReq.owner.name}</b></span>
-                      {selectedReq.owner.email && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Mail size={12} /> {selectedReq.owner.email}</span>}
-                      {selectedReq.owner.phone && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Phone size={12} /> {selectedReq.owner.phone}</span>}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <button onClick={() => setSelectedReq(null)} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: 4, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <div style={{ padding: "24px 32px", overflowY: "auto", flex: 1 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
-                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
-                  <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Package size={14} /> Product Details
-                  </h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Category:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.category || "N/A"}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Brand:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.brand || "N/A"}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Quantity:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.quantity} {selectedReq.packSize && `(${selectedReq.packSize})`}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Est. Price:</span><span style={{ fontWeight: 600, color: "#10b981", fontSize: 13 }}>{selectedReq.unitPrice ? `₹${selectedReq.unitPrice}` : "N/A"}</span></div>
-                  </div>
-                </div>
-                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
-                  <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Calendar size={14} /> Timeline & Info
-                  </h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Submitted:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{new Date(selectedReq.createdAt).toLocaleDateString()}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Priority:</span><span style={{ fontWeight: 700, color: priorityColors[selectedReq.priority] || "#0f172a", fontSize: 13 }}>{selectedReq.priority}</span></div>
-                  </div>
-                </div>
-              </div>
-              {selectedReq.description && (
-                <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Description</h4>
-                  <p style={{ margin: 0, fontSize: 14, color: "#475569", lineHeight: 1.6, background: "#f8fafc", padding: 16, borderRadius: 8, border: "1px solid #f1f5f9" }}>{selectedReq.description}</p>
-                </div>
-              )}
-              {selectedReq.vendor && (
-                <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Vendor</h4>
-                  <p style={{ margin: 0, fontSize: 14, color: "#475569" }}>{selectedReq.vendor}</p>
-                </div>
-              )}
-              {selectedReq.internalNotes && (
-                <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Admin Notes</h4>
-                  <p style={{ margin: 0, fontSize: 14, color: "#475569", background: "#fffbeb", padding: 16, borderRadius: 8, border: "1px solid #fef3c7" }}>{selectedReq.internalNotes}</p>
-                </div>
-              )}
-            </div>
-
-            <div style={{ padding: "20px 32px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", borderRadius: "0 0 16px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Update Status:</span>
-                <div style={{ display: "flex", background: "#e2e8f0", borderRadius: 8, padding: 4 }}>
-                  {[
-                    { val: "NEW", label: "New" },
-                    { val: "PENDING", label: "Pending" },
-                    { val: "APPROVED", label: "Approved" },
-                    { val: "REJECTED", label: "Rejected" },
-                    { val: "COMPLETED", label: "Completed" }
-                  ].map(st => {
-                    const isActive = selectedReq.status === st.val;
-                    return (
-                      <button
-                        key={st.val}
-                        disabled={updatingId === selectedReq.id}
-                        onClick={() => updateStatus(selectedReq.id, st.val)}
-                        style={{
-                          padding: "6px 12px",
-                          border: "none",
-                          borderRadius: 6,
-                          fontSize: 13,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          background: isActive ? "#fff" : "transparent",
-                          color: isActive ? "#0f172a" : "#64748b",
-                          boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                          transition: "all 0.2s"
-                        }}
-                      >
-                        {st.label}
-                      </button>
+                        </td>
+                        <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>
+                          {item.defaultPrice ? `₹${fmt(item.defaultPrice)}` : "—"}
+                        </td>
+                        <td style={{ padding: "12px 14px", textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => openEditCatalog(item)}
+                              title="Edit Product"
+                              style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#475569", cursor: "pointer" }}
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={() => deleteCatalogItem(item.id)}
+                              title="Delete Product"
+                              style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#ef4444", cursor: "pointer" }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     );
                   })}
-                </div>
-                {updatingId === selectedReq.id && <span style={{ fontSize: 12, color: "#3b82f6", fontWeight: 600 }}>Saving...</span>}
-              </div>
-              <button onClick={() => setSelectedReq(null)} style={{ padding: "10px 24px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                Close
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECTION 2: NEW REQUEST (Point 2) */}
+      {activeSection === "new_request" && (
+        <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0", maxWidth: 680, margin: "0 auto" }}>
+          <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", color: "#0f172a" }}>Create Salon Product Request</h3>
+          <p style={{ margin: "0 0 20px", fontSize: "0.85rem", color: "#64748b" }}>
+            Record an incoming product demand or special shipment on behalf of a salon.
+          </p>
+
+          <form onSubmit={handleCreateAdminRequest} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <label>
+              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Target Salon (Optional)</span>
+              <CustomSelect
+                value={adminRequestForm.salonId}
+                onChange={e => setAdminRequestForm({ ...adminRequestForm, salonId: e.target.value })}
+                style={{ width: "100%" }}
+              >
+                <option value="">General Stock / Unassigned</option>
+                {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </CustomSelect>
+            </label>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. L'Oréal Professional, Wella, Matrix"
+                  value={adminRequestForm.brand}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, brand: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Product Name *</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Majirel Hair Color 50ml"
+                  value={adminRequestForm.productName}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, productName: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
+                <input
+                  type="text"
+                  placeholder="e.g. Hair Color, Shampoo, Spa Kit"
+                  value={adminRequestForm.category}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, category: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size (Point 5)</span>
+                <input
+                  type="text"
+                  placeholder="e.g. 50 ml, 100 ml, 500 ml, 1 L, Pack of 12"
+                  value={adminRequestForm.unitPackSize}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, unitPackSize: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Quantity *</span>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  value={adminRequestForm.quantity}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, quantity: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Priority</span>
+                <CustomSelect
+                  value={adminRequestForm.priority}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, priority: e.target.value })}
+                  style={{ width: "100%" }}
+                >
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </CustomSelect>
+              </label>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit Price (INR)</span>
+                <input
+                  type="number"
+                  placeholder="Optional"
+                  value={adminRequestForm.unitPrice}
+                  onChange={e => setAdminRequestForm({ ...adminRequestForm, unitPrice: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+            </div>
+
+            <label>
+              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Internal Notes</span>
+              <textarea
+                rows={3}
+                placeholder="Distributor vendor, discount agreement, or delivery deadline notes..."
+                value={adminRequestForm.note}
+                onChange={e => setAdminRequestForm({ ...adminRequestForm, note: e.target.value })}
+                style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+              />
+            </label>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 10 }}>
+              <button
+                type="button"
+                onClick={() => setActiveSection("requests")}
+                style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: "#0f172a", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+              >
+                {saving ? "Submitting..." : "Create Request"}
               </button>
             </div>
+          </form>
+        </div>
+      )}
+
+      {/* SECTION 3: SALON REQUESTS (Point 2) */}
+      {activeSection === "requests" && (
+        <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {["ALL", "NEW", "PENDING", "APPROVED", "REJECTED", "COMPLETED"].map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setRequestFilter(st)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: "none",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    background: requestFilter === st ? "#0f172a" : "#f1f5f9",
+                    color: requestFilter === st ? "white" : "#64748b"
+                  }}
+                >
+                  {st === "ALL" ? `All (${requirements.length})` : `${statusConfig[st]?.label || st} (${requirements.filter(r => r.status === st).length})`}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ width: 220 }}>
+              <CustomSelect value={salonFilter} onChange={e => setSalonFilter(e.target.value)} style={{ width: "100%" }}>
+                <option value="">Filter by Salon (All)</option>
+                {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </CustomSelect>
+            </div>
+          </div>
+
+          {filteredRequests.length === 0 ? (
+            <EmptyState title="No Requests Found" message="No salon product requests match this filter." />
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Salon</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Brand & Product</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Category</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Pack Size</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Qty</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Priority</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Status</th>
+                    <th style={{ padding: "12px 14px", textAlign: "left" }}>Date</th>
+                    <th style={{ padding: "12px 14px", textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRequests.map((r) => {
+                    const pc = priorityColors[r.priority] || priorityColors.MEDIUM;
+                    const sc = statusConfig[r.status] || statusConfig.NEW;
+
+                    return (
+                      <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>
+                          {r.salon?.name || "General Salon"}
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <div style={{ fontSize: "0.72rem", color: "#6366f1", fontWeight: 800, textTransform: "uppercase" }}>{r.brand || "—"}</div>
+                          <div style={{ fontWeight: 700, color: "#0f172a" }}>{r.productName}</div>
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#475569" }}>{r.category || "—"}</td>
+                        <td style={{ padding: "12px 14px", color: "#475569" }}>{r.unitPackSize || r.packSize || "Standard"}</td>
+                        <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0f172a" }}>{r.quantity || 1}</td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
+                            {r.priority}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <span style={{ background: sc.bg, color: sc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.7rem", fontWeight: 700 }}>
+                            {sc.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#64748b", fontSize: 12 }}>
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: "12px 14px", textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => { setSelectedReq(r); setActiveSection("detail"); }}
+                              title="View & Process"
+                              style={{ padding: "5px 10px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#0f172a", color: "white", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+                            >
+                              Process
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECTION 4: REQUEST DETAIL & FULFILLMENT (Point 2) */}
+      {activeSection === "detail" && selectedReq && (
+        <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0", maxWidth: 680, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#6366f1", textTransform: "uppercase" }}>
+                Brand: {selectedReq.brand || "—"}
+              </div>
+              <h3 style={{ margin: "2px 0 0", fontSize: "1.2rem", color: "#0f172a" }}>
+                {selectedReq.productName}
+              </h3>
+              <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
+                From Salon: <strong>{selectedReq.salon?.name || "General"}</strong>
+              </div>
+            </div>
+            <span style={{ background: statusConfig[selectedReq.status]?.bg, color: statusConfig[selectedReq.status]?.color, padding: "4px 12px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 700 }}>
+              {statusConfig[selectedReq.status]?.label || selectedReq.status}
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, background: "#f8fafc", padding: 16, borderRadius: 10, marginBottom: 16, fontSize: "0.85rem" }}>
+            <div><span style={{ color: "#64748b" }}>Category:</span> <strong>{selectedReq.category || "—"}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Pack Size:</span> <strong>{selectedReq.unitPackSize || selectedReq.packSize || "Standard"}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Quantity:</span> <strong>{selectedReq.quantity || 1}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Priority:</span> <strong>{selectedReq.priority}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Unit Price:</span> <strong>{selectedReq.unitPrice ? `₹${fmt(selectedReq.unitPrice)}` : "—"}</strong></div>
+            <div><span style={{ color: "#64748b" }}>Requested On:</span> <strong>{new Date(selectedReq.createdAt).toLocaleDateString()}</strong></div>
+          </div>
+
+          {selectedReq.note && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Salon Note</div>
+              <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#334155", borderLeft: "3px solid #6366f1" }}>
+                {selectedReq.note}
+              </div>
+            </div>
+          )}
+
+          {/* Fulfillment Status Actions */}
+          <div style={{ background: "#f1f5f9", padding: 16, borderRadius: 10, marginBottom: 20 }}>
+            <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 10 }}>Update Fulfillment Status</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button
+                disabled={updatingId === selectedReq.id}
+                onClick={() => updateStatus(selectedReq.id, "APPROVED")}
+                style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#10b981", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
+              >
+                ✓ Approve Request
+              </button>
+              <button
+                disabled={updatingId === selectedReq.id}
+                onClick={() => updateStatus(selectedReq.id, "COMPLETED")}
+                style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#166534", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
+              >
+                ★ Mark as Completed / Delivered
+              </button>
+              <button
+                disabled={updatingId === selectedReq.id}
+                onClick={() => {
+                  const reason = window.prompt("Reason for rejection:");
+                  if (reason !== null) updateStatus(selectedReq.id, "REJECTED", reason);
+                }}
+                style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#ef4444", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
+              >
+                ✕ Reject
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              onClick={() => setActiveSection("requests")}
+              style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+            >
+              Back to Requests List
+            </button>
           </div>
         </div>
       )}
 
+      {/* Catalog Product Add/Edit Modal */}
       {showCatalogModal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)" }} onClick={() => { setShowCatalogModal(false); setCatalogForm(emptyCatalog); setEditCatalogItem(null); }} />
-          <div style={{ background: "#fff", width: "100%", maxWidth: 640, borderRadius: 20, padding: 32, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", position: "relative", zIndex: 1, maxHeight: "90vh", overflowY: "auto" }}>
-            <h2 style={{ margin: "0 0 24px", fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{editCatalogItem ? "Edit Product" : "Add Product to Catalog"}</h2>
-            <form onSubmit={saveCatalogItem} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Product Name *</label>
-                <input type="text" required value={catalogForm.productName} onChange={e => setCatalogForm({ ...catalogForm, productName: e.target.value })} placeholder="e.g. L'Oreal Professional Hair Color" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 520, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
+                {editCatalogItem ? "Edit Catalog Product" : "Add New Catalog Product"}
+              </h2>
+              <button onClick={() => setShowCatalogModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+            </div>
+
+            <form onSubmit={saveCatalogItem} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand * (Point 4)</span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. L'Oréal Professional, Wella"
+                    value={catalogForm.brand}
+                    onChange={e => setCatalogForm({ ...catalogForm, brand: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Product Name *</span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Majirel Hair Color 50ml"
+                    value={catalogForm.productName}
+                    onChange={e => setCatalogForm({ ...catalogForm, productName: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
               </div>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Description</label>
-                <textarea rows={3} value={catalogForm.description} onChange={e => setCatalogForm({ ...catalogForm, description: e.target.value })} placeholder="Enter detailed product description..." style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Category</label>
-                  <CustomSelect
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. Hair Color, Hair Care"
                     value={catalogForm.category}
                     onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })}
-                    style={{ width: "100%" }}
-                  >
-                    <option value="">Select Category</option>
-                    <option value="Hair Care">Hair Care</option>
-                    <option value="Skin Care">Skin Care</option>
-                    <option value="Body Care">Body Care</option>
-                    <option value="Makeup">Makeup</option>
-                    <option value="Nail Care">Nail Care</option>
-                    <option value="Spa & Massage">Spa & Massage</option>
-                    <option value="Men's Grooming">Men's Grooming</option>
-                    <option value="Tools & Equipment">Tools & Equipment</option>
-                    <option value="Miscellaneous">Miscellaneous</option>
-                  </CustomSelect>
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Brand</label>
-                  <input type="text" value={catalogForm.brand} onChange={e => setCatalogForm({ ...catalogForm, brand: e.target.value })} placeholder="e.g. L'Oreal" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Pack Size (Quantity)</label>
-                  <input type="text" value={catalogForm.packSize} onChange={e => setCatalogForm({ ...catalogForm, packSize: e.target.value })} placeholder="e.g. 500" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Unit of Measurement</label>
-                  <CustomSelect
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit / Pack Size (Point 5)</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. 50 ml, 100 ml, 500 ml, 1 L, Pack of 12"
                     value={catalogForm.unitPackSize}
                     onChange={e => setCatalogForm({ ...catalogForm, unitPackSize: e.target.value })}
-                    style={{ width: "100%" }}
-                  >
-                    <option value="">Select Unit</option>
-                    <option value="ml">ml (Milliliter)</option>
-                    <option value="L">L (Liter)</option>
-                    <option value="g">g (Gram)</option>
-                    <option value="kg">kg (Kilogram)</option>
-                    <option value="piece">Piece</option>
-                    <option value="pack">Pack</option>
-                    <option value="kit">Kit</option>
-                    <option value="box">Box</option>
-                  </CustomSelect>
-                </div>
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Price (₹)</label>
-                  <div style={{ position: "relative" }}>
-                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b", fontWeight: 600 }}>₹</span>
-                    <input type="number" min="0" step="0.01" value={catalogForm.defaultPrice} onChange={e => setCatalogForm({ ...catalogForm, defaultPrice: e.target.value })} placeholder="0.00" style={{ width: "100%", padding: "12px 14px 12px 36px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
-                  </div>
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#475569" }}>Available Quantity</label>
-                  <input type="number" min="0" value={catalogForm.availableQty} onChange={e => setCatalogForm({ ...catalogForm, availableQty: e.target.value })} placeholder="0" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, boxSizing: "border-box", transition: "border-color 0.2s", outline: "none" }} onFocus={e => e.target.style.borderColor = "#6366f1"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
-                </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Available Quantity</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={catalogForm.availableQty}
+                    onChange={e => setCatalogForm({ ...catalogForm, availableQty: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Unit Price (INR)</span>
+                  <input
+                    type="number"
+                    placeholder="Price in INR"
+                    value={catalogForm.defaultPrice}
+                    onChange={e => setCatalogForm({ ...catalogForm, defaultPrice: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
               </div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 12, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
-                <button type="button" onClick={() => { setShowCatalogModal(false); setCatalogForm(emptyCatalog); setEditCatalogItem(null); }} style={{ padding: "10px 24px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#475569", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background="#e2e8f0"} onMouseOut={e => e.currentTarget.style.background="#f1f5f9"}>Cancel</button>
-                <button type="submit" style={{ padding: "10px 28px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", color: "white", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.transform="translateY(-1px)"} onMouseOut={e => e.currentTarget.style.transform="none"}>{editCatalogItem ? "Update Product" : "Add Product"}</button>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Notes & Specifications</span>
+                <textarea
+                  rows={2}
+                  placeholder="Distributor source, shade varieties, batch info..."
+                  value={catalogForm.notes}
+                  onChange={e => setCatalogForm({ ...catalogForm, notes: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCatalogModal(false)}
+                  style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: "#0f172a", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  {saving ? "Saving..." : (editCatalogItem ? "Update Product" : "Add to Catalog")}
+                </button>
               </div>
             </form>
           </div>
