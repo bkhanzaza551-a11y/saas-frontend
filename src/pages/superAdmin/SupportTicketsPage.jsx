@@ -420,247 +420,373 @@ export default function SuperAdminSupportTicketsPage() {
         )}
       </div>
 
-      {/* Ticket Detail Slide-in */}
+      {/* Ticket Detail Slide-in (Spacious 2-Column Support Desk) */}
       {selectedTicket && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15,23,42,0.6)", zIndex: 9999, display: "flex", justifyContent: "flex-end", backdropFilter: "blur(4px)" }}>
-          <div style={{ background: "white", width: "100%", maxWidth: 720, height: "100%", display: "flex", flexDirection: "column", boxShadow: "-4px 0 24px rgba(0,0,0,0.1)", animation: "slideInRight 0.3s ease" }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 1040, height: "100%", display: "flex", flexDirection: "column", boxShadow: "-4px 0 32px rgba(0,0,0,0.15)", animation: "slideInRight 0.3s ease" }}>
 
-            {/* Header */}
-            <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>#{selectedTicket.id.substring(0, 8)}</span>
-                  <h2 style={{ margin: "6px 0 4px", fontSize: 18, fontWeight: 800 }}>{selectedTicket.title}</h2>
-                  <div style={{ display: "flex", gap: 10, fontSize: 12, color: "#64748b" }}>
-                    <span><Building2 size={11} style={{ display: "inline" }} /> {selectedTicket.salon?.name || "Global"}</span>
-                    <span><Tag size={11} style={{ display: "inline" }} /> {selectedTicket.category || "General"}</span>
-                  </div>
-                </div>
-                <button onClick={() => setSelectedTicket(null)} style={{ background: "transparent", border: "none", fontSize: 22, color: "#94a3b8", cursor: "pointer" }}>&times;</button>
+            {/* Top Navigation Bar */}
+            <div style={{ padding: "14px 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", background: "#eef2ff", padding: "4px 10px", borderRadius: 6, border: "1px solid #e0e7ff" }}>
+                  #{selectedTicket.id.substring(0, 8)}
+                </span>
+                <span style={{ 
+                  fontSize: "0.72rem", 
+                  fontWeight: 800, 
+                  background: STATUSES.find(s => s.value === selectedTicket.status)?.bg || "#f1f5f9", 
+                  color: STATUSES.find(s => s.value === selectedTicket.status)?.color || "#475569", 
+                  padding: "4px 10px", 
+                  borderRadius: 6 
+                }}>
+                  {STATUSES.find(s => s.value === selectedTicket.status)?.label || selectedTicket.status}
+                </span>
+                <span style={{ 
+                  fontSize: "0.72rem", 
+                  fontWeight: 800, 
+                  background: PRIORITIES.find(p => p.value === selectedTicket.priority)?.bg || "#f1f5f9", 
+                  color: PRIORITIES.find(p => p.value === selectedTicket.priority)?.color || "#475569", 
+                  padding: "4px 10px", 
+                  borderRadius: 6 
+                }}>
+                  {selectedTicket.priority} Priority
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <Tag size={12} /> {selectedTicket.category || "General Support"}
+                </span>
               </div>
 
-              {/* Point 15: Salon Context Summary inside Ticket Detail */}
-              {selectedTicket.salon && (
-                <div style={{ marginTop: 12, padding: "12px 16px", background: "#f0f9ff", borderRadius: 10, border: "1px solid #bae6fd", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, fontSize: 12 }}>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
-                    <div><span style={{ color: "#64748b" }}>Salon Name:</span> <strong style={{ color: "#0f172a" }}>{selectedTicket.salon.name}</strong></div>
-                    <div><span style={{ color: "#64748b" }}>Owner:</span> <strong>{selectedTicket.salon.ownerName || selectedTicket.salon.name}</strong></div>
-                    <div><span style={{ color: "#64748b" }}>Current Plan:</span> <strong style={{ color: "#4338ca" }}>{selectedTicket.salon.subscriptions?.[0]?.plan?.name || "None"}</strong></div>
-                    <div><span style={{ color: "#64748b" }}>Subscription Status:</span> <strong style={{ color: selectedTicket.salon.subscriptions?.[0]?.status === "ACTIVE" ? "#16a34a" : "#d97706" }}>{selectedTicket.salon.subscriptions?.[0]?.status || "No Subscription"}</strong></div>
-                    <div><span style={{ color: "#64748b" }}>Contact Number:</span> <strong style={{ color: "#0f172a" }}>{selectedTicket.salon.phone || "—"}</strong></div>
-                  </div>
-                  <a
-                    href={`/super-admin/salons/${selectedTicket.salon.id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: "#0284c7", fontWeight: 700, fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, background: "white", padding: "4px 10px", borderRadius: 6, border: "1px solid #bae6fd" }}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {selectedTicket.status !== "CLOSED" ? (
+                  <button
+                    onClick={() => { setClosingTicketId(selectedTicket.id); setClosureReason(""); }}
+                    style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fecaca", padding: "6px 12px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: "0.75rem" }}
                   >
-                    View Salon →
-                  </a>
-                </div>
-              )}
-
-              {/* Tab Bar */}
-              <div style={{ display: "flex", gap: 0, marginTop: 14 }}>
-                {["conversation", "activity"].map(tab => (
-                  <button key={tab} onClick={() => setDetailTab(tab)}
-                    style={{ padding: "7px 16px", fontSize: 12, fontWeight: 700, border: "none", borderBottom: detailTab === tab ? "2px solid #6366f1" : "2px solid transparent", background: "transparent", color: detailTab === tab ? "#6366f1" : "#94a3b8", cursor: "pointer", textTransform: "capitalize" }}>
-                    {tab === "conversation" ? <><MessageSquare size={12} style={{ display: "inline", marginRight: 4 }} />Conversation</> : <><History size={12} style={{ display: "inline", marginRight: 4 }} />Activity</>}
+                    Close Ticket
                   </button>
-                ))}
+                ) : (
+                  <button
+                    onClick={() => { updateTicket(selectedTicket.id, { status: "OPEN", closureReason: null }); setSelectedTicket({ ...selectedTicket, status: "OPEN" }); }}
+                    style={{ background: "#eef2ff", color: "#3730a3", border: "1px solid #c7d2fe", padding: "6px 12px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: "0.75rem" }}
+                  >
+                    Reopen Ticket
+                  </button>
+                )}
+                <button onClick={() => setSelectedTicket(null)} style={{ background: "transparent", border: "none", fontSize: 24, color: "#94a3b8", cursor: "pointer", padding: "0 4px", lineHeight: 1 }}>&times;</button>
               </div>
             </div>
 
-            {/* Body */}
-            <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
-              {detailTab === "conversation" ? (
-                <>
-                  <div style={{ background: "#f8fafc", borderLeft: "4px solid #6366f1", padding: "14px 18px", borderRadius: "0 10px 10px 0", fontSize: 13, color: "#334155", lineHeight: 1.6, marginBottom: 20, whiteSpace: "pre-wrap" }}>
-                    {selectedTicket.description}
-                  </div>
+            {/* Main 2-Column Body */}
+            <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
-                  {/* Point 8: Internal Notes (Shows who created it, timestamped, preserved history) */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
-                    <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>
-                        Internal Notes (hidden from salon)
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={notes[selectedTicket.id] || ""}
-                        placeholder="Add internal note (auto timestamped on save)..."
-                        onChange={(e) => setNotes({ ...notes, [selectedTicket.id]: e.target.value })}
-                        disabled={selectedTicket.status === "CLOSED"}
-                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 12, background: "#f8fafc", width: "100%", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
-                      />
-                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
-                        <button
-                          type="button"
-                          disabled={selectedTicket.status === "CLOSED" || !notes[selectedTicket.id]?.trim()}
-                          onClick={() => {
-                            const newText = (notes[selectedTicket.id] || "").trim();
-                            if (!newText) return;
-                            const authorName = auth?.user?.name || "Support Staff";
-                            const timestamp = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + ", " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-                            const isAlreadyFormatted = newText.includes(" — ");
-                            const finalNote = isAlreadyFormatted ? newText : `${authorName} — ${timestamp}\n${newText}`;
-                            updateTicket(selectedTicket.id, { internalNote: finalNote });
-                            setNotes({ ...notes, [selectedTicket.id]: finalNote });
-                          }}
-                          style={{ background: "#f1f5f9", color: "#334155", border: "1px solid #cbd5e1", padding: "4px 10px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}
-                        >
-                          📝 Save Note
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 4 }}>Assigned To</label>
-                      <CustomSelect
-                        value={selectedTicket.assignedToId || ""}
-                        onChange={e => {
-                          const agentId = e.target.value || null;
-                          const agentName = staff.find(s => String(s.id) === String(agentId))?.name || null;
-                          updateTicket(selectedTicket.id, { assignedToId: agentId, assignedAgentName: agentName });
-                          setSelectedTicket({ ...selectedTicket, assignedToId: agentId, assignedTo: staff.find(s => String(s.id) === String(agentId)) || null });
+              {/* LEFT COLUMN: Conversation Stream & Reply Composer */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", background: "#ffffff", minWidth: 0 }}>
+                
+                {/* Title & Tabs */}
+                <div style={{ padding: "16px 24px 0", borderBottom: "1px solid #f1f5f9" }}>
+                  <h2 style={{ margin: "0 0 10px", fontSize: "1.2rem", fontWeight: 800, color: "#0f172a", lineHeight: 1.3 }}>
+                    {selectedTicket.title}
+                  </h2>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {["conversation", "activity"].map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setDetailTab(tab)}
+                        style={{
+                          padding: "8px 16px",
+                          fontSize: "0.82rem",
+                          fontWeight: 700,
+                          border: "none",
+                          borderBottom: detailTab === tab ? "2px solid #4f46e5" : "2px solid transparent",
+                          background: "transparent",
+                          color: detailTab === tab ? "#4f46e5" : "#64748b",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6
                         }}
-                        disabled={selectedTicket.status === "CLOSED"}
-                        style={{ width: "100%" }}
                       >
-                        <option value="">-- Unassigned --</option>
-                        {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "Support Executive"})</option>)}
-                      </CustomSelect>
-                    </div>
+                        {tab === "conversation" ? <><MessageSquare size={14} /> Conversation Thread ({1 + (selectedTicket.messages?.length || 0)})</> : <><History size={14} /> Activity Timeline</>}
+                      </button>
+                    ))}
                   </div>
+                </div>
 
-                  {/* Point 9: Conversation Thread (Differentiated Salon Owner / Support Agent / Super Admin with Sender, Date, Time & Attachments) */}
-                  {selectedTicket.messages?.length > 0 && (
-                    <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16, marginBottom: 20 }}>
-                      <h5 style={{ margin: "0 0 12px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Conversation ({selectedTicket.messages.length})</h5>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                        {selectedTicket.messages.map((msg) => {
-                          const isSuperAdmin = msg.authorType === "SUPER_ADMIN";
-                          const isSupport = msg.authorType === "SUPPORT" || msg.authorType === "SYSTEM";
-                          const isSalon = msg.authorType === "SALON";
-                          const authorLabel = isSuperAdmin ? "Super Admin" : isSupport ? "Support Agent" : "Salon Owner";
-                          const badgeBg = isSuperAdmin ? "#ede9fe" : isSupport ? "#e0e7ff" : "#f1f5f9";
-                          const badgeColor = isSuperAdmin ? "#6d28d9" : isSupport ? "#3730a3" : "#334155";
-                          const msgDate = new Date(msg.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-                          const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                {/* Stream Content */}
+                <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+                  {detailTab === "conversation" ? (
+                    <>
+                      {/* Customer Initial Query Card */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, alignSelf: "flex-start", width: "100%" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.78rem", color: "#64748b" }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.7rem" }}>
+                              {(selectedTicket.salon?.name || "S").substring(0, 1).toUpperCase()}
+                            </div>
+                            <strong style={{ color: "#0f172a" }}>{selectedTicket.salon?.name || "Salon Customer"}</strong>
+                            <span style={{ background: "#f1f5f9", color: "#475569", padding: "2px 6px", borderRadius: 4, fontSize: "0.7rem", fontWeight: 700 }}>Ticket Creator</span>
+                          </span>
+                          <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                            {new Date(selectedTicket.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })} at {new Date(selectedTicket.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderLeft: "4px solid #4f46e5", borderRadius: "4px 12px 12px 12px", padding: "14px 18px", fontSize: "0.9rem", color: "#1e293b", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                          {selectedTicket.description}
+                        </div>
+                      </div>
 
-                          return (
-                            <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignSelf: isSalon ? "flex-start" : "flex-end", maxWidth: "85%" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 11, color: "#64748b", marginBottom: 4, padding: "0 4px" }}>
-                                <span>
-                                  <strong style={{ color: "#0f172a" }}>{msg.authorName}</strong>{" "}
-                                  <span style={{ background: badgeBg, color: badgeColor, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
-                                    {authorLabel}
-                                  </span>
-                                </span>
-                                <span style={{ fontSize: 10, color: "#94a3b8" }}>{msgDate} at {msgTime}</span>
-                              </div>
-                              <div style={{
-                                background: isSalon ? "#f8fafc" : isSuperAdmin ? "linear-gradient(135deg, #7c3aed, #6366f1)" : "linear-gradient(135deg, #4f46e5, #3b82f6)",
-                                color: isSalon ? "#0f172a" : "white",
-                                border: isSalon ? "1px solid #e2e8f0" : "none",
-                                borderRadius: isSalon ? "14px 14px 14px 0" : "14px 14px 0 14px",
-                                padding: "12px 16px", fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap"
-                              }}>
-                                {msg.message}
-                                {msg.attachmentUrl && (
-                                   <div style={{ marginTop: 8, fontSize: 11, borderTop: isSalon ? "1px dashed #cbd5e1" : "1px dashed rgba(255,255,255,0.3)", paddingTop: 6 }}>
-                                    {isImageAttachment(msg.attachmentUrl) ? (
-                                      <div>
-                                        <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
-                                        <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isSalon ? "#2563eb" : "#a5b4fc", textDecoration: "underline", fontWeight: 600 }}>View Full Image &rarr;</a>
-                                      </div>
-                                    ) : (
-                                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: isSalon ? "#2563eb" : "#ffffff", textDecoration: "underline", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                                        <Paperclip size={11} /> {getAttachmentLabel(msg.attachmentUrl)} &rarr;
-                                      </a>
-                                    )}
-                                  </div>
+                      {/* Messages Thread */}
+                      {selectedTicket.messages?.map((msg) => {
+                        const isSuperAdmin = msg.authorType === "SUPER_ADMIN";
+                        const isSupport = msg.authorType === "SUPPORT" || msg.authorType === "SYSTEM";
+                        const isSalon = msg.authorType === "SALON";
+                        const authorLabel = isSuperAdmin ? "Super Admin" : isSupport ? "Support Agent" : "Salon Owner";
+                        const badgeBg = isSuperAdmin ? "#ede9fe" : isSupport ? "#e0e7ff" : "#f1f5f9";
+                        const badgeColor = isSuperAdmin ? "#6d28d9" : isSupport ? "#3730a3" : "#334155";
+                        const msgDate = new Date(msg.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+                        const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+                        return (
+                          <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignSelf: isSalon ? "flex-start" : "flex-end", maxWidth: "85%", gap: 4 }}>
+                            <div style={{ display: "flex", justifyContent: isSalon ? "flex-start" : "flex-end", alignItems: "center", gap: 8, fontSize: "0.75rem", color: "#64748b", padding: "0 4px" }}>
+                              <strong style={{ color: "#0f172a" }}>{msg.authorName}</strong>
+                              <span style={{ background: badgeBg, color: badgeColor, padding: "2px 6px", borderRadius: 4, fontSize: "0.68rem", fontWeight: 700 }}>
+                                {authorLabel}
+                              </span>
+                              <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>{msgDate} {msgTime}</span>
+                            </div>
+                            <div style={{
+                              background: isSalon ? "#ffffff" : isSuperAdmin ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "linear-gradient(135deg, #3b82f6, #2563eb)",
+                              color: isSalon ? "#0f172a" : "#ffffff",
+                              border: isSalon ? "1px solid #e2e8f0" : "none",
+                              boxShadow: isSalon ? "0 2px 4px rgba(0,0,0,0.03)" : "0 3px 8px rgba(79, 70, 229, 0.25)",
+                              borderRadius: isSalon ? "4px 14px 14px 14px" : "14px 4px 14px 14px",
+                              padding: "12px 16px",
+                              fontSize: "0.88rem",
+                              lineHeight: 1.55,
+                              whiteSpace: "pre-wrap"
+                            }}>
+                              {msg.message}
+                              {msg.attachmentUrl && (
+                                <div style={{ marginTop: 8, fontSize: 11, borderTop: isSalon ? "1px dashed #cbd5e1" : "1px dashed rgba(255,255,255,0.3)", paddingTop: 6 }}>
+                                  {isImageAttachment(msg.attachmentUrl) ? (
+                                    <div>
+                                      <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
+                                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isSalon ? "#2563eb" : "#a5b4fc", textDecoration: "underline", fontWeight: 600 }}>View Full Image &rarr;</a>
+                                    </div>
+                                  ) : (
+                                    <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: isSalon ? "#2563eb" : "#ffffff", textDecoration: "underline", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                      <Paperclip size={11} /> {getAttachmentLabel(msg.attachmentUrl)} &rarr;
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    /* Activity Tab */
+                    <div>
+                      <h5 style={{ margin: "0 0 14px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>Ticket Activity</h5>
+                      {selectedTicket.events?.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                          {selectedTicket.events.map((ev, i) => (
+                            <div key={ev.id} style={{ display: "flex", gap: 12, padding: "10px 0", borderBottom: i < selectedTicket.events.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: ev.eventType === "REPLY_SENT" ? "#3b82f6" : ev.eventType === "STATUS_CHANGED" ? "#f59e0b" : ev.eventType === "AGENT_ASSIGNED" ? "#8b5cf6" : "#94a3b8", marginTop: 5, flexShrink: 0 }} />
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>{ev.details || ev.eventType}</div>
+                                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{ev.actorName} • {new Date(ev.createdAt).toLocaleString()}</div>
+                                {ev.fromStatus && ev.toStatus && (
+                                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{ev.fromStatus} → {ev.toStatus}</div>
                                 )}
                               </div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p style={{ color: "#94a3b8", fontSize: 13 }}>No activity recorded yet.</p>
+                      )}
                     </div>
                   )}
-                </>
-              ) : (
-                /* Activity Tab */
-                <div>
-                  <h5 style={{ margin: "0 0 14px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>Ticket Activity</h5>
-                  {selectedTicket.events?.length > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                      {selectedTicket.events.map((ev, i) => (
-                        <div key={ev.id} style={{ display: "flex", gap: 12, padding: "10px 0", borderBottom: i < selectedTicket.events.length - 1 ? "1px solid #f1f5f9" : "none" }}>
-                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: ev.eventType === "REPLY_SENT" ? "#3b82f6" : ev.eventType === "STATUS_CHANGED" ? "#f59e0b" : ev.eventType === "AGENT_ASSIGNED" ? "#8b5cf6" : "#94a3b8", marginTop: 5, flexShrink: 0 }} />
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>{ev.details || ev.eventType}</div>
-                            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{ev.actorName} • {new Date(ev.createdAt).toLocaleString()}</div>
-                            {ev.fromStatus && ev.toStatus && (
-                              <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{ev.fromStatus} → {ev.toStatus}</div>
+                </div>
+
+                {/* Bottom Reply Composer */}
+                {detailTab === "conversation" && (
+                  <div style={{ padding: "16px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
+                    {selectedTicket.status !== "CLOSED" ? (
+                      <>
+                        <div style={{ marginBottom: 10, position: "relative" }}>
+                          <textarea
+                            rows={3}
+                            value={replyDrafts[selectedTicket.id] || ""}
+                            placeholder="Type reply to salon owner..."
+                            onChange={(e) => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })}
+                            style={{ border: "1px solid #cbd5e1", borderRadius: 10, padding: 12, fontSize: "0.88rem", background: "white", width: "100%", resize: "none", boxSizing: "border-box", outline: "none", fontFamily: "inherit" }}
+                            onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
+                            onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
+                          />
+                          <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 10 }}>
+                            <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.78rem", color: "#4f46e5", fontWeight: 600, cursor: "pointer", background: "white", padding: "4px 10px", borderRadius: 6, border: "1px solid #e0e7ff" }}>
+                              <Paperclip size={13} /> Attach File
+                              <input type="file" accept="image/*,.pdf,.doc,.docx" hidden onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) { const reader = new FileReader(); reader.onloadend = () => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result }); reader.readAsDataURL(file); }
+                              }} />
+                            </label>
+                            {replyAttachments[selectedTicket.id] && (
+                              <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 700, background: "#dcfce7", padding: "2px 8px", borderRadius: 4 }}>
+                                ✓ File attached
+                              </span>
                             )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p style={{ color: "#94a3b8", fontSize: 13 }}>No activity recorded yet.</p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Footer Actions */}
-            {detailTab === "conversation" && (
-              <div style={{ padding: "12px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
-                {selectedTicket.status !== "CLOSED" ? (
-                  <>
-                    <div style={{ marginBottom: 10 }}>
-                      <textarea rows={2} value={replyDrafts[selectedTicket.id] || ""}
-                        placeholder="Type reply to salon..."
-                        onChange={(e) => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })}
-                        style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 13, background: "white", width: "100%", resize: "vertical", boxSizing: "border-box" }} />
-                      <div style={{ marginTop: 6 }}>
-                        <label style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: "#64748b", cursor: "pointer" }}>
-                          <Paperclip size={12} /> Attach File
-                          <input type="file" accept="image/*,.pdf,.doc,.docx" hidden onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) { const reader = new FileReader(); reader.onloadend = () => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result }); reader.readAsDataURL(file); }
-                          }} />
-                        </label>
-                        {replyAttachments[selectedTicket.id] && <span style={{ fontSize: 11, color: "#16a34a", marginLeft: 8 }}>File attached</span>}
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, flexWrap: "wrap" }}>
+                          <button
+                            onClick={() => sendReply(selectedTicket.id, "IN_PROGRESS")}
+                            style={{ background: "#4f46e5", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: 6 }}
+                          >
+                            <Send size={13} /> Reply
+                          </button>
+                          <button
+                            onClick={() => sendReply(selectedTicket.id, "WAITING_FOR_SALON")}
+                            style={{ background: "#d97706", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem" }}
+                          >
+                            Reply & Wait for Salon
+                          </button>
+                          <button
+                            onClick={() => sendReply(selectedTicket.id, "RESOLVED")}
+                            style={{ background: "#16a34a", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem" }}
+                          >
+                            Reply & Resolve
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0" }}>
+                        <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>This ticket is marked as CLOSED.</span>
+                        <button
+                          onClick={() => { updateTicket(selectedTicket.id, { status: "OPEN", closureReason: null }); setSelectedTicket({ ...selectedTicket, status: "OPEN" }); }}
+                          style={{ background: "#eef2ff", color: "#3730a3", border: "1px solid #c7d2fe", padding: "8px 18px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem" }}
+                        >
+                          Reopen Ticket
+                        </button>
                       </div>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button onClick={() => { updateTicket(selectedTicket.id, { internalNote: notes[selectedTicket.id] || "", assignedToId: selectedTicket.assignedToId || null }); }}
-                          style={{ background: "white", color: "#475569", border: "1px solid #cbd5e1", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Save Note</button>
-                        <button onClick={() => { setClosingTicketId(selectedTicket.id); setClosureReason(""); }}
-                          style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fecaca", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Close Ticket</button>
-                      </div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button onClick={() => sendReply(selectedTicket.id, "IN_PROGRESS")}
-                          style={{ background: "#4f46e5", color: "white", border: "none", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Reply</button>
-                        <button onClick={() => sendReply(selectedTicket.id, "WAITING_FOR_SALON")}
-                          style={{ background: "#d97706", color: "white", border: "none", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Reply & Wait for Salon</button>
-                        <button onClick={() => sendReply(selectedTicket.id, "RESOLVED")}
-                          style={{ background: "#16a34a", color: "white", border: "none", padding: "7px 14px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: 11 }}>Reply & Resolve</button>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#64748b" }}>This ticket is closed.</span>
-                    <button onClick={() => { updateTicket(selectedTicket.id, { status: "OPEN", closureReason: null }); setSelectedTicket({ ...selectedTicket, status: "OPEN" }); }}
-                      style={{ background: "#eef2ff", color: "#3730a3", border: "1px solid #c7d2fe", padding: "8px 18px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: 12 }}>Reopen Ticket</button>
+                    )}
                   </div>
                 )}
               </div>
-            )}
+
+              {/* RIGHT COLUMN: Salon Context, Assignee & Internal Notes Sidebar */}
+              <div style={{ width: 340, borderLeft: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", flexDirection: "column", height: "100%", overflowY: "auto", padding: "20px 18px", gap: 16 }}>
+
+                {/* Salon Context Card */}
+                {selectedTicket.salon && (
+                  <div style={{ background: "white", borderRadius: 12, padding: "16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Salon Details
+                      </span>
+                      <a
+                        href={`/super-admin/salons/${selectedTicket.salon.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "#4f46e5", fontWeight: 700, fontSize: "0.75rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 2 }}
+                      >
+                        View Salon ↗
+                      </a>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: "0.82rem" }}>
+                      <div>
+                        <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Salon Name</div>
+                        <strong style={{ color: "#0f172a", fontSize: "0.9rem" }}>{selectedTicket.salon.name}</strong>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Owner Name</div>
+                        <strong style={{ color: "#334155" }}>{selectedTicket.salon.ownerName || selectedTicket.salon.name}</strong>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Plan & Status</div>
+                        <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 2 }}>
+                          <span style={{ background: "#eef2ff", color: "#4338ca", padding: "2px 6px", borderRadius: 4, fontWeight: 700, fontSize: "0.72rem" }}>
+                            {selectedTicket.salon.subscriptions?.[0]?.plan?.name || "Starter"}
+                          </span>
+                          <span style={{ color: selectedTicket.salon.subscriptions?.[0]?.status === "ACTIVE" ? "#16a34a" : "#d97706", fontWeight: 700, fontSize: "0.72rem" }}>
+                            ● {selectedTicket.salon.subscriptions?.[0]?.status || "Active"}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Contact Number</div>
+                        <strong style={{ color: "#0f172a" }}>{selectedTicket.salon.phone || "—"}</strong>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Assignment & Management Card */}
+                <div style={{ background: "white", borderRadius: 12, padding: "16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                    Assigned Agent
+                  </div>
+                  <CustomSelect
+                    value={selectedTicket.assignedToId || ""}
+                    onChange={e => {
+                      const agentId = e.target.value || null;
+                      const agentName = staff.find(s => String(s.id) === String(agentId))?.name || null;
+                      updateTicket(selectedTicket.id, { assignedToId: agentId, assignedAgentName: agentName });
+                      setSelectedTicket({ ...selectedTicket, assignedToId: agentId, assignedTo: staff.find(s => String(s.id) === String(agentId)) || null });
+                    }}
+                    disabled={selectedTicket.status === "CLOSED"}
+                    style={{ width: "100%" }}
+                  >
+                    <option value="">-- Unassigned --</option>
+                    {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "Support"})</option>)}
+                  </CustomSelect>
+                </div>
+
+                {/* Internal Notes Box */}
+                <div style={{ background: "white", borderRadius: 12, padding: "16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Internal Notes
+                    </span>
+                    <span style={{ fontSize: "0.68rem", color: "#94a3b8" }}>Hidden from Salon</span>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={notes[selectedTicket.id] || ""}
+                    placeholder="Add internal notes for team (auto-timestamped)..."
+                    onChange={(e) => setNotes({ ...notes, [selectedTicket.id]: e.target.value })}
+                    disabled={selectedTicket.status === "CLOSED"}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: "0.8rem", background: "#f8fafc", width: "100%", resize: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      disabled={selectedTicket.status === "CLOSED" || !notes[selectedTicket.id]?.trim()}
+                      onClick={() => {
+                        const newText = (notes[selectedTicket.id] || "").trim();
+                        if (!newText) return;
+                        const authorName = auth?.user?.name || "Support Staff";
+                        const timestamp = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + ", " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                        const isAlreadyFormatted = newText.includes(" — ");
+                        const finalNote = isAlreadyFormatted ? newText : `${authorName} — ${timestamp}\n${newText}`;
+                        updateTicket(selectedTicket.id, { internalNote: finalNote });
+                        setNotes({ ...notes, [selectedTicket.id]: finalNote });
+                      }}
+                      style={{ background: "#4f46e5", color: "white", border: "none", padding: "6px 12px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: "0.75rem" }}
+                    >
+                      📝 Save Note
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
         </div>
       )}
