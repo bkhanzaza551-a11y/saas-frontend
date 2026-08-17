@@ -5963,7 +5963,7 @@ html, body {
 
 .super-admin-page .search-input-wrapper .search-icon,
 .super-admin-page .search-icon-inside,
-.super-admin-page div:has(> svg) > svg:first-child {
+.super-admin-page .search-input-box > svg {
   position: absolute !important;
   left: 16px !important;
   top: 50% !important;
@@ -5980,7 +5980,7 @@ html, body {
 .super-admin-page input.search-input-field,
 .super-admin-page input[data-search="true"],
 .super-admin-page div:has(> .search-icon) input,
-.super-admin-page div:has(> svg) input {
+.super-admin-page .search-input-box input {
   padding-left: 48px !important;
 }
 

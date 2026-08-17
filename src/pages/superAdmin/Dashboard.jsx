@@ -295,29 +295,6 @@ export default function SuperAdminDashboard() {
               </div>
             </>
           )}
-          {roleConfig.subs && (
-          <div style={{ display: "flex", gap: 12, marginTop: 24, padding: "16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: "#e0e7ff", color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Layers size={20} />
-              </div>
-              <div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Active Plans</div>
-                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>{data.plansCount || 0}</div>
-              </div>
-            </div>
-            <div style={{ width: 1, background: "#e2e8f0" }}></div>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, paddingLeft: 8 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fee2e2", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <AlertCircle size={20} />
-              </div>
-              <div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Expired Subscriptions</div>
-                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>{subStatus.expired ?? data.expiredSubscriptionsSummary ?? 0}</div>
-              </div>
-            </div>
-          </div>
-          )}
         </div>
 
         {roleConfig.subs && (
