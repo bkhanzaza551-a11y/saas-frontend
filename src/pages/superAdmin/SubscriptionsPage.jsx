@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Edit2, Bell, Plus, RefreshCw, Eye, Calendar, Clock, ArrowRightLeft, History, CheckCircle2, XCircle, Search, Filter } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Edit2, Bell, Plus, RefreshCw, Eye, Calendar, Clock, ArrowRightLeft, History, CheckCircle2, XCircle, Search, Filter, Layers, ShieldCheck } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
@@ -212,14 +213,54 @@ export default function SubscriptionsPage() {
 
   return (
     <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+      {/* Subscriptions Module Sub-Header Navigation */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+        <Link
+          to="/super-admin/plans"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 18px",
+            borderRadius: 10,
+            background: "white",
+            color: "#64748b",
+            fontWeight: 600,
+            fontSize: "0.85rem",
+            border: "1px solid #e2e8f0",
+            textDecoration: "none"
+          }}
+        >
+          <Layers size={16} /> Plans (Define Packages)
+        </Link>
+        <Link
+          to="/super-admin/subscriptions"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 18px",
+            borderRadius: 10,
+            background: "#4f46e5",
+            color: "white",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            textDecoration: "none",
+            boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)"
+          }}
+        >
+          <ShieldCheck size={16} /> Salon Subscriptions (Manage Purchased)
+        </Link>
+      </div>
+
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Salon Subscriptions</h1>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>{displaySubs.length} subscription(s) {isComputedFilter ? 'matched' : 'total'}</p>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Manage active salon subscriptions and renewals. {displaySubs.length} subscription(s) {isComputedFilter ? 'matched' : 'total'}.</p>
           </div>
           <button onClick={() => { setForm(emptyForm); setIsCreateOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-            <Plus size={16} /> Onboard Client
+            <Plus size={16} /> + New Subscription
           </button>
         </div>
       </div>
