@@ -335,7 +335,7 @@ export default function SuperAdminDashboard() {
               <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#92400e" }}>{subStatus.trial ?? 0}</div>
               <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#b45309", textTransform: "uppercase" }}>Trial</div>
             </div>
-            <div onClick={() => navigate("/super-admin/subscriptions")} style={{ background: "#fff7ed", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fed7aa" }}>
+            <div onClick={() => navigate("/super-admin/subscriptions?status=EXPIRING_SOON")} style={{ background: "#fff7ed", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fed7aa" }}>
               <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#9a3412" }}>{subStatus.expiringSoon ?? 0}</div>
               <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#c2410c", textTransform: "uppercase" }}>Expiring Soon</div>
             </div>
