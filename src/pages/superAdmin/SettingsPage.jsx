@@ -1237,6 +1237,7 @@ export default function SuperAdminSettingsPage() {
                       </div>
                     </div>
                   </div>
+                  <TabSaveButton tabName="security" />
                 </div>
               )}
 
@@ -1335,14 +1336,16 @@ export default function SuperAdminSettingsPage() {
                       )}
                     </div>
                   </div>
+                  <TabSaveButton tabName="maintenance" />
                 </div>
               )}
             </div>
 
-            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 20, marginTop: 28, display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 20, marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 12, color: "#94a3b8" }}>Individual tab saves only update that section. "Save Settings" saves everything.</span>
               <button type="submit" disabled={saving} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 28px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1, boxShadow: "0 4px 14px rgba(79, 70, 229, 0.2)" }}>
                 <Save size={14} />
-                {saving ? "Saving..." : "Save Settings"}
+                {saving ? "Saving..." : "Save All Settings"}
               </button>
             </div>
           </form>
