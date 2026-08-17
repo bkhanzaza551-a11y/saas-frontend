@@ -1,9 +1,10 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import "./index.css";
 import Sidebar from "./components/Sidebar.jsx";
 import Topbar from "./components/Topbar.jsx";
 import { useAuth } from "./context/AuthContext";
+import { api } from "./api/client";
 import PageLoader from "./components/PageLoader.jsx";
 import { SETTINGS_WORKSPACE_SECTIONS } from "./pages/owner/settingsWorkspaceConfig.js";
 const lazyWithRetry = (componentImport) =>
@@ -140,6 +141,44 @@ const RouteFallback = () => {
   );
 };
 
+const ViewLiveSiteRedirect = () => {
+  const { auth } = useAuth();
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const slug = auth?.membership?.salon?.slug || auth?.membership?.salonSlug || auth?.salonSlug || auth?.salon?.slug;
+    if (slug) {
+      navigate(`/site/${slug}`, { replace: true });
+      return;
+    }
+    api.get("/owner/website/config").then((res) => {
+      if (res.data?.slug) {
+        navigate(`/site/${res.data.slug}`, { replace: true });
+      } else {
+        setError("Could not resolve your salon storefront link.");
+      }
+    }).catch(() => {
+      setError("Could not resolve your salon storefront link.");
+    });
+  }, [auth, navigate]);
+
+  if (error) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "50vh", gap: 16 }}>
+        <p style={{ color: "#ef4444", fontWeight: 600 }}>{error}</p>
+        <button onClick={() => window.history.back()} style={{ padding: "8px 16px", borderRadius: 8, background: "#4f46e5", color: "white", border: "none", cursor: "pointer" }}>Go Back</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+      <PageLoader title="Loading storefront" message="Opening your live salon website..." />
+    </div>
+  );
+};
+
 const Protected = () => {
   const { auth, logout } = useAuth();
   const location = useLocation();
@@ -163,6 +202,9 @@ const Protected = () => {
   const enabled = (key) => !key || flags[key] === true;
   const isOwner = salonRole === "SALON_OWNER";
   const shouldShowMyWorkspace = salonRole && !isOwner;
+  const currentSalonSlug = auth.membership?.salon?.slug || auth.membership?.salonSlug || auth.salonSlug || auth.salon?.slug;
+  const liveSiteUrl = currentSalonSlug ? `/site/${currentSalonSlug}` : "/admin/view-live-site";
+
   const myWorkspaceItems = [
     { label: "My Dashboard", to: "/admin/my-dashboard" },
     { label: "My Attendance", to: "/admin/my-attendance" },
@@ -194,7 +236,7 @@ const Protected = () => {
             can("settings", "edit") && { label: "Website Editor", to: "/admin/website-editor" },
             can("settings", "view") && enabled("catalogAnalytics") && { label: "Website Analytics", to: "/admin/website-analytics" },
             can("orders", "view") && enabled("onlineOrders") && { label: "Bookings", to: "/admin/order-dashboard" },
-            { label: "View Live Site", to: `/site/${auth?.membership?.salon?.slug || "demo-salon"}` }
+            { label: "View Live Site", to: liveSiteUrl }
           ].filter(Boolean)
         },
         {
@@ -687,6 +729,7 @@ export default function App() {
           <Route path="/admin/settings/:section" element={<OwnerRoute moduleKey="settings" action="edit" element={<SettingsPage />} />} />
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
+          <Route path="/admin/view-live-site" element={<ViewLiveSiteRedirect />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="settings" action="edit" element={<ManagePage />} />} />
           <Route path="/admin/product-requirements" element={<OwnerRoute moduleKey="inventory" element={<ProductsRequirementPage />} />} />
           <Route path="/admin/staff-requirements" element={<OwnerRoute moduleKey="staff" element={<StaffRequirementsPage />} />} />

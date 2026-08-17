@@ -137,6 +137,34 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
+  useEffect(() => {
+    if (auth?.accessToken && auth?.user?.systemRole !== "SUPER_ADMIN") {
+      const currentSlug = auth?.membership?.salon?.slug || auth?.membership?.salonSlug;
+      if (!currentSlug) {
+        api.get("/owner/website/config").then((res) => {
+          if (res.data?.slug) {
+            setAuth((current) => {
+              if (!current) return current;
+              const nextMembership = {
+                ...(current.membership || {}),
+                salonSlug: res.data.slug,
+                salon: {
+                  ...(current.membership?.salon || {}),
+                  id: current.membership?.salonId,
+                  name: res.data.salonName || current.membership?.salonName,
+                  slug: res.data.slug
+                }
+              };
+              const nextState = { ...current, membership: nextMembership };
+              writeAuth(nextState, current.rememberMe !== false);
+              return nextState;
+            });
+          }
+        }).catch(() => {});
+      }
+    }
+  }, [auth?.accessToken, auth?.membership?.salonId]);
+
   const value = { auth, login, verifyOtp, resendOtp, logout, clearSession, switchSalon };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 };
