@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
@@ -6,10 +6,11 @@ import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import { 
   Briefcase, Plus, Trash2, Eye, Edit2, Clock, CheckCircle, 
-  AlertCircle, UserPlus, Building2, DollarSign, Award, 
-  Sparkles, MapPin, X, ChevronRight, Layers
+  AlertCircle, Building2, DollarSign, Award, 
+  MapPin, X, ChevronRight, Filter, Search, FileText
 } from "lucide-react";
 
+// Point 4: Simple Statuses (Open, In Progress, Closed)
 const statusConfig = {
   OPEN: { label: "Open", color: "#d97706", bg: "#fffbeb", border: "#fde68a", icon: Clock },
   IN_PROGRESS: { label: "In Progress", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe", icon: AlertCircle },
@@ -17,35 +18,32 @@ const statusConfig = {
 };
 
 const priorityColors = {
-  LOW: { bg: "#f0fdf4", color: "#166534", border: "#bbf7d0" },
-  MEDIUM: { bg: "#fffbeb", color: "#b45309", border: "#fde68a" },
-  HIGH: { bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" },
-  URGENT: { bg: "#fef2f2", color: "#dc2626", border: "#fca5a5" }
+  LOW: { bg: "#f0fdf4", color: "#166534" },
+  MEDIUM: { bg: "#fffbeb", color: "#b45309" },
+  HIGH: { bg: "#fff7ed", color: "#c2410c" },
+  URGENT: { bg: "#fef2f2", color: "#dc2626" }
 };
 
 const emptyForm = {
-  title: "",
-  description: "",
-  department: "",
   position: "",
+  count: "1",
   salary: "",
   experience: "",
   skills: "",
-  count: "1",
-  shift: "",
-  urgency: "MEDIUM",
+  description: "",
   priority: "MEDIUM",
   branchId: ""
 };
 
 export default function StaffRequirementsPage() {
-  const [requirements, setRequirements] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [viewDetailReq, setViewDetailReq] = useState(null);
+  const [selectedReq, setSelectedReq] = useState(null);
   const [editReq, setEditReq] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState({ error: "", success: "" });
@@ -57,10 +55,10 @@ export default function StaffRequirementsPage() {
         api.get("/owner/staff-requirements"),
         api.get("/owner/branches").catch(() => ({ data: [] }))
       ]);
-      setRequirements(resReqs.data || []);
+      setRequests(resReqs.data || []);
       setBranches(resBranches.data || []);
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Failed to load data"), success: "" });
+      setStatus({ error: formatApiError(err, "Failed to load staff requests"), success: "" });
     } finally {
       setLoading(false);
     }
@@ -68,788 +66,382 @@ export default function StaffRequirementsPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Point 3: Basic Request Fields Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim()) {
-      setStatus({ error: "Title is required.", success: "" });
+    if (!form.position.trim()) {
+      setStatus({ error: "Position / Job Role is required.", success: "" });
       return;
     }
     setSaving(true);
     try {
       if (editReq) {
-        await api.patch(`/owner/staff-requirements/${editReq.id}`, form);
-        setStatus({ error: "", success: "Requirement updated successfully." });
+        await api.patch(`/owner/staff-requirements/${editReq.id}`, {
+          ...form,
+          title: form.position
+        });
+        setStatus({ error: "", success: "Staff request updated successfully." });
       } else {
-        await api.post("/owner/staff-requirements", form);
-        setStatus({ error: "", success: "Requirement created successfully." });
+        await api.post("/owner/staff-requirements", {
+          ...form,
+          title: form.position
+        });
+        setStatus({ error: "", success: "Staff request submitted successfully." });
       }
       setForm(emptyForm);
       setShowModal(false);
       setEditReq(null);
       await fetchData();
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Could not save requirement"), success: "" });
+      setStatus({ error: formatApiError(err, "Could not save staff request"), success: "" });
     } finally {
       setSaving(false);
     }
   };
 
+  // Point 6: Basic Actions (Close Request & Delete)
+  const handleCloseRequest = async (id) => {
+    if (!window.confirm("Are you sure you want to mark this staff request as Closed?")) return;
+    try {
+      await api.patch(`/owner/staff-requirements/${id}`, { status: "CLOSED" });
+      setStatus({ error: "", success: "Staff request marked as Closed." });
+      await fetchData();
+      if (selectedReq && selectedReq.id === id) {
+        setSelectedReq({ ...selectedReq, status: "CLOSED" });
+      }
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to close request"), success: "" });
+    }
+  };
+
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this staff requirement?")) return;
+    if (!window.confirm("Are you sure you want to delete this staff request?")) return;
     try {
       await api.delete(`/owner/staff-requirements/${id}`);
-      setStatus({ error: "", success: "Requirement deleted." });
+      setStatus({ error: "", success: "Staff request deleted." });
+      if (selectedReq && selectedReq.id === id) setSelectedReq(null);
       await fetchData();
     } catch (err) {
-      setStatus({ error: formatApiError(err, "Failed to delete"), success: "" });
+      setStatus({ error: formatApiError(err, "Failed to delete request"), success: "" });
     }
   };
 
   const openEdit = (req) => {
     setEditReq(req);
     setForm({
-      title: req.title || "",
-      description: req.description || "",
-      department: req.department || "",
-      position: req.position || "",
+      position: req.position || req.title || "",
+      count: String(req.count || 1),
       salary: req.salary || "",
       experience: req.experience || "",
       skills: req.skills || "",
-      count: String(req.count || 1),
-      shift: req.shift || "",
-      urgency: req.urgency || "MEDIUM",
+      description: req.description || "",
       priority: req.priority || "MEDIUM",
       branchId: req.branchId || ""
     });
     setShowModal(true);
   };
 
-  const filtered = filter ? requirements.filter(r => r.status === filter) : requirements;
+  const filtered = useMemo(() => {
+    return requests.filter(r => {
+      if (filter !== "ALL" && r.status !== filter) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const pos = (r.position || r.title || "").toLowerCase();
+        const skills = (r.skills || "").toLowerCase();
+        const branch = (r.branch?.name || "").toLowerCase();
+        if (!pos.includes(q) && !skills.includes(q) && !branch.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [requests, filter, searchQuery]);
+
   const counts = {
-    ALL: requirements.length,
-    OPEN: requirements.filter(r => r.status === "OPEN").length,
-    IN_PROGRESS: requirements.filter(r => r.status === "IN_PROGRESS").length,
-    CLOSED: requirements.filter(r => r.status === "CLOSED").length
+    ALL: requests.length,
+    OPEN: requests.filter(r => r.status === "OPEN").length,
+    IN_PROGRESS: requests.filter(r => r.status === "IN_PROGRESS").length,
+    CLOSED: requests.filter(r => r.status === "CLOSED").length
   };
 
-  if (loading) return <div className="page-shell"><PageLoader title="Loading staff requirements..." /></div>;
+  if (loading) return <div className="page-shell"><PageLoader title="Loading Staff Requests..." /></div>;
 
   return (
     <div className="page-shell" style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 24px" }}>
-      {/* Top Hero Banner */}
+      {/* Top Banner (Point 1: Staff Requests) */}
       <div style={{
         background: "#ffffff",
         borderRadius: 16,
         padding: "24px 28px",
         marginBottom: 24,
         border: "1px solid #e2e8f0",
-        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.03)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         flexWrap: "wrap",
         gap: 16
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{
-            width: 48,
-            height: 48,
-            borderRadius: 14,
-            background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
-            color: "#2563eb",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(37, 99, 235, 0.15)"
-          }}>
-            <UserPlus size={24} />
-          </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
-              Staff Requirements
-            </h1>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b", fontWeight: 500 }}>
-              Submit, track, and manage hiring requisitions for your salon branches.
-            </p>
-          </div>
+        <div>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+            Staff Requests
+          </h1>
+          <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>
+            Submit hiring requisitions, manage vacancies, and track recruitment progress for your salon.
+          </p>
         </div>
 
-        <button 
-          onClick={() => { setEditReq(null); setForm(emptyForm); setShowModal(true); }}
+        <button
+          onClick={() => {
+            setEditReq(null);
+            setForm(emptyForm);
+            setShowModal(true);
+          }}
           style={{
-            padding: "10px 22px",
-            background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: 10,
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: "pointer",
-            display: "flex",
+            display: "inline-flex",
             alignItems: "center",
             gap: 8,
-            boxShadow: "0 4px 14px rgba(37, 99, 235, 0.25)",
-            transition: "transform 0.15s, boxShadow 0.15s"
+            padding: "10px 20px",
+            borderRadius: 10,
+            background: "#4f46e5",
+            color: "white",
+            border: "none",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)"
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
         >
-          <Plus size={16} strokeWidth={2.5} />
-          <span>New Requirement</span>
+          <Plus size={16} /> + New Staff Request
         </button>
       </div>
 
-      {/* Notifications */}
       {status.error && (
-        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", padding: "12px 18px", borderRadius: 12, marginBottom: 20, fontSize: 13, fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", borderRadius: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span>{status.error}</span>
-          <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", display: "flex" }}><X size={16} /></button>
+          <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer" }}>✕</button>
         </div>
       )}
       {status.success && (
-        <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#059669", padding: "12px 18px", borderRadius: 12, marginBottom: 20, fontSize: 13, fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "12px 16px", background: "#ecfdf5", color: "#065f46", borderRadius: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span>{status.success}</span>
-          <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#059669", cursor: "pointer", display: "flex" }}><X size={16} /></button>
+          <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#065f46", cursor: "pointer" }}>✕</button>
         </div>
       )}
 
-      {/* Filter Tabs Bar */}
-      <div style={{
-        background: "#ffffff",
-        borderRadius: 14,
-        padding: "6px 8px",
-        marginBottom: 20,
-        border: "1px solid #e2e8f0",
-        display: "inline-flex",
-        gap: 6,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
-      }}>
-        {[
-          { key: "", label: "All Requisitions", count: counts.ALL },
-          { key: "OPEN", label: "Open", count: counts.OPEN },
-          { key: "IN_PROGRESS", label: "In Progress", count: counts.IN_PROGRESS },
-          { key: "CLOSED", label: "Closed", count: counts.CLOSED }
-        ].map(tab => {
-          const isActive = filter === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 10,
-                border: "none",
-                fontSize: 13,
-                fontWeight: isActive ? 700 : 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                background: isActive ? "#2563eb" : "transparent",
-                color: isActive ? "#ffffff" : "#64748b",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                boxShadow: isActive ? "0 2px 8px rgba(37, 99, 235, 0.2)" : "none"
-              }}
-            >
-              <span>{tab.label}</span>
-              <span style={{
-                fontSize: 11,
-                fontWeight: 700,
-                padding: "2px 7px",
-                borderRadius: 100,
-                background: isActive ? "rgba(255,255,255,0.25)" : "#f1f5f9",
-                color: isActive ? "#ffffff" : "#475569"
-              }}>
-                {tab.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Main Requirements Content Card */}
-      <div style={{
-        background: "#ffffff",
-        borderRadius: 16,
-        border: "1px solid #e2e8f0",
-        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.03)",
-        padding: filtered.length === 0 ? "48px 24px" : "20px"
-      }}>
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "20px 0" }}>
-            <div style={{
-              width: 64,
-              height: 64,
-              borderRadius: "50%",
-              background: "#f1f5f9",
-              color: "#94a3b8",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px"
-            }}>
-              <UserPlus size={32} />
-            </div>
-            <h3 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>
-              No requirements found
-            </h3>
-            <p style={{ margin: "0 0 20px", fontSize: 13, color: "#64748b" }}>
-              New staffing requisitions will appear here once submitted.
-            </p>
-            <button
-              onClick={() => { setEditReq(null); setForm(emptyForm); setShowModal(true); }}
-              style={{
-                padding: "9px 20px",
-                background: "#0f172a",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer"
-              }}
-            >
-              + Submit New Requirement
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {filtered.map((req) => {
-              const statusInfo = statusConfig[req.status] || statusConfig.OPEN;
-              const StatusIcon = statusInfo.icon;
-              const priorityInfo = priorityColors[req.priority] || priorityColors.MEDIUM;
-
-              return (
-                <div
-                  key={req.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "18px 22px",
-                    background: "#f8fafc",
-                    borderRadius: 14,
-                    border: "1px solid #e2e8f0",
-                    transition: "all 0.15s",
-                    position: "relative",
-                    overflow: "hidden"
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = "#ffffff";
-                    e.currentTarget.style.boxShadow = "0 8px 20px -4px rgba(0,0,0,0.06)";
-                    e.currentTarget.style.borderColor = "#cbd5e1";
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = "#f8fafc";
-                    e.currentTarget.style.boxShadow = "none";
-                    e.currentTarget.style.borderColor = "#e2e8f0";
-                  }}
-                >
-                  {/* Left accent priority bar */}
-                  <div style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: 4,
-                    background: priorityInfo.color
-                  }} />
-
-                  {/* Left Content */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 18, flex: 1, paddingLeft: 6 }}>
-                    <div style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
-                      background: "#eff6ff",
-                      color: "#2563eb",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0
-                    }}>
-                      <Briefcase size={20} />
-                    </div>
-
-                    <div style={{ minWidth: 200, flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
-                        <span style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
-                          {req.title}
-                        </span>
-                        <span style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 5,
-                          padding: "3px 10px",
-                          borderRadius: 100,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: statusInfo.color,
-                          background: statusInfo.bg,
-                          border: `1px solid ${statusInfo.border}`
-                        }}>
-                          <StatusIcon size={12} />
-                          {statusInfo.label}
-                        </span>
-                      </div>
-
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#64748b", flexWrap: "wrap" }}>
-                        {req.department && (
-                          <span style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 600, color: "#475569" }}>
-                            <Building2 size={13} color="#94a3b8" />
-                            {req.department}
-                          </span>
-                        )}
-                        {req.position && <span>• {req.position}</span>}
-                        {req.branch?.name && (
-                          <span style={{ background: "#e2e8f0", color: "#334155", padding: "1px 7px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
-                            {req.branch.name}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Quick Specs */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 24, paddingRight: 20, flexShrink: 0 }}>
-                      <div style={{ textAlign: "center" }}>
-                        <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", display: "block" }}>Staff Needed</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{req.count || 1} Person{(req.count || 1) > 1 ? "s" : ""}</span>
-                      </div>
-                      <div style={{ textAlign: "center" }}>
-                        <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", display: "block" }}>Salary</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{req.salary || "N/A"}</span>
-                      </div>
-                      <div style={{ textAlign: "center" }}>
-                        <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", display: "block" }}>Experience</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{req.experience || "N/A"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Actions & Priority */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                    <span style={{
-                      background: priorityInfo.bg,
-                      color: priorityInfo.color,
-                      border: `1px solid ${priorityInfo.border}`,
-                      padding: "4px 12px",
-                      borderRadius: 100,
-                      fontSize: 11,
-                      fontWeight: 700
-                    }}>
-                      {req.priority}
-                    </span>
-
-                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <button
-                        type="button"
-                        onClick={() => setViewDetailReq(req)}
-                        title="View Details"
-                        style={{
-                          width: 34,
-                          height: 34,
-                          borderRadius: 8,
-                          border: "1px solid #cbd5e1",
-                          background: "#ffffff",
-                          color: "#475569",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          transition: "background 0.15s"
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
-                        onMouseLeave={e => e.currentTarget.style.background = "#ffffff"}
-                      >
-                        <Eye size={15} />
-                      </button>
-
-                      {req.status === "OPEN" && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => openEdit(req)}
-                            title="Edit Requirement"
-                            style={{
-                              width: 34,
-                              height: 34,
-                              borderRadius: 8,
-                              border: "1px solid #cbd5e1",
-                              background: "#ffffff",
-                              color: "#2563eb",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "background 0.15s"
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
-                            onMouseLeave={e => e.currentTarget.style.background = "#ffffff"}
-                          >
-                            <Edit2 size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(req.id)}
-                            title="Delete Requirement"
-                            style={{
-                              width: 34,
-                              height: 34,
-                              borderRadius: 8,
-                              border: "1px solid #fca5a5",
-                              background: "#ffffff",
-                              color: "#dc2626",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "background 0.15s"
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = "#fef2f2"}
-                            onMouseLeave={e => e.currentTarget.style.background = "#ffffff"}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Add / Edit Modal */}
-      {showModal && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(15, 23, 42, 0.6)",
-          backdropFilter: "blur(4px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          padding: 16
-        }}>
-          <div style={{
-            background: "#ffffff",
-            width: "100%",
-            maxWidth: 620,
-            borderRadius: 18,
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-            maxHeight: "90vh",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden"
-          }}>
-            {/* Modal Header */}
-            <div style={{
-              padding: "20px 28px",
-              borderBottom: "1px solid #e2e8f0",
-              background: "#f8fafc",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}>
-              <span style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
-                <UserPlus size={20} color="#2563eb" />
-                {editReq ? "Edit Staff Requirement" : "New Staff Requirement"}
-              </span>
+      {/* Point 4: Simple Status Tabs & Search Filter */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {["ALL", "OPEN", "IN_PROGRESS", "CLOSED"].map(key => {
+            const label = key === "ALL" ? `All (${counts.ALL})` : `${statusConfig[key]?.label} (${counts[key]})`;
+            return (
               <button
-                onClick={() => { setShowModal(false); setForm(emptyForm); setEditReq(null); }}
-                style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} style={{ overflowY: "auto", flex: 1, padding: "24px 28px" }}>
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>
-                  Requirement Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={form.title}
-                  onChange={e => setForm({...form, title: e.target.value})}
-                  placeholder="e.g. Senior Hair Stylist / Nail Artist"
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 600, color: "#0f172a", boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>
-                  Job Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={form.description}
-                  onChange={e => setForm({...form, description: e.target.value})}
-                  placeholder="Outline key responsibilities and expectations..."
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 500, color: "#0f172a", resize: "vertical", boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Branch</label>
-                  <CustomSelect
-                    value={form.branchId}
-                    onChange={e => setForm({...form, branchId: e.target.value})}
-                    options={[{ label: "All Branches", value: "" }, ...branches.map(b => ({ label: b.name, value: b.id }))]}
-                    style={{ width: "100%", height: 42 }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Department</label>
-                  <CustomSelect
-                    value={form.department}
-                    onChange={e => setForm({...form, department: e.target.value})}
-                    options={[
-                      { label: "Select Department", value: "" },
-                      { label: "Hair & Styling", value: "Styling" },
-                      { label: "Therapy & Massage", value: "Therapy" },
-                      { label: "Management & Ops", value: "Management" },
-                      { label: "Front Desk & Reception", value: "Reception" },
-                      { label: "Housekeeping", value: "Cleaning" }
-                    ]}
-                    style={{ width: "100%", height: 42 }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Position Level</label>
-                  <input
-                    type="text"
-                    value={form.position}
-                    onChange={e => setForm({...form, position: e.target.value})}
-                    placeholder="e.g. Senior, Junior, Lead"
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 600, boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Staff Needed</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.count}
-                    onChange={e => setForm({...form, count: e.target.value})}
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 600, boxSizing: "border-box" }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Salary Range</label>
-                  <input
-                    type="text"
-                    value={form.salary}
-                    onChange={e => setForm({...form, salary: e.target.value})}
-                    placeholder="e.g. ₹18,000 - ₹30,000"
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 600, boxSizing: "border-box" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Experience Required</label>
-                  <input
-                    type="text"
-                    value={form.experience}
-                    onChange={e => setForm({...form, experience: e.target.value})}
-                    placeholder="e.g. 2+ Years"
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 600, boxSizing: "border-box" }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Required Skills</label>
-                <input
-                  type="text"
-                  value={form.skills}
-                  onChange={e => setForm({...form, skills: e.target.value})}
-                  placeholder="e.g. Hair Coloring, Keratin, Balayage"
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, background: "#f8fafc", fontWeight: 600, boxSizing: "border-box" }}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Shift Timing</label>
-                  <CustomSelect
-                    value={form.shift}
-                    onChange={e => setForm({...form, shift: e.target.value})}
-                    options={[
-                      { label: "Select Shift", value: "" },
-                      { label: "Morning Shift", value: "Morning" },
-                      { label: "Afternoon Shift", value: "Afternoon" },
-                      { label: "Evening Shift", value: "Evening" },
-                      { label: "Full Day", value: "Full Day" }
-                    ]}
-                    style={{ width: "100%", height: 42 }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Priority Level</label>
-                  <CustomSelect
-                    value={form.priority}
-                    onChange={e => setForm({...form, priority: e.target.value})}
-                    options={[
-                      { label: "Low Priority", value: "LOW" },
-                      { label: "Medium Priority", value: "MEDIUM" },
-                      { label: "High Priority", value: "HIGH" },
-                      { label: "Urgent Requisition", value: "URGENT" }
-                    ]}
-                    style={{ width: "100%", height: 42 }}
-                  />
-                </div>
-              </div>
-
-              {/* Modal Action Buttons */}
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 18 }}>
-                <button
-                  type="button"
-                  onClick={() => { setShowModal(false); setForm(emptyForm); setEditReq(null); }}
-                  style={{ padding: "10px 22px", background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 10, fontWeight: 600, color: "#475569", cursor: "pointer" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  style={{
-                    padding: "10px 28px",
-                    background: saving ? "#93c5fd" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
-                    border: "none",
-                    borderRadius: 10,
-                    fontWeight: 700,
-                    color: "#ffffff",
-                    cursor: saving ? "not-allowed" : "pointer"
-                  }}
-                >
-                  {saving ? "Saving..." : (editReq ? "Update Requirement" : "Submit Requirement")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* View Detail Modal */}
-      {viewDetailReq && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(15, 23, 42, 0.6)",
-          backdropFilter: "blur(4px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          padding: 16
-        }}>
-          <div style={{
-            background: "#ffffff",
-            width: "100%",
-            maxWidth: 580,
-            borderRadius: 20,
-            boxShadow: "0 25px 60px rgba(0,0,0,0.18)",
-            overflow: "hidden"
-          }}>
-            <div style={{ height: 5, background: "linear-gradient(90deg, #2563eb, #3b82f6, #1d4ed8)" }} />
-            
-            <div style={{ padding: "24px 28px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Briefcase size={22} />
-                </div>
-                <div>
-                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{viewDetailReq.title}</h2>
-                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 500 }}>{viewDetailReq.department || "General"} {viewDetailReq.position && `• ${viewDetailReq.position}`}</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setViewDetailReq(null)}
-                style={{ background: "#f1f5f9", border: "none", cursor: "pointer", color: "#64748b", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div style={{ padding: "16px 28px 0", display: "flex", gap: 10 }}>
-              {(() => {
-                const sc = statusConfig[viewDetailReq.status] || statusConfig.OPEN;
-                return <span style={{ background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`, padding: "4px 12px", borderRadius: 100, fontSize: 12, fontWeight: 700 }}>{sc.label}</span>;
-              })()}
-              {(() => {
-                const pc = priorityColors[viewDetailReq.priority] || priorityColors.MEDIUM;
-                return <span style={{ background: pc.bg, color: pc.color, border: `1px solid ${pc.border}`, padding: "4px 12px", borderRadius: 100, fontSize: 12, fontWeight: 700 }}>{viewDetailReq.priority} Priority</span>;
-              })()}
-            </div>
-
-            <div style={{ padding: "20px 28px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>Staff Needed</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{viewDetailReq.count || 1} Person</div>
-                </div>
-                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>Salary</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{viewDetailReq.salary || "N/A"}</div>
-                </div>
-                <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>Experience</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>{viewDetailReq.experience || "N/A"}</div>
-                </div>
-              </div>
-
-              {viewDetailReq.description && (
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: 6 }}>Description</div>
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", fontSize: 13, color: "#334155", lineHeight: 1.6, borderLeft: "3px solid #2563eb" }}>{viewDetailReq.description}</div>
-                </div>
-              )}
-
-              {viewDetailReq.skills && (
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: 6 }}>Required Skills</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {viewDetailReq.skills.split(",").map((s, i) => (
-                      <span key={i} style={{ background: "#f1f5f9", color: "#475569", padding: "4px 10px", borderRadius: 100, fontSize: 12, fontWeight: 600, border: "1px solid #cbd5e1" }}>
-                        {s.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                <div><span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>Shift Timing:</span> <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{viewDetailReq.shift || "N/A"}</span></div>
-                <div><span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>Branch:</span> <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{viewDetailReq.branch?.name || "All Branches"}</span></div>
-              </div>
-            </div>
-
-            <div style={{ padding: "0 28px 24px", display: "flex", gap: 12, justifyContent: "flex-end" }}>
-              {viewDetailReq.status === "OPEN" && (
-                <button
-                  type="button"
-                  onClick={() => { setViewDetailReq(null); openEdit(viewDetailReq); }}
-                  style={{ padding: "9px 18px", background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: 13, fontWeight: 600, color: "#2563eb", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <Edit2 size={14} /> Edit
-                </button>
-              )}
-              <button
+                key={key}
                 type="button"
-                onClick={() => setViewDetailReq(null)}
-                style={{ padding: "9px 22px", background: "#0f172a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, color: "#ffffff", cursor: "pointer" }}
+                onClick={() => setFilter(key)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 20,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  border: "none",
+                  cursor: "pointer",
+                  background: filter === key ? "#4f46e5" : "#f1f5f9",
+                  color: filter === key ? "white" : "#64748b"
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ position: "relative", minWidth: 260 }}>
+          <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+          <input
+            type="text"
+            placeholder="Search position, skills, branch..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{ width: "100%", padding: "8px 12px 8px 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+          />
+        </div>
+      </div>
+
+      {/* Point 2 & 3: Request List Table */}
+      {filtered.length === 0 ? (
+        <EmptyState 
+          title="No Staff Requests" 
+          message={filter === "ALL" ? "You have not submitted any staff hiring requests yet." : `No ${statusConfig[filter]?.label.toLowerCase()} staff requests found.`} 
+        />
+      ) : (
+        <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflowX: "auto", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Position / Job Role</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Branch</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Vacancies</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Salary Range</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Experience</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Priority</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Status</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Requested Date</th>
+                <th style={{ padding: "14px 16px", textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((req) => {
+                const sc = statusConfig[req.status] || statusConfig.OPEN;
+                const pc = priorityColors[req.priority] || priorityColors.MEDIUM;
+                const StatusIcon = sc.icon;
+
+                return (
+                  <tr key={req.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.9rem" }}>
+                        {req.position || req.title}
+                      </div>
+                      {req.skills && (
+                        <div style={{ fontSize: "0.75rem", color: "#6366f1", marginTop: 2 }}>
+                          Skills: {req.skills}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#475569" }}>
+                      {req.branch?.name || "Main Branch / All"}
+                    </td>
+                    <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0f172a" }}>
+                      {req.count || 1} required
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#0f172a", fontWeight: 600 }}>
+                      {req.salary || "Negotiable"}
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#475569" }}>
+                      {req.experience || "Any"}
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
+                        {req.priority}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: sc.bg, color: sc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>
+                        <StatusIcon size={12} /> {sc.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#64748b", fontSize: "0.8rem" }}>
+                      {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                    </td>
+                    <td style={{ padding: "14px 16px", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <button
+                          onClick={() => setSelectedReq(req)}
+                          title="View Details"
+                          style={{ padding: "6px 12px", border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#3b82f6", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => openEdit(req)}
+                          title="Edit Request"
+                          style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#475569", cursor: "pointer" }}
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        {req.status !== "CLOSED" && (
+                          <button
+                            onClick={() => handleCloseRequest(req.id)}
+                            title="Close Request"
+                            style={{ padding: "6px 10px", border: "1px solid #10b981", borderRadius: 6, background: "#ecfdf5", color: "#059669", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}
+                          >
+                            Close
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(req.id)}
+                          title="Delete"
+                          style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#ef4444", cursor: "pointer" }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Point 5: Request Detail Modal (Exact fields required) */}
+      {selectedReq && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 600, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 14 }}>
+              <div>
+                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", textTransform: "uppercase" }}>
+                  Staff Request Details
+                </span>
+                <h2 style={{ margin: "2px 0 0", fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>
+                  {selectedReq.position || selectedReq.title}
+                </h2>
+                <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
+                  Branch: <strong>{selectedReq.branch?.name || "Main Branch / All Outlets"}</strong>
+                </div>
+              </div>
+              <button onClick={() => setSelectedReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8" }}>✕</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, background: "#f8fafc", padding: 16, borderRadius: 10, marginBottom: 16, fontSize: "0.85rem" }}>
+              <div><span style={{ color: "#64748b" }}>Number Required:</span> <strong>{selectedReq.count || 1} Person(s)</strong></div>
+              <div><span style={{ color: "#64748b" }}>Salary Range:</span> <strong>{selectedReq.salary || "Negotiable"}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Experience Required:</span> <strong>{selectedReq.experience || "Any Experience"}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Priority:</span> <strong>{selectedReq.priority}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Current Status:</span> <strong style={{ color: statusConfig[selectedReq.status]?.color }}>{statusConfig[selectedReq.status]?.label || selectedReq.status}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Requested Date:</span> <strong>{new Date(selectedReq.createdAt).toLocaleDateString()}</strong></div>
+            </div>
+
+            {selectedReq.skills && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Skills & Expertise</div>
+                <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8, fontSize: "0.85rem", color: "#334155" }}>
+                  {selectedReq.skills}
+                </div>
+              </div>
+            )}
+
+            {selectedReq.description && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Description / Requirements</div>
+                <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#334155", lineHeight: 1.5 }}>
+                  {selectedReq.description}
+                </div>
+              </div>
+            )}
+
+            {selectedReq.internalNotes && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#065f46", textTransform: "uppercase", marginBottom: 4 }}>Admin / Agency Internal Notes</div>
+                <div style={{ background: "#ecfdf5", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#065f46", borderLeft: "3px solid #10b981" }}>
+                  {selectedReq.internalNotes}
+                </div>
+              </div>
+            )}
+
+            {/* Point 6: Basic Actions on Detail */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #eee", paddingTop: 16 }}>
+              <div>
+                {selectedReq.status !== "CLOSED" && (
+                  <button
+                    onClick={() => handleCloseRequest(selectedReq.id)}
+                    style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#10b981", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                  >
+                    ✓ Close Request
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedReq(null)}
+                style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
               >
                 Close
               </button>
@@ -857,7 +449,139 @@ export default function StaffRequirementsPage() {
           </div>
         </div>
       )}
+
+      {/* Point 3: Submit / Edit Staff Request Modal */}
+      {showModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "white", width: "100%", maxWidth: 540, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
+                {editReq ? "Edit Staff Request" : "New Staff Request"}
+              </h2>
+              <button onClick={() => setShowModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8" }}>✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Position / Job Role *</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Senior Hair Stylist, Beautician, Nail Artist"
+                  value={form.position}
+                  onChange={e => setForm({ ...form, position: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Branch (Optional)</span>
+                  <CustomSelect
+                    value={form.branchId}
+                    onChange={e => setForm({ ...form, branchId: e.target.value })}
+                    style={{ width: "100%" }}
+                  >
+                    <option value="">All Branches / Main</option>
+                    {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </CustomSelect>
+                </label>
+
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Number Required *</span>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={form.count}
+                    onChange={e => setForm({ ...form, count: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Salary Range</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. ₹25,000 - ₹35,000 / month"
+                    value={form.salary}
+                    onChange={e => setForm({ ...form, salary: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Experience</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. 2-3 years, Fresher, 5+ yrs"
+                    value={form.experience}
+                    onChange={e => setForm({ ...form, experience: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Required Skills</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. Hair Coloring, Keratin, Bridal Makeup"
+                    value={form.skills}
+                    onChange={e => setForm({ ...form, skills: e.target.value })}
+                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                </label>
+
+                <label>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Priority</span>
+                  <CustomSelect
+                    value={form.priority}
+                    onChange={e => setForm({ ...form, priority: e.target.value })}
+                    style={{ width: "100%" }}
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                  </CustomSelect>
+                </label>
+              </div>
+
+              <label>
+                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Job Description & Instructions</span>
+                <textarea
+                  rows={3}
+                  placeholder="Additional specifications, working hours, incentives..."
+                  value={form.description}
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </label>
+
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  {saving ? "Saving..." : (editReq ? "Update Request" : "Submit Request")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

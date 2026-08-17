@@ -1,42 +1,54 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
-import { Clock, CheckCircle, AlertCircle, X, ExternalLink, Calendar, Users, Briefcase } from "lucide-react";
+import CustomSelect from "../../components/CustomSelect";
+import { 
+  Clock, CheckCircle, AlertCircle, X, ExternalLink, Calendar, 
+  Users, Briefcase, Plus, Edit2, Search, Building2, FileText
+} from "lucide-react";
 
+// Point 4: Simple Statuses (Open, In Progress, Closed)
 const statusConfig = {
-  OPEN: { label: "Open", color: "#f59e0b", bg: "#fef3c7", icon: Clock },
-  IN_PROGRESS: { label: "In Progress", color: "#3b82f6", bg: "#dbeafe", icon: AlertCircle },
+  OPEN: { label: "Open", color: "#d97706", bg: "#fef3c7", icon: Clock },
+  IN_PROGRESS: { label: "In Progress", color: "#2563eb", bg: "#dbeafe", icon: AlertCircle },
   CLOSED: { label: "Closed", color: "#10b981", bg: "#d1fae5", icon: CheckCircle }
 };
 
 const priorityColors = {
-  LOW: "#10b981",
-  MEDIUM: "#f59e0b",
-  HIGH: "#ef4444",
-  URGENT: "#dc2626"
+  LOW: { bg: "#f0fdf4", color: "#166534" },
+  MEDIUM: { bg: "#fffbeb", color: "#b45309" },
+  HIGH: { bg: "#fff7ed", color: "#c2410c" },
+  URGENT: { bg: "#fef2f2", color: "#dc2626" }
 };
 
 export default function SuperAdminStaffRequirementsPage() {
   const [requirements, setRequirements] = useState([]);
+  const [salons, setSalons] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState({ error: "", success: "" });
   const [searchParams] = useSearchParams();
   const [filter, setFilter] = useState(searchParams.get("status") || "ALL");
+  const [salonFilter, setSalonFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
   const [selectedReq, setSelectedReq] = useState(null);
-  const [internalNotes, setInternalNotes] = useState("");
+  const [internalNotesText, setInternalNotesText] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError("");
+    setStatus({ error: "", success: "" });
     try {
-      const res = await api.get("/super-admin/staff-requirements");
-      setRequirements(res.data || []);
+      const [resReqs, resSalons] = await Promise.all([
+        api.get("/super-admin/staff-requirements"),
+        api.get("/super-admin/salons").catch(() => ({ data: [] }))
+      ]);
+      setRequirements(resReqs.data || []);
+      setSalons(resSalons.data || []);
     } catch (err) {
-      setError(formatApiError(err, "Failed to load requirements"));
+      setStatus({ error: formatApiError(err, "Failed to load staff requests"), success: "" });
     } finally {
       setLoading(false);
     }
@@ -44,22 +56,37 @@ export default function SuperAdminStaffRequirementsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Point 6: Basic Actions (Update Status & Add Note & Close Request)
   const updateRequirement = async (id, updates) => {
     setUpdatingId(id);
     try {
       await api.patch(`/super-admin/staff-requirements/${id}`, updates);
-      load();
+      setStatus({ error: "", success: "Staff request updated successfully." });
+      await load();
       if (selectedReq && selectedReq.id === id) {
         setSelectedReq({ ...selectedReq, ...updates });
       }
     } catch (err) {
-      alert(formatApiError(err, "Failed to update"));
+      setStatus({ error: formatApiError(err, "Failed to update staff request"), success: "" });
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const filtered = filter === "ALL" ? requirements : requirements.filter(r => r.status === filter);
+  const filtered = useMemo(() => {
+    return requirements.filter(r => {
+      if (filter !== "ALL" && r.status !== filter) return false;
+      if (salonFilter && r.salonId !== salonFilter) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const pos = (r.position || r.title || "").toLowerCase();
+        const salon = (r.salon?.name || "").toLowerCase();
+        const skills = (r.skills || "").toLowerCase();
+        if (!pos.includes(q) && !salon.includes(q) && !skills.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [requirements, filter, salonFilter, searchQuery]);
 
   const counts = {
     ALL: requirements.length,
@@ -68,212 +95,282 @@ export default function SuperAdminStaffRequirementsPage() {
     CLOSED: requirements.filter(r => r.status === "CLOSED").length
   };
 
-  if (loading) return <div className="page-shell super-admin-page"><PageLoader title="Loading staff requirements" /></div>;
+  if (loading) return <div className="page-shell super-admin-page"><PageLoader title="Loading Staff Requests..." /></div>;
 
   return (
     <div className="page-shell super-admin-page">
+      {/* Header (Point 1: Staff Requests) */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Staff Requirements</h1>
-          <p style={{ fontSize: 14, color: "#64748b", marginTop: 4 }}>Hiring requests from salon owners</p>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Staff Requests</h1>
+          <p style={{ fontSize: 14, color: "#64748b", marginTop: 4 }}>
+            Hiring and recruitment requisitions submitted by salon owners.
+          </p>
         </div>
       </div>
 
-      {error && <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", borderRadius: 8, marginBottom: 16 }}>{error}</div>}
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {["ALL", "OPEN", "IN_PROGRESS", "CLOSED"].map(key => (
-          <button key={key} onClick={() => setFilter(key)} style={{
-            padding: "8px 16px", borderRadius: 20, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer",
-            background: filter === key ? "#0f172a" : "#f1f5f9",
-            color: filter === key ? "#fff" : "#64748b"
-          }}>
-            {key === "ALL" ? "All" : statusConfig[key].label} ({counts[key]})
-          </button>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <EmptyState title="No Requirements" message={filter === "ALL" ? "No staff requirements submitted yet." : `No ${statusConfig[filter]?.label.toLowerCase()} requirements.`} />
-      ) : (
-        <div style={{ display: "grid", gap: 16 }}>
-          {filtered.map((req) => {
-            const status = statusConfig[req.status] || statusConfig.OPEN;
-            const StatusIcon = status.icon;
-            return (
-              <div key={req.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "20px 24px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-                  <div style={{ flex: 1, minWidth: 280 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
-                      <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", margin: 0 }}>{req.title}</h3>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: status.color, background: status.bg }}>
-                        <StatusIcon size={12} /> {status.label}
-                      </span>
-                    </div>
-                    {req.salon && (
-                      <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 4px" }}>
-                        Salon: <b style={{ color: "#334155" }}>{req.salon.name}</b>
-                        {req.salon.slug && <span style={{ color: "#94a3b8" }}> ({req.salon.slug})</span>}
-                      </p>
-                    )}
-                    <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#64748b", flexWrap: "wrap", marginTop: 8 }}>
-                      {req.department && <span>Dept: <b style={{ color: "#334155" }}>{req.department}</b></span>}
-                      {req.position && <span>Position: <b style={{ color: "#334155" }}>{req.position}</b></span>}
-                      <span>Staff: <b style={{ color: "#334155" }}>{req.count || 1}</b></span>
-                      {req.salary && <span>Salary: <b style={{ color: "#334155" }}>{req.salary}</b></span>}
-                      {req.experience && <span>Experience: <b style={{ color: "#334155" }}>{req.experience}</b></span>}
-                      <span>Priority: <b style={{ color: priorityColors[req.priority] || "#334155" }}>{req.priority}</b></span>
-                    </div>
-                    <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>
-                      Submitted: {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-start" }}>
-                    <button onClick={() => { setSelectedReq(req); setInternalNotes(req.internalNotes || ""); }} style={{
-                      padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, border: "1px solid #cbd5e1", cursor: "pointer",
-                      background: "#fff", color: "#475569", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s"
-                    }}>
-                      <ExternalLink size={14} /> View Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      {status.error && (
+        <div style={{ padding: "12px 16px", background: "#fef2f2", color: "#dc2626", borderRadius: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.error}</span>
+          <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer" }}>✕</button>
+        </div>
+      )}
+      {status.success && (
+        <div style={{ padding: "12px 16px", background: "#ecfdf5", color: "#065f46", borderRadius: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.success}</span>
+          <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#065f46", cursor: "pointer" }}>✕</button>
         </div>
       )}
 
-      {selectedReq && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)" }} onClick={() => setSelectedReq(null)} />
-          <div style={{ background: "#fff", width: "100%", maxWidth: 700, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", position: "relative", zIndex: 1, display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
-            <div style={{ padding: "24px 32px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "#f8fafc", borderRadius: "16px 16px 0 0" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
-                  <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>{selectedReq.title}</h2>
-                  {(() => {
-                    const status = statusConfig[selectedReq.status] || statusConfig.OPEN;
-                    const StatusIcon = status.icon;
-                    return (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, color: status.color, background: status.bg }}>
-                        <StatusIcon size={14} /> {status.label}
+      {/* Point 4: Simple Status Filter Tabs & Search */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {["ALL", "OPEN", "IN_PROGRESS", "CLOSED"].map(key => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setFilter(key)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 20,
+                fontSize: 13,
+                fontWeight: 700,
+                border: "none",
+                cursor: "pointer",
+                background: filter === key ? "#0f172a" : "#f1f5f9",
+                color: filter === key ? "#fff" : "#64748b"
+              }}
+            >
+              {key === "ALL" ? `All (${counts.ALL})` : `${statusConfig[key]?.label} (${counts[key]})`}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ position: "relative", minWidth: 220 }}>
+            <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+            <input
+              type="text"
+              placeholder="Search role, skills, salon..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ width: "100%", padding: "8px 12px 8px 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+            />
+          </div>
+
+          <div style={{ minWidth: 200 }}>
+            <CustomSelect value={salonFilter} onChange={e => setSalonFilter(e.target.value)} style={{ width: "100%" }}>
+              <option value="">All Salons</option>
+              {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </CustomSelect>
+          </div>
+        </div>
+      </div>
+
+      {/* Point 2 & 3: Request List Table */}
+      {filtered.length === 0 ? (
+        <EmptyState 
+          title="No Staff Requests" 
+          message={filter === "ALL" ? "No staff requests submitted yet." : `No ${statusConfig[filter]?.label.toLowerCase()} staff requests found.`} 
+        />
+      ) : (
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflowX: "auto", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Salon Name</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Branch</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Position / Job Role</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Vacancies</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Salary Range</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Experience</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Priority</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Status</th>
+                <th style={{ padding: "14px 16px", textAlign: "left" }}>Requested Date</th>
+                <th style={{ padding: "14px 16px", textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((req) => {
+                const sc = statusConfig[req.status] || statusConfig.OPEN;
+                const pc = priorityColors[req.priority] || priorityColors.MEDIUM;
+                const StatusIcon = sc.icon;
+
+                return (
+                  <tr key={req.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0f172a" }}>
+                      {req.salon?.name || "General Salon"}
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#475569" }}>
+                      {req.branch?.name || "Main / All"}
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ fontWeight: 700, color: "#0f172a" }}>
+                        {req.position || req.title}
+                      </div>
+                      {req.skills && (
+                        <div style={{ fontSize: "0.75rem", color: "#6366f1", marginTop: 2 }}>
+                          Skills: {req.skills}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0f172a" }}>
+                      {req.count || 1} required
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#0f172a", fontWeight: 600 }}>
+                      {req.salary || "Negotiable"}
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#475569" }}>
+                      {req.experience || "Any"}
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ background: pc.bg, color: pc.color, padding: "3px 8px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700 }}>
+                        {req.priority}
                       </span>
-                    );
-                  })()}
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: sc.bg, color: sc.color, padding: "4px 10px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>
+                        <StatusIcon size={12} /> {sc.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#64748b", fontSize: "0.8rem" }}>
+                      {new Date(req.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                    </td>
+                    <td style={{ padding: "14px 16px", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <button
+                          onClick={() => {
+                            setSelectedReq(req);
+                            setInternalNotesText(req.internalNotes || "");
+                          }}
+                          style={{
+                            padding: "6px 14px",
+                            borderRadius: 6,
+                            border: "1px solid #cbd5e1",
+                            background: "#0f172a",
+                            color: "white",
+                            fontWeight: 700,
+                            fontSize: "0.75rem",
+                            cursor: "pointer"
+                          }}
+                        >
+                          View Detail
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Point 5: Request Detail Modal (Exact fields required) */}
+      {selectedReq && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div style={{ background: "#fff", width: "100%", maxWidth: 640, borderRadius: 16, padding: 24, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid #eee", paddingBottom: 14 }}>
+              <div>
+                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", textTransform: "uppercase" }}>
+                  Staff Request Details
+                </span>
+                <h2 style={{ margin: "2px 0 0", fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>
+                  {selectedReq.position || selectedReq.title}
+                </h2>
+                <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
+                  Salon: <strong>{selectedReq.salon?.name || "General Salon"}</strong> {selectedReq.branch?.name && `• Branch: ${selectedReq.branch.name}`}
                 </div>
-                {selectedReq.salon && (
-                  <p style={{ margin: 0, fontSize: 14, color: "#64748b", display: "flex", alignItems: "center", gap: 6 }}>
-                    <Users size={14} /> Salon: <span style={{ fontWeight: 600, color: "#334155" }}>{selectedReq.salon.name}</span>
-                  </p>
-                )}
               </div>
-              <button onClick={() => setSelectedReq(null)} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: 4, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <X size={24} />
-              </button>
+              <button onClick={() => setSelectedReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8" }}>✕</button>
             </div>
 
-            <div style={{ padding: "24px 32px", overflowY: "auto", flex: 1 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
-                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
-                  <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Briefcase size={14} /> Job Details
-                  </h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Department:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.department || "N/A"}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Position:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.position || "N/A"}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Experience:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.experience || "N/A"}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Salary Range:</span><span style={{ fontWeight: 600, color: "#10b981", fontSize: 13 }}>{selectedReq.salary || "N/A"}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Staff Needed:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.count || 1}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Shift:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.shift || "N/A"}</span></div>
-                  </div>
-                </div>
-                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #f1f5f9" }}>
-                  <h4 style={{ margin: "0 0 12px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Calendar size={14} /> Timeline & Info
-                  </h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Submitted On:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{new Date(selectedReq.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Current Status:</span><span style={{ fontWeight: 600, color: statusConfig[selectedReq.status]?.color || "#0f172a", fontSize: 13 }}>{statusConfig[selectedReq.status]?.label}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Priority:</span><span style={{ fontWeight: 700, color: priorityColors[selectedReq.priority] || "#0f172a", fontSize: 13 }}>{selectedReq.priority}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b", fontSize: 13 }}>Branch:</span><span style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{selectedReq.branch?.name || "All"}</span></div>
-                  </div>
-                </div>
-              </div>
-              {selectedReq.description && (
-                <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Description</h4>
-                  <p style={{ margin: 0, fontSize: 14, color: "#475569", lineHeight: 1.6, background: "#f8fafc", padding: 16, borderRadius: 8, border: "1px solid #f1f5f9" }}>{selectedReq.description}</p>
-                </div>
-              )}
-              {selectedReq.skills && (
-                <div style={{ marginBottom: 24 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Required Skills</h4>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {selectedReq.skills.split(",").map((skill, i) => (
-                      <span key={i} style={{ background: "#f1f5f9", color: "#475569", padding: "6px 12px", borderRadius: 100, fontSize: 13, fontWeight: 600 }}>{skill.trim()}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div style={{ marginBottom: 24 }}>
-                <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#334155" }}>Internal Notes</h4>
-                <textarea
-                  value={internalNotes}
-                  onChange={e => setInternalNotes(e.target.value)}
-                  placeholder="Add internal notes about this requirement..."
-                  rows={3}
-                  style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
-                />
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, background: "#f8fafc", padding: 16, borderRadius: 10, marginBottom: 16, fontSize: "0.85rem" }}>
+              <div><span style={{ color: "#64748b" }}>Position:</span> <strong>{selectedReq.position || selectedReq.title}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Number Required:</span> <strong>{selectedReq.count || 1} Person(s)</strong></div>
+              <div><span style={{ color: "#64748b" }}>Salary Range:</span> <strong>{selectedReq.salary || "Negotiable"}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Experience:</span> <strong>{selectedReq.experience || "Any"}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Priority:</span> <strong>{selectedReq.priority}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Current Status:</span> <strong style={{ color: statusConfig[selectedReq.status]?.color }}>{statusConfig[selectedReq.status]?.label || selectedReq.status}</strong></div>
+              <div><span style={{ color: "#64748b" }}>Requested Date:</span> <strong>{new Date(selectedReq.createdAt).toLocaleDateString()}</strong></div>
             </div>
 
-            <div style={{ padding: "20px 32px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", borderRadius: "0 0 16px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Update Status:</span>
-                <div style={{ display: "flex", background: "#e2e8f0", borderRadius: 8, padding: 4 }}>
-                  {[
-                    { val: "OPEN", label: "Open" },
-                    { val: "IN_PROGRESS", label: "In Progress" },
-                    { val: "CLOSED", label: "Closed" }
-                  ].map(st => {
-                    const isActive = selectedReq.status === st.val;
-                    return (
-                      <button
-                        key={st.val}
-                        disabled={updatingId === selectedReq.id}
-                        onClick={() => updateRequirement(selectedReq.id, { status: st.val })}
-                        style={{
-                          padding: "6px 12px",
-                          border: "none",
-                          borderRadius: 6,
-                          fontSize: 13,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          background: isActive ? "#fff" : "transparent",
-                          color: isActive ? "#0f172a" : "#64748b",
-                          boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                          transition: "all 0.2s"
-                        }}
-                      >
-                        {st.label}
-                      </button>
-                    );
-                  })}
+            {selectedReq.skills && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Skills & Expertise</div>
+                <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8, fontSize: "0.85rem", color: "#334155" }}>
+                  {selectedReq.skills}
                 </div>
-                {updatingId === selectedReq.id && <span style={{ fontSize: 12, color: "#3b82f6", fontWeight: 600 }}>Saving...</span>}
               </div>
-              <div style={{ display: "flex", gap: 12 }}>
+            )}
+
+            {selectedReq.description && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Description / Requirements</div>
+                <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#334155", lineHeight: 1.5 }}>
+                  {selectedReq.description}
+                </div>
+              </div>
+            )}
+
+            {/* Point 5 & 6: Internal Notes (Add / Update note) */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155", textTransform: "uppercase", marginBottom: 6 }}>
+                Internal Notes & Staffing Remarks
+              </div>
+              <textarea
+                rows={3}
+                placeholder="Add recruitment status notes, candidate shortlist remarks, interview timeline..."
+                value={internalNotesText}
+                onChange={e => setInternalNotesText(e.target.value)}
+                style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+              />
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}>
                 <button
-                  onClick={() => updateRequirement(selectedReq.id, { internalNotes })}
-                  disabled={updatingId === selectedReq.id}
-                  style={{ padding: "10px 24px", background: "#4f46e5", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                  type="button"
+                  onClick={() => updateRequirement(selectedReq.id, { internalNotes: internalNotesText })}
+                  style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#334155", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}
                 >
-                  Save Notes
-                </button>
-                <button onClick={() => setSelectedReq(null)} style={{ padding: "10px 24px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                  Close
+                  📝 Save Note
                 </button>
               </div>
+            </div>
+
+            {/* Point 6: Basic Actions (Update Status & Close Request) */}
+            <div style={{ background: "#f1f5f9", padding: 16, borderRadius: 10, marginBottom: 16 }}>
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 10 }}>Update Status</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  disabled={updatingId === selectedReq.id || selectedReq.status === "OPEN"}
+                  onClick={() => updateRequirement(selectedReq.id, { status: "OPEN" })}
+                  style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#f59e0b", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
+                >
+                  Mark as Open
+                </button>
+                <button
+                  disabled={updatingId === selectedReq.id || selectedReq.status === "IN_PROGRESS"}
+                  onClick={() => updateRequirement(selectedReq.id, { status: "IN_PROGRESS" })}
+                  style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#3b82f6", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
+                >
+                  Mark as In Progress
+                </button>
+                <button
+                  disabled={updatingId === selectedReq.id || selectedReq.status === "CLOSED"}
+                  onClick={() => updateRequirement(selectedReq.id, { status: "CLOSED" })}
+                  style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#10b981", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}
+                >
+                  ✓ Close Request
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setSelectedReq(null)}
+                style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

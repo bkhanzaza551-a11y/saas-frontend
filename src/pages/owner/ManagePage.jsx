@@ -27,7 +27,7 @@ const CATEGORIES = [
       { title: "Branches", description: "Manage locations, outlets, and salon operational identity.", to: "/admin/branches", icon: Layers3, reqPerm: "branches" },
       { title: "Staff Details", description: "Register team members and configure access.", to: "/admin/users", icon: Users, reqPerm: "staff" },
       { title: "Roles & Permissions", description: "Manage organizational roles and permissions.", to: "/admin/roles-permissions", icon: UserCheck, reqPerm: "staff" },
-      { title: "Staff Requirements", description: "Submit hiring requisitions and requests.", to: "/admin/staff-requirements", icon: Users, reqPerm: "staff" }
+      { title: "Staff Requests", description: "Submit hiring requisitions and requests.", to: "/admin/staff-requirements", icon: Users, reqPerm: "staff" }
     ]
   },
   {
