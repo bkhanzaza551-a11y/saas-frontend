@@ -85,6 +85,7 @@ export default function SuperAdminSettingsPage() {
     businessCity: "Delhi", businessState: "Delhi", businessCountry: "India", businessPin: "",
     taxNumber: "", taxRate: 18,
     trialDays: 14, gracePeriodDays: 2, retentionDays: 90,
+    retentionWarningDays: 14, retentionAction: "ARCHIVE",
     autoSuspendOnExpiry: false, reminderDaysBefore: 7,
     sessionTimeoutMinutes: 480, maxLoginAttempts: 5, enforce2FA: false,
     emailSenderId: "", smsSenderId: "", whatsappSenderId: "",
@@ -200,6 +201,8 @@ export default function SuperAdminSettingsPage() {
         trialDays: d.trialDays ?? 14,
         gracePeriodDays: d.gracePeriodDays ?? 2,
         retentionDays: d.retentionDays ?? 90,
+        retentionWarningDays: d.retentionWarningDays ?? 14,
+        retentionAction: d.retentionAction || "ARCHIVE",
         autoSuspendOnExpiry: Boolean(d.autoSuspendOnExpiry),
         reminderDaysBefore: d.reminderDaysBefore ?? 7,
         sessionTimeoutMinutes: d.sessionTimeoutMinutes ?? 480,
@@ -315,6 +318,7 @@ export default function SuperAdminSettingsPage() {
         taxNumber: form.taxNumber, taxRate: form.taxRate,
         emailSenderId: form.emailSenderId, smsSenderId: form.smsSenderId, whatsappSenderId: form.whatsappSenderId,
         trialDays: form.trialDays, gracePeriodDays: form.gracePeriodDays, retentionDays: form.retentionDays,
+        retentionWarningDays: form.retentionWarningDays, retentionAction: form.retentionAction,
         autoSuspendOnExpiry: form.autoSuspendOnExpiry, reminderDaysBefore: form.reminderDaysBefore,
         sessionTimeoutMinutes: form.sessionTimeoutMinutes, maxLoginAttempts: form.maxLoginAttempts, enforce2FA: form.enforce2FA,
         requireEmailVerification: form.requireEmailVerification, requireMobileVerification: form.requireMobileVerification,
@@ -871,35 +875,94 @@ export default function SuperAdminSettingsPage() {
                 </div>
               )}
 
+              {/* Section 7: Subscription Policies */}
               {activeTab === "policy" && (
                 <div>
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Subscription Policies</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control trial periods, grace periods, data retention and auto-suspend behavior.</p>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Configure default trial days, post-expiry grace periods, and data retention rules across SalonNest.</p>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
-                    <Field label="Trial Period (days)"><input style={inputStyle} {...n("trialDays")} min={1} max={90} /></Field>
-                    <Field label="Grace Period (days)"><input style={inputStyle} {...n("gracePeriodDays")} min={0} max={30} /></Field>
-                    <Field label="Retention Period (days)"><input style={inputStyle} {...n("retentionDays")} min={0} max={365} /></Field>
-                    <Field label="Expiry Reminder (days before)"><input style={inputStyle} {...n("reminderDaysBefore")} min={1} max={30} /></Field>
-                  </div>
-                  <div style={{ marginBottom: 16 }}>
-                    <Toggle value={form.autoSuspendOnExpiry} onChange={v => setForm(p => ({ ...p, autoSuspendOnExpiry: v }))} label="Auto-Suspend Salons on Subscription Expiry" />
-                  </div>
-                  <div style={{ padding: 16, background: "#fef3c7", borderRadius: 12, border: "1px solid #fde68a" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#92400e", marginBottom: 8 }}>Subscription Lifecycle Preview</div>
-                    <div style={{ fontSize: 12, color: "#78350f", display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                      <span style={{ background: "#fff7ed", padding: "2px 10px", borderRadius: 6, fontWeight: 600 }}>TRIAL ({form.trialDays}d)</span>
-                      <span>→</span>
-                      <span style={{ background: "#ecfdf5", padding: "2px 10px", borderRadius: 6, fontWeight: 600 }}>ACTIVE</span>
-                      <span>→</span>
-                      <span style={{ background: "#fef2f2", padding: "2px 10px", borderRadius: 6, fontWeight: 600 }}>EXPIRED</span>
-                      <span>→</span>
-                      <span style={{ background: "#fef3c7", padding: "2px 10px", borderRadius: 6, fontWeight: 600 }}>GRACE ({form.gracePeriodDays}d)</span>
-                      <span>→</span>
-                      <span style={{ background: "#fee2e2", padding: "2px 10px", borderRadius: 6, fontWeight: 600 }}>RESTRICTED</span>
-                      <span>→</span>
-                      <span style={{ background: "#f1f5f9", padding: "2px 10px", borderRadius: 6, fontWeight: 600 }}>ARCHIVED ({form.retentionDays}d)</span>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* 7.1 Trial Settings */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Trial Policy</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <Field label="Default Trial Days">
+                          <input style={inputStyle} {...n("trialDays")} min={1} max={90} placeholder="14" />
+                        </Field>
+                      </div>
+                    </div>
+
+                    {/* 7.2 Expiry Policy */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Expiry Policy</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        <Field label="Expiry Warning Days (Before Expiry)">
+                          <input style={inputStyle} {...n("reminderDaysBefore")} min={1} max={30} placeholder="7" />
+                        </Field>
+                        <Field label="Post-Expiry Access Period (Days)">
+                          <input style={inputStyle} {...n("gracePeriodDays")} min={0} max={30} placeholder="2" />
+                        </Field>
+                        <div style={{ gridColumn: "1 / -1" }}>
+                          <Toggle value={form.autoSuspendOnExpiry} onChange={v => setForm(p => ({ ...p, autoSuspendOnExpiry: v }))} label="Auto-Suspend Salon Access after Post-Expiry Period" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 7.3 Data Retention Policy */}
+                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
+                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Data Retention</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                        <Field label="Retention Period (Days from Expiry)">
+                          <input style={inputStyle} {...n("retentionDays")} min={1} max={365} placeholder="90" />
+                        </Field>
+                        <Field label="Retention Warning (Days Before Purge)">
+                          <input style={inputStyle} {...n("retentionWarningDays")} min={1} max={60} placeholder="14" />
+                        </Field>
+                        <Field label="Action After Retention">
+                          <CustomSelect value={form.retentionAction || "ARCHIVE"} onChange={e => setForm(p => ({ ...p, retentionAction: e.target.value }))}>
+                            <option value="ARCHIVE">Archive data (Recommended)</option>
+                            <option value="SOFT_DELETE">Soft delete records</option>
+                            <option value="PURGE">Permanent delete / Purge</option>
+                            <option value="LOCK">Lock account permanently</option>
+                          </CustomSelect>
+                        </Field>
+                      </div>
+                    </div>
+
+                    {/* 7.4 Subscription Lifecycle Visualizer */}
+                    <div style={{ padding: 20, background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>Configured Subscription Lifecycle</div>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", fontSize: 12 }}>
+                        <div style={{ background: "#eef2ff", color: "#3730a3", padding: "8px 14px", borderRadius: 8, fontWeight: 700, border: "1px solid #c7d2fe" }}>
+                          1. Trial Period ({form.trialDays} Days)
+                        </div>
+                        <span style={{ color: "#94a3b8", fontWeight: 800 }}>→</span>
+                        <div style={{ background: "#ecfdf5", color: "#065f46", padding: "8px 14px", borderRadius: 8, fontWeight: 700, border: "1px solid #a7f3d0" }}>
+                          2. Active Subscription
+                        </div>
+                        <span style={{ color: "#94a3b8", fontWeight: 800 }}>→</span>
+                        <div style={{ background: "#fef2f2", color: "#991b1b", padding: "8px 14px", borderRadius: 8, fontWeight: 700, border: "1px solid #fecaca" }}>
+                          3. Subscription Expires
+                        </div>
+                        <span style={{ color: "#94a3b8", fontWeight: 800 }}>→</span>
+                        <div style={{ background: "#fffbeb", color: "#92400e", padding: "8px 14px", borderRadius: 8, fontWeight: 700, border: "1px solid #fde68a" }}>
+                          4. Post-Expiry Access ({form.gracePeriodDays} Days)
+                        </div>
+                        <span style={{ color: "#94a3b8", fontWeight: 800 }}>→</span>
+                        <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "8px 14px", borderRadius: 8, fontWeight: 700, border: "1px solid #fca5a5" }}>
+                          5. Restricted Access
+                        </div>
+                        <span style={{ color: "#94a3b8", fontWeight: 800 }}>→</span>
+                        <div style={{ background: "#f1f5f9", color: "#334155", padding: "8px 14px", borderRadius: 8, fontWeight: 700, border: "1px solid #cbd5e1" }}>
+                          6. Data Retained (Day {form.retentionDays})
+                        </div>
+                        <span style={{ color: "#94a3b8", fontWeight: 800 }}>→</span>
+                        <div style={{ background: "#0f172a", color: "white", padding: "8px 14px", borderRadius: 8, fontWeight: 700 }}>
+                          7. {form.retentionAction === "PURGE" ? "Purge / Delete" : (form.retentionAction === "SOFT_DELETE" ? "Soft Delete" : (form.retentionAction === "LOCK" ? "Lock Account" : "Archive Data"))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
