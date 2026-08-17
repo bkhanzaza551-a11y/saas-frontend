@@ -224,13 +224,14 @@ export default function SupportTicketsPage() {
                     style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
                   >
                     <option value="General">General</option>
-                    <option value="Login">Login</option>
+                    <option value="Login / Account">Login / Account</option>
                     <option value="POS">POS</option>
                     <option value="Appointments">Appointments</option>
                     <option value="Inventory">Inventory</option>
                     <option value="Billing">Billing</option>
                     <option value="Subscription">Subscription</option>
-                    <option value="Product/Staff Request">Product/Staff Request</option>
+                    <option value="Product Request">Product Request</option>
+                    <option value="Staff Request">Staff Request</option>
                     <option value="Technical Issue">Technical Issue</option>
                     <option value="Feature Request">Feature Request</option>
                   </CustomSelect>

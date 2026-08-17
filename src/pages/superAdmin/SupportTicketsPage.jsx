@@ -39,8 +39,17 @@ const PRIORITIES = [
 ];
 
 const CATEGORIES = [
-  "General", "Login", "POS", "Appointments", "Inventory", "Billing",
-  "Subscription", "Product/Staff Request", "Technical Issue", "Feature Request"
+  "General",
+  "Login / Account",
+  "POS",
+  "Appointments",
+  "Inventory",
+  "Billing",
+  "Subscription",
+  "Product Request",
+  "Staff Request",
+  "Technical Issue",
+  "Feature Request"
 ];
 
 const getStatMeta = (status) => STATUSES.find(s => s.value === status) || STATUSES[0];
