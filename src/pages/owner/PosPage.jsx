@@ -1397,6 +1397,7 @@ export default function PosPage() {
     const discount = Number(form.discount || 0);
     const couponDiscount = Number(couponValidation?.totalDiscount || 0);
     const gcDiscount = Number(giftCardDiscount || 0);
+    const membershipWalletUsed = (form.items || []).reduce((sum, item) => sum + Number(item.membershipWalletUsed || 0), 0);
     const total = isInclusive
       ? subtotal - discount - couponDiscount - gcDiscount - membershipWalletUsed
       : subtotal + itemTax - discount - couponDiscount - gcDiscount - membershipWalletUsed;
