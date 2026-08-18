@@ -519,16 +519,62 @@ export default function SuperAdminSettingsPage() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                     <Field label="System Name"><input style={inputStyle} {...f("systemName")} placeholder="SalonNest" /></Field>
                     <Field label="Platform Logo">
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        {form.globalLogo && <img src={form.globalLogo} alt="Logo" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 4, border: "1px solid #e2e8f0" }} />}
-                        <input type="file" style={{ ...inputStyle, padding: "7px 10px" }} accept="image/png,image/jpeg,image/svg+xml,image/webp" onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          if (file.size > 500 * 1024) { setStatus({ error: "Logo must be under 500KB. Please compress the image.", success: "" }); e.target.value = ""; return; }
-                          const r = new FileReader();
-                          r.onload = (ev) => setForm(p => ({ ...p, globalLogo: ev.target.result }));
-                          r.readAsDataURL(file);
-                        }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, background: "#f8fafc", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 8, background: "white", border: "1px solid #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center", padding: 3, flexShrink: 0, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+                            <img
+                              src={form.globalLogo || "/logo.jfif"}
+                              alt="Platform Logo"
+                              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                            />
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {form.globalLogo ? "Custom Uploaded Logo" : "Default SalonNest Logo"}
+                            </div>
+                            <div style={{ fontSize: 11, color: "#64748b" }}>
+                              {form.globalLogo ? "Active custom logo in use" : "Active: /logo.jfif"}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                          <label style={{ cursor: "pointer", background: "#4f46e5", color: "white", padding: "7px 14px", borderRadius: 6, fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, margin: 0, boxShadow: "0 1px 3px rgba(79, 70, 229, 0.3)" }}>
+                            <span>📁 Change Logo</span>
+                            <input
+                              type="file"
+                              style={{ display: "none" }}
+                              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (file.size > 1024 * 1024) {
+                                  setStatus({ error: "Logo must be under 1MB. Please compress the image.", success: "" });
+                                  e.target.value = "";
+                                  return;
+                                }
+                                const r = new FileReader();
+                                r.onload = (ev) => {
+                                  setForm(p => ({ ...p, globalLogo: ev.target.result }));
+                                  setStatus({ success: "New logo preview loaded. Click 'Save' to apply changes.", error: "" });
+                                };
+                                r.readAsDataURL(file);
+                              }}
+                            />
+                          </label>
+                          {form.globalLogo && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setForm(p => ({ ...p, globalLogo: "" }));
+                                setStatus({ success: "Reset to default SalonNest logo. Click 'Save' to apply.", error: "" });
+                              }}
+                              style={{ background: "#f1f5f9", color: "#64748b", border: "1px solid #cbd5e1", padding: "7px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                            >
+                              ↺ Reset
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </Field>
                     <Field label="Default Currency">
