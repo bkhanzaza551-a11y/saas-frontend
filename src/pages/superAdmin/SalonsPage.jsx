@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -34,6 +35,19 @@ const emptyForm = {
 export default function SalonsPage() {
   const navigate = useNavigate();
   const { showConfirm } = useAlert();
+  const { auth } = useAuth();
+  const user = auth?.user;
+  const roleName = (user?.adminRole?.name || user?.systemRole || "Super Admin").toLowerCase();
+  const isSuperAdmin = user?.systemRole === "SUPER_ADMIN" && (roleName.includes("admin") || !user?.adminRoleId);
+  const isCustomerSuccess = roleName.includes("success") || roleName.includes("operation") || isSuperAdmin;
+  const isSales = roleName.includes("sales");
+  const isFinance = roleName.includes("finance");
+  const isSupport = roleName.includes("support");
+
+  const canAddSalon = isSuperAdmin || isSales || isCustomerSuccess;
+  const canEditSalon = isSuperAdmin || isCustomerSuccess;
+  const canSuspendSalon = isSuperAdmin;
+
   const [salons, setSalons] = useState([]);
   const [plans, setPlans] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -504,9 +518,11 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <h3 style={{ margin: 0 }}>All Salons</h3>
             <span className="badge" style={{ background: "#e0e7ff", color: "#4f46e5" }}>{salons.length} salons</span>
           </div>
-          <button type="button" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, minHeight: 38, padding: "8px 16px" }}>
-            <span>+ Add New Salon</span>
-          </button>
+          {canAddSalon && (
+            <button type="button" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, minHeight: 38, padding: "8px 16px" }}>
+              <span>+ Add New Salon</span>
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -583,20 +599,22 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                           <button type="button" onClick={() => openDetail(salon.id)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                             View
                           </button>
-                          {isOwnerPending && (
+                          {isOwnerPending && canEditSalon && (
                             <button type="button" onClick={() => handleResendSalonOwnerInvite(salon.id)} disabled={isBusy} title="Resend Account Setup Invitation" style={{ padding: "6px 12px", background: "#e0e7ff", color: "#4338ca", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                               Resend Invite
                             </button>
                           )}
-                          <button type="button" onClick={() => startEdit(salon)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
-                            Edit
-                          </button>
-                          {salon.status !== "ACTIVE" && (
+                          {canEditSalon && (
+                            <button type="button" onClick={() => startEdit(salon)} disabled={isBusy} style={{ padding: "6px 12px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
+                              Edit
+                            </button>
+                          )}
+                          {canSuspendSalon && salon.status !== "ACTIVE" && (
                             <button type="button" onClick={() => updateStatus(salon.id, "ACTIVE")} disabled={isBusy} style={{ padding: "6px 12px", background: "#ecfdf5", color: "#10b981", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                               Activate
                             </button>
                           )}
-                          {salon.status === "ACTIVE" && (
+                          {canSuspendSalon && salon.status === "ACTIVE" && (
                             <button type="button" onClick={() => updateStatus(salon.id, "SUSPENDED")} disabled={isBusy} style={{ padding: "6px 12px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                               Suspend
                             </button>

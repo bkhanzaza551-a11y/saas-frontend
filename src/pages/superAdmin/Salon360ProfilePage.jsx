@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 import { formatApiError } from "../../utils/apiError";
 import { useAlert } from "../../context/AlertContext";
 import PageLoader from "../../components/PageLoader";
@@ -91,6 +92,13 @@ export default function Salon360ProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showConfirm } = useAlert();
+  const { auth } = useAuth();
+  const user = auth?.user;
+  const roleName = (user?.adminRole?.name || user?.systemRole || "Super Admin").toLowerCase();
+  const isSuperAdmin = user?.systemRole === "SUPER_ADMIN" && (roleName.includes("admin") || !user?.adminRoleId);
+  const canSuspend = isSuperAdmin;
+  const canOverrideFeatures = isSuperAdmin;
+  const canResendInvite = isSuperAdmin || roleName.includes("success") || roleName.includes("operation");
 
   const [activeTab, setActiveTab] = useState("overview");
   const [data, setData] = useState(null);
@@ -308,11 +316,13 @@ export default function Salon360ProfilePage() {
             </p>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={handleToggleSuspend} disabled={busyAction === "suspend"} style={{ padding: "8px 16px", borderRadius: 6, fontWeight: 600, border: "none", cursor: busyAction === "suspend" ? "not-allowed" : "pointer", background: salon.status === "SUSPENDED" ? "#ecfdf5" : "#fef2f2", color: salon.status === "SUSPENDED" ? "#10b981" : "#ef4444", opacity: busyAction === "suspend" ? 0.6 : 1 }}>
-            {busyAction === "suspend" ? "Processing..." : salon.status === "SUSPENDED" ? "Unsuspend Salon" : "Suspend Salon"}
-          </button>
-        </div>
+        {canSuspend && (
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={handleToggleSuspend} disabled={busyAction === "suspend"} style={{ padding: "8px 16px", borderRadius: 6, fontWeight: 600, border: "none", cursor: busyAction === "suspend" ? "not-allowed" : "pointer", background: salon.status === "SUSPENDED" ? "#ecfdf5" : "#fef2f2", color: salon.status === "SUSPENDED" ? "#10b981" : "#ef4444", opacity: busyAction === "suspend" ? 0.6 : 1 }}>
+              {busyAction === "suspend" ? "Processing..." : salon.status === "SUSPENDED" ? "Unsuspend Salon" : "Suspend Salon"}
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #e2e8f0", marginBottom: 24, overflowX: "auto" }}>
@@ -387,7 +397,7 @@ export default function Salon360ProfilePage() {
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Owner & Verification Profile</h3>
-            {owner && (
+            {owner && canResendInvite && (
               <button
                 type="button"
                 onClick={handleResendOwnerInvite}
@@ -643,23 +653,39 @@ export default function Salon360ProfilePage() {
                         )}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => toggleFeatureOverride(key, enabled)}
-                      disabled={busyAction === `feature-${key}`}
-                      style={{
-                        padding: "6px 12px",
-                        fontSize: "0.75rem",
-                        fontWeight: 800,
-                        color: enabled ? "#16a34a" : "#dc2626",
-                        background: enabled ? "#dcfce7" : "#fee2e2",
-                        border: `1px solid ${enabled ? "#86efac" : "#fca5a5"}`,
-                        borderRadius: 6,
-                        cursor: "pointer"
-                      }}
-                    >
-                      {busyAction === `feature-${key}` ? "Saving..." : (enabled ? "ENABLED" : "DISABLED")}
-                    </button>
+                    {canOverrideFeatures ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleFeatureOverride(key, enabled)}
+                        disabled={busyAction === `feature-${key}`}
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: "0.75rem",
+                          fontWeight: 800,
+                          color: enabled ? "#16a34a" : "#dc2626",
+                          background: enabled ? "#dcfce7" : "#fee2e2",
+                          border: `1px solid ${enabled ? "#86efac" : "#fca5a5"}`,
+                          borderRadius: 6,
+                          cursor: "pointer"
+                        }}
+                      >
+                        {busyAction === `feature-${key}` ? "Saving..." : (enabled ? "ENABLED" : "DISABLED")}
+                      </button>
+                    ) : (
+                      <span
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: "0.75rem",
+                          fontWeight: 800,
+                          color: enabled ? "#16a34a" : "#dc2626",
+                          background: enabled ? "#dcfce7" : "#fee2e2",
+                          border: `1px solid ${enabled ? "#86efac" : "#fca5a5"}`,
+                          borderRadius: 6
+                        }}
+                      >
+                        {enabled ? "ENABLED" : "DISABLED"}
+                      </span>
+                    )}
                   </div>
                 );
               })}
