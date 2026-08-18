@@ -143,7 +143,7 @@ export default function DemoLeadsPage() {
   const load = async (nextFilters = filters) => {
     setLoading(true);
     try {
-      const [leadResponse, planResponse, staffResponse] = await Promise.all([
+      const [leadResult, planResult, staffResult] = await Promise.allSettled([
         api.get("/super-admin/demo-leads", {
           params: {
             ...(nextFilters.q ? { q: nextFilters.q } : {}),
@@ -158,9 +158,19 @@ export default function DemoLeadsPage() {
         api.get("/super-admin/plans"),
         api.get("/super-admin/staff", { params: { onlyActive: 1, role: "Sales" } })
       ]);
-      setRows(leadResponse.data || []);
-      setPlans(planResponse.data || []);
-      setStaff(staffResponse?.data?.users || staffResponse?.data || []);
+
+      if (leadResult.status === "fulfilled") {
+        setRows(leadResult.value.data || []);
+      } else {
+        setFeedback({ error: formatApiError(leadResult.reason, "Could not load leads."), success: "" });
+      }
+
+      if (planResult.status === "fulfilled") {
+        setPlans(planResult.value.data || []);
+      }
+      if (staffResult.status === "fulfilled") {
+        setStaff(staffResult.value?.data?.users || staffResult.value?.data || []);
+      }
     } catch (error) {
       setFeedback({ error: formatApiError(error, "Could not load leads."), success: "" });
     } finally {
