@@ -136,7 +136,7 @@ export default function FinancialReportsPage() {
     }
   };
 
-  useEffect(() => { loadData(); }, [datePreset, salonFilter, modeFilter, statusFilter, paymentForFilter]);
+  useEffect(() => { loadData(); }, [datePreset, salonFilter, modeFilter, statusFilter, paymentForFilter, q, dateFrom, dateTo]);
 
   const applyFilters = () => loadData();
 

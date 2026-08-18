@@ -480,12 +480,6 @@ export default function SuperAdminSettingsPage() {
             <h1 style={{ marginTop: 0 }}>Platform Settings</h1>
             <p style={{ marginBottom: 0 }}>Global configuration, subscription policies, security and audit logs.</p>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <span style={{ padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: form.maintenanceMode ? "#fef2f2" : "#ecfdf5", color: form.maintenanceMode ? "#ef4444" : "#10b981", border: `1px solid ${form.maintenanceMode ? "#fecaca" : "#a7f3d0"}` }}>
-              {form.maintenanceMode ? "Maintenance Active" : "System Live"}
-            </span>
-            <span style={{ padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }}>{form.defaultCurrency}</span>
-          </div>
         </div>
       </div>
 

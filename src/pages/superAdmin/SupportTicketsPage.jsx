@@ -306,19 +306,6 @@ export default function SuperAdminSupportTicketsPage() {
             }} />
             Assigned to Me
           </button>
-          
-          <button onClick={() => load(filters)} style={{ height: 42, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }} onMouseOver={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 8px -2px rgba(79, 70, 229, 0.3)"; }} onMouseOut={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 6px -1px rgba(79, 70, 229, 0.2)"; }}>
-            Apply Filters
-          </button>
-          
-          <button 
-            onClick={() => { const empty = { q: "", status: "", priority: "", category: "", assignedToId: "", assignedToMe: false, from: "", to: "" }; setFilters(empty); load(empty); }}
-            style={{ height: 42, padding: "0 18px", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", whiteSpace: "nowrap" }}
-            onMouseOver={e => { e.currentTarget.style.background="#fee2e2"; e.currentTarget.style.borderColor="#fca5a5"; e.currentTarget.style.color="#dc2626"; }}
-            onMouseOut={e => { e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1"; e.currentTarget.style.color="#64748b"; }}
-          >
-            Reset
-          </button>
         </div>
 
         {/* Dropdowns Row */}
