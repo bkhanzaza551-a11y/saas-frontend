@@ -50,7 +50,7 @@ const FLAG_LABELS = {
   enquiries: "Enquiries",
   ecommerce: "Ecommerce",
   digitalCatalog: "Digital Catalog",
-  onlineOrders: "Online Orders",
+  onlineOrders: "Online Booking",
   customerPortal: "Customer Portal",
   attendance: "Attendance",
   leaves: "Leaves",
@@ -107,12 +107,17 @@ export default function PlansPage() {
   const openCreate = () => { setEditingId(""); setForm(emptyForm); setFeatureSearch(""); setIsModalOpen(true); };
   const openEdit = (p) => {
     setEditingId(p.id);
+    const existingFlags = p.featureFlags || p.features || {};
+    const exactFlags = {};
+    ALL_FLAGS.forEach(f => {
+      exactFlags[f] = existingFlags[f] === true;
+    });
     setForm({
       name: p.name, description: p.description || "", monthlyPrice: Number(p.monthlyPrice), yearlyPrice: Number(p.yearlyPrice),
       trialDays: p.trialDays, branchLimit: p.branchLimit, userLimit: p.userLimit,
       customerLimit: p.customerLimit, invoiceLimit: p.invoiceLimit, storageLimit: p.storageLimit || 500,
       isCustom: p.isCustom, isPopular: p.isPopular, isActive: p.isActive !== false,
-      featureFlags: { ...defaultFeatureFlags, ...(p.featureFlags || p.features || {}) }
+      featureFlags: exactFlags
     });
     setFeatureSearch("");
     setIsModalOpen(true);

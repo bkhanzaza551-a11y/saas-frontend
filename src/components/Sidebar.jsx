@@ -249,51 +249,55 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
                 const expanded = openGroups[group.label] ?? active;
                 const groupIcon = GROUP_ICONS[group.label] || DEFAULT_ICON;
 
+                const showHeader = !group.hideHeader && group.label !== "Navigation" && groups.length > 1;
+
                 return (
                   <div key={group.label} className="sidebar-group">
-                    {group.to ? (
-                      <NavLink
-                        to={group.to}
-                        className={({ isActive }) => `sidebar-group-toggle sidebar-direct-link ${isActive ? "active" : ""}`}
-                        style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
-                      >
-                        <span className="sidebar-group-label">
-                          <span className="sidebar-group-icon">{groupIcon}</span>
-                          <span className="sidebar-group-text">
-                            <strong>{group.label}</strong>
-                          </span>
-                        </span>
-                      </NavLink>
-                    ) : (
-                      <button
-                        type="button"
-                        className={`sidebar-group-toggle ${active ? "active" : ""}`}
-                        onClick={() =>
-                          setOpenGroups((c) => {
-                            const isCurrentlyOpen = c[group.label];
-                            const next = {};
-                            for (const g of groups) next[g.label] = false;
-                            if (!isCurrentlyOpen) next[group.label] = true;
-                            return next;
-                          })
-                        }
-                      >
-                        <span className="sidebar-group-label">
-                          <span className="sidebar-group-icon">{groupIcon}</span>
-                          <span className="sidebar-group-text">
-                            <strong>{group.label}</strong>
-                          </span>
-                        </span>
-                        <span
-                          className="sidebar-chevron"
-                          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                    {showHeader && (
+                      group.to ? (
+                        <NavLink
+                          to={group.to}
+                          className={({ isActive }) => `sidebar-group-toggle sidebar-direct-link ${isActive ? "active" : ""}`}
+                          style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
                         >
-                          <ChevronDown size={14} />
-                        </span>
-                      </button>
+                          <span className="sidebar-group-label">
+                            <span className="sidebar-group-icon">{groupIcon}</span>
+                            <span className="sidebar-group-text">
+                              <strong>{group.label}</strong>
+                            </span>
+                          </span>
+                        </NavLink>
+                      ) : (
+                        <button
+                          type="button"
+                          className={`sidebar-group-toggle ${active ? "active" : ""}`}
+                          onClick={() =>
+                            setOpenGroups((c) => {
+                              const isCurrentlyOpen = c[group.label];
+                              const next = {};
+                              for (const g of groups) next[g.label] = false;
+                              if (!isCurrentlyOpen) next[group.label] = true;
+                              return next;
+                            })
+                          }
+                        >
+                          <span className="sidebar-group-label">
+                            <span className="sidebar-group-icon">{groupIcon}</span>
+                            <span className="sidebar-group-text">
+                              <strong>{group.label}</strong>
+                            </span>
+                          </span>
+                          <span
+                            className="sidebar-chevron"
+                            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                          >
+                            <ChevronDown size={14} />
+                          </span>
+                        </button>
+                      )
                     )}
 
-                    {expanded && (
+                    {(expanded || !showHeader) && (
                       <div className="sidebar-group-items">
                         {(group.items || []).map((item) => {
                           const itemIcon = getItemIcon(item.label, item.to);

@@ -779,9 +779,9 @@ export default function SubscriptionsPage() {
             </div>
             <SubscriptionDetail
               sub={detailSub}
-              onRenew={() => openRenew(detailSub)}
-              onChangePlan={() => openPlanChange(detailSub)}
-              onExtendTrial={() => openExtendTrial(detailSub)}
+              onRenew={() => { const s = detailSub; setDetailSub(null); openRenew(s); }}
+              onChangePlan={() => { const s = detailSub; setDetailSub(null); openPlanChange(s); }}
+              onExtendTrial={() => { const s = detailSub; setDetailSub(null); openExtendTrial(s); }}
               onRemind={() => handleReminder(detailSub.id)}
             />
           </div>

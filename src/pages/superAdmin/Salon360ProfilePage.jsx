@@ -34,6 +34,50 @@ const statusColor = (s) => {
   return { bg: "#f1f5f9", color: "#64748b" };
 };
 
+const FEATURE_LABELS = {
+  pos: "POS & Billing",
+  appointments: "Appointments & Scheduling",
+  crm: "Customer CRM",
+  inventory: "Inventory & Stock",
+  campaigns: "Marketing Campaigns",
+  loyalty: "Loyalty Program",
+  coupons: "Coupons & Vouchers",
+  couponsGiftCards: "Coupons / Gift Cards",
+  enquiries: "Enquiries & Leads",
+  ecommerce: "E-Commerce Storefront",
+  digitalCatalog: "Digital Catalog",
+  onlineOrders: "Online Booking",
+  customerPortal: "Customer Portal",
+  attendance: "Staff Attendance",
+  leaves: "Leave Management",
+  payroll: "Staff Payroll",
+  incentives: "Staff Incentives",
+  whatsapp: "WhatsApp Automation",
+  notifications: "System Notifications",
+  feedback: "Client Feedback",
+  messageTemplates: "Message Templates",
+  expenses: "Expense Tracker",
+  memberships: "Client Memberships",
+  packages: "Service Packages",
+  reports: "Standard Reports",
+  advancedReports: "Advanced Analytics",
+  auditLogs: "Audit Trail & Logs",
+  catalogAnalytics: "Catalog Analytics"
+};
+
+const renderMetadataValue = (key, val) => {
+  if (val == null) return "None";
+  if (key === "featureFlags" && typeof val === "object") {
+    const enabled = Object.entries(val).filter(([, on]) => on === true).map(([k]) => FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()));
+    return enabled.length > 0 ? enabled.join(", ") : "All features disabled";
+  }
+  if (Array.isArray(val)) return val.join(", ");
+  if (typeof val === "object") {
+    return Object.entries(val).map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`).join(" • ");
+  }
+  return String(val);
+};
+
 const FeatureFlagCard = ({ label, enabled, onToggle }) => (
   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: enabled ? "#f0fdf4" : "#fef2f2", border: `1px solid ${enabled ? "#bbf7d0" : "#fecaca"}`, borderRadius: 8 }}>
     <span style={{ fontSize: "0.85rem", fontWeight: 500, color: "#334155" }}>{label}</span>
@@ -587,7 +631,7 @@ export default function Salon360ProfilePage() {
                 return (
                   <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: enabled ? "#f0fdf4" : "#f8fafc", border: `1px solid ${enabled ? "#bbf7d0" : "#e2e8f0"}`, borderRadius: 10 }}>
                     <div>
-                      <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b" }}>{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</div>
+                      <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b" }}>{FEATURE_LABELS[key] || key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</div>
                       <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
                         {planIncluded ? (
                           <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#15803d", background: "#dcfce7", padding: "2px 6px", borderRadius: 4 }}>Included in Plan</span>
@@ -877,9 +921,9 @@ export default function Salon360ProfilePage() {
                       {log.actorUserId ? `By: ${log.actorUserId}` : ""} {log.createdAt ? `• ${new Date(log.createdAt).toLocaleString()}` : ""}
                     </div>
                     {log.metadata && typeof log.metadata === "object" && Object.keys(log.metadata).length > 0 && (
-                      <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 4, background: "#f8fafc", padding: "6px 10px", borderRadius: 6 }}>
+                      <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 6, background: "#f8fafc", padding: "8px 12px", borderRadius: 8, border: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: 4 }}>
                         {Object.entries(log.metadata).map(([k, v]) => (
-                          <div key={k}><span style={{ fontWeight: 600 }}>{k}:</span> {typeof v === "object" ? JSON.stringify(v) : String(v)}</div>
+                          <div key={k} style={{ lineHeight: 1.4 }}><span style={{ fontWeight: 700, color: "#334155" }}>{k}:</span> {renderMetadataValue(k, v)}</div>
                         ))}
                       </div>
                     )}
