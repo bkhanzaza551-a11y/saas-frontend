@@ -76,22 +76,8 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
   };
 
   useEffect(() => {
-    load(query, statusFilter);
-  }, [query, statusFilter]);
-
-  useEffect(() => {
-    setSearchParams((prev) => {
-      if (planFilter) prev.set("plan", planFilter); else prev.delete("plan");
-      return prev;
-    });
-  }, [planFilter]);
-
-  useEffect(() => {
-    setSearchParams((prev) => {
-      if (cityFilter) prev.set("city", cityFilter); else prev.delete("city");
-      return prev;
-    });
-  }, [cityFilter]);
+    load(query, statusFilter, planFilter, cityFilter);
+  }, [query, statusFilter, planFilter, cityFilter]);
 
   const resetForm = () => {
     setForm(emptyForm);

@@ -60,10 +60,69 @@ export default function Salon360ProfilePage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/super-admin/salons/${id}/360`);
-      setData(res.data);
+      setStatus({ error: "", success: "" });
+
+      let resultData = null;
+
+      // 1. Try full salon 360 endpoint
+      try {
+        const resFull = await api.get(`/super-admin/salons/${id}/full`);
+        if (resFull?.data && (resFull.data.salon || resFull.data.id)) {
+          resultData = resFull.data.salon ? resFull.data : { salon: resFull.data };
+        }
+      } catch (e) {
+        // Fallback
+      }
+
+      // 2. Try /360 alias if full didn't return
+      if (!resultData) {
+        try {
+          const res360 = await api.get(`/super-admin/salons/${id}/360`);
+          if (res360?.data && (res360.data.salon || res360.data.id)) {
+            resultData = res360.data.salon ? res360.data : { salon: res360.data };
+          }
+        } catch (e) {
+          // Fallback
+        }
+      }
+
+      // 3. Try standard /salons/:id endpoint
+      if (!resultData) {
+        try {
+          const resSingle = await api.get(`/super-admin/salons/${id}`);
+          if (resSingle?.data) {
+            const s = resSingle.data.salon || resSingle.data;
+            const ownerObj = s.users?.find(u => u.salonRole === "SALON_OWNER")?.user || s.users?.[0]?.user || null;
+            resultData = {
+              salon: s,
+              owner: ownerObj,
+              tickets: [],
+              payments: [],
+              productRequests: [],
+              staffRequests: [],
+              auditLogs: [],
+              analytics: {
+                customers: s.customers?.length || 0,
+                services: s.services?.length || 0,
+                products: 0,
+                invoices: 0,
+                appointments: 0,
+                staff: s.users?.length || 0
+              }
+            };
+          }
+        } catch (e) {
+          // Both failed
+        }
+      }
+
+      if (resultData && resultData.salon) {
+        setData(resultData);
+      } else {
+        setData(null);
+      }
     } catch (err) {
-      setStatus({ error: formatApiError(err), success: "" });
+      setStatus({ error: formatApiError(err, "Failed to load salon details"), success: "" });
     } finally {
       setLoading(false);
     }
