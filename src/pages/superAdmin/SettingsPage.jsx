@@ -551,6 +551,20 @@ export default function SuperAdminSettingsPage() {
                         <option value="24">24-Hour (13:00)</option>
                       </CustomSelect>
                     </Field>
+                    <Field label="Default Language">
+                      <CustomSelect value={form.defaultLanguage || "en"} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="ur">Urdu</option>
+                        <option value="ar">Arabic</option>
+                        <option value="bn">Bengali</option>
+                        <option value="ta">Tamil</option>
+                        <option value="te">Telugu</option>
+                        <option value="mr">Marathi</option>
+                        <option value="kn">Kannada</option>
+                        <option value="ml">Malayalam</option>
+                      </CustomSelect>
+                    </Field>
                   </div>
                   <TabSaveButton tabName="general" />
                 </div>
