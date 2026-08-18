@@ -824,16 +824,51 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "dataExport" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Data Export</h3>
-          <p style={{ color: "#64748b", fontSize: "0.9rem", marginBottom: 20 }}>Export salon-specific data as CSV files.</p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", color: "#0f172a" }}>Data Export</h3>
+          <p style={{ color: "#64748b", fontSize: "0.85rem", marginBottom: 20 }}>
+            Download complete salon-specific records formatted as Microsoft Excel (.xlsx) spreadsheets.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
             {[
-              { type: "customers", label: "Export Customers", color: "#4f46e5" },
-              { type: "inventory", label: "Export Inventory", color: "#10b981" },
+              { type: "customers", label: "Export Customers", count: analytics?.customers || 0, color: "#4f46e5", desc: "Client contacts, lifetime spending, and loyalty points." },
+              { type: "inventory", label: "Export Inventory", count: analytics?.products || 0, color: "#10b981", desc: "Product catalog, stock levels, cost and retail pricing." },
+              { type: "services", label: "Export Services", count: analytics?.services || 0, color: "#8b5cf6", desc: "Service menu, pricing, duration, and categories." },
+              { type: "invoices", label: "Export Invoices", count: analytics?.invoices || 0, color: "#f59e0b", desc: "Complete POS invoice register and payment totals." }
             ].map(exp => (
-              <button key={exp.type} onClick={() => handleExport(exp.type)} disabled={busyAction === `export-${exp.type}`} style={{ padding: "10px 20px", background: exp.color, color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: busyAction === `export-${exp.type}` ? "not-allowed" : "pointer", opacity: busyAction === `export-${exp.type}` ? 0.6 : 1, display: "flex", alignItems: "center", gap: 8 }}>
-                <Download size={15} /> {busyAction === `export-${exp.type}` ? "Exporting..." : exp.label}
-              </button>
+              <div key={exp.type} style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 18, background: "#f8fafc", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontWeight: 800, color: "#0f172a", fontSize: "0.95rem" }}>{exp.label}</span>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, background: exp.count > 0 ? "#dcfce7" : "#f1f5f9", color: exp.count > 0 ? "#15803d" : "#64748b", padding: "2px 8px", borderRadius: 100 }}>
+                      {exp.count} {exp.count === 1 ? "record" : "records"}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: "0.8rem", color: "#64748b", lineHeight: 1.4 }}>{exp.desc}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleExport(exp.type)}
+                  disabled={busyAction === `export-${exp.type}`}
+                  style={{
+                    padding: "9px 16px",
+                    background: exp.color,
+                    color: "white",
+                    border: "none",
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: busyAction === `export-${exp.type}` ? "not-allowed" : "pointer",
+                    opacity: busyAction === `export-${exp.type}` ? 0.6 : 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    transition: "all 0.15s"
+                  }}
+                >
+                  <Download size={15} /> {busyAction === `export-${exp.type}` ? "Exporting..." : `Download ${exp.type[0].toUpperCase() + exp.type.slice(1)}`}
+                </button>
+              </div>
             ))}
           </div>
         </div>
