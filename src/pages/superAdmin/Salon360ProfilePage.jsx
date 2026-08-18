@@ -171,6 +171,18 @@ export default function Salon360ProfilePage() {
     }
   };
 
+  const handleResendOwnerInvite = async () => {
+    setBusyAction("resend-invite");
+    try {
+      const res = await api.post(`/super-admin/salons/${id}/resend-owner-invite`);
+      setStatus({ error: "", success: res.data.message || "Invitation email resent to salon owner." });
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to resend owner invitation"), success: "" });
+    } finally {
+      setBusyAction("");
+    }
+  };
+
   const toggleFeatureOverride = async (key, currentVal) => {
     const reason = window.prompt(`Enter reason for manual override of ${key}:`, "Special operational override");
     if (reason === null) return;
