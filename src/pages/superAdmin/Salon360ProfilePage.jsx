@@ -555,39 +555,83 @@ export default function Salon360ProfilePage() {
         </div>
       )}
 
-      {activeTab === "payments" && (
-        <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Payment History ({payments?.length || 0})</h3>
-          {payments?.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
-                  <th style={{ padding: "10px 12px", textAlign: "left" }}>Date</th>
-                  <th style={{ padding: "10px 12px", textAlign: "left" }}>Amount</th>
-                  <th style={{ padding: "10px 12px", textAlign: "left" }}>Method</th>
-                  <th style={{ padding: "10px 12px", textAlign: "left" }}>Status</th>
-                  <th style={{ padding: "10px 12px", textAlign: "left" }}>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map(p => (
-                  <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: "10px 12px" }}>{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "-"}</td>
-                    <td style={{ padding: "10px 12px", fontWeight: 600 }}>₹{p.amount || 0}</td>
-                    <td style={{ padding: "10px 12px" }}>{p.mode || "-"}</td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <span style={{ background: p.status === "PAID" ? "#ecfdf5" : "#fffbeb", color: p.status === "PAID" ? "#10b981" : "#d97706", padding: "2px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>{p.status || "PENDING"}</span>
-                    </td>
-                    <td style={{ padding: "10px 12px", color: "#64748b" }}>{p.note || "-"}</td>
+      {activeTab === "payments" && (() => {
+        const allPayments = (payments && payments.length > 0) ? payments : (
+          (salon.subscriptions || []).filter(s => s.status === "ACTIVE" || s.paymentStatus === "PAID" || s.amount).map(s => ({
+            id: `sub-${s.id}`,
+            transactionId: `SUB-${s.id.slice(-6).toUpperCase()}`,
+            amount: Number(s.amount != null ? s.amount : (s.plan?.monthlyPrice || 0)),
+            mode: "ONLINE",
+            status: s.paymentStatus === "PAID" || s.status === "ACTIVE" ? "PAID" : "PENDING",
+            paymentFor: `Subscription (${s.plan?.name || "Plan"})`,
+            note: `Cycle: ${s.billingCycle || "monthly"} • Started ${new Date(s.startsAt).toLocaleDateString()}`,
+            createdAt: s.startsAt
+          }))
+        );
+
+        return (
+          <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Payment History ({allPayments.length})</h3>
+              <Link
+                to={`/super-admin/finance?q=${encodeURIComponent(salon.name)}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 14px",
+                  background: "#f1f5f9",
+                  color: "#4f46e5",
+                  borderRadius: 8,
+                  fontSize: "0.82rem",
+                  fontWeight: 700,
+                  textDecoration: "none"
+                }}
+              >
+                Manage / Record in Finance Hub →
+              </Link>
+            </div>
+            {allPayments.length > 0 ? (
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Date</th>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Transaction ID</th>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Payment For</th>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Amount</th>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Method</th>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Status</th>
+                    <th style={{ padding: "10px 12px", textAlign: "left" }}>Notes / Ref</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <EmptyState message="No payments recorded." />
-          )}
-        </div>
-      )}
+                </thead>
+                <tbody>
+                  {allPayments.map(p => (
+                    <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                      <td style={{ padding: "10px 12px" }}>{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "-"}</td>
+                      <td style={{ padding: "10px 12px", fontWeight: 600, color: "#4f46e5", fontSize: "0.8rem" }}>{p.transactionId || "—"}</td>
+                      <td style={{ padding: "10px 12px", fontWeight: 600, color: "#334155" }}>{p.paymentFor || "SaaS Subscription"}</td>
+                      <td style={{ padding: "10px 12px", fontWeight: 700, color: "#0f172a" }}>₹{Number(p.amount || 0).toLocaleString()}</td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <span style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "2px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, color: "#475569" }}>
+                          {p.mode || p.paymentMethod || "ONLINE"}
+                        </span>
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <span style={{ background: p.status === "PAID" || p.paymentStatus === "COMPLETED" ? "#ecfdf5" : "#fffbeb", color: p.status === "PAID" || p.paymentStatus === "COMPLETED" ? "#10b981" : "#d97706", padding: "2px 8px", borderRadius: 100, fontSize: "0.75rem", fontWeight: 700 }}>
+                          {p.status || p.paymentStatus || "PAID"}
+                        </span>
+                      </td>
+                      <td style={{ padding: "10px 12px", color: "#64748b", fontSize: "0.8rem" }}>{p.note || p.reference || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <EmptyState message="No payments recorded." />
+            )}
+          </div>
+        );
+      })()}
 
       {activeTab === "productRequests" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
