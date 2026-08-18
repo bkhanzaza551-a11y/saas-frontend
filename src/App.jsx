@@ -341,27 +341,47 @@ const Protected = () => {
     }
   ];
 
+  const SUPERADMIN_PAGE_SYNONYMS = {
+    "sales-pipeline": ["sales-pipeline", "demo-leads"],
+    "product-requests": ["product-requests", "products"],
+    "staff-requests": ["staff-requests"],
+    "support-tickets": ["support-tickets", "support"],
+    "credits": ["credits", "whatsapp-credits"],
+    "staff": ["staff", "team", "roles"],
+    "settings": ["settings", "platform"],
+    "finance": ["finance", "payments"]
+  };
+
   const visibleGroups = auth?.user?.systemRole === "SUPER_ADMIN"
     ? (() => {
+        const roleName = (auth?.user?.adminRole?.name || "").toLowerCase();
+        if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth?.user?.adminRoleId) {
+          return superAdminGroups;
+        }
+
         const adminPerms = auth?.user?.adminRole?.permissions;
         const pagePerms = auth?.user?.pagePermissions;
         
-        let allowedPages = null;
+        let allowedPages = [];
         if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms) && Object.keys(adminPerms).length > 0) {
           allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
         } else if (Array.isArray(adminPerms) && adminPerms.length > 0) {
-          allowedPages = adminPerms;
-        } else if (Array.isArray(pagePerms) && pagePerms.length > 0) {
-          allowedPages = pagePerms;
+          allowedPages = [...adminPerms];
+        }
+        if (Array.isArray(pagePerms) && pagePerms.length > 0) {
+          allowedPages = [...allowedPages, ...pagePerms];
         }
 
-        if (!allowedPages || allowedPages.length === 0) return superAdminGroups;
+        if (!allowedPages || allowedPages.length === 0 || allowedPages.includes("*") || allowedPages.includes("all")) {
+          return superAdminGroups;
+        }
 
         return superAdminGroups.map((group) => ({
           ...group,
           items: group.items.filter((item) => {
             const pageKey = item.to.split("/").pop();
-            return allowedPages.includes(pageKey);
+            const synonyms = SUPERADMIN_PAGE_SYNONYMS[pageKey] || [pageKey];
+            return synonyms.some(k => allowedPages.includes(k));
           })
         })).filter(group => group.items.length > 0);
       })()
@@ -498,18 +518,43 @@ const SuperAdminRoute = ({ pageKey, element }) => {
   if (auth.user?.systemRole !== "SUPER_ADMIN") {
     return <AccessNotice title="Super Admin Area" message="You do not have permission to access the SaaS control panel." />;
   }
+
+  const roleName = (auth.user?.adminRole?.name || "").toLowerCase();
+  if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth.user?.adminRoleId) {
+    return element;
+  }
+
   const adminPerms = auth.user?.adminRole?.permissions;
   const pagePerms = auth.user?.pagePermissions;
-  let allowedPages = null;
+  let allowedPages = [];
   if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms) && Object.keys(adminPerms).length > 0) {
     allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
   } else if (Array.isArray(adminPerms) && adminPerms.length > 0) {
-    allowedPages = adminPerms;
-  } else if (Array.isArray(pagePerms) && pagePerms.length > 0) {
-    allowedPages = pagePerms;
+    allowedPages = [...adminPerms];
   }
-  if (pageKey && Array.isArray(allowedPages) && allowedPages.length > 0) {
-    if (!allowedPages.includes(pageKey)) {
+  if (Array.isArray(pagePerms) && pagePerms.length > 0) {
+    allowedPages = [...allowedPages, ...pagePerms];
+  }
+
+  if (allowedPages.length === 0 || allowedPages.includes("*") || allowedPages.includes("all")) {
+    return element;
+  }
+
+  const SUPERADMIN_PAGE_SYNONYMS = {
+    "sales-pipeline": ["sales-pipeline", "demo-leads"],
+    "product-requests": ["product-requests", "products"],
+    "staff-requests": ["staff-requests"],
+    "support-tickets": ["support-tickets", "support"],
+    "credits": ["credits", "whatsapp-credits"],
+    "staff": ["staff", "team", "roles"],
+    "settings": ["settings", "platform"],
+    "finance": ["finance", "payments"]
+  };
+
+  if (pageKey) {
+    const synonyms = SUPERADMIN_PAGE_SYNONYMS[pageKey] || [pageKey];
+    const hasPerm = synonyms.some(k => allowedPages.includes(k));
+    if (!hasPerm) {
       return <AccessNotice title="Page Access Restricted" message="Your staff account does not have permission to access this page." />;
     }
   }
