@@ -342,30 +342,59 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           background: #eff6ff;
         }
         .salonnest-search-module-badge {
-          font-size: 0.6rem;
+          font-size: 0.65rem;
           font-weight: 700;
-          color: white;
+          color: #ffffff;
+          background: #4f46e5;
           border-radius: 6px;
           padding: 4px 8px;
           text-align: center;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
           white-space: nowrap;
           min-width: 70px;
           flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
-        .salonnest-search-module-badge.crm { background: #3b82f6; }
-        .salonnest-search-module-badge.services { background: #8b5cf6; }
-        .salonnest-search-module-badge.inventory { background: #f59e0b; }
-        .salonnest-search-module-badge.staff { background: #10b981; }
-        .salonnest-search-module-badge.appointments { background: #06b6d4; }
-        .salonnest-search-module-badge.invoices { background: #6366f1; }
-        .salonnest-search-module-badge.memberships { background: #ec4899; }
-        .salonnest-search-module-badge.packages { background: #f97316; }
+        .salonnest-search-module-badge.crm,
+        .salonnest-search-module-badge.customer,
+        .salonnest-search-module-badge.customers { background: #3b82f6; }
+        .salonnest-search-module-badge.services,
+        .salonnest-search-module-badge.service { background: #8b5cf6; }
+        .salonnest-search-module-badge.inventory,
+        .salonnest-search-module-badge.product,
+        .salonnest-search-module-badge.products { background: #f59e0b; }
+        .salonnest-search-module-badge.staff,
+        .salonnest-search-module-badge.team { background: #10b981; }
+        .salonnest-search-module-badge.appointments,
+        .salonnest-search-module-badge.appointment { background: #06b6d4; }
+        .salonnest-search-module-badge.invoices,
+        .salonnest-search-module-badge.invoice,
+        .salonnest-search-module-badge.billing { background: #6366f1; }
+        .salonnest-search-module-badge.memberships,
+        .salonnest-search-module-badge.membership { background: #ec4899; }
+        .salonnest-search-module-badge.packages,
+        .salonnest-search-module-badge.package { background: #f97316; }
         .salonnest-search-module-badge.pos { background: #14b8a6; }
+        .salonnest-search-module-badge.salon,
         .salonnest-search-module-badge.salons { background: #3b82f6; }
+        .salonnest-search-module-badge.lead,
+        .salonnest-search-module-badge.leads,
         .salonnest-search-module-badge.demo-leads { background: #10b981; }
+        .salonnest-search-module-badge.plan,
+        .salonnest-search-module-badge.plans,
         .salonnest-search-module-badge.subscription-plans { background: #8b5cf6; }
+        .salonnest-search-module-badge.user,
+        .salonnest-search-module-badge.users,
         .salonnest-search-module-badge.platform-users { background: #f59e0b; }
-        .salonnest-search-module-badge.subscription-contracts { background: #ec4899; }
+        .salonnest-search-module-badge.subscription,
+        .salonnest-search-module-badge.subscriptions,
+        .salonnest-search-module-badge.subscription-contracts { background: #0284c7; }
+        .salonnest-search-module-badge.ticket,
+        .salonnest-search-module-badge.tickets,
+        .salonnest-search-module-badge.support-tickets { background: #ec4899; }
         .salonnest-search-result-text {
           flex: 1;
           min-width: 0;
