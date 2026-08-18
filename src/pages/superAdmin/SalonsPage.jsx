@@ -70,7 +70,10 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState("");
+  const [duplicateWarnings, setDuplicateWarnings] = useState([]);
+  const [checkingDuplicates, setCheckingDuplicates] = useState(false);
   const detailRef = useRef(null);
+  const dupCheckTimerRef = useRef(null);
 
   const load = async (nextQuery = query, nextStatus = statusFilter, nextPlan = planFilter, nextCity = cityFilter) => {
     setLoading(true);
@@ -93,9 +96,45 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
     load(query, statusFilter, planFilter, cityFilter);
   }, [query, statusFilter, planFilter, cityFilter]);
 
+  useEffect(() => {
+    if (editingId || !isModalOpen) {
+      setDuplicateWarnings([]);
+      return;
+    }
+    clearTimeout(dupCheckTimerRef.current);
+    if (!form.ownerEmail && !form.ownerPhone && !form.name) {
+      setDuplicateWarnings([]);
+      return;
+    }
+    dupCheckTimerRef.current = setTimeout(async () => {
+      setCheckingDuplicates(true);
+      try {
+        const res = await api.get("/super-admin/salons/check-duplicate", {
+          params: {
+            ownerEmail: form.ownerEmail,
+            ownerPhone: form.ownerPhone,
+            name: form.name,
+            city: form.city
+          }
+        });
+        if (res.data?.duplicates) {
+          setDuplicateWarnings(res.data.duplicates);
+        } else {
+          setDuplicateWarnings([]);
+        }
+      } catch (e) {
+        // ignore
+      } finally {
+        setCheckingDuplicates(false);
+      }
+    }, 450);
+    return () => clearTimeout(dupCheckTimerRef.current);
+  }, [form.ownerEmail, form.ownerPhone, form.name, form.city, isModalOpen, editingId]);
+
   const resetForm = () => {
     setForm(emptyForm);
     setEditingId("");
+    setDuplicateWarnings([]);
     setIsModalOpen(false);
   };
 
@@ -412,6 +451,20 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
               <h3>{editingId ? "Edit Salon Details" : "Add New Salon"}</h3>
               <button type="button" className="modal-close-btn" onClick={resetForm}>&times;</button>
             </div>
+
+            {duplicateWarnings.length > 0 && !editingId && (
+              <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "12px 16px", marginBottom: 4 }}>
+                <div style={{ fontWeight: 700, color: "#b45309", fontSize: 13, display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span>⚠️ Duplicate Identifier Detected:</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12, color: "#92400e" }}>
+                  {duplicateWarnings.map((dup, idx) => (
+                    <li key={idx} style={{ marginTop: 2 }}>{dup.message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <form onSubmit={createOrUpdateSalon} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
