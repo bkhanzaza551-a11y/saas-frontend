@@ -4,7 +4,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
-import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle, Save } from "lucide-react";
 
 const TABS = [
   { id: "general",       label: "General",               icon: Settings },
