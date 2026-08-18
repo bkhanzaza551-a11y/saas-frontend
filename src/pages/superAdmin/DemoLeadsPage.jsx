@@ -506,15 +506,17 @@ export default function DemoLeadsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
           {/* Top Row: Search and Clear Button */}
           <div style={{ display: "flex", gap: "12px", width: "100%", alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
-              <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
+            <div className="search-input-wrapper" style={{ flex: 1, minWidth: "260px", position: "relative" }}>
+              <div className="search-icon" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
                 <Search size={18} />
               </div>
               <input
+                className="search-input-field"
+                data-search="true"
                 value={filters.q}
                 placeholder="Search leads by salon name, contact person, phone, email, lead ID..."
                 onChange={(e) => setFilterParam("q", e.target.value)}
-                style={{ width: "100%", height: 44, paddingLeft: 42, paddingRight: 14, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.92rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+                style={{ width: "100%", height: 44, paddingLeft: 48, paddingRight: 14, borderRadius: 12, border: "1px solid #cbd5e1", fontSize: "0.92rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
                 onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                 onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
               />
