@@ -79,6 +79,9 @@ export default function SuperAdminSupportTicketsPage() {
   const [closingTicketId, setClosingTicketId] = useState(null);
   const [closureReason, setClosureReason] = useState("");
   const [detailTab, setDetailTab] = useState("conversation");
+  const [drawerStatus, setDrawerStatus] = useState({ error: "", success: "" });
+  const [savingNote, setSavingNote] = useState(false);
+  const [noteSaved, setNoteSaved] = useState(false);
 
   const buildParams = (f) => {
     const p = {};
@@ -140,14 +143,25 @@ export default function SuperAdminSupportTicketsPage() {
 
   const updateTicket = async (ticketId, data) => {
     setSavingId(ticketId);
-    setStatus({ error: "", success: "" });
+    if (!selectedTicket) setStatus({ error: "", success: "" });
+    else setDrawerStatus({ error: "", success: "" });
     try {
       await api.patch(`/super-admin/support-tickets/${ticketId}`, data);
       triggerReload();
-      setStatus({ error: "", success: "Ticket updated successfully." });
-      setTimeout(() => setStatus(s => ({ ...s, success: "" })), 3000);
+      if (selectedTicket && selectedTicket.id === ticketId) {
+        setSelectedTicket(prev => prev ? { ...prev, ...data } : null);
+        setDrawerStatus({ error: "", success: "Ticket updated successfully." });
+        setTimeout(() => setDrawerStatus(s => ({ ...s, success: "" })), 3000);
+      } else {
+        setStatus({ error: "", success: "Ticket updated successfully." });
+        setTimeout(() => setStatus(s => ({ ...s, success: "" })), 3000);
+      }
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not update ticket"), success: "" });
+      if (selectedTicket) {
+        setDrawerStatus({ error: formatApiError(error, "Could not update ticket"), success: "" });
+      } else {
+        setStatus({ error: formatApiError(error, "Could not update ticket"), success: "" });
+      }
     } finally { setSavingId(""); }
   };
 
@@ -368,8 +382,8 @@ export default function SuperAdminSupportTicketsPage() {
         </div>
       </div>
 
-      {status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16, fontSize: 13, border: "1px solid #fecaca" }}>{status.error}</div>}
-      {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16, fontSize: 13, border: "1px solid #bbf7d0" }}>{status.success}</div>}
+      {!selectedTicket && status.error && <div style={{ padding: 12, background: "#fef2f2", color: "#ef4444", borderRadius: 8, marginBottom: 16, fontSize: 13, border: "1px solid #fecaca" }}>{status.error}</div>}
+      {!selectedTicket && status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16, fontSize: 13, border: "1px solid #bbf7d0" }}>{status.success}</div>}
 
       {/* Ticket Table */}
       <div className="panel-card" style={{ background: "white", padding: 0, overflow: "hidden" }}>
@@ -756,31 +770,73 @@ export default function SuperAdminSupportTicketsPage() {
                     </span>
                     <span style={{ fontSize: "0.68rem", color: "#94a3b8" }}>Hidden from Salon</span>
                   </div>
+
+                  {drawerStatus.success && (
+                    <div style={{ background: "#f0fdf4", color: "#16a34a", padding: "6px 10px", borderRadius: 6, fontSize: "0.74rem", fontWeight: 600, border: "1px solid #bbf7d0", display: "flex", alignItems: "center", gap: 6 }}>
+                      <CheckCircle size={14} /> {drawerStatus.success}
+                    </div>
+                  )}
+
+                  {drawerStatus.error && (
+                    <div style={{ background: "#fef2f2", color: "#dc2626", padding: "6px 10px", borderRadius: 6, fontSize: "0.74rem", fontWeight: 600, border: "1px solid #fecaca" }}>
+                      {drawerStatus.error}
+                    </div>
+                  )}
+
                   <textarea
                     rows={4}
                     value={notes[selectedTicket.id] || ""}
                     placeholder="Add internal notes for team (auto-timestamped)..."
                     onChange={(e) => setNotes({ ...notes, [selectedTicket.id]: e.target.value })}
-                    disabled={selectedTicket.status === "CLOSED"}
+                    disabled={selectedTicket.status === "CLOSED" || savingNote}
                     style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: "0.8rem", background: "#f8fafc", width: "100%", resize: "none", boxSizing: "border-box", fontFamily: "inherit" }}
                   />
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button
                       type="button"
-                      disabled={selectedTicket.status === "CLOSED" || !notes[selectedTicket.id]?.trim()}
-                      onClick={() => {
+                      disabled={selectedTicket.status === "CLOSED" || savingNote || !notes[selectedTicket.id]?.trim()}
+                      onClick={async () => {
                         const newText = (notes[selectedTicket.id] || "").trim();
                         if (!newText) return;
-                        const authorName = auth?.user?.name || "Support Staff";
-                        const timestamp = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + ", " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-                        const isAlreadyFormatted = newText.includes(" — ");
-                        const finalNote = isAlreadyFormatted ? newText : `${authorName} — ${timestamp}\n${newText}`;
-                        updateTicket(selectedTicket.id, { internalNote: finalNote });
-                        setNotes({ ...notes, [selectedTicket.id]: finalNote });
+                        setSavingNote(true);
+                        setDrawerStatus({ error: "", success: "" });
+                        try {
+                          const authorName = auth?.user?.name || "Support Staff";
+                          const timestamp = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) + ", " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                          const isAlreadyFormatted = newText.includes(" — ");
+                          const finalNote = isAlreadyFormatted ? newText : `${authorName} — ${timestamp}\n${newText}`;
+                          await api.patch(`/super-admin/support-tickets/${selectedTicket.id}`, { internalNote: finalNote });
+                          setNotes({ ...notes, [selectedTicket.id]: finalNote });
+                          setSelectedTicket(prev => prev ? { ...prev, internalNote: finalNote } : null);
+                          setNoteSaved(true);
+                          setDrawerStatus({ error: "", success: "Internal note saved successfully." });
+                          triggerReload();
+                          setTimeout(() => {
+                            setNoteSaved(false);
+                            setDrawerStatus(s => ({ ...s, success: "" }));
+                          }, 3000);
+                        } catch (err) {
+                          setDrawerStatus({ error: formatApiError(err, "Failed to save note"), success: "" });
+                        } finally {
+                          setSavingNote(false);
+                        }
                       }}
-                      style={{ background: "#4f46e5", color: "white", border: "none", padding: "6px 12px", fontWeight: 700, borderRadius: 6, cursor: "pointer", fontSize: "0.75rem" }}
+                      style={{ 
+                        background: noteSaved ? "#10b981" : "#4f46e5", 
+                        color: "white", 
+                        border: "none", 
+                        padding: "7px 14px", 
+                        fontWeight: 700, 
+                        borderRadius: 6, 
+                        cursor: savingNote ? "wait" : "pointer", 
+                        fontSize: "0.75rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        transition: "all 0.2s"
+                      }}
                     >
-                      📝 Save Note
+                      {savingNote ? "Saving..." : noteSaved ? "✓ Note Saved!" : "📝 Save Note"}
                     </button>
                   </div>
                 </div>
