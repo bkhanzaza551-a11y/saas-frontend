@@ -241,11 +241,11 @@ export default function SuperAdminSupportTicketsPage() {
       </div>
 
       {/* Filters */}
-      <div style={{ background: "#fff", borderRadius: 16, padding: "24px 28px", marginBottom: 28, border: "1px solid #e2e8f0", boxShadow: "0 4px 16px -4px rgba(0, 0, 0, 0.06)" }}>
+      <div style={{ background: "#fff", borderRadius: 16, padding: "20px 24px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 4px 16px -4px rgba(0, 0, 0, 0.06)", boxSizing: "border-box", width: "100%" }}>
         
         {/* Search Bar Row */}
-        <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
-          <div className="search-input-wrapper" style={{ flex: 1, position: "relative", minWidth: 280 }}>
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+          <div className="search-input-wrapper" style={{ flex: "1 1 260px", position: "relative", minWidth: 240 }}>
             <div className="search-icon" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
               <Search size={18} />
             </div>
@@ -255,7 +255,7 @@ export default function SuperAdminSupportTicketsPage() {
               value={filters.q}
               placeholder="Search by title, salon, agent..."
               onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-              style={{ width: "100%", height: 44, padding: "0 16px 0 48px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
+              style={{ width: "100%", height: 42, paddingLeft: 52, paddingRight: 14, borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }}
               onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
               onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
             />
@@ -308,8 +308,8 @@ export default function SuperAdminSupportTicketsPage() {
         </div>
 
         {/* Dropdowns Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, alignItems: "end" }}>
-          <div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, alignItems: "end", width: "100%", boxSizing: "border-box" }}>
+          <div style={{ minWidth: 0 }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</label>
             <CustomSelect
               value={filters.status}
@@ -321,7 +321,7 @@ export default function SuperAdminSupportTicketsPage() {
             </CustomSelect>
           </div>
           
-          <div>
+          <div style={{ minWidth: 0 }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Priority</label>
             <CustomSelect
               value={filters.priority}
@@ -333,7 +333,7 @@ export default function SuperAdminSupportTicketsPage() {
             </CustomSelect>
           </div>
           
-          <div>
+          <div style={{ minWidth: 0 }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Category</label>
             <CustomSelect
               value={filters.category}
@@ -345,7 +345,7 @@ export default function SuperAdminSupportTicketsPage() {
             </CustomSelect>
           </div>
           
-          <div>
+          <div style={{ minWidth: 0 }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Agent</label>
             <CustomSelect
               value={filters.assignedToId}
@@ -357,12 +357,12 @@ export default function SuperAdminSupportTicketsPage() {
             </CustomSelect>
           </div>
           
-          <div style={{ minWidth: 260 }}>
+          <div style={{ minWidth: 0, width: "100%" }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Range</label>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, minWidth: 120, height: 42, padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
-              <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 700, flexShrink: 0 }}>to</span>
-              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, minWidth: 120, height: 42, padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.82rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", boxSizing: "border-box" }}>
+              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, minWidth: 0, width: "100%", height: 38, padding: "6px 8px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.76rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box" }} />
+              <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, flexShrink: 0 }}>to</span>
+              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, minWidth: 0, width: "100%", height: 38, padding: "6px 8px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.76rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box" }} />
             </div>
           </div>
         </div>
