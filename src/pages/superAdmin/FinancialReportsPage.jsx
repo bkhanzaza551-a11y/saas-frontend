@@ -76,9 +76,10 @@ const DATE_PRESETS = [
 
 export default function FinancialReportsPage() {
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const roleName = (user?.adminRole?.name || user?.role || "Master Admin").toLowerCase();
-  const canRecordPayment = user?.role === "SUPER_ADMIN" || roleName.includes("admin") || roleName.includes("finance");
+  const { auth } = useAuth();
+  const user = auth?.user;
+  const roleName = (user?.adminRole?.name || user?.systemRole || "Master Admin").toLowerCase();
+  const canRecordPayment = user?.systemRole === "SUPER_ADMIN" || roleName.includes("admin") || roleName.includes("finance");
 
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);

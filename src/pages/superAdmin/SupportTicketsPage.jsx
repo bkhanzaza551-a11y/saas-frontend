@@ -99,14 +99,24 @@ export default function SuperAdminSupportTicketsPage() {
   const load = async (nextFilters = filters) => {
     setLoading(true);
     try {
-      const [response, staffRes] = await Promise.all([
+      const [responseRes, staffRes, salonsRes] = await Promise.allSettled([
         api.get("/super-admin/support-tickets", { params: buildParams(nextFilters) }),
-        api.get("/super-admin/staff")
+        api.get("/super-admin/staff"),
+        api.get("/super-admin/salons?lightweight=true")
       ]);
-      const data = response.data || [];
-      setRows(data);
-      setStaff(staffRes?.data?.users || staffRes?.data || []);
-      setNotes(Object.fromEntries(data.map((row) => [row.id, row.internalNote || ""])));
+      if (responseRes.status === "fulfilled") {
+        const data = responseRes.value.data || [];
+        setRows(data);
+        setNotes(Object.fromEntries(data.map((row) => [row.id, row.internalNote || ""])));
+      } else {
+        setStatus({ error: formatApiError(responseRes.reason, "Could not load support tickets."), success: "" });
+      }
+      if (staffRes.status === "fulfilled") {
+        setStaff(staffRes.value?.data?.users || staffRes.value?.data || []);
+      }
+      if (salonsRes.status === "fulfilled") {
+        setSalons(salonsRes.value?.data || []);
+      }
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not load support tickets."), success: "" });
     } finally {
@@ -118,27 +128,15 @@ export default function SuperAdminSupportTicketsPage() {
   const triggerReload = () => setReloadKey(k => k + 1);
 
   useEffect(() => {
-    let active = true;
-    setStatus({ error: "", success: "" });
-    Promise.all([
-      api.get("/super-admin/support-tickets", { params: buildParams(filters) }),
-      api.get("/super-admin/staff"),
-      api.get("/super-admin/salons?lightweight=true")
-    ]).then(([response, staffRes, salonsRes]) => {
-      if (!active) return;
-      const data = response.data || [];
-      setRows(data);
-      setStaff(staffRes?.data?.users || staffRes?.data || []);
-      setSalons(salonsRes?.data || []);
-      setNotes(Object.fromEntries(data.map((row) => [row.id, row.internalNote || ""])));
-      setLoading(false);
-      if (searchParams.get("new") === "true") { setIsCreateModalOpen(true); setSearchParams((prev) => { const next = new URLSearchParams(prev); next.delete("new"); return next; }); }
-    }).catch((err) => {
-      if (!active) return;
-      setStatus({ error: formatApiError(err, "Could not load support tickets."), success: "" });
-      setLoading(false);
-    });
-    return () => { active = false; };
+    load(filters);
+    if (searchParams.get("new") === "true") {
+      setIsCreateModalOpen(true);
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("new");
+        return next;
+      });
+    }
   }, [filters, reloadKey]);
 
   const updateTicket = async (ticketId, data) => {
