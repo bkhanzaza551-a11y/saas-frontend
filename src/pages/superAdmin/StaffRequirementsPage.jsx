@@ -137,9 +137,9 @@ export default function SuperAdminStaffRequirementsPage() {
         </div>
       )}
 
-      {/* Point 4: Simple Status Filter Tabs & Search */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {/* Status Filter Tabs & Search / Salon Filter Toolbar */}
+      <div style={{ background: "#fff", padding: "16px 20px", borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           {["ALL", "OPEN", "IN_PROGRESS", "CLOSED"].map(key => (
             <button
               key={key}
@@ -153,7 +153,8 @@ export default function SuperAdminStaffRequirementsPage() {
                 border: "none",
                 cursor: "pointer",
                 background: filter === key ? "#0f172a" : "#f1f5f9",
-                color: filter === key ? "#fff" : "#64748b"
+                color: filter === key ? "#fff" : "#64748b",
+                transition: "all 0.15s"
               }}
             >
               {key === "ALL" ? `All (${counts.ALL})` : `${statusConfig[key]?.label} (${counts[key]})`}
@@ -161,28 +162,33 @@ export default function SuperAdminStaffRequirementsPage() {
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <div className="search-input-wrapper" style={{ position: "relative", minWidth: 260 }}>
-            <div className="search-icon" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
-              <Search size={16} />
-            </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flex: "1 1 450px", maxWidth: 560, justifyContent: "flex-end" }}>
+          <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
+            <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
             <input
               type="text"
-              className="search-input-field"
-              data-search="true"
               placeholder="Search role, skills, salon..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              style={{ width: "100%", height: 38, padding: "0 14px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none", background: "#f8fafc" }}
+              style={{ width: "100%", height: 38, padding: "0 12px 0 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none", background: "#f8fafc" }}
             />
           </div>
 
-          <div style={{ minWidth: 200 }}>
+          <div style={{ width: 190, flexShrink: 0 }}>
             <CustomSelect value={salonFilter} onChange={e => setSalonFilter(e.target.value)} style={{ width: "100%" }}>
               <option value="">All Salons</option>
               {salons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </CustomSelect>
           </div>
+
+          {(searchQuery || salonFilter) && (
+            <button
+              onClick={() => { setSearchQuery(""); setSalonFilter(""); }}
+              style={{ background: "none", border: "none", color: "#4f46e5", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+            >
+              Reset
+            </button>
+          )}
         </div>
       </div>
 
