@@ -35,6 +35,10 @@ export default function PhoneVerificationModal() {
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
       let successMsg = res.data.message || "OTP code sent successfully!";
+      if (res.data.channel) {
+        const channelLabel = res.data.channel === "whatsapp" ? "WhatsApp" : "SMS";
+        successMsg = `OTP sent via ${channelLabel}!`;
+      }
       if (res.data.otpCode) {
         successMsg += ` (Code: ${res.data.otpCode})`;
       }
