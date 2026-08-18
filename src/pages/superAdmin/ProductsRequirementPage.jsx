@@ -175,8 +175,8 @@ export default function SuperAdminProductsRequirementPage() {
 
   const saveCatalogItem = async (e) => {
     e.preventDefault();
-    if (!catalogForm.productName.trim() || !catalogForm.brand.trim()) {
-      setStatus({ error: "Brand and Product Name are mandatory.", success: "" });
+    if (!catalogForm.productName.trim() || !catalogForm.brand.trim() || !catalogForm.category.trim()) {
+      setStatus({ error: "Brand, Product Name, and Category are mandatory.", success: "" });
       return;
     }
     setSaving(true);
@@ -934,17 +934,35 @@ export default function SuperAdminProductsRequirementPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <label>
-                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
-                  <CustomSelect
-                    value={catalogForm.category}
-                    onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })}
-                    style={{ width: "100%" }}
-                  >
-                    <option value="">Select Salon Category...</option>
-                    {SALON_PRODUCT_CATEGORIES.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </CustomSelect>
+                  <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category *</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <CustomSelect
+                      value={SALON_PRODUCT_CATEGORIES.includes(catalogForm.category) ? catalogForm.category : (catalogForm.category ? "CUSTOM" : "")}
+                      onChange={e => {
+                        if (e.target.value === "CUSTOM") {
+                          setCatalogForm({ ...catalogForm, category: catalogForm.category || "General Supplies" });
+                        } else {
+                          setCatalogForm({ ...catalogForm, category: e.target.value });
+                        }
+                      }}
+                      style={{ width: "100%" }}
+                    >
+                      <option value="">Select Salon Category...</option>
+                      {SALON_PRODUCT_CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                      <option value="CUSTOM">➕ Custom Category (Type your own)...</option>
+                    </CustomSelect>
+                    {(!SALON_PRODUCT_CATEGORIES.includes(catalogForm.category) || catalogForm.category === "CUSTOM") && catalogForm.category !== "" && (
+                      <input
+                        type="text"
+                        placeholder="Enter custom category name..."
+                        value={catalogForm.category === "CUSTOM" ? "" : catalogForm.category}
+                        onChange={e => setCatalogForm({ ...catalogForm, category: e.target.value })}
+                        style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }}
+                      />
+                    )}
+                  </div>
                 </label>
 
                 <label>
