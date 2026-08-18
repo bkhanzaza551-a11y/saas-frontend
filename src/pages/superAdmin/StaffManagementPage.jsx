@@ -11,26 +11,20 @@ const emptyUserForm = { email: "", name: "", adminRoleId: "", department: "" };
 const emptyRoleForm = { name: "", description: "", permissions: [] };
 
 const PAGE_GROUP_LABELS = {
-  "Platform": [
-    "dashboard",
-    "sales-pipeline",
-    "salons",
-    "subscriptions",
-    "product-requests",
-    "staff-requests",
-    "support-tickets",
-    "finance",
-    "platform"
-  ]
+  "Overview & CRM": ["dashboard", "sales-pipeline"],
+  "Operations & Salons": ["salons", "product-requests", "staff-requests"],
+  "Billing & Subscriptions": ["subscriptions", "plans", "finance"],
+  "Support & Helpdesk": ["support-tickets"],
+  "Administration & Governance": ["credits", "staff", "settings", "audit-logs"]
 };
 
 const PERMISSION_PRESETS = [
-  { label: "Sales", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions"] },
+  { label: "Sales", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans"] },
   { label: "Support", permissions: ["dashboard", "support-tickets", "salons"] },
-  { label: "Finance", permissions: ["dashboard", "finance", "subscriptions", "salons"] },
+  { label: "Finance", permissions: ["dashboard", "finance", "subscriptions", "plans", "salons"] },
   { label: "Operations", permissions: ["dashboard", "salons", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance"] },
-  { label: "Platform Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "product-requests", "staff-requests", "support-tickets", "finance", "platform"] },
-  { label: "Super Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "product-requests", "staff-requests", "support-tickets", "finance", "platform"] }
+  { label: "Platform Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans", "product-requests", "staff-requests", "support-tickets", "finance", "credits", "staff", "settings", "audit-logs"] },
+  { label: "Super Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans", "product-requests", "staff-requests", "support-tickets", "finance", "credits", "staff", "settings", "audit-logs"] }
 ];
 
 const DEPARTMENTS = ["Sales", "Support", "Finance", "Operations", "Administration", "Marketing", "HR", "Other"];
