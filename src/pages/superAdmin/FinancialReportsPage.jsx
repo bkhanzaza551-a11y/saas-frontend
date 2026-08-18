@@ -6,7 +6,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
-import { Plus, Eye, Search, Calendar, Download, Filter } from "lucide-react";
+import { Plus, Eye, Search, Calendar, Download } from "lucide-react";
 
 const fmt = (val) => `₹${Number(val || 0).toLocaleString("en-IN")}`;
 const localDateStr = (d = new Date()) => {
@@ -138,8 +138,6 @@ export default function FinancialReportsPage() {
 
   useEffect(() => { loadData(); }, [datePreset, salonFilter, modeFilter, statusFilter, paymentForFilter, q, dateFrom, dateTo]);
 
-  const applyFilters = () => loadData();
-
   const handleRecordPayment = async (e) => {
     e.preventDefault();
     if (!recordForm.amount || isNaN(Number(recordForm.amount)) || Number(recordForm.amount) <= 0) return;
@@ -218,7 +216,6 @@ export default function FinancialReportsPage() {
               value={q}
               placeholder="Search Transaction ID, salon, reference..."
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") applyFilters(); }}
               style={{ width: "100%", height: 44, padding: "0 16px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
               onFocus={e => e.target.style.borderColor = "#6366f1"}
               onBlur={e => e.target.style.borderColor = "#cbd5e1"}
@@ -251,20 +248,6 @@ export default function FinancialReportsPage() {
               </button>
             ))}
           </div>
-          
-          <button onClick={applyFilters} disabled={loading} style={{ height: 44, padding: "0 20px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)", transition: "transform 0.2s", opacity: loading ? 0.7 : 1 }} onMouseOver={e => !loading && (e.currentTarget.style.transform="translateY(-1px)")} onMouseOut={e => !loading && (e.currentTarget.style.transform="none")}>
-            {loading ? "Loading..." : "Search"}
-          </button>
-          
-          <button 
-            onClick={() => { setQ(""); setSalonFilter(""); setModeFilter(""); setStatusFilter(""); setPaymentForFilter(""); setDatePreset("month"); setDateFrom(""); setDateTo(""); }}
-            style={{ height: 44, padding: "0 16px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}
-            onMouseOver={e => { e.currentTarget.style.background="#e2e8f0"; e.currentTarget.style.color="#0f172a"; }}
-            onMouseOut={e => { e.currentTarget.style.background="#f1f5f9"; e.currentTarget.style.color="#475569"; }}
-          >
-            <Filter size={15} />
-            Reset
-          </button>
         </div>
 
         {/* Dropdowns Row (Point 2: Payment For, Point 3: Payment Status, Point 4: Payment Method) */}
