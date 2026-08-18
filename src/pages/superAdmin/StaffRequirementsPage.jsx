@@ -27,6 +27,8 @@ const priorityColors = {
 export default function SuperAdminStaffRequirementsPage() {
   const [requirements, setRequirements] = useState([]);
   const [salons, setSalons] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [searchParams] = useSearchParams();
@@ -42,12 +44,14 @@ export default function SuperAdminStaffRequirementsPage() {
     setLoading(true);
     setStatus({ error: "", success: "" });
     try {
-      const [resReqs, resSalons] = await Promise.all([
+      const [resReqs, resSalons, resStaff] = await Promise.all([
         api.get("/super-admin/staff-requirements"),
-        api.get("/super-admin/salons").catch(() => ({ data: [] }))
+        api.get("/super-admin/salons").catch(() => ({ data: [] })),
+        api.get("/super-admin/staff", { params: { onlyActive: 1 } }).catch(() => ({ data: [] }))
       ]);
       setRequirements(resReqs.data || []);
       setSalons(resSalons.data || []);
+      setStaffList(resStaff.data || []);
     } catch (err) {
       setStatus({ error: formatApiError(err, "Failed to load staff requests"), success: "" });
     } finally {
@@ -56,6 +60,16 @@ export default function SuperAdminStaffRequirementsPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const filteredStaff = useMemo(() => {
+    const query = (handlerInput || "").trim().toLowerCase();
+    if (!query) return staffList.slice(0, 10);
+    return staffList.filter(s =>
+      s.name?.toLowerCase().includes(query) ||
+      s.email?.toLowerCase().includes(query) ||
+      s.adminRole?.name?.toLowerCase().includes(query)
+    ).slice(0, 10);
+  }, [staffList, handlerInput]);
 
   // Point 6: Basic Actions (Update Status & Add Note & Close Request)
   const updateRequirement = async (id, updates) => {
@@ -148,14 +162,18 @@ export default function SuperAdminStaffRequirementsPage() {
         </div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <div style={{ position: "relative", minWidth: 220 }}>
-            <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+          <div className="search-input-wrapper" style={{ position: "relative", minWidth: 260 }}>
+            <div className="search-icon" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
+              <Search size={16} />
+            </div>
             <input
               type="text"
+              className="search-input-field"
+              data-search="true"
               placeholder="Search role, skills, salon..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              style={{ width: "100%", padding: "8px 12px 8px 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+              style={{ width: "100%", height: 38, padding: "0 14px 0 42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none", background: "#f8fafc" }}
             />
           </div>
 
@@ -304,7 +322,7 @@ export default function SuperAdminStaffRequirementsPage() {
             </div>
 
             {/* Manage Handler / Staff Assignee */}
-            <div style={{ background: "#eef2ff", padding: "12px 16px", borderRadius: 10, marginBottom: 14, border: "1px solid #e0e7ff" }}>
+            <div style={{ background: "#eef2ff", padding: "14px 16px", borderRadius: 10, marginBottom: 14, border: "1px solid #e0e7ff", position: "relative" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ fontSize: "0.8rem", color: "#3730a3", fontWeight: 700 }}>
                   Manage Handler / Recruiter Assignee:
@@ -313,22 +331,114 @@ export default function SuperAdminStaffRequirementsPage() {
                   {selectedReq.department ? `Assigned: ${selectedReq.department}` : "Unassigned"}
                 </span>
               </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <input
-                  type="text"
-                  placeholder="Enter recruiter / staff name (e.g. Priya HR, Ankit Verma)..."
-                  value={handlerInput}
-                  onChange={e => setHandlerInput(e.target.value)}
-                  style={{ flex: 1, padding: "8px 12px", borderRadius: 8, border: "1px solid #c7d2fe", fontSize: 13, background: "white" }}
-                />
-                <button
-                  type="button"
-                  disabled={updatingId === selectedReq.id}
-                  onClick={() => updateRequirement(selectedReq.id, { department: handlerInput.trim() })}
-                  style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", whiteSpace: "nowrap" }}
-                >
-                  ✓ Update Assignee
-                </button>
+              
+              <div style={{ position: "relative" }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <input
+                      type="text"
+                      placeholder="Search recruiter / staff name (e.g. Priya HR, Ankit Verma)..."
+                      value={handlerInput}
+                      onFocus={() => setShowStaffDropdown(true)}
+                      onChange={e => {
+                        setHandlerInput(e.target.value);
+                        setShowStaffDropdown(true);
+                      }}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1.5px solid #c7d2fe", fontSize: 13, background: "white", boxSizing: "border-box", outline: "none" }}
+                    />
+                    {handlerInput && (
+                      <button
+                        type="button"
+                        onClick={() => { setHandlerInput(""); setShowStaffDropdown(true); }}
+                        style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", border: "none", background: "none", cursor: "pointer", color: "#94a3b8", fontSize: 13 }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={updatingId === selectedReq.id}
+                    onClick={() => {
+                      setShowStaffDropdown(false);
+                      updateRequirement(selectedReq.id, { department: handlerInput.trim() });
+                    }}
+                    style={{ padding: "10px 18px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer", whiteSpace: "nowrap" }}
+                  >
+                    ✓ Update Assignee
+                  </button>
+                </div>
+
+                {/* Auto Suggestions Dropdown */}
+                {showStaffDropdown && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 4px)",
+                      left: 0,
+                      right: 140,
+                      background: "white",
+                      borderRadius: 10,
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                      border: "1px solid #cbd5e1",
+                      maxHeight: 220,
+                      overflowY: "auto",
+                      zIndex: 100,
+                      padding: "4px"
+                    }}
+                  >
+                    <div style={{ padding: "6px 10px", fontSize: "0.72rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", borderBottom: "1px solid #f1f5f9" }}>
+                      Team Members & Recruiters ({filteredStaff.length})
+                    </div>
+                    {filteredStaff.length === 0 ? (
+                      <div style={{ padding: "12px 10px", textAlign: "center", fontSize: "0.8rem", color: "#94a3b8" }}>
+                        No matching staff found for "{handlerInput}"
+                      </div>
+                    ) : (
+                      filteredStaff.map(staff => (
+                        <div
+                          key={staff.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setHandlerInput(staff.name);
+                            setShowStaffDropdown(false);
+                          }}
+                          style={{
+                            padding: "8px 12px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            transition: "background 0.15s",
+                            gap: 8
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
+                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#e0e7ff", color: "#4338ca", fontWeight: 700, fontSize: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              {staff.name?.charAt(0)?.toUpperCase() || "S"}
+                            </div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 700, fontSize: "0.83rem", color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {staff.name}
+                              </div>
+                              <div style={{ fontSize: "0.72rem", color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {staff.email}
+                              </div>
+                            </div>
+                          </div>
+                          {staff.adminRole?.name && (
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "#eef2ff", color: "#4f46e5", padding: "2px 8px", borderRadius: 4, flexShrink: 0 }}>
+                              {staff.adminRole.name}
+                            </span>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
