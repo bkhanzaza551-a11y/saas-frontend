@@ -1211,36 +1211,41 @@ export default function AppointmentsPage() {
         .sp-time-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .sp-time-grid > * { min-width: 0; }
         .sp-footer {
-          padding: 16px 20px;
+          padding: 12px 16px;
           background: white;
           border-top: 1px solid #e2e8f0;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
           flex-shrink: 0;
         }
         .sp-footer-checks {
           display: flex;
-          gap: 20px;
+          gap: 16px;
           align-items: center;
           justify-content: center;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           font-weight: 500;
           color: #334155;
           flex-wrap: wrap;
         }
         .sp-btn-primary {
           width: 100% !important;
-          padding: 12px !important;
+          padding: 6px 12px !important;
+          height: 38px !important;
           background: #3b82f6 !important;
           color: white !important;
           border: none !important;
           border-radius: 8px !important;
-          font-size: 1rem !important;
+          font-size: 13px !important;
           font-weight: 600 !important;
           cursor: pointer !important;
           box-shadow: none !important;
           min-height: unset !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          transition: all 0.15s ease !important;
         }
         .sp-btn-primary:hover { background: #2563eb !important; transform: none !important; filter: none !important; }
         @media (max-width: 900px) {
@@ -1791,22 +1796,20 @@ export default function AppointmentsPage() {
                   </div>
                 )}
                 {editMode ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={{ display: "flex", gap: 12 }}>
-                      <button type="submit" className="sp-btn-primary" style={{ flex: 1 }}>Update</button>
-                      {form.status !== "CANCELLED" && (
-                        <button type="button" className="sp-btn-primary" style={{ flex: 1, background: "#f1f5f9", color: "#ef4444", border: "1px solid #ef4444" }} onClick={handleCancelAppointment}>Cancel Appointment</button>
-                      )}
-                    </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                    <button type="submit" className="sp-btn-primary">Update</button>
+                    {form.status !== "CANCELLED" && (
+                      <button type="button" className="sp-btn-primary" style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }} onClick={handleCancelAppointment}>Cancel Appt</button>
+                    )}
                     {form.status !== "IN_PROGRESS" && form.status !== "COMPLETED" && (
                       <button type="button" className="sp-btn-primary" style={{ background: "#f97316", borderColor: "#f97316" }} onClick={handleCheckIn}>Start Service</button>
                     )}
-                    <button type="button" className="sp-btn-primary" style={{ background: "#10b981", borderColor: "#10b981" }} onClick={handleGenerateBill}>
+                    <button type="button" className="sp-btn-primary" style={{ background: "#10b981", borderColor: "#10b981", gridColumn: (form.status === "IN_PROGRESS" || form.status === "COMPLETED") ? "1 / -1" : undefined }} onClick={handleGenerateBill}>
                       {form.convertedInvoiceId ? "View Invoice" : "Complete & Bill"}
                     </button>
                   </div>
                 ) : (
-                  <button type="submit" className="sp-btn-primary">Create</button>
+                  <button type="submit" className="sp-btn-primary">Create Appointment</button>
                 )}
               </div>
             </form>
