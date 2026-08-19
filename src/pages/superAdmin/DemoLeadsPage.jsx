@@ -973,8 +973,7 @@ export default function DemoLeadsPage() {
                           )}
                         </button>
                         <div style={{ display: "flex", gap: 4 }}>
-                          <button type="button" onClick={() => openCalendarInvite(row, "google")} title="Add to Google Calendar" style={{ padding: "9px 10px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Google Cal</button>
-                          <button type="button" onClick={() => openCalendarInvite(row, "zoho")} title="Add to Zoho Calendar" style={{ padding: "9px 10px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>Zoho Cal</button>
+                          <button type="button" onClick={() => openCalendarInvite(row, "zoho")} title="Add to Zoho Calendar" style={{ padding: "9px 12px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Zoho Cal</button>
                         </div>
                       </div>
                     </div>
