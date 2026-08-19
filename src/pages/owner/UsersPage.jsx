@@ -999,7 +999,7 @@ export default function UsersPage() {
       {/* New Staff Modal */}
       {isCreateModalOpen && (
         <div className="hub-modal-overlay" onClick={() => setIsCreateModalOpen(false)}>
-          <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+          <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 620 }}>
             <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               Create New Staff
               <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", padding: 4, display: "flex" }}><X size={18} /></button>
@@ -1032,10 +1032,13 @@ export default function UsersPage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div className="hub-form-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
-                      Access Role
-                      <span style={{ background: '#2563eb', color: 'white', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, letterSpacing: 0.5 }}>FROM ACCESS CONTROL</span>
-                    </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 22, marginBottom: 6 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        Access Role
+                        <span style={{ background: '#2563eb', color: 'white', fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 6 }}>FROM ACCESS CONTROL</span>
+                      </label>
+                      <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}>+ Create role</button>
+                    </div>
                     <CustomSelect className="hub-input" value={form.customRoleId || ""} onChange={e => applyCustomRole(e.target.value)} style={{ width: "100%", "--select-height": "42px" }}>
                       <option value="">— Select access role —</option>
                       {customRoles.length === 0 && (
@@ -1045,14 +1048,12 @@ export default function UsersPage() {
                         <option key={role.id} value={role.id}>{role.name}{role.description ? ` — ${role.description}` : ""}</option>
                       ))}
                     </CustomSelect>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>Settings → Access Control</span>
-                      <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}>+ Create role</button>
-                    </div>
                   </div>
                   <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Role Title (Designation)</label>
-                    <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" />
+                    <div style={{ display: 'flex', alignItems: 'center', height: 22, marginBottom: 6 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0 }}>Role Title (Designation)</label>
+                    </div>
+                    <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ height: 42, boxSizing: 'border-box' }} />
                   </div>
                 </div>
 
