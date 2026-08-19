@@ -123,13 +123,17 @@ export default function DemoLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [lastApprovedLead, setLastApprovedLead] = useState(null);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [leadModalTab, setLeadModalTab] = useState("overview");
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [leadForm, setLeadForm] = useState(emptyLeadForm);
   const [addingLead, setAddingLead] = useState(false);
   const [duplicateInfo, setDuplicateInfo] = useState(null);
 
-  const closeDetailModal = () => setSelectedLead(null);
+  const closeDetailModal = () => {
+    setSelectedLead(null);
+    setLeadModalTab("overview");
+  };
 
   const openLeadById = async (id) => {
     let lead = rows.find((r) => r.id === id);
@@ -137,7 +141,10 @@ export default function DemoLeadsPage() {
       await load(filters);
       lead = rows.find((r) => r.id === id);
     }
-    if (lead) setSelectedLead(lead);
+    if (lead) {
+      setSelectedLead(lead);
+      setLeadModalTab("overview");
+    }
   };
 
   const load = async (nextFilters = filters) => {
@@ -712,18 +719,17 @@ export default function DemoLeadsPage() {
       {selectedLead && (() => {
         const row = selectedLead;
         const meta = getStatusMeta(row.status);
-        const draft = draftsById[row.id];
+        const draft = draftsById[row.id] || {};
         const isBusy = busyId === row.id;
         const isConverted = row.status === "CONVERTED";
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16, backdropFilter: "blur(4px)" }} onClick={closeDetailModal}>
             <div style={{ background: "white", width: "100%", maxWidth: 720, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
-
               {/* Modal Header */}
-              <div style={{ padding: "22px 26px 18px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+              <div style={{ padding: "20px 24px 16px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <h2 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{row.name}</h2>
+                    <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#0f172a" }}>{row.name}</h2>
                     <span style={{ fontSize: 11, fontWeight: 700, color: meta.color, background: meta.bg, padding: "3px 10px", borderRadius: 100 }}>{meta.label}</span>
                     {row.leadSource && <span style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", padding: "3px 8px", borderRadius: 6, fontWeight: 600 }}>🏷️ {row.leadSource}</span>}
                   </div>
@@ -732,94 +738,308 @@ export default function DemoLeadsPage() {
                 <button onClick={closeDetailModal} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontSize: 18, flexShrink: 0 }}>✕</button>
               </div>
 
-              <div style={{ padding: "20px 26px", display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* Module Tabs Navigation */}
+              <div style={{ display: "flex", gap: 4, padding: "0 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", overflowX: "auto" }}>
+                {[
+                  { id: "overview", label: "Overview", icon: Building2 },
+                  { id: "demo", label: "Schedule Demo", icon: Video },
+                  { id: "convert", label: "Convert to Salon", icon: CheckCircle },
+                  { id: "followups", label: "Follow-Ups & Notes", icon: Calendar },
+                  { id: "activity", label: "Activity", icon: Activity, count: (row.activityLogs || []).length }
+                ].map(tab => {
+                  const Icon = tab.icon;
+                  const isActive = leadModalTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setLeadModalTab(tab.id)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "12px 14px",
+                        background: "none",
+                        border: "none",
+                        borderBottom: isActive ? "3px solid #4f46e5" : "3px solid transparent",
+                        color: isActive ? "#4f46e5" : "#64748b",
+                        fontWeight: isActive ? 800 : 600,
+                        fontSize: 12,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        transition: "all 0.15s"
+                      }}
+                    >
+                      <Icon size={14} />
+                      <span>{tab.label}</span>
+                      {tab.count !== undefined && tab.count > 0 && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 10, background: isActive ? "#e0e7ff" : "#e2e8f0", color: isActive ? "#4338ca" : "#475569" }}>
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
 
-                {isConverted && (
-                  <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, padding: "10px 14px", color: "#065f46", fontSize: 13, fontWeight: 600 }}>
-                    ✓ This lead has been converted to a salon. Conversion actions are read-only.
+              <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+
+                {/* TAB 1: OVERVIEW */}
+                {leadModalTab === "overview" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {isConverted && (
+                      <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, padding: "10px 14px", color: "#065f46", fontSize: 13, fontWeight: 600 }}>
+                        ✓ This lead has been converted to a salon. Conversion actions are read-only.
+                      </div>
+                    )}
+
+                    {/* Contact Info Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Email</div>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Mail size={12} color="#6366f1" />{row.email}</div>
+                      </div>
+                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Phone</div>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Phone size={12} color="#6366f1" />{row.phone}</div>
+                      </div>
+                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Added On</div>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Clock size={12} color="#6366f1" />{new Date(row.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+
+                    {/* Business & Assignment Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Lead Owner / Assigned To</div>
+                        <CustomSelect
+                          disabled={isConverted}
+                          value={draft.assignedUserId}
+                          onChange={e => {
+                            updateDraft(row.id, "assignedUserId", e.target.value);
+                            api.put(`/super-admin/demo-leads/${row.id}`, { assignedUserId: e.target.value }).catch(console.error);
+                          }}
+                          style={{ width: "100%" }}
+                        >
+                          <option value="">Unassigned</option>
+                          {staff.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        </CustomSelect>
+                      </div>
+                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Lead Source</div>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 600, padding: "8px 0" }}>{row.leadSource || "Direct Website"}</div>
+                      </div>
+                    </div>
+
+                    {/* Message */}
+                    {row.message && (
+                      <div style={{ background: "#fefce8", border: "1px solid #fef08a", borderRadius: 10, padding: "14px 16px" }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", textTransform: "uppercase", marginBottom: 5 }}>Inquiry Message</div>
+                        <p style={{ margin: 0, fontSize: 13, color: "#451a03", lineHeight: 1.6 }}>"{row.message}"</p>
+                      </div>
+                    )}
+
+                    {/* Contacted Quick Action */}
+                    {!isConverted && row.status === "NEW" && (
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <button
+                          onClick={() => { markContacted(row.id); }}
+                          disabled={isBusy}
+                          style={{
+                            padding: "9px 18px",
+                            background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "#8b5cf6",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6
+                          }}
+                        >
+                          {isBusy && actionType === "mark-contacted" ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
+                            </>
+                          ) : (
+                            "✓ Mark as Contacted"
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Contact Info Row */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Email</div>
-                    <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Mail size={12} color="#6366f1" />{row.email}</div>
-                  </div>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Phone</div>
-                    <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Phone size={12} color="#6366f1" />{row.phone}</div>
-                  </div>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Added On</div>
-                    <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Clock size={12} color="#6366f1" />{new Date(row.createdAt).toLocaleDateString()}</div>
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Assign To</div>
-                    <CustomSelect
-                      disabled={isConverted}
-                      value={draft.assignedUserId}
-                      onChange={e => {
-                        updateDraft(row.id, "assignedUserId", e.target.value);
-                        api.put(`/super-admin/demo-leads/${row.id}`, { assignedUserId: e.target.value }).catch(console.error);
-                      }}
-                      style={{ width: "100%" }}
-                    >
-                      <option value="">Unassigned</option>
-                      {staff.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </CustomSelect>
-                  </div>
-                  <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Next Follow-Up Date</div>
-                    <input 
-                      disabled={isConverted} 
-                      type="datetime-local" 
-                      value={draft.nextFollowUpAt} 
-                      onChange={e => { 
-                        updateDraft(row.id, "nextFollowUpAt", e.target.value); 
-                        api.put(`/super-admin/demo-leads/${row.id}`, { nextFollowUpAt: e.target.value || null }).catch(console.error); 
-                      }} 
-                      style={{ width: "100%", height: 38, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box", outline: "none", transition: "all 0.2s" }} 
-                      onFocus={e => e.target.style.borderColor = "#6366f1"}
-                      onBlur={e => e.target.style.borderColor = "#cbd5e1"}
-                    />
-                  </div>
-                </div>
-
-                {/* Message & Notes */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {row.message && (
-                    <div style={{ background: "#fefce8", border: "1px solid #fef08a", borderRadius: 10, padding: "12px 14px" }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", textTransform: "uppercase", marginBottom: 5 }}>Inquiry Message</div>
-                      <p style={{ margin: 0, fontSize: 13, color: "#451a03", lineHeight: 1.6 }}>"{row.message}"</p>
+                {/* TAB 2: SCHEDULE DEMO */}
+                {leadModalTab === "demo" && (
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Video size={16} color="#6366f1" /> Schedule Product Demo
                     </div>
-                  )}
-                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 10, padding: "12px 14px" }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#075985", textTransform: "uppercase", marginBottom: 5 }}>Internal Notes</div>
-                    <textarea
-                      disabled={isConverted}
-                      value={draft.leadNotes !== undefined ? draft.leadNotes : (row.leadNotes || "")}
-                      onChange={e => updateDraft(row.id, "leadNotes", e.target.value)}
-                      onBlur={() => api.put(`/super-admin/demo-leads/${row.id}`, { leadNotes: draft.leadNotes }).catch(console.error)}
-                      placeholder="Add internal notes about this lead..."
-                      style={{ width: "100%", padding: 8, fontSize: 13, color: "#0c4a6e", background: "transparent", border: "1px dashed #7dd3fc", borderRadius: 6, resize: "vertical", minHeight: 60, boxSizing: "border-box" }}
-                    />
-                  </div>
-                </div>
-
-                {/* Quick Actions Bar */}
-                {!isConverted && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
-                    {row.status === "NEW" && (
+                    <div>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Meeting Date & Time</label>
+                      <input disabled={isConverted} type="datetime-local" value={draft.meetingScheduledAt} onChange={e => updateDraft(row.id, "meetingScheduledAt", e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Meeting Link</label>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <input disabled={isConverted} type="text" placeholder="https://meeting.zoho.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                        <button
+                          type="button"
+                          disabled={isConverted || (isBusy && actionType === "generate-link")}
+                          onClick={() => generateZohoMeetingLink(row.id)}
+                          style={{
+                            padding: "8px 14px",
+                            background: "#e0e7ff",
+                            color: "#4338ca",
+                            border: "1px solid #c7d2fe",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: isConverted || (isBusy && actionType === "generate-link") ? "not-allowed" : "pointer",
+                            whiteSpace: "nowrap",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4
+                          }}
+                        >
+                          {isBusy && actionType === "generate-link" ? (
+                            <>
+                              <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> Generating...
+                            </>
+                          ) : (
+                            "+ Link"
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
                       <button
-                        onClick={() => { markContacted(row.id); }}
+                        type="button"
+                        onClick={() => scheduleMeeting(row.id)}
+                        disabled={isBusy || isConverted}
+                        style={{
+                          flex: 1,
+                          minWidth: 160,
+                          padding: "11px 16px",
+                          background: isBusy && actionType === "save-demo" ? "#d97706" : "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: isBusy || isConverted ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6
+                        }}
+                      >
+                        {isBusy && actionType === "save-demo" ? (
+                          <>
+                            <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
+                            <span>Sending Invite...</span>
+                          </>
+                        ) : (
+                          "Send & Email Invite"
+                        )}
+                      </button>
+                      <button type="button" onClick={() => openCalendarInvite(row, "zoho")} title="Add to Zoho Calendar" style={{ padding: "11px 16px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} /> Zoho Cal</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 3: CONVERT TO SALON */}
+                {leadModalTab === "convert" && (
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Building2 size={16} color="#16a34a" /> Convert to Salon & Onboard
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
+                        <CustomSelect disabled={isConverted} value={draft.planId} onChange={e => updateDraft(row.id, "planId", e.target.value)} options={plans.map(p => ({ label: `${p.name} — ₹${Number(p.monthlyPrice || 0).toLocaleString("en-IN")}/mo`, value: p.id }))} />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Billing Cycle</label>
+                        <CustomSelect disabled={isConverted} value={draft.billingCycle || "monthly"} onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} options={[{ label: "Monthly", value: "monthly" }, { label: "Yearly (Save 20%)", value: "yearly" }]} />
+                      </div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Salon City *</label>
+                        <input disabled={isConverted} type="text" placeholder="e.g. Mumbai" value={draft.city} onChange={e => updateDraft(row.id, "city", e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
+                        <input disabled={isConverted} type="number" min={1} max={90} value={draft.trialDays} onChange={e => updateDraft(row.id, "trialDays", Number(e.target.value))} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => approveLead(row.id)}
+                      disabled={isConverted || isBusy}
+                      style={{
+                        padding: "12px 16px",
+                        background: isConverted ? "#d1fae5" : isBusy && actionType === "convert" ? "#059669" : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                        color: isConverted ? "#065f46" : "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: isConverted || isBusy ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6
+                      }}
+                    >
+                      {isBusy && actionType === "convert" ? (
+                        <>
+                          <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
+                          <span>Creating Salon & Sending Login...</span>
+                        </>
+                      ) : isConverted ? (
+                        "✓ Already Converted"
+                      ) : (
+                        "Convert & Create Salon"
+                      )}
+                    </button>
+
+                    {isConverted && row.salon?.id && (
+                      <a
+                        href={`/super-admin/salons/${row.salon.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          padding: "10px 14px",
+                          background: "#0f172a",
+                          color: "#fff",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6
+                        }}
+                      >
+                        <Building2 size={14} /> View Salon Profile →
+                      </a>
+                    )}
+
+                    {!isConverted && (
+                      <button
+                        type="button"
+                        onClick={() => sendPurchaseLink(row.id)}
                         disabled={isBusy}
                         style={{
-                          padding: "9px 16px",
-                          background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "#8b5cf6",
+                          padding: "10px 14px",
+                          background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
                           color: "#fff",
                           border: "none",
                           borderRadius: 8,
@@ -828,280 +1048,35 @@ export default function DemoLeadsPage() {
                           cursor: isBusy ? "not-allowed" : "pointer",
                           display: "flex",
                           alignItems: "center",
-                          gap: 6
-                        }}
-                      >
-                        {isBusy && actionType === "mark-contacted" ? (
-                          <>
-                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
-                          </>
-                        ) : (
-                          "✓ Mark as Contacted"
-                        )}
-                      </button>
-                    )}
-
-                    <button
-                      onClick={() => saveFollowUp(row.id)}
-                      disabled={isBusy}
-                      style={{
-                        padding: "9px 16px",
-                        background: isBusy && actionType === "save-followup" ? "#0284c7" : "#0ea5e9",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: isBusy ? "not-allowed" : "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6
-                      }}
-                    >
-                      {isBusy && actionType === "save-followup" ? (
-                        <>
-                          <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Saving...
-                        </>
-                      ) : (
-                        "Save Follow-Up"
-                      )}
-                    </button>
-
-                    {row.nextFollowUpAt && (
-                      <button
-                        onClick={() => markFollowUpCompleted(row.id)}
-                        disabled={isBusy}
-                        style={{
-                          padding: "9px 16px",
-                          background: "#ecfdf5",
-                          color: "#065f46",
-                          border: "1px solid #a7f3d0",
-                          borderRadius: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: isBusy ? "not-allowed" : "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6
-                        }}
-                      >
-                        {isBusy && actionType === "complete-followup" ? (
-                          <>
-                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Completing...
-                          </>
-                        ) : (
-                          "✓ Follow-Up Done"
-                        )}
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  {/* Meeting Section */}
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 16, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Video size={15} color="#6366f1" /> Schedule Demo
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Meeting Date & Time</label>
-                        <input disabled={isConverted} type="datetime-local" value={draft.meetingScheduledAt} onChange={e => updateDraft(row.id, "meetingScheduledAt", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Meeting Link</label>
-                        <div style={{ display: "flex", gap: 6 }}>
-                          <input disabled={isConverted} type="text" placeholder="https://meeting.zoho.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }} />
-                          <button
-                            type="button"
-                            disabled={isConverted || (isBusy && actionType === "generate-link")}
-                            onClick={() => generateZohoMeetingLink(row.id)}
-                            style={{
-                              padding: "6px 10px",
-                              background: "#e0e7ff",
-                              color: "#4338ca",
-                              border: "1px solid #c7d2fe",
-                              borderRadius: 8,
-                              fontSize: 11,
-                              fontWeight: 700,
-                              cursor: isConverted || (isBusy && actionType === "generate-link") ? "not-allowed" : "pointer",
-                              whiteSpace: "nowrap",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 4
-                            }}
-                          >
-                            {isBusy && actionType === "generate-link" ? (
-                              <>
-                                <Loader2 size={11} style={{ animation: "spin 1s linear infinite" }} /> Generating...
-                              </>
-                            ) : (
-                              "+ Link"
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        <button
-                          type="button"
-                          onClick={() => scheduleMeeting(row.id)}
-                          disabled={isBusy || isConverted}
-                          style={{
-                            flex: 1,
-                            minWidth: 150,
-                            padding: "9px 10px",
-                            background: isBusy && actionType === "save-demo" ? "#d97706" : "#f59e0b",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: isBusy || isConverted ? "not-allowed" : "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 6
-                          }}
-                        >
-                          {isBusy && actionType === "save-demo" ? (
-                            <>
-                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
-                              <span>Sending Invite...</span>
-                            </>
-                          ) : (
-                            "Send & Email Invite"
-                          )}
-                        </button>
-                        <div style={{ display: "flex", gap: 4 }}>
-                          <button type="button" onClick={() => openCalendarInvite(row, "zoho")} title="Add to Zoho Calendar" style={{ padding: "9px 12px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> Zoho Cal</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Conversion Section */}
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 16, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Building2 size={15} color="#16a34a" /> Convert to Salon
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 4 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
-                          <div>
-                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
-                            <CustomSelect 
-                              value={draft.planId} 
-                              onChange={e => updateDraft(row.id, "planId", e.target.value)} 
-                              options={plans.map(p => {
-                                const isYearly = draft.billingCycle === "yearly";
-                                const priceVal = isYearly 
-                                  ? (p.yearlyPrice || (p.monthlyPrice * 10)) 
-                                  : p.monthlyPrice;
-                                const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/${isYearly ? "yr" : "mo"}`;
-                                return { label: `${p.name} — ${priceText}`, value: p.id };
-                              })} 
-                            />
-                          </div>
-                          <div>
-                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Billing Cycle</label>
-                            <CustomSelect 
-                              value={draft.billingCycle || "monthly"} 
-                              onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} 
-                              options={[
-                                { label: "Monthly", value: "monthly" },
-                                { label: "Yearly", value: "yearly" }
-                              ]} 
-                            />
-                          </div>
-                        </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                          <div>
-                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Salon City *</label>
-                            <input 
-                              type="text" 
-                              placeholder="e.g. Mumbai, Delhi" 
-                              value={draft.city || "Mumbai"} 
-                              onChange={e => updateDraft(row.id, "city", e.target.value)} 
-                              style={{ width: "100%", height: 38, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", outline: "none", transition: "all 0.2s" }} 
-                              onFocus={e => e.target.style.borderColor = "#6366f1"}
-                              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
-                            <input 
-                              type="number" 
-                              value={draft.trialDays} 
-                              onChange={e => updateDraft(row.id, "trialDays", e.target.value)} 
-                              style={{ width: "100%", height: 38, padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", outline: "none", transition: "all 0.2s" }} 
-                              onFocus={e => e.target.style.borderColor = "#6366f1"}
-                              onBlur={e => e.target.style.borderColor = "#cbd5e1"}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => approveLead(row.id)}
-                        disabled={isBusy || isConverted}
-                        style={{
-                          padding: "9px 12px",
-                          background: isConverted ? "#d1fae5" : (isBusy && actionType === "convert" ? "#059669" : "#10b981"),
-                          color: isConverted ? "#065f46" : "#fff",
-                          border: "none",
-                          borderRadius: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: isConverted || isBusy ? "not-allowed" : "pointer",
-                          display: "flex",
-                          alignItems: "center",
                           justifyContent: "center",
                           gap: 6
                         }}
                       >
-                        {isBusy && actionType === "convert" ? (
+                        {isBusy && actionType === "send-pay-link" ? (
                           <>
                             <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
-                            <span>Creating Salon & Sending Login...</span>
+                            <span>Sending Payment Link...</span>
                           </>
-                        ) : isConverted ? (
-                          "✓ Already Converted"
                         ) : (
-                          "Convert & Create Salon"
+                          "Send Pay Link"
                         )}
                       </button>
+                    )}
 
-                      {isConverted && row.salon?.id && (
-                        <a
-                          href={`/super-admin/salons/${row.salon.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            padding: "9px 12px",
-                            background: "#0f172a",
-                            color: "#fff",
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            textDecoration: "none",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 6
-                          }}
-                        >
-                          <Building2 size={14} /> View Salon Profile →
-                        </a>
-                      )}
-
-                      {!isConverted && (
+                    {row.status !== "CANCELED" && !isConverted && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 14, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
+                        <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{ label: "Select Reason...", value: "" }, ...LOST_REASONS.map(r => ({ label: r.label, value: r.value }))]} />
+                        {(draft.lostReason === "OTHER" || draft.lostReason === "Other") && (
+                          <textarea rows={2} placeholder="Notes required for 'Other'..." value={draft.lostNotes || ""} onChange={e => updateDraft(row.id, "lostNotes", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box" }} />
+                        )}
                         <button
                           type="button"
-                          onClick={() => sendPurchaseLink(row.id)}
+                          onClick={() => rejectLead(row.id)}
                           disabled={isBusy}
                           style={{
                             padding: "9px 12px",
-                            background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
+                            background: isBusy && actionType === "reject" ? "#dc2626" : "#ef4444",
                             color: "#fff",
                             border: "none",
                             borderRadius: 8,
@@ -1114,84 +1089,147 @@ export default function DemoLeadsPage() {
                             gap: 6
                           }}
                         >
-                          {isBusy && actionType === "send-pay-link" ? (
+                          {isBusy && actionType === "reject" ? (
                             <>
-                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
-                              <span>Sending Payment Link...</span>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
                             </>
                           ) : (
-                            "Send Pay Link"
+                            "Mark as Lost"
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 4: FOLLOW-UPS & NOTES */}
+                {leadModalTab === "followups" && (
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Calendar size={16} color="#0ea5e9" /> Follow-Up Schedule & Internal Notes
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Next Follow-Up Date & Time</label>
+                      <input 
+                        disabled={isConverted} 
+                        type="datetime-local" 
+                        value={draft.nextFollowUpAt} 
+                        onChange={e => { 
+                          updateDraft(row.id, "nextFollowUpAt", e.target.value); 
+                          api.put(`/super-admin/demo-leads/${row.id}`, { nextFollowUpAt: e.target.value || null }).catch(console.error); 
+                        }} 
+                        style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} 
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Internal Notes</label>
+                      <textarea
+                        disabled={isConverted}
+                        value={draft.leadNotes !== undefined ? draft.leadNotes : (row.leadNotes || "")}
+                        onChange={e => updateDraft(row.id, "leadNotes", e.target.value)}
+                        onBlur={() => api.put(`/super-admin/demo-leads/${row.id}`, { leadNotes: draft.leadNotes }).catch(console.error)}
+                        placeholder="Add private internal notes about conversations with this lead..."
+                        style={{ width: "100%", padding: "10px 12px", fontSize: 13, color: "#0c4a6e", background: "#f0f9ff", border: "1px dashed #7dd3fc", borderRadius: 8, resize: "vertical", minHeight: 90, boxSizing: "border-box" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+                      <button
+                        onClick={() => saveFollowUp(row.id)}
+                        disabled={isBusy}
+                        style={{
+                          padding: "10px 18px",
+                          background: isBusy && actionType === "save-followup" ? "#0284c7" : "#0ea5e9",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: isBusy ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6
+                        }}
+                      >
+                        {isBusy && actionType === "save-followup" ? (
+                          <>
+                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Saving...
+                          </>
+                        ) : (
+                          "Save Follow-Up"
+                        )}
+                      </button>
+
+                      {row.nextFollowUpAt && (
+                        <button
+                          onClick={() => markFollowUpCompleted(row.id)}
+                          disabled={isBusy}
+                          style={{
+                            padding: "10px 18px",
+                            background: "#ecfdf5",
+                            color: "#065f46",
+                            border: "1px solid #a7f3d0",
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6
+                          }}
+                        >
+                          {isBusy && actionType === "complete-followup" ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Completing...
+                            </>
+                          ) : (
+                            "✓ Follow-Up Done"
                           )}
                         </button>
                       )}
-
-                      {row.status !== "CANCELED" && !isConverted && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 12, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
-                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
-                          <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{ label: "Select Reason...", value: "" }, ...LOST_REASONS.map(r => ({ label: r.label, value: r.value }))]} />
-                          {(draft.lostReason === "OTHER" || draft.lostReason === "Other") && (
-                            <textarea rows={2} placeholder="Notes required for 'Other'..." value={draft.lostNotes || ""} onChange={e => updateDraft(row.id, "lostNotes", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box" }} />
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => rejectLead(row.id)}
-                            disabled={isBusy}
-                            style={{
-                              padding: "9px 10px",
-                              background: isBusy && actionType === "reject" ? "#dc2626" : "#ef4444",
-                              color: "#fff",
-                              border: "none",
-                              borderRadius: 8,
-                              fontSize: 12,
-                              fontWeight: 700,
-                              cursor: isBusy ? "not-allowed" : "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 6
-                            }}
-                          >
-                            {isBusy && actionType === "reject" ? (
-                              <>
-                                <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
-                              </>
-                            ) : (
-                              "Mark as Lost"
-                            )}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Activity Timeline */}
-                {(row.activityLogs || []).length > 0 && (
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 16, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Activity size={15} color="#6366f1" /> Activity Timeline
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                      {[...(row.activityLogs || [])].reverse().map((log, idx) => {
-                        const am = ACTIVITY_META[log.action] || { label: log.action.replace(/_/g, " "), color: "#64748b", bg: "#f1f5f9" };
-                        return (
-                          <div key={log.id} style={{ display: "flex", gap: 12, position: "relative", paddingBottom: idx < row.activityLogs.length - 1 ? 14 : 0 }}>
-                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: am.bg, color: am.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, flexShrink: 0, border: `2px solid ${am.color}` }}>
-                              {idx === 0 ? "★" : "•"}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{am.label}</div>
-                              {log.details && log.details !== "null" && <div style={{ fontSize: 12, color: "#64748b", marginTop: 1 }}>{log.details}</div>}
-                              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                                {log.actorName || "System"} • {new Date(log.createdAt).toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
                     </div>
                   </div>
                 )}
+
+                {/* TAB 5: ACTIVITY TIMELINE */}
+                {leadModalTab === "activity" && (
+                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <Activity size={16} color="#6366f1" /> Activity Timeline
+                      </div>
+                      <span style={{ fontSize: 11, color: "#64748b", background: "#e2e8f0", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>
+                        {(row.activityLogs || []).length} events
+                      </span>
+                    </div>
+
+                    {(row.activityLogs || []).length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 0, marginTop: 6 }}>
+                        {[...(row.activityLogs || [])].reverse().map((log, idx) => {
+                          const am = ACTIVITY_META[log.action] || { label: log.action.replace(/_/g, " "), color: "#64748b", bg: "#f1f5f9" };
+                          return (
+                            <div key={log.id} style={{ display: "flex", gap: 12, position: "relative", paddingBottom: idx < row.activityLogs.length - 1 ? 16 : 0 }}>
+                              <div style={{ width: 28, height: 28, borderRadius: "50%", background: am.bg, color: am.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, flexShrink: 0, border: `2px solid ${am.color}` }}>
+                                {idx === 0 ? "★" : "•"}
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{am.label}</div>
+                                {log.details && log.details !== "null" && <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{log.details}</div>}
+                                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>
+                                  {log.actorName || "System"} • {new Date(log.createdAt).toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: "center", padding: "24px 16px", color: "#94a3b8", fontSize: 13 }}>
+                        No activity recorded yet for this lead.
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
             </div>
           </div>
