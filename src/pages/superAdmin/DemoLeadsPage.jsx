@@ -192,14 +192,19 @@ export default function DemoLeadsPage() {
   const draftsById = useMemo(() => {
     const map = {};
     for (const row of rows) {
+      const defaultPlan = plans.find(p => p.id === (row.planId || drafts[row.id]?.planId)) || plans[0];
+      const planTrial = defaultPlan ? (defaultPlan.trialDays !== undefined ? defaultPlan.trialDays : 14) : 14;
       map[row.id] = drafts[row.id] || {
         ...emptyDraft,
         salonName: row.salon?.name || `${row.name.split(" ")[0] || row.name} Salon`,
-        planId: plans[0]?.id || "",
+        planId: defaultPlan?.id || "",
+        trialDays: planTrial,
         meetingScheduledAt: row.meetingScheduledAt ? new Date(row.meetingScheduledAt).toISOString().slice(0, 16) : "",
         meetingLink: row.meetingLink || "",
         assignedUserId: row.assignedUserId || "",
-        nextFollowUpAt: row.nextFollowUpAt ? new Date(row.nextFollowUpAt).toISOString().slice(0, 16) : ""
+        nextFollowUpAt: row.nextFollowUpAt ? new Date(row.nextFollowUpAt).toISOString().slice(0, 16) : "",
+        city: row.city || "Mumbai",
+        billingCycle: "monthly"
       };
     }
     return map;
@@ -724,7 +729,7 @@ export default function DemoLeadsPage() {
         const isConverted = row.status === "CONVERTED";
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16, backdropFilter: "blur(4px)" }} onClick={closeDetailModal}>
-            <div style={{ background: "white", width: "100%", maxWidth: 720, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: "white", width: "100%", maxWidth: 780, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
               {/* Modal Header */}
               <div style={{ padding: "20px 24px 16px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                 <div>
@@ -739,7 +744,7 @@ export default function DemoLeadsPage() {
               </div>
 
               {/* Module Tabs Navigation */}
-              <div style={{ display: "flex", gap: 4, padding: "0 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", overflowX: "auto" }}>
+              <div style={{ display: "flex", gap: 4, padding: "0 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", overflowX: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }} className="no-scrollbar">
                 {[
                   { id: "overview", label: "Overview", icon: Building2 },
                   { id: "demo", label: "Schedule Demo", icon: Video },
@@ -961,7 +966,33 @@ export default function DemoLeadsPage() {
                     <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
                       <div>
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
-                        <CustomSelect disabled={isConverted} value={draft.planId} onChange={e => updateDraft(row.id, "planId", e.target.value)} options={plans.map(p => ({ label: `${p.name} — ₹${Number(p.monthlyPrice || 0).toLocaleString("en-IN")}/mo`, value: p.id }))} />
+                        <CustomSelect 
+                          disabled={isConverted} 
+                          value={draft.planId} 
+                          onChange={e => {
+                            const newPlanId = e.target.value;
+                            const selectedPlan = plans.find(p => p.id === newPlanId);
+                            const planTrial = selectedPlan ? (selectedPlan.trialDays !== undefined ? selectedPlan.trialDays : 14) : 14;
+                            setDrafts(prev => ({
+                              ...prev,
+                              [row.id]: {
+                                ...(draftsById[row.id] || {}),
+                                planId: newPlanId,
+                                trialDays: planTrial
+                              }
+                            }));
+                          }} 
+                          options={plans.map(p => {
+                            const isYearly = draft.billingCycle === "yearly";
+                            const priceVal = isYearly ? (p.yearlyPrice || (Number(p.monthlyPrice || 0) * 10)) : (p.monthlyPrice || 0);
+                            const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/${isYearly ? "yr" : "mo"}`;
+                            const trialText = p.trialDays !== undefined ? `${p.trialDays}d trial` : "14d trial";
+                            return {
+                              label: `${p.name} — ${priceText} (${trialText})`,
+                              value: p.id
+                            };
+                          })} 
+                        />
                       </div>
                       <div>
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Billing Cycle</label>

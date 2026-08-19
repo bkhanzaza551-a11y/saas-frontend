@@ -66,18 +66,18 @@
 
 .custom-select-portal {
   position: fixed;
-  z-index: 99999;
+  z-index: 999999;
   pointer-events: none;
 }
 
 .custom-select-dropdown {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  padding: 4px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.25), 0 10px 15px -5px rgba(15, 23, 42, 0.12);
+  padding: 6px;
   min-width: var(--dropdown-min-width, 100%);
-  max-height: 250px;
+  max-height: 260px;
   overflow-y: auto;
   pointer-events: auto;
   
