@@ -123,7 +123,7 @@ export default function Salon360ProfilePage() {
           resultData = resFull.data.salon ? resFull.data : { salon: resFull.data };
         }
       } catch (e) {
-        // Fallback
+        console.warn("[Salon360] /full failed:", e?.response?.status || e?.message);
       }
 
       // 2. Try /360 alias if full didn't return
@@ -134,7 +134,7 @@ export default function Salon360ProfilePage() {
             resultData = res360.data.salon ? res360.data : { salon: res360.data };
           }
         } catch (e) {
-          // Fallback
+          console.warn("[Salon360] /360 failed:", e?.response?.status || e?.message);
         }
       }
 
@@ -164,7 +164,7 @@ export default function Salon360ProfilePage() {
             };
           }
         } catch (e) {
-          // Both failed
+          console.error("[Salon360] All endpoints failed:", e?.response?.status || e?.message);
         }
       }
 
