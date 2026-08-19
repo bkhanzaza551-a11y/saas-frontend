@@ -2,7 +2,7 @@ import * as faceapi from "face-api.js";
 
 const MODEL_URL = "/models/face-api";
 const MATCH_THRESHOLD = 0.5;
-const MIN_DETECTION_SCORE = 0.5;
+const MIN_DETECTION_SCORE = 0.15;
 const MIN_FACE_RATIO = 0.08;
 const MAX_OCCLUSION_RATIO = 0.35;
 
@@ -117,10 +117,24 @@ const validateFaceQuality = (detection, imageWidth, imageHeight) => {
 const detectSingleFaceDescriptor = async (source) => {
   await loadFaceVerificationModels();
   const image = await toImageElement(source);
-  const detections = await faceapi
-    .detectAllFaces(image, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: MIN_DETECTION_SCORE }))
-    .withFaceLandmarks(true)
-    .withFaceDescriptors();
+  const imgW = image.naturalWidth || image.width;
+  const imgH = image.naturalHeight || image.height;
+
+  // Try multiple detection strategies for better compatibility
+  const strategies = [
+    { inputSize: 640, scoreThreshold: 0.3 },
+    { inputSize: 416, scoreThreshold: 0.2 },
+    { inputSize: 320, scoreThreshold: 0.15 }
+  ];
+
+  let detections = [];
+  for (const opts of strategies) {
+    detections = await faceapi
+      .detectAllFaces(image, new faceapi.TinyFaceDetectorOptions(opts))
+      .withFaceLandmarks(true)
+      .withFaceDescriptors();
+    if (detections.length > 0) break;
+  }
 
   if (!detections.length) {
     throw new Error("No face detected. Ensure your face is well-lit and centered in the frame.");
@@ -129,7 +143,7 @@ const detectSingleFaceDescriptor = async (source) => {
     throw new Error("Only one face should be visible during attendance verification.");
   }
 
-  validateFaceQuality(detections[0], image.naturalWidth || image.width, image.naturalHeight || image.height);
+  validateFaceQuality(detections[0], imgW, imgH);
 
   return detections[0].descriptor;
 };
