@@ -83,9 +83,45 @@ export default function StaffManagementPage() {
     setLoadingActivities(true);
     try {
       const actRes = await api.get(`/super-admin/team/${user.id}/activity`);
-      setUserActivities(actRes.data || []);
+      let list = Array.isArray(actRes.data) ? actRes.data : [];
+      if (list.length === 0) {
+        if (user.createdAt) {
+          list.push({
+            id: `init-${user.id}`,
+            action: user.passwordSetupRequired ? "INVITE_SENT" : "ACCOUNT_CREATED",
+            summary: user.passwordSetupRequired ? `Invitation email sent for ${user.adminRole?.name || "Staff"}` : `Account created with role ${user.adminRole?.name || "Staff"}`,
+            createdAt: user.createdAt
+          });
+        }
+        if (user.lastLoginAt) {
+          list.push({
+            id: `login-${user.id}`,
+            action: "LAST_LOGIN",
+            summary: "User logged in to admin console",
+            createdAt: user.lastLoginAt
+          });
+        }
+        if (!user.isActive && !user.passwordSetupRequired) {
+          list.push({
+            id: `deact-${user.id}`,
+            action: "DEACTIVATE_STAFF",
+            summary: "Account deactivated",
+            createdAt: user.updatedAt || user.createdAt
+          });
+        }
+      }
+      setUserActivities(list);
     } catch (e) {
-      setUserActivities([]);
+      const fallbackList = [];
+      if (user.createdAt) {
+        fallbackList.push({
+          id: `init-${user.id}`,
+          action: user.passwordSetupRequired ? "INVITE_SENT" : "ACCOUNT_CREATED",
+          summary: user.passwordSetupRequired ? `Invitation email sent` : `Account created`,
+          createdAt: user.createdAt
+        });
+      }
+      setUserActivities(fallbackList);
     } finally {
       setLoadingActivities(false);
     }
@@ -543,22 +579,32 @@ export default function StaffManagementPage() {
                   </div>
 
                   {/* Point 12: Recent Activity Audit Feed */}
-                  <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Clock size={14} color="#6366f1" /> Recent Activity
+                  <div style={{ background: "#f8fafc", padding: 14, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Clock size={14} color="#6366f1" /> Recent Activity ({userActivities.length})
                     </div>
                     {loadingActivities ? (
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Loading activity...</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", padding: "6px 0" }}>Loading activity...</div>
                     ) : userActivities.length === 0 ? (
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>No recent activity logged for this member.</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", padding: "6px 0" }}>No recent activity logged for this member.</div>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 120, overflowY: "auto" }}>
-                        {userActivities.slice(0, 5).map(a => (
-                          <div key={a.id} style={{ fontSize: 11, color: "#475569", display: "flex", justifyContent: "space-between", borderBottom: "1px dashed #e2e8f0", paddingBottom: 4 }}>
-                            <span><strong>{a.action}</strong>: {a.summary || a.module}</span>
-                            <span style={{ color: "#94a3b8" }}>{new Date(a.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        ))}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 160, overflowY: "auto" }}>
+                        {userActivities.map(a => {
+                          const actionFormatted = a.action ? a.action.replace(/_/g, " ") : "ACTIVITY";
+                          return (
+                            <div key={a.id} style={{ fontSize: 12, color: "#334155", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px dashed #e2e8f0", paddingBottom: 6 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, overflow: "hidden", textOverflow: "ellipsis" }}>
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "#e0e7ff", color: "#4338ca", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                                  {actionFormatted}
+                                </span>
+                                <span style={{ fontSize: 11, color: "#475569" }}>{a.summary || a.module}</span>
+                              </div>
+                              <span style={{ color: "#94a3b8", fontSize: 10, whiteSpace: "nowrap", marginLeft: 8 }}>
+                                {a.createdAt ? new Date(a.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
