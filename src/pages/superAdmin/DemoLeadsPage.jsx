@@ -37,7 +37,7 @@ const LOST_REASONS = [
   { value: "NOT_QUALIFIED", label: "Not qualified" },
   { value: "TIMING_ISSUE", label: "Timing issue" },
   { value: "DUPLICATE", label: "Duplicate lead" },
-  { value: "OTHER", label: "Other (Specify in notes)" }
+  { value: "OTHER", label: "Other" }
 ];
 
 const ACTIVITY_META = {
@@ -1099,7 +1099,16 @@ export default function DemoLeadsPage() {
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
                         <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{ label: "Select Reason...", value: "" }, ...LOST_REASONS.map(r => ({ label: r.label, value: r.value }))]} />
                         {(draft.lostReason === "OTHER" || draft.lostReason === "Other") && (
-                          <textarea rows={2} placeholder="Notes required for 'Other'..." value={draft.lostNotes || ""} onChange={e => updateDraft(row.id, "lostNotes", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box" }} />
+                          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#991b1b" }}>Describe Issue / Reason *</label>
+                            <textarea
+                              rows={2}
+                              placeholder="Please describe the issue or reason..."
+                              value={draft.lostNotes || ""}
+                              onChange={e => updateDraft(row.id, "lostNotes", e.target.value)}
+                              style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box", background: "#ffffff", resize: "vertical" }}
+                            />
+                          </div>
                         )}
                         <button
                           type="button"
