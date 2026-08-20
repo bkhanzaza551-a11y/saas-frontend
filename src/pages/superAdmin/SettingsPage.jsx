@@ -68,7 +68,7 @@ export default function SuperAdminSettingsPage() {
   const [testingInteg, setTestingInteg] = useState("");
   const [form, setForm] = useState({
     systemName: "SalonNest", globalLogo: "", maintenanceMode: false, maintenanceMessage: "",
-    taxLabel: "GST", defaultCurrency: "INR", currencyOptions: ["INR", "USD", "AED", "GBP", "EUR", "PKR"],
+    taxLabel: "GST", defaultCurrency: "INR", currencyOptions: ["INR", "USD", "AED", "GBP", "EUR"],
     defaultCountry: "India", defaultCity: "Delhi", defaultTimezone: "Asia/Kolkata", invoicePrefix: "INV", defaultLanguage: "en", invoiceFormat: "INV-{YYYY}-{00000}",
     timeFormat: "12",
     notificationEmailEnabled: true, notificationSmsEnabled: false, notificationWhatsappEnabled: true,
@@ -203,7 +203,7 @@ export default function SuperAdminSettingsPage() {
         maintenanceMessage: d.maintenanceMessage || "",
         taxLabel: d.taxLabel || "GST",
         defaultCurrency: d.defaultCurrency || "INR",
-        currencyOptions: Array.isArray(d.currencyOptions) && d.currencyOptions.length > 0 ? d.currencyOptions : (d.currencyOptions ? d.currencyOptions.split(",").map(s => s.trim()).filter(Boolean) : ["INR", "USD", "AED", "GBP", "EUR", "PKR"]),
+        currencyOptions: Array.isArray(d.currencyOptions) && d.currencyOptions.length > 0 ? d.currencyOptions : (d.currencyOptions ? d.currencyOptions.split(",").map(s => s.trim()).filter(Boolean) : ["INR", "USD", "AED", "GBP", "EUR"]),
         defaultCountry: d.defaultCountry || "India",
         defaultCity: d.defaultCity || "Delhi",
         defaultTimezone: d.defaultTimezone || "Asia/Kolkata",
@@ -573,7 +573,7 @@ export default function SuperAdminSettingsPage() {
                     </Field>
                     <Field label="Default Currency">
                       <CustomSelect value={form.defaultCurrency} onChange={e => setForm(p => ({ ...p, defaultCurrency: e.target.value }))}>
-                        {["PKR", "INR", "USD", "AED", "GBP", "EUR"].map(c => <option key={c} value={c}>{c}</option>)}
+                        {["INR", "USD", "AED", "GBP", "EUR"].map(c => <option key={c} value={c}>{c}</option>)}
                       </CustomSelect>
                     </Field>
                     <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="India" /></Field>
