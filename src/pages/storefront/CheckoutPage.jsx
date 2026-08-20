@@ -63,24 +63,36 @@ export default function CheckoutPage() {
     );
   }
 
+  const handlePhoneInput = (e) => {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) digits = digits.slice(0, 10);
+    setForm({ ...form, phone: digits });
+  };
+
   const submitBookings = async () => {
     setSubmitting(true);
     setError("");
     try {
       const customerName = `${form.firstName} ${form.lastName}`.trim();
+      const formattedPhone = form.phone.startsWith("+91") ? form.phone : `+91${form.phone}`;
       const promises = [];
       for (const booking of bookings) {
         for (let i = 0; i < booking.qty; i++) {
           const payload = {
             serviceId: booking.serviceId || booking.id,
             customerName,
-            customerPhone: form.phone,
-            customerEmail: form.email || undefined,
+            customerPhone: formattedPhone,
+            customerEmail: form.email ? form.email.trim() : undefined,
             preferredDate: booking.date,
             preferredTime: booking.time,
             staffId: booking.staffId || null,
             branchId: booking.branchId || null,
-            note: form.note || undefined,
+            note: form.note ? form.note.trim() : undefined,
             paymentMode: form.paymentMode,
             couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
           };
@@ -91,7 +103,7 @@ export default function CheckoutPage() {
       const results = resps.map(r => r.data);
 
       clearBookings();
-      localStorage.setItem("sf_customer_phone", form.phone);
+      localStorage.setItem("sf_customer_phone", formattedPhone);
       const orderNumber = results[0]?.order?.orderNumber || results[0]?.orderNumber || `BK-${Date.now()}`;
       navigate(`/site/${salon.slug}/booking-confirmation?orderNumber=${orderNumber}`);
     } catch (err) {
@@ -101,17 +113,40 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceBooking = async () => {
-    if (!form.firstName.trim() || !form.phone.trim()) {
-      setError("Please fill in your first name and phone number.");
+    setError("");
+    const firstNameTrim = form.firstName.trim();
+    if (!firstNameTrim) {
+      setError("Please enter your First Name.");
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    const phoneDigits = form.phone.replace(/\D/g, "");
-    if (phoneDigits.length < 8) {
-      setError("Please enter a valid phone number.");
+    if (firstNameTrim.length < 2) {
+      setError("First name must be at least 2 characters.");
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+
+    const cleanPhone = form.phone.replace(/\D/g, "");
+    if (!cleanPhone) {
+      setError("Please enter your 10-digit mobile number.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (cleanPhone.length !== 10) {
+      setError(`Please enter a valid 10-digit mobile number (currently ${cleanPhone.length} digits).`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (form.email && form.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        setError("Please enter a valid email address.");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
     await submitBookings();
   };
 
@@ -192,7 +227,43 @@ export default function CheckoutPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
                 <div>
                   <label className="sf-checkout-label">Phone Number *</label>
-                  <input type="tel" required placeholder="e.g. +91 98765 43210" value={form.phone} onChange={set("phone")} className="sf-checkout-input" />
+                  <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)', background: 'transparent' }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      padding: '16px 12px 16px 0',
+                      borderRight: '1px solid var(--border)',
+                      marginRight: 12,
+                      fontSize: '1.05rem',
+                      fontWeight: 700,
+                      color: 'var(--text-main)',
+                      userSelect: 'none'
+                    }}>
+                      <span>🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      required
+                      maxLength={10}
+                      placeholder="98765 43210"
+                      value={form.phone}
+                      onChange={handlePhoneInput}
+                      className="sf-checkout-input"
+                      style={{ borderBottom: 'none', padding: '16px 0', letterSpacing: '1px' }}
+                    />
+                  </div>
+                  {form.phone && form.phone.length > 0 && form.phone.length < 10 && (
+                    <small style={{ color: '#d97706', fontSize: '0.8rem', marginTop: 4, display: 'block' }}>
+                      {10 - form.phone.length} more digit{10 - form.phone.length > 1 ? "s" : ""} required
+                    </small>
+                  )}
+                  {form.phone && form.phone.length === 10 && (
+                    <small style={{ color: '#16a34a', fontSize: '0.8rem', marginTop: 4, display: 'block', fontWeight: 600 }}>
+                      ✓ 10-digit number verified
+                    </small>
+                  )}
                 </div>
                 <div>
                   <label className="sf-checkout-label">Email Address (Optional)</label>

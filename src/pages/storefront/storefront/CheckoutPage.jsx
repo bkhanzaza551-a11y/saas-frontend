@@ -81,10 +81,45 @@ export default function CheckoutPage() {
     }
   };
 
+  const handlePhoneInput = (e) => {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) digits = digits.slice(0, 10);
+    setForm({ ...form, phone: digits });
+  };
+
   const handlePlaceBooking = async () => {
-    if (!form.firstName || !form.phone) {
-      setError("Please fill in your name and phone number.");
+    setError("");
+    const firstNameTrim = form.firstName.trim();
+    if (!firstNameTrim) {
+      setError("Please enter your First Name.");
       return;
+    }
+    if (firstNameTrim.length < 2) {
+      setError("First name must be at least 2 characters.");
+      return;
+    }
+
+    const cleanPhone = form.phone.replace(/\D/g, "");
+    if (!cleanPhone) {
+      setError("Please enter your 10-digit mobile number.");
+      return;
+    }
+    if (cleanPhone.length !== 10) {
+      setError(`Please enter a valid 10-digit mobile number (currently ${cleanPhone.length} digits).`);
+      return;
+    }
+
+    if (form.email && form.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        setError("Please enter a valid email address.");
+        return;
+      }
     }
 
     if (form.paymentMode === "ONLINE") {
@@ -139,7 +174,34 @@ export default function CheckoutPage() {
                 <input type="text" placeholder="Last Name" value={form.lastName} onChange={set('lastName')} style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
               </div>
               <input type="email" placeholder="Email Address (optional)" value={form.email} onChange={set('email')} style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
-              <input type="text" placeholder="Phone Number *" value={form.phone} onChange={set('phone')} required style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, width: '100%' }} />
+              
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ padding: '12px 14px', background: '#f8fafc', borderRight: '1px solid #ccc', fontWeight: 700, fontSize: '0.95rem', color: '#333', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span>🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    placeholder="98765 43210"
+                    maxLength={10}
+                    value={form.phone}
+                    onChange={handlePhoneInput}
+                    required
+                    style={{ padding: 12, border: 'none', width: '100%', outline: 'none', fontSize: '0.95rem', letterSpacing: '1px' }}
+                  />
+                </div>
+                {form.phone && form.phone.length > 0 && form.phone.length < 10 && (
+                  <small style={{ color: '#d97706', fontSize: '0.8rem', marginTop: 4, display: 'block' }}>
+                    {10 - form.phone.length} more digit{10 - form.phone.length > 1 ? "s" : ""} required
+                  </small>
+                )}
+                {form.phone && form.phone.length === 10 && (
+                  <small style={{ color: '#16a34a', fontSize: '0.8rem', marginTop: 4, display: 'block', fontWeight: 600 }}>
+                    ✓ 10-digit number verified
+                  </small>
+                )}
+              </div>
             </div>
 
             <h2 style={{ fontSize: '1.2rem', margin: '40px 0 24px', borderBottom: '1px solid #eee', paddingBottom: 16 }}>Payment</h2>
