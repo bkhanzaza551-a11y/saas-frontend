@@ -1072,8 +1072,20 @@ export default function PosDashboardPage() {
                         color: apptStatus === "IN_PROGRESS" ? "#1d4ed8" : apptStatus === "COMPLETED" ? "#16a34a" : apptStatus === "CANCELLED" ? "#dc2626" : "#92400e"
                       }}>{apptStatus === "IN_PROGRESS" ? "STARTED" : apptStatus}</span>
                     )}
-                    <span className={`pos-dash-card-pickup pos-dash-card-status-${(row.status || "default").toLowerCase()}`}>
-                      {row.status === "PAID" ? "Paid" : row.status === "STARTED" ? "In Progress" : row.status === "PARTIAL" ? "Partial" : row.status === "UNPAID" ? "Unpaid" : row.status === "CANCELLED" ? "Cancelled" : row.status || "N/A"}
+                    <span className={`pos-dash-card-pickup pos-dash-card-status-${((row.status === "STARTED" && (apptStatus === "COMPLETED" || row.completedAt)) ? (row.paidAmount >= row.total && row.total > 0 ? "paid" : "unpaid") : (row.status || "default")).toLowerCase()}`}>
+                      {row.status === "PAID"
+                        ? "Paid"
+                        : (row.status === "STARTED" && (apptStatus === "COMPLETED" || row.completedAt))
+                        ? (row.paidAmount >= row.total && row.total > 0 ? "Paid" : "Unpaid")
+                        : row.status === "STARTED"
+                        ? "In Progress"
+                        : row.status === "PARTIAL"
+                        ? "Partial"
+                        : row.status === "UNPAID"
+                        ? "Unpaid"
+                        : row.status === "CANCELLED"
+                        ? "Cancelled"
+                        : row.status || "N/A"}
                     </span>
                   </div>
                 </div>
