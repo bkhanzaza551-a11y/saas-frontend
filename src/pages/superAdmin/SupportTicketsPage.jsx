@@ -6,7 +6,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
+import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
 
 const isImageAttachment = (value) => {
   const url = String(value || "").trim();
@@ -891,7 +891,7 @@ export default function SuperAdminSupportTicketsPage() {
 
       {/* Create Ticket Modal */}
       {isCreateModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16, backdropFilter: "blur(4px)" }} onClick={() => setIsCreateModalOpen(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 16, backdropFilter: "blur(4px)" }} onClick={() => setIsCreateModalOpen(false)}>
           <div style={{ background: "white", width: "100%", maxWidth: 500, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>Create Support Ticket</h3>
@@ -948,7 +948,7 @@ export default function SuperAdminSupportTicketsPage() {
 
       {/* Closure Reason Modal */}
       {closingTicketId && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1050, padding: 16, backdropFilter: "blur(4px)" }} onClick={() => setClosingTicketId(null)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 16, backdropFilter: "blur(4px)" }} onClick={() => setClosingTicketId(null)}>
           <div style={{ background: "white", width: "100%", maxWidth: 400, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Close Ticket</h3>

@@ -355,7 +355,7 @@ const Protected = () => {
   const visibleGroups = auth?.user?.systemRole === "SUPER_ADMIN"
     ? (() => {
         const roleName = (auth?.user?.adminRole?.name || "").toLowerCase();
-        if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth?.user?.adminRoleId) {
+        if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth?.user?.adminRole) {
           return superAdminGroups;
         }
 
@@ -520,7 +520,7 @@ const SuperAdminRoute = ({ pageKey, element }) => {
   }
 
   const roleName = (auth.user?.adminRole?.name || "").toLowerCase();
-  if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth.user?.adminRoleId) {
+  if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth.user?.adminRole) {
     return element;
   }
 

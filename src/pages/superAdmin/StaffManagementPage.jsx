@@ -467,7 +467,7 @@ export default function StaffManagementPage() {
 
       {/* Point 13: Improved Edit Staff Member Screen with Activity, Reset Password & Controls */}
       {isUserModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={() => setIsUserModalOpen(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, backdropFilter: "blur(4px)" }} onClick={() => setIsUserModalOpen(false)}>
           <div style={{ background: "white", width: "100%", maxWidth: editingUserId ? 640 : 500, borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{editingUserId ? "Edit Team Member" : "Invite Staff"}</h3>
@@ -576,7 +576,7 @@ export default function StaffManagementPage() {
 
       {/* ROLE MODAL */}
       {isRoleModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={() => setIsRoleModalOpen(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, backdropFilter: "blur(4px)" }} onClick={() => setIsRoleModalOpen(false)}>
           <div style={{ background: "white", width: "100%", maxWidth: 700, maxHeight: "90vh", borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", overflow: "auto" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{editingRoleId ? "Edit Role" : "Create Role"}</h3>
