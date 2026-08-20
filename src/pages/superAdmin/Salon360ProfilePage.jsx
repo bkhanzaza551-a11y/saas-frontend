@@ -284,7 +284,12 @@ export default function Salon360ProfilePage() {
   const branches = salon.branches || [];
   const subscription = salon.subscriptions?.[0];
   const featureFlags = salon.featureFlags;
-  const owner = ownerData || salon.users?.find(u => u.salonRole === "SALON_OWNER")?.user || salon.users?.[0]?.user;
+  const rawOwner = Array.isArray(ownerData) ? (ownerData.find(o => o?.name || o?.email) || ownerData[0]) : ownerData;
+  const owner = (rawOwner && (rawOwner.name || rawOwner.email || rawOwner.id)) ? rawOwner
+    : salon.users?.find(u => u.salonRole === "SALON_OWNER" || u.salonRole === "OWNER")?.user 
+    || salon.users?.find(u => u.user)?.user
+    || salon.users?.[0]?.user
+    || (salon.email || salon.phone ? { name: salon.name, email: salon.email, phone: salon.phone, createdAt: salon.createdAt } : null);
 
   return (
     <div style={{ padding: "24px 32px", maxWidth: 1400, margin: "0 auto" }}>
@@ -423,8 +428,8 @@ export default function Salon360ProfilePage() {
           </div>
           {owner ? (
             <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "14px 0", fontSize: "0.9rem" }}>
-              <div style={{ color: "#64748b" }}>Owner Name</div><div style={{ color: "#0f172a", fontWeight: 600 }}>{owner.name}</div>
-              <div style={{ color: "#64748b" }}>Email Address</div><div style={{ color: "#0f172a", fontWeight: 500 }}>{owner.email}</div>
+              <div style={{ color: "#64748b" }}>Owner Name</div><div style={{ color: "#0f172a", fontWeight: 600 }}>{owner.name || salon.name || "-"}</div>
+              <div style={{ color: "#64748b" }}>Email Address</div><div style={{ color: "#0f172a", fontWeight: 500 }}>{owner.email || salon.email || "-"}</div>
               <div style={{ color: "#64748b" }}>Phone Number</div><div style={{ color: "#0f172a", fontWeight: 500 }}>{owner.phone || salon.phone || "-"}</div>
               <div style={{ color: "#64748b" }}>System Role</div><div style={{ color: "#4f46e5", fontWeight: 700 }}>SALON_OWNER</div>
               
