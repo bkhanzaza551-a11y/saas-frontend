@@ -112,15 +112,52 @@ export default function WebsiteEditorPage() {
     });
   };
 
+  // Helper to ensure any base64 image is uploaded to server CDN
+  const ensureUploadedUrl = async (val) => {
+    if (typeof val !== "string" || !val.startsWith("data:image/")) return val;
+    try {
+      const res = await fetch(val);
+      const blob = await res.blob();
+      const file = new File([blob], "image.jpg", { type: blob.type || "image/jpeg" });
+      const formData = new FormData();
+      formData.append("image", file);
+      const uploadRes = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      return uploadRes.data?.url || val;
+    } catch (e) {
+      console.warn("Base64 upload conversion fallback:", e);
+      return val;
+    }
+  };
+
   // Save Website Config
   const handleSave = async () => {
     setSaving(true);
     setStatus({ error: "", success: "" });
     try {
-      await api.post("/owner/website/config", config);
+      // Clean and ensure any base64 images are converted to lightweight uploaded URLs
+      const cleanConfig = { ...config };
+      if (cleanConfig.logoUrl && cleanConfig.logoUrl.startsWith("data:image/")) {
+        cleanConfig.logoUrl = await ensureUploadedUrl(cleanConfig.logoUrl);
+      }
+      if (cleanConfig.heroImage && cleanConfig.heroImage.startsWith("data:image/")) {
+        cleanConfig.heroImage = await ensureUploadedUrl(cleanConfig.heroImage);
+      }
+      if (cleanConfig.aboutImage && cleanConfig.aboutImage.startsWith("data:image/")) {
+        cleanConfig.aboutImage = await ensureUploadedUrl(cleanConfig.aboutImage);
+      }
+      if (Array.isArray(cleanConfig.galleryImages)) {
+        cleanConfig.galleryImages = await Promise.all(
+          cleanConfig.galleryImages.map(img => ensureUploadedUrl(img))
+        );
+      }
+
+      await api.post("/owner/website/config", cleanConfig);
+      setConfig(cleanConfig);
       setStatus({ error: "", success: "Website changes published successfully!" });
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        iframeRef.current.contentWindow.postMessage({ type: 'UPDATE_WEBSITE_CONFIG', config }, '*');
+        iframeRef.current.contentWindow.postMessage({ type: 'UPDATE_WEBSITE_CONFIG', config: cleanConfig }, '*');
       }
       setTimeout(() => setStatus({ error: "", success: "" }), 3000);
     } catch (err) {
@@ -130,16 +167,31 @@ export default function WebsiteEditorPage() {
     }
   };
 
-  // Handle Image Upload (Converts to Data URL)
-  const handleFileUpload = (file, callback) => {
+  // Handle Image Upload (Uploads directly to /upload for clean URL)
+  const handleFileUpload = async (file, callback) => {
     if (!file || !file.type.startsWith("image/")) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image size should be under 5MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      setStatus({ error: "Image size should be under 10MB.", success: "" });
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => callback(e.target.result);
-    reader.readAsDataURL(file);
+    setStatus({ error: "", success: "Uploading image..." });
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      const url = res.data?.url;
+      if (url) {
+        callback(url);
+        setStatus({ error: "", success: "Image uploaded successfully!" });
+        setTimeout(() => setStatus({ error: "", success: "" }), 2500);
+      } else {
+        setStatus({ error: "Failed to get uploaded image URL.", success: "" });
+      }
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to upload image. Please try a smaller image."), success: "" });
+    }
   };
 
   // Add Gallery Image from URL
