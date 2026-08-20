@@ -416,30 +416,67 @@ export default function StaffManagementPage() {
                         <td style={tdStyle}>{s.lastLoginAt ? new Date(s.lastLoginAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Never"}</td>
                         <td style={tdStyle}>{s.createdAt ? new Date(s.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}</td>
                         <td style={{ ...tdStyle, textAlign: "right" }}>
-                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", alignItems: "center" }}>
                             {!s.isActive && s.passwordSetupRequired && (
-                              <button onClick={() => resendInvite(s.id)} title="Resend Invitation Email" style={{ background: "#eef2ff", color: "#4f46e5", border: "1px solid #c7d2fe", padding: "6px 10px", borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700 }}>
-                                <Mail size={12} /> Resend
+                              <button
+                                onClick={() => resendInvite(s.id)}
+                                title="Resend Invitation Email"
+                                style={{
+                                  background: "#eef2ff",
+                                  color: "#4f46e5",
+                                  border: "1px solid #c7d2fe",
+                                  padding: "6px 10px",
+                                  borderRadius: 8,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 5,
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  transition: "all 0.2s"
+                                }}
+                              >
+                                <Mail size={12} /> Resend Invite
                               </button>
                             )}
-                            <button onClick={() => openEditUser(s)} title="Edit Member & Controls" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", padding: "6px 8px", borderRadius: 6, cursor: "pointer" }}><Pencil size={13} /></button>
+                            <button
+                              onClick={() => openEditUser(s)}
+                              title="Edit Member Details & Roles"
+                              style={{
+                                background: "#f8fafc",
+                                color: "#334155",
+                                border: "1px solid #cbd5e1",
+                                padding: "6px 10px",
+                                borderRadius: 8,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 5,
+                                fontSize: 11,
+                                fontWeight: 700,
+                                transition: "all 0.2s"
+                              }}
+                            >
+                              <Pencil size={12} /> Edit
+                            </button>
                             
-                            {/* Point 7: Deactivate / Reactivate action */}
+                            {/* Controlled Deactivate / Activate action */}
                             <button 
                               onClick={() => toggleUserActive(s.id, s.isActive)}
-                              title={s.isActive ? "Deactivate Member" : "Activate Member"}
+                              title={s.isActive ? "Deactivate Team Member" : "Reactivate Team Member"}
                               style={{
                                 background: s.isActive ? "#fef2f2" : "#f0fdf4",
                                 color: s.isActive ? "#dc2626" : "#16a34a",
                                 border: `1px solid ${s.isActive ? "#fecaca" : "#bbf7d0"}`,
                                 padding: "6px 10px",
-                                borderRadius: 6,
+                                borderRadius: 8,
                                 cursor: "pointer",
                                 fontSize: 11,
                                 fontWeight: 700,
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 4
+                                gap: 5,
+                                transition: "all 0.2s"
                               }}
                             >
                               {s.isActive ? <><X size={12} /> Deactivate</> : <><Check size={12} /> Activate</>}
