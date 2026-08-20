@@ -163,7 +163,7 @@ export default function ServiceDetailPage() {
           <div>
             {/* Image Section */}
             <div style={{ position: "relative", marginBottom: 40, borderRadius: "24px", overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.08)", background: "var(--surface)", height: 500 }}>
-              <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => { e.target.onerror = null; e.target.src = FALLBACK_IMG; }} />
               
               {/* Badges Overlay */}
               <div style={{ position: "absolute", top: 24, left: 24, display: "flex", gap: 12 }}>
@@ -259,26 +259,6 @@ export default function ServiceDetailPage() {
               
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 
-                {salon.branches?.length > 1 && (
-                  <div className="sf-form-group" style={{ marginBottom: 0 }}>
-                    <label className="sf-form-label">Branch</label>
-                    <select 
-                      value={selectedBranchId || ""} 
-                      onChange={e => {
-                        setSelectedBranchId(e.target.value);
-                        setSelectedTime("");
-                      }}
-                      className="sf-form-input" 
-                      style={{ cursor: "pointer", appearance: 'none', background: 'var(--surface) url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 16px top 50%', backgroundSize: '10px' }}
-                    >
-                      <option value="">Select a branch</option>
-                      {salon.branches.map(b => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
                 <div className="sf-form-group" style={{ marginBottom: 0 }}>
                   <label className="sf-form-label">Date</label>
                   <input type="date" min={today} value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setSelectedTime(""); }}

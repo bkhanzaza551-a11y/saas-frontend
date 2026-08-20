@@ -122,12 +122,11 @@ export default function HomePage() {
               {services.map(service => (
                 <div key={service.id} className="sf-service-card" onClick={() => navigate(`/site/${salon.slug}/service/${service.id}`)}>
                   {service.imageUrl ? (
-                    <img src={service.imageUrl} alt={service.name} style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', marginBottom: 24, border: '1px solid var(--border)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} />
-                  ) : (
-                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, color: 'var(--accent)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                    <img src={service.imageUrl} alt={service.name} style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', marginBottom: 24, border: '1px solid var(--border)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} onError={e => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                  ) : null}
+                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: service.imageUrl ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, color: 'var(--accent)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                       <Sparkles size={24} strokeWidth={1.5} />
                     </div>
-                  )}
                   <h3 style={{ margin: '0 0 12px', fontSize: '1.4rem', color: 'var(--text-main)', fontWeight: 500 }}>{service.name}</h3>
                   <p className="sf-service-desc" style={{ flex: 1, margin: '0 0 24px', fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: 1.6, fontWeight: 300 }}>
                     {service.description || "A premium service tailored for your needs."}
