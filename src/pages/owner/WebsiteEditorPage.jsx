@@ -286,13 +286,6 @@ export default function WebsiteEditorPage() {
                     <button onClick={() => update("logoUrl", "")} style={{ background: "none", border: "none", color: "#ef4444", fontSize: "0.8rem", cursor: "pointer" }}>Remove</button>
                   )}
                 </div>
-                <input 
-                  type="text" 
-                  value={config.logoUrl || ""} 
-                  onChange={e => update("logoUrl", e.target.value)} 
-                  placeholder="Or paste Logo Image URL (https://...)" 
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
-                />
               </div>
             </div>
           )}
