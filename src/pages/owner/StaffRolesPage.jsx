@@ -496,14 +496,54 @@ export default function StaffRolesPage() {
                   </div>
 
                   {accessControl.approvalRequiredForRoleEdits ? (
-                    <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, color: "#334155", fontSize: 13, fontWeight: 600 }}>
-                      <input
-                        type="checkbox"
-                        checked={roleApprovalChecked}
-                        onChange={(event) => setRoleApprovalChecked(event.target.checked)}
-                      />
-                      I reviewed and approve this role permission change.
-                    </label>
+                    <div 
+                      onClick={() => setRoleApprovalChecked(!roleApprovalChecked)}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 14,
+                        marginTop: 20,
+                        marginBottom: 20,
+                        padding: "12px 18px",
+                        background: roleApprovalChecked ? "#f0fdf4" : "#f8fafc",
+                        border: `1.5px solid ${roleApprovalChecked ? "#86efac" : "#e2e8f0"}`,
+                        borderRadius: 12,
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      {/* Left Side Toggle Switch (ON/OFF) */}
+                      <div style={{
+                        width: 46,
+                        height: 26,
+                        borderRadius: 100,
+                        background: roleApprovalChecked ? "#16a34a" : "#cbd5e1",
+                        position: "relative",
+                        transition: "background 0.2s ease",
+                        flexShrink: 0
+                      }}>
+                        <div style={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          background: "#ffffff",
+                          position: "absolute",
+                          top: 3,
+                          left: roleApprovalChecked ? 23 : 3,
+                          transition: "left 0.2s ease",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
+                        }} />
+                      </div>
+
+                      <div style={{ userSelect: "none" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: roleApprovalChecked ? "#15803d" : "#334155" }}>
+                          I reviewed and approve this role permission change.
+                        </span>
+                        <span style={{ display: "block", fontSize: 11, color: roleApprovalChecked ? "#16a34a" : "#64748b", fontWeight: 600, marginTop: 2 }}>
+                          {roleApprovalChecked ? "✓ Approved (Ready to save)" : "Click toggle to enable approval"}
+                        </span>
+                      </div>
+                    </div>
                   ) : null}
                   {roleFormError ? (
                     <div style={{ marginBottom: 16, color: "#dc2626", fontSize: 13, fontWeight: 600 }}>
