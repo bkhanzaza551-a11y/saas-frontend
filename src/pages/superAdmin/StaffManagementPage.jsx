@@ -79,49 +79,47 @@ export default function StaffManagementPage() {
     setEditingUserId(user.id);
     setEditingUserObj(user);
     setUserForm({ email: user.email, name: user.name, adminRoleId: user.adminRoleId || "", department: user.department || "" });
+    
+    // Instant baseline activity timeline from member record
+    const baselineTimeline = [];
+    if (user.createdAt) {
+      baselineTimeline.push({
+        id: `init-${user.id}`,
+        action: user.passwordSetupRequired ? "INVITE_SENT" : "ACCOUNT_CREATED",
+        summary: user.passwordSetupRequired ? `Invitation sent with role ${user.adminRole?.name || "Staff"}` : `Account created with role ${user.adminRole?.name || "Staff"}`,
+        createdAt: user.createdAt
+      });
+    }
+    if (user.lastLoginAt) {
+      baselineTimeline.push({
+        id: `login-${user.id}`,
+        action: "LAST_LOGIN",
+        summary: "User logged in to admin console",
+        createdAt: user.lastLoginAt
+      });
+    }
+    if (!user.isActive) {
+      baselineTimeline.push({
+        id: `deact-${user.id}`,
+        action: "DEACTIVATE_STAFF",
+        summary: "Account deactivated",
+        createdAt: user.updatedAt || user.createdAt
+      });
+    }
+    setUserActivities(baselineTimeline);
     setIsUserModalOpen(true);
     setLoadingActivities(true);
+
     try {
       const actRes = await api.get(`/super-admin/team/${user.id}/activity`);
       let list = Array.isArray(actRes.data) ? actRes.data : [];
-      if (list.length === 0) {
-        if (user.createdAt) {
-          list.push({
-            id: `init-${user.id}`,
-            action: user.passwordSetupRequired ? "INVITE_SENT" : "ACCOUNT_CREATED",
-            summary: user.passwordSetupRequired ? `Invitation email sent for ${user.adminRole?.name || "Staff"}` : `Account created with role ${user.adminRole?.name || "Staff"}`,
-            createdAt: user.createdAt
-          });
-        }
-        if (user.lastLoginAt) {
-          list.push({
-            id: `login-${user.id}`,
-            action: "LAST_LOGIN",
-            summary: "User logged in to admin console",
-            createdAt: user.lastLoginAt
-          });
-        }
-        if (!user.isActive && !user.passwordSetupRequired) {
-          list.push({
-            id: `deact-${user.id}`,
-            action: "DEACTIVATE_STAFF",
-            summary: "Account deactivated",
-            createdAt: user.updatedAt || user.createdAt
-          });
-        }
+      if (list.length > 0) {
+        setUserActivities(list);
+      } else {
+        setUserActivities(baselineTimeline);
       }
-      setUserActivities(list);
     } catch (e) {
-      const fallbackList = [];
-      if (user.createdAt) {
-        fallbackList.push({
-          id: `init-${user.id}`,
-          action: user.passwordSetupRequired ? "INVITE_SENT" : "ACCOUNT_CREATED",
-          summary: user.passwordSetupRequired ? `Invitation email sent` : `Account created`,
-          createdAt: user.createdAt
-        });
-      }
-      setUserActivities(fallbackList);
+      setUserActivities(baselineTimeline);
     } finally {
       setLoadingActivities(false);
     }
