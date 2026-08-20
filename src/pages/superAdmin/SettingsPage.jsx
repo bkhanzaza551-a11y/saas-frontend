@@ -269,7 +269,7 @@ export default function SuperAdminSettingsPage() {
         maxLoginAttempts: d.maxLoginAttempts ?? 5,
         enforce2FA: Boolean(d.enforce2FA),
         dateFormat: d.dateFormat || "DD/MM/YYYY",
-        emailSenderId: d.emailSenderId || "",
+        emailSenderId: (d.emailSenderId || "SalonNest").replace(/&amp;.*$/i, "").replace(/&lt;.*$/i, "").replace(/<.*$/i, "").trim() || "SalonNest",
         smsSenderId: d.smsSenderId || "",
         whatsappSenderId: d.whatsappSenderId || "",
         requireEmailVerification: Boolean(d.requireEmailVerification),
@@ -685,15 +685,6 @@ export default function SuperAdminSettingsPage() {
                       </div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                      <Field label="Email Provider">
-                        <CustomSelect value={form.emailProviderName || "SMTP"} onChange={e => setForm(p => ({ ...p, emailProviderName: e.target.value }))}>
-                          <option value="SMTP">SMTP (Configured Server)</option>
-                          <option value="Resend">Resend (API)</option>
-                          <option value="SendGrid">SendGrid (API)</option>
-                          <option value="Amazon SES">Amazon SES</option>
-                          <option value="Postmark">Postmark</option>
-                        </CustomSelect>
-                      </Field>
                       <Field label="Sender Name">
                         <input style={inputStyle} {...f("emailSenderId")} placeholder="SalonNest" />
                       </Field>
@@ -703,42 +694,13 @@ export default function SuperAdminSettingsPage() {
                       <Field label="Reply-to Email">
                         <input style={inputStyle} type="email" {...f("contactEmail")} placeholder="support@salonnest.in" />
                       </Field>
-                      <Field label="Support Email" full>
+                      <Field label="Support Email">
                         <input style={inputStyle} type="email" {...f("supportEmail")} placeholder="help@salonnest.in" />
                       </Field>
                     </div>
                   </div>
 
-                  {/* Section 3.2: SMS */}
-                  <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18, marginBottom: 20 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                      <div>
-                        <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>SMS</h4>
-                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Instant mobile text alerts and OTPs</p>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Toggle value={form.notificationSmsEnabled} onChange={v => setForm(p => ({ ...p, notificationSmsEnabled: v }))} label="Enable SMS" />
-                        <button type="button" disabled={!form.notificationSmsEnabled || !!testingChannel} onClick={() => testChannel("sms")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.notificationSmsEnabled || testingChannel ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
-                          {testingChannel === "sms" ? "Sending..." : "Test SMS"}
-                        </button>
-                      </div>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                      <Field label="SMS Provider">
-                        <CustomSelect value={form.smsProviderName || "Twilio"} onChange={e => setForm(p => ({ ...p, smsProviderName: e.target.value }))}>
-                          <option value="Twilio">Twilio</option>
-                          <option value="Msg91">Msg91 (India DLT)</option>
-                          <option value="Fast2SMS">Fast2SMS</option>
-                          <option value="AWS SNS">AWS SNS</option>
-                        </CustomSelect>
-                      </Field>
-                      <Field label="Sender ID / Number">
-                        <input style={inputStyle} {...f("smsSenderId")} placeholder="SLNNST / +1234567890" />
-                      </Field>
-                    </div>
-                  </div>
-
-                  {/* Section 3.3: WhatsApp */}
+                  {/* Section 3.2: WhatsApp */}
                   <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                       <div>
@@ -752,16 +714,8 @@ export default function SuperAdminSettingsPage() {
                         </button>
                       </div>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                      <Field label="WhatsApp Provider">
-                        <CustomSelect value={form.whatsappProviderName || "Meta Cloud API"} onChange={e => setForm(p => ({ ...p, whatsappProviderName: e.target.value }))}>
-                          <option value="Meta Cloud API">Meta Cloud API (Official)</option>
-                          <option value="Twilio WhatsApp">Twilio WhatsApp</option>
-                          <option value="Wati">Wati</option>
-                          <option value="Interakt">Interakt</option>
-                        </CustomSelect>
-                      </Field>
-                      <Field label="WhatsApp Business Number">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+                      <Field label="WhatsApp Business Number / Helpline">
                         <input style={inputStyle} {...f("whatsappNumber")} placeholder="+91 98765 43210" />
                       </Field>
                     </div>
