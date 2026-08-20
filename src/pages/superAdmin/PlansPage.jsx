@@ -90,11 +90,19 @@ export default function PlansPage() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const { showConfirm } = useAlert();
 
+  const [defaultTrialDays, setDefaultTrialDays] = useState(14);
+
   const load = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/super-admin/plans");
-      setPlans(res.data);
+      const [resPlans, resSettings] = await Promise.all([
+        api.get("/super-admin/plans"),
+        api.get("/super-admin/settings").catch(() => ({ data: {} }))
+      ]);
+      setPlans(resPlans.data);
+      if (resSettings.data && resSettings.data.trialDays !== undefined) {
+        setDefaultTrialDays(Number(resSettings.data.trialDays));
+      }
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not load plans"), success: "" });
     } finally {
@@ -104,7 +112,12 @@ export default function PlansPage() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditingId(""); setForm(emptyForm); setFeatureSearch(""); setIsModalOpen(true); };
+  const openCreate = () => { 
+    setEditingId(""); 
+    setForm({ ...emptyForm, trialDays: defaultTrialDays }); 
+    setFeatureSearch(""); 
+    setIsModalOpen(true); 
+  };
   const openEdit = (p) => {
     setEditingId(p.id);
     const existingFlags = p.featureFlags || p.features || {};

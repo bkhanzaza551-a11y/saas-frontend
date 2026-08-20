@@ -154,11 +154,6 @@ export const ROLE_PRESETS = {
     myProfile: ["view", "edit"]
   }),
   STAFF: makePermissions({
-    appointments: ["view", "edit"],
-    customers: ["view"],
-    feedback: ["view"],
-    attendance: ["view", "create", "edit"],
-    branches: ["view"],
     myDashboard: ["view"],
     myAppointments: ["view"],
     mySchedule: ["view"],
