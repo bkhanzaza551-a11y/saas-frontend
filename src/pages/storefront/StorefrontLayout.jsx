@@ -52,10 +52,49 @@ export default function StorefrontLayout() {
           document.documentElement.style.setProperty("--sf-accent", accent);
         }
       }
+
+      if (e.data && e.data.type === 'SCROLL_TO_SECTION') {
+        const sectionMap = {
+          branding: 'sf-hero-section',
+          hero: 'sf-hero-section',
+          about: 'sf-about-section',
+          gallery: 'sf-gallery-section',
+          reviews: 'sf-testimonials-section',
+          contact: 'sf-contact-section',
+          hours: 'sf-contact-section',
+          seo: 'sf-hero-section'
+        };
+        const targetId = sectionMap[e.data.section] || 'sf-hero-section';
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
+
+  useEffect(() => {
+    const cfg = previewConfig || salon?.websiteConfig;
+    if (cfg?.metaTitle) {
+      document.title = cfg.metaTitle;
+    } else if (salon?.name) {
+      document.title = `${salon.name} | Luxury Salon & Spa`;
+    }
+
+    if (cfg?.metaDescription) {
+      let metaTag = document.querySelector('meta[name="description"]');
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.name = 'description';
+        document.head.appendChild(metaTag);
+      }
+      metaTag.content = cfg.metaDescription;
+    }
+  }, [salon, previewConfig]);
 
   useEffect(() => {
     // Show preloader on subpage navigation for 1.5 seconds

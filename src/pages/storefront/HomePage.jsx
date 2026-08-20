@@ -57,7 +57,7 @@ export default function HomePage() {
     <div className="storefront-wrapper">
       {/* Premium Hero Section */}
       {isSectionEnabled("hero") && (
-      <section className="sf-hero" style={{ overflow: "hidden" }}>
+      <section id="sf-hero-section" className="sf-hero" style={{ overflow: "hidden" }}>
         <div className="sf-hero-bg" style={{
           background: `url('${wc.heroImage || "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80"}') center/cover no-repeat`,
         }}></div>
@@ -74,7 +74,7 @@ export default function HomePage() {
       )}
 
       {/* The Premium Standard / Features - always shown */}
-      <section className="sf-section">
+      <section id="sf-features-section" className="sf-section">
         <div className="sf-section-title">
           <h2>The Premium Standard</h2>
           <p>Why our clients consistently choose {salon?.name || "us"} for their grooming and wellness needs.</p>
@@ -106,7 +106,7 @@ export default function HomePage() {
 
       {/* Featured Services */}
       {isSectionEnabled("services") && (
-      <section className="sf-section">
+      <section id="sf-services-section" className="sf-section">
         <div className="sf-section-title">
           <h2>Featured Services</h2>
           <p>Discover our most popular treatments curated just for you.</p>
@@ -152,7 +152,7 @@ export default function HomePage() {
 
       {/* About Section */}
       {isSectionEnabled("about") && (
-      <section className="sf-section-alt">
+      <section id="sf-about-section" className="sf-section-alt">
         <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: '320px', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '-20px', left: '-20px', width: '100%', height: '100%', border: '1px solid #111', zIndex: 0 }}></div>
@@ -178,7 +178,7 @@ export default function HomePage() {
 
       {/* Gallery Section */}
       {isSectionEnabled("gallery") && (
-      <section className="sf-section">
+      <section id="sf-gallery-section" className="sf-section">
         <div className="sf-section-title">
           <h2>Signature Styles</h2>
           <p>A glimpse into our world of precision styling and premium care.</p>
@@ -196,7 +196,7 @@ export default function HomePage() {
 
       {/* Testimonials Roller */}
       {isSectionEnabled("testimonials") && (
-      <section className="sf-marquee-container" style={{ padding: '60px 0' }}>
+      <section id="sf-testimonials-section" className="sf-marquee-container" style={{ padding: '60px 0' }}>
         <div className="sf-section-title" style={{ marginBottom: 40 }}>
           <h2>What Our Clients Say</h2>
         </div>
@@ -228,7 +228,7 @@ export default function HomePage() {
 
       {/* Contact Section */}
       {isSectionEnabled("contact") && (
-      <section className="sf-section-alt" style={{ background: '#111111', color: '#ffffff' }}>
+      <section id="sf-contact-section" className="sf-section-alt" style={{ background: '#111111', color: '#ffffff' }}>
         <div className="sf-section-inner" style={{ display: 'flex', flexWrap: 'wrap', gap: '80px' }}>
           <div style={{ flex: 1, minWidth: '300px' }}>
             <h2 style={{ color: '#ffffff', fontSize: '2.5rem', marginBottom: '30px', fontWeight: 500 }}>Visit Us</h2>

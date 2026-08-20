@@ -201,6 +201,14 @@ export default function WebsiteEditorPage() {
     setGalleryUrlInput("");
   };
 
+  // Switch Category Tab & Auto-Scroll Preview iframe to that section
+  const handleSelectCategory = (catId) => {
+    setActiveCategory(catId);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'SCROLL_TO_SECTION', section: catId }, '*');
+    }
+  };
+
   const navCategories = [
     { id: "branding", label: "Theme & Brand", icon: <Palette size={16} /> },
     { id: "hero", label: "Hero Banner", icon: <LayoutTemplate size={16} /> },
@@ -245,7 +253,7 @@ export default function WebsiteEditorPage() {
           {navCategories.map(cat => (
             <button
               key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
+              onClick={() => handleSelectCategory(cat.id)}
               style={{
                 display: "flex",
                 alignItems: "center",
