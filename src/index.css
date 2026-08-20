@@ -5980,8 +5980,12 @@ html, body {
 .super-admin-page input.search-input-field,
 .super-admin-page input[data-search="true"],
 .super-admin-page div:has(> .search-icon) input,
-.super-admin-page .search-input-box input {
-  padding-left: 48px !important;
+.super-admin-page .search-input-box input,
+.super-admin-page div:has(> svg) > input[placeholder*="Search"],
+.super-admin-page div:has(> svg) > input[placeholder*="search"],
+.super-admin-page input[placeholder*="Search"],
+.super-admin-page input[placeholder*="search"] {
+  padding-left: 44px !important;
 }
 
 .super-admin-page input.filter-input-compact {

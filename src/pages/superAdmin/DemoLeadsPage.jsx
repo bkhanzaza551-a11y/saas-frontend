@@ -891,7 +891,7 @@ export default function DemoLeadsPage() {
                     <div>
                       <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Meeting Link</label>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <input disabled={isConverted} type="text" placeholder="https://meeting.zoho.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                        <input disabled={isConverted} type="text" placeholder="https://meet.google.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
                         <button
                           type="button"
                           disabled={isConverted || (isBusy && actionType === "generate-link")}
@@ -952,7 +952,7 @@ export default function DemoLeadsPage() {
                           "Send & Email Invite"
                         )}
                       </button>
-                      <button type="button" onClick={() => openCalendarInvite(row, "zoho")} title="Add to Zoho Calendar" style={{ padding: "11px 16px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} /> Zoho Cal</button>
+                      <button type="button" onClick={() => openCalendarInvite(row, "google")} title="Add to Google Calendar" style={{ padding: "11px 16px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} /> Google Cal</button>
                     </div>
                   </div>
                 )}

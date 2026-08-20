@@ -294,15 +294,16 @@ export default function StaffManagementPage() {
             
             {/* Top Search & Invite Row */}
             <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
-              <div style={{ flex: 1, minWidth: 280, position: "relative" }}>
+              <div className="search-input-wrapper" style={{ flex: 1, minWidth: 280, position: "relative" }}>
                 <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
                   <Search size={18} />
                 </div>
                 <input 
+                  className="search-input-field"
                   value={search} 
                   onChange={e => setSearch(e.target.value)} 
                   placeholder="Search name, email, role, department..."
-                  style={{ width: "100%", height: 42, paddingLeft: 42, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }} 
+                  style={{ width: "100%", height: 42, paddingLeft: 44, paddingRight: 14, paddingTop: 10, paddingBottom: 10, borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#1e293b", outline: "none", boxSizing: "border-box", transition: "all 0.2s", background: "#f8fafc" }} 
                   onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                   onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
                 />
