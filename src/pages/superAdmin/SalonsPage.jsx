@@ -880,17 +880,17 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", marginBottom: 6 }}>Reason for Suspension *</label>
-                <select
+                <CustomSelect
                   value={suspendModalData.reason}
                   onChange={(e) => setSuspendModalData({ ...suspendModalData, reason: e.target.value })}
-                  style={{ width: "100%", height: 40, borderRadius: 8, border: "1px solid #cbd5e1", padding: "0 10px", fontSize: "0.85rem" }}
+                  style={{ width: "100%" }}
                 >
                   <option value="Non-Payment / Overdue">Non-Payment / Overdue</option>
                   <option value="Terms of Service Violation">Terms of Service Violation</option>
                   <option value="Salon Owner Request">Salon Owner Request</option>
                   <option value="Fraud / Suspicious Activity">Fraud / Suspicious Activity</option>
                   <option value="Other">Other</option>
-                </select>
+                </CustomSelect>
               </div>
 
               <div>

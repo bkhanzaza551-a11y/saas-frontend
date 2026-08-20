@@ -3,6 +3,7 @@ import { PlusCircle, Search, Edit2, ShieldAlert, MessageCircle, MessageSquare, C
 import { api } from "../../api/client";
 import { formatCurrency } from "../../utils/currency.js";
 import PageLoader from "../../components/PageLoader.jsx";
+import CustomSelect from "../../components/CustomSelect.jsx";
 import { useAlert } from "../../context/AlertContext.jsx";
 
 export default function ManageCreditsPage() {
@@ -454,10 +455,10 @@ export default function ManageCreditsPage() {
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Package Type</label>
-                  <select value={pkgForm.type} onChange={e => setPkgForm({...pkgForm, type: e.target.value})} style={{ ...inputStyle, background: "#fff", appearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                  <CustomSelect value={pkgForm.type} onChange={e => setPkgForm({...pkgForm, type: e.target.value})} style={{ width: "100%" }}>
                     <option value="WHATSAPP">WhatsApp</option>
                     <option value="SMS">SMS</option>
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   <div>
@@ -503,10 +504,10 @@ export default function ManageCreditsPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Credit Type</label>
-                  <select value={creditForm.creditType} onChange={e => setCreditForm({...creditForm, creditType: e.target.value})} style={{ ...inputStyle, background: "#fff", appearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                  <CustomSelect value={creditForm.creditType} onChange={e => setCreditForm({...creditForm, creditType: e.target.value})} style={{ width: "100%" }}>
                     <option value="WHATSAPP">WhatsApp</option>
                     <option value="SMS">SMS</option>
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "0.9rem", fontWeight: 600, color: "#475569", marginBottom: "8px" }}>Credit Amount</label>
