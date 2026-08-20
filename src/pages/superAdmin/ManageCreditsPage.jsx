@@ -100,8 +100,9 @@ export default function ManageCreditsPage() {
       });
       setAddCreditsModalOpen(false);
       fetchData();
+      showAlert("Credits adjusted successfully!");
     } catch (err) {
-      showAlert("Failed to add credits");
+      showAlert(err?.response?.data?.message || err?.message || "Failed to add credits");
     }
   };
 
