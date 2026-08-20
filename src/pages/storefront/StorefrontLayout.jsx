@@ -376,7 +376,7 @@ export default function StorefrontLayout() {
           <header className={`sf-header ${scrolled ? 'scrolled' : ''}`}>
             <div className="sf-nav-container">
               <Link to={`/site/${slug}`} className="sf-brand">
-                {activeSalon?.websiteConfig?.logoUrl ? <img src={activeSalon.websiteConfig.logoUrl} alt={activeSalon.name} style={{ height: "32px", borderRadius: 4 }} /> : activeSalon?.name}
+                {activeSalon?.websiteConfig?.logoUrl ? <img src={activeSalon.websiteConfig.logoUrl} alt={activeSalon.name} style={{ height: "32px", borderRadius: 4 }} onError={e => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} /> : null}<span style={{ display: activeSalon?.websiteConfig?.logoUrl ? 'none' : 'inline', fontSize: '1.2rem', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-main)' }}>{activeSalon?.name || "Salon"}</span>
               </Link>
 
               <nav className="sf-nav-links">
