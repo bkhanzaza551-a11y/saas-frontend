@@ -953,6 +953,7 @@ export default function DemoLeadsPage() {
                           "Send & Email Invite"
                         )}
                       </button>
+                      <button type="button" onClick={() => openCalendarInvite(row, "google")} title="Add to Google Calendar" style={{ padding: "11px 16px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} /> Google Cal</button>
                     </div>
                   </div>
                 )}
