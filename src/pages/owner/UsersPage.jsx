@@ -243,12 +243,16 @@ export default function UsersPage() {
   useEffect(() => {
     if (!selectedRow) {
       setSelectedId("");
+      setEditingId("");
       return;
     }
     if (!selectedId || !filteredRows.some((row) => row.id === selectedId)) {
       setSelectedId(selectedRow.id);
     }
-  }, [filteredRows, selectedId, selectedRow]);
+    if (editingId !== selectedRow.id && !isCreateModalOpen) {
+      startEdit(selectedRow);
+    }
+  }, [filteredRows, selectedId, selectedRow, isCreateModalOpen]);
 
   const filteredServices = useMemo(() => {
     if (!selectedBranchId) return services;
@@ -347,28 +351,79 @@ export default function UsersPage() {
     }));
   };
 
+  const submitEdit = async (event) => {
+    if (event) event.preventDefault();
+    const targetId = editingId || selectedRow?.id;
+    if (!targetId) {
+      setStatus((current) => ({ ...current, error: "Please select a staff member first.", success: "" }));
+      return;
+    }
+
+    setStatus((current) => ({ ...current, error: "", success: "" }));
+    try {
+      if (form.phone && !isValidIndianPhone(form.phone)) {
+        return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits with optional country code)", success: "" }));
+      }
+      if (form.uanNumber && form.uanNumber.trim() && !/^\d{12}$/.test(form.uanNumber.trim())) {
+        return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits", success: "" }));
+      }
+      if (form.accountNumber && form.accountNumber.trim() && !/^\d{9,18}$/.test(form.accountNumber.trim())) {
+        return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits", success: "" }));
+      }
+      if (form.ifscCode && form.ifscCode.trim() && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(form.ifscCode.trim())) {
+        return setStatus((current) => ({ ...current, error: "Invalid IFSC code format (e.g. HDFC0001234)", success: "" }));
+      }
+
+      const payload = {
+        salonRole: form.salonRole,
+        roleTitle: form.roleTitle || undefined,
+        phone: form.phone || undefined,
+        avatarUrl: form.avatarUrl || undefined,
+        profileNote: form.profileNote || undefined,
+        branchId: form.branchId || selectedBranchId || branches[0]?.id || null,
+        customRoleId: form.customRoleId || undefined,
+        showInCatalog: Boolean(form.showInCatalog),
+        attendanceEnabled: Boolean(form.attendanceEnabled),
+        attendanceEnrollmentPhotoUrl: form.attendanceEnrollmentPhotoUrl || undefined,
+        serviceIds: form.serviceIds,
+        permissions: form.permissions,
+        joiningDate: form.joiningDate || undefined,
+        designation: form.designation || undefined,
+        department: form.department || undefined,
+        uanNumber: form.uanNumber ? form.uanNumber.trim() : undefined,
+        reportingToId: form.reportingToId || undefined,
+        workingHours: form.workingHours || undefined,
+        bankName: form.bankName ? form.bankName.trim() : undefined,
+        bankBranch: form.bankBranch ? form.bankBranch.trim() : undefined,
+        accountNumber: form.accountNumber ? form.accountNumber.trim() : undefined,
+        ifscCode: form.ifscCode ? form.ifscCode.trim().toUpperCase() : undefined
+      };
+
+      await api.patch(`/owner/users/${targetId}`, payload);
+      setStatus((current) => ({ ...current, error: "", success: "Staff profile and settings saved successfully!" }));
+      await load(selectedBranchId);
+      setTimeout(() => setStatus((current) => ({ ...current, success: "" })), 4000);
+    } catch (error) {
+      setStatus((current) => ({ ...current, error: formatApiError(error, "Could not update staff settings"), success: "" }));
+    }
+  };
+
   const submit = async (event) => {
     event.preventDefault();
     setStatus((current) => ({ ...current, error: "", success: "" }));
     try {
-      if (!editingId) {
-        if (!form.name?.trim()) return setStatus((current) => ({ ...current, error: "Name is required" }));
-        if (form.name.trim().length < 2) return setStatus((current) => ({ ...current, error: "Name must be at least 2 characters" }));
-        if (!form.email?.trim()) return setStatus((current) => ({ ...current, error: "Email is required" }));
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return setStatus((current) => ({ ...current, error: "Enter a valid email address" }));
-        if (!form.password) return setStatus((current) => ({ ...current, error: "Password is required" }));
-        if (form.password.length < 8) return setStatus((current) => ({ ...current, error: "Password must be at least 8 characters" }));
-        if (form.password.length > 128) return setStatus((current) => ({ ...current, error: "Password must be at most 128 characters" }));
-        if (!form.phone || !isValidIndianPhone(form.phone)) return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits) - Required for Staff OTP" }));
-        if (form.uanNumber && !/^\d{12}$/.test(form.uanNumber)) return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits" }));
-        if (form.accountNumber && !/^\d{9,18}$/.test(form.accountNumber)) return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits" }));
-        if (form.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(form.ifscCode)) return setStatus((current) => ({ ...current, error: "Invalid IFSC code format (e.g. HDFC0001234)" }));
-      } else {
-        if (form.phone && !isValidIndianPhone(form.phone)) return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits with optional country code)" }));
-        if (form.uanNumber && !/^\d{12}$/.test(form.uanNumber)) return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits" }));
-        if (form.accountNumber && !/^\d{9,18}$/.test(form.accountNumber)) return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits" }));
-        if (form.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(form.ifscCode)) return setStatus((current) => ({ ...current, error: "Invalid IFSC code format (e.g. HDFC0001234)" }));
-      }
+      if (!form.name?.trim()) return setStatus((current) => ({ ...current, error: "Name is required" }));
+      if (form.name.trim().length < 2) return setStatus((current) => ({ ...current, error: "Name must be at least 2 characters" }));
+      if (!form.email?.trim()) return setStatus((current) => ({ ...current, error: "Email is required" }));
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return setStatus((current) => ({ ...current, error: "Enter a valid email address" }));
+      if (!form.password) return setStatus((current) => ({ ...current, error: "Password is required" }));
+      if (form.password.length < 8) return setStatus((current) => ({ ...current, error: "Password must be at least 8 characters" }));
+      if (form.password.length > 128) return setStatus((current) => ({ ...current, error: "Password must be at most 128 characters" }));
+      if (!form.phone || !isValidIndianPhone(form.phone)) return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits) - Required for Staff OTP" }));
+      if (form.uanNumber && form.uanNumber.trim() && !/^\d{12}$/.test(form.uanNumber.trim())) return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits" }));
+      if (form.accountNumber && form.accountNumber.trim() && !/^\d{9,18}$/.test(form.accountNumber.trim())) return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits" }));
+      if (form.ifscCode && form.ifscCode.trim() && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(form.ifscCode.trim())) return setStatus((current) => ({ ...current, error: "Invalid IFSC code format (e.g. HDFC0001234)" }));
+
       const payload = {
         salonRole: form.salonRole,
         roleTitle: form.roleTitle || undefined,
@@ -385,54 +440,48 @@ export default function UsersPage() {
         joiningDate: form.joiningDate || undefined,
         designation: form.designation || undefined,
         department: form.department || undefined,
-        uanNumber: form.uanNumber || undefined,
+        uanNumber: form.uanNumber ? form.uanNumber.trim() : undefined,
         reportingToId: form.reportingToId || undefined,
         workingHours: form.workingHours || undefined,
-        bankName: form.bankName || undefined,
-        bankBranch: form.bankBranch || undefined,
-        accountNumber: form.accountNumber || undefined,
-        ifscCode: form.ifscCode || undefined
+        bankName: form.bankName ? form.bankName.trim() : undefined,
+        bankBranch: form.bankBranch ? form.bankBranch.trim() : undefined,
+        accountNumber: form.accountNumber ? form.accountNumber.trim() : undefined,
+        ifscCode: form.ifscCode ? form.ifscCode.trim().toUpperCase() : undefined
       };
       
-      if (editingId) {
-        await api.patch(`/owner/users/${editingId}`, payload);
-        setStatus((current) => ({ ...current, success: "Staff profile and access updated." }));
-        resetForm();
-      } else {
-        if (staffOtpStep === 1) {
-          await api.post("/owner/users/send-staff-otp", { phone: form.phone });
-          setStatus((current) => ({ ...current, success: "OTP sent to staff's phone number. Please enter it below." }));
-          setStaffOtpStep(2);
-          return;
-        }
-
-        if (!form.otpCode || form.otpCode.length < 6) {
-          return setStatus((current) => ({ ...current, error: "Please enter a valid 6-digit OTP." }));
-        }
-
-        await api.post("/owner/users/create-login", {
-          ...payload,
-          branchId: selectedBranchId || branches[0]?.id || undefined,
-          name: form.name.trim(),
-          email: form.email.trim(),
-          password: form.password,
-          otpCode: form.otpCode,
-          joiningDate: form.joiningDate || undefined,
-          designation: form.designation || undefined,
-          department: form.department || undefined,
-          uanNumber: form.uanNumber || undefined,
-          reportingToId: form.reportingToId || undefined,
-          workingHours: form.workingHours || undefined,
-          bankName: form.bankName || undefined,
-          bankBranch: form.bankBranch || undefined,
-          accountNumber: form.accountNumber || undefined,
-          ifscCode: form.ifscCode || undefined
-        });
-        setStatus((current) => ({ ...current, success: "New staff login created." }));
-        setIsCreateModalOpen(false);
-        setStaffOtpStep(1);
-        resetForm();
+      if (staffOtpStep === 1) {
+        await api.post("/owner/users/send-staff-otp", { phone: form.phone });
+        setStatus((current) => ({ ...current, success: "OTP sent to staff's phone number. Please enter it below." }));
+        setStaffOtpStep(2);
+        return;
       }
+
+      if (!form.otpCode || form.otpCode.length < 6) {
+        return setStatus((current) => ({ ...current, error: "Please enter a valid 6-digit OTP." }));
+      }
+
+      await api.post("/owner/users/create-login", {
+        ...payload,
+        branchId: selectedBranchId || branches[0]?.id || undefined,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        otpCode: form.otpCode,
+        joiningDate: form.joiningDate || undefined,
+        designation: form.designation || undefined,
+        department: form.department || undefined,
+        uanNumber: form.uanNumber ? form.uanNumber.trim() : undefined,
+        reportingToId: form.reportingToId || undefined,
+        workingHours: form.workingHours || undefined,
+        bankName: form.bankName ? form.bankName.trim() : undefined,
+        bankBranch: form.bankBranch ? form.bankBranch.trim() : undefined,
+        accountNumber: form.accountNumber ? form.accountNumber.trim() : undefined,
+        ifscCode: form.ifscCode ? form.ifscCode.trim().toUpperCase() : undefined
+      });
+      setStatus((current) => ({ ...current, success: "New staff login created." }));
+      setIsCreateModalOpen(false);
+      setStaffOtpStep(1);
+      resetForm();
       await load(selectedBranchId);
     } catch (error) {
       setStatus((current) => ({ ...current, error: formatApiError(error, "Could not save staff user"), success: "" }));
@@ -769,7 +818,7 @@ export default function UsersPage() {
                     {status.error && <span style={{ color: '#ef4444', fontSize: 13, fontWeight: 700, background: '#fef2f2', padding: '4px 12px', borderRadius: 20, border: '1px solid #fecaca' }}>⚠️ {status.error}</span>}
                   </div>
                   
-                  <form onSubmit={submit}>
+                  <form onSubmit={submitEdit} noValidate>
                     {/* Identity Section */}
                     <div style={{ marginBottom: 32 }}>
                       <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 10, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity & Scope</h4>
@@ -952,7 +1001,7 @@ export default function UsersPage() {
 
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>UAN Number</label>
-                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" pattern="\d{12}" maxLength={12} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" maxLength={12} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>
@@ -971,11 +1020,11 @@ export default function UsersPage() {
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Account Number</label>
-                          <input type="text" className="hub-input" value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} placeholder="Account No." pattern="\d{9,18}" maxLength={18} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} placeholder="Account No." maxLength={18} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>IFSC / Routing Code</label>
-                          <input type="text" className="hub-input" value={form.ifscCode} onChange={(event) => setForm({ ...form, ifscCode: event.target.value.toUpperCase() })} placeholder="IFSC Code" pattern="[A-Z]{4}0[A-Z0-9]{6}" maxLength={11} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', textTransform: 'uppercase', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.ifscCode} onChange={(event) => setForm({ ...form, ifscCode: event.target.value.toUpperCase() })} placeholder="IFSC Code" maxLength={11} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', textTransform: 'uppercase', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>
