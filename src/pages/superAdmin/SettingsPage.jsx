@@ -738,8 +738,7 @@ export default function SuperAdminSettingsPage() {
                       <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Account</h4>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                         <Toggle value={form.accountOwnerInvite ?? true} onChange={v => setForm(p => ({ ...p, accountOwnerInvite: v }))} label="Owner invitation" />
-                        <Toggle value={form.accountEmailVerify ?? true} onChange={v => setForm(p => ({ ...p, accountEmailVerify: v }))} label="Email verification" />
-                        <Toggle value={form.accountMobileVerify ?? true} onChange={v => setForm(p => ({ ...p, accountMobileVerify: v }))} label="Mobile verification" />
+                        <Toggle value={form.accountEmailVerify ?? true} onChange={v => setForm(p => ({ ...p, accountEmailVerify: v }))} label="Email verification (OTP)" />
                         <Toggle value={form.accountPasswordReset ?? true} onChange={v => setForm(p => ({ ...p, accountPasswordReset: v }))} label="Password reset" />
                       </div>
                     </div>
@@ -748,12 +747,8 @@ export default function SuperAdminSettingsPage() {
                     <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
                       <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Subscription</h4>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <Toggle value={form.subTrialEnding ?? true} onChange={v => setForm(p => ({ ...p, subTrialEnding: v }))} label="Trial ending" />
-                        <Toggle value={form.subExpiring ?? true} onChange={v => setForm(p => ({ ...p, subExpiring: v }))} label="Subscription expiring" />
+                        <Toggle value={form.subTrialEnding ?? true} onChange={v => setForm(p => ({ ...p, subTrialEnding: v }))} label="Trial ending reminder" />
                         <Toggle value={form.subExpired ?? true} onChange={v => setForm(p => ({ ...p, subExpired: v }))} label="Subscription expired" />
-                        <Toggle value={form.subGraceEnding ?? true} onChange={v => setForm(p => ({ ...p, subGraceEnding: v }))} label="2-day access ending" />
-                        <Toggle value={form.subPaymentReceived ?? true} onChange={v => setForm(p => ({ ...p, subPaymentReceived: v }))} label="Payment received" />
-                        <Toggle value={form.subPaymentPending ?? true} onChange={v => setForm(p => ({ ...p, subPaymentPending: v }))} label="Payment pending" />
                       </div>
                     </div>
 
