@@ -85,22 +85,22 @@ export default function OrdersPage() {
   return (
     <div className="page-shell">
       <ModuleTabs
-        title="Orders"
-        description="Manage new, accepted, ready, completed, and cancelled online orders."
+        title="Online Bookings"
+        description="Manage new, confirmed, in progress, completed, and cancelled website bookings."
         tabs={[
-          { label: "All Orders", to: "/admin/orders", hint: "Queue" },
-          { label: "New", to: "/admin/orders/new", hint: "Incoming" },
-          { label: "Accepted", to: "/admin/orders/accepted", hint: "Picked" },
-          { label: "Ready", to: "/admin/orders/ready", hint: "Fulfillment" },
-          { label: "Completed", to: "/admin/orders/completed", hint: "Closed" },
+          { label: "All Bookings", to: "/admin/orders", hint: "Queue" },
+          { label: "Pending", to: "/admin/orders/new", hint: "Incoming" },
+          { label: "Confirmed", to: "/admin/orders/accepted", hint: "Accepted" },
+          { label: "In Progress", to: "/admin/orders/ready", hint: "Service" },
+          { label: "Completed", to: "/admin/orders/completed", hint: "Done" },
           { label: "Cancelled", to: "/admin/orders/cancelled", hint: "Reversed" }
         ]}
       />
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div>
-            <h1 style={{ marginTop: 0 }}>Orders</h1>
-            <p style={{ marginBottom: 0 }}>Monitor every incoming storefront order from queue to invoice conversion with clean status control.</p>
+            <h1 style={{ marginTop: 0 }}>Online Service Bookings</h1>
+            <p style={{ marginBottom: 0 }}>Monitor and manage every incoming customer appointment from salon website booking to invoice generation.</p>
           </div>
           <div className="badge-row">
             <span className="badge">Visible {rows.length}</span>
@@ -110,11 +110,11 @@ export default function OrdersPage() {
       </div>
       {status.error && <div className="panel-card"><p className="error-text">{status.error}</p></div>}
       {status.success && <div className="panel-card"><p className="success-text">{status.success}</p></div>}
-      {loading && <PageLoader title="Loading online orders" message="Preparing order queue, detail records, and storefront fulfillment summaries." />}
-      {summary && <div className="badge-row" style={{ marginBottom: 12 }}><span className="badge">Orders {summary.totalOrders}</span><span className="badge">New {summary.newOrders}</span><span className="badge">Completed {summary.completedOrders}</span><span className="badge">Cancelled {summary.cancelledOrders}</span><span className="badge">Sales {Number(summary.totalSales || 0).toFixed(2)}</span></div>}
+      {loading && <PageLoader title="Loading online bookings" message="Preparing booking queue, appointment records, and storefront fulfillment summaries." />}
+      {summary && <div className="badge-row" style={{ marginBottom: 12 }}><span className="badge">Total Bookings {summary.totalOrders}</span><span className="badge">Pending {summary.newOrders}</span><span className="badge">Completed {summary.completedOrders}</span><span className="badge">Cancelled {summary.cancelledOrders}</span><span className="badge">Revenue ₹{Number(summary.totalSales || 0).toFixed(2)}</span></div>}
       <div className="two-col">
         <div className="panel-card">
-          <h3>{filter || "All"} Orders</h3>
+          <h3>{filter || "All"} Bookings</h3>
           <div className="list-stack">
             {!loading && rows.map((row) => (
               <div key={row.id} className="list-item">

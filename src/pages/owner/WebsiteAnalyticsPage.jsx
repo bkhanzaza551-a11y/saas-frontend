@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
+import { Calendar, TrendingUp, CheckCircle2, Clock, XCircle, Tag, Globe, ArrowUpRight } from "lucide-react";
 import { api } from "../../api/client";
 
 export default function WebsiteAnalyticsPage() {
   const outletCtx = useOutletContext() || {};
   const salon = outletCtx.salon || {};
   const [stats, setStats] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("all");
@@ -17,22 +18,22 @@ export default function WebsiteAnalyticsPage() {
     Promise.all([
       api.get("/owner/orders").catch(() => ({ data: [] })),
       api.get("/owner/orders/reports/summary").catch(() => ({ data: {} })),
-      api.get("/owner/inventory/products").catch(() => ({ data: [] })),
-      api.get("/owner/inventory/categories").catch(() => ({ data: [] })),
-      api.get("/owner/ecommerce/settings").catch(() => ({ data: {} }))
-    ]).then(([ordersRes, summaryRes, prodRes, catRes, storeRes]) => {
+      api.get("/owner/services").catch(() => ({ data: [] })),
+      api.get("/owner/service-categories").catch(() => ({ data: [] }))
+    ]).then(([ordersRes, summaryRes, servRes, catRes]) => {
       if (!active) return;
-      const allOrders = ordersRes.data?.orders || ordersRes.data || [];
-      setOrders(allOrders);
-      setProducts(prodRes.data || []);
-      setCategories(catRes.data || []);
+      const allBookings = ordersRes.data?.orders || ordersRes.data || [];
+      const servList = servRes.data?.services || servRes.data || [];
+      const catList = catRes.data?.categories || catRes.data || [];
+
+      setBookings(allBookings);
+      setServices(servList);
+      setCategories(catList);
       setStats({
         ...summaryRes.data,
-        storeEnabled: storeRes.data?.storeEnabled || false,
-        totalProducts: prodRes.data?.length || 0,
-        visibleProducts: (prodRes.data || []).filter(p => p.isOnlineVisible).length,
-        totalCategories: catRes.data?.length || 0,
-        avgOrderValue: summaryRes.data?.totalSales && summaryRes.data?.totalOrders
+        totalServices: servList.length,
+        totalCategories: catList.length,
+        avgBookingValue: summaryRes.data?.totalSales && summaryRes.data?.totalOrders
           ? summaryRes.data.totalSales / summaryRes.data.totalOrders : 0
       });
       setLoading(false);
@@ -43,201 +44,261 @@ export default function WebsiteAnalyticsPage() {
 
   const currency = salon?.currency || "INR";
 
-  const getFilteredOrders = () => {
+  const getFilteredBookings = () => {
     const now = new Date();
-    return orders.filter(o => {
+    return bookings.filter(b => {
       if (period === "today") {
-        const d = new Date(o.createdAt);
+        const d = new Date(b.createdAt);
         return d.toDateString() === now.toDateString();
       }
       if (period === "week") {
-        const d = new Date(o.createdAt);
+        const d = new Date(b.createdAt);
         const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
         return d >= weekAgo;
       }
       if (period === "month") {
-        const d = new Date(o.createdAt);
+        const d = new Date(b.createdAt);
         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
       }
       return true;
     });
   };
 
-  const filtered = getFilteredOrders();
-  const filteredRevenue = filtered.filter(o => o.status !== "CANCELLED").reduce((s, o) => s + Number(o.total || 0), 0);
-  const cancelledCount = filtered.filter(o => o.status === "CANCELLED").length;
+  const filtered = getFilteredBookings();
+  const cancelledCount = filtered.filter(b => b.status === "CANCELLED").length;
 
   const statusBreakdown = {
-    NEW: filtered.filter(o => o.status === "NEW").length,
-    ACCEPTED: filtered.filter(o => o.status === "ACCEPTED").length,
-    READY: filtered.filter(o => o.status === "READY").length,
-    COMPLETED: filtered.filter(o => o.status === "COMPLETED").length,
+    NEW: filtered.filter(b => b.status === "NEW").length,
+    ACCEPTED: filtered.filter(b => b.status === "ACCEPTED").length,
+    READY: filtered.filter(b => b.status === "READY").length,
+    COMPLETED: filtered.filter(b => b.status === "COMPLETED").length,
     CANCELLED: cancelledCount,
   };
 
-  const topProducts = {};
-  filtered.forEach(o => {
-    (o.items || []).forEach(item => {
-      const name = item.product?.name || item.name || "Unknown";
-      if (!topProducts[name]) topProducts[name] = { name, qty: 0, revenue: 0 };
-      topProducts[name].qty += item.qty || 1;
-      topProducts[name].revenue += Number(item.price || 0) * (item.qty || 1);
+  const topServices = {};
+  filtered.forEach(b => {
+    (b.items || []).forEach(item => {
+      const name = item.product?.name || item.name || item.service?.name || "Salon Service";
+      if (!topServices[name]) topServices[name] = { name, qty: 0, revenue: 0 };
+      topServices[name].qty += item.qty || 1;
+      topServices[name].revenue += Number(item.price || 0) * (item.qty || 1);
     });
   });
-  const topProductsList = Object.values(topProducts).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+  const topServicesList = Object.values(topServices).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
 
-  const recentOrders = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 8);
+  const recentBookings = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 8);
 
-  if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>Loading website analytics...</div>;
+  const liveSiteUrl = salon?.slug ? `/salon/${salon.slug}` : "/";
+
+  if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>Loading booking analytics...</div>;
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Website Analytics</h1>
-          <p style={{ color: "#64748b", fontSize: 14, margin: "4px 0 0" }}>{salon?.name || "Salon"} e-commerce dashboard</p>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Website & Booking Analytics</h1>
+          <p style={{ color: "#64748b", fontSize: 14, margin: "4px 0 0" }}>{salon?.name || "Salon"} online service bookings, appointments & performance</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          {["today", "week", "month", "all"].map(p => (
-            <button key={p} onClick={() => setPeriod(p)} style={{
-              padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0",
-              background: period === p ? "#6366f1" : "#fff", color: period === p ? "#fff" : "#64748b",
-              fontSize: 13, fontWeight: 600, cursor: "pointer", textTransform: "capitalize"
-            }}>{p === "all" ? "All Time" : p}</button>
-          ))}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <a
+            href={liveSiteUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "1px solid #c7d2fe",
+              background: "#eef2ff",
+              color: "#4f46e5",
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none"
+            }}
+          >
+            <Globe size={14} /> View Live Website <ArrowUpRight size={14} />
+          </a>
+          <div style={{ display: "flex", gap: 6, background: "#f8fafc", padding: 4, borderRadius: 8, border: "1px solid #e2e8f0" }}>
+            {[
+              { key: "today", label: "Today" },
+              { key: "week", label: "Week" },
+              { key: "month", label: "Month" },
+              { key: "all", label: "All Time" }
+            ].map(p => (
+              <button
+                key={p.key}
+                onClick={() => setPeriod(p.key)}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: period === p.key ? "#4f46e5" : "transparent",
+                  color: period === p.key ? "#fff" : "#64748b",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Store Status */}
-      {!stats?.storeEnabled && (
-        <div style={{ background: "#fef3c7", border: "1px solid #fbbf24", borderRadius: 12, padding: 16, marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 20 }}>⚠️</span>
-          <div>
-            <div style={{ fontWeight: 600, color: "#92400e" }}>E-commerce is disabled</div>
-            <div style={{ fontSize: 13, color: "#a16207" }}>Enable your online store in E-commerce Settings to start receiving orders.</div>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Cards */}
+      {/* Top Booking KPI Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
         {[
-          { label: "Total Orders", value: stats?.totalOrders || 0, color: "#6366f1", bg: "#eef2ff" },
-          { label: "Revenue", value: `${currency} ${(stats?.totalSales || 0).toFixed(0)}`, color: "#10b981", bg: "#ecfdf5" },
-          { label: "Avg Order Value", value: `${currency} ${(stats?.avgOrderValue || 0).toFixed(0)}`, color: "#f59e0b", bg: "#fffbeb" },
-          { label: "New Orders", value: statusBreakdown.NEW, color: "#3b82f6", bg: "#eff6ff" },
-          { label: "Completed", value: statusBreakdown.COMPLETED, color: "#10b981", bg: "#ecfdf5" },
+          { label: "Total Bookings", value: stats?.totalOrders || filtered.length, color: "#4f46e5", bg: "#eef2ff" },
+          { label: "Booking Revenue", value: `${currency} ${Number(stats?.totalSales || 0).toLocaleString("en-IN")}`, color: "#10b981", bg: "#ecfdf5" },
+          { label: "Avg Booking Value", value: `${currency} ${Number(stats?.avgBookingValue || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, color: "#f59e0b", bg: "#fffbeb" },
+          { label: "Pending Bookings", value: statusBreakdown.NEW, color: "#3b82f6", bg: "#eff6ff" },
+          { label: "Completed Bookings", value: statusBreakdown.COMPLETED, color: "#10b981", bg: "#ecfdf5" },
           { label: "Cancelled", value: statusBreakdown.CANCELLED, color: "#ef4444", bg: "#fef2f2" },
         ].map((c, i) => (
-          <div key={i} style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", borderLeft: `4px solid ${c.color}` }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.3px" }}>{c.label}</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: c.color }}>{c.value}</div>
+          <div key={i} style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", borderLeft: `4px solid ${c.color}`, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.label}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: c.color }}>{c.value}</div>
           </div>
         ))}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 32 }}>
-        {/* Order Status Breakdown */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", margin: "0 0 20px" }}>Order Status Breakdown</h3>
-          {Object.entries(statusBreakdown).map(([status, count]) => {
-            const colors = { NEW: "#3b82f6", ACCEPTED: "#f59e0b", READY: "#8b5cf6", COMPLETED: "#10b981", CANCELLED: "#ef4444" };
+        {/* Booking Status Breakdown */}
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 20px" }}>Online Booking Status Breakdown</h3>
+          {[
+            { key: "NEW", label: "Pending (New)", color: "#3b82f6" },
+            { key: "ACCEPTED", label: "Confirmed", color: "#f59e0b" },
+            { key: "READY", label: "In Service / Progress", color: "#8b5cf6" },
+            { key: "COMPLETED", label: "Completed", color: "#10b981" },
+            { key: "CANCELLED", label: "Cancelled", color: "#ef4444" }
+          ].map(({ key, label, color }) => {
+            const count = statusBreakdown[key] || 0;
             const pct = filtered.length > 0 ? (count / filtered.length * 100) : 0;
             return (
-              <div key={status} style={{ marginBottom: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
-                  <span style={{ fontWeight: 500, color: "#334155" }}>{status}</span>
-                  <span style={{ color: "#64748b" }}>{count} ({pct.toFixed(0)}%)</span>
+              <div key={key} style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
+                  <span style={{ fontWeight: 600, color: "#334155" }}>{label}</span>
+                  <span style={{ color: "#64748b", fontWeight: 700 }}>{count} ({pct.toFixed(0)}%)</span>
                 </div>
                 <div style={{ height: 8, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${pct}%`, background: colors[status], borderRadius: 4, transition: "width 0.5s" }} />
+                  <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 4, transition: "width 0.5s" }} />
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Top Products */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", margin: "0 0 20px" }}>Top Selling Products</h3>
-          {topProductsList.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 14 }}>No product sales yet.</p>
-          ) : topProductsList.map((p, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < topProductsList.length - 1 ? "1px solid #f1f5f9" : "none" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ width: 28, height: 28, borderRadius: 8, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#6366f1" }}>#{i + 1}</span>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{p.name}</span>
+        {/* Top Booked Services */}
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 20px" }}>Top Booked Services</h3>
+          {topServicesList.length === 0 ? (
+            <div style={{ padding: "30px 0", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>No online service bookings in this timeframe yet.</div>
+          ) : topServicesList.map((p, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: i < topServicesList.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: 8, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#4f46e5" }}>#{i + 1}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>{p.name}</span>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>{currency} {p.revenue.toFixed(0)}</div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>{p.qty} sold</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{currency} {Number(p.revenue || 0).toLocaleString("en-IN")}</div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>{p.qty} booked</div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Storefront Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24, marginBottom: 32 }}>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center" }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>📦</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: "#0f172a" }}>{stats?.totalProducts || 0}</div>
-          <div style={{ fontSize: 13, color: "#64748b" }}>Total Products</div>
-          <div style={{ fontSize: 12, color: "#10b981", marginTop: 4 }}>{stats?.visibleProducts || 0} visible on store</div>
+      {/* Online Catalog & Services Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 32 }}>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ fontSize: 30, marginBottom: 6 }}>✂️</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>{services.length || 0}</div>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Active Salon Services</div>
+          <div style={{ fontSize: 12, color: "#10b981", marginTop: 4, fontWeight: 600 }}>Available for online booking</div>
         </div>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center" }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: "#0f172a" }}>{stats?.totalCategories || 0}</div>
-          <div style={{ fontSize: 13, color: "#64748b" }}>Categories</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ fontSize: 30, marginBottom: 6 }}>📂</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>{categories.length || 0}</div>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Service Categories</div>
         </div>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center" }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>💰</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: "#10b981" }}>{currency} {(stats?.totalSales || 0).toFixed(0)}</div>
-          <div style={{ fontSize: 13, color: "#64748b" }}>Total Revenue</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{stats?.totalOrders || 0} orders fulfilled</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ fontSize: 30, marginBottom: 6 }}>💳</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "#10b981" }}>{currency} {Number(stats?.totalSales || 0).toLocaleString("en-IN")}</div>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Total Booking Revenue</div>
+          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{stats?.totalOrders || filtered.length} bookings fulfilled</div>
         </div>
       </div>
 
-      {/* Recent Orders Table */}
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
+      {/* Recent Online Bookings Table */}
+      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
         <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", margin: 0 }}>Recent Orders</h3>
-          <span style={{ fontSize: 13, color: "#64748b" }}>{filtered.length} total</span>
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0 }}>Recent Online Service Bookings</h3>
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>Latest customer appointments booked through salon website</p>
+          </div>
+          <Link to="/admin/order-dashboard" style={{ fontSize: 13, color: "#4f46e5", fontWeight: 700, textDecoration: "none" }}>
+            View All Bookings →
+          </Link>
         </div>
-        {recentOrders.length === 0 ? (
-          <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>No orders yet</div>
+        {recentBookings.length === 0 ? (
+          <div style={{ padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>No online bookings recorded yet.</div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
-                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Order</th>
-                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Customer</th>
-                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Items</th>
-                <th style={{ padding: "12px 16px", textAlign: "right", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Total</th>
-                <th style={{ padding: "12px 16px", textAlign: "center", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Status</th>
-                <th style={{ padding: "12px 16px", textAlign: "center", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Payment</th>
-                <th style={{ padding: "12px 16px", textAlign: "right", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>Date</th>
+              <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Booking ID</th>
+                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Guest / Customer</th>
+                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Services</th>
+                <th style={{ padding: "12px 16px", textAlign: "right", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Amount</th>
+                <th style={{ padding: "12px 16px", textAlign: "center", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Booking Status</th>
+                <th style={{ padding: "12px 16px", textAlign: "center", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Payment</th>
+                <th style={{ padding: "12px 16px", textAlign: "right", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Date</th>
               </tr>
             </thead>
             <tbody>
-              {recentOrders.map(order => {
-                const statusColors = { NEW: "#3b82f6", ACCEPTED: "#f59e0b", READY: "#8b5cf6", COMPLETED: "#10b981", CANCELLED: "#ef4444" };
-                const statusBg = { NEW: "#eff6ff", ACCEPTED: "#fffbeb", READY: "#f5f3ff", COMPLETED: "#ecfdf5", CANCELLED: "#fef2f2" };
-                const payColors = { PENDING: "#f59e0b", PAID: "#10b981", FAILED: "#ef4444" };
+              {recentBookings.map(b => {
+                const statusMeta = {
+                  NEW: { label: "Pending", bg: "#eff6ff", color: "#1d4ed8" },
+                  ACCEPTED: { label: "Confirmed", bg: "#fffbeb", color: "#b45309" },
+                  READY: { label: "In Progress", bg: "#f5f3ff", color: "#7c3aed" },
+                  COMPLETED: { label: "Completed", bg: "#ecfdf5", color: "#047857" },
+                  CANCELLED: { label: "Cancelled", bg: "#fef2f2", color: "#b91c1c" }
+                };
+                const st = statusMeta[b.status] || { label: b.status, bg: "#f1f5f9", color: "#475569" };
+                const isPaid = b.paymentStatus === "PAID";
                 return (
-                  <tr key={order.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: "12px 16px", fontSize: 14, fontWeight: 600, color: "#6366f1" }}>{order.orderNumber || order.id.slice(0, 8)}</td>
-                    <td style={{ padding: "12px 16px", fontSize: 14 }}>{order.customerName || "Guest"}</td>
-                    <td style={{ padding: "12px 16px", fontSize: 14, color: "#64748b" }}>{order.items?.length || 0} items</td>
-                    <td style={{ padding: "12px 16px", fontSize: 14, fontWeight: 600, textAlign: "right" }}>{currency} {Number(order.total || 0).toFixed(2)}</td>
-                    <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                      <span style={{ padding: "4px 10px", borderRadius: 100, fontSize: 12, fontWeight: 600, background: statusBg[order.status] || "#f1f5f9", color: statusColors[order.status] || "#64748b" }}>{order.status}</span>
+                  <tr key={b.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: "#4f46e5" }}>
+                      {b.orderNumber || b.id.slice(0, 8).toUpperCase()}
                     </td>
-                    <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                      <span style={{ padding: "4px 10px", borderRadius: 100, fontSize: 12, fontWeight: 600, background: order.paymentStatus === "PAID" ? "#ecfdf5" : "#fffbeb", color: payColors[order.paymentStatus] || "#64748b" }}>{order.paymentStatus || "PENDING"}</span>
+                    <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 600, color: "#1e293b" }}>
+                      {b.customerName || "Guest User"}
                     </td>
-                    <td style={{ padding: "12px 16px", fontSize: 13, color: "#64748b", textAlign: "right" }}>{new Date(order.createdAt).toLocaleDateString("en-IN")}</td>
+                    <td style={{ padding: "14px 16px", fontSize: 13, color: "#475569" }}>
+                      {(b.items && b.items.length > 0) ? b.items.map(i => i.name || i.product?.name || "Service").join(", ") : "Salon Service"}
+                    </td>
+                    <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 800, textAlign: "right", color: "#0f172a" }}>
+                      {currency} {Number(b.total || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td style={{ padding: "14px 16px", textAlign: "center" }}>
+                      <span style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: st.bg, color: st.color }}>
+                        {st.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px", textAlign: "center" }}>
+                      <span style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: isPaid ? "#ecfdf5" : "#f1f5f9", color: isPaid ? "#047857" : "#475569" }}>
+                        {isPaid ? "Paid Online" : "Pay at Salon"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px", fontSize: 12, color: "#64748b", textAlign: "right" }}>
+                      {b.createdAt ? new Date(b.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                    </td>
                   </tr>
                 );
               })}
