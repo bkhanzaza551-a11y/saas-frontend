@@ -255,7 +255,7 @@ export default function DemoLeadsPage() {
     }
   };
 
-  const generateZohoMeetingLink = async (leadId) => {
+  const generateMeetLink = async (leadId) => {
     setBusyId(leadId);
     setActionType("generate-link");
     try {
@@ -264,9 +264,10 @@ export default function DemoLeadsPage() {
         updateDraft(leadId, "meetingLink", res.data.meetingUrl);
       }
     } catch (err) {
-      console.warn("Backend Zoho API call failed, generating room URL:", err);
-      const meetCode = `rsp-${Math.random().toString(36).substring(2, 8)}`;
-      updateDraft(leadId, "meetingLink", `https://meeting.zoho.com/meeting/join?key=${meetCode}`);
+      console.warn("Backend API call failed, generating room URL:", err);
+      const randomStr = Math.random().toString(36).substring(2, 12).padEnd(10, 'a');
+      const meetCode = `${randomStr.substring(0,3)}-${randomStr.substring(3,7)}-${randomStr.substring(7,10)}`;
+      updateDraft(leadId, "meetingLink", `https://meet.google.com/${meetCode}`);
     } finally {
       setBusyId("");
       setActionType("");
@@ -276,7 +277,7 @@ export default function DemoLeadsPage() {
   const openCalendarInvite = (row, type = "google") => {
     const draft = draftsById[row.id] || {};
     const meetingTime = draft.meetingScheduledAt ? new Date(draft.meetingScheduledAt) : new Date();
-    const meetLink = draft.meetingLink || "https://meeting.zoho.com";
+    const meetLink = draft.meetingLink || "https://meet.google.com/new";
 
     const title = `SalonNest Product Demo - ${row.company || row.name}`;
     const description = `Product Demo walkthrough for ${row.name} (${row.phone}).\n\nMeeting: ${meetLink}\nEmail: ${row.email}`;
@@ -895,7 +896,7 @@ export default function DemoLeadsPage() {
                         <button
                           type="button"
                           disabled={isConverted || (isBusy && actionType === "generate-link")}
-                          onClick={() => generateZohoMeetingLink(row.id)}
+                          onClick={() => generateMeetLink(row.id)}
                           style={{
                             padding: "8px 14px",
                             background: "#e0e7ff",
