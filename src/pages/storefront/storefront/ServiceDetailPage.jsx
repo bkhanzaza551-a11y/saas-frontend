@@ -20,6 +20,17 @@ function formatDuration(minutes) {
   return `${m}m`;
 }
 
+export function formatTime12Hour(time24) {
+  if (!time24) return "";
+  const [hStr, mStr] = time24.split(":");
+  let h = parseInt(hStr, 10);
+  const m = mStr || "00";
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
+}
+
 export default function ServiceDetailPage() {
   const { salon, addBooking } = useOutletContext();
   const { id } = useParams();
@@ -293,7 +304,7 @@ export default function ServiceDetailPage() {
                   >
                     <option value="">Select a time</option>
                     {TIME_OPTIONS.map(t => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>{formatTime12Hour(t)}</option>
                     ))}
                   </select>
                 </div>

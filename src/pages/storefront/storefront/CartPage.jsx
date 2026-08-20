@@ -11,6 +11,17 @@ function formatDuration(minutes) {
   return `${m}m`;
 }
 
+export function formatTime12Hour(time24) {
+  if (!time24) return "";
+  const [hStr, mStr] = time24.split(":");
+  let h = parseInt(hStr, 10);
+  const m = mStr || "00";
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
+}
+
 const TIME_OPTIONS = [];
 for (let h = 0; h < 24; h++) {
   for (let m = 0; m < 60; m += 30) {
@@ -108,7 +119,7 @@ export default function CartPage() {
                   }}
                 >
                   {TIME_OPTIONS.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t}>{formatTime12Hour(t)}</option>
                   ))}
                 </select>
               </div>

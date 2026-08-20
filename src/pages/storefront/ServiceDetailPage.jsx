@@ -23,6 +23,17 @@ function formatDuration(minutes) {
   return `${m}m`;
 }
 
+export function formatTime12Hour(time24) {
+  if (!time24) return "";
+  const [hStr, mStr] = time24.split(":");
+  let h = parseInt(hStr, 10);
+  const m = mStr || "00";
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
+}
+
 export default function ServiceDetailPage() {
   const { showAlert } = useAlert();
   const { salon, addBooking, selectedBranchId, setSelectedBranchId } = useOutletContext();
@@ -270,7 +281,7 @@ export default function ServiceDetailPage() {
                     <span>Time</span>
                     {checkingSlots && <span style={{ color: "var(--text-muted)", fontWeight: 300, textTransform: 'none', letterSpacing: 'normal' }}>Checking...</span>}
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 12, marginTop: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(98px, 1fr))', gap: 10, marginTop: 12 }}>
                     {TIME_OPTIONS.map(t => {
                       const booked = isSlotBooked(t);
                       return (
@@ -280,19 +291,20 @@ export default function ServiceDetailPage() {
                            onClick={() => setSelectedTime(t)}
                            title={booked ? "Already booked" : "Available"}
                            style={{
-                             padding: "12px 0",
+                             padding: "10px 4px",
                              textAlign: "center",
                              border: selectedTime === t ? "1px solid var(--accent)" : "1px solid var(--border)",
                              background: booked ? "#f3f4f6" : (selectedTime === t ? "var(--accent)" : "var(--surface)"),
                              color: booked ? "#9ca3af" : (selectedTime === t ? "#fff" : "var(--text-main)"),
                              cursor: booked ? "not-allowed" : "pointer",
-                             fontWeight: 500,
-                             fontSize: "0.9rem",
+                             fontWeight: 600,
+                             fontSize: "0.82rem",
                              borderRadius: "8px",
-                             transition: "var(--transition)"
+                             transition: "var(--transition)",
+                             whiteSpace: "nowrap"
                            }}
                          >
-                           {t}
+                           {formatTime12Hour(t)}
                          </button>
                       );
                     })}
