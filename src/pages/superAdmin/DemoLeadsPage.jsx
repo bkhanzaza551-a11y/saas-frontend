@@ -5,7 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { CheckCircle, XCircle, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2 } from "lucide-react";
 
 const PIPELINE = [
   { value: "NEW", label: "New", color: "#3b82f6", bg: "#eff6ff" },
@@ -1282,8 +1282,26 @@ export default function DemoLeadsPage() {
           <div style={{ background: "white", width: "100%", maxWidth: 540, borderRadius: 20, padding: "28px 32px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
               <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>Add New Lead</h2>
-              <button onClick={() => { setIsAddModalOpen(false); setDuplicateInfo(null); }} style={{ border: "none", background: "#f1f5f9", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b", transition: "all 0.2s" }} onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>
-                <XCircle size={18} />
+              <button
+                type="button"
+                onClick={() => { setIsAddModalOpen(false); setDuplicateInfo(null); }}
+                style={{
+                  border: "none",
+                  background: "#f1f5f9",
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  color: "#475569",
+                  transition: "all 0.2s"
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#475569"; }}
+              >
+                <X size={18} />
               </button>
             </div>
 

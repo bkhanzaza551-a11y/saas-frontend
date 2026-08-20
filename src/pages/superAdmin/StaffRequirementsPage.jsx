@@ -164,13 +164,14 @@ export default function SuperAdminStaffRequirementsPage() {
 
         <div style={{ display: "flex", gap: 10, alignItems: "center", flex: "1 1 450px", maxWidth: 560, justifyContent: "flex-end" }}>
           <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-            <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
+            <Search size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none", zIndex: 2 }} />
             <input
               type="text"
+              className="search-input-field"
               placeholder="Search role, skills, salon..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              style={{ width: "100%", height: 38, padding: "0 12px 0 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none", background: "#f8fafc" }}
+              style={{ width: "100%", height: 38, padding: "8px 12px 8px 42px", paddingLeft: "42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none", background: "#f8fafc" }}
             />
           </div>
 
