@@ -794,10 +794,14 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
             
             {isProfileOpen && (
               <div className="profile-dropdown" onClick={e => e.stopPropagation()}>
-                <div className="profile-dropdown-name">{auth?.user?.name || "Admin"}</div>
-                <div className="profile-dropdown-role" style={{ marginBottom: 4 }}>{auth?.user?.email || "admin@example.com"}</div>
+                <div className="profile-dropdown-name">{auth?.user?.name || salonName || "Admin"}</div>
+                {(auth?.user?.email || auth?.membership?.salon?.email) && (
+                  <div className="profile-dropdown-role" style={{ marginBottom: 4 }}>
+                    {auth?.user?.email || auth?.membership?.salon?.email}
+                  </div>
+                )}
                 <div className="profile-dropdown-role" style={{ fontWeight: 600, color: "#3b82f6", marginBottom: 8 }}>
-                  {auth?.user?.systemRole === "SUPER_ADMIN" ? (auth?.user?.adminRole?.name || auth?.user?.role?.name || "Master Admin") : salonName}
+                  {auth?.user?.systemRole === "SUPER_ADMIN" ? (auth?.user?.adminRole?.name || auth?.user?.role?.name || "Master Admin") : (salonName || auth?.membership?.salonName || "Salon Owner")}
                 </div>
                 {auth?.user?.systemRole !== "SUPER_ADMIN" && auth?.memberships?.length > 1 && (
                   <div style={{ marginBottom: 12, position: "relative" }}>
