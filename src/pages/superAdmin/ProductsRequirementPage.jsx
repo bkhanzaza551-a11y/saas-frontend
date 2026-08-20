@@ -433,10 +433,11 @@ export default function SuperAdminProductsRequirementPage() {
                 <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                 <input
                   type="text"
+                  className="search-input-field"
                   placeholder="Search Product Name, Brand, Category, Pack Size..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  style={{ width: "100%", padding: "10px 12px 10px 36px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px 12px", paddingLeft: "42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                 />
               </div>
 
