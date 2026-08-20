@@ -3,6 +3,19 @@ import { useOutletContext, Link } from "react-router-dom";
 import { api } from "../../api/client";
 import { CalendarSearch, XCircle } from "lucide-react";
 
+function formatTime12Hour(time24) {
+  if (!time24) return "";
+  if (time24.includes("AM") || time24.includes("PM")) return time24;
+  const [hStr, mStr] = time24.split(":");
+  let h = parseInt(hStr, 10);
+  if (isNaN(h)) return time24;
+  const m = mStr || "00";
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
+}
+
 export default function MyBookingsPage() {
   const { salon } = useOutletContext();
   const [phone, setPhone] = useState(() => localStorage.getItem("sf_customer_phone") || "");
@@ -109,8 +122,8 @@ export default function MyBookingsPage() {
               {bookings.map((booking, i) => {
                 const serviceTitle = booking.serviceInfo?.serviceName || booking.serviceName || "Premium Service";
                 const bookingDateTime = booking.serviceInfo?.preferredDate 
-                  ? `${booking.serviceInfo.preferredDate} at ${booking.serviceInfo.preferredTime || ""}`
-                  : (booking.startAt ? new Date(booking.startAt).toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : "Scheduled Appointment");
+                  ? `${booking.serviceInfo.preferredDate} at ${formatTime12Hour(booking.serviceInfo.preferredTime)}`
+                  : (booking.startAt ? new Date(booking.startAt).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : "Scheduled Appointment");
                 const canCancel = ["PENDING", "CONFIRMED", "NEW"].includes(booking.status);
 
                 return (

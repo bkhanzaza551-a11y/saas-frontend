@@ -3,6 +3,19 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { Check, CalendarDays, ArrowRight } from "lucide-react";
 
+function formatTime12Hour(time24) {
+  if (!time24) return "";
+  if (time24.includes("AM") || time24.includes("PM")) return time24;
+  const [hStr, mStr] = time24.split(":");
+  let h = parseInt(hStr, 10);
+  if (isNaN(h)) return time24;
+  const m = mStr || "00";
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
+}
+
 export default function BookingConfirmationPage() {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
@@ -41,6 +54,26 @@ export default function BookingConfirmationPage() {
     );
   }
 
+  const rawDate = booking?.serviceInfo?.preferredDate;
+  const rawTime = booking?.serviceInfo?.preferredTime;
+  let formattedDisplayDateTime = "";
+  if (rawDate) {
+    const formattedTime = formatTime12Hour(rawTime);
+    try {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        formattedDisplayDateTime = `${dStr} at ${formattedTime}`;
+      } else {
+        formattedDisplayDateTime = `${rawDate} at ${formattedTime}`;
+      }
+    } catch (e) {
+      formattedDisplayDateTime = `${rawDate} at ${formattedTime}`;
+    }
+  } else if (booking?.startAt) {
+    formattedDisplayDateTime = `${new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} at ${new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+  }
+
   return (
     <div className="storefront-wrapper" style={{ background: 'var(--surface)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px' }}>
       <div style={{ maxWidth: 700, width: '100%', margin: '0 auto', background: 'var(--bg-main)', padding: '60px 48px', border: '1px solid var(--border)', textAlign: 'center', position: 'relative', overflow: 'hidden', borderRadius: '32px', boxShadow: '0 24px 64px -12px rgba(0,0,0,0.08)' }}>
@@ -71,7 +104,7 @@ export default function BookingConfirmationPage() {
                   <span style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--accent)', background: 'rgba(200, 169, 126, 0.1)', padding: '6px 16px', borderRadius: '100px' }}>{orderNumber}</span>
                 </div>
                 
-                {(booking?.serviceInfo?.preferredDate || booking?.startAt) && (
+                {formattedDisplayDateTime && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-main)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
                       <CalendarDays size={24} strokeWidth={1.5} />
@@ -79,10 +112,7 @@ export default function BookingConfirmationPage() {
                     <div>
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 4 }}>Date & Time</div>
                       <div style={{ color: 'var(--text-main)', fontSize: '1.1rem', fontWeight: 500 }}>
-                        {booking?.serviceInfo?.preferredDate 
-                          ? `${booking.serviceInfo.preferredDate} at ${booking.serviceInfo.preferredTime || ""}`
-                          : `${new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })} at ${new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
-                        }
+                        {formattedDisplayDateTime}
                       </div>
                     </div>
                   </div>
