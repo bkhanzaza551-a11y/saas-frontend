@@ -26,13 +26,42 @@ export default function LoginPage() {
   const [resendMsg, setResendMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const getLoginRedirectPath = (authData) => {
+    if (authData?.user?.systemRole === "SUPER_ADMIN") {
+      return "/super-admin/dashboard";
+    }
+    const salonRole = authData?.membership?.salonRole;
+    const perms = authData?.membership?.permissions || {};
+    const isOwner = salonRole === "SALON_OWNER";
+
+    if (isOwner) return "/admin/dashboard";
+
+    const has = (k) => {
+      const camel = k.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      const snake = k.replace(/([A-Z])/g, "_$1").toLowerCase();
+      return (
+        (Array.isArray(perms[k]) && perms[k].length > 0) ||
+        (Array.isArray(perms[camel]) && perms[camel].length > 0) ||
+        (Array.isArray(perms[snake]) && perms[snake].length > 0)
+      );
+    };
+
+    if (has("dashboard")) return "/admin/dashboard";
+    if (has("my_dashboard") || has("myDashboard")) return "/admin/my-dashboard";
+    if (has("appointments")) return "/admin/appointments";
+    if (has("my_appointments") || has("myAppointments")) return "/admin/my-appointments";
+    if (has("pos")) return "/admin/pos";
+    if (has("customers")) return "/admin/customers";
+    if (has("my_schedule") || has("mySchedule")) return "/admin/my-schedule";
+    if (has("my_attendance") || has("myAttendance")) return "/admin/my-attendance";
+    if (has("my_profile") || has("myProfile")) return "/admin/my-profile";
+
+    return "/admin/my-dashboard";
+  };
+
   useEffect(() => {
     if (auth) {
-      if (auth.user?.systemRole === "SUPER_ADMIN") {
-        nav("/super-admin/dashboard");
-      } else {
-        nav("/admin/dashboard");
-      }
+      nav(getLoginRedirectPath(auth));
     }
   }, [auth, nav]);
 
@@ -69,11 +98,7 @@ export default function LoginPage() {
         setResendTimer(60);
         setOtpMode(true);
       } else {
-        if (res?.user?.systemRole === "SUPER_ADMIN") {
-          nav("/super-admin/dashboard");
-        } else {
-          nav("/admin/dashboard");
-        }
+        nav(getLoginRedirectPath(res));
       }
     } catch (error) {
       setErr(formatApiError(error, "Login failed"));
@@ -115,11 +140,7 @@ export default function LoginPage() {
         otp
       };
       const res = await verifyOtp(payload, rememberMe);
-      if (res?.user?.systemRole === "SUPER_ADMIN") {
-        nav("/super-admin/dashboard");
-      } else {
-        nav("/admin/dashboard");
-      }
+      nav(getLoginRedirectPath(res));
     } catch (error) {
       setErr(formatApiError(error, "Verification failed"));
     } finally {

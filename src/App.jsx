@@ -199,69 +199,77 @@ const Protected = () => {
   const perms = auth.membership?.permissions || {};
   const flags = auth.membership?.featureFlags || {};
   const salonRole = auth.membership?.salonRole || "";
-  const can = (key, action = "view") => Array.isArray(perms[key]) && perms[key].includes(action);
-  const enabled = (key) => !key || flags[key] === true;
   const isOwner = salonRole === "SALON_OWNER";
+  const can = (key, action = "view") => {
+    if (isOwner) return true;
+    if (!key) return false;
+    const camel = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+    const snake = key.replace(/([A-Z])/g, "_$1").toLowerCase();
+    const has = (k) => Array.isArray(perms[k]) && perms[k].includes(action);
+    return has(key) || has(camel) || has(snake);
+  };
+  const enabled = (key) => !key || flags[key] === true;
   const shouldShowMyWorkspace = salonRole && !isOwner;
   const currentSalonSlug = auth.membership?.salon?.slug || auth.membership?.salonSlug || auth.salonSlug || auth.salon?.slug;
   const liveSiteUrl = currentSalonSlug ? `/site/${currentSalonSlug}` : "/admin/view-live-site";
 
   const myWorkspaceItems = [
-    { label: "My Dashboard", to: "/admin/my-dashboard" },
-    { label: "My Attendance", to: "/admin/my-attendance" },
-    { label: "My Appointments", to: "/admin/my-appointments" },
-    { label: "My Schedule", to: "/admin/my-schedule" },
-    { label: "My Profile", to: "/admin/my-profile" }
-  ];
-  const groups = [
-        {
-          label: "Operations",
-          hint: "Daily flow",
-          items: [
-            { label: "Dashboard", to: "/admin/dashboard" },
-            enabled("pos") && { label: "Global Dashboard", to: "/admin/global-dashboard" },
-            enabled("pos") && { label: "New Sale", to: "/admin/pos" },
-            enabled("pos") && { label: "POS Dashboard", to: "/admin/pos-dashboard" },
-            { label: "Appointments", to: "/admin/appointments" },
-            enabled("crm") && { label: "Customer", to: "/admin/customers" },
-            enabled("reports") && { label: "Reports", to: "/admin/reports" },
-            enabled("reports") && { label: "Trends", to: "/admin/trends" },
-            enabled("attendance") && { label: "Attendance Management", to: "/admin/attendance" },
-          ].filter(Boolean)
-        },
+    (isOwner || can("myDashboard", "view") || can("my_dashboard", "view")) && { label: "My Dashboard", to: "/admin/my-dashboard" },
+    (isOwner || can("myAttendance", "view") || can("my_attendance", "view")) && { label: "My Attendance", to: "/admin/my-attendance" },
+    (isOwner || can("myAppointments", "view") || can("my_appointments", "view")) && { label: "My Appointments", to: "/admin/my-appointments" },
+    (isOwner || can("mySchedule", "view") || can("my_schedule", "view")) && { label: "My Schedule", to: "/admin/my-schedule" },
+    (isOwner || can("myProfile", "view") || can("my_profile", "view")) && { label: "My Profile", to: "/admin/my-profile" }
+  ].filter(Boolean);
 
-        {
-          label: "Website",
-          hint: "Storefront & Portal",
-          items: [
-            can("settings", "edit") && { label: "Website Editor", to: "/admin/website-editor" },
-            can("settings", "view") && enabled("catalogAnalytics") && { label: "Website Analytics", to: "/admin/website-analytics" },
-            can("orders", "view") && enabled("onlineOrders") && { label: "Bookings", to: "/admin/order-dashboard" },
-            { label: "View Live Site", to: liveSiteUrl }
-          ].filter(Boolean)
+  const groups = [
+    {
+      label: "Operations",
+      hint: "Daily flow",
+      items: [
+        can("dashboard", "view") && { label: "Dashboard", to: "/admin/dashboard" },
+        can("pos", "view") && enabled("pos") && { label: "Global Dashboard", to: "/admin/global-dashboard" },
+        can("pos", "create") && enabled("pos") && { label: "New Sale", to: "/admin/pos" },
+        can("pos", "view") && enabled("pos") && { label: "POS Dashboard", to: "/admin/pos-dashboard" },
+        can("appointments", "view") && { label: "Appointments", to: "/admin/appointments" },
+        can("customers", "view") && enabled("crm") && { label: "Customer", to: "/admin/customers" },
+        can("reports", "view") && enabled("reports") && { label: "Reports", to: "/admin/reports" },
+        can("reports", "view") && enabled("reports") && { label: "Trends", to: "/admin/trends" },
+        can("attendance", "view") && enabled("attendance") && { label: "Attendance Management", to: "/admin/attendance" },
+      ].filter(Boolean)
+    },
+
+    {
+      label: "Website",
+      hint: "Storefront & Portal",
+      items: [
+        can("settings", "edit") && { label: "Website Editor", to: "/admin/website-editor" },
+        can("settings", "view") && enabled("catalogAnalytics") && { label: "Website Analytics", to: "/admin/website-analytics" },
+        can("orders", "view") && enabled("onlineOrders") && { label: "Bookings", to: "/admin/order-dashboard" },
+        (isOwner || can("website", "view")) && { label: "View Live Site", to: liveSiteUrl }
+      ].filter(Boolean)
+    },
+    {
+      label: "System",
+      hint: "Help and config",
+      items: [
+        can("settings", "edit") && {
+          label: "Settings",
+          to: "/admin/settings/generic"
         },
-        {
-          label: "System",
-          hint: "Help and config",
-          items: [
-            can("settings", "edit") && {
-              label: "Settings",
-              to: "/admin/settings/generic"
-            },
-            { label: "Salon Details", to: "/admin/salon-details" }
-          ].filter(Boolean)
-        },
-        {
-          label: "Manage",
-          to: "/admin/manage",
-          hint: "Salon lifecycle hub"
-        },
-        {
-          label: "Support",
-          to: "/admin/support-tickets",
-          hint: "Tickets & assistance"
-        }
-      ].filter((group) => group.to || (Array.isArray(group?.items) && group.items.length > 0));
+        (isOwner || can("settings", "view")) && { label: "Salon Details", to: "/admin/salon-details" }
+      ].filter(Boolean)
+    },
+    (isOwner || can("manage", "view") || can("services", "view") || can("staff", "view") || can("inventory", "view")) ? {
+      label: "Manage",
+      to: "/admin/manage",
+      hint: "Salon lifecycle hub"
+    } : null,
+    (isOwner || can("support", "view")) ? {
+      label: "Support",
+      to: "/admin/support-tickets",
+      hint: "Tickets & assistance"
+    } : null
+  ].filter(Boolean).filter((group) => group.to || (Array.isArray(group?.items) && group.items.length > 0));
 
   const settingsGroups = [
     {
@@ -394,29 +402,7 @@ const Protected = () => {
               items: myWorkspaceItems
             }]
           : []),
-        ...(isOwner
-          ? groups
-          : groups.map((group) => ({
-              ...group,
-              items: Array.isArray(group.items)
-                ? group.items.filter((item) => {
-                    if (!item || !item.to) return false;
-                    const pageKey = item.to.split("/").pop();
-                    const moduleMap = {
-                      dashboard: "dashboard", pos: "pos", "pos-dashboard": "pos",
-                      "global-dashboard": "pos", appointments: "appointments",
-                      customers: "customers", reports: "reports", trends: "reports",
-                      attendance: "attendance", "website-editor": "settings",
-                      "website-analytics": "settings", "order-dashboard": "orders",
-                      settings: "settings", "salon-details": "settings",
-                      "support-tickets": "support"
-                    };
-                    const modKey = moduleMap[pageKey] || pageKey;
-                    return can(modKey) || can(modKey, "view");
-                  })
-                : group.to ? [] : []
-            })).filter((g) => g.to || (Array.isArray(g.items) && g.items.length > 0))
-        )
+        ...groups
       ];
 
   return (
@@ -481,6 +467,12 @@ const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
   }
 
   if (!allowed) {
+    if (moduleKey === "dashboard" && auth.membership?.salonRole !== "SALON_OWNER") {
+      if (Array.isArray(permissions.appointments) && permissions.appointments.includes("view")) {
+        return <Navigate to="/admin/appointments" replace />;
+      }
+      return <Navigate to="/admin/my-dashboard" replace />;
+    }
     return <AccessNotice title="Access Restricted" message="You are logged in, but this module is not assigned to your current role permissions." />;
   }
 
