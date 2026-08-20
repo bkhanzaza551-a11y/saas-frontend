@@ -429,30 +429,53 @@ export default function SuperAdminSupportTicketsPage() {
             {/* Top Navigation Bar */}
             <div style={{ padding: "14px 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", background: "#eef2ff", padding: "4px 10px", borderRadius: 6, border: "1px solid #e0e7ff" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", background: "#eef2ff", padding: "5px 10px", borderRadius: 6, border: "1px solid #e0e7ff" }}>
                   #{selectedTicket.id.substring(0, 8)}
                 </span>
-                <span style={{ 
-                  fontSize: "0.72rem", 
-                  fontWeight: 800, 
-                  background: STATUSES.find(s => s.value === selectedTicket.status)?.bg || "#f1f5f9", 
-                  color: STATUSES.find(s => s.value === selectedTicket.status)?.color || "#475569", 
-                  padding: "4px 10px", 
-                  borderRadius: 6 
-                }}>
-                  {STATUSES.find(s => s.value === selectedTicket.status)?.label || selectedTicket.status}
-                </span>
-                <span style={{ 
-                  fontSize: "0.72rem", 
-                  fontWeight: 800, 
-                  background: PRIORITIES.find(p => p.value === selectedTicket.priority)?.bg || "#f1f5f9", 
-                  color: PRIORITIES.find(p => p.value === selectedTicket.priority)?.color || "#475569", 
-                  padding: "4px 10px", 
-                  borderRadius: 6 
-                }}>
-                  {selectedTicket.priority} Priority
-                </span>
-                <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+
+                {/* Status Dropdown */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748b" }}>Status:</span>
+                  <CustomSelect
+                    value={selectedTicket.status}
+                    onChange={e => {
+                      const nextStatus = e.target.value;
+                      if (nextStatus === "CLOSED") {
+                        setClosingTicketId(selectedTicket.id);
+                        setClosureReason("");
+                      } else {
+                        updateTicket(selectedTicket.id, { status: nextStatus, ...(nextStatus === "OPEN" ? { closureReason: null } : {}) });
+                        setSelectedTicket({ ...selectedTicket, status: nextStatus });
+                      }
+                    }}
+                    style={{ width: "155px", "--select-height": "34px", fontSize: "12px", fontWeight: 700 }}
+                  >
+                    {STATUSES.map(s => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                  </CustomSelect>
+                </div>
+
+                {/* Priority Dropdown */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748b" }}>Priority:</span>
+                  <CustomSelect
+                    value={selectedTicket.priority}
+                    onChange={e => {
+                      const nextPriority = e.target.value;
+                      updateTicket(selectedTicket.id, { priority: nextPriority });
+                      setSelectedTicket({ ...selectedTicket, priority: nextPriority });
+                    }}
+                    disabled={selectedTicket.status === "CLOSED"}
+                    style={{ width: "115px", "--select-height": "34px", fontSize: "12px", fontWeight: 700 }}
+                  >
+                    {PRIORITIES.map(p => (
+                      <option key={p.value} value={p.value}>{p.label}</option>
+                    ))}
+                  </CustomSelect>
+                </div>
+
+                <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, background: "#f1f5f9", padding: "5px 10px", borderRadius: 6 }}>
                   <Tag size={12} /> {selectedTicket.category || "General Support"}
                 </span>
               </div>
@@ -727,24 +750,54 @@ export default function SuperAdminSupportTicketsPage() {
                 )}
 
                 {/* Assignment & Management Card */}
-                <div style={{ background: "white", borderRadius: 12, padding: "16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-                  <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
-                    Assigned Agent
+                <div style={{ background: "white", borderRadius: 12, padding: "16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Ticket Status & Assignment
                   </div>
-                  <CustomSelect
-                    value={selectedTicket.assignedToId || ""}
-                    onChange={e => {
-                      const agentId = e.target.value || null;
-                      const agentName = staff.find(s => String(s.id) === String(agentId))?.name || null;
-                      updateTicket(selectedTicket.id, { assignedToId: agentId, assignedAgentName: agentName });
-                      setSelectedTicket({ ...selectedTicket, assignedToId: agentId, assignedTo: staff.find(s => String(s.id) === String(agentId)) || null });
-                    }}
-                    disabled={selectedTicket.status === "CLOSED"}
-                    style={{ width: "100%" }}
-                  >
-                    <option value="">-- Unassigned --</option>
-                    {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "Support"})</option>)}
-                  </CustomSelect>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "#475569", marginBottom: 4 }}>
+                      Ticket Status
+                    </label>
+                    <CustomSelect
+                      value={selectedTicket.status}
+                      onChange={e => {
+                        const nextStatus = e.target.value;
+                        if (nextStatus === "CLOSED") {
+                          setClosingTicketId(selectedTicket.id);
+                          setClosureReason("");
+                        } else {
+                          updateTicket(selectedTicket.id, { status: nextStatus, ...(nextStatus === "OPEN" ? { closureReason: null } : {}) });
+                          setSelectedTicket({ ...selectedTicket, status: nextStatus });
+                        }
+                      }}
+                      style={{ width: "100%", "--select-height": "36px" }}
+                    >
+                      {STATUSES.map(s => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                      ))}
+                    </CustomSelect>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.74rem", fontWeight: 700, color: "#475569", marginBottom: 4 }}>
+                      Assigned Agent
+                    </label>
+                    <CustomSelect
+                      value={selectedTicket.assignedToId || ""}
+                      onChange={e => {
+                        const agentId = e.target.value || null;
+                        const agentName = staff.find(s => String(s.id) === String(agentId))?.name || null;
+                        updateTicket(selectedTicket.id, { assignedToId: agentId, assignedAgentName: agentName });
+                        setSelectedTicket({ ...selectedTicket, assignedToId: agentId, assignedTo: staff.find(s => String(s.id) === String(agentId)) || null });
+                      }}
+                      disabled={selectedTicket.status === "CLOSED"}
+                      style={{ width: "100%", "--select-height": "36px" }}
+                    >
+                      <option value="">-- Unassigned --</option>
+                      {staff.filter(s => s.isActive !== false).map(s => <option key={s.id} value={s.id}>{s.name} ({s.adminRole?.name || "Support"})</option>)}
+                    </CustomSelect>
+                  </div>
                 </div>
 
                 {/* Internal Notes Box */}
