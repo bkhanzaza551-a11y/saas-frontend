@@ -138,6 +138,30 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!auth?.accessToken) return;
+    let cancelled = false;
+    api.get("/auth/me").then((res) => {
+      if (cancelled || !res.data) return;
+      const data = res.data;
+      setAuth((current) => {
+        if (!current) return current;
+        const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
+        const nextState = {
+          ...current,
+          user: data.user || current.user,
+          membership: data.membership || current.membership,
+          memberships: memberships.length ? memberships : current.memberships,
+          salonId: data.membership?.salonId ?? current.salonId
+        };
+        writeAuth(nextState, current.rememberMe !== false);
+        return nextState;
+      });
+    }).catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (auth?.accessToken && auth?.user?.systemRole !== "SUPER_ADMIN") {
       const currentSlug = auth?.membership?.salon?.slug || auth?.membership?.salonSlug;
       if (!currentSlug) {
