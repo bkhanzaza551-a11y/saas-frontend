@@ -259,8 +259,12 @@ export default function BranchesPage() {
                           {branch.address || "No address"}
                         </span>
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, marginLeft: 20 }}>
-                        {branch.latitude && branch.longitude ? `Geo: ${branch.geofenceRadiusMeters}m radius` : "Location not set"}
+                      <div style={{ fontSize: 11, marginTop: 4, marginLeft: 20 }}>
+                        {branch.latitude && branch.longitude ? (
+                          <span style={{ color: "#059669", fontWeight: 600 }}>📍 Geo: {branch.geofenceRadiusMeters ?? 200}m radius (GPS Active)</span>
+                        ) : (
+                          <span style={{ color: "#d97706", fontWeight: 500 }}>⚠️ Radius: {branch.geofenceRadiusMeters ?? 200}m (GPS pin not set on map)</span>
+                        )}
                       </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
@@ -315,7 +319,12 @@ export default function BranchesPage() {
                 </label>
 
                 <div className="settings-input-group" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                  <span className="muted" style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>Branch Location (Geofencing for Attendance)</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span className="muted" style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>Branch Location (Geofencing for Attendance)</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: form.latitude && form.longitude ? "#059669" : "#d97706" }}>
+                      {form.latitude && form.longitude ? `📍 Selected: ${Number(form.latitude).toFixed(4)}, ${Number(form.longitude).toFixed(4)}` : "⚠️ Click map or use current location"}
+                    </span>
+                  </div>
                   <div style={{ border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden" }}>
                     <MapPicker
                       key={formKey}

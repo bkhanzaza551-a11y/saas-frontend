@@ -303,11 +303,17 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
     const requestId = ++reverseRequestIdRef.current;
 
     setSelectedCoordinates(nextCoordinates);
-    setConfirmed(false);
+    setConfirmed(true);
     setFeedback(null);
     setSearchResults([]);
     cancelAutocomplete();
     placeMarker(nextCoordinates.lat, nextCoordinates.lng);
+
+    // Auto-propagate coordinates to parent form immediately
+    onChange?.({
+      latitude: nextCoordinates.lat.toFixed(6),
+      longitude: nextCoordinates.lng.toFixed(6)
+    });
 
     if (isInsideIndia(nextCoordinates.lat, nextCoordinates.lng)) {
       setCountryWarning("");
@@ -325,6 +331,7 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
 
     if (knownAddress) {
       setSelectedAddress(knownAddress);
+      onAddressChange?.(knownAddress);
       setReverseGeocoding(false);
       return;
     }
@@ -336,17 +343,19 @@ export default function MapPicker({ latitude, longitude, onChange, address, onAd
       const result = await reverseGeocode(nextCoordinates.lat, nextCoordinates.lng);
       if (requestId !== reverseRequestIdRef.current) return;
 
-      setSelectedAddress(result?.display_name || "");
-      if (!result?.display_name) {
-        setFeedback({ type: "warning", message: "Address not found. You can still confirm these coordinates." });
+      const foundAddr = result?.display_name || "";
+      setSelectedAddress(foundAddr);
+      if (foundAddr) onAddressChange?.(foundAddr);
+      if (!foundAddr) {
+        setFeedback({ type: "warning", message: "Address not found. Coordinates are set." });
       }
     } catch {
       if (requestId !== reverseRequestIdRef.current) return;
-      setFeedback({ type: "warning", message: "Address lookup failed. You can still confirm these coordinates." });
+      setFeedback({ type: "warning", message: "Address lookup failed. Coordinates are set." });
     } finally {
       if (requestId === reverseRequestIdRef.current) setReverseGeocoding(false);
     }
-  }, [cancelAutocomplete, placeMarker]);
+  }, [cancelAutocomplete, onChange, onAddressChange, placeMarker]);
 
   useEffect(() => {
     selectCoordinatesRef.current = selectCoordinates;
