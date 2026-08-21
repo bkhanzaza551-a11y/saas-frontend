@@ -46,12 +46,8 @@ export default function LoginPage() {
       );
     };
 
-    if (has("dashboard")) return "/admin/dashboard";
     if (has("my_dashboard") || has("myDashboard")) return "/admin/my-dashboard";
-    if (has("appointments")) return "/admin/appointments";
     if (has("my_appointments") || has("myAppointments")) return "/admin/my-appointments";
-    if (has("pos")) return "/admin/pos";
-    if (has("customers")) return "/admin/customers";
     if (has("my_schedule") || has("mySchedule")) return "/admin/my-schedule";
     if (has("my_attendance") || has("myAttendance")) return "/admin/my-attendance";
     if (has("my_profile") || has("myProfile")) return "/admin/my-profile";
