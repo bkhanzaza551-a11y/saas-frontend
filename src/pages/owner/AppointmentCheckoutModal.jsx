@@ -531,10 +531,12 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <button onClick={() => {
-                    let invoiceDetails = `Hello ${createdInvoice.customer?.name || 'Valued Customer'}!\nThank you for visiting ${salonName}.\n\n*Invoice Details*\nInvoice #: ${createdInvoice.invoiceNumber || 'N/A'}\n\n*Items:*\n`;
+                    let invoiceDetails = `Hello ${createdInvoice.customer?.name || 'Valued Customer'}!\nThank you for visiting ${salonName || 'our salon'}.\n\n*Invoice Details*\nInvoice #: ${createdInvoice.invoiceNumber || 'N/A'}\n\n*Items:*\n`;
                     if (createdInvoice.items && Array.isArray(createdInvoice.items)) {
                       createdInvoice.items.forEach(item => {
-                        invoiceDetails += `- ${item.qty || 1}x ${item.itemName} @ ${formatMoney(item.price)}\n`;
+                        const name = item.serviceName || item.itemName || item.name || item.title || item.service?.name || item.product?.name || 'Service';
+                        const price = item.unitPrice != null ? Number(item.unitPrice) : (item.price != null ? Number(item.price) : (item.lineTotal != null ? Number(item.lineTotal) : 0));
+                        invoiceDetails += `- ${item.qty || 1}x ${name} @ ${formatMoney(price)}\n`;
                       });
                     }
                     invoiceDetails += `\nSubtotal: ${formatMoney(createdInvoice.subtotal)}\n`;
