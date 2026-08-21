@@ -277,33 +277,6 @@ export default function DemoLeadsPage() {
     }
   };
 
-  const openCalendarInvite = (row, type = "google") => {
-    const draft = draftsById[row.id] || {};
-    const meetingTime = draft.meetingScheduledAt ? new Date(draft.meetingScheduledAt) : new Date();
-    const meetLink = draft.meetingLink || "https://meet.google.com/new";
-
-    const title = `SalonNest Product Demo - ${row.company || row.name}`;
-    const description = `Product Demo walkthrough for ${row.name} (${row.phone}).\n\nMeeting: ${meetLink}\nEmail: ${row.email}`;
-
-    const pad = (n) => String(n).padStart(2, "0");
-    const y = meetingTime.getFullYear();
-    const mo = pad(meetingTime.getMonth() + 1);
-    const d = pad(meetingTime.getDate());
-    const h = pad(meetingTime.getHours());
-    const mi = pad(meetingTime.getMinutes());
-    const startStr = `${y}${mo}${d}T${h}${mi}00`;
-    const endTime = new Date(meetingTime.getTime() + 60 * 60 * 1000);
-    const endStr = `${endTime.getFullYear()}${pad(endTime.getMonth() + 1)}${pad(endTime.getDate())}T${pad(endTime.getHours())}${pad(endTime.getMinutes())}00`;
-
-    if (type === "google") {
-      const gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(meetLink)}`;
-      window.open(gUrl, "_blank");
-    } else {
-      const calUrl = `https://calendar.zoho.com/calendar#action=addEvent&title=${encodeURIComponent(title)}&sdate=${startStr}&edate=${endStr}&desc=${encodeURIComponent(description)}&location=${encodeURIComponent(meetLink)}`;
-      window.open(calUrl, "_blank");
-    }
-  };
-
   const markContacted = async (leadId) => {
     setBusyId(leadId);
     setActionType("mark-contacted");
@@ -613,13 +586,13 @@ export default function DemoLeadsPage() {
 
       {/* Feedback Toast */}
       {feedback.error && (
-        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#991b1b", fontSize: 14, fontWeight: 600 }}>
+        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 10000, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#991b1b", fontSize: 14, fontWeight: 600 }}>
           <XCircle size={20} /> {feedback.error}
           <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "12px", cursor: "pointer", color: "#dc2626", fontWeight: 700, padding: 4 }}>x</span>
         </div>
       )}
       {feedback.success && (
-        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#065f46", fontSize: 14, fontWeight: 600 }}>
+        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 10000, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#065f46", fontSize: 14, fontWeight: 600 }}>
           <CheckCircle size={20} /> {feedback.success}
           <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "12px", cursor: "pointer", color: "#059669", fontWeight: 700, padding: 4 }}>x</span>
         </div>
@@ -956,7 +929,6 @@ export default function DemoLeadsPage() {
                           "Send & Email Invite"
                         )}
                       </button>
-                      <button type="button" onClick={() => openCalendarInvite(row, "google")} title="Add to Google Calendar" style={{ padding: "11px 16px", background: "#334155", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} /> Google Cal</button>
                     </div>
                   </div>
                 )}
