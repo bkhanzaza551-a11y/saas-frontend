@@ -259,7 +259,10 @@ export default function DemoLeadsPage() {
     setBusyId(leadId);
     setActionType("generate-link");
     try {
-      const res = await api.post(`/super-admin/demo-leads/${leadId}/create-zoho-meeting`, {});
+      const draft = draftsById[leadId] || {};
+      const res = await api.post(`/super-admin/demo-leads/${leadId}/create-zoho-meeting`, {
+        meetingScheduledAt: draft.meetingScheduledAt || null
+      });
       if (res.data?.meetingUrl) {
         updateDraft(leadId, "meetingLink", res.data.meetingUrl);
       }
