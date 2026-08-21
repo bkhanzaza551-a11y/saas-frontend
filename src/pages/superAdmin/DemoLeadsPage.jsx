@@ -57,6 +57,54 @@ const ACTIVITY_META = {
   NOTE_ADDED: { label: "Note Added", color: "#64748b", bg: "#f1f5f9" }
 };
 
+const renderActivityDetails = (log) => {
+  if (!log.details || log.details === "null") return null;
+
+  // Try parsing JSON details (e.g. Demo Scheduled meeting info)
+  if (typeof log.details === "string" && (log.details.startsWith("{") || log.details.startsWith("["))) {
+    try {
+      const data = JSON.parse(log.details);
+      if (data && typeof data === "object") {
+        if (data.meetingScheduledAt || data.meetingLink) {
+          return (
+            <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 4, background: "#ffffff", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+              {data.meetingScheduledAt && (
+                <div style={{ fontSize: 12, color: "#334155", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>📅</span> <strong>Date & Time:</strong> {new Date(data.meetingScheduledAt).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </div>
+              )}
+              {data.meetingLink && (
+                <div style={{ fontSize: 12, color: "#334155", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>🔗</span> <strong>Meeting Link:</strong> <a href={data.meetingLink} target="_blank" rel="noreferrer" style={{ color: "#4f46e5", fontWeight: 700, textDecoration: "underline", wordBreak: "break-all" }}>{data.meetingLink}</a>
+                </div>
+              )}
+              {data.note && (
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                  <strong>Note:</strong> {data.note}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <div style={{ marginTop: 4, fontSize: 12, color: "#475569" }}>
+            {Object.entries(data).map(([k, v]) => v ? <div key={k}><strong>{k}:</strong> {String(v)}</div> : null)}
+          </div>
+        );
+      }
+    } catch {
+      // Fallback to text
+    }
+  }
+
+  return (
+    <div style={{ fontSize: 12, color: "#475569", marginTop: 2, lineHeight: 1.4 }}>
+      {log.details}
+    </div>
+  );
+};
+
 const emptyLeadForm = {
   name: "",
   email: "",
@@ -1227,8 +1275,8 @@ export default function DemoLeadsPage() {
                               </div>
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{am.label}</div>
-                                {log.details && log.details !== "null" && <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{log.details}</div>}
-                                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>
+                                {renderActivityDetails(log)}
+                                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
                                   {log.actorName || "System"} • {new Date(log.createdAt).toLocaleString()}
                                 </div>
                               </div>
