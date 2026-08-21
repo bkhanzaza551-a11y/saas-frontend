@@ -42,7 +42,8 @@ export const BranchProvider = ({ children }) => {
     api.get("/owner/branches")
       .then((res) => {
         if (active && !stopped) {
-          setBranches(res.data || []);
+          const all = res.data || [];
+          setBranches(isOwner ? all : all.filter((b) => b.id === staffBranchId));
           if (!isOwner && staffBranchId) {
             setSelectedBranchIdState(staffBranchId);
           }
@@ -76,9 +77,10 @@ export const BranchProvider = ({ children }) => {
     if (!auth?.accessToken) return;
     try {
       const res = await api.get("/owner/branches");
-      setBranches(res.data || []);
+      const all = res.data || [];
+      setBranches(isOwner ? all : all.filter((b) => b.id === staffBranchId));
     } catch {}
-  }, [auth?.accessToken]);
+  }, [auth?.accessToken, isOwner, staffBranchId]);
 
   const value = useMemo(() => ({
     branches,

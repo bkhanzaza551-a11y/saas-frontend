@@ -8,7 +8,7 @@ import { Menu, Settings, FileText, Monitor, Calendar as CalendarIcon, Users, Bar
 export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { branches, selectedBranchId, selectedBranchName, setSelectedBranchId } = useBranch();
+  const { branches, selectedBranchId, selectedBranchName, setSelectedBranchId, isOwner: isBranchOwner } = useBranch();
   const { switchSalon } = useAuth();
   const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
   const [switchingSalon, setSwitchingSalon] = useState(false);
@@ -703,8 +703,8 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         ) : null}
 
         <div className="salonnest-top-right">
-          {/* Branch Selector */}
-          {auth?.user?.systemRole !== "SUPER_ADMIN" && (
+          {/* Branch Selector — full dropdown for owner, static badge for staff */}
+          {auth?.user?.systemRole !== "SUPER_ADMIN" && isBranchOwner && (
             <div className="salonnest-branch-wrap">
               <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
                 <Building2 size={12} color="#64748b" />
@@ -725,6 +725,14 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
                   ))}
                 </div>
               )}
+            </div>
+          )}
+          {auth?.user?.systemRole !== "SUPER_ADMIN" && !isBranchOwner && (
+            <div className="salonnest-branch-wrap">
+              <span className="salonnest-branch-btn" style={{ cursor: "default" }}>
+                <Building2 size={12} color="#64748b" />
+                {selectedBranchName}
+              </span>
             </div>
           )}
 
