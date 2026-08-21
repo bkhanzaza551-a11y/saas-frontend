@@ -267,10 +267,8 @@ export default function DemoLeadsPage() {
         updateDraft(leadId, "meetingLink", res.data.meetingUrl);
       }
     } catch (err) {
-      console.warn("Backend API call failed, generating room URL:", err);
-      const randomStr = Math.random().toString(36).substring(2, 12).padEnd(10, 'a');
-      const meetCode = `${randomStr.substring(0,3)}-${randomStr.substring(3,7)}-${randomStr.substring(7,10)}`;
-      updateDraft(leadId, "meetingLink", `https://meet.google.com/${meetCode}`);
+      const msg = err.response?.data?.error || "Could not generate meeting link. Please add it manually.";
+      setFeedback({ error: msg, success: "" });
     } finally {
       setBusyId("");
       setActionType("");
