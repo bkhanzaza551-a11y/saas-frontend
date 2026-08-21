@@ -5,6 +5,7 @@ import EmptyState from '../../components/EmptyState';
 import { formatApiError } from '../../utils/apiError';
 import { useBranch } from '../../context/BranchContext';
 import PageLoader from '../../components/PageLoader';
+import PermissionButton from '../../components/PermissionButton';
 import ToggleSwitch from "../../components/ToggleSwitch";
 import './ServiceHubPage.css';
 
@@ -356,14 +357,16 @@ export default function ServiceHubPage() {
                 {gender === 'ALL' ? 'All' : gender.toLowerCase()}
               </button>
             ))}
-            <button
+            <PermissionButton
               type="button"
               className="btn-import"
               style={{ background: '#10b981' }}
               onClick={openNewService}
+              module="services"
+              action="create"
             >
               + New Service
-            </button>
+            </PermissionButton>
           </div>
         </div>
 

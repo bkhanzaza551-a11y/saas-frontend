@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X,   Search } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
+import PermissionButton from "../../components/PermissionButton";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
 import { api } from "../../api/client";
@@ -1835,10 +1836,10 @@ export default function PosPage() {
                   </div>
                 </label>
               </div>
-              <button type="button" className="pos-add-guest-btn" onClick={() => setShowAddGuestModal(true)} style={{ height: "32px", fontSize: "0.75rem", padding: "4px 10px" }}>
+              <PermissionButton type="button" className="pos-add-guest-btn" module="customers" action="create" onClick={() => setShowAddGuestModal(true)} style={{ height: "32px", fontSize: "0.75rem", padding: "4px 10px" }}>
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                 Add Guest
-              </button>
+              </PermissionButton>
             </div>
             {!form.customerId && (
               <div className="pos-guest-error" style={{ paddingBottom: "8px" }}>

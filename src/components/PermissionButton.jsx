@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext";
-import { useToast } from "./ToastProvider";
+import { useAlert } from "../context/AlertContext";
 
 const normalize = (key) => ({
   camel: key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase()),
@@ -8,7 +8,7 @@ const normalize = (key) => ({
 
 export default function PermissionButton({ module, action = "create", featureKey, onClick, children, disabled, style, ...rest }) {
   const { auth } = useAuth();
-  const toast = useToast();
+  const alert = useAlert();
 
   const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
   const permissions = auth?.membership?.permissions || {};
@@ -24,9 +24,9 @@ export default function PermissionButton({ module, action = "create", featureKey
 
   const handleClick = (event) => {
     if (!allowed || !featureEnabled) {
-      toast.warning(
-        "Access Restricted",
-        `You don't have permission for this action. Contact your salon owner to update your role.`
+      alert.showAlert(
+        "You don't have permission for this action. Please contact your salon owner to update your role access.",
+        "Access Restricted"
       );
       return;
     }

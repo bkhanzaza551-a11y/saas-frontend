@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar
 import { api } from "../../api/client";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
+import { useAuth } from "../../context/AuthContext";
+import { useAlert } from "../../context/AlertContext";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import AppointmentCheckoutModal from "./AppointmentCheckoutModal";
@@ -93,6 +95,13 @@ export default function AppointmentsPage() {
   const navigate = useNavigate();
   const { formatMoney } = useSalonSettings();
   const { selectedBranchId } = useBranch();
+  const { auth } = useAuth();
+  const alert = useAlert();
+  const canCreateAppointment = (() => {
+    if (auth?.membership?.salonRole === "SALON_OWNER") return true;
+    const perms = auth?.membership?.permissions || {};
+    return Array.isArray(perms.appointments) && perms.appointments.includes("create");
+  })();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -523,6 +532,13 @@ export default function AppointmentsPage() {
   const setToday = () => setCurrentDate(new Date());
 
   const handleCellClick = (staffId, timeSlot) => {
+    if (!canCreateAppointment) {
+      alert.showAlert(
+        "You don't have permission to create appointments. Please contact your salon owner to update your role access.",
+        "Access Restricted"
+      );
+      return;
+    }
     if (!isStaffWorkingAtSlot(staffId, timeSlot)) {
       setStatus({ error: `Warning: Selected time slot (${timeSlot}) is outside this staff member's scheduled roster hours.`, success: "" });
     } else {

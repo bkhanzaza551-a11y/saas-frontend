@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
 import { useBranch } from "../../context/BranchContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -1049,8 +1050,10 @@ export default function ExpensesPage() {
                     >
                       <Search size={14} color="#64748b" /> Show Expenses
                     </button>
-                    <button 
+                    <PermissionButton
                       type="button"
+                      module="expenses"
+                      action="create"
                       onClick={() => { setEditingExpenseId(null); setForm({ ...emptyForm, branchId: selectedBranchId || "" }); setStatus({ error: "", success: "" }); setShowAddModal(true); }}
                       style={{
                         height: 36,
@@ -1072,7 +1075,7 @@ export default function ExpensesPage() {
                       onMouseLeave={(e) => e.currentTarget.style.background = "#2563eb"}
                     >
                       <Plus size={14} color="#ffffff" /> Add Expense
-                    </button>
+                    </PermissionButton>
                   </div>
                 </div>
                 </div>

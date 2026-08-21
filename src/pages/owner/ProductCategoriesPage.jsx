@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { X, Trash2, Edit2, Search, Plus, Package, ClipboardList } from "lucide-react";
 import ToggleSwitch from "../../components/ToggleSwitch";
+import PermissionButton from "../../components/PermissionButton";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -410,13 +411,15 @@ export default function ProductCategoriesPage() {
                 style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "7px 12px 7px 32px", fontSize: 13, width: 220, outline: "none" }}
               />
             </div>
-            <button 
-              onClick={openNewProduct} 
-              className="cpn-btn cpn-btn-primary" 
+            <PermissionButton
+              onClick={openNewProduct}
+              className="cpn-btn cpn-btn-primary"
+              module="inventory"
+              action="create"
               style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
               <Plus size={16} /> Add Product
-            </button>
+            </PermissionButton>
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState
 import { X } from "lucide-react";
 import { api } from "../../api/client";
 import { useBranch } from '../../context/BranchContext';
+import PermissionButton from "../../components/PermissionButton";
 import "./ServiceHubPage.css";
 
 const getImageUrl = (path) => {
@@ -595,13 +596,15 @@ export default function UsersPage() {
           </div>
           
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
-            <button 
-              className="btn-submit" 
-              style={{ width: '100%', marginBottom: 12, padding: '10px', fontSize: 14 }} 
+            <PermissionButton
+              className="btn-submit"
+              style={{ width: '100%', marginBottom: 12, padding: '10px', fontSize: 14 }}
+              module="staff"
+              action="create"
               onClick={startCreate}
             >
               + New Staff
-            </button>
+            </PermissionButton>
             <input
               type="text"
               className="hub-search-input"

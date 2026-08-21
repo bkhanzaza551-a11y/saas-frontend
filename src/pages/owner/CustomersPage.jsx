@@ -9,6 +9,7 @@ import { formatApiError } from "../../utils/apiError";
 import { downloadFromApi } from "../../utils/download";
 import { normalizeIndianPhoneInputDigits } from "../../utils/phone";
 import PageLoader from "../../components/PageLoader";
+import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
 import { useBranch } from "../../context/BranchContext";
 import PosReceipt from "../../components/PosReceipt";
@@ -1492,7 +1493,7 @@ export default function CustomersPage() {
         </div>
         <div className="crm-actions">
           <button className="crm-btn crm-btn-light" onClick={() => setShowFilters(true)}><Filter size={16} /> Filters</button>
-          <button className="crm-btn" onClick={() => setShowAddGuest(true)}><Plus size={16} /> Add Guest</button>
+          <PermissionButton className="crm-btn" module="customers" action="create" onClick={() => setShowAddGuest(true)}><Plus size={16} /> Add Guest</PermissionButton>
           <button className="crm-btn" onClick={handleImportClick}><Upload size={16} /> Import</button>
           <div className="export-dropdown">
             <button className="crm-btn" onClick={() => setShowExportMenu((current) => !current)}><Download size={16} /> Export <ChevronDown size={16} /></button>
