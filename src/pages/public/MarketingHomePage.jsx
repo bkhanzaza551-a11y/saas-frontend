@@ -93,7 +93,7 @@ const interactiveModules = [
       "360-Degree customer history & formula notes",
       "Automated loyalty points ledger & membership passes",
       "Targeted birthday & anniversary greeting automations",
-      "VIP customer tagging and spend segmentation"
+      "Top customer tagging and spend segmentation"
     ],
     image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=500&fit=crop"
   },
@@ -172,7 +172,7 @@ function ModuleMockup({ tabId }) {
             <span>₹3,848.00</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", color: "#4ade80" }}>
-            <span>VIP Loyalty Discount (300 Pts)</span>
+            <span>Loyalty Discount (300 Pts)</span>
             <span>- ₹300.00</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -226,9 +226,9 @@ function ModuleMockup({ tabId }) {
           <div style={{ padding: "10px 14px", background: "#fff7ed", border: "1px solid #ffedd5", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#c2410c" }}>02:00 PM • Bridal Glam Consultation</div>
-              <div style={{ fontSize: 11, color: "#64748b" }}>Client: Sneha K. | Senior Stylist: Meera (VIP Suite)</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>Client: Sneha K. | Senior Stylist: Meera (Executive Suite)</div>
             </div>
-            <span style={{ fontSize: 10, fontWeight: 800, background: "#ea580c", color: "#fff", padding: "2px 8px", borderRadius: 6 }}>VIP GUEST</span>
+            <span style={{ fontSize: 10, fontWeight: 800, background: "#ea580c", color: "#fff", padding: "2px 8px", borderRadius: 6 }}>SPECIAL</span>
           </div>
         </div>
 
@@ -292,7 +292,7 @@ function ModuleMockup({ tabId }) {
             </div>
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
-                Ananya Verma <span style={{ fontSize: 10, background: "#fef3c7", color: "#b45309", padding: "1px 6px", borderRadius: 4, fontWeight: 800 }}>👑 VIP GOLD</span>
+                Ananya Verma <span style={{ fontSize: 10, background: "#fef3c7", color: "#b45309", padding: "1px 6px", borderRadius: 4, fontWeight: 800 }}>👑 GOLD MEMBER</span>
               </div>
               <div style={{ fontSize: 11, color: "#64748b" }}>Client ID: #CL-1082 • Registered 14 mos ago</div>
             </div>
@@ -613,7 +613,7 @@ export default function MarketingHomePage() {
         </span>
         <span>Salon Nest is live with Automated WhatsApp Notifications, Smart POS & Multi-Branch Sync!</span>
         <Link to="/book-demo" style={{ color: "#ffffff", textDecoration: "underline", fontWeight: 700, marginLeft: 4 }}>
-          Book 1-on-1 VIP Walkthrough &rarr;
+          Book 1-on-1 Live Walkthrough &rarr;
         </Link>
       </div>
 
@@ -764,7 +764,7 @@ export default function MarketingHomePage() {
                       <Check size={18} strokeWidth={3} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, color: "#f8fafc", fontWeight: 700 }}>New VIP Spa Appointment</div>
+                      <div style={{ fontSize: 12, color: "#f8fafc", fontWeight: 700 }}>New Spa Appointment</div>
                       <div style={{ fontSize: 11, color: "#94a3b8" }}>Bandra West Branch • 2 min ago</div>
                     </div>
                   </div>
@@ -1393,7 +1393,7 @@ export default function MarketingHomePage() {
           
           <div style={{ maxWidth: 840, margin: "0 auto", position: "relative", zIndex: 2 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 16px", background: "rgba(20,184,166,0.2)", border: "1px solid rgba(20,184,166,0.4)", color: "#2dd4bf", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 20 }}>
-              <Flame size={14} /> ZERO RISK VIP ONBOARDING
+              <Flame size={14} /> ZERO RISK ONBOARDING
             </div>
 
             <h2 className="marketing-section-heading" style={{ color: "#ffffff", margin: "0 0 16px" }}>
@@ -1406,7 +1406,7 @@ export default function MarketingHomePage() {
 
             <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
               <Link to="/book-demo" className="btn-glow-primary" style={{ textDecoration: "none", fontSize: 16, padding: "16px 36px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <Sparkles size={18} /> Request 1-on-1 VIP Demo
+                <Sparkles size={18} /> Request Live Demo
               </Link>
               <a href={whatsappHref} target="_blank" rel="noreferrer" style={{ textDecoration: "none", fontSize: 16, fontWeight: 700, color: "#ffffff", background: "rgba(255,255,255,0.1)", backdropFilter: "blur(10px)", padding: "16px 32px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.25)", display: "inline-flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}>
                 💬 Chat on WhatsApp
