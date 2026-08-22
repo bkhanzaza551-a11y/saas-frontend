@@ -80,6 +80,8 @@ export default function SuperAdminSupportTicketsPage() {
   const [closureReason, setClosureReason] = useState("");
   const [detailTab, setDetailTab] = useState("conversation");
   const [drawerStatus, setDrawerStatus] = useState({ error: "", success: "" });
+  const [replyError, setReplyError] = useState("");
+  const [isSendingReply, setIsSendingReply] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
 
@@ -164,13 +166,25 @@ export default function SuperAdminSupportTicketsPage() {
   };
 
   const sendReply = async (ticketId, nextStatus = "IN_PROGRESS") => {
-    if (!replyDrafts[ticketId]?.trim()) return;
+    const text = (replyDrafts[ticketId] || "").trim();
+    const attachment = replyAttachments[ticketId] || "";
+    
+    if (!text && !attachment) {
+      setReplyError("Please type a reply message or attach a file before sending.");
+      setTimeout(() => setReplyError(""), 4000);
+      return;
+    }
+    
+    setReplyError("");
+    setIsSendingReply(true);
     setSavingId(ticketId);
-    setStatus({ error: "", success: "" });
+    setDrawerStatus({ error: "", success: "" });
+    
     try {
+      const payloadMessage = text || "Sent an attachment.";
       await api.post(`/super-admin/support-tickets/${ticketId}/messages`, {
-        message: replyDrafts[ticketId] || "",
-        attachmentUrl: replyAttachments[ticketId] || "",
+        message: payloadMessage,
+        attachmentUrl: attachment,
         status: nextStatus
       });
       setReplyDrafts((c) => ({ ...c, [ticketId]: "" }));
@@ -179,12 +193,19 @@ export default function SuperAdminSupportTicketsPage() {
       if (selectedTicket && selectedTicket.id === ticketId) {
         const updatedTicket = (await api.get(`/super-admin/support-tickets/${ticketId}`)).data;
         if (updatedTicket) setSelectedTicket(updatedTicket);
+        setDrawerStatus({ error: "", success: "Support reply sent successfully!" });
+        setTimeout(() => setDrawerStatus(s => ({ ...s, success: "" })), 3000);
       }
       setStatus({ error: "", success: "Support reply sent." });
       setTimeout(() => setStatus(s => ({ ...s, success: "" })), 3000);
     } catch (error) {
-      setStatus({ error: formatApiError(error, "Could not send reply"), success: "" });
-    } finally { setSavingId(""); }
+      const errMsg = formatApiError(error, "Could not send reply");
+      setReplyError(errMsg);
+      setDrawerStatus({ error: errMsg, success: "" });
+    } finally {
+      setIsSendingReply(false);
+      setSavingId("");
+    }
   };
 
   const handleCreateTicket = async (e) => {
@@ -657,12 +678,25 @@ export default function SuperAdminSupportTicketsPage() {
                   <div style={{ padding: "16px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
                     {selectedTicket.status !== "CLOSED" ? (
                       <>
+                        {replyError && (
+                          <div style={{ padding: "8px 12px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fee2e2", borderRadius: 8, fontSize: "0.82rem", fontWeight: 600, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                            ⚠️ {replyError}
+                          </div>
+                        )}
+                        {drawerStatus.success && (
+                          <div style={{ padding: "8px 12px", background: "#f0fdf4", color: "#16a34a", border: "1px solid #dcfce7", borderRadius: 8, fontSize: "0.82rem", fontWeight: 600, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                            <CheckCircle size={14} /> {drawerStatus.success}
+                          </div>
+                        )}
                         <div style={{ marginBottom: 10, position: "relative" }}>
                           <textarea
                             rows={3}
                             value={replyDrafts[selectedTicket.id] || ""}
                             placeholder="Type reply to salon owner..."
-                            onChange={(e) => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })}
+                            onChange={(e) => {
+                              setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value });
+                              if (replyError) setReplyError("");
+                            }}
                             style={{ border: "1px solid #cbd5e1", borderRadius: 10, padding: 12, fontSize: "0.88rem", background: "white", width: "100%", resize: "none", boxSizing: "border-box", outline: "none", fontFamily: "inherit" }}
                             onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }}
                             onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
@@ -672,34 +706,53 @@ export default function SuperAdminSupportTicketsPage() {
                               <Paperclip size={13} /> Attach File
                               <input type="file" accept="image/*,.pdf,.doc,.docx" hidden onChange={(e) => {
                                 const file = e.target.files[0];
-                                if (file) { const reader = new FileReader(); reader.onloadend = () => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result }); reader.readAsDataURL(file); }
+                                if (file) { 
+                                  const reader = new FileReader(); 
+                                  reader.onloadend = () => {
+                                    setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result });
+                                    if (replyError) setReplyError("");
+                                  }; 
+                                  reader.readAsDataURL(file); 
+                                }
                               }} />
                             </label>
                             {replyAttachments[selectedTicket.id] && (
-                              <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 700, background: "#dcfce7", padding: "2px 8px", borderRadius: 4 }}>
-                                ✓ File attached
-                              </span>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 700, background: "#dcfce7", padding: "2px 8px", borderRadius: 4 }}>
+                                  ✓ File attached
+                                </span>
+                                <button 
+                                  type="button" 
+                                  onClick={() => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: "" })}
+                                  style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "0.75rem", padding: "0 4px" }}
+                                >
+                                  ✕ Remove
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, flexWrap: "wrap" }}>
                           <button
+                            disabled={isSendingReply}
                             onClick={() => sendReply(selectedTicket.id, "IN_PROGRESS")}
-                            style={{ background: "#4f46e5", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: 6 }}
+                            style={{ background: "#4f46e5", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: 6, opacity: isSendingReply ? 0.7 : 1 }}
                           >
-                            <Send size={13} /> Reply
+                            <Send size={13} /> {isSendingReply ? "Sending..." : "Reply"}
                           </button>
                           <button
+                            disabled={isSendingReply}
                             onClick={() => sendReply(selectedTicket.id, "WAITING_FOR_SALON")}
-                            style={{ background: "#d97706", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem" }}
+                            style={{ background: "#d97706", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.82rem", opacity: isSendingReply ? 0.7 : 1 }}
                           >
-                            Reply & Wait for Salon
+                            {isSendingReply ? "Updating..." : "Reply & Wait for Salon"}
                           </button>
                           <button
+                            disabled={isSendingReply}
                             onClick={() => sendReply(selectedTicket.id, "RESOLVED")}
-                            style={{ background: "#16a34a", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: "pointer", fontSize: "0.82rem" }}
+                            style={{ background: "#16a34a", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.82rem", opacity: isSendingReply ? 0.7 : 1 }}
                           >
-                            Reply & Resolve
+                            {isSendingReply ? "Resolving..." : "Reply & Resolve"}
                           </button>
                         </div>
                       </>
