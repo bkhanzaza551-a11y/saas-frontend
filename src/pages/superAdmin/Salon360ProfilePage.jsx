@@ -452,6 +452,10 @@ export default function Salon360ProfilePage() {
                   <span style={{ background: "#ecfdf5", color: "#065f46", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
                     ✓ Mobile OTP Verified
                   </span>
+                ) : owner.phoneVerificationOtp === "SKIPPED" ? (
+                  <span style={{ background: "#fffbeb", color: "#b45309", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600 }}>
+                    ⚠️ Skipped (Unverified)
+                  </span>
                 ) : (
                   <span style={{ background: "#f1f5f9", color: "#475569", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600 }}>
                     Pending Verification

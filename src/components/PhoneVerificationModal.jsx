@@ -89,9 +89,11 @@ export default function PhoneVerificationModal() {
         {},
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
+      sessionStorage.setItem("salonnest_phone_verify_skipped", "true");
       const stored = JSON.parse(localStorage.getItem("salonnest_auth") || "{}");
       if (stored?.user) {
-        stored.user.isPhoneVerified = true;
+        stored.user.isPhoneVerified = false;
+        stored.user.phoneVerificationSkipped = true;
         localStorage.setItem("salonnest_auth", JSON.stringify(stored));
       }
       window.location.reload();

@@ -440,7 +440,8 @@ const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
 
   if (!auth) return <Navigate to="/login" replace />;
 
-  if (auth.membership?.salonRole === "SALON_OWNER" && auth.user?.isPhoneVerified === false) {
+  const isPhoneSkipped = auth.user?.phoneVerificationSkipped || sessionStorage.getItem("salonnest_phone_verify_skipped") === "true";
+  if (auth.membership?.salonRole === "SALON_OWNER" && auth.user?.isPhoneVerified === false && !isPhoneSkipped) {
     return (
       <>
         <PhoneVerificationModal />
