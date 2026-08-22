@@ -1424,33 +1424,110 @@ export default function MarketingHomePage() {
       </main>
 
       {/* FOOTER */}
-      <footer style={{ padding: "48px 24px 32px", background: "#ffffff", borderTop: "1px solid #e2e8f0" }}>
-        <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", flexDirection: "column", gap: 28 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", gap: 10 }}>
-              <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "38px", maxWidth: "140px", objectFit: "contain" }} />
-            </Link>
-
-            <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-              <Link to="/features" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Features</Link>
-              <Link to="/pricing" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Pricing</Link>
-              <Link to="/platform" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Platform</Link>
-              <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Terms of Service</Link>
-              <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Privacy Policy</Link>
-              <Link to="/contact" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Contact Us</Link>
-            </div>
-          </div>
+      <footer style={{ background: "#090d16", color: "#94a3b8", padding: "70px 24px 36px", borderTop: "1px solid rgba(255,255,255,0.08)", position: "relative", overflow: "hidden" }}>
+        {/* Subtle Ambient Backlight */}
+        <div style={{ position: "absolute", top: 0, left: "25%", width: 450, height: 220, background: "rgba(13,148,136,0.1)", filter: "blur(100px)", pointerEvents: "none" }} />
+        
+        <div style={{ maxWidth: 1240, margin: "0 auto" }}>
           
-          <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
-              <strong style={{ color: "#0f172a" }}>PROPCORP ADVERTISING (OPC) PRIVATE LIMITED</strong><br/>
-              PLOT NO G-49 MADHURA NAGAR, HYDERABAD, Telangana, India - 500003<br/>
-              Phone: +91 9493952587 | Email: <a href="mailto:govardhan@salonnest.in" style={{ color: "#0d9488", textDecoration: "none", fontWeight: 600 }}>govardhan@salonnest.in</a>
+          {/* Main 4-Column Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 40, marginBottom: 48 }}>
+            
+            {/* Col 1: Brand & Mission */}
+            <div style={{ maxWidth: 320 }}>
+              <Link to="/" style={{ display: "inline-block", marginBottom: 18, background: "#ffffff", padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)" }}>
+                <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "36px", maxWidth: "130px", objectFit: "contain", display: "block" }} />
+              </Link>
+              <p style={{ fontSize: 13.5, color: "#94a3b8", lineHeight: 1.7, margin: "0 0 20px" }}>
+                The intelligent all-in-one operating platform engineered for modern hair salons, luxury day spas, and aesthetic wellness chains.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 12.5, color: "#cbd5e1" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <ShieldCheck size={16} color="#2dd4bf" />
+                  <span>256-Bit Bank-Grade Cloud Encryption</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Zap size={16} color="#38bdf8" />
+                  <span>99.98% High Availability Uptime SLA</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 14 }}>🇮🇳</span>
+                  <span>Engineered with Pride in India</span>
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: 13, color: "#94a3b8" }}>
-              © {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.
+
+            {/* Col 2: Platform Modules */}
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 18 }}>
+                Platform Modules
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12, fontSize: 13.5 }}>
+                <li><Link to="/features" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Smart POS & Invoicing</Link></li>
+                <li><Link to="/features" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Collision-Free Calendar</Link></li>
+                <li><Link to="/features" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Digital Storefront & E-Commerce</Link></li>
+                <li><Link to="/features" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Customer CRM & Loyalty Ledger</Link></li>
+                <li><Link to="/features" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Multi-Branch Central Sync</Link></li>
+                <li><Link to="/features" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Facial Attendance & Commissions</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 3: Industries */}
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 18 }}>
+                Built For
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12, fontSize: 13.5 }}>
+                <li style={{ color: "#94a3b8" }}>Hair Salons & Barbers</li>
+                <li style={{ color: "#94a3b8" }}>Day Spas & Wellness Retreats</li>
+                <li style={{ color: "#94a3b8" }}>Nail Bars & Lash Lounges</li>
+                <li style={{ color: "#94a3b8" }}>Aesthetic & Skin Clinics</li>
+                <li style={{ color: "#94a3b8" }}>Tattoo & Piercing Studios</li>
+                <li style={{ color: "#94a3b8" }}>Bridal Makeup Lounges</li>
+              </ul>
+            </div>
+
+            {/* Col 4: Company & Direct Support */}
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 18 }}>
+                Company & Support
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12, fontSize: 13.5, marginBottom: 20 }}>
+                <li><Link to="/pricing" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Plans & Transparent Pricing</Link></li>
+                <li><Link to="/book-demo" style={{ color: "#2dd4bf", fontWeight: 700, textDecoration: "none" }}>Request Live Demo &rarr;</Link></li>
+                <li><Link to="/platform" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Platform Architecture</Link></li>
+                <li><Link to="/terms" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Terms of Service</Link></li>
+                <li><Link to="/privacy-policy" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Privacy Policy</Link></li>
+                <li><Link to="/contact" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#2dd4bf"} onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}>Contact Support</Link></li>
+              </ul>
+
+              {/* Status Badge */}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", padding: "6px 14px", borderRadius: 100, fontSize: 11.5, color: "#86efac", fontWeight: 700 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
+                All Systems Operational
+              </div>
+            </div>
+
+          </div>
+
+          {/* Registered Corporate Office Details Box */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 28, marginTop: 10, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#f1f5f9", marginBottom: 4 }}>
+                PROPCORP ADVERTISING (OPC) PRIVATE LIMITED
+              </div>
+              <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
+                PLOT NO G-49 MADHURA NAGAR, HYDERABAD, Telangana, India - 500003<br/>
+                Direct Helpline: <span style={{ color: "#94a3b8" }}>+91 9493952587</span> • Official Email: <a href="mailto:govardhan@salonnest.in" style={{ color: "#2dd4bf", textDecoration: "none" }}>govardhan@salonnest.in</a>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "right", fontSize: 12, color: "#64748b" }}>
+              © {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.<br/>
+              <span style={{ fontSize: 11, color: "#475569" }}>Empowering salons with enterprise cloud intelligence.</span>
             </div>
           </div>
+
         </div>
       </footer>
 
