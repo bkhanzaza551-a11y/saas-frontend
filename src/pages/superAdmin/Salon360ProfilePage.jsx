@@ -350,8 +350,8 @@ export default function Salon360ProfilePage() {
             <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "12px 0", fontSize: "0.9rem" }}>
               <div style={{ color: "#64748b" }}>Salon Name</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.name}</div>
               <div style={{ color: "#64748b" }}>Slug</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.slug}</div>
-              <div style={{ color: "#64748b" }}>Email</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.email || "-"}</div>
-              <div style={{ color: "#64748b" }}>Phone</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.phone || "-"}</div>
+              <div style={{ color: "#64748b" }}>Email</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.email || owner?.email || "-"}</div>
+              <div style={{ color: "#64748b" }}>Phone</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.phone || owner?.phone || "-"}</div>
               <div style={{ color: "#64748b" }}>City</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.city || "-"}</div>
               <div style={{ color: "#64748b" }}>Address</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.address || "-"}</div>
               <div style={{ color: "#64748b" }}>State / Country</div><div style={{ color: "#334155", fontWeight: 500 }}>{salon.state ? `${salon.state}, ` : ""}{salon.country || "-"}</div>
