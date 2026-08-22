@@ -5066,13 +5066,6 @@ export default function SettingsPage() {
                   </div>
                 </label>
                 <label className="settings-input-group">
-                  <span className="muted">Sidebar Color</span>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input type="color" value={sidebarColor} onChange={(e) => { setSidebarColor(e.target.value); setActiveThemePreset("custom"); }} style={{ width: 42, height: 42, padding: 0, border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", background: "none" }} />
-                    <input type="text" value={sidebarColor} onChange={(e) => { setSidebarColor(e.target.value); setActiveThemePreset("custom"); }} style={{ flex: 1, textTransform: "uppercase" }} />
-                  </div>
-                </label>
-                <label className="settings-input-group">
                   <span className="muted">Navbar Color</span>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <input type="color" value={navbarColor} onChange={(e) => { setNavbarColor(e.target.value); setActiveThemePreset("custom"); }} style={{ width: 42, height: 42, padding: 0, border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", background: "none" }} />
@@ -5114,7 +5107,6 @@ export default function SettingsPage() {
                   >
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>{p.name}</div>
                     <div style={{ display: "flex", gap: 4 }}>
-                      <span title="Sidebar Color" style={{ width: 14, height: 14, borderRadius: "50%", background: p.sidebar, border: "1px solid #cbd5e1" }} />
                       <span title="Navbar Color" style={{ width: 14, height: 14, borderRadius: "50%", background: p.navbar, border: "1px solid #cbd5e1" }} />
                       <span title="Button Color" style={{ width: 14, height: 14, borderRadius: "50%", background: p.button, border: "1px solid #cbd5e1" }} />
                       <span title="Button Hover Color" style={{ width: 14, height: 14, borderRadius: "50%", background: p.buttonHover, border: "1px solid #cbd5e1" }} />
