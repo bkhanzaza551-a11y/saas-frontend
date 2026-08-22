@@ -162,9 +162,9 @@ export default function HomePage() {
               style={{ width: '100%', position: 'relative', zIndex: 1, display: 'block', borderRadius: 4 }} 
             />
           </div>
-          <div style={{ flex: 1, minWidth: '320px' }}>
-            <h2 style={{ fontSize: "3rem", marginBottom: "30px", fontWeight: 500 }}>{wc.aboutTitle || "The Art of Grooming"}</h2>
-            <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "40px", fontSize: "1.1rem", fontWeight: 300 }}>
+          <div style={{ flex: 1, minWidth: '280px' }}>
+            <h2 style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", marginBottom: "20px", fontWeight: 500, lineHeight: 1.2 }}>{wc.aboutTitle || "The Art of Grooming"}</h2>
+            <p style={{ color: "var(--text-muted)", lineHeight: "1.8", marginBottom: "30px", fontSize: "clamp(0.95rem, 2vw, 1.1rem)", fontWeight: 300 }}>
               {wc.aboutDescription || `At ${salon?.name || "our salon"}, we approach self-care with precision and professionalism. Established with the vision of providing a sanctuary for relaxation and transformation, our salon offers a curated menu of premium services.`}
             </p>
             <Link to={`/site/${salon?.slug}/services`} className="sf-btn-outline">

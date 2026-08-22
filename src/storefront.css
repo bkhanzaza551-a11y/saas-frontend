@@ -940,19 +940,20 @@ a {
 
 @media (max-width: 768px) {
   .sf-nav-links { display: none; }
-  .sf-hero h1 { font-size: 3rem; }
-  .sf-hero p { font-size: 1.1rem; }
-  .sf-section { padding: 80px 24px; }
-  .sf-section-alt .sf-section-inner { padding: 80px 24px; }
+  .sf-hero h1 { font-size: clamp(2rem, 8vw, 3.5rem) !important; letter-spacing: -0.5px !important; }
+  .sf-hero p { font-size: 1rem !important; }
+  .sf-section { padding: 48px 18px !important; }
+  .sf-section-alt .sf-section-inner { padding: 48px 18px !important; gap: 40px !important; }
   .sf-cart-drawer { max-width: 100%; }
-  .sf-page-header { padding: 140px 24px 60px; }
-  .sf-page-header h1 { font-size: 2.5rem; }
+  .sf-page-header { padding: 110px 16px 40px !important; }
+  .sf-page-header h1 { font-size: clamp(1.8rem, 6vw, 2.8rem) !important; letter-spacing: -0.5px !important; }
   
-  .sf-footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .sf-footer-grid { grid-template-columns: 1fr; gap: 28px; }
 
   .sf-gallery-grid {
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(3, 240px);
+    grid-template-rows: repeat(3, 200px);
+    gap: 12px;
   }
   .sf-gallery-main {
     grid-column: span 2;
@@ -961,14 +962,23 @@ a {
 }
 
 @media (max-width: 600px) {
-  .sf-services-grid { grid-template-columns: 1fr; }
+  .sf-services-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .sf-page-header { padding: 96px 14px 32px !important; }
+  .sf-page-header h1 { font-size: clamp(1.6rem, 7vw, 2.2rem) !important; margin-bottom: 8px !important; }
+  .sf-section { padding: 36px 14px !important; }
+  .sf-section-title h2 { font-size: 1.8rem !important; }
+  .sf-section-title p { font-size: 0.9rem !important; }
   
   .sf-gallery-grid {
     display: flex;
     flex-direction: column;
+    gap: 12px;
   }
   .sf-gallery-item {
-    height: 280px;
+    height: 220px;
+  }
+  .sf-service-card {
+    padding: 24px 18px !important;
   }
 }
 

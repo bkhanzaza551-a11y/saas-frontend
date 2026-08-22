@@ -45,28 +45,34 @@ export default function CollectionsPage() {
   return (
     <div className="storefront-wrapper" style={{ background: 'var(--surface)' }}>
       {/* Premium Minimalist Header */}
-      <div style={{ paddingTop: 160, paddingBottom: 60, textAlign: "center", background: "var(--bg-main)", borderBottom: "1px solid var(--border)" }}>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4.5rem", margin: "0 0 24px", fontWeight: 500, color: "var(--text-main)", letterSpacing: "-1px" }}>Our Treatments</h1>
-        <p style={{ fontSize: "1.15rem", color: "var(--text-muted)", maxWidth: 600, margin: '0 auto', fontWeight: 300, lineHeight: 1.6 }}>
+      <div className="sf-page-header" style={{ textAlign: "center", background: "var(--bg-main)", borderBottom: "1px solid var(--border)" }}>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 6vw, 4rem)", margin: "0 0 16px", fontWeight: 500, color: "var(--text-main)", letterSpacing: "-0.5px", lineHeight: 1.2 }}>Our Treatments</h1>
+        <p style={{ fontSize: "clamp(0.95rem, 2.5vw, 1.15rem)", color: "var(--text-muted)", maxWidth: 600, margin: '0 auto', fontWeight: 300, lineHeight: 1.6, padding: "0 16px" }}>
           Discover our full range of premium treatments, meticulously crafted for your well-being.
         </p>
       </div>
 
-      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "60px 32px 120px" }}>
+      <section className="sf-collections-section">
         <style>{`
+          .sf-collections-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 50px 24px 100px;
+          }
           .sf-category-pill {
-            padding: 12px 28px;
+            padding: 10px 22px;
             border-radius: 40px;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 500;
             text-transform: uppercase;
-            letterSpacing: 1px;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s ease;
             white-space: nowrap;
             border: 1px solid var(--border);
             background: var(--bg-main);
             color: var(--text-main);
+            flex-shrink: 0;
           }
           .sf-category-pill.active {
             background: var(--text-main);
@@ -80,12 +86,12 @@ export default function CollectionsPage() {
           .sf-services-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
+            gap: 32px;
           }
           
           .sf-premium-card {
             background: var(--bg-main);
-            border-radius: 20px;
+            border-radius: 18px;
             overflow: hidden;
             border: 1px solid var(--border);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -95,28 +101,49 @@ export default function CollectionsPage() {
             flex-direction: column;
           }
           .sf-premium-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.08);
             border-color: transparent;
           }
           .sf-premium-card-img {
             width: 100%;
-            height: 280px;
+            height: 260px;
             object-fit: cover;
             transition: transform 0.6s ease;
           }
           .sf-premium-card:hover .sf-premium-card-img {
-            transform: scale(1.05);
+            transform: scale(1.04);
+          }
+          .sf-premium-card-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
           }
           
           @media (max-width: 1024px) {
             .sf-services-grid {
               grid-template-columns: repeat(2, 1fr);
+              gap: 24px;
             }
           }
-          @media (max-width: 768px) {
+          @media (max-width: 640px) {
+            .sf-collections-section {
+              padding: 24px 14px 60px;
+            }
             .sf-services-grid {
               grid-template-columns: 1fr;
+              gap: 16px;
+            }
+            .sf-premium-card-img {
+              height: 200px;
+            }
+            .sf-premium-card-content {
+              padding: 16px;
+            }
+            .sf-category-pill {
+              padding: 8px 16px;
+              font-size: 0.8rem;
             }
           }
         `}</style>
@@ -175,8 +202,8 @@ export default function CollectionsPage() {
                           </div>
                         </div>
                         
-                        <div style={{ padding: 32, display: "flex", flexDirection: "column", flex: 1 }}>
-                          <div style={{ marginBottom: 16 }}>
+                        <div className="sf-premium-card-content">
+                          <div style={{ marginBottom: 12 }}>
                             <span style={{ display: "inline-block", color: "var(--text-muted)", fontSize: "0.8rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
                               {service.category?.name || "Treatment"}
                             </span>

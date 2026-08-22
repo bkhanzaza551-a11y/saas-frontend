@@ -50,18 +50,18 @@ export default function CategoryDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ background: "#fafafa", padding: "60px 20px", borderBottom: "1px solid var(--sf-border, #e2e8f0)" }}>
+      <div style={{ background: "#fafafa", padding: "40px 16px", borderBottom: "1px solid var(--sf-border, #e2e8f0)" }}>
         <div style={{ maxWidth: 1300, margin: "0 auto" }}>
           <Link
             to={`/site/${slug}/collections`}
-            style={{ color: "var(--sf-text-light, #999)", textDecoration: "none", marginBottom: 16, display: "inline-block" }}
+            style={{ color: "var(--sf-text-light, #999)", textDecoration: "none", marginBottom: 12, display: "inline-block", fontSize: "0.9rem" }}
           >
             &larr; Back to Services
           </Link>
-          <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "3rem", margin: 0, color: "var(--sf-primary, #111)" }}>
+          <h1 style={{ fontFamily: "var(--sf-font-serif)", fontSize: "clamp(1.75rem, 5vw, 3rem)", margin: 0, color: "var(--sf-primary, #111)", lineHeight: 1.2 }}>
             {categoryName}
           </h1>
-          <p style={{ fontSize: "1.1rem", color: "var(--sf-text-light, #999)", marginTop: 12 }}>
+          <p style={{ fontSize: "clamp(0.85rem, 2.5vw, 1.05rem)", color: "var(--sf-text-light, #999)", marginTop: 8 }}>
             {categoryServices.length} service{categoryServices.length !== 1 ? "s" : ""} in this category
           </p>
         </div>

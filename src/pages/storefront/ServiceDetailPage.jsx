@@ -154,72 +154,104 @@ export default function ServiceDetailPage() {
   return (
     <div className="storefront-wrapper" style={{ paddingBottom: 100, background: 'var(--surface)' }}>
       <style>{`
+        .sf-detail-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 40px 24px 80px;
+        }
+        .sf-detail-img-wrap {
+          position: relative;
+          margin-bottom: 32px;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+          background: var(--surface);
+          height: 460px;
+        }
+        .sf-detail-title {
+          font-family: var(--font-serif);
+          font-size: clamp(1.8rem, 5vw, 3.5rem);
+          color: var(--text-main);
+          margin: 0 0 18px;
+          line-height: 1.15;
+          font-weight: 500;
+          letter-spacing: -0.5px;
+          word-break: break-word;
+        }
+        .sf-detail-price {
+          font-size: clamp(1.6rem, 4vw, 2.4rem);
+          font-weight: 500;
+          color: var(--text-main);
+          font-family: var(--font-serif);
+        }
         @media (max-width: 900px) {
-          .sf-detail-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .sf-detail-container { padding: 24px 16px 60px; }
+          .sf-detail-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
           .sf-detail-sticky { position: static !important; }
+          .sf-detail-img-wrap { height: 260px; border-radius: 16px; margin-bottom: 24px; }
         }
       `}</style>
 
       {/* Main Content */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "60px 32px 80px" }}>
+      <div className="sf-detail-container">
         
         {/* Breadcrumb */}
-        <Link to={`/site/${salon.slug}/collections`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 40, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>
+        <Link to={`/site/${salon.slug}/collections`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.9rem", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 28, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>
           <ArrowLeft size={16} /> Back to Services
         </Link>
         
-        <div className="sf-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 80, alignItems: "start" }}>
+        <div className="sf-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 60, alignItems: "start" }}>
           
           {/* Left Column: Details */}
           <div>
             {/* Image Section */}
-            <div style={{ position: "relative", marginBottom: 40, borderRadius: "24px", overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.08)", background: "var(--surface)", height: 500 }}>
+            <div className="sf-detail-img-wrap">
               <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => { e.target.onerror = null; e.target.src = FALLBACK_IMG; }} />
               
               {/* Badges Overlay */}
-              <div style={{ position: "absolute", top: 24, left: 24, display: "flex", gap: 12 }}>
+              <div style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8 }}>
                 {service.isFeatured && (
-                  <span style={{ background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)", color: "var(--accent)", padding: "8px 16px", borderRadius: "30px", fontSize: "0.85rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>★ Featured</span>
+                  <span style={{ background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)", color: "var(--accent)", padding: "6px 12px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>★ Featured</span>
                 )}
                 {service.isPopular && (
-                  <span style={{ background: "var(--accent)", color: "#fff", padding: "8px 16px", borderRadius: "30px", fontSize: "0.85rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>🔥 Popular</span>
+                  <span style={{ background: "var(--accent)", color: "#fff", padding: "6px 12px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>🔥 Popular</span>
                 )}
               </div>
             </div>
 
             {/* Title & Meta Section */}
-            <div style={{ marginBottom: 48, borderBottom: '1px solid var(--border)', paddingBottom: 40 }}>
+            <div style={{ marginBottom: 36, borderBottom: '1px solid var(--border)', paddingBottom: 28 }}>
               {service.category && (
-                <div style={{ marginBottom: 16 }}>
-                  <span style={{ display: "inline-block", color: "var(--text-muted)", fontSize: "0.95rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ display: "inline-block", color: "var(--text-muted)", fontSize: "0.85rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
                     {service.category.name}
                   </span>
                 </div>
               )}
-              <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "4rem", color: "var(--text-main)", margin: "0 0 24px", lineHeight: 1.1, fontWeight: 500, letterSpacing: '-1px' }}>
+              <h1 className="sf-detail-title">
                 {service.name}
               </h1>
               
-              <div style={{ display: "flex", alignItems: "center", gap: 32, flexWrap: "wrap" }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
-                  <span style={{ fontSize: "2.5rem", fontWeight: 500, color: "var(--text-main)", fontFamily: 'var(--font-serif)' }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                  <span className="sf-detail-price">
                     {currency} {price.toFixed(2)}
                   </span>
-                  {hasSale && <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", textDecoration: "line-through", fontFamily: 'var(--font-sans)', fontWeight: 400 }}>{currency} {originalPrice.toFixed(2)}</span>}
+                  {hasSale && <span style={{ fontSize: "1.1rem", color: "var(--text-muted)", textDecoration: "line-through", fontFamily: 'var(--font-sans)', fontWeight: 400 }}>{currency} {originalPrice.toFixed(2)}</span>}
                 </div>
                 
-                {hasSale && <span style={{ padding: "6px 12px", background: "var(--accent)", color: "#fff", fontSize: "0.85rem", fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase', borderRadius: '4px' }}>{Math.round((1 - Number(service.salePrice) / originalPrice) * 100)}% OFF</span>}
+                {hasSale && <span style={{ padding: "4px 10px", background: "var(--accent)", color: "#fff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', borderRadius: '4px' }}>{Math.round((1 - Number(service.salePrice) / originalPrice) * 100)}% OFF</span>}
                 
                 {service.durationMin && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text-muted)", fontSize: "1.1rem", borderLeft: '1px solid var(--border)', paddingLeft: 32, fontWeight: 400 }}>
-                    <Clock size={20} />
+                  <span style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", fontSize: "0.95rem", borderLeft: '1px solid var(--border)', paddingLeft: 16, fontWeight: 400 }}>
+                    <Clock size={16} />
                     {formatDuration(service.durationMin)}
                   </span>
                 )}
               </div>
               
               {service.taxRate > 0 && (
-                <div style={{ marginTop: 16, fontSize: "0.9rem", color: "var(--text-muted)", fontStyle: "italic" }}>
+                <div style={{ marginTop: 12, fontSize: "0.82rem", color: "var(--text-muted)", fontStyle: "italic" }}>
                   * Price is exclusive of {service.taxRate}% tax.
                 </div>
               )}

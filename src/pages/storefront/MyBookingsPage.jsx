@@ -71,16 +71,31 @@ export default function MyBookingsPage() {
   };
 
   return (
-    <div className="sf-animate" style={{ maxWidth: 800, margin: "100px auto", padding: "0 24px" }}>
-      <div style={{ textAlign: "center", marginBottom: 64 }}>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "3.5rem", color: "var(--text-main)", marginBottom: 16, fontWeight: 500, letterSpacing: '-1px' }}>My Appointments</h1>
-        <p style={{ fontSize: "1.1rem", color: "var(--text-muted)", fontWeight: 300, maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>
+    <div className="sf-animate sf-bookings-page" style={{ maxWidth: 800, margin: "60px auto", padding: "0 20px" }}>
+      <style>{`
+        .sf-bookings-title {
+          font-family: var(--font-serif);
+          font-size: clamp(1.8rem, 5vw, 3.2rem);
+          color: var(--text-main);
+          margin-bottom: 12px;
+          font-weight: 500;
+          letter-spacing: -0.5px;
+          line-height: 1.2;
+        }
+        @media (max-width: 600px) {
+          .sf-bookings-page { margin: 30px auto !important; padding: 0 14px !important; }
+          .sf-bookings-form { padding: 24px 16px !important; }
+        }
+      `}</style>
+      <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <h1 className="sf-bookings-title">My Appointments</h1>
+        <p style={{ fontSize: "clamp(0.95rem, 2.5vw, 1.1rem)", color: "var(--text-muted)", fontWeight: 300, maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>
           Enter the phone number you used during checkout to view and track your upcoming salon appointments.
         </p>
       </div>
 
       {!searched ? (
-        <form onSubmit={handleSearch} style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 440, margin: "0 auto", background: 'var(--surface)', padding: 40, borderRadius: 'var(--radius-lg)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid var(--border)' }}>
+        <form onSubmit={handleSearch} className="sf-bookings-form" style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 440, margin: "0 auto", background: 'var(--surface)', padding: 40, borderRadius: 'var(--radius-lg)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid var(--border)' }}>
           <div>
             <label style={{ display: 'block', marginBottom: 12, fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>Phone Number</label>
             <input

@@ -184,25 +184,44 @@ export default function CheckoutPage() {
           margin-bottom: 8px;
           font-weight: 500;
         }
+        .sf-form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 32px;
+          margin-bottom: 32px;
+        }
         @media (max-width: 1024px) {
           .sf-checkout-grid {
             grid-template-columns: 1fr;
-            gap: 60px;
+            gap: 40px;
+          }
+        }
+        @media (max-width: 640px) {
+          .sf-form-row {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            margin-bottom: 20px !important;
+          }
+          .sf-checkout-container {
+            padding: 20px 14px !important;
+          }
+          .sf-checkout-summary-card {
+            padding: 24px 16px !important;
           }
         }
       `}</style>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
-        <div style={{ marginBottom: 60 }}>
-          <h1 style={{ fontSize: '3rem', fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)', margin: '0 0 16px', letterSpacing: '-0.5px' }}>
+      <div className="sf-checkout-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
+        <div style={{ marginBottom: 40 }}>
+          <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)', margin: '0 0 12px', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
             Checkout
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 300, margin: 0 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', fontWeight: 300, margin: 0 }}>
             Complete your reservation in just a few details.
           </p>
         </div>
 
         {error && (
-          <div style={{ padding: 20, background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 'var(--radius-sm)', color: '#dc2626', marginBottom: 40, display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.95rem' }}>
+          <div style={{ padding: 16, background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 'var(--radius-sm)', color: '#dc2626', marginBottom: 30, display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.9rem' }}>
             <AlertCircle size={20} />
             <span>{error}</span>
           </div>
@@ -210,11 +229,11 @@ export default function CheckoutPage() {
 
         <div className="sf-checkout-grid">
           <div>
-            <div style={{ marginBottom: 60 }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
+            <div style={{ marginBottom: 40 }}>
+              <h2 style={{ fontSize: '1.35rem', marginBottom: 24, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
                 1. Guest Information
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 32 }}>
+              <div className="sf-form-row">
                 <div>
                   <label className="sf-checkout-label">First Name *</label>
                   <input type="text" required placeholder="e.g. Eleanor" value={form.firstName} onChange={set("firstName")} className="sf-checkout-input" />
@@ -224,7 +243,7 @@ export default function CheckoutPage() {
                   <input type="text" placeholder="e.g. Vance" value={form.lastName} onChange={set("lastName")} className="sf-checkout-input" />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+              <div className="sf-form-row">
                 <div>
                   <label className="sf-checkout-label">Phone Number *</label>
                   <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)', background: 'transparent' }}>
