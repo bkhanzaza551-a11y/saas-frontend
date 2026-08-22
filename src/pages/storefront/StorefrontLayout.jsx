@@ -349,16 +349,36 @@ export default function StorefrontLayout() {
             </div>
           )}
 
+          {/* Mobile Menu Backdrop Overlay */}
+          {mobileMenuOpen && (
+            <div 
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(15, 23, 42, 0.6)",
+                backdropFilter: "blur(4px)",
+                zIndex: 998,
+                transition: "opacity 0.3s ease"
+              }}
+            />
+          )}
+
           {/* Mobile Menu Drawer */}
-          <div className={`sf-mobile-drawer ${mobileMenuOpen ? 'open' : ''}`}>
+          <div className={`sf-mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} style={{ zIndex: 999 }}>
             <div className="sf-mobile-drawer-header">
               <span className="sf-mobile-drawer-title">{activeSalon?.name || "Navigation"}</span>
               <button 
+                type="button"
                 className="sf-mobile-drawer-close" 
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
+                style={{ width: 36, height: 36, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#0f172a", cursor: "pointer", padding: 0 }}
               >
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
             
