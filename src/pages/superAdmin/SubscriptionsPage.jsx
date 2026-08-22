@@ -504,8 +504,18 @@ export default function SubscriptionsPage() {
                 </CustomSelect>
               </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Start Date *</span><input type="date" required value={form.startsAt} onChange={e => setForm({ ...form, startsAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} /></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Expiry Date *</span><input type="date" required value={form.endsAt} onChange={e => setForm({ ...form, endsAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} /></label>
-              <label style={{ gridColumn: "1 / -1" }}><span style={{ fontSize: 12, fontWeight: 700 }}>Manual Discount (INR)</span><input type="number" min="0" value={form.manualDiscount} onChange={e => setForm({ ...form, manualDiscount: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} /></label>
+              <label style={{ gridColumn: "1 / -1" }}>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>Manual Discount (INR)</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={form.manualDiscount ?? ""}
+                  onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                  onChange={e => setForm({ ...form, manualDiscount: e.target.value === "" ? "" : Number(e.target.value) })}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }}
+                />
+              </label>
               <label style={{ gridColumn: "1 / -1" }}><span style={{ fontSize: 12, fontWeight: 700 }}>Internal Notes</span><textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, justifyContent: "flex-end" }}>
                 <button type="button" onClick={() => setIsCreateOpen(false)} style={{ padding: "10px 18px", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", cursor: "pointer" }}>Cancel</button>
@@ -659,8 +669,31 @@ export default function SubscriptionsPage() {
               Salon: <strong>{renewSub.salon?.name}</strong> • Current plan: <strong>{renewSub.plan?.name}</strong>
             </div>
             <form onSubmit={handleRenew} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Renewal Period (months) *</span><input type="number" min="1" max="24" value={renewForm.months} required onChange={e => setRenewForm({ ...renewForm, months: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Amount (INR)</span><input type="number" min="0" value={renewForm.amount} onChange={e => setRenewForm({ ...renewForm, amount: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>Renewal Period (months) *</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="24"
+                  value={renewForm.months ?? ""}
+                  required
+                  onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                  onChange={e => setRenewForm({ ...renewForm, months: e.target.value === "" ? "" : Number(e.target.value) })}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}
+                />
+              </label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>Amount (INR)</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={renewForm.amount ?? ""}
+                  onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                  onChange={e => setRenewForm({ ...renewForm, amount: e.target.value === "" ? "" : Number(e.target.value) })}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }}
+                />
+              </label>
               <label>
                 <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment Method</span>
                 <CustomSelect
@@ -721,7 +754,15 @@ export default function SubscriptionsPage() {
               </div>
               <label>
                 <span style={{ fontSize: 12, fontWeight: 700 }}>Custom Days</span>
-                <input type="number" min="1" max="90" value={extendTrialForm.days} onChange={e => setExtendTrialForm({ ...extendTrialForm, days: Number(e.target.value) })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                <input
+                  type="number"
+                  min="1"
+                  max="90"
+                  value={extendTrialForm.days ?? ""}
+                  onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                  onChange={e => setExtendTrialForm({ ...extendTrialForm, days: e.target.value === "" ? "" : Number(e.target.value) })}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }}
+                />
               </label>
               <label>
                 <span style={{ fontSize: 12, fontWeight: 700 }}>Reason / Note</span>

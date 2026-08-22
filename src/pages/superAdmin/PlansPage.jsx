@@ -73,7 +73,7 @@ const defaultFeatureFlags = {};
 ALL_FLAGS.forEach(f => { defaultFeatureFlags[f] = true; });
 
 const emptyForm = {
-  name: "", description: "", monthlyPrice: 0, yearlyPrice: 0, trialDays: 14,
+  name: "", description: "", monthlyPrice: "", yearlyPrice: "", trialDays: 14,
   branchLimit: 1, userLimit: 5, customerLimit: 500, invoiceLimit: 1000, storageLimit: 500,
   isCustom: false, isPopular: false, isActive: true, featureFlags: { ...defaultFeatureFlags }
 };
@@ -126,10 +126,19 @@ export default function PlansPage() {
       exactFlags[f] = existingFlags[f] === true;
     });
     setForm({
-      name: p.name, description: p.description || "", monthlyPrice: Number(p.monthlyPrice), yearlyPrice: Number(p.yearlyPrice),
-      trialDays: p.trialDays, branchLimit: p.branchLimit, userLimit: p.userLimit,
-      customerLimit: p.customerLimit, invoiceLimit: p.invoiceLimit, storageLimit: p.storageLimit || 500,
-      isCustom: p.isCustom, isPopular: p.isPopular, isActive: p.isActive !== false,
+      name: p.name,
+      description: p.description || "",
+      monthlyPrice: p.monthlyPrice !== undefined && p.monthlyPrice !== null ? p.monthlyPrice : "",
+      yearlyPrice: p.yearlyPrice !== undefined && p.yearlyPrice !== null ? p.yearlyPrice : "",
+      trialDays: p.trialDays !== undefined && p.trialDays !== null ? p.trialDays : "",
+      branchLimit: p.branchLimit !== undefined && p.branchLimit !== null ? p.branchLimit : "",
+      userLimit: p.userLimit !== undefined && p.userLimit !== null ? p.userLimit : "",
+      customerLimit: p.customerLimit !== undefined && p.customerLimit !== null ? p.customerLimit : "",
+      invoiceLimit: p.invoiceLimit !== undefined && p.invoiceLimit !== null ? p.invoiceLimit : "",
+      storageLimit: p.storageLimit !== undefined && p.storageLimit !== null ? p.storageLimit : "",
+      isCustom: Boolean(p.isCustom),
+      isPopular: Boolean(p.isPopular),
+      isActive: p.isActive !== false,
       featureFlags: exactFlags
     });
     setFeatureSearch("");
@@ -218,12 +227,33 @@ export default function PlansPage() {
     const trimmedName = form.name.trim();
     if (!trimmedName) return setStatus({ error: "Plan name is required.", success: "" });
 
-    if (Number(form.monthlyPrice) < 0 || Number(form.yearlyPrice) < 0) {
+    const mPrice = form.monthlyPrice === "" ? 0 : Number(form.monthlyPrice);
+    const yPrice = form.yearlyPrice === "" ? 0 : Number(form.yearlyPrice);
+    const tDays = form.trialDays === "" ? 0 : Number(form.trialDays);
+    const bLimit = form.branchLimit === "" ? 1 : Number(form.branchLimit);
+    const uLimit = form.userLimit === "" ? 5 : Number(form.userLimit);
+    const cLimit = form.customerLimit === "" ? 500 : Number(form.customerLimit);
+    const iLimit = form.invoiceLimit === "" ? 1000 : Number(form.invoiceLimit);
+    const sLimit = form.storageLimit === "" ? 500 : Number(form.storageLimit);
+
+    if (mPrice < 0 || yPrice < 0) {
       return setStatus({ error: "Pricing cannot be negative.", success: "" });
     }
-    if (Number(form.trialDays) < 0 || Number(form.branchLimit) < 0 || Number(form.userLimit) < 0 || Number(form.customerLimit) < 0 || Number(form.invoiceLimit) < 0 || Number(form.storageLimit) < 0) {
+    if (tDays < 0 || bLimit < 0 || uLimit < 0 || cLimit < 0 || iLimit < 0 || sLimit < 0) {
       return setStatus({ error: "Limits and trial days cannot be negative.", success: "" });
     }
+
+    const payload = {
+      ...form,
+      monthlyPrice: mPrice,
+      yearlyPrice: yPrice,
+      trialDays: tDays,
+      branchLimit: bLimit,
+      userLimit: uLimit,
+      customerLimit: cLimit,
+      invoiceLimit: iLimit,
+      storageLimit: sLimit
+    };
 
     // Client-side duplicate name check against active plans
     const isDuplicate = plans.some(p => p.id !== editingId && !p.isArchived && p.name.trim().toLowerCase() === trimmedName.toLowerCase());
@@ -235,12 +265,12 @@ export default function PlansPage() {
     setStatus({ error: "", success: "" });
     try {
       if (editingId) {
-        await api.patch(`/super-admin/plans/${editingId}`, form);
+        await api.patch(`/super-admin/plans/${editingId}`, payload);
         setStatus({ error: "", success: "Plan updated." });
         setIsModalOpen(false);
         await load();
       } else {
-        await api.post("/super-admin/plans", form);
+        await api.post("/super-admin/plans", payload);
         setStatus({ error: "", success: "Plan created." });
         setIsModalOpen(false);
         await load();
@@ -379,15 +409,40 @@ export default function PlansPage() {
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Monthly Price (INR) *</span>
-                  <input type="number" min="0" step="100" value={form.monthlyPrice} required onChange={e => setForm({ ...form, monthlyPrice: Number(e.target.value) })} />
+                  <input
+                    type="number"
+                    min="0"
+                    step="100"
+                    placeholder="0"
+                    value={form.monthlyPrice ?? ""}
+                    required
+                    onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                    onChange={e => setForm({ ...form, monthlyPrice: e.target.value })}
+                  />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Yearly Price (INR) *</span>
-                  <input type="number" min="0" step="100" value={form.yearlyPrice} required onChange={e => setForm({ ...form, yearlyPrice: Number(e.target.value) })} />
+                  <input
+                    type="number"
+                    min="0"
+                    step="100"
+                    placeholder="0"
+                    value={form.yearlyPrice ?? ""}
+                    required
+                    onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                    onChange={e => setForm({ ...form, yearlyPrice: e.target.value })}
+                  />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Trial Days</span>
-                  <input type="number" min="0" value={form.trialDays} onChange={e => setForm({ ...form, trialDays: Number(e.target.value) })} />
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={form.trialDays ?? ""}
+                    onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                    onChange={e => setForm({ ...form, trialDays: e.target.value })}
+                  />
                 </label>
               </div>
 
@@ -409,7 +464,15 @@ export default function PlansPage() {
                   ].map(l => (
                     <label key={l.key} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                       <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b" }}>{l.label}</span>
-                      <input type="number" min="0" value={form[l.key]} onChange={e => setForm({ ...form, [l.key]: Number(e.target.value) })} style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={form[l.key] ?? ""}
+                        onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
+                        onChange={e => setForm({ ...form, [l.key]: e.target.value })}
+                        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }}
+                      />
                     </label>
                   ))}
                 </div>
