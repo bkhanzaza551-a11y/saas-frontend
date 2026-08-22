@@ -224,46 +224,226 @@ a {
   }
 }
 
+/* Header Action Icon Buttons */
+.sf-cart-icon-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sf-cart-icon-btn:hover {
+  background: var(--bg-main);
+  border-color: var(--accent);
+}
+
+.sf-cart-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: #ef4444;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid var(--bg-main);
+}
+
 /* Mobile Menu */
 .sf-mobile-menu-btn {
   display: none;
-  background: none;
-  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
   color: var(--text-main);
   cursor: pointer;
-  padding: 8px;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sf-mobile-menu-btn:hover {
+  background: var(--bg-main);
+  border-color: var(--accent);
 }
 
 .sf-mobile-drawer {
   position: fixed;
   inset: 0;
   background: var(--bg-main);
-  z-index: 998;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
-  padding: 100px 32px 32px;
+  padding: 20px 20px 32px;
   transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
 }
 
 .sf-mobile-drawer.open {
   transform: translateX(0);
 }
 
+.sf-mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.sf-mobile-drawer-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: var(--font-serif);
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+.sf-mobile-drawer-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-mobile-drawer-close:hover {
+  background: var(--bg-main);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
 .sf-mobile-nav-links {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  align-items: center;
-  margin-top: 40px;
+  gap: 10px;
+  flex: 1;
 }
 
-.sf-mobile-nav-links a {
-  font-size: 1.5rem;
-  font-weight: 500;
-  font-family: var(--font-serif);
+.sf-mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
   color: var(--text-main);
   text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.sf-mobile-nav-item:hover,
+.sf-mobile-nav-item:active {
+  background: var(--bg-main);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+.sf-mobile-branch-wrapper {
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.sf-mobile-branch-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.sf-mobile-branch-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-mobile-branch-card:hover {
+  border-color: var(--accent);
+}
+
+.sf-mobile-branch-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(200, 169, 126, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sf-mobile-branch-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(200, 169, 126, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(200, 169, 126, 0.25);
+  flex-shrink: 0;
+}
+
+.sf-mobile-drawer-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+.sf-mobile-drawer-cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+  box-sizing: border-box;
 }
 
 /* Buttons */
@@ -892,15 +1072,16 @@ a {
 /* Responsive */
 @media (max-width: 900px) {
   .sf-nav-links { display: none; }
-  .sf-mobile-menu-btn { display: block; }
+  .sf-mobile-menu-btn { display: inline-flex !important; }
   .sf-header-actions select { display: none; }
 
-  .sf-header { padding: 14px 0; }
+  .sf-header { padding: 12px 0; }
   .sf-header.scrolled { padding: 10px 0; }
 
   .sf-nav-container {
     padding: 0 16px;
     gap: 8px;
+    align-items: center;
   }
 
   .sf-brand {
@@ -909,32 +1090,32 @@ a {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 45%;
+    max-width: 48%;
   }
 
   .sf-header-actions {
-    gap: 4px !important;
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
     flex-shrink: 0;
   }
 
   .sf-branch-btn {
-    padding: 8px 10px !important;
-    font-size: 0 !important;
-    gap: 4px !important;
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
-  .sf-branch-btn svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
+  .sf-branch-btn span {
+    display: none !important;
   }
 
   .sf-branch-btn svg:last-child {
-    display: none;
-  }
-
-  .sf-header-actions a {
-    padding: 8px 10px;
+    display: none !important;
   }
 }
 

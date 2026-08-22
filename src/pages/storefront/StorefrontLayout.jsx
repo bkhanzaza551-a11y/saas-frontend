@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { Outlet, Link, useParams, useLocation } from "react-router-dom";
-import { CalendarCheck, Menu, X, MapPin, ArrowRight, ChevronDown, Check, Building2, Phone, Sparkles } from "lucide-react";
+import { CalendarCheck, Menu, X, MapPin, ArrowRight, ChevronDown, Check, Building2, Phone, Sparkles, Home } from "lucide-react";
 import { api } from "../../api/client";
 import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
 import "../../storefront.css";
@@ -354,18 +354,60 @@ export default function StorefrontLayout() {
 
           {/* Mobile Menu Drawer */}
           <div className={`sf-mobile-drawer ${mobileMenuOpen ? 'open' : ''}`}>
+            <div className="sf-mobile-drawer-header">
+              <span className="sf-mobile-drawer-title">{activeSalon?.name || "Navigation"}</span>
+              <button 
+                className="sf-mobile-drawer-close" 
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
             <div className="sf-mobile-nav-links">
-              <Link to={`/site/${slug}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
-              <Link to={`/site/${slug}/services`} onClick={() => setMobileMenuOpen(false)}>Services</Link>
-              <Link to={`/site/${slug}/my-bookings`} onClick={() => setMobileMenuOpen(false)}>My Bookings</Link>
+              <Link to={`/site/${slug}`} className="sf-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+                <Home size={17} /> <span>Home</span>
+              </Link>
+              <Link to={`/site/${slug}/services`} className="sf-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+                <Sparkles size={17} /> <span>Services & Prices</span>
+              </Link>
+              <Link to={`/site/${slug}/my-bookings`} className="sf-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+                <CalendarCheck size={17} /> <span>My Bookings</span>
+              </Link>
+
               {salon.branches?.length > 1 && (
-                <button 
-                  onClick={() => { setMobileMenuOpen(false); setShowBranchModal(true); }}
-                  style={{ background: "none", border: "none", padding: "12px 0", textAlign: "left", fontSize: "1.5rem", fontFamily: "var(--font-serif)", color: "var(--text-main)", cursor: "pointer", borderTop: "1px solid var(--border)", marginTop: "16px", paddingTop: "24px" }}
-                >
-                  Change Branch
-                </button>
+                <div className="sf-mobile-branch-wrapper">
+                  <div className="sf-mobile-branch-label">Selected Location</div>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); setShowBranchModal(true); }}
+                    className="sf-mobile-branch-card"
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      <div className="sf-mobile-branch-icon">
+                        <MapPin size={15} />
+                      </div>
+                      <div style={{ textAlign: "left", minWidth: 0 }}>
+                        <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text-main)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {selectedBranchId ? salon.branches.find(b => b.id === selectedBranchId)?.name || "All Branches" : "All Branches"}
+                        </div>
+                        <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Tap to switch branch</div>
+                      </div>
+                    </div>
+                    <span className="sf-mobile-branch-tag">Change</span>
+                  </button>
+                </div>
               )}
+            </div>
+
+            <div className="sf-mobile-drawer-footer">
+              <Link 
+                to={`/site/${slug}/services`} 
+                onClick={() => setMobileMenuOpen(false)}
+                className="sf-mobile-drawer-cta"
+              >
+                Book Appointment <ArrowRight size={15} />
+              </Link>
             </div>
           </div>
 
@@ -381,17 +423,16 @@ export default function StorefrontLayout() {
                 <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
               </nav>
               
-              <div className="sf-header-actions" style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+              <div className="sf-header-actions">
                 {salon.branches?.length > 0 && (
                   <div ref={branchDropdownRef} style={{ position: "relative" }}>
                     <button 
                       onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
                       className="sf-branch-btn"
-                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "100px", outline: "none", cursor: "pointer", fontSize: "0.95rem", fontWeight: 500, fontFamily: 'inherit', color: "var(--text-main)", transition: "all 0.2s" }}
                     >
                       <MapPin size={16} color="var(--text-muted)" />
-                      {selectedBranchId ? salon.branches.find(b => b.id === selectedBranchId)?.name || "All Branches" : "All Branches"}
-                      <ChevronDown size={16} color="var(--text-muted)" style={{ transform: branchDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                      <span>{selectedBranchId ? salon.branches.find(b => b.id === selectedBranchId)?.name || "All Branches" : "All Branches"}</span>
+                      <ChevronDown size={14} color="var(--text-muted)" style={{ transform: branchDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                     </button>
 
                     {branchDropdownOpen && (
@@ -419,18 +460,21 @@ export default function StorefrontLayout() {
                     )}
                   </div>
                 )}
-                <Link to={`/site/${slug}/cart`} style={{ position: "relative", padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, color: 'var(--text-main)', textDecoration: 'none' }}>
-                  <CalendarCheck size={20} />
-                  <span style={{ display: 'none' }}>Booking</span>
+                <Link to={`/site/${slug}/cart`} className="sf-cart-icon-btn" aria-label="Bookings">
+                  <CalendarCheck size={18} />
                   {bookingCount > 0 && (
-                    <span style={{ position: "absolute", top: -4, right: -4, background: "#ef4444", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, border: '2px solid var(--bg-main)' }}>
+                    <span className="sf-cart-badge">
                       {bookingCount}
                     </span>
                   )}
                 </Link>
                 
-                <button className="sf-mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ zIndex: 999 }}>
-                  {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                <button 
+                  className="sf-mobile-menu-btn" 
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  aria-label="Toggle menu"
+                >
+                  {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
                 </button>
               </div>
             </div>
