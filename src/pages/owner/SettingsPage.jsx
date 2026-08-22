@@ -2090,35 +2090,85 @@ export default function SettingsPage() {
             <div>
               <label style={{ display: "block", fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Starting Date</label>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", height: 38 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", background: "#ffffff", height: 38, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
                   <button
                     type="button"
                     onClick={() => handleDateNav(-1)}
                     disabled={!rosterModuleEnabled}
-                    style={{ width: 36, height: "100%", background: "#f8fafc", border: "none", borderRight: "1px solid #cbd5e1", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}
+                    title="Previous Day"
+                    style={{ 
+                      width: 40, 
+                      height: "100%", 
+                      background: "#f8fafc", 
+                      border: "none", 
+                      borderRight: "1px solid #cbd5e1", 
+                      borderRadius: 0,
+                      cursor: rosterModuleEnabled ? "pointer" : "not-allowed", 
+                      display: "inline-flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      color: "#0f172a",
+                      padding: 0,
+                      transition: "all 0.15s ease"
+                    }}
+                    onMouseEnter={e => { if (rosterModuleEnabled) e.currentTarget.style.background = "#e2e8f0"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; }}
                   >
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={18} strokeWidth={2.5} />
                   </button>
+                  
                   <button
                     type="button"
                     onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toISOString().split("T")[0] })}
                     disabled={!rosterModuleEnabled}
-                    style={{ height: "100%", padding: "0 12px", background: "#f8fafc", border: "none", borderRight: "1px solid #cbd5e1", cursor: "pointer", fontSize: 12, fontWeight: 700, color: "#3b82f6" }}
+                    style={{ 
+                      height: "100%", 
+                      padding: "0 16px", 
+                      background: "#ffffff", 
+                      border: "none", 
+                      borderRight: "1px solid #cbd5e1", 
+                      borderRadius: 0,
+                      cursor: rosterModuleEnabled ? "pointer" : "not-allowed", 
+                      fontSize: 12, 
+                      fontWeight: 800, 
+                      color: "#2563eb",
+                      letterSpacing: "0.5px",
+                      transition: "all 0.15s ease"
+                    }}
+                    onMouseEnter={e => { if (rosterModuleEnabled) e.currentTarget.style.background = "#eff6ff"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; }}
                   >
                     TODAY
                   </button>
+
                   <button
                     type="button"
                     onClick={() => handleDateNav(1)}
                     disabled={!rosterModuleEnabled}
-                    style={{ width: 36, height: "100%", background: "#f8fafc", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}
+                    title="Next Day"
+                    style={{ 
+                      width: 40, 
+                      height: "100%", 
+                      background: "#f8fafc", 
+                      border: "none", 
+                      borderRadius: 0,
+                      cursor: rosterModuleEnabled ? "pointer" : "not-allowed", 
+                      display: "inline-flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      color: "#0f172a",
+                      padding: 0,
+                      transition: "all 0.15s ease"
+                    }}
+                    onMouseEnter={e => { if (rosterModuleEnabled) e.currentTarget.style.background = "#e2e8f0"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; }}
                   >
-                    <ChevronRight size={16} />
+                    <ChevronRight size={18} strokeWidth={2.5} />
                   </button>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#1e293b", minWidth: 100 }}>
-                  <CalendarDays size={16} color="#94a3b8" />
-                  {formatDate(roster.selectedDate)}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#0f172a", minWidth: 110 }}>
+                  <CalendarDays size={18} color="#0d9488" />
+                  <span>{formatDate(roster.selectedDate)}</span>
                 </div>
               </div>
             </div>
