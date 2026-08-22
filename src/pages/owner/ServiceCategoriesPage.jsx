@@ -789,28 +789,37 @@ export default function ServiceCategoriesPage() {
                         onClick={() => setServiceForm({ ...serviceForm, imageUrl: "" })} 
                         style={{ 
                           position: "absolute", 
-                          top: 4, 
-                          right: 4, 
-                          background: "rgba(15, 23, 42, 0.75)", 
+                          top: 5, 
+                          right: 5, 
+                          background: "rgba(15, 23, 42, 0.8)", 
                           backdropFilter: "blur(4px)",
                           color: "#ffffff", 
                           border: "none", 
                           borderRadius: "50%", 
-                          width: 20, 
-                          height: 20, 
+                          width: 22, 
+                          height: 22, 
+                          minWidth: 22,
+                          minHeight: 22,
+                          maxWidth: 22,
+                          maxHeight: 22,
                           padding: 0,
+                          margin: 0,
+                          boxSizing: "border-box",
+                          lineHeight: 1,
                           cursor: "pointer", 
                           display: "flex", 
                           alignItems: "center", 
                           justifyContent: "center",
+                          aspectRatio: "1 / 1",
+                          flexShrink: 0,
                           transition: "all 0.15s ease",
                           zIndex: 5
                         }} 
                         onMouseEnter={e => { e.currentTarget.style.background = "#ef4444"; e.currentTarget.style.transform = "scale(1.1)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.75)"; e.currentTarget.style.transform = "scale(1)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.8)"; e.currentTarget.style.transform = "scale(1)"; }}
                         title="Remove Image"
                       >
-                        <X size={11} strokeWidth={2.5} />
+                        <X size={12} strokeWidth={2.5} style={{ display: "block", flexShrink: 0 }} />
                       </button>
                     </div>
                   ) : (
