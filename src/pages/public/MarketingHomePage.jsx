@@ -265,6 +265,23 @@ const allFeaturesDeepList = [
       "Payment mode distribution (UPI vs Cards vs Cash)",
       "One-click Excel & PDF export for chartered accountants"
     ]
+  },
+  {
+    category: "WhatsApp & Growth Marketing",
+    icon: Megaphone,
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    tag: "High Conversion",
+    title: "Automated WhatsApp Marketing & Campaigns",
+    desc: "Engage clients with automated birthday vouchers, festival broadcast campaigns, win-back discounts, and 2-way client communication.",
+    items: [
+      "Official WhatsApp Business API broadcast engine",
+      "Automated Birthday & Anniversary greeting vouchers",
+      "Lost client 60-day win-back campaign triggers",
+      "Custom coupon codes with maximum usage limits",
+      "Rich media broadcast templates with image & PDF support",
+      "Live campaign delivery, open & redemption analytics"
+    ]
   }
 ];
 
