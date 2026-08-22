@@ -5135,13 +5135,13 @@ export default function SettingsPage() {
 
               {/* Mockup Container */}
               <div style={{ height: 260, display: "flex", background: "#f1f5f9" }}>
-                {/* Mockup Sidebar */}
-                <div style={{ width: 70, background: sidebarColor, display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 4px", gap: 12, transition: "background 0.3s ease" }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(255,255,255,0.2)", marginBottom: 8 }} />
-                  <div style={{ width: 36, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.15)" }} />
-                  <div style={{ width: 36, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.15)" }} />
-                  <div style={{ width: 36, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.15)" }} />
-                  <div style={{ width: 36, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.15)" }} />
+                {/* Mockup Sidebar - Clean White */}
+                <div style={{ width: 70, background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 4px", gap: 10 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#e2e8f0", marginBottom: 6 }} />
+                  <div style={{ width: 38, height: 7, borderRadius: 4, background: "#f1f5f9" }} />
+                  <div style={{ width: 38, height: 7, borderRadius: 4, background: "#f1f5f9" }} />
+                  <div style={{ width: 38, height: 7, borderRadius: 4, background: "#f1f5f9" }} />
+                  <div style={{ width: 38, height: 7, borderRadius: 4, background: "#f1f5f9" }} />
                 </div>
 
                 {/* Mockup Main */}
