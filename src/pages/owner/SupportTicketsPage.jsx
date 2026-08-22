@@ -410,30 +410,82 @@ export default function SupportTicketsPage() {
                   <h5 style={{ margin: "0 0 12px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Conversation History ({selectedTicket.messages.length})</h5>
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {selectedTicket.messages.map((msg) => {
-                      const isOwnerAuthor = msg.authorType === "OWNER" || msg.authorType === "SALON_OWNER" || msg.authorType === "STAFF";
+                      const isOwnerAuthor = msg.authorType === "SALON" || msg.authorType === "OWNER" || msg.authorType === "SALON_OWNER" || msg.authorType === "STAFF";
+                      const authorLabel = isOwnerAuthor ? "You (Salon Owner)" : (msg.authorType === "SUPER_ADMIN" ? "Super Admin" : "Support Team");
+                      const timeStr = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      const dateStr = new Date(msg.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+
                       return (
-                        <div key={msg.id} style={{ alignSelf: isOwnerAuthor ? "flex-end" : "flex-start", maxWidth: "85%", background: isOwnerAuthor ? "#eef2ff" : "#f8fafc", border: isOwnerAuthor ? "1px solid #c7d2fe" : "1px solid #e2e8f0", padding: 12, borderRadius: 10 }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 4 }}>
-                            <strong style={{ fontSize: 12, color: isOwnerAuthor ? "#3730a3" : "#0f172a" }}>{msg.authorName || (isOwnerAuthor ? "You" : "Support Agent")} <span style={{ fontWeight: 400, fontSize: 10, color: "#64748b" }}>({msg.authorType})</span></strong>
-                            <span style={{ fontSize: 10, color: "#94a3b8" }}>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <div 
+                          key={msg.id} 
+                          style={{ 
+                            alignSelf: isOwnerAuthor ? "flex-end" : "flex-start", 
+                            maxWidth: "80%", 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            gap: 4 
+                          }}
+                        >
+                          <div style={{ 
+                            display: "flex", 
+                            justifyContent: isOwnerAuthor ? "flex-end" : "flex-start", 
+                            alignItems: "center", 
+                            gap: 8, 
+                            fontSize: 11, 
+                            color: "#64748b", 
+                            padding: "0 4px" 
+                          }}>
+                            <strong style={{ color: isOwnerAuthor ? "#4338ca" : "#0f172a" }}>
+                              {isOwnerAuthor ? "You" : (msg.authorName || "Super Admin")}
+                            </strong>
+                            <span style={{ 
+                              background: isOwnerAuthor ? "#e0e7ff" : "#ede9fe", 
+                              color: isOwnerAuthor ? "#3730a3" : "#6d28d9", 
+                              padding: "1px 6px", 
+                              borderRadius: 4, 
+                              fontSize: 10, 
+                              fontWeight: 700 
+                            }}>
+                              {authorLabel}
+                            </span>
+                            <span style={{ fontSize: 10, color: "#94a3b8" }}>{dateStr}, {timeStr}</span>
                           </div>
-                          <p style={{ margin: 0, fontSize: 13, color: "#334155", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{msg.message}</p>
-                          {msg.attachmentUrl && (
-                            <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed #cbd5e1", fontSize: 11 }}>
-                              {isImageAttachment(msg.attachmentUrl) ? (
-                                <div>
-                                  <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
-                                  <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: 600, fontSize: 11 }}>View Full Image &rarr;</a>
-                                </div>
-                              ) : isAttachmentLink(msg.attachmentUrl) ? (
-                                <a href={formatAttachmentValue(msg.attachmentUrl)} target="_blank" rel="noreferrer" download style={{ color: "#2563eb", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", background: "#fff", border: "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>
-                                  <Paperclip size={11} /> {getAttachmentMeta(msg.attachmentUrl).label} &rarr;
-                                </a>
-                              ) : (
-                                <span style={{ color: "#64748b" }}>{formatAttachmentValue(msg.attachmentUrl)}</span>
-                              )}
-                            </div>
-                          )}
+
+                          <div style={{ 
+                            background: isOwnerAuthor ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "#ffffff", 
+                            color: isOwnerAuthor ? "#ffffff" : "#1e293b", 
+                            border: isOwnerAuthor ? "none" : "1px solid #e2e8f0", 
+                            borderRadius: isOwnerAuthor ? "14px 4px 14px 14px" : "4px 14px 14px 14px", 
+                            padding: "12px 16px", 
+                            boxShadow: isOwnerAuthor ? "0 4px 12px rgba(79, 70, 229, 0.2)" : "0 2px 6px rgba(0,0,0,0.03)",
+                            fontSize: 13,
+                            lineHeight: 1.55,
+                            whiteSpace: "pre-wrap"
+                          }}>
+                            {msg.message}
+                            
+                            {msg.attachmentUrl && (
+                              <div style={{ 
+                                marginTop: 10, 
+                                paddingTop: 8, 
+                                borderTop: isOwnerAuthor ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #cbd5e1", 
+                                fontSize: 11 
+                              }}>
+                                {isImageAttachment(msg.attachmentUrl) ? (
+                                  <div>
+                                    <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: isOwnerAuthor ? "1px solid rgba(255,255,255,0.4)" : "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
+                                    <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isOwnerAuthor ? "#e0e7ff" : "#2563eb", fontWeight: 600, fontSize: 11, textDecoration: "underline" }}>View Full Image &rarr;</a>
+                                  </div>
+                                ) : isAttachmentLink(msg.attachmentUrl) ? (
+                                  <a href={formatAttachmentValue(msg.attachmentUrl)} target="_blank" rel="noreferrer" download style={{ color: isOwnerAuthor ? "#ffffff" : "#2563eb", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", background: isOwnerAuthor ? "rgba(255,255,255,0.2)" : "#eff6ff", border: isOwnerAuthor ? "1px solid rgba(255,255,255,0.3)" : "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>
+                                    <Paperclip size={11} /> {getAttachmentMeta(msg.attachmentUrl).label} &rarr;
+                                  </a>
+                                ) : (
+                                  <span style={{ color: isOwnerAuthor ? "rgba(255,255,255,0.8)" : "#64748b" }}>{formatAttachmentValue(msg.attachmentUrl)}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
