@@ -151,87 +151,157 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="sf-section" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingTop: 140 }}>
+    <div className="sf-section" style={{ background: '#f8fafc', minHeight: '100vh', paddingTop: 'clamp(90px, 12vw, 130px)', paddingBottom: 80 }}>
       <style>{`
         .sf-checkout-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 480px;
-          gap: 80px;
+          grid-template-columns: minmax(0, 1fr) 420px;
+          gap: 40px;
           align-items: start;
+        }
+        .sf-checkout-card {
+          background: #ffffff;
+          border-radius: 18px;
+          padding: 32px 28px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+          margin-bottom: 24px;
+        }
+        .sf-checkout-step-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: var(--text-main, #0f172a);
+          color: #ffffff;
+          font-size: 0.85rem;
+          font-weight: 700;
+          margin-right: 10px;
+        }
+        .sf-checkout-step-title {
+          display: flex;
+          align-items: center;
+          font-size: 1.25rem;
+          margin: 0 0 20px;
+          font-family: var(--font-serif, serif);
+          font-weight: 600;
+          color: var(--text-main, #0f172a);
         }
         .sf-checkout-input {
           width: 100%;
-          padding: 16px 0;
-          border: none;
-          border-bottom: 1px solid var(--border);
-          background: transparent;
+          padding: 12px 16px;
+          border: 1.5px solid #e2e8f0;
+          background: #fcfdfe;
           font-family: var(--font-sans);
-          font-size: 1.1rem;
-          color: var(--text-main);
-          transition: border-color 0.3s;
-          border-radius: 0;
+          font-size: 0.95rem;
+          color: var(--text-main, #0f172a);
+          transition: all 0.2s ease;
+          border-radius: 10px;
+          box-sizing: border-box;
         }
         .sf-checkout-input:focus {
           outline: none;
-          border-color: var(--accent);
+          border-color: #0f172a;
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
         }
         .sf-checkout-label {
           display: block;
-          font-size: 0.85rem;
-          color: var(--text-muted);
+          font-size: 0.8rem;
+          color: #64748b;
           text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 8px;
-          font-weight: 500;
+          letter-spacing: 0.5px;
+          margin-bottom: 6px;
+          font-weight: 600;
         }
         .sf-form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 32px;
-          margin-bottom: 32px;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        .sf-checkout-summary-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          padding: 28px 24px;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+        .sf-item-thumb {
+          width: 52px;
+          height: 52px;
+          border-radius: 10px;
+          object-fit: cover;
+          background: #f1f5f9;
+          flex-shrink: 0;
+        }
+        .sf-item-fallback-thumb {
+          width: 52px;
+          height: 52px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border: 1px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #64748b;
+          flex-shrink: 0;
         }
         @media (max-width: 1024px) {
           .sf-checkout-grid {
             grid-template-columns: 1fr;
-            gap: 40px;
+            gap: 32px;
           }
         }
         @media (max-width: 640px) {
+          .sf-checkout-container {
+            padding: 0 14px !important;
+          }
+          .sf-checkout-card {
+            padding: 20px 16px !important;
+            border-radius: 14px !important;
+          }
           .sf-form-row {
             grid-template-columns: 1fr !important;
-            gap: 20px !important;
-            margin-bottom: 20px !important;
-          }
-          .sf-checkout-container {
-            padding: 20px 14px !important;
+            gap: 12px !important;
+            margin-bottom: 12px !important;
           }
           .sf-checkout-summary-card {
-            padding: 24px 16px !important;
+            padding: 20px 16px !important;
+            border-radius: 16px !important;
           }
         }
       `}</style>
-      <div className="sf-checkout-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
-        <div style={{ marginBottom: 40 }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)', margin: '0 0 12px', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
-            Checkout
+      <div className="sf-checkout-container" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+        <div style={{ marginBottom: 28 }}>
+          <Link to={`/site/${salon?.slug}/collections`} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#64748b", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>
+            <ArrowLeft size={15} /> Back to Catalog
+          </Link>
+          <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontFamily: 'var(--font-serif)', fontWeight: 700, color: '#0f172a', margin: '0 0 6px', letterSpacing: '-0.5px' }}>
+            Secure Checkout
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', fontWeight: 300, margin: 0 }}>
-            Complete your reservation in just a few details.
+          <p style={{ color: '#64748b', fontSize: 'clamp(0.88rem, 2.5vw, 1rem)', margin: 0 }}>
+            Complete your reservation in just a few quick steps.
           </p>
         </div>
 
         {error && (
-          <div style={{ padding: 16, background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 'var(--radius-sm)', color: '#dc2626', marginBottom: 30, display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.9rem' }}>
-            <AlertCircle size={20} />
+          <div style={{ padding: 14, background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 12, color: '#dc2626', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.88rem' }}>
+            <span style={{ fontSize: "1.1rem" }}>⚠️</span>
             <span>{error}</span>
           </div>
         )}
 
         <div className="sf-checkout-grid">
+          {/* Left Column: Form Steps */}
           <div>
-            <div style={{ marginBottom: 40 }}>
-              <h2 style={{ fontSize: '1.35rem', marginBottom: 24, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
-                1. Guest Information
+            {/* Step 1: Guest Information */}
+            <div className="sf-checkout-card">
+              <h2 className="sf-checkout-step-title">
+                <span className="sf-checkout-step-badge">1</span>
+                Guest Information
               </h2>
               <div className="sf-form-row">
                 <div>
@@ -246,17 +316,17 @@ export default function CheckoutPage() {
               <div className="sf-form-row">
                 <div>
                   <label className="sf-checkout-label">Phone Number *</label>
-                  <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)', background: 'transparent' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #e2e8f0', borderRadius: 10, background: '#fcfdfe', overflow: 'hidden' }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
-                      padding: '16px 12px 16px 0',
-                      borderRight: '1px solid var(--border)',
-                      marginRight: 12,
-                      fontSize: '1.05rem',
+                      padding: '12px 10px',
+                      background: '#f1f5f9',
+                      borderRight: '1px solid #e2e8f0',
+                      fontSize: '0.9rem',
                       fontWeight: 700,
-                      color: 'var(--text-main)',
+                      color: '#0f172a',
                       userSelect: 'none'
                     }}>
                       <span>🇮🇳</span>
@@ -269,17 +339,16 @@ export default function CheckoutPage() {
                       placeholder="98765 43210"
                       value={form.phone}
                       onChange={handlePhoneInput}
-                      className="sf-checkout-input"
-                      style={{ borderBottom: 'none', padding: '16px 0', letterSpacing: '1px' }}
+                      style={{ border: 'none', background: 'transparent', padding: '12px 14px', width: '100%', fontSize: '0.95rem', outline: 'none', color: '#0f172a' }}
                     />
                   </div>
                   {form.phone && form.phone.length > 0 && form.phone.length < 10 && (
-                    <small style={{ color: '#d97706', fontSize: '0.8rem', marginTop: 4, display: 'block' }}>
+                    <small style={{ color: '#d97706', fontSize: '0.75rem', marginTop: 4, display: 'block' }}>
                       {10 - form.phone.length} more digit{10 - form.phone.length > 1 ? "s" : ""} required
                     </small>
                   )}
                   {form.phone && form.phone.length === 10 && (
-                    <small style={{ color: '#16a34a', fontSize: '0.8rem', marginTop: 4, display: 'block', fontWeight: 600 }}>
+                    <small style={{ color: '#16a34a', fontSize: '0.75rem', marginTop: 4, display: 'block', fontWeight: 600 }}>
                       ✓ 10-digit number verified
                     </small>
                   )}
@@ -291,108 +360,175 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div style={{ marginBottom: 60 }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
-                2. Special Requests
+            {/* Step 2: Special Requests */}
+            <div className="sf-checkout-card">
+              <h2 className="sf-checkout-step-title">
+                <span className="sf-checkout-step-badge">2</span>
+                Special Requests
               </h2>
               <textarea placeholder="Any preferences, allergies, or notes for our specialists..." value={form.note} onChange={set("note")} className="sf-checkout-input" rows={3} style={{ resize: 'vertical' }} />
             </div>
 
-            <div style={{ marginBottom: 60 }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>
-                3. Payment Method
+            {/* Step 3: Payment Method */}
+            <div className="sf-checkout-card">
+              <h2 className="sf-checkout-step-title">
+                <span className="sf-checkout-step-badge">3</span>
+                Payment Method
               </h2>
-              <div style={{ padding: 24, border: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-                <CheckCircle2 size={24} style={{ color: 'var(--accent)', marginTop: 2 }} />
+              <div style={{ padding: '16px 18px', border: '2px solid #0f172a', background: '#f8fafc', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                <CheckCircle2 size={22} color="#0f172a" style={{ marginTop: 2, flexShrink: 0 }} />
                 <div>
-                  <div style={{ fontWeight: 500, fontSize: '1.1rem', marginBottom: 8 }}>Pay at Salon</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '1rem', fontWeight: 300, lineHeight: 1.6 }}>Your booking will be confirmed instantly. Please pay at the front desk when you arrive for your appointment.</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.98rem', color: '#0f172a', marginBottom: 2 }}>Pay at Salon</div>
+                  <div style={{ color: '#64748b', fontSize: '0.85rem', lineHeight: 1.4 }}>Your booking is confirmed instantly. Pay via Cash, Card, or UPI at the front desk upon arrival.</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="sf-checkout-sticky" style={{ position: 'sticky', top: 120 }}>
-            <div style={{ background: 'var(--surface-alt)', padding: 48, borderRadius: 'var(--radius-lg)' }}>
-              <h3 style={{ fontSize: '1.8rem', marginBottom: 32, fontFamily: 'var(--font-serif)', fontWeight: 500, color: 'var(--text-main)' }}>Order Summary</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 32 }}>
+          {/* Right Column: Order Summary Sticky Card */}
+          <div className="sf-checkout-sticky" style={{ position: 'sticky', top: 100 }}>
+            <div className="sf-checkout-summary-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid #f1f5f9' }}>
+                <h3 style={{ fontSize: '1.25rem', margin: 0, fontFamily: 'var(--font-serif)', fontWeight: 700, color: '#0f172a' }}>
+                  Order Summary
+                </h3>
+                <span style={{ fontSize: '0.8rem', background: '#f1f5f9', color: '#475569', padding: '3px 8px', borderRadius: 12, fontWeight: 700 }}>
+                  {bookings.length} {bookings.length === 1 ? 'Item' : 'Items'}
+                </span>
+              </div>
+
+              {/* Items List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24, maxHeight: 300, overflowY: 'auto' }}>
                 {bookings.map((b, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     {b.imageUrl ? (
-                      <img src={b.imageUrl} alt={b.name} style={{ width: 56, height: 56, borderRadius: '8px', objectFit: 'cover' }} />
+                      <div style={{ position: 'relative' }}>
+                        <img 
+                          src={b.imageUrl} 
+                          alt=""
+                          className="sf-item-thumb" 
+                          onError={e => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="sf-item-fallback-thumb" style={{ display: 'none' }}>
+                          <Calendar size={18} />
+                        </div>
+                      </div>
                     ) : (
-                      <div style={{ width: 56, height: 56, borderRadius: '8px', background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Calendar size={20} color="var(--text-muted)" />
+                      <div className="sf-item-fallback-thumb">
+                        <Calendar size={18} />
                       </div>
                     )}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                        <p style={{ margin: 0, fontWeight: 500, fontSize: '1rem', color: 'var(--text-main)' }}>{b.name}</p>
-                        <span style={{ fontWeight: 500, color: 'var(--text-main)', fontFamily: 'var(--font-serif)', fontSize: '1rem' }}>{currency} {Number(b.price) * b.qty}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 2 }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem', color: '#0f172a', wordBreak: 'break-word' }}>{b.name}</p>
+                        <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem', flexShrink: 0 }}>{currency} {Number(b.price) * b.qty}</span>
                       </div>
-                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 300 }}>
-                        {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
+                      <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        📅 {new Date(b.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {b.time}
                       </p>
-                      {b.staffName && <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--accent)' }}>Stylist: {b.staffName}</p>}
-                      {b.qty > 1 && <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Qty: {b.qty}</p>}
+                      {b.staffName && <p style={{ margin: '2px 0 0', fontSize: '0.76rem', color: '#c8a97e', fontWeight: 600 }}>Specialist: {b.staffName}</p>}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24, marginBottom: 24 }}>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              {/* Promo Code Input Group */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 18, marginBottom: 18 }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                     placeholder="PROMO CODE"
-                    style={{ flex: 1, padding: '10px 14px', border: '1px solid var(--border)', background: 'var(--bg-main)', color: 'var(--text-main)', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      border: '1.5px solid #e2e8f0',
+                      background: '#fcfdfe',
+                      color: '#0f172a',
+                      borderRadius: 10,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      outline: 'none'
+                    }}
                   />
                   <button
                     onClick={handleApplyCoupon}
                     disabled={validatingCoupon || !couponCode.trim()}
-                    className="sf-btn-outline"
-                    style={{ padding: '8px 16px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                    style={{
+                      padding: '10px 16px',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      borderRadius: 10,
+                      border: '1px solid #0f172a',
+                      background: '#0f172a',
+                      color: '#ffffff',
+                      cursor: validatingCoupon || !couponCode.trim() ? 'not-allowed' : 'pointer',
+                      opacity: validatingCoupon || !couponCode.trim() ? 0.6 : 1,
+                      transition: 'all 0.2s ease',
+                      flexShrink: 0
+                    }}
                   >
                     {validatingCoupon ? '...' : 'Apply'}
                   </button>
                 </div>
                 {couponMsg && (
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: couponMsg.type === 'success' ? '#059669' : '#dc2626', fontWeight: 500 }}>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: couponMsg.type === 'success' ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
                     {couponMsg.text}
                   </p>
                 )}
               </div>
               
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24, marginBottom: 32 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: 'var(--text-muted)', marginBottom: 8 }}>
+              {/* Pricing Breakdown */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 16, marginBottom: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#64748b', marginBottom: 6 }}>
                   <span>Subtotal</span>
-                  <span>{currency} {subtotal}</span>
+                  <span style={{ fontWeight: 600, color: '#0f172a' }}>{currency} {subtotal}</span>
                 </div>
                 {couponDiscount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: '#059669', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#16a34a', marginBottom: 6, fontWeight: 600 }}>
                     <span>Coupon Discount</span>
                     <span>- {currency} {couponDiscount}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)', fontWeight: 500, paddingTop: 12, borderTop: '1px dashed var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.35rem', color: '#0f172a', fontFamily: 'var(--font-serif)', fontWeight: 700, paddingTop: 10, borderTop: '1px dashed #e2e8f0', marginTop: 8 }}>
                   <span>Total</span>
                   <span>{currency} {finalTotal}</span>
                 </div>
               </div>
 
+              {/* Confirm Booking CTA */}
               <button 
-                className="sf-btn-primary" 
-                style={{ width: '100%', padding: '20px 0', fontSize: '1.1rem', borderRadius: '4px' }} 
+                style={{
+                  width: '100%',
+                  padding: '15px',
+                  fontSize: '0.98rem',
+                  fontWeight: 700,
+                  borderRadius: 12,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                  color: '#ffffff',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 6px 20px rgba(15, 23, 42, 0.25)',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8
+                }} 
                 onClick={handlePlaceBooking} 
                 disabled={submitting}
               >
-                {submitting ? 'Confirming...' : 'Confirm Appointment'}
+                {submitting ? 'Confirming Appointment...' : 'Confirm Appointment'}
               </button>
               
-              <div style={{ marginTop: 20, textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 300, lineHeight: 1.5 }}>
-                By confirming your booking, you agree to our salon's cancellation policies.
+              <div style={{ marginTop: 14, textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                🔒 Free cancellation up to 2 hours before appointment.
               </div>
             </div>
           </div>

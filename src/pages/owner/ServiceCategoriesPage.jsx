@@ -822,8 +822,8 @@ export default function ServiceCategoriesPage() {
                       <input type="file" accept="image/*" hidden onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
-                        if (file.size > 2 * 1024 * 1024) {
-                          setError("Image exceeds 2MB.");
+                        if (file.size > 15 * 1024 * 1024) {
+                          setError("Image exceeds 15MB.");
                           return;
                         }
                         try {
@@ -838,7 +838,7 @@ export default function ServiceCategoriesPage() {
                           const url = response.data?.url || "";
                           setServiceForm(p => ({ ...p, imageUrl: url }));
                         } catch (err) {
-                          setError("Failed to upload image. Please try again.");
+                          setError(err?.response?.data?.message || "Failed to upload image. Please try again.");
                           setServiceForm(p => ({ ...p, imageUrl: "" }));
                         }
                         e.target.value = "";
