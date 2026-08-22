@@ -377,19 +377,18 @@ export default function WebsiteEditorPage() {
 
               <div>
                 <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>Hero Background Image</label>
-                <div style={{ display: "flex", gap: "10px", marginBottom: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "8px", background: "#f1f5f9", border: "1px solid #cbd5e1", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600, color: "#334155" }}>
                     <Upload size={14} /> Upload Banner
                     <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleFileUpload(e.target.files?.[0], url => update("heroImage", url))} />
                   </label>
+                  {config.heroImage && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <img src={config.heroImage} alt="Banner" style={{ width: "40px", height: "40px", borderRadius: "6px", objectFit: "cover", border: "1px solid #cbd5e1" }} />
+                      <button onClick={() => update("heroImage", "")} style={{ background: "none", border: "none", color: "#ef4444", fontSize: "0.8rem", cursor: "pointer", fontWeight: 600 }}>Remove</button>
+                    </div>
+                  )}
                 </div>
-                <input 
-                  type="text" 
-                  value={config.heroImage || ""} 
-                  onChange={e => update("heroImage", e.target.value)} 
-                  placeholder="Or paste Banner Image URL (https://...)" 
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
-                />
               </div>
 
               <div>
@@ -432,19 +431,18 @@ export default function WebsiteEditorPage() {
 
               <div>
                 <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>About Feature Image</label>
-                <div style={{ display: "flex", gap: "10px", marginBottom: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "8px", background: "#f1f5f9", border: "1px solid #cbd5e1", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600, color: "#334155" }}>
                     <Upload size={14} /> Upload Image
                     <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleFileUpload(e.target.files?.[0], url => update("aboutImage", url))} />
                   </label>
+                  {config.aboutImage && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <img src={config.aboutImage} alt="About" style={{ width: "40px", height: "40px", borderRadius: "6px", objectFit: "cover", border: "1px solid #cbd5e1" }} />
+                      <button onClick={() => update("aboutImage", "")} style={{ background: "none", border: "none", color: "#ef4444", fontSize: "0.8rem", cursor: "pointer", fontWeight: 600 }}>Remove</button>
+                    </div>
+                  )}
                 </div>
-                <input 
-                  type="text" 
-                  value={config.aboutImage || ""} 
-                  onChange={e => update("aboutImage", e.target.value)} 
-                  placeholder="Or paste Image URL (https://...)" 
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
-                />
               </div>
             </div>
           )}
@@ -452,22 +450,6 @@ export default function WebsiteEditorPage() {
           {/* 4. PHOTO GALLERY */}
           {activeCategory === "gallery" && (
             <div style={{ display: "grid", gap: "16px" }}>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <input 
-                  type="text" 
-                  value={galleryUrlInput} 
-                  onChange={e => setGalleryUrlInput(e.target.value)} 
-                  placeholder="Paste Image URL..." 
-                  style={{ flex: 1, padding: "8px 12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
-                />
-                <button 
-                  onClick={addGalleryUrl} 
-                  style={{ padding: "8px 14px", borderRadius: "8px", background: "#0f172a", color: "#fff", border: "none", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}
-                >
-                  Add
-                </button>
-              </div>
-
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
                 {(config.galleryImages || []).map((img, idx) => (
                   <div key={idx} style={{ position: "relative", borderRadius: "8px", overflow: "hidden", aspectRatio: "1/1", border: "1px solid #e2e8f0" }}>
@@ -483,7 +465,7 @@ export default function WebsiteEditorPage() {
                 
                 <label style={{ borderRadius: "8px", border: "2px dashed #cbd5e1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", aspectRatio: "1/1", cursor: "pointer", background: "#f8fafc", color: "#64748b" }}>
                   <Upload size={20} />
-                  <span style={{ fontSize: "0.7rem", marginTop: "4px", fontWeight: 600 }}>Upload</span>
+                  <span style={{ fontSize: "0.7rem", marginTop: "4px", fontWeight: 600 }}>Upload Photo</span>
                   <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleFileUpload(e.target.files?.[0], url => update("galleryImages", [...(config.galleryImages || []), url]))} />
                 </label>
               </div>
