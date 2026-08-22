@@ -21,10 +21,10 @@ const navLinks = [
 
 const salonImages = {
   hero: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&h=900&fit=crop&crop=center",
-  styling: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop",
-  spa: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop",
-  beauty: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&h=400&fit=crop",
-  interior: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600&h=400&fit=crop",
+  styling: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=900&auto=format&fit=crop&q=80",
+  spa: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=900&auto=format&fit=crop&q=80",
+  beauty: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&auto=format&fit=crop&q=80",
+  interior: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=900&auto=format&fit=crop&q=80",
   cta: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&h=500&fit=crop&crop=center",
   team: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop"
 };
@@ -1067,50 +1067,157 @@ export default function MarketingHomePage() {
             </section>
 
             {/* VISUAL SHOWCASE: BUILT FOR PREMIUM SALONS */}
-            <section style={{ padding: "90px 24px 70px", background: "#ffffff" }}>
+            <section style={{ padding: "96px 24px 80px", background: "#ffffff" }}>
               <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-                <div style={{ textAlign: "center", marginBottom: 48 }}>
-                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
-                    OUR WORLD
+                
+                <div style={{ textAlign: "center", marginBottom: 54 }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                    <Crown size={13} /> TAILORED ARCHITECTURE
                   </div>
-                  <h2 className="marketing-section-heading" style={{ color: "#0f172a" }}>Built for the World's Best Salons</h2>
-                  <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 640, margin: "0 auto", lineHeight: 1.6 }}>
-                    From boutique styling studios to 15+ branch luxury wellness chains, Salon Nest powers the modern guest experience.
+                  <h2 className="marketing-section-heading" style={{ color: "#0f172a", margin: "0 0 14px" }}>Built for the World's Best Salons & Spas</h2>
+                  <p style={{ fontSize: "1.15rem", color: "#475569", maxWidth: 680, margin: "0 auto", lineHeight: 1.6 }}>
+                    From boutique styling studios to 15+ branch luxury wellness chains, Salon Nest powers every operational touchpoint.
                   </p>
                 </div>
 
-                <div className="marketing-images-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+                <div className="marketing-images-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 28 }}>
                   {[
-                    { img: salonImages.styling, title: "Luxury Hair Studios", tag: "Styling & Color Care", desc: "Formulas, chair time allocation, and stylist commissions." },
-                    { img: salonImages.spa, title: "Day Spas & Wellness", tag: "Therapy & Packages", desc: "Couples suites, therapist shifts, and automated refill reminders." },
-                    { img: salonImages.beauty, title: "Aesthetic & Bridal Lounges", tag: "Skin & Glamour", desc: "Bridal packages, customer history, and digital consultation notes." }
-                  ].map((card, i) => (
-                    <div 
-                      key={i} 
-                      style={{ 
-                        borderRadius: 20, 
-                        overflow: "hidden", 
-                        position: "relative", 
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.08)", 
-                        transition: "all 0.35s ease",
-                        cursor: "pointer",
-                        border: "1px solid #e2e8f0"
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(13,148,136,0.15)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.08)"; }}
-                    >
-                      <div style={{ height: 260, overflow: "hidden", position: "relative" }}>
-                        <img src={card.img} alt={card.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }} />
-                        <span style={{ position: "absolute", top: 16, left: 16, background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(6px)", color: "#fff", padding: "4px 12px", borderRadius: 8, fontSize: 11, fontWeight: 700 }}>
-                          {card.tag}
-                        </span>
+                    { 
+                      img: salonImages.styling, 
+                      icon: Scissors,
+                      color: "#0d9488",
+                      title: "Luxury Hair Studios & Barbershops", 
+                      tag: "Styling & Chemical Care", 
+                      metric: "⚡ 5-Sec POS • 98% Chair Rate",
+                      desc: "Engineered for high-throughput salons managing rapid styling rotations, chemical formulas, and tiered commission payouts.",
+                      features: [
+                        "Hair color formula vault with allergy notes",
+                        "Collision-free stylist calendar & shift rosters",
+                        "Automated service & retail commission calculations"
+                      ]
+                    },
+                    { 
+                      img: salonImages.spa, 
+                      icon: Sparkles,
+                      color: "#0284c7",
+                      title: "Day Spas & Wellness Retreats", 
+                      tag: "Therapy & Packages", 
+                      metric: "🌿 4.9★ Rating • Zero No-Shows",
+                      desc: "Peaceful guest journey orchestration across private treatment suites, couples therapy packages, and recurring memberships.",
+                      features: [
+                        "Therapist & treatment room allocation engine",
+                        "Aromatherapy & consumable stock tracking",
+                        "Recurring wellness passes & package renewals"
+                      ]
+                    },
+                    { 
+                      img: salonImages.beauty, 
+                      icon: Crown,
+                      color: "#8b5cf6",
+                      title: "Aesthetic Clinics & Bridal Lounges", 
+                      tag: "Skin & Glamour", 
+                      metric: "👑 ₹18L+ Advance Bookings",
+                      desc: "High-ticket client management with structured milestone deposits, pre-bridal consultations, and personalized records.",
+                      features: [
+                        "Bridal milestone payment schedules & receipts",
+                        "Multi-session treatment progress tracking",
+                        "Private VIP client portal & custom quotes"
+                      ]
+                    }
+                  ].map((card, i) => {
+                    const Icon = card.icon;
+                    return (
+                      <div 
+                        key={i} 
+                        style={{ 
+                          borderRadius: 24, 
+                          overflow: "hidden", 
+                          background: "#ffffff",
+                          boxShadow: "0 10px 30px rgba(0,0,0,0.06)", 
+                          transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                          border: "1px solid #e2e8f0",
+                          display: "flex",
+                          flexDirection: "column"
+                        }}
+                        onMouseEnter={e => { 
+                          e.currentTarget.style.transform = "translateY(-8px)"; 
+                          e.currentTarget.style.boxShadow = "0 22px 50px rgba(13,148,136,0.14)"; 
+                          e.currentTarget.style.borderColor = "#99f6e4";
+                        }}
+                        onMouseLeave={e => { 
+                          e.currentTarget.style.transform = "translateY(0)"; 
+                          e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.06)"; 
+                          e.currentTarget.style.borderColor = "#e2e8f0";
+                        }}
+                      >
+                        {/* Image banner with dark vignette and metric badge */}
+                        <div style={{ height: 240, overflow: "hidden", position: "relative" }}>
+                          <img 
+                            src={card.img} 
+                            alt={card.title} 
+                            style={{ 
+                              width: "100%", 
+                              height: "100%", 
+                              objectFit: "cover" 
+                            }} 
+                          />
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.7) 100%)" }} />
+                          
+                          {/* Top pill */}
+                          <div style={{ position: "absolute", top: 16, left: 16, display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)", color: "#0f172a", padding: "5px 12px", borderRadius: 100, fontSize: 11.5, fontWeight: 700 }}>
+                            <Icon size={13} color={card.color} />
+                            <span>{card.tag}</span>
+                          </div>
+
+                          {/* Bottom metric */}
+                          <div style={{ position: "absolute", bottom: 14, left: 16, right: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ background: "rgba(15,23,42,0.85)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.15)", color: "#5eead4", padding: "4px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 700 }}>
+                              {card.metric}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div style={{ padding: "26px", flex: 1, display: "flex", flexDirection: "column" }}>
+                          <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>
+                            {card.title}
+                          </h3>
+                          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 20px", lineHeight: 1.6 }}>
+                            {card.desc}
+                          </p>
+
+                          {/* Feature checklist */}
+                          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24, flex: 1 }}>
+                            {card.features.map((f, fIdx) => (
+                              <div key={fIdx} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#334155", fontWeight: 500 }}>
+                                <CheckCircle2 size={15} color="#0d9488" style={{ flexShrink: 0 }} />
+                                <span>{f}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <Link 
+                            to="/book-demo" 
+                            style={{ 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              gap: 6, 
+                              fontSize: 13.5, 
+                              fontWeight: 700, 
+                              color: "#0d9488", 
+                              textDecoration: "none", 
+                              marginTop: "auto",
+                              borderTop: "1px solid #f1f5f9",
+                              paddingTop: 14
+                            }}
+                          >
+                            <span>Explore live workflow</span>
+                            <ArrowRight size={15} />
+                          </Link>
+                        </div>
                       </div>
-                      <div style={{ padding: 22, background: "#fff" }}>
-                        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 6px" }}>{card.title}</h3>
-                        <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.5 }}>{card.desc}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </section>
