@@ -777,44 +777,42 @@ export default function ServiceCategoriesPage() {
               <div>
                 <label style={labelStyle}>Service Image</label>
                 <div style={{ display: "flex", gap: 10 }}>
-                  {serviceForm.imageUrl ? (
-                    serviceForm.imageUrl === "uploading" ? (
-                      <div style={{ width: 80, height: 80, borderRadius: 10, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
-                        <div style={{ width: 20, height: 20, border: "2px solid #e2e8f0", borderTopColor: "#3b82f6", borderRadius: "50%", animation: "spinAround 0.8s linear infinite" }} />
-                      </div>
-                    ) : (
-                      <div style={{ position: "relative", width: 80, height: 80, borderRadius: 10, border: "1px solid #cbd5e1" }}>
-                        <img src={serviceForm.imageUrl} alt="Service" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 9 }} />
-                        <button 
-                          type="button" 
-                          onClick={() => setServiceForm({ ...serviceForm, imageUrl: "" })} 
-                          style={{ 
-                            position: "absolute", 
-                            top: -8, 
-                            right: -8, 
-                            background: "#ef4444", 
-                            color: "#ffffff", 
-                            border: "2px solid #ffffff", 
-                            borderRadius: "50%", 
-                            width: 22, 
-                            height: 22, 
-                            padding: 0,
-                            cursor: "pointer", 
-                            display: "flex", 
-                            alignItems: "center", 
-                            justifyContent: "center",
-                            boxShadow: "0 2px 6px rgba(239,68,68,0.4)",
-                            transition: "all 0.15s ease-in-out",
-                            zIndex: 5
-                          }} 
-                          onMouseEnter={e => { e.currentTarget.style.background = "#dc2626"; e.currentTarget.style.transform = "scale(1.1)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "#ef4444"; e.currentTarget.style.transform = "scale(1)"; }}
-                          title="Remove Image"
-                        >
-                          <X size={12} strokeWidth={3} />
-                        </button>
-                      </div>
-                    )
+                  {serviceForm.imageUrl === "uploading" ? (
+                    <div style={{ width: 80, height: 80, borderRadius: 10, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
+                      <div style={{ width: 20, height: 20, border: "2px solid #e2e8f0", borderTopColor: "#3b82f6", borderRadius: "50%", animation: "spinAround 0.8s linear infinite" }} />
+                    </div>
+                  ) : serviceForm.imageUrl ? (
+                    <div style={{ position: "relative", width: 80, height: 80, borderRadius: 10, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                      <img src={serviceForm.imageUrl} alt="Service" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <button 
+                        type="button" 
+                        onClick={() => setServiceForm({ ...serviceForm, imageUrl: "" })} 
+                        style={{ 
+                          position: "absolute", 
+                          top: 4, 
+                          right: 4, 
+                          background: "rgba(15, 23, 42, 0.75)", 
+                          backdropFilter: "blur(4px)",
+                          color: "#ffffff", 
+                          border: "none", 
+                          borderRadius: "50%", 
+                          width: 20, 
+                          height: 20, 
+                          padding: 0,
+                          cursor: "pointer", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: "center",
+                          transition: "all 0.15s ease",
+                          zIndex: 5
+                        }} 
+                        onMouseEnter={e => { e.currentTarget.style.background = "#ef4444"; e.currentTarget.style.transform = "scale(1.1)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.75)"; e.currentTarget.style.transform = "scale(1)"; }}
+                        title="Remove Image"
+                      >
+                        <X size={11} strokeWidth={2.5} />
+                      </button>
+                    </div>
                   ) : (
                     <label style={{ width: 80, height: 80, borderRadius: 10, border: "2px dashed #cbd5e1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#94a3b8", fontSize: 11, gap: 4, transition: "border-color 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "#3b82f6"} onMouseLeave={e => e.currentTarget.style.borderColor = "#cbd5e1"}>
                       <span style={{ fontSize: 24 }}>+</span>
