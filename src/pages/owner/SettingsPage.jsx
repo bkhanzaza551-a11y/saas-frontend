@@ -1505,53 +1505,41 @@ export default function SettingsPage() {
 
   const renderShiftSection = () => {
     const shiftList = shifts;
-    const selectedShift = shiftList.find(s => s.id === selectedShiftId) || shiftList[0] || null;
+    const isNew = selectedShiftId === "new";
+    const selectedShift = isNew ? null : (shiftList.find(s => s.id === selectedShiftId) || null);
 
-    const createShift = async () => {
-      try {
-        setShiftSaving(true);
-        const payload = {
-          name: "New Shift",
-          active: true,
-          sameForAllDays: true,
-          startTime: "09:00",
-          endTime: "21:00",
-          days: WEEK_DAYS.map(d => ({ dayOfWeek: d.dayOfWeekValue, startTime: "09:00", endTime: "21:00", active: true })),
-          breaks: [],
-          branchId: selectedBranchId || undefined
-        };
-        const res = await api.post("/owner/shifts", payload);
-        setShifts((prev) => [...prev, res.data]);
-        setSelectedShiftId(res.data.id);
-        setShiftDraft({
-          ...res.data,
-          days: (res.data.days || []).map(d => ({ dayOfWeek: d.dayOfWeek, startTime: d.startTime, endTime: d.endTime, active: d.active })),
-          breaks: (res.data.breaks || []).map(b => ({ name: b.name, active: b.active, fromTime: b.fromTime, toTime: b.toTime }))
-        });
-        setForm((prev) => ({
-          ...prev,
-          advancedSettings: {
-            ...prev.advancedSettings,
-            shiftManagement: {
-              ...(prev.advancedSettings?.shiftManagement || {}),
-              shifts: [...((prev.advancedSettings?.shiftManagement?.shifts) || []), res.data]
-            }
-          }
-        }));
-        setStatus({ loading: false, error: "", success: "Shift created." });
-      } catch (err) {
-        setStatus({ loading: false, error: formatApiError(err, "Could not create shift"), success: "" });
-      } finally {
-        setShiftSaving(false);
-      }
+    const handleOpenCreateModal = () => {
+      setSelectedShiftId("new");
+      setShiftDraft({
+        name: "",
+        active: true,
+        sameForAllDays: true,
+        startTime: "09:00",
+        endTime: "21:00",
+        days: WEEK_DAYS.map(d => ({ dayOfWeek: d.dayOfWeekValue, startTime: "09:00", endTime: "21:00", active: true })),
+        breaks: []
+      });
+    };
+
+    const handleOpenEditModal = (shift) => {
+      setSelectedShiftId(shift.id);
+      setShiftDraft({
+        ...shift,
+        days: (shift.days || []).map(d => ({ dayOfWeek: d.dayOfWeek, startTime: d.startTime, endTime: d.endTime, active: d.active })),
+        breaks: (shift.breaks || []).map(b => ({ name: b.name, active: b.active, fromTime: b.fromTime, toTime: b.toTime }))
+      });
     };
 
     const deleteShift = async (id) => {
+      if (!window.confirm("Are you sure you want to delete this shift?")) return;
       try {
         setShiftSaving(true);
         await api.delete(`/owner/shifts/${id}`);
         setShifts((prev) => prev.filter(s => s.id !== id));
-        if (selectedShiftId === id) setSelectedShiftId(null);
+        if (selectedShiftId === id) {
+          setSelectedShiftId(null);
+          setShiftDraft(null);
+        }
         setForm((prev) => ({
           ...prev,
           advancedSettings: {
@@ -1562,7 +1550,7 @@ export default function SettingsPage() {
             }
           }
         }));
-        setStatus({ loading: false, error: "", success: "Shift deleted." });
+        setStatus({ loading: false, error: "", success: "Shift deleted successfully." });
       } catch (err) {
         setStatus({ loading: false, error: formatApiError(err, "Could not delete shift"), success: "" });
       } finally {
@@ -1571,11 +1559,15 @@ export default function SettingsPage() {
     };
 
     const saveShift = async () => {
-      if (!selectedShift || !shiftDraft) return;
+      if (!shiftDraft) return;
+      if (!shiftDraft.name || !shiftDraft.name.trim()) {
+        alert("Please enter a Shift Name");
+        return;
+      }
       try {
         setShiftSaving(true);
         const payload = {
-          name: shiftDraft.name?.trim() || "Untitled Shift",
+          name: shiftDraft.name.trim(),
           active: shiftDraft.active !== false,
           sameForAllDays: shiftDraft.sameForAllDays !== false,
           startTime: shiftDraft.sameForAllDays ? (shiftDraft.startTime || "09:00") : null,
@@ -1595,19 +1587,40 @@ export default function SettingsPage() {
           })),
           branchId: selectedBranchId || undefined
         };
-        const res = await api.patch(`/owner/shifts/${selectedShift.id}`, payload);
-        setShifts((prev) => prev.map(s => s.id === res.data.id ? res.data : s));
-        setForm((prev) => ({
-          ...prev,
-          advancedSettings: {
-            ...prev.advancedSettings,
-            shiftManagement: {
-              ...(prev.advancedSettings?.shiftManagement || {}),
-              shifts: (prev.advancedSettings?.shiftManagement?.shifts || []).map(s => s.id === res.data.id ? res.data : s)
+
+        if (isNew) {
+          const res = await api.post("/owner/shifts", payload);
+          setShifts((prev) => [...prev, res.data]);
+          setForm((prev) => ({
+            ...prev,
+            advancedSettings: {
+              ...prev.advancedSettings,
+              shiftManagement: {
+                ...(prev.advancedSettings?.shiftManagement || {}),
+                shifts: [...((prev.advancedSettings?.shiftManagement?.shifts) || []), res.data]
+              }
             }
-          }
-        }));
-        setStatus({ loading: false, error: "", success: "Shift saved." });
+          }));
+          setSelectedShiftId(null);
+          setShiftDraft(null);
+          setStatus({ loading: false, error: "", success: "Shift created successfully." });
+        } else {
+          const res = await api.patch(`/owner/shifts/${selectedShiftId}`, payload);
+          setShifts((prev) => prev.map(s => s.id === res.data.id ? res.data : s));
+          setForm((prev) => ({
+            ...prev,
+            advancedSettings: {
+              ...prev.advancedSettings,
+              shiftManagement: {
+                ...(prev.advancedSettings?.shiftManagement || {}),
+                shifts: (prev.advancedSettings?.shiftManagement?.shifts || []).map(s => s.id === res.data.id ? res.data : s)
+              }
+            }
+          }));
+          setSelectedShiftId(null);
+          setShiftDraft(null);
+          setStatus({ loading: false, error: "", success: "Shift updated successfully." });
+        }
       } catch (err) {
         setStatus({ loading: false, error: formatApiError(err, "Could not save shift"), success: "" });
       } finally {
@@ -1686,13 +1699,13 @@ export default function SettingsPage() {
           action={
             <button
               type="button"
-              onClick={createShift}
+              onClick={handleOpenCreateModal}
               disabled={shiftSaving}
               style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "#14b8a6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: shiftSaving ? "not-allowed" : "pointer", boxShadow: "0 2px 10px rgba(20, 184, 166, 0.2)", transition: "background 0.2s" }}
               onMouseEnter={(e) => { if (!shiftSaving) e.currentTarget.style.background = "#0d9488"; }}
               onMouseLeave={(e) => { if (!shiftSaving) e.currentTarget.style.background = "#14b8a6"; }}
             >
-              <Plus size={18} /> {shiftSaving ? "Creating..." : "Create Shift"}
+              <Plus size={18} /> Create Shift
             </button>
           }
         />
@@ -1733,8 +1746,26 @@ export default function SettingsPage() {
                     </span>
                   </div>
                   <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                    <button type="button" onClick={() => setSelectedShiftId(shift.id)} title="Edit shift" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#475569", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#eff6ff"; e.currentTarget.style.color="#2563eb"; e.currentTarget.style.borderColor="#bfdbfe";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.color="#475569"; e.currentTarget.style.borderColor="#cbd5e1";}}><Edit2 size={15} /></button>
-                    <button type="button" onClick={() => deleteShift(shift.id)} title="Delete shift" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", color: "#ef4444", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#fef2f2"; e.currentTarget.style.borderColor="#fecaca";}} onMouseLeave={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#cbd5e1";}}><Trash2 size={15} /></button>
+                    <button 
+                      type="button" 
+                      onClick={() => handleOpenEditModal(shift)} 
+                      title="Edit shift" 
+                      style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, cursor: "pointer", color: "#2563eb", transition: "all 0.2s" }} 
+                      onMouseEnter={e => { e.currentTarget.style.background = "#dbeafe"; e.currentTarget.style.borderColor = "#93c5fd"; }} 
+                      onMouseLeave={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#bfdbfe"; }}
+                    >
+                      <Edit2 size={15} color="#2563eb" strokeWidth={2.2} />
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => deleteShift(shift.id)} 
+                      title="Delete shift" 
+                      style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, cursor: "pointer", color: "#ef4444", transition: "all 0.2s" }} 
+                      onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.borderColor = "#fca5a5"; }} 
+                      onMouseLeave={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#fecaca"; }}
+                    >
+                      <Trash2 size={15} color="#ef4444" strokeWidth={2.2} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -1751,15 +1782,15 @@ export default function SettingsPage() {
         </div>
 
         {/* SHIFT DETAILS MODAL */}
-        {selectedShiftId && selectedShift && shiftDraft && (
-          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setSelectedShiftId(null)}>
+        {selectedShiftId && shiftDraft && (
+          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => { setSelectedShiftId(null); setShiftDraft(null); }}>
             <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 640, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", maxHeight: "90vh" }} onClick={e => e.stopPropagation()}>
               <div style={{ padding: "24px 28px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 8, height: 24, background: "#14b8a6", borderRadius: 4 }} />
-                  Shift Details
+                  {isNew ? "Create New Shift Template" : "Edit Shift Details"}
                 </h2>
-                <button type="button" className="modal-close-btn" onClick={() => setSelectedShiftId(null)}>
+                <button type="button" className="modal-close-btn" onClick={() => { setSelectedShiftId(null); setShiftDraft(null); }}>
                   <X size={20} />
                 </button>
               </div>
@@ -1772,7 +1803,7 @@ export default function SettingsPage() {
                       <input
                         value={shiftDraft.name || ""}
                         onChange={(event) => updateDraftField("name", event.target.value)}
-                        placeholder="e.g. Morning Shift"
+                        placeholder="e.g. Morning Shift, Evening Shift"
                         style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, color: "#0f172a", outline: "none", transition: "border-color 0.2s" }}
                         onFocus={(e) => e.target.style.borderColor = "#14b8a6"}
                         onBlur={(e) => e.target.style.borderColor = "#cbd5e1"}
@@ -1937,30 +1968,32 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div style={{ padding: "20px 28px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <button
-                  type="button"
-                  onClick={() => deleteShift(selectedShift.id)}
-                  disabled={shiftSaving}
-                  style={{ padding: "10px 16px", background: "none", border: "none", color: "#ef4444", borderRadius: 8, fontWeight: 600, cursor: shiftSaving ? "not-allowed" : "pointer", fontSize: 14, transition: "background 0.2s" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "#fef2f2"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
-                >
-                  Delete Shift
-                </button>
+              <div style={{ padding: "20px 28px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: isNew ? "flex-end" : "space-between", alignItems: "center" }}>
+                {!isNew && (
+                  <button
+                    type="button"
+                    onClick={() => deleteShift(selectedShiftId)}
+                    disabled={shiftSaving}
+                    style={{ padding: "10px 16px", background: "none", border: "none", color: "#ef4444", borderRadius: 8, fontWeight: 600, cursor: shiftSaving ? "not-allowed" : "pointer", fontSize: 14, transition: "background 0.2s" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#fef2f2"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+                  >
+                    Delete Shift
+                  </button>
+                )}
                 <div style={{ display: "flex", gap: 12 }}>
-                  <button type="button" onClick={() => setSelectedShiftId(null)} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+                  <button type="button" onClick={() => { setSelectedShiftId(null); setShiftDraft(null); }} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
                     Cancel
                   </button>
                   <button
                     type="button"
-                    onClick={async () => { await saveShift(); setSelectedShiftId(null); }}
+                    onClick={saveShift}
                     disabled={shiftSaving}
                     style={{ padding: "10px 28px", background: "#14b8a6", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: shiftSaving ? "not-allowed" : "pointer", fontSize: 14, opacity: shiftSaving ? 0.6 : 1, transition: "background 0.2s" }}
                     onMouseEnter={(e) => { if(!shiftSaving) e.currentTarget.style.background = "#0d9488" }}
                     onMouseLeave={(e) => { if(!shiftSaving) e.currentTarget.style.background = "#14b8a6" }}
                   >
-                    {shiftSaving ? "Saving..." : "Save Shift"}
+                    {shiftSaving ? "Saving..." : (isNew ? "Create Shift" : "Save Changes")}
                   </button>
                 </div>
               </div>
