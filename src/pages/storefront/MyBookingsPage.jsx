@@ -78,15 +78,15 @@ export default function MyBookingsPage() {
         <div style={{ position: "absolute", inset: 0, opacity: 0.08, background: "radial-gradient(circle at center, #5eead4 0%, transparent 70%)" }} />
         
         <div style={{ position: "relative", zIndex: 2, maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
             <Sparkles size={13} /> CLIENT APPOINTMENT PORTAL
           </div>
           
-          <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800, margin: "0 0 12px", lineHeight: 1.2, letterSpacing: "-0.02em" }}>
+          <h1 className="sf-hero-white-title" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800, margin: "0 0 12px", lineHeight: 1.2, letterSpacing: "-0.02em", color: "#ffffff" }}>
             Track Your Appointments
           </h1>
           
-          <p style={{ fontSize: "clamp(0.95rem, 2vw, 1.05rem)", color: "rgba(255,255,255,0.8)", margin: "0 auto", lineHeight: 1.6, fontWeight: 400, maxWidth: 520 }}>
+          <p className="sf-hero-white-desc" style={{ fontSize: "clamp(0.95rem, 2vw, 1.05rem)", color: "rgba(255,255,255,0.9)", margin: "0 auto", lineHeight: 1.6, fontWeight: 400, maxWidth: 520 }}>
             Enter your mobile number to review upcoming reservations, chair bookings, and past service receipts.
           </p>
         </div>

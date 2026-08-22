@@ -53,15 +53,15 @@ export default function CollectionsPage() {
         <div style={{ position: "absolute", inset: 0, opacity: 0.08, background: "radial-gradient(circle at center, #5eead4 0%, transparent 70%)" }} />
         
         <div style={{ position: "relative", zIndex: 2, maxWidth: 760, margin: "0 auto" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>
             <Sparkles size={13} /> BESPOKE SALON MENU
           </div>
           
-          <h1 style={{ fontSize: "clamp(2.2rem, 5vw, 3.4rem)", fontWeight: 800, margin: "0 0 14px", lineHeight: 1.2, letterSpacing: "-0.02em" }}>
+          <h1 className="sf-hero-white-title" style={{ fontSize: "clamp(2.2rem, 5vw, 3.4rem)", fontWeight: 800, margin: "0 0 14px", lineHeight: 1.2, letterSpacing: "-0.02em", color: "#ffffff" }}>
             Our Signature Treatments
           </h1>
           
-          <p style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)", color: "rgba(255,255,255,0.8)", margin: "0 auto", lineHeight: 1.7, fontWeight: 400, maxWidth: 580 }}>
+          <p className="sf-hero-white-desc" style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)", color: "rgba(255,255,255,0.9)", margin: "0 auto", lineHeight: 1.7, fontWeight: 400, maxWidth: 580 }}>
             Discover our comprehensive menu of premium hair styling, advanced aesthetic skincare, and revitalizing spa therapies.
           </p>
         </div>
@@ -141,6 +141,7 @@ export default function CollectionsPage() {
                   {filteredServices.map(service => {
                     const price = Number(service.salePrice && Number(service.salePrice) < Number(service.price) ? service.salePrice : service.price);
                     const hasSale = service.salePrice && Number(service.salePrice) < Number(service.price);
+                    const hasImage = Boolean(service.imageUrl && (service.imageUrl.startsWith("http") || service.imageUrl.startsWith("data:image/")));
 
                     return (
                       <div 
@@ -168,35 +169,62 @@ export default function CollectionsPage() {
                           e.currentTarget.style.borderColor = "#e2e8f0";
                         }}
                       >
-                        {/* Image Header with safe fallback */}
-                        <div style={{ height: 210, position: "relative", background: "#f1f5f9", overflow: "hidden" }}>
-                          <img 
-                            src={service.imageUrl || FALLBACK_IMG} 
-                            alt={service.name} 
-                            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
-                            onError={e => { e.target.onerror = null; e.target.src = FALLBACK_IMG; }}
-                          />
-                          
-                          {/* Badges */}
-                          <div style={{ position: "absolute", top: 14, left: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            {service.category?.name && (
-                              <span style={{ background: "rgba(15,23,42,0.85)", backdropFilter: "blur(8px)", color: "#5eead4", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                {service.category.name}
-                              </span>
-                            )}
-                            {service.isFeatured && (
-                              <span style={{ background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
-                                ★ Featured
-                              </span>
-                            )}
-                          </div>
-
-                          {service.durationMinutes ? (
-                            <div style={{ position: "absolute", bottom: 12, right: 12, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(6px)", color: "#0f172a", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-                              <Clock size={12} color="#0d9488" /> {service.durationMinutes} mins
+                        {/* Header: Uploaded Image OR Clean Luxury Branded Container */}
+                        {hasImage ? (
+                          <div style={{ height: 210, position: "relative", background: "#f1f5f9", overflow: "hidden" }}>
+                            <img 
+                              src={service.imageUrl} 
+                              alt={service.name} 
+                              style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+                            />
+                            
+                            {/* Badges */}
+                            <div style={{ position: "absolute", top: 14, left: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                              {service.category?.name && (
+                                <span style={{ background: "rgba(15,23,42,0.85)", backdropFilter: "blur(8px)", color: "#5eead4", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                  {service.category.name}
+                                </span>
+                              )}
+                              {service.isFeatured && (
+                                <span style={{ background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
+                                  ★ Featured
+                                </span>
+                              )}
                             </div>
-                          ) : null}
-                        </div>
+
+                            {service.durationMinutes ? (
+                              <div style={{ position: "absolute", bottom: 12, right: 12, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(6px)", color: "#0f172a", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                                <Clock size={12} color="#0d9488" /> {service.durationMinutes} mins
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <div style={{ padding: "24px 24px 16px", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ width: 44, height: 44, borderRadius: 14, background: "#f0fdfa", color: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #ccfbf1" }}>
+                                <Scissors size={20} />
+                              </div>
+                              {service.category?.name && (
+                                <span style={{ background: "#e2e8f0", color: "#334155", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                  {service.category.name}
+                                </span>
+                              )}
+                            </div>
+
+                            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                              {service.isFeatured && (
+                                <span style={{ background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
+                                  ★ Featured
+                                </span>
+                              )}
+                              {service.durationMinutes ? (
+                                <span style={{ background: "#ffffff", color: "#0f172a", border: "1px solid #cbd5e1", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                                  <Clock size={12} color="#0d9488" /> {service.durationMinutes}m
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        )}
 
                         {/* Content */}
                         <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>

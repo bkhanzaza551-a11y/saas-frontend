@@ -1081,6 +1081,15 @@ a {
   100% { transform: translateX(-50%); }
 }
 
+.sf-hero-white-title {
+  color: #ffffff !important;
+  font-family: 'Poppins', -apple-system, sans-serif !important;
+}
+
+.sf-hero-white-desc {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
 .sf-testimonial-card {
   display: inline-block;
   white-space: normal;
