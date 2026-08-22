@@ -199,7 +199,7 @@ export default function PhoneVerificationModal() {
               {loading ? "Sending Code..." : "Send Verification Code"}
             </button>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 12 }}>
               <button
                 type="button"
                 onClick={handleSkip}
@@ -207,13 +207,6 @@ export default function PhoneVerificationModal() {
                 style={{ background: "none", border: "none", color: "#64748b", fontWeight: 600, fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
               >
                 Skip for now
-              </button>
-              <button
-                type="button"
-                onClick={logout}
-                style={{ background: "none", border: "none", color: "#ef4444", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}
-              >
-                Logout
               </button>
             </div>
           </form>
