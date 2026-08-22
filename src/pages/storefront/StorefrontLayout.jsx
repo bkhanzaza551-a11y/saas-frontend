@@ -255,140 +255,93 @@ export default function StorefrontLayout() {
         <>
           {/* Premium Branch Selection Modal */}
           {showBranchModal && salon.branches?.length > 1 && (
-            <div style={{ 
-              position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(10px)", 
-              zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px",
-              animation: "fadeIn 0.3s ease-out"
-            }}>
-              <div style={{ 
-                background: "#ffffff", 
-                borderRadius: "20px", padding: "28px 24px", width: "100%", maxWidth: 620,
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", 
-                position: "relative",
-                border: "1px solid rgba(226, 232, 240, 0.8)",
-                animation: "slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
-              }}>
+            <div className="sf-branch-modal-overlay">
+              <div className="sf-branch-modal-card">
                 {selectedBranchId && (
-                  <button onClick={() => setShowBranchModal(false)} style={{ 
-                    position: "absolute", top: 18, right: 18, background: "#f8fafc", 
-                    border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", borderRadius: "50%",
-                    width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.2s ease"
-                  }} onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseOut={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#64748b"; }}>
-                    <X size={18} />
+                  <button className="sf-branch-modal-close" onClick={() => setShowBranchModal(false)}>
+                    <X size={16} />
                   </button>
                 )}
                 
-                <div style={{ textAlign: "center", marginBottom: 22 }}>
-                  <div style={{ width: 52, height: 52, margin: "0 auto 12px", background: "linear-gradient(135deg, #c8a97e, #b08d5c)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px -4px rgba(200, 169, 126, 0.45)" }}>
-                    <MapPin size={24} color="#fff" strokeWidth={2} />
+                <div className="sf-branch-modal-header">
+                  <div className="sf-branch-modal-icon">
+                    <MapPin size={20} color="#fff" strokeWidth={2} />
                   </div>
-                  <h2 style={{ fontFamily: "var(--font-serif, serif)", fontSize: "1.75rem", margin: "0 0 6px", color: "#0f172a", letterSpacing: "-0.5px", fontWeight: 700 }}>
+                  <h2 className="sf-branch-modal-title">
                     Select Sanctuary Location
                   </h2>
-                  <p style={{ color: "#64748b", fontSize: "0.9rem", margin: 0, lineHeight: 1.4 }}>
+                  <p className="sf-branch-modal-desc">
                     Choose your nearest branch to explore specialized services & live stylist availability.
                   </p>
                 </div>
                 
                 {/* Branch Cards List */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 340, overflowY: "auto", paddingRight: 4, marginBottom: 20 }}>
+                <div className="sf-branch-modal-list">
                   {salon.branches.map(b => {
                     const isSelected = selectedBranchId === b.id;
                     return (
                       <div
                         key={b.id}
                         onClick={() => setSelectedBranchId(b.id)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: 14,
-                          padding: "14px 18px",
-                          borderRadius: "14px",
-                          border: isSelected ? "2px solid #c8a97e" : "1px solid #e2e8f0",
-                          background: isSelected ? "linear-gradient(135deg, #fffbf5 0%, #fef8f0 100%)" : "#ffffff",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          boxShadow: isSelected ? "0 4px 14px rgba(200, 169, 126, 0.18)" : "0 1px 3px rgba(0,0,0,0.02)"
-                        }}
-                        onMouseEnter={e => {
-                          if (!isSelected) {
-                            e.currentTarget.style.borderColor = "#cbd5e1";
-                            e.currentTarget.style.background = "#f8fafc";
-                          }
-                        }}
-                        onMouseLeave={e => {
-                          if (!isSelected) {
-                            e.currentTarget.style.borderColor = "#e2e8f0";
-                            e.currentTarget.style.background = "#ffffff";
-                          }
-                        }}
+                        className={`sf-branch-modal-item ${isSelected ? 'selected' : ''}`}
                       >
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flex: 1, minWidth: 0 }}>
-                          <div style={{ 
-                            width: 38, height: 38, borderRadius: "10px", 
-                            background: isSelected ? "rgba(200, 169, 126, 0.18)" : "#f1f5f9", 
-                            color: isSelected ? "#a07c4f" : "#64748b",
-                            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2
-                          }}>
-                            <Building2 size={20} />
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flex: 1, minWidth: 0 }}>
+                          <div className="sf-branch-modal-item-icon">
+                            <Building2 size={16} />
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 3 }}>
-                              <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "#0f172a" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
+                              <h4 style={{ margin: 0, fontSize: "0.92rem", fontWeight: 700, color: "#0f172a" }}>
                                 {b.name}
                               </h4>
                               {isSelected && (
-                                <span style={{ background: "#c8a97e", color: "#fff", fontSize: "0.7rem", fontWeight: 800, padding: "2px 8px", borderRadius: 12, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                                <span style={{ background: "#c8a97e", color: "#fff", fontSize: "0.65rem", fontWeight: 800, padding: "1px 6px", borderRadius: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
                                   Selected
                                 </span>
                               )}
                             </div>
                             {b.address && (
-                              <p style={{ margin: 0, fontSize: "0.82rem", color: "#64748b", lineHeight: 1.4, wordBreak: "break-word" }}>
+                              <p style={{ margin: 0, fontSize: "0.76rem", color: "#64748b", lineHeight: 1.35, wordBreak: "break-word" }}>
                                 {b.address}
                               </p>
                             )}
                             {b.phone && (
-                              <p style={{ margin: "3px 0 0", fontSize: "0.78rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
-                                <Phone size={12} /> {b.phone}
+                              <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
+                                <Phone size={10} /> {b.phone}
                               </p>
                             )}
                           </div>
                         </div>
 
                         <div style={{
-                          width: 24, height: 24, borderRadius: "50%",
+                          width: 20, height: 20, borderRadius: "50%",
                           border: isSelected ? "none" : "2px solid #cbd5e1",
                           background: isSelected ? "#c8a97e" : "transparent",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           color: "#fff", flexShrink: 0
                         }}>
-                          {isSelected && <Check size={14} strokeWidth={3} />}
+                          {isSelected && <Check size={12} strokeWidth={3} />}
                         </div>
                       </div>
                     );
                   })}
                 </div>
 
-                <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ display: "flex", gap: 10, marginTop: "auto" }}>
                   <button 
                     onClick={() => {
                       if (selectedBranchId) setShowBranchModal(false);
                     }}
                     disabled={!selectedBranchId}
+                    className="sf-branch-modal-btn"
                     style={{
-                      flex: 1, padding: "13px 20px", borderRadius: "10px", border: "none",
                       background: selectedBranchId ? "linear-gradient(135deg, #c8a97e 0%, #b08d5c 100%)" : "#e2e8f0",
                       color: selectedBranchId ? "#fff" : "#94a3b8",
-                      fontSize: "0.95rem", fontWeight: 700, cursor: selectedBranchId ? "pointer" : "not-allowed",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      cursor: selectedBranchId ? "pointer" : "not-allowed",
                       boxShadow: selectedBranchId ? "0 4px 14px rgba(200, 169, 126, 0.35)" : "none",
-                      transition: "all 0.2s"
                     }}
                   >
-                    Confirm & View Services <ArrowRight size={16} />
+                    Confirm & View Services <ArrowRight size={15} />
                   </button>
                 </div>
               </div>
