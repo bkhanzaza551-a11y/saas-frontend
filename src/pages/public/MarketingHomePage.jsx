@@ -318,9 +318,9 @@ export default function MarketingHomePage() {
       {/* TOP ANNOUNCEMENT BANNER */}
       <div style={{ background: "linear-gradient(90deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)", color: "#ccfbf1", padding: "10px 24px", fontSize: 13, textAlign: "center", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(20,184,166,0.25)", padding: "2px 10px", borderRadius: 20, color: "#5eead4", fontSize: 11, fontWeight: 700 }}>
-          <Sparkles size={12} /> NEW V2.0
+          <Sparkles size={12} /> NEW
         </span>
-        <span>Salon Nest 2.0 is live with Automated WhatsApp Notifications, Smart POS & Multi-Branch Sync!</span>
+        <span>Salon Nest is live with Automated WhatsApp Notifications, Smart POS & Multi-Branch Sync!</span>
         <Link to="/book-demo" style={{ color: "#ffffff", textDecoration: "underline", fontWeight: 700, marginLeft: 4 }}>
           Book 1-on-1 VIP Walkthrough &rarr;
         </Link>
