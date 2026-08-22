@@ -150,16 +150,48 @@ export default function SupportTicketsPage() {
     <div className="page-shell">
       {/* Hero Banner */}
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <div>
-            <h1 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: 10 }}>
-              <LifeBuoy size={26} style={{ color: "#6366f1" }} /> Support & Help Desk
+            <h1 style={{ margin: "0 0 6px", display: "flex", alignItems: "center", gap: 10, fontSize: 22, fontWeight: 800, color: "#0f172a" }}>
+              <LifeBuoy size={24} style={{ color: "#6366f1" }} /> Support & Help Desk
             </h1>
-            <p style={{ marginBottom: 0 }}>Raise support tickets for billing, feature assistance, technical queries, or system issues and track live resolutions.</p>
+            <p style={{ margin: 0, color: "#64748b", fontSize: 13, lineHeight: 1.5 }}>
+              Raise support tickets for billing, feature assistance, technical queries, or system issues and track live resolutions.
+            </p>
           </div>
-          <div className="badge-row">
-            <span className="badge" style={{ background: "#e0e7ff", color: "#3730a3", fontWeight: 700 }}>Total: {stats.total}</span>
-            <span className="badge" style={{ background: "#fee2e2", color: "#991b1b", fontWeight: 700 }}>Active Open: {stats.open}</span>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
+            <span style={{ 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: 6, 
+              padding: "6px 14px", 
+              borderRadius: "8px", 
+              background: "#e0e7ff", 
+              color: "#3730a3", 
+              fontSize: 12, 
+              fontWeight: 700,
+              height: "fit-content",
+              whiteSpace: "nowrap",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)" 
+            }}>
+              Total: {stats.total}
+            </span>
+            <span style={{ 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: 6, 
+              padding: "6px 14px", 
+              borderRadius: "8px", 
+              background: "#fee2e2", 
+              color: "#991b1b", 
+              fontSize: 12, 
+              fontWeight: 700,
+              height: "fit-content",
+              whiteSpace: "nowrap",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)" 
+            }}>
+              Active Open: {stats.open}
+            </span>
           </div>
         </div>
       </div>
