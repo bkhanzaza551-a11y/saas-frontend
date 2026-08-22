@@ -15,7 +15,9 @@ const lazyWithRetry = (componentImport) =>
     try {
       const comp = await componentImport();
       window.sessionStorage.removeItem("chunk_reload_timestamp");
-      return comp;
+      if (comp && comp.default) return comp;
+      if (comp) return { default: comp };
+      return { default: () => null };
     } catch (error) {
       if (now - lastReload > 10000) {
         window.sessionStorage.setItem("chunk_reload_timestamp", String(now));
@@ -632,7 +634,7 @@ export default function App() {
         <Route path="/" element={<MarketingHomePage />} />
         <Route path="/features" element={<MarketingHomePage />} />
         <Route path="/pricing" element={<MarketingHomePage />} />
-        <Route path="/platform" element={<MarketingHomePage />} />
+        <Route path="/platform" element={<Navigate to="/features" replace />} />
         <Route path="/book-demo" element={<PublicDemoLeadPage />} />
         <Route path="/demo-checkout/:leadId/:planId" element={<DemoCheckoutPage />} />
         <Route path="/demo/pay" element={<Navigate to="/pricing" replace />} />
