@@ -555,7 +555,7 @@ export default function HomePage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                   <Phone size={20} color="#5eead4" style={{ flexShrink: 0 }} />
                   <span style={{ fontSize: 14.5, color: "rgba(255,255,255,0.9)" }}>
-                    {wc.contactPhone || salon?.phone || "+91 9493952587"}
+                    {wc.contactPhone || salon?.phone || "+91 98765 43210"}
                   </span>
                 </div>
 
