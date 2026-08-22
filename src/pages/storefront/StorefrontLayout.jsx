@@ -248,7 +248,11 @@ export default function StorefrontLayout() {
     <div className="storefront-wrapper">
       {/* Premium Preloader */}
       <div className={`sf-preloader ${!initialLoading && !loading && !pageTransitioning ? 'sf-preloader-hidden' : ''}`}>
-        <div className="sf-preloader-text">{displaySalonName}</div>
+        <div className="sf-preloader-content">
+          <div className="sf-preloader-glow-ring"></div>
+          <div className="sf-preloader-text">{displaySalonName}</div>
+          <div className="sf-preloader-bar"><span className="sf-preloader-bar-inner"></span></div>
+        </div>
       </div>
 
       {salon && (

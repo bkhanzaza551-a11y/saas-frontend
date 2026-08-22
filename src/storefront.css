@@ -125,12 +125,13 @@ a {
 .sf-preloader {
   position: fixed;
   inset: 0;
-  background: var(--bg-main);
+  background: var(--bg-main, #ffffff);
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+  padding: 20px;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
 }
 
 .sf-preloader.sf-preloader-hidden {
@@ -139,18 +140,88 @@ a {
   pointer-events: none;
 }
 
+.sf-preloader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.sf-preloader-glow-ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px solid #e2e8f0;
+  border-top-color: var(--accent, #c8a97e);
+  margin-bottom: 16px;
+  animation: spinPreloader 0.8s linear infinite;
+}
+
 .sf-preloader-text {
-  font-family: var(--font-serif);
-  font-size: 3rem;
-  font-weight: 500;
-  color: var(--text-main);
-  letter-spacing: 2px;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.25rem, 4.5vw, 2.2rem);
+  font-weight: 600;
+  color: var(--text-main, #0f172a);
+  letter-spacing: 0.5px;
+  text-align: center;
+  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.3;
+  margin: 0;
   animation: pulsePreloader 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.sf-preloader-bar {
+  width: 110px;
+  height: 2px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  margin-top: 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sf-preloader-bar-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  background: var(--accent, #c8a97e);
+  border-radius: 2px;
+  animation: barProgress 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes spinPreloader {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes barProgress {
+  0% { left: 0; width: 20%; }
+  100% { left: 70%; width: 30%; }
 }
 
 @keyframes pulsePreloader {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.95); }
+  50% { opacity: 0.65; transform: scale(0.98); }
+}
+
+@media (max-width: 480px) {
+  .sf-preloader-glow-ring {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 12px;
+  }
+  .sf-preloader-text {
+    font-size: 1.2rem !important;
+    letter-spacing: 0.3px !important;
+  }
+  .sf-preloader-bar {
+    width: 80px;
+    margin-top: 10px;
+  }
 }
 
 /* Mobile Menu */
