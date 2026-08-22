@@ -130,14 +130,305 @@ const interactiveModules = [
 ];
 
 const industriesData = [
-  { id: "hair", name: "Hair Salons & Barbers", icon: "✂️", desc: "Chair scheduling, color formula notes, stylist commission tiers, and quick walk-in queue management." },
-  { id: "spa", name: "Luxury Spas & Wellness", icon: "💆", desc: "Room & therapist allocation, couples massage packages, aromatherapy inventory, and tranquil booking flow." },
-  { id: "nail", name: "Nail Bars & Lash Lounges", icon: "💅", desc: "Express service add-ons, technician speed tracking, nail art catalog, and recurring refill memberships." },
-  { id: "clinic", name: "Aesthetic & Skin Clinics", icon: "💉", desc: "Doctor consultation slots, before/after records, treatment session packages, and strict patient consent trails." },
-  { id: "tattoo", name: "Tattoo & Piercing Studios", icon: "🎨", desc: "Artist hourly rate billing, custom design deposits, aftercare supply sales, and digital waiver forms." },
-  { id: "pet", name: "Pet Grooming Salons", icon: "🐶", desc: "Breed-specific time estimates, pet medical notes, vaccine reminders, and grooming packages." },
-  { id: "bridal", name: "Bridal Makeup Studios", icon: "💄", desc: "Advance bridal package bookings, milestone payments, trial scheduling, and team destination roster." }
+  { id: "hair", name: "Hair Salons & Barbers", icon: Scissors, color: "#0d9488", bg: "#f0fdfa", desc: "Chair scheduling, color formula notes, stylist commission tiers, and quick walk-in queue management." },
+  { id: "spa", name: "Luxury Spas & Wellness", icon: Sparkles, color: "#8b5cf6", bg: "#f5f3ff", desc: "Room & therapist allocation, couples massage packages, aromatherapy inventory, and tranquil booking flow." },
+  { id: "nail", name: "Nail Bars & Lash Lounges", icon: Gem, color: "#ec4899", bg: "#fdf2f8", desc: "Express service add-ons, technician speed tracking, nail art catalog, and recurring refill memberships." },
+  { id: "clinic", name: "Aesthetic & Skin Clinics", icon: Activity, color: "#0284c7", bg: "#f0f9ff", desc: "Doctor consultation slots, before/after records, treatment session packages, and strict patient consent trails." },
+  { id: "tattoo", name: "Tattoo & Piercing Studios", icon: Palette, color: "#f59e0b", bg: "#fffbeb", desc: "Artist hourly rate billing, custom design deposits, aftercare supply sales, and digital waiver forms." },
+  { id: "pet", name: "Pet Grooming Salons", icon: Heart, color: "#10b981", bg: "#ecfdf5", desc: "Breed-specific time estimates, pet medical notes, vaccine reminders, and grooming packages." },
+  { id: "bridal", name: "Bridal Makeup Studios", icon: Crown, color: "#d97706", bg: "#fffbeb", desc: "Advance bridal package bookings, milestone payments, trial scheduling, and team destination roster." }
 ];
+
+function ModuleMockup({ tabId }) {
+  if (tabId === "pos") {
+    return (
+      <div style={{ background: "#0f172a", borderRadius: 18, padding: 22, color: "#fff", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 12, marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#22c55e" }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc" }}>Quick POS Terminal • #INV-4924</span>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 800, background: "#15803d", color: "#bbf7d0", padding: "2px 8px", borderRadius: 6 }}>PAID</span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#cbd5e1" }}>
+            <span>Keratin Hair Spa & Treatment</span>
+            <span style={{ fontWeight: 700, color: "#fff" }}>₹2,499.00</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#cbd5e1" }}>
+            <span>Beard Sculpting & Royal Shave</span>
+            <span style={{ fontWeight: 700, color: "#fff" }}>₹499.00</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#cbd5e1" }}>
+            <span>Moroccan Argan Serum 100ml</span>
+            <span style={{ fontWeight: 700, color: "#fff" }}>₹850.00</span>
+          </div>
+        </div>
+
+        <div style={{ borderTop: "1px dashed rgba(255,255,255,0.15)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "#94a3b8" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>Subtotal</span>
+            <span>₹3,848.00</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#4ade80" }}>
+            <span>VIP Loyalty Discount (300 Pts)</span>
+            <span>- ₹300.00</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>GST (18% inclusive)</span>
+            <span>₹638.64</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 17, fontWeight: 900, color: "#2dd4bf", borderTop: "1px solid rgba(255,255,255,0.15)", paddingTop: 8, marginTop: 4 }}>
+            <span>Total Collected</span>
+            <span>₹3,548.00</span>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14, background: "rgba(37,211,102,0.15)", border: "1px solid rgba(37,211,102,0.3)", padding: "8px 12px", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 11.5, color: "#86efac" }}>
+          <span>💬</span>
+          <span>Digital PDF Invoice sent instantly to customer's WhatsApp (+91 98*** 42100)</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (tabId === "appointments") {
+    return (
+      <div style={{ background: "#ffffff", borderRadius: 18, padding: 22, border: "1px solid #e2e8f0", boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f1f5f9", paddingBottom: 12, marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>Saturday Appointments Board</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>Live Slot Optimization • Bandra Branch</div>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, background: "#ecfdf5", color: "#059669", padding: "4px 10px", borderRadius: 20 }}>
+            ● 8 Active Slots
+          </span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+          <div style={{ padding: "10px 14px", background: "#f0fdfa", border: "1px solid #ccfbf1", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#0f766e" }}>10:00 AM • Balayage Hair Color</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>Client: Priya S. | Stylist: Rohit Sharma (Chair 1)</div>
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 800, background: "#0d9488", color: "#fff", padding: "2px 8px", borderRadius: 6 }}>CONFIRMED</span>
+          </div>
+
+          <div style={{ padding: "10px 14px", background: "#f5f3ff", border: "1px solid #ede9fe", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#6d28d9" }}>11:30 AM • Deep Tissue Aromatherapy</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>Client: Rahul M. | Therapist: Ananya (Spa Room 2)</div>
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 800, background: "#8b5cf6", color: "#fff", padding: "2px 8px", borderRadius: 6 }}>IN-SERVICE</span>
+          </div>
+
+          <div style={{ padding: "10px 14px", background: "#fff7ed", border: "1px solid #ffedd5", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#c2410c" }}>02:00 PM • Bridal Glam Consultation</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>Client: Sneha K. | Senior Stylist: Meera (VIP Suite)</div>
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 800, background: "#ea580c", color: "#fff", padding: "2px 8px", borderRadius: 6 }}>VIP GUEST</span>
+          </div>
+        </div>
+
+        <div style={{ background: "#f8fafc", padding: "8px 12px", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#475569" }}>
+          <CheckCircle2 size={14} color="#0d9488" />
+          <span>Automatic 2-Hour WhatsApp Reminder & Stylist Shift sync active</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (tabId === "storefront") {
+    return (
+      <div style={{ background: "#ffffff", borderRadius: 18, padding: 22, border: "1px solid #e2e8f0", boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 12, borderBottom: "1px solid #f1f5f9", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #0d9488, #14b8a6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 12 }}>S</div>
+            <span style={{ fontWeight: 800, fontSize: 14, color: "#0f172a" }}>Salon Nest Luxe Studio</span>
+          </div>
+          <span style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
+            ★★★★★ 4.9 (340+ Reviews)
+          </span>
+        </div>
+
+        <div style={{ background: "linear-gradient(135deg, #f0fdfa, #f8fafc)", padding: 14, borderRadius: 14, border: "1px solid #ccfbf1", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a" }}>Hydra Gloss Facial Spa</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>60 Mins • Deep hydration & instant glow</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#0d9488", marginTop: 4 }}>₹3,499</div>
+          </div>
+          <button type="button" style={{ background: "#0d9488", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+            Book Slot
+          </button>
+        </div>
+
+        <div style={{ background: "#f8fafc", padding: 14, borderRadius: 14, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a" }}>Moroccan Argan Hair Mask</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>250ml Retail Tub • In Stock (18 units)</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>₹1,650</div>
+          </div>
+          <button type="button" style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+            + Add to Bag
+          </button>
+        </div>
+
+        <div style={{ marginTop: 12, textAlign: "center", fontSize: 11, color: "#0d9488", fontWeight: 700 }}>
+          ⚡ 100% Branded Online Storefront • Razorpay Checkout Active
+        </div>
+      </div>
+    );
+  }
+
+  if (tabId === "crm") {
+    return (
+      <div style={{ background: "#ffffff", borderRadius: 18, padding: 22, border: "1px solid #e2e8f0", boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 14, borderBottom: "1px solid #f1f5f9", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #ec4899, #8b5cf6)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16 }}>
+              AV
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                Ananya Verma <span style={{ fontSize: 10, background: "#fef3c7", color: "#b45309", padding: "1px 6px", borderRadius: 4, fontWeight: 800 }}>👑 VIP GOLD</span>
+              </div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>Client ID: #CL-1082 • Registered 14 mos ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+          <div style={{ background: "#f8fafc", padding: "10px", borderRadius: 10, textAlign: "center", border: "1px solid #e2e8f0" }}>
+            <div style={{ fontSize: 10, color: "#64748b", fontWeight: 600 }}>Total Visits</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>18</div>
+          </div>
+          <div style={{ background: "#f8fafc", padding: "10px", borderRadius: 10, textAlign: "center", border: "1px solid #e2e8f0" }}>
+            <div style={{ fontSize: 10, color: "#64748b", fontWeight: 600 }}>Lifetime Spend</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#0d9488" }}>₹48,200</div>
+          </div>
+          <div style={{ background: "#f8fafc", padding: "10px", borderRadius: 10, textAlign: "center", border: "1px solid #e2e8f0" }}>
+            <div style={{ fontSize: 10, color: "#64748b", fontWeight: 600 }}>Loyalty Points</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#d97706" }}>1,250 Pts</div>
+          </div>
+        </div>
+
+        <div style={{ background: "#f0fdfa", padding: "10px 14px", borderRadius: 10, border: "1px solid #ccfbf1", marginBottom: 10, fontSize: 11.5, color: "#0f766e" }}>
+          <strong>Hair Color Formula:</strong> L'Oreal Majirel 7.1 + 20 Vol (1:1.5) on roots, 35m timer.
+        </div>
+
+        <div style={{ background: "#fdf2f8", padding: "8px 12px", borderRadius: 10, border: "1px solid #fce7f3", fontSize: 11, color: "#be185d", display: "flex", alignItems: "center", gap: 6 }}>
+          <span>🎂</span>
+          <span>Birthday in 3 Days (25 Aug) • Auto 20% WhatsApp Promo Coupon Scheduled</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (tabId === "multibranch") {
+    return (
+      <div style={{ background: "#0f172a", borderRadius: 18, padding: 22, color: "#fff", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 12, marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>Multi-Branch Live Revenue & Occupancy</div>
+            <div style={{ fontSize: 11, color: "#94a3b8" }}>Real-Time Consolidated Cloud Sync</div>
+          </div>
+          <span style={{ fontSize: 10.5, fontWeight: 800, background: "#0d9488", color: "#fff", padding: "3px 8px", borderRadius: 6 }}>
+            3 BRANCHES ONLINE
+          </span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+          <div style={{ background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#2dd4bf" }}>📍 Bandra West Studio (Flagship)</div>
+              <div style={{ fontSize: 11, color: "#94a3b8" }}>12 Stylists Active • 98% Chair Occupancy</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>₹1,42,800</div>
+              <div style={{ fontSize: 10, color: "#4ade80" }}>↑ +24% today</div>
+            </div>
+          </div>
+
+          <div style={{ background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#38bdf8" }}>📍 Juhu Beach Lounge</div>
+              <div style={{ fontSize: 11, color: "#94a3b8" }}>8 Stylists Active • 84% Chair Occupancy</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>₹1,18,500</div>
+              <div style={{ fontSize: 10, color: "#4ade80" }}>↑ +18% today</div>
+            </div>
+          </div>
+
+          <div style={{ background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa" }}>📍 Powai Heights Studio</div>
+              <div style={{ fontSize: 11, color: "#94a3b8" }}>6 Stylists Active • 76% Chair Occupancy</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>₹94,200</div>
+              <div style={{ fontSize: 10, color: "#4ade80" }}>↑ +12% today</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: "rgba(13,148,136,0.2)", padding: "8px 12px", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#5eead4" }}>
+          <span>⚡</span>
+          <span>Inter-branch inventory transfer and central financial consolidation synced.</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (tabId === "staff") {
+    return (
+      <div style={{ background: "#ffffff", borderRadius: 18, padding: 22, border: "1px solid #e2e8f0", boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 12, borderBottom: "1px solid #f1f5f9", marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>Daily Stylist Commission & Shift Ledger</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>Automated Calculation • Zero Dispute</div>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, background: "#ecfdf5", color: "#059669", padding: "4px 10px", borderRadius: 20 }}>
+            ● 14 Staff Clocked-In
+          </span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+          <div style={{ padding: "12px 14px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a" }}>Rohit Sharma (Master Stylist)</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>8 Services Completed • Facial Clock-in 09:52 AM</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#0d9488" }}>₹3,280 Commission</div>
+              <div style={{ fontSize: 10, color: "#94a3b8" }}>Volume: ₹16,400 (20%)</div>
+            </div>
+          </div>
+
+          <div style={{ padding: "12px 14px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a" }}>Meera Nair (Senior Esthetician)</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>6 Spa Sessions • Facial Clock-in 10:04 AM</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#0d9488" }}>₹2,560 Commission</div>
+              <div style={{ fontSize: 10, color: "#94a3b8" }}>Volume: ₹12,800 (20%)</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: "#f0fdfa", padding: "8px 12px", borderRadius: 10, border: "1px solid #ccfbf1", display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#0f766e" }}>
+          <CheckCircle2 size={14} color="#0d9488" />
+          <span>Staff see their individual daily earnings in real-time in 'My Workspace'.</span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 const testimonialsList = [
   {
@@ -580,7 +871,7 @@ export default function MarketingHomePage() {
                 </div>
 
                 {/* Active Module Showcase Card */}
-                <div style={{ background: "#ffffff", borderRadius: 24, padding: "40px", border: "1px solid #e2e8f0", boxShadow: "0 20px 50px rgba(0,0,0,0.06)", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 40, alignItems: "center" }}>
+                <div style={{ background: "#ffffff", borderRadius: 24, padding: "40px", border: "1px solid #e2e8f0", boxShadow: "0 20px 50px rgba(0,0,0,0.06)", display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 40, alignItems: "center" }}>
                   <div>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", background: "#f0fdfa", color: "#0d9488", borderRadius: 8, fontSize: 12, fontWeight: 800, textTransform: "uppercase", marginBottom: 14 }}>
                       <Sparkles size={13} /> {selectedModule.badge}
@@ -608,8 +899,8 @@ export default function MarketingHomePage() {
                     </Link>
                   </div>
 
-                  <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.1)", border: "1px solid #e2e8f0" }}>
-                    <img src={selectedModule.image} alt={selectedModule.name} style={{ width: "100%", height: 360, objectFit: "cover", display: "block" }} />
+                  <div>
+                    <ModuleMockup tabId={activeTab} />
                   </div>
                 </div>
 
@@ -633,14 +924,29 @@ export default function MarketingHomePage() {
                 <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 32 }}>
                   {industriesData.map(ind => {
                     const isSelected = ind.id === activeIndustry;
+                    const IndIcon = ind.icon;
                     return (
                       <button
                         key={ind.id}
                         type="button"
                         onClick={() => setActiveIndustry(ind.id)}
-                        className={`marketing-industry-pill ${isSelected ? "active" : ""}`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "10px 18px",
+                          borderRadius: 100,
+                          fontSize: 13.5,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          border: isSelected ? `2px solid ${ind.color}` : "1px solid #e2e8f0",
+                          background: isSelected ? ind.bg : "#ffffff",
+                          color: isSelected ? ind.color : "#334155",
+                          boxShadow: isSelected ? `0 4px 14px ${ind.bg}` : "0 2px 6px rgba(0,0,0,0.02)"
+                        }}
                       >
-                        <span style={{ fontSize: 16 }}>{ind.icon}</span>
+                        <IndIcon size={16} color={isSelected ? ind.color : "#64748b"} />
                         {ind.name}
                       </button>
                     );
@@ -648,19 +954,27 @@ export default function MarketingHomePage() {
                 </div>
 
                 {/* Selected Industry Card */}
-                <div style={{ maxWidth: 780, margin: "0 auto", background: "#f8fafc", borderRadius: 18, padding: "28px 36px", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 20, textAlign: "left", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
-                  <div style={{ fontSize: 40, background: "#fff", width: 72, height: 72, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
-                    {selectedIndustryData.icon}
-                  </div>
-                  <div>
-                    <h4 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 6px" }}>
-                      Built for {selectedIndustryData.name}
-                    </h4>
-                    <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6, margin: 0 }}>
-                      {selectedIndustryData.desc}
-                    </p>
-                  </div>
-                </div>
+                {(() => {
+                  const SelIcon = selectedIndustryData.icon;
+                  return (
+                    <div style={{ maxWidth: 780, margin: "0 auto", background: selectedIndustryData.bg || "#f8fafc", borderRadius: 20, padding: "28px 36px", border: `1px solid ${selectedIndustryData.color}40`, display: "flex", alignItems: "center", gap: 24, textAlign: "left", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
+                      <div style={{ background: "#fff", width: 68, height: 68, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 4px 14px rgba(0,0,0,0.06)", border: `1px solid ${selectedIndustryData.color}30` }}>
+                        <SelIcon size={32} color={selectedIndustryData.color} />
+                      </div>
+                      <div>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: selectedIndustryData.color, marginBottom: 4, letterSpacing: "0.05em" }}>
+                          Tailored Workflow
+                        </div>
+                        <h4 style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", margin: "0 0 6px" }}>
+                          Built for {selectedIndustryData.name}
+                        </h4>
+                        <p style={{ fontSize: 14.5, color: "#475569", lineHeight: 1.6, margin: 0 }}>
+                          {selectedIndustryData.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
 
               </div>
             </section>
