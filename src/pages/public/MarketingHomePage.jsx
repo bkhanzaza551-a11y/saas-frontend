@@ -6,7 +6,9 @@ import {
   LayoutDashboard, Calendar, Users, CreditCard, BarChart3, Package, Settings, Shield,
   Store, ShoppingCart, FileText, UserCheck, Gift, MessageSquare, Megaphone, Star,
   Clock, MapPin, Bell, HeadphonesIcon, Globe, Repeat, Wallet, TrendingUp,
-  ClipboardList, Tags, PieChart, Truck, Check, Mail, Phone, Briefcase
+  ClipboardList, Tags, PieChart, Truck, Check, Mail, Phone, Briefcase,
+  ChevronDown, ChevronRight, Sparkles, CheckCircle2, ArrowRight, Zap, Award,
+  Sliders, ShieldCheck, Smartphone, Flame, HeartHandshake
 } from "lucide-react";
 
 const navLinks = [
@@ -27,140 +29,228 @@ const salonImages = {
   team: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop"
 };
 
-const features = [
-  { icon: LayoutDashboard, title: "Multi-Branch Control", desc: "Manage unlimited branches from one dashboard. Branch-wise reporting, staff, and inventory." },
-  { icon: CreditCard, title: "POS & Invoicing", desc: "Lightning-fast POS with backend-calculated totals, PDF receipts, and payment tracking." },
-  { icon: Users, title: "Customer CRM", desc: "Complete customer profiles with notes, tags, birthdays, anniversaries, and billing history." },
-  { icon: BarChart3, title: "Smart Reports", desc: "Sales, revenue, staff performance, branch comparison, and exportable CSV reports." },
-  { icon: Shield, title: "Role-Based Access", desc: "Owner, manager, receptionist, staff - each role gets exactly the access they need." },
-  { icon: HeadphonesIcon, title: "Support System", desc: "Built-in ticketing with thread trails, internal notes, and support event history." }
+const stats = [
+  { value: "50,000+", label: "Bookings Handled", sub: "Across all active salons" },
+  { value: "₹12.5 Cr+", label: "Invoices Processed", sub: "100% Tax & GST Compliant" },
+  { value: "180+", label: "Active Stylists", sub: "Daily shift rosters managed" },
+  { value: "99.98%", label: "Cloud Uptime", sub: "High-availability servers" }
 ];
 
-const featureCategories = [
+const interactiveModules = [
   {
-    title: "Unified Owner/Admin Panel",
-    icon: LayoutDashboard,
-    color: "#0d9488",
-    bg: "#f0fdfa",
-    features: [
-      "One shared panel for owner, receptionist, manager, staff, and accountant users.",
-      "Role-based sidebar and backend permission checks keep every user inside assigned scope.",
-      "Branch-aware operations, custom roles, archived users, and staff-service assignment.",
-      "My Workspace for staff: dashboard, appointments, schedule, commission, profile."
-    ]
-  },
-  {
-    title: "Billing & POS",
+    id: "pos",
+    name: "POS & Invoicing",
     icon: CreditCard,
-    color: "#f59e0b",
-    bg: "#fffbeb",
-    features: [
-      "POS creates invoices with backend-calculated totals, payment updates, receipt HTML, and PDF output.",
-      "Customers carry notes, tags, source, birthdays, anniversaries, and billing history.",
-      "Reports cover sales, payments, branches, staff-service output, customer totals, and CSV export.",
-      "Payment tracking with multiple methods: cash, card, UPI, wallet, split payments."
-    ]
+    badge: "Lightning Fast",
+    headline: "Point-of-Sale built for rush-hour checkout",
+    desc: "Generate professional tax invoices in under 5 seconds. Support multi-mode split payments, automatic coupon validation, loyalty point redemption, and instant digital PDF receipts on WhatsApp.",
+    bullets: [
+      "Cash, Card, UPI & Split Payment modes",
+      "Dynamic GST & automated discount calculations",
+      "Instant WhatsApp & thermal print receipts",
+      "Zero calculation discrepancies with backend verification"
+    ],
+    image: "https://images.unsplash.com/photo-1556742049-0a67e557b683?w=800&h=500&fit=crop"
   },
   {
-    title: "E-Commerce & Online Orders",
+    id: "appointments",
+    name: "Appointments & Slots",
+    icon: Calendar,
+    badge: "Zero Conflicts",
+    headline: "Smart calendar scheduling with real-time stylist availability",
+    desc: "Prevent embarrassing double-bookings. Manage stylist shifts, chair capacities, walk-in queues, and online booking requests seamlessly in real-time.",
+    bullets: [
+      "Interactive Day, Week, and Month calendar views",
+      "Automatic collision prevention & stylist shift mapping",
+      "Instant SMS & WhatsApp booking confirmations",
+      "Client reschedule & cancellation self-service portal"
+    ],
+    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&h=500&fit=crop"
+  },
+  {
+    id: "storefront",
+    name: "Digital Storefront",
     icon: Store,
-    color: "#10b981",
-    bg: "#ecfdf5",
-    features: [
-      "Professional website editor with sections, color picker, card shapes, banner editor.",
-      "Dynamic storefront with real products, categories, cart, and checkout.",
-      "Online orders management with status flow: New → Accepted → Ready → Completed.",
-      "Website analytics dashboard with revenue, orders, and product performance."
-    ]
+    badge: "E-Commerce Ready",
+    headline: "Your salon's branded website and online product shop",
+    desc: "Get a stunning luxury storefront ready out of the box. Showcase your services catalog, retail haircare products, take online bookings, and collect upfront payments.",
+    bullets: [
+      "Custom brand colors, logo, hero banners & typography",
+      "Online appointment checkout with Razorpay integration",
+      "Digital retail product cart & order fulfillment tracker",
+      "100% Mobile responsive luxury guest experience"
+    ],
+    image: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&h=500&fit=crop"
   },
   {
-    title: "Staff & Workforce",
+    id: "crm",
+    name: "Customer CRM & Loyalty",
     icon: Users,
-    color: "#8b5cf6",
-    bg: "#f5f3ff",
-    features: [
-      "Staff assignment to services, branches, and schedules with availability tracking.",
-      "Custom roles with granular permissions for every module and action.",
-      "Commission tracking, attendance, payroll runs, and salary management.",
-      "Staff notifications, announcements, and internal messaging."
-    ]
+    badge: "+38% Retention",
+    headline: "Deep client profiles, history, and automated rewards",
+    desc: "Keep complete client records at your fingertips: past service formulas, preferred stylists, birthdays, anniversaries, lifetime spend, and tiered loyalty point balances.",
+    bullets: [
+      "360-Degree customer history & formula notes",
+      "Automated loyalty points ledger & membership passes",
+      "Targeted birthday & anniversary greeting automations",
+      "VIP customer tagging and spend segmentation"
+    ],
+    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=500&fit=crop"
   },
   {
-    title: "Marketing & Growth",
-    icon: Megaphone,
-    color: "#ec4899",
-    bg: "#fdf2f8",
-    features: [
-      "WhatsApp integration with settings, logs, and automation flows.",
-      "Campaign management with templates, scheduling, and conversion tracking.",
-      "SMS and email campaigns with audience targeting and delivery reports.",
-      "Loyalty points, coupons, gift cards, and referral programs."
-    ]
+    id: "multibranch",
+    name: "Multi-Branch Control",
+    icon: LayoutDashboard,
+    badge: "Centralized Sync",
+    headline: "Scale across 10+ locations without operational chaos",
+    desc: "Switch between branches in one click. Compare branch-wise revenues, transfer stock between locations with approval workflows, and audit operations remotely.",
+    bullets: [
+      "Centralized salon dashboard with branch selector",
+      "Inter-branch inventory transfers & low-stock alerts",
+      "Branch vs Branch comparative revenue analytics",
+      "Strict role-based access to protect sensitive financial data"
+    ],
+    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=500&fit=crop"
   },
   {
-    title: "Customer Experience",
-    icon: Star,
-    color: "#f97316",
-    bg: "#fff7ed",
-    features: [
-      "Customer portal for bookings, orders, invoices, and loyalty history.",
-      "Feedback collection, ratings, and satisfaction reports.",
-      "Enquiry capture, assignment, follow-ups, and conversion tracking.",
-      "Support tickets with thread trails, internal notes, and priority management."
-    ]
+    id: "staff",
+    name: "Staff & Attendance",
+    icon: UserCheck,
+    badge: "Dispute-Free",
+    headline: "Facial clock-in, commission rules & automated payroll",
+    desc: "Say goodbye to commission disputes. Calculate service commissions, product sales incentives, track leaves, and run monthly salaries with zero spreadsheets.",
+    bullets: [
+      "Selfie / Geofenced attendance clock-in & clock-out",
+      "Dynamic multi-tier service commission calculations",
+      "Staff schedule rosters with leave approval flow",
+      "Individual staff workspace login with private metrics"
+    ],
+    image: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&h=500&fit=crop"
   }
 ];
 
-const allFeatures = [
-  { icon: LayoutDashboard, title: "Dashboard", desc: "Real-time overview of revenue, appointments, orders, and staff performance." },
-  { icon: Calendar, title: "Appointments", desc: "Book, reschedule, and manage appointments with calendar views and reminders." },
-  { icon: CreditCard, title: "POS & Invoicing", desc: "Lightning-fast POS with backend-calculated totals, PDF receipts, and payment tracking." },
-  { icon: Users, title: "Customer CRM", desc: "Complete customer profiles with notes, tags, birthdays, anniversaries, and billing history." },
-  { icon: BarChart3, title: "Reports & Analytics", desc: "Sales, revenue, staff performance, branch comparison, and exportable CSV reports." },
-  { icon: Package, title: "Inventory Management", desc: "Products, stock movements, purchase orders, suppliers, and low-stock alerts." },
-  { icon: Store, title: "E-Commerce Store", desc: "Professional storefront with products, categories, cart, checkout, and online orders." },
-  { icon: Globe, title: "Website Editor", desc: "Customize hero, sections, colors, card shapes, banners, and testimonials." },
-  { icon: ShoppingCart, title: "Online Orders", desc: "Accept, process, and fulfill online orders with status tracking and invoice conversion." },
-  { icon: MapPin, title: "Multi-Branch", desc: "Manage unlimited branches with branch-wise reporting, staff, and inventory." },
-  { icon: UserCheck, title: "Staff Management", desc: "Assign services, track availability, manage schedules, and calculate commissions." },
-  { icon: Shield, title: "Role-Based Access", desc: "Owner, manager, receptionist, staff - each role gets exactly the access they need." },
-  { icon: Gift, title: "Memberships & Packages", desc: "Recurring membership plans and prepaid packages with usage tracking." },
-  { icon: Star, title: "Loyalty Program", desc: "Points, tiers, rewards, and redemption rules to boost customer retention." },
-  { icon: Tags, title: "Coupons & Gift Cards", desc: "Discount coupons, percentage-off deals, and digital gift cards." },
-  { icon: MessageSquare, title: "WhatsApp Integration", desc: "Automated messages, notifications, and conversation logs." },
-  { icon: Megaphone, title: "Campaigns", desc: "SMS, email, and WhatsApp campaigns with templates and conversion tracking." },
-  { icon: FileText, title: "Enquiries", desc: "Capture, assign, follow up, and convert enquiries from multiple sources." },
-  { icon: HeadphonesIcon, title: "Support Tickets", desc: "Ticketing system with thread trails, internal notes, and priority management." },
-  { icon: PieChart, title: "Expense Tracking", desc: "Track expenses by type, category, account, and generate financial reports." },
-  { icon: Wallet, title: "Payroll", desc: "Salary calculations, deductions, advances, and payroll run management." },
-  { icon: Repeat, title: "Feedback & Reviews", desc: "Collect customer feedback, ratings, and generate satisfaction reports." },
-  { icon: Bell, title: "Notifications", desc: "In-app, email, and push notifications with configurable toggles." },
-  { icon: Clock, title: "Audit Logs", desc: "Complete activity trail for compliance, debugging, and accountability." },
-  { icon: Truck, title: "Stock Transfers", desc: "Move inventory between branches with approval workflows." },
-  { icon: ClipboardList, title: "Attendance", desc: "Clock in/out, attendance reports, and shift management." },
-  { icon: TrendingUp, title: "Trends & Insights", desc: "AI-powered trends, peak hours analysis, and growth predictions." },
-  { icon: Settings, title: "Settings", desc: "Business hours, tax rates, notifications, legal content, and UI customization." }
+const industriesData = [
+  { id: "hair", name: "Hair Salons & Barbers", icon: "✂️", desc: "Chair scheduling, color formula notes, stylist commission tiers, and quick walk-in queue management." },
+  { id: "spa", name: "Luxury Spas & Wellness", icon: "💆", desc: "Room & therapist allocation, couples massage packages, aromatherapy inventory, and tranquil booking flow." },
+  { id: "nail", name: "Nail Bars & Lash Lounges", icon: "💅", desc: "Express service add-ons, technician speed tracking, nail art catalog, and recurring refill memberships." },
+  { id: "clinic", name: "Aesthetic & Skin Clinics", icon: "💉", desc: "Doctor consultation slots, before/after records, treatment session packages, and strict patient consent trails." },
+  { id: "tattoo", name: "Tattoo & Piercing Studios", icon: "🎨", desc: "Artist hourly rate billing, custom design deposits, aftercare supply sales, and digital waiver forms." },
+  { id: "pet", name: "Pet Grooming Salons", icon: "🐶", desc: "Breed-specific time estimates, pet medical notes, vaccine reminders, and grooming packages." },
+  { id: "bridal", name: "Bridal Makeup Studios", icon: "💄", desc: "Advance bridal package bookings, milestone payments, trial scheduling, and team destination roster." }
 ];
 
-const stats = [
-  { value: "4,924+", label: "Active Invoices" },
-  { value: "184", label: "Staff Members" },
-  { value: "12", label: "Branches Active" },
-  { value: "24%", label: "Monthly Growth" }
+const testimonialsList = [
+  {
+    name: "Priya Sharma",
+    role: "Founder & Creative Director",
+    salon: "Luxe Studio & Academy",
+    city: "Mumbai",
+    rating: 5,
+    metric: "+42% Repeat Clients",
+    text: "Salon Nest completely transformed how we run our 3 branches. The POS is lightning fast during peak weekend rushes and the automated WhatsApp reminders reduced our no-shows to almost zero.",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&fit=crop"
+  },
+  {
+    name: "Rahul Mehta",
+    role: "Managing Director",
+    salon: "Glamour Lounge Chain",
+    city: "Delhi NCR",
+    rating: 5,
+    metric: "Saved 20 hrs/week",
+    text: "Finally a salon operating system built for Indian business realities. The multi-branch stock transfers and automated stylist commissions saved our management team 20+ hours every single week.",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&fit=crop"
+  },
+  {
+    name: "Ananya Patel",
+    role: "Operations Head",
+    salon: "Spa Bliss & Wellness",
+    city: "Bengaluru",
+    rating: 5,
+    metric: "+38% Retention",
+    text: "The Customer CRM and loyalty points ledger is phenomenal. We automatically track client preferences, past massage oils, and birthdays. Our customer retention jumped by 38% in 3 months.",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&fit=crop"
+  },
+  {
+    name: "Vikramaditya Rao",
+    role: "Owner",
+    salon: "The Heritage Barber Co.",
+    city: "Hyderabad",
+    rating: 5,
+    metric: "99.4% Client Rating",
+    text: "From walk-in queue management to instant digital WhatsApp receipts, our clients love the upscale modern experience. The interface is intuitive—our new receptionists learned it in 15 minutes!",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&fit=crop"
+  },
+  {
+    name: "Sonia Kapoor",
+    role: "Co-Founder",
+    salon: "Aura Aesthetic Clinic",
+    city: "Chandigarh",
+    rating: 5,
+    metric: "100% Data Security",
+    text: "Role-based permissions allow my front-desk team to handle appointments and billing smoothly, while financial numbers, profit reports, and staff payroll remain strictly private to me.",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&fit=crop"
+  },
+  {
+    name: "Farhan Qureshi",
+    role: "Lead Stylist & Owner",
+    salon: "Urban Cuts Studios",
+    city: "Pune",
+    rating: 5,
+    metric: "Zero Payroll Errors",
+    text: "Staff attendance with facial verification and automated service commission calculations solved all our month-end payroll arguments. Every stylist sees their earnings live in their own portal.",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&fit=crop"
+  },
+  {
+    name: "Meera Nambiar",
+    role: "Founder",
+    salon: "Nail & Lash Haven",
+    city: "Kochi",
+    rating: 5,
+    metric: "₹2.4L Online Sales",
+    text: "The custom branded e-commerce storefront generated ₹2.4 Lakh in premium haircare and skincare product sales in our first month alone! It's like having a 24/7 revenue engine.",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&fit=crop"
+  },
+  {
+    name: "Zaid Al-Mansoor",
+    role: "General Manager",
+    salon: "Velvet Day Spa",
+    city: "Dubai / Mumbai",
+    rating: 5,
+    metric: "5-Star Standard",
+    text: "Truly the gold standard in modern salon ERP. Beautiful on iPads, ultra-responsive on mobile, and the dedicated support ticketing system solves questions in minutes.",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&fit=crop"
+  }
 ];
 
-const industries = ["Hair Salons", "Beauty Studios", "Spa Chains", "Nail Bars", "Tattoo Studios", "Beauty Clinics", "Pet Grooming"];
-
-const defaultPlans = [
-  { id: "starter", name: "Starter", monthlyPrice: 4999, yearlyPrice: 49990, branchLimit: 9999, userLimit: 5, customerLimit: 500, invoiceLimit: 1000, storageLimit: 5, featureFlags: { pos: true, crm: true, reports: true } },
-  { id: "growth", name: "Growth", monthlyPrice: 9999, yearlyPrice: 99990, branchLimit: 9999, userLimit: 20, customerLimit: 3000, invoiceLimit: 10000, storageLimit: 20, featureFlags: { pos: true, crm: true, reports: true, whatsapp: true, digitalCatalog: true } },
-  { id: "scale", name: "Scale", monthlyPrice: 17999, yearlyPrice: 179990, branchLimit: 9999, userLimit: 100, customerLimit: 20000, invoiceLimit: 50000, storageLimit: 100, featureFlags: { pos: true, crm: true, reports: true, whatsapp: true, digitalCatalog: true, customerPortal: true, loyalty: true } }
+const faqs = [
+  {
+    q: "Can I manage multiple salon branches from a single login?",
+    a: "Yes! Salon Nest is built from the ground up for multi-branch salon and spa chains. You can toggle between locations in 1 click, view consolidated financial analytics, transfer product inventory between branches, and enforce uniform pricing or branch-specific rates."
+  },
+  {
+    q: "Does Salon Nest send automated WhatsApp messages & digital invoices?",
+    a: "Absolutely. You can send automatic appointment confirmations, stylist reminders 2 hours prior, post-service digital PDF bills, feedback collection links, and birthday greeting offers directly to your client's WhatsApp."
+  },
+  {
+    q: "How easy is it to migrate our existing customer data and service catalog?",
+    a: "We provide easy 1-click CSV import tools for customers, services, categories, and inventory. Plus, during your onboarding, our dedicated setup team will help format and import your existing salon databases with zero downtime."
+  },
+  {
+    q: "Can my stylists check their bookings without seeing overall business revenue?",
+    a: "Yes! With our granular Role-Based Access Control (RBAC), each staff member gets a dedicated 'My Workspace' login where they only see their assigned appointments, working shifts, and personal commissions without access to overall salon revenue or customer phone numbers."
+  },
+  {
+    q: "Do you offer customer support and staff training?",
+    a: "Yes. Every subscription includes dedicated WhatsApp chat support, a built-in ticket management desk, and free live video onboarding sessions for your front desk managers and staff."
+  }
 ];
 
-const testimonials = [
-  { name: "Priya Sharma", role: "Owner, Luxe Studio", text: "Salon Nest transformed how we manage 3 branches. The POS is lightning fast and reports give me real-time visibility.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&fit=crop" },
-  { name: "Rahul Mehta", role: "Director, Glamour Salon", text: "Finally a platform built for Indian salons. The multi-branch feature alone saved us hours of manual coordination.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&fit=crop" },
-  { name: "Ananya Patel", role: "Manager, Spa Bliss", text: "Customer CRM is amazing. We track every client's preferences, birthdays, and history. Our retention increased 40%.", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&fit=crop" }
+const comparisonPoints = [
+  { feature: "Multi-Branch Live Sync", old: "Separate offline software per shop", nest: "Unified Cloud Console with 1-click switch" },
+  { feature: "Appointment Booking", old: "Manual phone calls & paper registers", nest: "24/7 Online Storefront + Smart Collision Calendar" },
+  { feature: "Billing & Invoicing", old: "Slow desktop POS with manual tax entry", nest: "5-Second Checkout + Auto GST + WhatsApp PDF" },
+  { feature: "Stylist Commissions", old: "Messy spreadsheets & monthly disputes", nest: "Real-time tier calculation with staff transparency" },
+  { feature: "Customer Retention", old: "No automated follow-up system", nest: "Automated loyalty ledger & WhatsApp campaigns" }
 ];
 
 export default function MarketingHomePage() {
@@ -168,6 +258,9 @@ export default function MarketingHomePage() {
   const [settings, setSettings] = useState(null);
   const [plans, setPlans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(interactiveModules[0].id);
+  const [activeIndustry, setActiveIndustry] = useState(industriesData[0].id);
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -175,7 +268,7 @@ export default function MarketingHomePage() {
       .then(([settingsRes, plansRes]) => {
         if (!active) return;
         setSettings(settingsRes.data);
-        setPlans(Array.isArray(plansRes.data) && plansRes.data.length ? plansRes.data : defaultPlans);
+        setPlans(Array.isArray(plansRes.data) && plansRes.data.length ? plansRes.data : []);
       })
       .finally(() => { if (active) setIsLoading(false); });
     return () => { active = false; };
@@ -183,7 +276,7 @@ export default function MarketingHomePage() {
 
   const whatsappHref = settings?.whatsappNumber
     ? `https://wa.me/${String(settings.whatsappNumber).replace(/[^\d]/g, "")}`
-    : null;
+    : "https://wa.me/919493952587";
   const pricingCurrency = String(settings?.defaultCurrency || "INR").toUpperCase();
   const currencySymbol = pricingCurrency === "PKR" ? "Rs" : pricingCurrency === "AED" ? "AED" : "₹";
 
@@ -194,9 +287,18 @@ export default function MarketingHomePage() {
   const isContact = location.pathname === "/contact";
 
   useEffect(() => {
-    const titles = { "/": "Salon Nest - Salon ERP Platform", "/features": "Features | Salon Nest", "/pricing": "Pricing | Salon Nest", "/platform": "Platform | Salon Nest", "/contact": "Contact Us | Salon Nest" };
-    document.title = titles[location.pathname] || "Salon Nest";
+    const titles = {
+      "/": "Salon Nest - Premium Salon ERP & Multi-Branch Business Operating System",
+      "/features": "All Features | Salon Nest ERP",
+      "/pricing": "Pricing Plans | Salon Nest ERP",
+      "/platform": "Platform Overview | Salon Nest ERP",
+      "/contact": "Contact Us | Salon Nest ERP"
+    };
+    document.title = titles[location.pathname] || "Salon Nest - Salon ERP Platform";
   }, [location.pathname]);
+
+  const selectedModule = interactiveModules.find(m => m.id === activeTab) || interactiveModules[0];
+  const selectedIndustryData = industriesData.find(i => i.id === activeIndustry) || industriesData[0];
 
   if (isLoading) {
     return (
@@ -204,239 +306,618 @@ export default function MarketingHomePage() {
         <div style={{ textAlign: "center" }}>
           <div style={{ width: 48, height: 48, border: "4px solid #e2e8f0", borderTopColor: "#0d9488", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-          <p style={{ color: "#64748b", fontSize: 14 }}>Loading Salon Nest...</p>
+          <p style={{ color: "#64748b", fontSize: 14, fontWeight: 600 }}>Loading Salon Nest Experience...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#ffffff", fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, sans-serif", color: "#0f172a", overflowX: "hidden" }}>
+      
+      {/* TOP ANNOUNCEMENT BANNER */}
+      <div style={{ background: "linear-gradient(90deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)", color: "#ccfbf1", padding: "10px 24px", fontSize: 13, textAlign: "center", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(20,184,166,0.25)", padding: "2px 10px", borderRadius: 20, color: "#5eead4", fontSize: 11, fontWeight: 700 }}>
+          <Sparkles size={12} /> NEW V2.0
+        </span>
+        <span>Salon Nest 2.0 is live with Automated WhatsApp Notifications, Smart POS & Multi-Branch Sync!</span>
+        <Link to="/book-demo" style={{ color: "#ffffff", textDecoration: "underline", fontWeight: 700, marginLeft: 4 }}>
+          Book 1-on-1 VIP Walkthrough &rarr;
+        </Link>
+      </div>
+
       {/* HEADER */}
-      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)", borderBottom: "1px solid #f1f5f9" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72 }}>
-          <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(226,232,240,0.8)" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 74 }}>
+          <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", gap: 8 }}>
             <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
           </Link>
-          <nav className="public-nav-links" style={{ gap: 32 }}>
+
+          <nav className="public-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
             {navLinks.map(item => (
-              <Link key={item.to} to={item.to} style={{ textDecoration: "none", fontSize: 14, fontWeight: 500, color: location.pathname === item.to ? "#0d9488" : "#64748b", transition: "color 0.2s" }}>{item.label}</Link>
+              <Link 
+                key={item.to} 
+                to={item.to} 
+                style={{ 
+                  textDecoration: "none", 
+                  fontSize: 14, 
+                  fontWeight: location.pathname === item.to ? 700 : 500, 
+                  color: location.pathname === item.to ? "#0d9488" : "#475569", 
+                  transition: "all 0.2s ease",
+                  position: "relative",
+                  padding: "6px 0"
+                }}
+              >
+                {item.label}
+                {location.pathname === item.to && (
+                  <span style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "#0d9488", borderRadius: 2 }} />
+                )}
+              </Link>
             ))}
           </nav>
-          <div className="public-nav-cta" style={{ gap: 12 }}>
-            <Link to="/login" style={{ textDecoration: "none", fontSize: 14, fontWeight: 600, color: "#64748b", padding: "8px 16px" }}>Login</Link>
-            <Link to="/book-demo" style={{ textDecoration: "none", fontSize: 14, fontWeight: 700, color: "#fff", background: "linear-gradient(135deg, #0d9488, #14b8a6)", padding: "10px 24px", borderRadius: 10, boxShadow: "0 2px 8px rgba(13,148,136,0.3)" }}>Request Demo</Link>
+
+          <div className="public-nav-cta" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <Link to="/login" style={{ textDecoration: "none", fontSize: 14, fontWeight: 600, color: "#334155", padding: "9px 18px", borderRadius: 10, transition: "all 0.2s" }}>
+              Sign In
+            </Link>
+            <Link to="/book-demo" className="btn-glow-primary" style={{ textDecoration: "none", fontSize: 14, padding: "10px 22px", borderRadius: 10, display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <Sparkles size={15} /> Request Demo
+            </Link>
           </div>
+
           <PublicMobileMenu
             brand={{ label: "Salon Nest", sublabel: "Salon ERP Platform", logo: "/logo.jfif", to: "/" }}
             items={navLinks}
-            cta={{ label: "Book Demo", to: "/book-demo" }}
+            cta={{ label: "Request Demo", to: "/book-demo" }}
           />
         </div>
       </header>
 
       <main>
-        {/* ============ HOME PAGE ============ */}
+        {/* =========================================================================
+            HOME PAGE
+           ========================================================================= */}
         {isHome && (
           <>
-            {/* HERO */}
-            <section style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #f0fdfa 0%, #f8fafc 50%, #ecfdf5 100%)" }}>
-              <div className="public-hero" style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 24px 60px", gap: 60 }}>
+            {/* HERO SECTION */}
+            <section style={{ position: "relative", overflow: "hidden", background: "radial-gradient(circle at 80% 20%, rgba(204,251,241,0.6) 0%, rgba(240,253,250,0.4) 40%, #ffffff 80%)", paddingBottom: 40 }}>
+              
+              {/* Background Ambient Glow Elements */}
+              <div style={{ position: "absolute", top: "10%", left: "5%", width: 350, height: 350, background: "rgba(13,148,136,0.08)", filter: "blur(80px)", borderRadius: "50%", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: "30%", right: "5%", width: 450, height: 450, background: "rgba(20,184,166,0.12)", filter: "blur(90px)", borderRadius: "50%", pointerEvents: "none" }} />
+
+              <div className="public-hero" style={{ maxWidth: 1240, margin: "0 auto", padding: "70px 24px 50px", display: "grid", gridTemplateColumns: "1fr 1.05fr", gap: 48, alignItems: "center" }}>
+                
+                {/* Hero Left Content */}
                 <div>
-                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 20 }}>SALON ERP PLATFORM</div>
-                  <h1 className="marketing-hero-heading" style={{ margin: "0 0 20px" }}>
-                    Run your entire salon business from one calm, <span style={{ color: "#0d9488" }}>controlled</span> operating system.
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 24, boxShadow: "0 2px 8px rgba(13,148,136,0.08)" }}>
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#0d9488", display: "inline-block", animation: "pulseDot 2s infinite" }} />
+                    #1 SALON & SPA OPERATING SYSTEM
+                  </div>
+
+                  <h1 className="marketing-hero-heading" style={{ margin: "0 0 20px", color: "#0f172a" }}>
+                    Run your entire salon chain from one calm, <span style={{ background: "linear-gradient(135deg, #0d9488 0%, #0284c7 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>controlled</span> system.
                   </h1>
-                  <p style={{ fontSize: "1.15rem", color: "#64748b", lineHeight: 1.7, margin: "0 0 32px", maxWidth: 520 }}>
-                    Salon Nest brings Super Admin controls, a unified owner/admin panel, POS billing, team permissions, CRM, support, and reporting into one responsive platform for modern salon businesses.
+
+                  <p style={{ fontSize: "1.15rem", color: "#475569", lineHeight: 1.7, margin: "0 0 32px", maxWidth: 540 }}>
+                    Super Admin oversight, lightning POS billing, automated WhatsApp alerts, client CRM, stylist commissions, and real-time inventory—built specifically for high-growth salons and spas.
                   </p>
-                  <div className="public-hero-actions" style={{ display: "flex", gap: 16, marginBottom: 40 }}>
-                    <Link to="/book-demo" style={{ textDecoration: "none", fontSize: 16, fontWeight: 700, color: "#fff", background: "linear-gradient(135deg, #0d9488, #14b8a6)", padding: "16px 36px", borderRadius: 12, boxShadow: "0 4px 16px rgba(13,148,136,0.3)", transition: "all 0.2s" }}>Request Demo</Link>
-                    <Link to="/pricing" style={{ textDecoration: "none", fontSize: 16, fontWeight: 700, color: "#0d9488", background: "#fff", padding: "16px 36px", borderRadius: 12, border: "2px solid #0d9488", transition: "all 0.2s" }}>See Pricing</Link>
+
+                  <div className="public-hero-actions" style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 36 }}>
+                    <Link to="/book-demo" className="btn-glow-primary" style={{ textDecoration: "none", fontSize: 15, padding: "15px 32px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      Request Live Demo <ArrowRight size={17} />
+                    </Link>
+                    <Link to="/pricing" style={{ textDecoration: "none", fontSize: 15, fontWeight: 700, color: "#0f172a", background: "#ffffff", padding: "15px 28px", borderRadius: 12, border: "1px solid #cbd5e1", boxShadow: "0 2px 6px rgba(0,0,0,0.04)", display: "inline-flex", alignItems: "center", gap: 8, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "#0d9488"; e.currentTarget.style.color = "#0d9488"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#0f172a"; }}>
+                      Explore Plans
+                    </Link>
                   </div>
-                  <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-                    {["Unified panel", "MySQL-backed", "PDF invoices", "Role-based access"].map(item => (
-                      <span key={item} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#64748b" }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#14b8a6" }} />
+
+                  {/* Feature Checkmarks */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                    {[
+                      "Zero Setup Fee",
+                      "Multi-Branch Ready",
+                      "Automated WhatsApp",
+                      "Role-Based Security"
+                    ].map(item => (
+                      <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#334155", fontWeight: 600 }}>
+                        <CheckCircle2 size={16} color="#0d9488" style={{ flexShrink: 0 }} />
                         {item}
-                      </span>
+                      </div>
                     ))}
                   </div>
                 </div>
+
+                {/* Hero Right Visual Deck */}
                 <div style={{ position: "relative" }}>
-                  {/* Main Salon Banner Image */}
-                  <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", position: "relative" }}>
-                    <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop&crop=center" alt="Premium salon interior" style={{ width: "100%", height: 420, objectFit: "cover", display: "block" }} />
-                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.7))", padding: "40px 24px 24px" }}>
-                      <div style={{ display: "flex", gap: 16 }}>
-                        <div style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)", borderRadius: 12, padding: "12px 16px", color: "#fff" }}>
-                          <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>Live Revenue</div>
-                          <div style={{ fontSize: 20, fontWeight: 800 }}>₹3,84,240</div>
+                  <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 60px -15px rgba(15, 23, 42, 0.25)", position: "relative", border: "1px solid rgba(255,255,255,0.8)", background: "#0f172a" }}>
+                    <img 
+                      src={salonImages.hero} 
+                      alt="Premium salon interior" 
+                      style={{ width: "100%", height: 440, objectFit: "cover", display: "block", opacity: 0.9 }} 
+                    />
+                    
+                    {/* Live Glass Stats Overlay at Bottom */}
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(15, 23, 42, 0.95))", padding: "40px 20px 20px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                        <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(12px)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}>
+                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Live Revenue</div>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: "#2dd4bf", marginTop: 2 }}>₹3,84,240</div>
                         </div>
-                        <div style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)", borderRadius: 12, padding: "12px 16px", color: "#fff" }}>
-                          <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>Active Invoices</div>
-                          <div style={{ fontSize: 20, fontWeight: 800 }}>4,924</div>
+                        <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(12px)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}>
+                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Today Bookings</div>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: "#38bdf8", marginTop: 2 }}>412 Slots</div>
                         </div>
-                        <div style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)", borderRadius: 12, padding: "12px 16px", color: "#fff" }}>
-                          <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>Staff</div>
-                          <div style={{ fontSize: 20, fontWeight: 800 }}>184</div>
+                        <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(12px)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}>
+                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Stylists Active</div>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: "#a78bfa", marginTop: 2 }}>184 On-Duty</div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  {/* Floating badge */}
-                  <div className="hero-floating-badge" style={{ background: "#fff", borderRadius: 16, padding: "12px 20px", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 10, zIndex: 3 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, #10b981, #34d399)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 18 }}>✓</div>
+
+                  {/* Top Floating Badge */}
+                  <div className="hero-floating-badge" style={{ animation: "floatSlow 4s ease-in-out infinite", background: "#ffffff", borderRadius: 18, padding: "12px 18px", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", gap: 12, zIndex: 3, border: "1px solid #e2e8f0" }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg, #0d9488, #14b8a6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                      <TrendingUp size={22} />
+                    </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>12 Branches</div>
-                      <div style={{ fontSize: 11, color: "#10b981", fontWeight: 600 }}>↑ 24% growth</div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>Multi-Branch Synced</div>
+                      <div style={{ fontSize: 12, color: "#0d9488", fontWeight: 700 }}>↑ +38% Client Retention</div>
                     </div>
                   </div>
+
+                  {/* Bottom Left Floating Toast Notification */}
+                  <div style={{ position: "absolute", bottom: -20, left: -20, background: "rgba(15, 23, 42, 0.95)", backdropFilter: "blur(10px)", borderRadius: 16, padding: "12px 18px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", gap: 12, zIndex: 4, border: "1px solid rgba(255,255,255,0.1)", animation: "floatSlowAlt 5s ease-in-out infinite" }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                      <Check size={18} strokeWidth={3} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#f8fafc", fontWeight: 700 }}>New VIP Spa Appointment</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Bandra West Branch • 2 min ago</div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </section>
 
-            {/* STATS BAR */}
-            <section style={{ background: "#0f172a", padding: "40px 24px" }}>
-              <div className="marketing-stats-grid" style={{ maxWidth: 1200, margin: "0 auto" }}>
+            {/* LIVE OPERATIONAL METRICS RIBBON */}
+            <section style={{ background: "#0f172a", padding: "48px 24px", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: "20%", width: 300, height: 100, background: "rgba(13,148,136,0.3)", filter: "blur(60px)", pointerEvents: "none" }} />
+              
+              <div className="marketing-stats-grid" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>
                 {stats.map(s => (
-                  <div key={s.label} style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: "2rem", fontWeight: 900, color: "#14b8a6" }}>{s.value}</div>
-                    <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 4 }}>{s.label}</div>
+                  <div key={s.label} style={{ textAlign: "center", padding: "12px 16px", borderRadius: 16, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ fontSize: "2.4rem", fontWeight: 900, color: "#2dd4bf", letterSpacing: "-0.02em" }}>{s.value}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9", marginTop: 4 }}>{s.label}</div>
+                    <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{s.sub}</div>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* SALON IMAGES GRID */}
-            <section style={{ padding: "80px 24px", background: "#fff" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center", marginBottom: 48 }}>
-                <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>OUR WORLD</div>
-                <h2 className="marketing-section-heading">Built for Premium Salons</h2>
-                <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 600, margin: "0 auto" }}>From luxury spas to neighborhood studios, Salon Nest powers the modern salon experience.</p>
-              </div>
-              <div className="marketing-images-grid" style={{ maxWidth: 1200, margin: "0 auto" }}>
-                {[salonImages.styling, salonImages.spa, salonImages.beauty].map((img, i) => (
-                  <div key={i} style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 30px rgba(0,0,0,0.08)", transition: "all 0.3s", cursor: "pointer" }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.15)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 8px 30px rgba(0,0,0,0.08)"; }}>
-                    <img src={img} alt="" style={{ width: "100%", height: 280, objectFit: "cover", display: "block" }} />
+            {/* VISUAL SHOWCASE: BUILT FOR PREMIUM SALONS */}
+            <section style={{ padding: "90px 24px 70px", background: "#ffffff" }}>
+              <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+                <div style={{ textAlign: "center", marginBottom: 48 }}>
+                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                    OUR WORLD
                   </div>
-                ))}
-              </div>
-            </section>
-
-            {/* FEATURES */}
-            <section style={{ padding: "80px 24px", background: "#f8fafc" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center", marginBottom: 48 }}>
-                <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>FEATURES</div>
-                <h2 className="marketing-section-heading">Everything Your Salon Needs</h2>
-                <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 600, margin: "0 auto" }}>One platform to manage branches, staff, customers, billing, and growth.</p>
-              </div>
-              <div className="marketing-features-grid" style={{ maxWidth: 1200, margin: "0 auto" }}>
-                {features.map((f, i) => {
-                  const Icon = f.icon;
-                  return (
-                    <div key={i} style={{ background: "#fff", borderRadius: 16, padding: 32, border: "1px solid #e2e8f0", transition: "all 0.2s", cursor: "default" }}
-                      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 30px rgba(0,0,0,0.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f0fdfa", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                        <Icon size={24} color="#0d9488" />
-                      </div>
-                      <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>{f.title}</h3>
-                      <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* WHY CHOOSE US */}
-            <section style={{ padding: "80px 24px", background: "#fff" }}>
-              <div className="marketing-why-grid" style={{ maxWidth: 1200, margin: "0 auto", alignItems: "center" }}>
-                <div>
-                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>WHY REARK</div>
-                  <h2 className="marketing-section-heading" style={{ margin: "0 0 20px", lineHeight: 1.2 }}>One operational rhythm from front desk to owner reporting.</h2>
-                  <p style={{ fontSize: "1.05rem", color: "#64748b", lineHeight: 1.7, margin: "0 0 32px" }}>
-                    The platform reduces scattered processes by keeping customers, services, staff access, invoices, payments, reports, and support inside one unified operational structure.
+                  <h2 className="marketing-section-heading" style={{ color: "#0f172a" }}>Built for the World's Best Salons</h2>
+                  <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 640, margin: "0 auto", lineHeight: 1.6 }}>
+                    From boutique styling studios to 15+ branch luxury wellness chains, Salon Nest powers the modern guest experience.
                   </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    {["Multi-branch control", "POS and invoice handling", "Customer CRM", "Permission-led staff access"].map(item => (
-                      <div key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 24, height: 24, borderRadius: 8, background: "#ccfbf1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#0f766e", fontWeight: 700 }}>✓</div>
-                        <span style={{ fontSize: 15, color: "#334155", fontWeight: 500 }}>{item}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
-                <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.1)" }}>
-                  <img src={salonImages.interior} alt="Salon workspace" style={{ width: "100%", height: 400, objectFit: "cover" }} />
-                </div>
-              </div>
-            </section>
 
-            {/* INDUSTRIES */}
-            <section style={{ padding: "60px 24px", background: "#f8fafc" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "#0d9488", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>INDUSTRIES</p>
-                <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a", margin: "0 0 32px" }}>Built for salon-style workflows</h3>
-                <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                  {industries.map(ind => (
-                    <span key={ind} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 100, fontSize: 14, fontWeight: 500, color: "#334155" }}>{ind}</span>
+                <div className="marketing-images-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+                  {[
+                    { img: salonImages.styling, title: "Luxury Hair Studios", tag: "Styling & Color Care", desc: "Formulas, chair time allocation, and stylist commissions." },
+                    { img: salonImages.spa, title: "Day Spas & Wellness", tag: "Therapy & Packages", desc: "Couples suites, therapist shifts, and automated refill reminders." },
+                    { img: salonImages.beauty, title: "Aesthetic & Bridal Lounges", tag: "Skin & Glamour", desc: "Bridal packages, customer history, and digital consultation notes." }
+                  ].map((card, i) => (
+                    <div 
+                      key={i} 
+                      style={{ 
+                        borderRadius: 20, 
+                        overflow: "hidden", 
+                        position: "relative", 
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.08)", 
+                        transition: "all 0.35s ease",
+                        cursor: "pointer",
+                        border: "1px solid #e2e8f0"
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(13,148,136,0.15)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.08)"; }}
+                    >
+                      <div style={{ height: 260, overflow: "hidden", position: "relative" }}>
+                        <img src={card.img} alt={card.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }} />
+                        <span style={{ position: "absolute", top: 16, left: 16, background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(6px)", color: "#fff", padding: "4px 12px", borderRadius: 8, fontSize: 11, fontWeight: 700 }}>
+                          {card.tag}
+                        </span>
+                      </div>
+                      <div style={{ padding: 22, background: "#fff" }}>
+                        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 6px" }}>{card.title}</h3>
+                        <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.5 }}>{card.desc}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* TESTIMONIALS */}
-            <section style={{ padding: "80px 24px", background: "#fff" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center", marginBottom: 48 }}>
-                <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>TESTIMONIALS</div>
-                <h2 className="marketing-section-heading" style={{ margin: 0 }}>What Salon Owners Say</h2>
+            {/* INTERACTIVE MODULE EXPLORER */}
+            <section style={{ padding: "80px 24px", background: "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)" }}>
+              <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+                
+                <div style={{ textAlign: "center", marginBottom: 40 }}>
+                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                    INTERACTIVE PLATFORM TOUR
+                  </div>
+                  <h2 className="marketing-section-heading" style={{ color: "#0f172a" }}>Everything Needed to Run & Grow Your Salon</h2>
+                  <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 640, margin: "0 auto" }}>
+                    Click through the core operating modules to see how Salon Nest streamlines your daily workflow.
+                  </p>
+                </div>
+
+                {/* Module Switcher Tabs */}
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 36 }}>
+                  {interactiveModules.map(m => {
+                    const Icon = m.icon;
+                    const isActive = m.id === activeTab;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setActiveTab(m.id)}
+                        className={`marketing-interactive-tab ${isActive ? "active" : ""}`}
+                      >
+                        <Icon size={16} />
+                        {m.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Active Module Showcase Card */}
+                <div style={{ background: "#ffffff", borderRadius: 24, padding: "40px", border: "1px solid #e2e8f0", boxShadow: "0 20px 50px rgba(0,0,0,0.06)", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 40, alignItems: "center" }}>
+                  <div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", background: "#f0fdfa", color: "#0d9488", borderRadius: 8, fontSize: 12, fontWeight: 800, textTransform: "uppercase", marginBottom: 14 }}>
+                      <Sparkles size={13} /> {selectedModule.badge}
+                    </div>
+                    <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#0f172a", margin: "0 0 16px", lineHeight: 1.25 }}>
+                      {selectedModule.headline}
+                    </h3>
+                    <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.7, margin: "0 0 24px" }}>
+                      {selectedModule.desc}
+                    </p>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                      {selectedModule.bullets.map((b, idx) => (
+                        <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#ccfbf1", display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e", flexShrink: 0 }}>
+                            <Check size={14} strokeWidth={3} />
+                          </div>
+                          <span style={{ fontSize: 14, color: "#334155", fontWeight: 600 }}>{b}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Link to="/book-demo" className="btn-glow-primary" style={{ textDecoration: "none", fontSize: 14, padding: "12px 24px", borderRadius: 10, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      See {selectedModule.name} in Action &rarr;
+                    </Link>
+                  </div>
+
+                  <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.1)", border: "1px solid #e2e8f0" }}>
+                    <img src={selectedModule.image} alt={selectedModule.name} style={{ width: "100%", height: 360, objectFit: "cover", display: "block" }} />
+                  </div>
+                </div>
+
               </div>
-              <div className="marketing-testimonials-grid" style={{ maxWidth: 1200, margin: "0 auto" }}>
-                {testimonials.map((t, i) => (
-                  <div key={i} style={{ background: "#f8fafc", borderRadius: 16, padding: 32, border: "1px solid #e2e8f0" }}>
-                    <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}>
-                      <img src={t.avatar} alt={t.name} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
+            </section>
+
+            {/* INDUSTRY WORKFLOWS SELECTOR */}
+            <section style={{ padding: "80px 24px", background: "#ffffff" }}>
+              <div style={{ maxWidth: 1240, margin: "0 auto", textAlign: "center" }}>
+                <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 14 }}>
+                  INDUSTRIES
+                </div>
+                <h3 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>
+                  Tailored specifically for your salon niche
+                </h3>
+                <p style={{ fontSize: 15, color: "#64748b", maxWidth: 600, margin: "0 auto 36px" }}>
+                  Choose your business type below to discover the exact workflows engineered for your daily routine.
+                </p>
+
+                {/* Industry Pills */}
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 32 }}>
+                  {industriesData.map(ind => {
+                    const isSelected = ind.id === activeIndustry;
+                    return (
+                      <button
+                        key={ind.id}
+                        type="button"
+                        onClick={() => setActiveIndustry(ind.id)}
+                        className={`marketing-industry-pill ${isSelected ? "active" : ""}`}
+                      >
+                        <span style={{ fontSize: 16 }}>{ind.icon}</span>
+                        {ind.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Selected Industry Card */}
+                <div style={{ maxWidth: 780, margin: "0 auto", background: "#f8fafc", borderRadius: 18, padding: "28px 36px", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 20, textAlign: "left", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
+                  <div style={{ fontSize: 40, background: "#fff", width: 72, height: 72, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
+                    {selectedIndustryData.icon}
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 6px" }}>
+                      Built for {selectedIndustryData.name}
+                    </h4>
+                    <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6, margin: 0 }}>
+                      {selectedIndustryData.desc}
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            {/* =========================================================================
+                INFINITE TESTIMONIALS MARQUEE ROLLER (REVIEWS ROLLER)
+               ========================================================================= */}
+            <section style={{ padding: "90px 0 80px", background: "#0f172a", position: "relative", overflow: "hidden" }}>
+              
+              {/* Background ambient lighting */}
+              <div style={{ position: "absolute", top: "10%", left: "30%", width: 500, height: 250, background: "rgba(13,148,136,0.18)", filter: "blur(100px)", pointerEvents: "none" }} />
+              
+              <div style={{ maxWidth: 1240, margin: "0 auto", textAlign: "center", padding: "0 24px", marginBottom: 44 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 16px", background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.3)", color: "#2dd4bf", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                  <Star size={13} fill="#2dd4bf" /> VERIFIED REVIEWS & SOCIAL PROOF
+                </div>
+                <h2 className="marketing-section-heading" style={{ color: "#ffffff", margin: "0 0 12px" }}>
+                  Loved by 500+ Salon Owners & Managers
+                </h2>
+                <p style={{ fontSize: "1.1rem", color: "#94a3b8", maxWidth: 640, margin: "0 auto" }}>
+                  Real feedback from top salon directors scaling their branches, stylists, and revenue with Salon Nest.
+                </p>
+              </div>
+
+              {/* TRACK 1: Infinite Marquee Roller (Leftwards) */}
+              <div className="marketing-marquee-container">
+                <div className="marketing-marquee-track">
+                  {[...testimonialsList, ...testimonialsList].map((t, index) => (
+                    <div 
+                      key={index} 
+                      style={{ 
+                        width: 380, 
+                        flexShrink: 0, 
+                        background: "rgba(30, 41, 59, 0.85)", 
+                        backdropFilter: "blur(10px)",
+                        WebkitBackdropFilter: "blur(10px)",
+                        borderRadius: 18, 
+                        padding: 24, 
+                        border: "1px solid rgba(255, 255, 255, 0.1)", 
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between"
+                      }}
+                    >
                       <div>
-                        <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 15 }}>{t.name}</div>
-                        <div style={{ fontSize: 13, color: "#64748b" }}>{t.role}</div>
+                        {/* Rating & Metric badge */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                          <div style={{ display: "flex", gap: 2, color: "#f59e0b", fontSize: 14 }}>
+                            {"★".repeat(t.rating)}
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(13,148,136,0.25)", color: "#2dd4bf", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(45,212,191,0.3)" }}>
+                            {t.metric}
+                          </span>
+                        </div>
+
+                        {/* Quote */}
+                        <p style={{ fontSize: 13.5, color: "#e2e8f0", lineHeight: 1.65, margin: "0 0 18px", fontStyle: "normal" }}>
+                          "{t.text}"
+                        </p>
+                      </div>
+
+                      {/* Author Info */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 14 }}>
+                        <img src={t.avatar} alt={t.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid #0d9488" }} />
+                        <div style={{ overflow: "hidden" }}>
+                          <div style={{ fontWeight: 700, color: "#ffffff", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}>
+                            {t.name} <CheckCircle2 size={13} color="#2dd4bf" />
+                          </div>
+                          <div style={{ fontSize: 11.5, color: "#94a3b8", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+                            {t.role} • {t.salon} ({t.city})
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>"{t.text}"</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* TRACK 2: Reverse Infinite Marquee Roller (Rightwards) */}
+              <div className="marketing-marquee-container" style={{ marginTop: 16 }}>
+                <div className="marketing-marquee-track-reverse">
+                  {[...testimonialsList.slice().reverse(), ...testimonialsList.slice().reverse()].map((t, index) => (
+                    <div 
+                      key={`rev-${index}`} 
+                      style={{ 
+                        width: 380, 
+                        flexShrink: 0, 
+                        background: "rgba(30, 41, 59, 0.85)", 
+                        backdropFilter: "blur(10px)",
+                        WebkitBackdropFilter: "blur(10px)",
+                        borderRadius: 18, 
+                        padding: 24, 
+                        border: "1px solid rgba(255, 255, 255, 0.1)", 
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between"
+                      }}
+                    >
+                      <div>
+                        {/* Rating & Metric badge */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                          <div style={{ display: "flex", gap: 2, color: "#f59e0b", fontSize: 14 }}>
+                            {"★".repeat(t.rating)}
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(56,189,248,0.2)", color: "#38bdf8", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(56,189,248,0.3)" }}>
+                            {t.metric}
+                          </span>
+                        </div>
+
+                        {/* Quote */}
+                        <p style={{ fontSize: 13.5, color: "#e2e8f0", lineHeight: 1.65, margin: "0 0 18px", fontStyle: "normal" }}>
+                          "{t.text}"
+                        </p>
+                      </div>
+
+                      {/* Author Info */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 14 }}>
+                        <img src={t.avatar} alt={t.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid #38bdf8" }} />
+                        <div style={{ overflow: "hidden" }}>
+                          <div style={{ fontWeight: 700, color: "#ffffff", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}>
+                            {t.name} <CheckCircle2 size={13} color="#38bdf8" />
+                          </div>
+                          <div style={{ fontSize: 11.5, color: "#94a3b8", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+                            {t.role} • {t.salon} ({t.city})
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </section>
+
+            {/* COMPARISON: OLD WAYS VS SALON NEST */}
+            <section style={{ padding: "80px 24px", background: "#ffffff" }}>
+              <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+                <div style={{ textAlign: "center", marginBottom: 48 }}>
+                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 14 }}>
+                    THE SALON NEST ADVANTAGE
                   </div>
-                ))}
+                  <h3 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>
+                    Why Salons Upgrade to Salon Nest
+                  </h3>
+                  <p style={{ fontSize: 15, color: "#64748b", margin: 0 }}>
+                    See how modern cloud operations outperform outdated desktop software and manual paperwork.
+                  </p>
+                </div>
+
+                <div style={{ border: "1px solid #e2e8f0", borderRadius: 20, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", background: "#f8fafc", padding: "16px 24px", borderBottom: "1px solid #e2e8f0", fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: "0.05em", color: "#475569" }}>
+                    <div>Operational Area</div>
+                    <div>Traditional / Legacy Tools</div>
+                    <div style={{ color: "#0d9488" }}>✨ Salon Nest Platform</div>
+                  </div>
+
+                  {comparisonPoints.map((row, idx) => (
+                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", padding: "18px 24px", borderBottom: idx < comparisonPoints.length - 1 ? "1px solid #f1f5f9" : "none", alignItems: "center", background: idx % 2 === 0 ? "#ffffff" : "#fcfcfc" }}>
+                      <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 14 }}>{row.feature}</div>
+                      <div style={{ color: "#dc2626", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontWeight: 800 }}>✕</span> {row.old}
+                      </div>
+                      <div style={{ color: "#0d9488", fontWeight: 600, fontSize: 13.5, display: "flex", alignItems: "center", gap: 6 }}>
+                        <CheckCircle2 size={16} color="#0d9488" style={{ flexShrink: 0 }} /> {row.nest}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* FREQUENTLY ASKED QUESTIONS (ACCORDION) */}
+            <section style={{ padding: "80px 24px", background: "#f8fafc" }}>
+              <div style={{ maxWidth: 840, margin: "0 auto" }}>
+                
+                <div style={{ textAlign: "center", marginBottom: 44 }}>
+                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 14 }}>
+                    FAQS
+                  </div>
+                  <h3 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>
+                    Frequently Asked Questions
+                  </h3>
+                  <p style={{ fontSize: 15, color: "#64748b", margin: 0 }}>
+                    Have questions? We have answers to help you choose the right platform with full confidence.
+                  </p>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {faqs.map((faq, index) => {
+                    const isOpen = openFaqIndex === index;
+                    return (
+                      <div key={index} className="faq-accordion-item">
+                        <div 
+                          className="faq-accordion-header" 
+                          onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                        >
+                          <span>{faq.q}</span>
+                          <ChevronDown 
+                            size={18} 
+                            style={{ 
+                              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", 
+                              transition: "transform 0.25s ease",
+                              color: isOpen ? "#0d9488" : "#94a3b8",
+                              flexShrink: 0,
+                              marginLeft: 12
+                            }} 
+                          />
+                        </div>
+                        {isOpen && (
+                          <div className="faq-accordion-content">
+                            {faq.a}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
               </div>
             </section>
           </>
         )}
 
-        {/* ============ FEATURES PAGE ============ */}
+        {/* =========================================================================
+            FEATURES PAGE
+           ========================================================================= */}
         {isFeatures && (
           <>
-            {/* Feature Categories */}
-            <section style={{ padding: "60px 24px", maxWidth: 1200, margin: "0 auto" }}>
-              <div style={{ textAlign: "center", marginBottom: 48 }}>
-                <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>FEATURE CATEGORIES</div>
-                <h2 className="marketing-section-heading">Deep dive into each module</h2>
+            <section style={{ padding: "80px 24px", maxWidth: 1240, margin: "0 auto" }}>
+              <div style={{ textAlign: "center", marginBottom: 50 }}>
+                <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>FEATURE DEEP DIVE</div>
+                <h1 className="marketing-hero-heading" style={{ margin: "0 0 16px" }}>Every Module Engineered for Real Salon Operations</h1>
+                <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 680, margin: "0 auto" }}>No generic bloat. Every single button and ledger connects directly to salon revenue, inventory, and staff productivity.</p>
               </div>
-              <div className="marketing-categories-grid">
-                {featureCategories.map((cat, i) => {
-                  const CatIcon = cat.icon;
+
+              <div className="marketing-categories-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 24 }}>
+                {interactiveModules.map((mod, i) => {
+                  const ModIcon = mod.icon;
                   return (
-                    <div key={i} style={{ background: "#fff", borderRadius: 16, padding: 32, border: "1px solid #e2e8f0" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: cat.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <CatIcon size={22} color={cat.color} />
+                    <div key={i} className="marketing-card-glass" style={{ borderRadius: 20, padding: 32 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdfa", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d9488", border: "1px solid #ccfbf1" }}>
+                          <ModIcon size={24} />
                         </div>
-                        <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>{cat.title}</h3>
+                        <div>
+                          <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>{mod.name}</h3>
+                          <span style={{ fontSize: 11, color: "#0d9488", fontWeight: 700 }}>{mod.badge}</span>
+                        </div>
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {cat.features.map((feat, j) => (
-                          <div key={j} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                            <Check size={16} color={cat.color} style={{ marginTop: 3, flexShrink: 0 }} />
-                            <span style={{ fontSize: 14, color: "#475569", lineHeight: 1.5 }}>{feat}</span>
+                      <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, marginBottom: 20 }}>{mod.desc}</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {mod.bullets.map((bullet, j) => (
+                          <div key={j} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                            <CheckCircle2 size={15} color="#0d9488" style={{ flexShrink: 0 }} />
+                            <span style={{ fontSize: 13.5, color: "#334155", fontWeight: 500 }}>{bullet}</span>
                           </div>
                         ))}
                       </div>
@@ -445,158 +926,143 @@ export default function MarketingHomePage() {
                 })}
               </div>
             </section>
-
-            {/* All 28 Features Grid */}
-            <section style={{ padding: "60px 24px", background: "#f8fafc" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-                <div style={{ textAlign: "center", marginBottom: 48 }}>
-                  <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>ALL FEATURES</div>
-                  <h2 className="marketing-section-heading">{allFeatures.length} features built for real salon operations</h2>
-                  <p style={{ fontSize: "1rem", color: "#64748b" }}>Every module is designed around how salons actually work.</p>
-                </div>
-                <div className="marketing-all-features-grid">
-                  {allFeatures.map((f, i) => {
-                    const FeatIcon = f.icon;
-                    return (
-                      <div key={i} style={{ background: "#fff", borderRadius: 14, padding: 24, border: "1px solid #e2e8f0", transition: "all 0.2s" }}
-                        onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdfa", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-                          <FeatIcon size={20} color="#0d9488" />
-                        </div>
-                        <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }}>{f.title}</h4>
-                        <p style={{ fontSize: 12, color: "#64748b", lineHeight: 1.5, margin: 0 }}>{f.desc}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
           </>
         )}
 
-        {/* ============ PRICING PAGE ============ */}
+        {/* =========================================================================
+            PRICING PAGE
+           ========================================================================= */}
         {isPricing && (
-          <section style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
+          <section style={{ padding: "80px 24px", maxWidth: 1240, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 60 }}>
-              <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>PLANS & PRICING</div>
-              <h1 className="marketing-hero-heading" style={{ margin: "0 0 16px" }}>Choose the plan that matches your salon growth stage.</h1>
-              <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 700, margin: "0 auto" }}>Transparent limits, clear feature access, and room for custom plans.</p>
+              <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>TRANSPARENT PRICING</div>
+              <h1 className="marketing-hero-heading" style={{ margin: "0 0 16px" }}>Choose the Plan Built for Your Growth Stage</h1>
+              <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 650, margin: "0 auto" }}>Transparent limits, no hidden charges, and unlimited software updates.</p>
             </div>
-            <div className="marketing-plans-grid">
+
+            <div className="marketing-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
               {plans.map((plan) => (
-                <div key={plan.id} style={{ background: "#fff", borderRadius: 20, padding: 32, border: plan.isPopular ? "2px solid #0d9488" : "1px solid #e2e8f0", position: "relative", boxShadow: plan.isPopular ? "0 8px 30px rgba(13,148,136,0.15)" : "none" }}>
-                  {plan.isPopular && <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#0d9488", color: "#fff", padding: "4px 16px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>MOST POPULAR</div>}
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#0d9488", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Standard tier</div>
-                  <h3 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0f172a", margin: "0 0 16px" }}>{plan.name}</h3>
+                <div key={plan.id} style={{ background: "#fff", borderRadius: 24, padding: 36, border: plan.isPopular ? "2px solid #0d9488" : "1px solid #e2e8f0", position: "relative", boxShadow: plan.isPopular ? "0 15px 40px rgba(13,148,136,0.18)" : "0 4px 16px rgba(0,0,0,0.03)" }}>
+                  {plan.isPopular && (
+                    <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #0d9488, #14b8a6)", color: "#fff", padding: "4px 18px", borderRadius: 100, fontSize: 11, fontWeight: 800, letterSpacing: "0.05em" }}>
+                      ⭐ MOST POPULAR
+                    </div>
+                  )}
+                  <h3 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0f172a", margin: "0 0 14px" }}>{plan.name}</h3>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
-                    <span style={{ fontSize: 20, color: "#64748b" }}>{currencySymbol}</span>
-                    <span style={{ fontSize: "2.5rem", fontWeight: 900, color: "#0f172a" }}>{Number(plan.monthlyPrice).toLocaleString("en-IN")}</span>
-                    <span style={{ fontSize: 14, color: "#64748b" }}>/mo</span>
+                    <span style={{ fontSize: 22, color: "#64748b", fontWeight: 700 }}>{currencySymbol}</span>
+                    <span style={{ fontSize: "2.8rem", fontWeight: 900, color: "#0f172a", letterSpacing: "-0.02em" }}>{Number(plan.monthlyPrice).toLocaleString("en-IN")}</span>
+                    <span style={{ fontSize: 14, color: "#64748b", fontWeight: 600 }}>/month</span>
                   </div>
-                  <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 24px" }}>Yearly: {currencySymbol}{Number(plan.yearlyPrice).toLocaleString("en-IN")}/yr</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                  <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 24px" }}>Billed annually: {currencySymbol}{Number(plan.yearlyPrice).toLocaleString("en-IN")}/yr</p>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
                     {[`Unlimited Branches`, `${plan.userLimit} Staff Users`, `${plan.customerLimit} Customers`, `${plan.invoiceLimit} Invoices/mo`, `${plan.storageLimit} GB Storage`].map(item => (
-                      <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#475569" }}>
-                        <span style={{ color: "#14b8a6", fontWeight: 700 }}>✓</span> {item}
+                      <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#334155", fontWeight: 500 }}>
+                        <CheckCircle2 size={16} color="#0d9488" /> {item}
                       </div>
                     ))}
                   </div>
-                  <Link to="/book-demo" style={{ display: "block", textAlign: "center", padding: "14px", background: plan.isPopular ? "linear-gradient(135deg, #0d9488, #14b8a6)" : "#f8fafc", color: plan.isPopular ? "#fff" : "#0d9488", borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: "none", border: plan.isPopular ? "none" : "1px solid #e2e8f0" }}>Request Walkthrough</Link>
+
+                  <Link 
+                    to="/book-demo" 
+                    className={plan.isPopular ? "btn-glow-primary" : "btn-glow-dark"} 
+                    style={{ display: "block", textAlign: "center", padding: "14px", borderRadius: 12, fontSize: 15, textDecoration: "none" }}
+                  >
+                    Request Walkthrough &rarr;
+                  </Link>
                 </div>
               ))}
             </div>
           </section>
         )}
 
-        {/* ============ PLATFORM PAGE ============ */}
+        {/* =========================================================================
+            PLATFORM PAGE
+           ========================================================================= */}
         {isPlatform && (
-          <section style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
+          <section style={{ padding: "80px 24px", maxWidth: 1240, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 60 }}>
-              <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>PLATFORM</div>
-              <h1 className="marketing-hero-heading" style={{ margin: "0 0 16px" }}>Built specifically for salons that need discipline, visibility, and scale.</h1>
-              <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 700, margin: "0 auto" }}>This is not a generic dashboard. The product structure follows real salon operations.</p>
+              <div style={{ display: "inline-block", padding: "6px 16px", background: "#f0fdfa", color: "#0f766e", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>PLATFORM ARCHITECTURE</div>
+              <h1 className="marketing-hero-heading" style={{ margin: "0 0 16px" }}>Built for Salons that Need Discipline, Visibility & Scale</h1>
+              <p style={{ fontSize: "1.1rem", color: "#64748b", maxWidth: 700, margin: "0 auto" }}>Engineered on secure high-concurrency cloud architecture to guarantee 99.98% operational reliability.</p>
             </div>
-            <div className="marketing-platform-grid">
+
+            <div className="marketing-platform-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
               {[
-                { title: "Multi-Salon Control", desc: "Manage multiple branches, locations, and staff schedules cleanly from a single central console." },
-                { title: "Secure Staff Access", desc: "Ensure role-based logins to protect customer databases, billing history, and business reports." },
-                { title: "Flexible Feature Controls", desc: "Instantly toggle modules such as POS, Appointments, Inventory, and Payroll to suit your business needs." },
-                { title: "Consolidated Reports", desc: "View operations, sales pipeline, product orders, and financial invoices scoped cleanly by branch or overall business." }
-              ].map((item, i) => (
-                <div key={i} style={{ background: "#f8fafc", borderRadius: 16, padding: 32, border: "1px solid #e2e8f0" }}>
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>{item.title}</h3>
-                  <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
-                </div>
-              ))}
+                { icon: ShieldCheck, title: "Multi-Tenant Cloud Isolation", desc: "Every salon's customer database, financial records, and staff credentials are encrypted and strictly partitioned." },
+                { icon: Smartphone, title: "100% Cross-Device Ready", desc: "Works seamlessly on iPads, Android tablets, desktop terminals, and owner smartphones with instant sync." },
+                { icon: Zap, title: "5-Second POS Checkout", desc: "Optimized backend calculation queries ensure zero lag during high-volume festival and weekend crowds." },
+                { icon: HeadphonesIcon, title: "Dedicated Support Desk", desc: "Direct in-app ticket tracking and WhatsApp support agents to assist your receptionists whenever needed." }
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <div key={i} className="marketing-card-glass" style={{ borderRadius: 20, padding: 32 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdfa", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d9488", marginBottom: 18 }}>
+                      <Icon size={24} />
+                    </div>
+                    <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 8px" }}>{item.title}</h3>
+                    <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}
 
-        {/* CTA BAND (all pages) */}
-        <section style={{ padding: "80px 24px", background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", textAlign: "center" }}>
-          <div style={{ maxWidth: 800, margin: "0 auto" }}>
-            <div style={{ display: "inline-block", padding: "6px 16px", background: "rgba(20,184,166,0.1)", color: "#14b8a6", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>READY FOR WALKTHROUGH</div>
-            <h2 className="marketing-section-heading" style={{ color: "#fff", margin: "0 0 16px" }}>See the platform with your salon use case mapped live.</h2>
-            <p style={{ fontSize: "1.1rem", color: "#94a3b8", marginBottom: 32 }}>We can walk through branch structure, roles, services, billing flow, reports, and support controls in one demo.</p>
-            <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-              <Link to="/book-demo" style={{ textDecoration: "none", fontSize: 16, fontWeight: 700, color: "#0f172a", background: "#fff", padding: "16px 36px", borderRadius: 12 }}>Request Demo</Link>
-              <Link to="/pricing" style={{ textDecoration: "none", fontSize: 16, fontWeight: 700, color: "#fff", background: "transparent", padding: "16px 36px", borderRadius: 12, border: "2px solid rgba(255,255,255,0.2)" }}>Review Pricing</Link>
-            </div>
-          </div>
-        </section>
-        {/* ============ CONTACT US PAGE ============ */}
+        {/* =========================================================================
+            CONTACT US PAGE
+           ========================================================================= */}
         {isContact && (
-          <section style={{ padding: "80px 24px", background: "#f8fafc", minHeight: "calc(100vh - 72px - 300px)" }}>
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <section style={{ padding: "80px 24px", background: "#f8fafc", minHeight: "calc(100vh - 74px - 250px)" }}>
+            <div style={{ maxWidth: 840, margin: "0 auto" }}>
               <div style={{ textAlign: "center", marginBottom: 48 }}>
-                <h1 style={{ fontSize: "3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 16px", letterSpacing: "-1px" }}>Get in Touch</h1>
-                <p style={{ fontSize: "1.15rem", color: "#64748b", margin: 0 }}>We're here to help you scale your salon business.</p>
+                <h1 style={{ fontSize: "2.8rem", fontWeight: 900, color: "#0f172a", margin: "0 0 14px", letterSpacing: "-0.02em" }}>Get in Touch with Our Team</h1>
+                <p style={{ fontSize: "1.15rem", color: "#64748b", margin: 0 }}>We are here to help you scale your salon enterprise with confidence.</p>
               </div>
 
-              <div style={{ background: "#fff", borderRadius: 24, padding: "48px", border: "1px solid #e2e8f0", boxShadow: "0 20px 40px -15px rgba(0,0,0,0.05)" }}>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a", margin: "0 0 32px", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ background: "#fff", borderRadius: 24, padding: "44px", border: "1px solid #e2e8f0", boxShadow: "0 20px 40px -15px rgba(0,0,0,0.05)" }}>
+                <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a", margin: "0 0 28px", display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 12, background: "#f0fdfa", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d9488" }}>
                     <Briefcase size={20} />
                   </div>
-                  Company Details
+                  Corporate Headquarters
                 </h2>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
-                      <MapPin size={24} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                      <MapPin size={22} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Head Office</div>
-                      <div style={{ fontSize: 16, color: "#334155", lineHeight: 1.6, fontWeight: 500 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Registered Office</div>
+                      <div style={{ fontSize: 15, color: "#334155", lineHeight: 1.6, fontWeight: 500 }}>
                         <strong style={{ color: "#0f172a" }}>PROPCORP ADVERTISING (OPC) PRIVATE LIMITED</strong><br/>
                         PLOT NO G-49 MADHURA NAGAR,<br/>
-                        HYDERABAD, Telangana,<br/>
-                        India - 500003
+                        HYDERABAD, Telangana, India - 500003
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
-                      <Phone size={24} />
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                      <Phone size={22} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Direct Line</div>
-                      <div style={{ fontSize: 18, fontWeight: 600 }}>
-                        <a href="tel:9493952587" style={{ color: "#0f172a", textDecoration: "none" }}>9493952587</a>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Sales & Support Hotline</div>
+                      <div style={{ fontSize: 17, fontWeight: 700 }}>
+                        <a href="tel:9493952587" style={{ color: "#0f172a", textDecoration: "none" }}>+91 9493952587</a>
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
-                      <Mail size={24} />
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                      <Mail size={22} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Email Support</div>
-                      <div style={{ fontSize: 18, fontWeight: 600 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Official Email</div>
+                      <div style={{ fontSize: 17, fontWeight: 700 }}>
                         <a href="mailto:govardhan@salonnest.in" style={{ color: "#0d9488", textDecoration: "none" }}>govardhan@salonnest.in</a>
                       </div>
                     </div>
@@ -607,31 +1073,65 @@ export default function MarketingHomePage() {
           </section>
         )}
 
+        {/* ULTRA-LUXURY CALL TO ACTION BANNER (Shown across pages) */}
+        <section style={{ padding: "90px 24px", background: "linear-gradient(135deg, #0f172a 0%, #134e4a 60%, #0f172a 100%)", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, right: "10%", width: 350, height: 350, background: "rgba(20,184,166,0.15)", filter: "blur(90px)", borderRadius: "50%", pointerEvents: "none" }} />
+          
+          <div style={{ maxWidth: 840, margin: "0 auto", position: "relative", zIndex: 2 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 16px", background: "rgba(20,184,166,0.2)", border: "1px solid rgba(20,184,166,0.4)", color: "#2dd4bf", borderRadius: 100, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 20 }}>
+              <Flame size={14} /> ZERO RISK VIP ONBOARDING
+            </div>
+
+            <h2 className="marketing-section-heading" style={{ color: "#ffffff", margin: "0 0 16px" }}>
+              Ready to take complete control of your salon business?
+            </h2>
+
+            <p style={{ fontSize: "1.15rem", color: "#cbd5e1", lineHeight: 1.7, marginBottom: 36, maxWidth: 640, margin: "0 auto 36px" }}>
+              Join 500+ salon directors who run peaceful, profitable, multi-branch operations on Salon Nest. Book your live personalized walkthrough today.
+            </p>
+
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link to="/book-demo" className="btn-glow-primary" style={{ textDecoration: "none", fontSize: 16, padding: "16px 36px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <Sparkles size={18} /> Request 1-on-1 VIP Demo
+              </Link>
+              <a href={whatsappHref} target="_blank" rel="noreferrer" style={{ textDecoration: "none", fontSize: 16, fontWeight: 700, color: "#ffffff", background: "rgba(255,255,255,0.1)", backdropFilter: "blur(10px)", padding: "16px 32px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.25)", display: "inline-flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}>
+                💬 Chat on WhatsApp
+              </a>
+            </div>
+
+            <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: 32, color: "#94a3b8", fontSize: 13, fontWeight: 500 }}>
+              <span>✓ 14-Day Free Evaluation</span>
+              <span>✓ Free Data Import Assistance</span>
+              <span>✓ Dedicated Staff Training</span>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {/* FOOTER */}
-      <footer style={{ padding: "40px 24px", background: "#fff", borderTop: "1px solid #e2e8f0" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
+      <footer style={{ padding: "48px 24px 32px", background: "#ffffff", borderTop: "1px solid #e2e8f0" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", flexDirection: "column", gap: 28 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #0d9488, #14b8a6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>S</div>
-              <span style={{ fontWeight: 700, color: "#0f172a" }}>Salon Nest</span>
-            </div>
+            <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", gap: 10 }}>
+              <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "38px", maxWidth: "140px", objectFit: "contain" }} />
+            </Link>
+
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-              <Link to="/features" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Features</Link>
-              <Link to="/pricing" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Pricing</Link>
-              <Link to="/platform" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Platform</Link>
-              <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Terms</Link>
-              <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Privacy</Link>
-              <Link to="/contact" style={{ textDecoration: "none", fontSize: 14, color: "#64748b" }}>Contact Us</Link>
+              <Link to="/features" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Features</Link>
+              <Link to="/pricing" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Pricing</Link>
+              <Link to="/platform" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Platform</Link>
+              <Link to="/terms" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Terms of Service</Link>
+              <Link to="/privacy-policy" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Privacy Policy</Link>
+              <Link to="/contact" style={{ textDecoration: "none", fontSize: 14, color: "#475569", fontWeight: 500 }}>Contact Us</Link>
             </div>
           </div>
           
           <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
             <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
               <strong style={{ color: "#0f172a" }}>PROPCORP ADVERTISING (OPC) PRIVATE LIMITED</strong><br/>
-              PLOT NO G-49 MADHURA NAGAR , HYDERABAD, Telangana, India - 500003<br/>
-              Ph: 9493952587 | Email: <a href="mailto:govardhan@salonnest.in" style={{color: "#3b82f6", textDecoration: "none"}}>govardhan@salonnest.in</a>
+              PLOT NO G-49 MADHURA NAGAR, HYDERABAD, Telangana, India - 500003<br/>
+              Phone: +91 9493952587 | Email: <a href="mailto:govardhan@salonnest.in" style={{ color: "#0d9488", textDecoration: "none", fontWeight: 600 }}>govardhan@salonnest.in</a>
             </div>
             <div style={{ fontSize: 13, color: "#94a3b8" }}>
               © {new Date().getFullYear()} PROPCORP ADVERTISING (OPC) PRIVATE LIMITED. All rights reserved.
@@ -640,12 +1140,37 @@ export default function MarketingHomePage() {
         </div>
       </footer>
 
-      {/* WHATSAPP FAB */}
+      {/* FLOATING WHATSAPP BUTTON */}
       {whatsappHref && (
-        <a href={whatsappHref} target="_blank" rel="noreferrer" style={{ position: "fixed", bottom: 24, right: 24, background: "#25d366", color: "#fff", padding: "14px 24px", borderRadius: 100, fontWeight: 700, fontSize: 14, textDecoration: "none", boxShadow: "0 4px 16px rgba(37,211,102,0.4)", zIndex: 1000, display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 18 }}>💬</span> WhatsApp
+        <a 
+          href={whatsappHref} 
+          target="_blank" 
+          rel="noreferrer" 
+          style={{ 
+            position: "fixed", 
+            bottom: 24, 
+            right: 24, 
+            background: "#25d366", 
+            color: "#fff", 
+            padding: "14px 22px", 
+            borderRadius: 100, 
+            fontWeight: 700, 
+            fontSize: 14, 
+            textDecoration: "none", 
+            boxShadow: "0 6px 20px rgba(37,211,102,0.4)", 
+            zIndex: 1000, 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 8,
+            transition: "all 0.25s ease"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
+        >
+          <span style={{ fontSize: 18 }}>💬</span> WhatsApp Us
         </a>
       )}
+
     </div>
   );
 }

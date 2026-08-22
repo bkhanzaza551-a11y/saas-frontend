@@ -7157,3 +7157,203 @@ html, body {
   background: #94a3b8;
 }
 
+/* =========================================================================
+   PUBLIC MARKETING SITE STYLING & ANIMATIONS
+   ========================================================================= */
+@keyframes publicMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes publicMarqueeReverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes floatSlowAlt {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1.5deg); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+@keyframes glowBorder {
+  0%, 100% { border-color: rgba(13, 148, 136, 0.4); box-shadow: 0 0 15px rgba(13, 148, 136, 0.15); }
+  50% { border-color: rgba(20, 184, 166, 0.8); box-shadow: 0 0 30px rgba(20, 184, 166, 0.35); }
+}
+
+.marketing-marquee-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 16px 0;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marketing-marquee-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: publicMarquee 42s linear infinite;
+}
+
+.marketing-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.marketing-marquee-track-reverse {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: publicMarqueeReverse 46s linear infinite;
+}
+
+.marketing-marquee-track-reverse:hover {
+  animation-play-state: paused;
+}
+
+.marketing-card-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-card-glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px rgba(13, 148, 136, 0.15);
+  border-color: rgba(13, 148, 136, 0.3);
+}
+
+.marketing-interactive-tab {
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.marketing-interactive-tab.active {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+}
+
+.marketing-interactive-tab:not(.active) {
+  background: #ffffff;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.marketing-interactive-tab:not(.active):hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.marketing-industry-pill {
+  padding: 12px 22px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.marketing-industry-pill:hover,
+.marketing-industry-pill.active {
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: #ffffff;
+  border-color: #0d9488;
+  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.25);
+  transform: translateY(-2px);
+}
+
+.faq-accordion-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.faq-accordion-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.faq-accordion-header {
+  padding: 20px 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #0f172a;
+  user-select: none;
+}
+
+.faq-accordion-content {
+  padding: 0 24px 20px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.btn-glow-primary {
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+  color: #ffffff !important;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.35);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow-primary:hover {
+  box-shadow: 0 8px 30px rgba(13, 148, 136, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-glow-dark {
+  background: #0f172a;
+  color: #ffffff !important;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.25);
+  transition: all 0.25s ease;
+}
+
+.btn-glow-dark:hover {
+  background: #1e293b;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
+  transform: translateY(-2px);
+}
+
+
