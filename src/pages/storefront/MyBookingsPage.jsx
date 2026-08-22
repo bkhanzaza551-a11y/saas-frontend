@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { api } from "../../api/client";
-import { CalendarSearch, XCircle, Phone, Search, ArrowRight, Clock, CheckCircle2, RefreshCw } from "lucide-react";
+import { CalendarSearch, XCircle, Phone, Search, ArrowRight, Clock, CheckCircle2, RefreshCw, Sparkles, MapPin, User, ShieldCheck, ChevronRight } from "lucide-react";
 
 function formatTime12Hour(time24) {
   if (!time24) return "";
@@ -26,11 +26,10 @@ export default function MyBookingsPage() {
   const [cancellingOrder, setCancellingOrder] = useState(null);
 
   useEffect(() => {
-    document.title = `My Bookings — ${salon?.name || "Salon"}`;
+    document.title = `My Appointments — ${salon?.name || "Luxury Salon"}`;
     window.scrollTo(0, 0);
   }, [salon?.name]);
 
-  // Auto-search if phone is found in localStorage
   useEffect(() => {
     if (phone && !searched && salon?.slug) {
       handleSearch();
@@ -41,7 +40,6 @@ export default function MyBookingsPage() {
     if (e && e.preventDefault) e.preventDefault();
     if (!phone) return;
     
-    // Save to localStorage for future visits
     localStorage.setItem("sf_customer_phone", phone);
     setLoading(true);
     setError("");
@@ -51,213 +49,349 @@ export default function MyBookingsPage() {
       setBookings(data);
       setSearched(true);
     } catch (err) {
-      setError("Could not find any bookings with this phone number.");
+      setError("No appointments found associated with this mobile number.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelBooking = async (orderNumber) => {
-    if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
+    if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
     setCancellingOrder(orderNumber);
     try {
       await api.patch(`/public/salon/${salon.slug}/my-bookings/${orderNumber}/cancel`, { phone });
       await handleSearch();
     } catch (err) {
-      alert(err?.response?.data?.message || "Failed to cancel booking. Please contact salon.");
+      alert(err?.response?.data?.message || "Failed to cancel booking. Please contact front desk.");
     } finally {
       setCancellingOrder(null);
     }
   };
 
+  const currency = salon?.currency || "INR";
+
   return (
-    <div className="sf-animate sf-bookings-page" style={{ maxWidth: 800, margin: "60px auto", padding: "0 20px" }}>
-      <style>{`
-        .sf-bookings-title {
-          font-family: var(--font-serif);
-          font-size: clamp(1.8rem, 5vw, 3.2rem);
-          color: var(--text-main);
-          margin-bottom: 12px;
-          font-weight: 500;
-          letter-spacing: -0.5px;
-          line-height: 1.2;
-        }
-        .sf-booking-panel {
-          padding: 28px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: var(--surface);
-          border-radius: 16px;
-          border: 1px solid var(--border);
-          box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .sf-booking-panel:hover {
-          box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-        }
-        @media (max-width: 650px) {
-          .sf-bookings-page { margin: 24px auto !important; padding: 0 14px !important; }
-          .sf-bookings-form { padding: 24px 16px !important; }
-          .sf-booking-panel {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 16px !important;
-            padding: 18px 16px !important;
-          }
-          .sf-booking-price-col {
-            width: 100% !important;
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding-top: 14px !important;
-            border-top: 1px dashed var(--border) !important;
-          }
-          .sf-lookup-chip {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 12px !important;
-          }
-        }
-      `}</style>
-      <div style={{ textAlign: "center", marginBottom: 36 }}>
-        <h1 className="sf-bookings-title">Track Appointments</h1>
-        <p style={{ fontSize: "clamp(0.92rem, 2.5vw, 1.05rem)", color: "var(--text-muted)", fontWeight: 300, maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>
-          Enter the mobile number you used during booking to check status and appointment details.
-        </p>
+    <div className="storefront-wrapper" style={{ background: "#ffffff", minHeight: "80vh", color: "#0f172a", fontFamily: "'Poppins', -apple-system, sans-serif" }}>
+      
+      {/* Luxury Hero Banner */}
+      <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#ffffff", padding: "60px 24px 50px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.08, background: "radial-gradient(circle at center, #5eead4 0%, transparent 70%)" }} />
+        
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 680, margin: "0 auto" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+            <Sparkles size={13} /> CLIENT APPOINTMENT PORTAL
+          </div>
+          
+          <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800, margin: "0 0 12px", lineHeight: 1.2, letterSpacing: "-0.02em" }}>
+            Track Your Appointments
+          </h1>
+          
+          <p style={{ fontSize: "clamp(0.95rem, 2vw, 1.05rem)", color: "rgba(255,255,255,0.8)", margin: "0 auto", lineHeight: 1.6, fontWeight: 400, maxWidth: 520 }}>
+            Enter your mobile number to review upcoming reservations, chair bookings, and past service receipts.
+          </p>
+        </div>
       </div>
 
-      {!searched ? (
-        <form onSubmit={handleSearch} className="sf-bookings-form" style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 440, margin: "0 auto", background: 'var(--surface)', padding: 36, borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid var(--border)' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)' }}>Registered Phone Number</label>
-            <div style={{ position: "relative" }}>
-              <Phone size={18} color="var(--text-muted)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="e.g. +91 98765 43210"
-                required
-                style={{ width: "100%", padding: "14px 16px 14px 44px", background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none', boxSizing: "border-box" }}
-              />
-            </div>
-          </div>
-          {error && <div style={{ color: "#ef4444", fontSize: "0.85rem", fontWeight: 500 }}>{error}</div>}
-          <button type="submit" disabled={loading} className="sf-btn-primary" style={{ width: "100%", marginTop: 4, padding: "14px 20px", border: 'none', borderRadius: '12px', display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: loading ? "wait" : "pointer" }}>
-            {loading ? <RefreshCw size={16} className="sf-spin" /> : <Search size={16} />}
-            {loading ? "Searching Appointments..." : "Check Booking Status"}
-          </button>
-        </form>
-      ) : (
-        <div>
-          {/* Sleek Lookup Chip */}
-          <div className="sf-lookup-chip" style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "14px 18px",
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: "14px",
-            marginBottom: 24,
-            gap: 12
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(200, 169, 126, 0.15)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Phone size={16} />
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "40px 24px 100px" }}>
+        
+        {!searched ? (
+          <form 
+            onSubmit={handleSearch} 
+            style={{ 
+              background: "#ffffff", 
+              padding: "40px 32px", 
+              borderRadius: 24, 
+              boxShadow: "0 10px 30px rgba(0,0,0,0.04)", 
+              border: "1px solid #e2e8f0", 
+              maxWidth: 480, 
+              margin: "0 auto" 
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b" }}>
+                Registered Mobile Number
+              </label>
+              
+              <div style={{ position: "relative" }}>
+                <Phone size={18} color="#0d9488" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                  required
+                  style={{ 
+                    width: "100%", 
+                    padding: "14px 16px 14px 44px", 
+                    background: "#f8fafc", 
+                    border: "1px solid #cbd5e1", 
+                    borderRadius: 12, 
+                    color: "#0f172a", 
+                    fontSize: 15, 
+                    fontWeight: 600, 
+                    outline: "none", 
+                    boxSizing: "border-box" 
+                  }}
+                  onFocus={e => e.currentTarget.style.borderColor = "#0d9488"}
+                  onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                />
               </div>
-              <div>
-                <div style={{ fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.6px", color: "var(--text-muted)", fontWeight: 700 }}>Showing Bookings For</div>
-                <div style={{ fontSize: "1.02rem", fontWeight: 700, color: "var(--text-main)" }}>{phone}</div>
-              </div>
             </div>
-            
+
+            {error && (
+              <div style={{ background: "#fef2f2", color: "#e11d48", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+                {error}
+              </div>
+            )}
+
             <button 
-              onClick={() => { setSearched(false); setBookings([]); }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 14px",
-                borderRadius: "8px",
-                background: "var(--bg-main)",
-                border: "1px solid var(--border)",
-                color: "var(--text-main)",
-                fontSize: "0.82rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease"
+              type="submit" 
+              disabled={loading} 
+              style={{ 
+                width: "100%", 
+                padding: "14px 20px", 
+                background: "#0f172a", 
+                color: "#ffffff", 
+                border: "none", 
+                borderRadius: 12, 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center", 
+                gap: 8, 
+                fontWeight: 700, 
+                fontSize: 14.5, 
+                cursor: loading ? "wait" : "pointer",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.12)"
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-main)"; }}
             >
-              <Search size={13} /> Check Another Number
+              {loading ? <RefreshCw size={16} className="sf-spin" /> : <Search size={16} />}
+              <span>{loading ? "Searching Reservations..." : "Find My Appointments"}</span>
             </button>
-          </div>
-
-          {bookings.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '56px 20px', background: 'var(--surface)', borderRadius: '16px', border: '1px solid var(--border)' }}>
-              <div style={{ width: 68, height: 68, borderRadius: '50%', background: 'var(--bg-main)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: '1px solid var(--border)' }}>
-                <CalendarSearch size={28} strokeWidth={1.5} />
-              </div>
-              <h4 style={{ fontSize: '1.35rem', marginBottom: 10, fontFamily: 'var(--font-serif)', fontWeight: 600 }}>No appointments found</h4>
-              <p style={{ color: 'var(--text-muted)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px', fontWeight: 300, fontSize: "0.92rem", lineHeight: 1.6 }}>We couldn't find any active or past appointments for <strong>{phone}</strong>.</p>
-              <Link to={`/site/${salon.slug}/services`} className="sf-btn-primary" style={{ display: 'inline-flex', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none' }}>
-                Book Appointment <ArrowRight size={14} />
-              </Link>
-            </div>
-          ) : (
-            <div style={{ display: "grid", gap: 16 }}>
-              {bookings.map((booking, i) => {
-                const serviceTitle = booking.serviceInfo?.serviceName || booking.serviceName || "Premium Service";
-                const bookingDateTime = booking.serviceInfo?.preferredDate 
-                  ? `${booking.serviceInfo.preferredDate} at ${formatTime12Hour(booking.serviceInfo.preferredTime)}`
-                  : (booking.startAt ? new Date(booking.startAt).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : "Scheduled Appointment");
-                const canCancel = ["PENDING", "CONFIRMED", "NEW"].includes(booking.status);
-
-                return (
-                  <div key={i} className="sf-booking-panel">
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: "0.76rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: 600 }}>Order #{booking.orderNumber}</span>
-                        <span style={{ padding: "3px 9px", borderRadius: 100, background: booking.status === "COMPLETED" ? "#ecfdf5" : (booking.status === "CONFIRMED" ? "#e0e7ff" : (booking.status === "CANCELLED" ? "#fef2f2" : "#fef3c7")), color: booking.status === "COMPLETED" ? "#059669" : (booking.status === "CONFIRMED" ? "#4f46e5" : (booking.status === "CANCELLED" ? "#e11d48" : "#d97706")), fontSize: "0.72rem", fontWeight: 700, letterSpacing: '0.4px' }}>
-                          {booking.status}
-                        </span>
-                      </div>
-                      <h4 style={{ fontSize: "1.25rem", margin: '0 0 10px', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-main)' }}>{serviceTitle}</h4>
-                      <div style={{ color: "var(--text-muted)", fontSize: '0.88rem', fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6, marginBottom: canCancel ? 10 : 0 }}>
-                        <Clock size={14} color="var(--accent)" />
-                        {bookingDateTime}
-                      </div>
-                      {canCancel && (
-                        <button
-                          onClick={() => handleCancelBooking(booking.orderNumber)}
-                          disabled={cancellingOrder === booking.orderNumber}
-                          style={{ background: "none", border: "none", color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 0 0" }}
-                        >
-                          <XCircle size={13} /> {cancellingOrder === booking.orderNumber ? "Cancelling..." : "Cancel Reservation"}
-                        </button>
-                      )}
-                    </div>
-                    <div className="sf-booking-price-col" style={{ textAlign: "right", display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
-                      <div style={{ fontSize: "1.35rem", fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-main)' }}>
-                        {salon.currency} {Number(booking.totalAmount || booking.price || booking.total || 0).toLocaleString()}
-                      </div>
-                      {booking.status === "PENDING" || booking.status === "NEW" ? (
-                        <span style={{ fontSize: '0.8rem', color: '#d97706', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 500 }}><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#f59e0b' }}></span> Awaiting Confirmation</span>
-                      ) : booking.status === "CONFIRMED" ? (
-                        <span style={{ fontSize: '0.8rem', color: '#059669', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 500 }}><CheckCircle2 size={13} /> Confirmed</span>
-                      ) : null}
-                    </div>
+          </form>
+        ) : (
+          <div>
+            
+            {/* Phone Lookup Banner */}
+            <div 
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 14,
+                padding: "16px 20px",
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                borderRadius: 16,
+                marginBottom: 28
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: "#f0fdfa", color: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "#64748b", fontWeight: 700 }}>
+                    Active Search Number
                   </div>
-                );
-              })}
+                  <div style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
+                    {phone}
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                type="button"
+                onClick={() => { setSearched(false); setBookings([]); }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 16px",
+                  borderRadius: 100,
+                  background: "#ffffff",
+                  border: "1px solid #cbd5e1",
+                  color: "#0f172a",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "#0d9488"}
+                onMouseLeave={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+              >
+                <Search size={13} />
+                <span>Search Another Number</span>
+              </button>
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Bookings List */}
+            {bookings.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "64px 20px", background: "#f8fafc", borderRadius: 24, border: "1px dashed #cbd5e1" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#ffffff", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", border: "1px solid #e2e8f0" }}>
+                  <CalendarSearch size={28} />
+                </div>
+                <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 8px" }}>
+                  No Appointments Found
+                </h3>
+                <p style={{ color: "#64748b", fontSize: 14, maxWidth: 420, margin: "0 auto 24px", lineHeight: 1.6 }}>
+                  We couldn't find any confirmed or past reservations under <strong>{phone}</strong>.
+                </p>
+                <Link 
+                  to={`/site/${salon.slug}/services`} 
+                  style={{ 
+                    display: "inline-flex", 
+                    alignItems: "center", 
+                    gap: 8, 
+                    padding: "12px 28px", 
+                    background: "#0f172a", 
+                    color: "#ffffff", 
+                    borderRadius: 100, 
+                    fontWeight: 700, 
+                    fontSize: 14, 
+                    textDecoration: "none" 
+                  }}
+                >
+                  <span>Book an Appointment</span>
+                  <ArrowRight size={15} />
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: 18 }}>
+                {bookings.map((booking, i) => {
+                  const serviceTitle = booking.serviceInfo?.serviceName || booking.serviceName || "Signature Salon Service";
+                  const bookingDateTime = booking.serviceInfo?.preferredDate 
+                    ? `${booking.serviceInfo.preferredDate} at ${formatTime12Hour(booking.serviceInfo.preferredTime)}`
+                    : (booking.startAt ? new Date(booking.startAt).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : "Scheduled Session");
+                  
+                  const canCancel = ["PENDING", "CONFIRMED", "NEW"].includes(booking.status);
+                  const isCompleted = booking.status === "COMPLETED";
+                  const isConfirmed = booking.status === "CONFIRMED";
+                  const isCancelled = booking.status === "CANCELLED";
+
+                  return (
+                    <div 
+                      key={i} 
+                      style={{
+                        background: "#ffffff",
+                        borderRadius: 20,
+                        border: "1px solid #e2e8f0",
+                        padding: "24px",
+                        boxShadow: "0 6px 20px rgba(0,0,0,0.03)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: 20,
+                        transition: "all 0.25s ease"
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = "#99f6e4";
+                        e.currentTarget.style.boxShadow = "0 12px 28px rgba(13,148,136,0.08)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = "#e2e8f0";
+                        e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.03)";
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 260 }}>
+                        {/* Order Number & Status Pill */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 11.5, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
+                            Order #{booking.orderNumber}
+                          </span>
+
+                          <span 
+                            style={{ 
+                              padding: "3px 10px", 
+                              borderRadius: 100, 
+                              fontSize: 11, 
+                              fontWeight: 800, 
+                              letterSpacing: "0.04em",
+                              background: isCompleted ? "#ecfdf5" : (isConfirmed ? "#eff6ff" : (isCancelled ? "#fef2f2" : "#fef3c7")),
+                              color: isCompleted ? "#059669" : (isConfirmed ? "#2563eb" : (isCancelled ? "#e11d48" : "#d97706")),
+                              border: isCompleted ? "1px solid #a7f3d0" : (isConfirmed ? "1px solid #bfdbfe" : (isCancelled ? "1px solid #fecdd3" : "1px solid #fde68a"))
+                            }}
+                          >
+                            {booking.status}
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h4 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>
+                          {serviceTitle}
+                        </h4>
+
+                        {/* Time & Branch */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#475569", fontSize: 13.5, fontWeight: 500, marginBottom: canCancel ? 12 : 0 }}>
+                          <Clock size={15} color="#0d9488" />
+                          <span>{bookingDateTime}</span>
+                        </div>
+
+                        {canCancel && (
+                          <button
+                            type="button"
+                            onClick={() => handleCancelBooking(booking.orderNumber)}
+                            disabled={cancellingOrder === booking.orderNumber}
+                            style={{ 
+                              background: "none", 
+                              border: "none", 
+                              color: "#e11d48", 
+                              fontSize: 12.5, 
+                              fontWeight: 700, 
+                              cursor: "pointer", 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              gap: 5, 
+                              padding: "4px 0 0" 
+                            }}
+                          >
+                            <XCircle size={14} /> 
+                            <span>{cancellingOrder === booking.orderNumber ? "Cancelling..." : "Cancel Reservation"}</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Right Price & Rebook */}
+                      <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+                        <div>
+                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Total Paid / Due</div>
+                          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>
+                            {currency} {Number(booking.totalAmount || booking.price || booking.total || 0).toLocaleString()}
+                          </div>
+                        </div>
+
+                        <Link 
+                          to={`/site/${salon.slug}/services`}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
+                            padding: "8px 16px",
+                            borderRadius: 100,
+                            background: "#0f172a",
+                            color: "#ffffff",
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            textDecoration: "none",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                          }}
+                        >
+                          <span>Book Again</span>
+                          <ChevronRight size={13} />
+                        </Link>
+                      </div>
+
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

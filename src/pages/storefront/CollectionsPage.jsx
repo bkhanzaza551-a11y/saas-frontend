@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../api/client";
-import { ArrowRight, Sparkles, Clock } from "lucide-react";
+import { ArrowRight, Sparkles, Clock, Crown, Scissors, Check, Tag } from "lucide-react";
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&fit=crop";
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80";
 
 export default function CollectionsPage() {
+  const navigate = useNavigate();
   const { salon, selectedBranchId } = useOutletContext();
   const [allServices, setAllServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,16 +18,18 @@ export default function CollectionsPage() {
     api
       .get(`/public/salon/${salon.slug}/storefront-services`, { params: { branchId: selectedBranchId } })
       .then(res => {
-        setAllServices(res.data.services || []);
+        setAllServices(res.data?.services || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
-    document.title = `Services — ${salon?.name || "Premium Salon"}`;
+    document.title = `Services & Pricing — ${salon?.name || "Premium Salon"}`;
     window.scrollTo(0, 0);
   }, [salon?.name]);
+
+  const currency = salon?.currency || "INR";
 
   const categoryTabs = (() => {
     const map = {};
@@ -43,190 +46,206 @@ export default function CollectionsPage() {
       : allServices.filter(s => s.category?.name === activeTab);
 
   return (
-    <div className="storefront-wrapper" style={{ background: 'var(--surface)' }}>
-      {/* Premium Minimalist Header */}
-      <div className="sf-page-header" style={{ textAlign: "center", background: "var(--bg-main)", borderBottom: "1px solid var(--border)" }}>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 6vw, 4rem)", margin: "0 0 16px", fontWeight: 500, color: "var(--text-main)", letterSpacing: "-0.5px", lineHeight: 1.2 }}>Our Treatments</h1>
-        <p style={{ fontSize: "clamp(0.95rem, 2.5vw, 1.15rem)", color: "var(--text-muted)", maxWidth: 600, margin: '0 auto', fontWeight: 300, lineHeight: 1.6, padding: "0 16px" }}>
-          Discover our full range of premium treatments, meticulously crafted for your well-being.
-        </p>
+    <div className="storefront-wrapper" style={{ background: "#ffffff", color: "#0f172a", fontFamily: "'Poppins', -apple-system, sans-serif" }}>
+      
+      {/* Luxury Page Header */}
+      <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#ffffff", padding: "64px 24px 56px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.08, background: "radial-gradient(circle at center, #5eead4 0%, transparent 70%)" }} />
+        
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 760, margin: "0 auto" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>
+            <Sparkles size={13} /> BESPOKE SALON MENU
+          </div>
+          
+          <h1 style={{ fontSize: "clamp(2.2rem, 5vw, 3.4rem)", fontWeight: 800, margin: "0 0 14px", lineHeight: 1.2, letterSpacing: "-0.02em" }}>
+            Our Signature Treatments
+          </h1>
+          
+          <p style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)", color: "rgba(255,255,255,0.8)", margin: "0 auto", lineHeight: 1.7, fontWeight: 400, maxWidth: 580 }}>
+            Discover our comprehensive menu of premium hair styling, advanced aesthetic skincare, and revitalizing spa therapies.
+          </p>
+        </div>
       </div>
 
-      <section className="sf-collections-section">
-        <style>{`
-          .sf-collections-section {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 50px 24px 100px;
-          }
-          .sf-category-pill {
-            padding: 10px 22px;
-            border-radius: 40px;
-            font-size: 0.88rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            border: 1px solid var(--border);
-            background: var(--bg-main);
-            color: var(--text-main);
-            flex-shrink: 0;
-          }
-          .sf-category-pill.active {
-            background: var(--text-main);
-            color: var(--bg-main);
-            border-color: var(--text-main);
-          }
-          .sf-category-pill:hover:not(.active) {
-            border-color: var(--text-main);
-          }
-          
-          .sf-services-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-          }
-          
-          .sf-premium-card {
-            background: var(--bg-main);
-            border-radius: 18px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-          }
-          .sf-premium-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-            border-color: transparent;
-          }
-          .sf-premium-card-img {
-            width: 100%;
-            height: 260px;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-          }
-          .sf-premium-card:hover .sf-premium-card-img {
-            transform: scale(1.04);
-          }
-          .sf-premium-card-content {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-          }
-          
-          @media (max-width: 1024px) {
-            .sf-services-grid {
-              grid-template-columns: repeat(2, 1fr);
-              gap: 24px;
-            }
-          }
-          @media (max-width: 640px) {
-            .sf-collections-section {
-              padding: 24px 14px 60px;
-            }
-            .sf-services-grid {
-              grid-template-columns: 1fr;
-              gap: 16px;
-            }
-            .sf-premium-card-img {
-              height: 200px;
-            }
-            .sf-premium-card-content {
-              padding: 16px;
-            }
-            .sf-category-pill {
-              padding: 8px 16px;
-              font-size: 0.8rem;
-            }
-          }
-        `}</style>
-
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "48px 24px 100px" }}>
+        
         {loading ? (
-          <div style={{ textAlign: "center", padding: 120, color: "var(--text-muted)" }}>
-             <p style={{ fontSize: '1.2rem', fontWeight: 300 }}>Curating our premium services...</p>
+          <div style={{ textAlign: "center", padding: "100px 20px", color: "#64748b" }}>
+            <div style={{ width: 44, height: 44, border: "3px solid #e2e8f0", borderTopColor: "#0d9488", borderRadius: "50%", margin: "0 auto 16px", animation: "spin 0.8s linear infinite" }} />
+            <p style={{ fontSize: 15, fontWeight: 600 }}>Loading treatment catalog...</p>
           </div>
         ) : (
           <>
             {allServices.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 120, color: "var(--text-muted)" }}>
-                <p style={{ fontSize: '1.2rem', fontWeight: 300 }}>No services currently available. Please check back later.</p>
+              <div style={{ textAlign: "center", padding: "80px 20px", background: "#f8fafc", borderRadius: 24, border: "1px dashed #cbd5e1" }}>
+                <Scissors size={40} color="#94a3b8" style={{ margin: "0 auto 16px" }} />
+                <h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>No Services Found</h3>
+                <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>This branch's service catalog is currently being updated. Please check back shortly.</p>
               </div>
             ) : (
               <>
-                {/* Horizontal Category Pills */}
+                {/* Filter Category Pills */}
                 {categoryTabs.length > 0 && (
-                  <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 16, marginBottom: 60, msOverflowStyle: "none", scrollbarWidth: "none" }} className="hide-scrollbar">
-                    <div 
-                      className={`sf-category-pill ${activeTab === "all" ? "active" : ""}`}
+                  <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 12, marginBottom: 40, msOverflowStyle: "none", scrollbarWidth: "none" }}>
+                    <button
+                      type="button"
                       onClick={() => setActiveTab("all")}
+                      style={{
+                        padding: "9px 20px",
+                        borderRadius: 100,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        border: activeTab === "all" ? "none" : "1px solid #e2e8f0",
+                        background: activeTab === "all" ? "#0f172a" : "#f8fafc",
+                        color: activeTab === "all" ? "#ffffff" : "#475569",
+                        transition: "all 0.2s ease",
+                        whiteSpace: "nowrap",
+                        boxShadow: activeTab === "all" ? "0 4px 12px rgba(0,0,0,0.12)" : "none"
+                      }}
                     >
-                      All
-                    </div>
-                    {categoryTabs.map(cat => (
-                      <div 
-                        key={cat}
-                        className={`sf-category-pill ${activeTab === cat ? "active" : ""}`}
-                        onClick={() => setActiveTab(cat)}
-                      >
-                        {cat}
-                      </div>
-                    ))}
+                      All Treatments ({allServices.length})
+                    </button>
+
+                    {categoryTabs.map(cat => {
+                      const count = allServices.filter(s => s.category?.name === cat).length;
+                      const isActive = activeTab === cat;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setActiveTab(cat)}
+                          style={{
+                            padding: "9px 20px",
+                            borderRadius: 100,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            border: isActive ? "none" : "1px solid #e2e8f0",
+                            background: isActive ? "#0f172a" : "#f8fafc",
+                            color: isActive ? "#ffffff" : "#475569",
+                            transition: "all 0.2s ease",
+                            whiteSpace: "nowrap",
+                            boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.12)" : "none"
+                          }}
+                        >
+                          {cat} ({count})
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
-                <div className="sf-services-grid">
+                {/* Services Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 30 }}>
                   {filteredServices.map(service => {
                     const price = Number(service.salePrice && Number(service.salePrice) < Number(service.price) ? service.salePrice : service.price);
                     const hasSale = service.salePrice && Number(service.salePrice) < Number(service.price);
-                    
+
                     return (
-                      <div key={service.id} className="sf-premium-card" onClick={() => window.location.href = `/site/${salon.slug}/service/${service.id}`}>
-                        <div style={{ position: "relative", overflow: "hidden" }}>
-                          <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} className="sf-premium-card-img" />
+                      <div 
+                        key={service.id} 
+                        onClick={() => navigate(`/site/${salon.slug}/service/${service.id}`)}
+                        style={{
+                          background: "#ffffff",
+                          borderRadius: 22,
+                          border: "1px solid #e2e8f0",
+                          overflow: "hidden",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
+                          display: "flex",
+                          flexDirection: "column",
+                          cursor: "pointer",
+                          transition: "all 0.3s ease"
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.transform = "translateY(-6px)";
+                          e.currentTarget.style.boxShadow = "0 18px 40px rgba(13,148,136,0.12)";
+                          e.currentTarget.style.borderColor = "#99f6e4";
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.04)";
+                          e.currentTarget.style.borderColor = "#e2e8f0";
+                        }}
+                      >
+                        {/* Image Header with safe fallback */}
+                        <div style={{ height: 210, position: "relative", background: "#f1f5f9", overflow: "hidden" }}>
+                          <img 
+                            src={service.imageUrl || FALLBACK_IMG} 
+                            alt={service.name} 
+                            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+                            onError={e => { e.target.onerror = null; e.target.src = FALLBACK_IMG; }}
+                          />
                           
-                          {/* Badges Overlay */}
-                          <div style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8 }}>
+                          {/* Badges */}
+                          <div style={{ position: "absolute", top: 14, left: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            {service.category?.name && (
+                              <span style={{ background: "rgba(15,23,42,0.85)", backdropFilter: "blur(8px)", color: "#5eead4", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                {service.category.name}
+                              </span>
+                            )}
                             {service.isFeatured && (
-                              <span style={{ background: "rgba(255,255,255,0.95)", color: "var(--accent)", padding: "6px 12px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>★ Featured</span>
-                            )}
-                            {service.isPopular && (
-                              <span style={{ background: "var(--accent)", color: "#fff", padding: "6px 12px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>🔥 Popular</span>
+                              <span style={{ background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
+                                ★ Featured
+                              </span>
                             )}
                           </div>
+
+                          {service.durationMinutes ? (
+                            <div style={{ position: "absolute", bottom: 12, right: 12, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(6px)", color: "#0f172a", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                              <Clock size={12} color="#0d9488" /> {service.durationMinutes} mins
+                            </div>
+                          ) : null}
                         </div>
-                        
-                        <div className="sf-premium-card-content">
-                          <div style={{ marginBottom: 12 }}>
-                            <span style={{ display: "inline-block", color: "var(--text-muted)", fontSize: "0.8rem", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '2px' }}>
-                              {service.category?.name || "Treatment"}
-                            </span>
-                          </div>
-                          
-                          <h3 style={{ margin: '0 0 16px', fontSize: '1.6rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: 1.2 }}>
+
+                        {/* Content */}
+                        <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
+                          <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px", lineHeight: 1.3 }}>
                             {service.name}
                           </h3>
-                          
-                          <p style={{ margin: '0 0 32px', fontSize: '1.05rem', color: 'var(--text-muted)', lineHeight: 1.6, fontWeight: 300, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {service.description || "Experience a premium service tailored specifically to your needs."}
+
+                          <p style={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, margin: "0 0 24px", flex: 1, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                            {service.description || "Indulge in an exquisite, tailor-made treatment formulated with premium care."}
                           </p>
-                          
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, borderTop: '1px solid var(--border)' }}>
-                            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-                              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--text-main)' }}>{salon.currency || "INR"} {price.toFixed(2)}</span>
-                              {hasSale && <span style={{ fontSize: "1rem", color: "var(--text-muted)", textDecoration: "line-through" }}>{salon.currency || "INR"} {Number(service.price).toFixed(2)}</span>}
+
+                          {/* Footer */}
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 18, marginTop: "auto" }}>
+                            <div>
+                              <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Price</div>
+                              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                                <span style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0f172a" }}>
+                                  {currency} {price.toFixed(2)}
+                                </span>
+                                {hasSale && (
+                                  <span style={{ fontSize: 13, color: "#94a3b8", textDecoration: "line-through" }}>
+                                    {currency} {Number(service.price).toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                              Explore <ArrowRight size={16} />
-                            </span>
+
+                            <button 
+                              type="button" 
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 6,
+                                background: "#0f172a",
+                                color: "#ffffff",
+                                padding: "10px 18px",
+                                borderRadius: 10,
+                                fontWeight: 700,
+                                fontSize: 13,
+                                border: "none",
+                                cursor: "pointer",
+                                transition: "all 0.2s"
+                              }}
+                            >
+                              <span>Book Slot</span>
+                              <ArrowRight size={14} />
+                            </button>
                           </div>
+
                         </div>
                       </div>
                     );
@@ -237,6 +256,7 @@ export default function CollectionsPage() {
           </>
         )}
       </section>
+
     </div>
   );
 }
