@@ -1750,21 +1750,29 @@ export default function SettingsPage() {
                       type="button" 
                       onClick={() => handleOpenEditModal(shift)} 
                       title="Edit shift" 
-                      style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, cursor: "pointer", color: "#2563eb", transition: "all 0.2s" }} 
+                      style={{ width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, cursor: "pointer", padding: 0, transition: "all 0.2s" }} 
                       onMouseEnter={e => { e.currentTarget.style.background = "#dbeafe"; e.currentTarget.style.borderColor = "#93c5fd"; }} 
                       onMouseLeave={e => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#bfdbfe"; }}
                     >
-                      <Edit2 size={15} color="#2563eb" strokeWidth={2.2} />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
                     </button>
                     <button 
                       type="button" 
                       onClick={() => deleteShift(shift.id)} 
                       title="Delete shift" 
-                      style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, cursor: "pointer", color: "#ef4444", transition: "all 0.2s" }} 
+                      style={{ width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, cursor: "pointer", padding: 0, transition: "all 0.2s" }} 
                       onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.borderColor = "#fca5a5"; }} 
                       onMouseLeave={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#fecaca"; }}
                     >
-                      <Trash2 size={15} color="#ef4444" strokeWidth={2.2} />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
                     </button>
                   </div>
                 </div>
