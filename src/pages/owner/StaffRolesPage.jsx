@@ -220,12 +220,15 @@ export default function StaffRolesPage() {
   };
 
   const toggleStatus = async (row) => {
+    const nextActive = !Boolean(row.user?.isActive);
     setSavingId(row.id);
+    setRows(prev => prev.map(r => r.id === row.id ? { ...r, user: { ...r.user, isActive: nextActive } } : r));
     try {
-      await api.patch(`/owner/users/${row.id}/status`, { isActive: !row.user.isActive });
+      await api.patch(`/owner/users/${row.id}/status`, { isActive: nextActive });
       await load();
     } catch (err) {
-      alert("Failed to update user status.");
+      alert(err.response?.data?.message || "Failed to update user status.");
+      await load();
     } finally {
       setSavingId("");
     }
