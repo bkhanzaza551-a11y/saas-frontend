@@ -1057,18 +1057,19 @@ a {
 /* Marquee / Testimonials Roller */
 .sf-marquee-container {
   overflow: hidden;
-  white-space: nowrap;
   position: relative;
   width: 100%;
-  padding: 40px 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  padding: 30px 0;
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
 }
 
 .sf-marquee-track {
-  display: inline-block;
-  animation: sf-marquee 30s linear infinite;
+  display: flex;
+  width: max-content;
+  gap: 24px;
+  animation: sf-marquee 35s linear infinite;
+  will-change: transform;
 }
 
 .sf-marquee-track:hover {

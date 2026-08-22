@@ -453,49 +453,75 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Testimonials */}
+      {/* Testimonials Marquee Roller */}
       {isSectionEnabled("testimonials") && (
-        <section id="sf-testimonials-section" style={{ padding: "80px 24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0" }}>
-          <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-            
-            <div style={{ textAlign: "center", marginBottom: 44 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "#fef3c7", color: "#b45309", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
-                <Star size={12} fill="#b45309" /> 5-STAR GUEST REVIEWS
-              </div>
-              <h2 style={{ fontSize: "2.4rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
-                What Our Clients Say
-              </h2>
+        <section id="sf-testimonials-section" style={{ padding: "80px 0", background: "#f8fafc", borderTop: "1px solid #e2e8f0", overflow: "hidden" }}>
+          <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px", textAlign: "center", marginBottom: 40 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "#fef3c7", color: "#b45309", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+              <Star size={12} fill="#b45309" /> 5-STAR GUEST REVIEWS
             </div>
+            <h2 style={{ fontSize: "2.4rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+              What Our Clients Say
+            </h2>
+            <p style={{ fontSize: 14.5, color: "#64748b", margin: "8px 0 0" }}>
+              Real impressions & experiences from our valued guests.
+            </p>
+          </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
-              {testimonialsList.map((t, i) => (
-                <div 
-                  key={i} 
-                  style={{ background: "#ffffff", borderRadius: 20, padding: "30px", border: "1px solid #e2e8f0", boxShadow: "0 6px 18px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column" }}
-                >
-                  <div style={{ display: "flex", gap: 4, color: "#f59e0b", marginBottom: 16 }}>
-                    {[...Array(Number(t.rating || 5))].map((_, starIdx) => (
-                      <Star key={starIdx} size={16} fill="#f59e0b" strokeWidth={0} />
-                    ))}
-                  </div>
+          <div className="sf-marquee-container">
+            <div className="sf-marquee-track">
+              {[1, 2, 3].map(cycle => (
+                <div key={cycle} style={{ display: "flex", gap: 24, flexShrink: 0 }}>
+                  {testimonialsList.map((t, i) => (
+                    <div 
+                      key={`${cycle}-${i}`} 
+                      style={{
+                        width: 380,
+                        background: "#ffffff",
+                        borderRadius: 22,
+                        padding: "26px",
+                        border: "1px solid #e2e8f0",
+                        boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
+                        display: "flex",
+                        flexDirection: "column",
+                        flexShrink: 0,
+                        transition: "all 0.3s ease"
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                        e.currentTarget.style.boxShadow = "0 14px 30px rgba(0,0,0,0.08)";
+                        e.currentTarget.style.borderColor = "#cbd5e1";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.04)";
+                        e.currentTarget.style.borderColor = "#e2e8f0";
+                      }}
+                    >
+                      <div style={{ display: "flex", gap: 4, color: "#f59e0b", marginBottom: 14 }}>
+                        {[...Array(Number(t.rating || 5))].map((_, starIdx) => (
+                          <Star key={starIdx} size={15} fill="#f59e0b" strokeWidth={0} />
+                        ))}
+                      </div>
 
-                  <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 20px", flex: 1, fontStyle: "italic" }}>
-                    "{t.text}"
-                  </p>
+                      <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 20px", flex: 1, fontStyle: "italic" }}>
+                        "{t.text}"
+                      </p>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 16, marginTop: "auto" }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#f0fdfa", color: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>
-                      {t.author?.charAt(0) || "U"}
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid #f1f5f9", paddingTop: 14, marginTop: "auto" }}>
+                        <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#f0fdfa", color: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>
+                          {t.author?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>{t.author}</div>
+                          <div style={{ fontSize: 11, color: "#0d9488", fontWeight: 600 }}>✓ Verified Guest</div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>{t.author}</div>
-                      <div style={{ fontSize: 11.5, color: "#0d9488", fontWeight: 600 }}>✓ Verified Guest</div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               ))}
             </div>
-
           </div>
         </section>
       )}
