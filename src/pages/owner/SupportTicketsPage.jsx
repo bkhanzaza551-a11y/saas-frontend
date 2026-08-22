@@ -95,16 +95,19 @@ export default function SupportTicketsPage() {
   };
 
   const sendReply = async (ticketId) => {
-    if (!replyDrafts[ticketId]?.trim()) return;
+    if (!replyDrafts[ticketId]?.trim() && !replyAttachments[ticketId]) return;
     setStatus({ error: "", success: "", loading: false });
     setReplyingId(ticketId);
     try {
-      await api.post(`/owner/support-tickets/${ticketId}/messages`, {
-        message: replyDrafts[ticketId] || "",
+      const res = await api.post(`/owner/support-tickets/${ticketId}/messages`, {
+        message: replyDrafts[ticketId] || "Sent an attachment.",
         attachmentUrl: replyAttachments[ticketId] || ""
       });
       setReplyDrafts((current) => ({ ...current, [ticketId]: "" }));
       setReplyAttachments((current) => ({ ...current, [ticketId]: "" }));
+      if (res.data) {
+        setSelectedTicket(res.data);
+      }
       triggerReload();
       setStatus({ error: "", success: "Reply sent to support desk." });
       setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
@@ -505,7 +508,7 @@ export default function SupportTicketsPage() {
                         if (file) { const reader = new FileReader(); reader.onloadend = () => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result }); reader.readAsDataURL(file); }
                       }} />
                     </label>
-                    <button type="button" onClick={() => sendReply(selectedTicket.id)} disabled={replyingId === selectedTicket.id || !replyDrafts[selectedTicket.id]?.trim()} style={{ padding: "8px 18px", background: !replyDrafts[selectedTicket.id]?.trim() ? "#cbd5e1" : "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: !replyDrafts[selectedTicket.id]?.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                    <button type="button" onClick={() => sendReply(selectedTicket.id)} disabled={replyingId === selectedTicket.id || (!replyDrafts[selectedTicket.id]?.trim() && !replyAttachments[selectedTicket.id])} style={{ padding: "8px 18px", background: (!replyDrafts[selectedTicket.id]?.trim() && !replyAttachments[selectedTicket.id]) ? "#cbd5e1" : "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: (!replyDrafts[selectedTicket.id]?.trim() && !replyAttachments[selectedTicket.id]) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                       <Send size={14} /> {replyingId === selectedTicket.id ? "Sending..." : "Send Reply"}
                     </button>
                   </div>
