@@ -499,11 +499,37 @@ export default function StorefrontLayout() {
                 </Link>
                 
                 <button 
+                  type="button"
                   className="sf-mobile-menu-btn" 
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                   aria-label="Toggle menu"
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: "50%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#ffffff",
+                    border: "1.5px solid #e2e8f0",
+                    cursor: "pointer",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    padding: 0,
+                    transition: "all 0.2s ease"
+                  }}
                 >
-                  {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+                  {mobileMenuOpen ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="4" y1="7" x2="20" y2="7"></line>
+                      <line x1="4" y1="12" x2="16" y2="12"></line>
+                      <line x1="4" y1="17" x2="20" y2="17"></line>
+                    </svg>
+                  )}
                 </button>
               </div>
             </div>
