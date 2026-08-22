@@ -205,16 +205,47 @@ export default function ServiceDetailPage() {
           {/* Left Column: Details */}
           <div>
             {/* Image Section */}
-            <div className="sf-detail-img-wrap">
-              <img src={service.imageUrl || FALLBACK_IMG} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => { e.target.onerror = null; e.target.src = FALLBACK_IMG; }} />
+            <div className="sf-detail-img-wrap" style={{ position: "relative", height: 460, background: "#f8fafc", borderRadius: 20, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+              {/* Soft Ambient Backdrop */}
+              {service.imageUrl && (
+                <div 
+                  style={{ 
+                    position: "absolute", 
+                    inset: -20, 
+                    backgroundImage: `url(${service.imageUrl})`, 
+                    backgroundSize: "cover", 
+                    backgroundPosition: "center", 
+                    filter: "blur(30px) opacity(0.2)", 
+                    transform: "scale(1.2)" 
+                  }} 
+                />
+              )}
+              
+              {/* Main Full Image Fitted Perfectly */}
+              <img 
+                src={service.imageUrl || FALLBACK_IMG} 
+                alt={service.name} 
+                style={{ 
+                  position: "relative", 
+                  zIndex: 2, 
+                  maxWidth: "100%", 
+                  maxHeight: "100%", 
+                  width: "auto", 
+                  height: "auto", 
+                  objectFit: "contain",
+                  borderRadius: 12,
+                  padding: "16px"
+                }} 
+                onError={e => { e.target.onerror = null; e.target.src = FALLBACK_IMG; }} 
+              />
               
               {/* Badges Overlay */}
-              <div style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8 }}>
+              <div style={{ position: "absolute", top: 16, left: 16, zIndex: 3, display: "flex", gap: 8 }}>
                 {service.isFeatured && (
-                  <span style={{ background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)", color: "var(--accent)", padding: "6px 12px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>★ Featured</span>
+                  <span style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(4px)", color: "var(--accent)", padding: "6px 14px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>★ Featured</span>
                 )}
                 {service.isPopular && (
-                  <span style={{ background: "var(--accent)", color: "#fff", padding: "6px 12px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>🔥 Popular</span>
+                  <span style={{ background: "var(--accent)", color: "#fff", padding: "6px 14px", borderRadius: "30px", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>🔥 Popular</span>
                 )}
               </div>
             </div>
