@@ -221,7 +221,7 @@ export default function AttendanceManagementPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div>
             <h1 style={{ margin: 0, fontSize: "1.4rem" }}>Attendance Management</h1>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>Track staff check-ins, manage attendance, and configure settings.</p>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>Track staff check-ins, shift hours, and manage attendance records.</p>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
@@ -253,7 +253,6 @@ export default function AttendanceManagementPage() {
         {[
           { key: "today", label: "Today's Attendance" },
           { key: "records", label: "All Records" },
-          { key: "settings", label: "Settings" },
           { key: "reports", label: "Reports" }
         ].map((t) => (
           <button key={t.key} type="button" onClick={() => setTab(t.key)} style={{ padding: "10px 16px", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f766e" : "2px solid transparent", color: tab === t.key ? "#0f766e" : "#64748b", fontWeight: tab === t.key ? 700 : 500, fontSize: "0.85rem", cursor: "pointer", marginBottom: -2, transition: "all 0.15s" }}>
@@ -402,55 +401,6 @@ export default function AttendanceManagementPage() {
               <button type="button" disabled={page >= recordsMeta.totalPages} onClick={() => setPage(page + 1)} style={{ padding: "6px 12px", fontSize: 12, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", cursor: "pointer" }}>Next</button>
             </div>
           )}
-        </div>
-      )}
-
-      {tab === "settings" && (
-        <div className="panel-card" style={{ maxWidth: 700 }}>
-          <h3 style={{ margin: "0 0 16px" }}>Attendance Settings</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569" }}>Office Start Time</span>
-              <input type="time" value={settingsForm.officeStartTime || "09:00"} onChange={(e) => setSettingsForm({ ...settingsForm, officeStartTime: e.target.value })} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569" }}>Office End Time</span>
-              <input type="time" value={settingsForm.officeEndTime || "18:00"} onChange={(e) => setSettingsForm({ ...settingsForm, officeEndTime: e.target.value })} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569" }}>Late After Time</span>
-              <input type="time" value={settingsForm.lateAfterTime || "09:15"} onChange={(e) => setSettingsForm({ ...settingsForm, lateAfterTime: e.target.value })} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569" }}>Half Day Threshold (minutes)</span>
-              <input type="number" value={settingsForm.halfDayMinutes || 240} onChange={(e) => setSettingsForm({ ...settingsForm, halfDayMinutes: Number(e.target.value) })} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569" }}>Minimum Working Minutes</span>
-              <input type="number" value={settingsForm.minimumWorkingMinutes || 480} onChange={(e) => setSettingsForm({ ...settingsForm, minimumWorkingMinutes: Number(e.target.value) })} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569" }}>Overtime Threshold (minutes)</span>
-              <input type="number" value={settingsForm.overtimeThresholdMinutes || 480} onChange={(e) => setSettingsForm({ ...settingsForm, overtimeThresholdMinutes: Number(e.target.value) })} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
-            </label>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 20 }}>
-            {[
-              { key: "overtimeEnabled", label: "Enable Overtime Tracking" },
-              { key: "checkoutSelfieRequired", label: "Checkout Selfie Required" },
-              { key: "allowManualAttendanceEdits", label: "Allow Manual Attendance Edits" }
-            ].map((toggle) => (
-              <div key={toggle.key} onClick={() => setSettingsForm({ ...settingsForm, [toggle.key]: !settingsForm[toggle.key] })} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, cursor: "pointer" }}>
-                <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>{toggle.label}</span>
-                <div style={{ width: 36, height: 20, borderRadius: 100, background: settingsForm[toggle.key] ? "#10b981" : "#cbd5e1", position: "relative", transition: "all 0.2s" }}>
-                  <div style={{ width: 16, height: 16, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: settingsForm[toggle.key] ? 18 : 2, transition: "all 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 20 }}>
-            <button type="button" onClick={saveSettings} style={{ padding: "10px 24px", background: "linear-gradient(135deg, #0f766e, #0d9488)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: "0.85rem" }}>Save Settings</button>
-          </div>
         </div>
       )}
 
