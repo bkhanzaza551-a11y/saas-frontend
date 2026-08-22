@@ -168,8 +168,16 @@ export default function SalonDetailsPage() {
           </div>
 
           <div className="sd-field">
+            <span className="sd-label">City</span>
+            <span className="sd-value">{salon.city || "—"}</span>
+          </div>
+          <div className="sd-field">
+            <span className="sd-label">State / Country</span>
+            <span className="sd-value">{salon.state ? `${salon.state}, ` : ""}{salon.country || "—"}</span>
+          </div>
+          <div className="sd-field">
             <span className="sd-label">Tax Rate</span>
-            <span className="sd-value">{salon.taxRate ? `${salon.taxRate}%` : "—"}</span>
+            <span className="sd-value">{salon.taxRate != null ? `${salon.taxRate}%` : "0%"}</span>
           </div>
           <div className="sd-field">
             <span className="sd-label">Registered On</span>
