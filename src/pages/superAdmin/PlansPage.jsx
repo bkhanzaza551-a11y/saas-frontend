@@ -213,14 +213,8 @@ export default function PlansPage() {
     if (m > 0 && y > 0 && y < m) {
       return `⚠️ Warning: Yearly Price (₹${y.toLocaleString()}) is lower than a single Monthly Price (₹${m.toLocaleString()}).`;
     }
-    if (m > 0 && y > m * 12) {
-      return `💡 Notice: Yearly Price (₹${y.toLocaleString()}) is higher than paying 12 individual months (₹${(m * 12).toLocaleString()}).`;
-    }
-    if (m === 0 && !form.isCustom && Number(form.trialDays || 0) === 0) {
-      return `💡 Notice: This plan is configured as Free (₹0/month).`;
-    }
     return null;
-  }, [form.monthlyPrice, form.yearlyPrice, form.isCustom, form.trialDays]);
+  }, [form.monthlyPrice, form.yearlyPrice]);
 
   const savePlan = async (e) => {
     e.preventDefault();
