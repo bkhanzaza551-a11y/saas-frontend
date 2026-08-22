@@ -97,10 +97,7 @@ export default function StorefrontLayout() {
   }, [salon, previewConfig]);
 
   useEffect(() => {
-    // Show preloader on subpage navigation for 1.5 seconds
-    setPageTransitioning(true);
-    const timer = setTimeout(() => setPageTransitioning(false), 1500);
-    return () => clearTimeout(timer);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
 
   useEffect(() => {
@@ -414,12 +411,20 @@ export default function StorefrontLayout() {
           <header className={`sf-header ${scrolled ? 'scrolled' : ''}`}>
             <div className="sf-nav-container">
               <Link to={`/site/${slug}`} className="sf-brand">
-                {activeSalon?.websiteConfig?.logoUrl ? <img src={activeSalon.websiteConfig.logoUrl} alt={activeSalon.name} style={{ height: "32px", borderRadius: 4 }} onError={e => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} /> : null}<span style={{ display: activeSalon?.websiteConfig?.logoUrl ? 'none' : 'inline', fontSize: '1.2rem', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-main)' }}>{activeSalon?.name || "Salon"}</span>
+                {activeSalon?.websiteConfig?.logoUrl ? (
+                  <img src={activeSalon.websiteConfig.logoUrl} alt={activeSalon.name} style={{ height: "36px", maxHeight: "36px", objectFit: "contain", borderRadius: 6 }} onError={e => { e.target.onerror = null; e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'inline-flex'; }} />
+                ) : null}
+                <span style={{ display: activeSalon?.websiteConfig?.logoUrl ? 'none' : 'inline-flex', alignItems: "center", gap: 8, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  <span style={{ width: 32, height: 32, borderRadius: 8, background: "var(--accent, #0d9488)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 900 }}>
+                    {(activeSalon?.name || "S").charAt(0).toUpperCase()}
+                  </span>
+                  {activeSalon?.name || "Salon"}
+                </span>
               </Link>
 
               <nav className="sf-nav-links">
                 <Link to={`/site/${slug}`}>Home</Link>
-                <Link to={`/site/${slug}/services`}>Services</Link>
+                <Link to={`/site/${slug}/services`}>Services & Pricing</Link>
                 <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
               </nav>
               
@@ -430,9 +435,9 @@ export default function StorefrontLayout() {
                       onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
                       className="sf-branch-btn"
                     >
-                      <MapPin size={16} color="var(--text-muted)" />
-                      <span>{selectedBranchId ? salon.branches.find(b => b.id === selectedBranchId)?.name || "All Branches" : "All Branches"}</span>
-                      <ChevronDown size={14} color="var(--text-muted)" style={{ transform: branchDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                      <MapPin size={15} color="var(--accent, #0d9488)" />
+                      <span>{selectedBranchId ? salon.branches.find(b => b.id === selectedBranchId)?.name || "All Locations" : "All Locations"}</span>
+                      <ChevronDown size={13} color="var(--text-muted)" style={{ transform: branchDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                     </button>
 
                     {branchDropdownOpen && (
@@ -467,6 +472,10 @@ export default function StorefrontLayout() {
                       {bookingCount}
                     </span>
                   )}
+                </Link>
+
+                <Link to={`/site/${slug}/services`} className="sf-header-cta-btn">
+                  <Sparkles size={14} /> Book Appointment
                 </Link>
                 
                 <button 
