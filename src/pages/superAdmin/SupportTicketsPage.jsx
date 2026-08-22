@@ -218,19 +218,35 @@ export default function SuperAdminSupportTicketsPage() {
 
   return (
     <div className="page-shell super-admin-page">
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head">
+      <div className="hero-card" style={{ padding: "18px 24px", marginBottom: 20 }}>
+        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <h1 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: 10 }}>
-              <Shield size={26} style={{ color: "#6366f1" }} /> Support Tickets
+            <h1 style={{ marginTop: 0, marginBottom: 4, display: "flex", alignItems: "center", gap: 10, fontSize: "1.45rem" }}>
+              <Shield size={24} style={{ color: "#6366f1" }} /> Support Tickets
             </h1>
-            <p style={{ marginBottom: 0 }}>Manage salon support requests, agent assignments, and customer resolutions.</p>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "0.88rem" }}>Manage salon support requests, agent assignments, and customer resolutions.</p>
           </div>
-          <div className="badge-row">
-            <button onClick={() => setIsCreateModalOpen(true)} style={{ padding: "8px 16px", borderRadius: 8, background: "#6366f1", color: "white", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-              <MessageSquare size={16} /> Create Ticket
-            </button>
-          </div>
+          <button 
+            onClick={() => setIsCreateModalOpen(true)} 
+            style={{ 
+              padding: "7px 14px", 
+              height: 36,
+              borderRadius: 8, 
+              background: "#6366f1", 
+              color: "white", 
+              fontWeight: 600, 
+              fontSize: 13, 
+              border: "none", 
+              cursor: "pointer", 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: 6,
+              boxShadow: "0 2px 6px rgba(99, 102, 241, 0.25)",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <MessageSquare size={15} /> Create Ticket
+          </button>
         </div>
       </div>
 
