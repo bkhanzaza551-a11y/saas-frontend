@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare, Bell, Mail, Smartphone, AlertCircle, CheckCircle, TrendingUp, TrendingDown, Layers, Folder, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare, Bell, Mail, Smartphone, AlertCircle, CheckCircle, TrendingUp, TrendingDown, Layers, Folder, ArrowUpRight, ArrowDownRight, Scissors, ShoppingBag, Package, Sparkles } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -2512,13 +2512,78 @@ export default function SettingsPage() {
                   <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 12 }}>Apply automatically to:</label>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      {[{ key: "SERVICE", label: "Services" }, { key: "PRODUCT", label: "Products" }, { key: "MEMBERSHIP", label: "Memberships" }, { key: "PACKAGE", label: "Packages" }].map(({ key, label }) => {
+                      {[
+                        { key: "SERVICE", label: "Services", sub: "Hair, Spa, Beauty", icon: <Scissors size={16} /> },
+                        { key: "PRODUCT", label: "Products", sub: "Retail & Inventory", icon: <ShoppingBag size={16} /> },
+                        { key: "MEMBERSHIP", label: "Memberships", sub: "VIP & Subscriptions", icon: <Users size={16} /> },
+                        { key: "PACKAGE", label: "Packages", sub: "Bundled Deals", icon: <Package size={16} /> }
+                      ].map(({ key, label, sub, icon }) => {
                         const isChecked = (draftTax?.applicableFor ?? (typeof editing.applicableFor === "string" ? editing.applicableFor.split(",") : (editing.applicableFor || []))).includes(key);
                         return (
-                          <label key={key} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", border: isChecked ? "2px solid #14b8a6" : "1px solid #e2e8f0", background: isChecked ? "#f0fdfa" : "#fff", borderRadius: 12, cursor: "pointer", transition: "all 0.2s", margin: 0 }} onMouseEnter={e => { if(!isChecked) e.currentTarget.style.borderColor = "#cbd5e1" }} onMouseLeave={e => { if(!isChecked) e.currentTarget.style.borderColor = "#e2e8f0" }}>
-                            <input type="checkbox" checked={isChecked} onChange={() => draftTax && toggleApplicable(key)} style={{ width: 18, height: 18, accentColor: "#14b8a6", cursor: "pointer" }} />
-                            <span style={{ fontSize: 14, fontWeight: 600, color: isChecked ? "#0f766e" : "#475569" }}>{label}</span>
-                          </label>
+                          <div 
+                            key={key} 
+                            onClick={() => draftTax && toggleApplicable(key)}
+                            style={{ 
+                              display: "flex", 
+                              alignItems: "center", 
+                              justifyContent: "space-between", 
+                              padding: "12px 16px", 
+                              border: isChecked ? "1.5px solid #14b8a6" : "1px solid #e2e8f0", 
+                              background: isChecked ? "#f0fdfa" : "#ffffff", 
+                              borderRadius: 12, 
+                              cursor: "pointer", 
+                              transition: "all 0.2s ease", 
+                              boxShadow: isChecked ? "0 2px 8px rgba(20, 184, 166, 0.08)" : "none",
+                              userSelect: "none"
+                            }} 
+                            onMouseEnter={e => { if(!isChecked) e.currentTarget.style.borderColor = "#cbd5e1"; }} 
+                            onMouseLeave={e => { if(!isChecked) e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <div style={{
+                                width: 34,
+                                height: 34,
+                                borderRadius: 8,
+                                background: isChecked ? "#ccfbf1" : "#f1f5f9",
+                                color: isChecked ? "#0d9488" : "#64748b",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                              }}>
+                                {icon}
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 13.5, fontWeight: 700, color: isChecked ? "#0f766e" : "#1e293b" }}>{label}</div>
+                                <div style={{ fontSize: 11, color: isChecked ? "#14b8a6" : "#94a3b8", fontWeight: 500 }}>
+                                  {sub}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Toggle Switch */}
+                            <div style={{
+                              position: "relative",
+                              width: 36,
+                              height: 20,
+                              background: isChecked ? "#14b8a6" : "#cbd5e1",
+                              borderRadius: 20,
+                              transition: "background 0.25s ease",
+                              flexShrink: 0
+                            }}>
+                              <div style={{
+                                position: "absolute",
+                                top: 2,
+                                left: isChecked ? 18 : 2,
+                                width: 16,
+                                height: 16,
+                                background: "#ffffff",
+                                borderRadius: "50%",
+                                transition: "left 0.25s ease",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
+                              }} />
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
