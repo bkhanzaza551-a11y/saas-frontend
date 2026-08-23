@@ -946,6 +946,15 @@ export default function AppointmentsPage() {
     }, 0);
   }, [form.items, services]);
 
+  const totalTaxAmount = useMemo(() => {
+    return form.items.reduce((sum, item) => {
+      const service = services.find((row) => row.id === item.serviceId);
+      const price = Number(service?.price || 0);
+      const taxRate = Number(service?.taxRate || 0);
+      return sum + (price * taxRate) / 100;
+    }, 0);
+  }, [form.items, services]);
+
   return (
     <div className="calendar-page">
       <style>{`
@@ -1718,7 +1727,7 @@ export default function AppointmentsPage() {
                             <optgroup key={group.title} label={`${group.title} ${serviceGenderFilter !== "ALL" ? `(${serviceGenderFilter === "MALE" ? "M" : "F"})` : ""}`}>
                               {group.items.map((service) => (
                                 <option key={service.id} value={service.id}>
-                                  {service.name} ({formatMoney(service.price)})
+                                  {service.name} ({formatMoney(service.price)}{Number(service.taxRate || 0) > 0 ? ` +${service.taxRate}% tax` : ""})
                                 </option>
                               ))}
                             </optgroup>
@@ -1781,8 +1790,20 @@ export default function AppointmentsPage() {
                     Add New Service +
                   </button>
 
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16, fontWeight: 700, fontSize: "1.1rem" }}>
-                    Total {formatMoney(totalServiceCount)}
+                  <div style={{ marginTop: 16, padding: "12px 16px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", color: "#64748b", marginBottom: 4 }}>
+                      <span>Subtotal</span>
+                      <span style={{ fontWeight: 600, color: "#334155" }}>{formatMoney(totalServiceCount)}</span>
+                    </div>
+                    {totalTaxAmount > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", color: "#64748b", marginBottom: 4 }}>
+                        <span>Tax</span>
+                        <span style={{ fontWeight: 600, color: "#16a34a" }}>+{formatMoney(totalTaxAmount)}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "flex-end", fontWeight: 800, fontSize: "1.1rem", color: "#0f172a", borderTop: "1px solid #e2e8f0", paddingTop: 8, marginTop: 4 }}>
+                      Total {formatMoney(totalServiceCount + totalTaxAmount)}
+                    </div>
                   </div>
                 </div>
 
