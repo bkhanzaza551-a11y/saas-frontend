@@ -3210,35 +3210,82 @@ export default function SettingsPage() {
 
     return (
       <>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+        <style>{`
+          .notif-channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+          }
+          .notif-digest-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+          }
+          .notif-rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+          }
+          @media (max-width: 640px) {
+            .notif-settings-header {
+              flex-direction: column !important;
+              align-items: stretch !important;
+              gap: 12px !important;
+            }
+            .notif-digest-row {
+              grid-template-columns: 1fr !important;
+              gap: 16px !important;
+              padding: 14px !important;
+            }
+            .notif-rules-grid {
+              grid-template-columns: 1fr !important;
+              gap: 16px !important;
+            }
+            .notif-rule-item {
+              padding: 12px 14px !important;
+              gap: 10px !important;
+            }
+            .notif-card-box {
+              padding: 16px 14px !important;
+            }
+          }
+        `}</style>
+
+        <div className="notif-settings-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 14 }}>
           <SectionHeader
             title="Notification Settings"
             description="Control email delivery and in-web alert rules for automated business notifications. SMS/WhatsApp provider details are saved separately."
             badges={[`${summary.notifications.filter((row) => !row.isRead).length} unread live alerts`]}
           />
           <div style={{ display: "flex", gap: 12 }}>
-            <Link className="secondary-button" to="/admin/notifications" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: "none", transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#f8fafc"; e.currentTarget.style.borderColor="#94a3b8"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
-              <Bell size={18} /> Open Notifications
+            <Link className="secondary-button" to="/admin/notifications" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 18px", background: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 700, fontSize: 13.5, textDecoration: "none", transition: "all 0.2s" }}>
+              <Bell size={16} /> Open Notifications
             </Link>
           </div>
         </div>
 
         {/* NOTIFICATION CHANNELS */}
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24, marginBottom: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <h3 style={{ margin: "0 0 20px 0", fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="notif-card-box" style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24, marginBottom: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ margin: "0 0 16px 0", fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 4, height: 16, background: "#f59e0b", borderRadius: 4 }} />
             Delivery Channels & Alerts
           </h3>
           
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
+          <div className="notif-channels-grid">
             {[
               { id: 'emailEnabled', label: 'Email Alerts', icon: <Mail size={16} />, checked: config.emailEnabled, key: 'emailEnabled' },
               { id: 'smsEnabled', label: 'SMS Alerts', icon: <MessageSquare size={16} />, checked: config.smsEnabled, key: 'smsEnabled' },
               { id: 'whatsappEnabled', label: 'WhatsApp Alerts', icon: <Smartphone size={16} />, checked: config.whatsappEnabled, key: 'whatsappEnabled' },
               { id: 'pushEnabled', label: 'In-Web Alerts', icon: <Bell size={16} />, checked: config.pushEnabled, key: 'pushEnabled' }
             ].map(item => (
-              <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px", background: item.checked ? "#fffbeb" : "#f8fafc", border: item.checked ? "1px solid #fde68a" : "1px solid #e2e8f0", borderRadius: 10, transition: "all 0.2s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, fontWeight: 700, color: item.checked ? "#b45309" : "#334155" }}>
+              <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px", background: item.checked ? "#fffbeb" : "#f8fafc", border: item.checked ? "1px solid #fde68a" : "1px solid #e2e8f0", borderRadius: 10, transition: "all 0.2s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, fontWeight: 700, color: item.checked ? "#b45309" : "#334155" }}>
                   <div style={{ color: item.checked ? "#d97706" : "#94a3b8", display: "flex" }}>{item.icon}</div>
                   {item.label}
                 </div>
@@ -3250,57 +3297,57 @@ export default function SettingsPage() {
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, padding: "20px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12 }}>
+          <div className="notif-digest-row">
             <div>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 8 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                 <AlertCircle size={14} color="#64748b" /> Business Alert Email
               </label>
-              <input type="email" value={config.alertEmail} onChange={(event) => updateAdvancedObject("notificationSettings", { alertEmail: event.target.value })} placeholder="e.g. manager@salon.com" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Where system alerts (like low balance or end-of-day reports) should be sent.</div>
+              <input type="email" value={config.alertEmail} onChange={(event) => updateAdvancedObject("notificationSettings", { alertEmail: event.target.value })} placeholder="e.g. manager@salon.com" style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>Where system alerts (like low balance or end-of-day reports) should be sent.</div>
             </div>
             <div>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 8 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                 <Clock size={14} color="#64748b" /> Daily Digest Time
               </label>
-              <input type="time" value={config.digestHour} onChange={(event) => updateAdvancedObject("notificationSettings", { digestHour: event.target.value })} style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", transition: "border-color 0.2s" }} onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"} onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} />
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Time of day to send the consolidated daily summary.</div>
+              <input type="time" value={config.digestHour} onChange={(event) => updateAdvancedObject("notificationSettings", { digestHour: event.target.value })} style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>Time of day to send the consolidated daily summary.</div>
             </div>
           </div>
         </div>
 
         {/* NOTIFICATION EVENT RULES */}
-        <h3 style={{ margin: "0 0 16px 0", fontSize: 18, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+        <h3 style={{ margin: "0 0 16px 0", fontSize: 17, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ width: 4, height: 18, background: "#3b82f6", borderRadius: 4 }} />
           Event Rules & Triggers
         </h3>
         
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 24, marginBottom: 24 }}>
+        <div className="notif-rules-grid">
           {categories.map((category) => (
             <div key={category.title} style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-              <div style={{ padding: "14px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontSize: 14, fontWeight: 700, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <div style={{ padding: "12px 18px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontSize: 13.5, fontWeight: 700, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 {category.title}
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 {category.items.map((item, index) => {
                   const isChecked = config.toggles ? (config.toggles[item.key] !== false) : true;
                   return (
-                    <div key={item.key} style={{
+                    <div key={item.key} className="notif-rule-item" style={{
                       display: "grid",
                       gridTemplateColumns: "1fr auto",
                       alignItems: "center",
-                      gap: 16,
-                      padding: "16px 20px",
+                      gap: 12,
+                      padding: "14px 18px",
                       borderBottom: index === category.items.length - 1 ? "none" : "1px solid #f1f5f9",
                       transition: "background 0.2s",
                       background: "#fff"
-                    }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+                    }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>
                         {item.label}
-                        <div style={{ fontSize: 11, color: channelLabels[item.key] === "Not wired yet" ? "#f59e0b" : "#94a3b8", marginTop: 4, fontWeight: 500 }}>
+                        <div style={{ fontSize: 11, color: channelLabels[item.key] === "Not wired yet" ? "#f59e0b" : "#94a3b8", marginTop: 3, fontWeight: 500 }}>
                           Channels: {channelLabels[item.key] || "System Rule"}
                         </div>
                       </div>
-                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer", flexShrink: 0 }}>
                         <input
                           type="checkbox"
                           checked={isChecked}
