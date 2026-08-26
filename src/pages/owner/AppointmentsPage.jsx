@@ -1470,19 +1470,23 @@ export default function AppointmentsPage() {
         .cust-assign-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,0.3); }
 
         @media (max-width: 768px) {
-          .calendar-toolbar { flex-direction: column; align-items: stretch; gap: 12px; padding: 12px 16px; }
-          .date-navigator { flex-wrap: wrap; justify-content: center; gap: 8px; }
-          .counters-row { flex-wrap: wrap; justify-content: center; gap: 8px; }
+          .calendar-toolbar { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 12px; }
+          .date-navigator { flex-wrap: nowrap !important; justify-content: center; gap: 4px; }
+          .date-navigator span { font-size: 0.95rem !important; }
+          .nav-btn { padding: 2px 6px !important; font-size: 0.68rem !important; min-height: 26px !important; }
+          .nav-icon { min-height: 26px !important; width: 26px !important; height: 26px !important; padding: 2px !important; }
+          .counters-row { flex-wrap: wrap; justify-content: center; gap: 6px; }
+          .counter-badge { flex: 1 1 calc(33.33% - 6px); justify-content: center; text-align: center; }
         }
       `}</style>
 
       <div className="calendar-toolbar">
-        <div className="date-navigator">
-          <button className="nav-icon" type="button" onClick={() => handleDayChange(-1)}><ChevronLeft size={18} /></button>
+        <div className="date-navigator" style={{ flexWrap: "nowrap", whiteSpace: "nowrap" }}>
+          <button className="nav-icon" type="button" onClick={() => handleDayChange(-1)} aria-label="Previous day"><ChevronLeft size={16} /></button>
           <button className="nav-btn" type="button" onClick={setToday}>TODAY</button>
-          <span style={{ fontSize: "1.1rem" }}>{formatDate(currentDate)}</span>
+          <span style={{ fontSize: "1.05rem", fontWeight: 800, color: "#0f172a", padding: "0 2px" }}>{formatDate(currentDate)}</span>
           <button className="nav-btn" type="button" onClick={() => handleDayChange(1)}>TOMORROW</button>
-          <button className="nav-icon" type="button" onClick={() => handleDayChange(1)}><ChevronRight size={18} /></button>
+          <button className="nav-icon" type="button" onClick={() => handleDayChange(1)} aria-label="Next day"><ChevronRight size={16} /></button>
         </div>
         <div className="counters-row">
           <div className="counter-badge active">Confirmed <span className="counter-val">{confirmedCount}</span></div>
