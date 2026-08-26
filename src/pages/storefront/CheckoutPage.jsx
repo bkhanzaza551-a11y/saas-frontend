@@ -80,9 +80,9 @@ export default function CheckoutPage() {
     try {
       const customerName = `${form.firstName} ${form.lastName}`.trim();
       const formattedPhone = form.phone.startsWith("+91") ? form.phone : `+91${form.phone}`;
-      const promises = [];
+      const results = [];
       for (const booking of bookings) {
-        for (let i = 0; i < booking.qty; i++) {
+        for (let i = 0; i < (booking.qty || 1); i++) {
           const payload = {
             serviceId: booking.serviceId || booking.id,
             customerName,
@@ -96,11 +96,10 @@ export default function CheckoutPage() {
             paymentMode: form.paymentMode,
             couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
           };
-          promises.push(api.post(`/public/salon/${salon.slug}/service-bookings`, payload));
+          const res = await api.post(`/public/salon/${salon.slug}/service-bookings`, payload);
+          results.push(res.data);
         }
       }
-      const resps = await Promise.all(promises);
-      const results = resps.map(r => r.data);
 
       clearBookings();
       localStorage.setItem("sf_customer_phone", formattedPhone);
