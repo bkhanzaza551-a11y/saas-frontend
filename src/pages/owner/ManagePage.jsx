@@ -50,30 +50,57 @@ export default function ManagePage() {
   const enabled = (key) => !key || flags[key] !== false;
 
   return (
-    <div className="page-shell" style={{ backgroundColor: "#f8fafc", minHeight: "100vh", padding: "30px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: "700", color: "#0f172a", margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <Settings size={28} color="#4f46e5" />
-          Manage Workspace
-        </h1>
-        <p style={{ color: "#64748b", margin: 0 }}>Configure and monitor your entire salon</p>
+    <div className="page-shell" style={{ backgroundColor: "#f8fafc", minHeight: "100vh", padding: "20px 16px" }}>
+      <style>{`
+        .manage-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .manage-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .manage-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+            margin-bottom: 20px !important;
+          }
+          .manage-header h1 {
+            font-size: 1.4rem !important;
+          }
+          .manage-header p {
+            font-size: 0.85rem !important;
+          }
+        }
+      `}</style>
+      <div className="manage-header">
+        <div>
+          <h1 style={{ fontSize: "1.7rem", fontWeight: "700", color: "#0f172a", margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
+            <Settings size={26} color="#4f46e5" />
+            Manage Workspace
+          </h1>
+          <p style={{ color: "#64748b", margin: "4px 0 0", fontSize: "0.9rem" }}>Configure and monitor your entire salon</p>
+        </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
         {CATEGORIES.map((category) => {
           const visibleItems = category.items.filter(item => can(item.reqPerm) && enabled(item.reqFlag));
           if (visibleItems.length === 0) return null;
           
           return (
             <section key={category.title}>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: "600", color: "#334155", marginBottom: "16px", paddingBottom: "8px", borderBottom: "1px solid #e2e8f0" }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: "700", color: "#334155", marginBottom: "14px", paddingBottom: "6px", borderBottom: "1px solid #e2e8f0" }}>
                 {category.title}
               </h2>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-              gap: "20px"
-            }}>
+              <div className="manage-grid">
               {visibleItems.map((card) => {
                 const Icon = card.icon;
                 return (
@@ -84,13 +111,13 @@ export default function ManagePage() {
                       textDecoration: "none", 
                       color: "inherit",
                       background: "#ffffff",
-                      borderRadius: "12px",
-                      padding: "24px",
+                      borderRadius: "14px",
+                      padding: "20px",
                       boxShadow: "0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.04)",
                       border: "1px solid #f1f5f9",
                       display: "flex",
                       flexDirection: "column",
-                      gap: "12px",
+                      gap: "10px",
                       transition: "transform 0.2s, box-shadow 0.2s",
                       cursor: "pointer"
                     }}
@@ -108,19 +135,20 @@ export default function ManagePage() {
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                       <div style={{ 
                         background: "#eef2ff", 
-                        padding: "10px", 
-                        borderRadius: "8px",
+                        padding: "9px", 
+                        borderRadius: "10px",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center"
+                        justifyContent: "center",
+                        flexShrink: 0
                       }}>
-                        <Icon size={22} color="#4f46e5" />
+                        <Icon size={20} color="#4f46e5" />
                       </div>
-                      <strong style={{ fontSize: "1.1rem", color: "#1e293b", fontWeight: "600" }}>
+                      <strong style={{ fontSize: "1.05rem", color: "#1e293b", fontWeight: "700" }}>
                         {card.title}
                       </strong>
                     </div>
-                    <div style={{ color: "#64748b", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                    <div style={{ color: "#64748b", fontSize: "0.85rem", lineHeight: "1.5" }}>
                       {card.description}
                     </div>
                   </Link>
