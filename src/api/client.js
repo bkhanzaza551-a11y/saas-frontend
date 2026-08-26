@@ -30,9 +30,6 @@ export const setAuthSessionHandlers = ({ getCurrentSession, onRefreshSuccess, on
 api.interceptors.request.use((config) => {
   const url = config.url || "";
   const isAuthEndpoint = url.startsWith("/auth/") || url.includes("/auth/") || url.startsWith("/public/") || url.includes("/public/");
-  if (sessionBlocked && !isAuthEndpoint) {
-    return Promise.reject(Object.assign(new Error("Session expired"), { __sessionBlocked: true }));
-  }
 
   const session = getSession?.();
   const accessToken = session?.accessToken;
