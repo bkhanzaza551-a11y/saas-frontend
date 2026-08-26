@@ -1118,9 +1118,9 @@ export default function PosDashboardPage() {
               <button type="button" onClick={closeDetail} style={{ position: 'absolute', right: 0, background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '50%', cursor: 'pointer', padding: '6px', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
             </div>
 
-            <div className="pos-detail-split-pane" style={{ padding: "12px", overflowY: "auto", display: "grid", gridTemplateColumns: "minmax(260px, 1fr) 2.8fr", gap: "16px", height: "calc(95vh - 50px)" }}>
+            <div className="pos-detail-split-pane">
               {/* Left Panel - Categories & Services / Products */}
-              <div className="pos-detail-left" style={{ background: "#f1f5f9", borderRadius: "8px", padding: "10px", display: "flex", flexDirection: "column", gap: "10px", maxHeight: "calc(95vh - 80px)", overflowY: "hidden", opacity: isEditing ? 1 : 0.6, pointerEvents: isEditing ? "auto" : "none" }}>
+              <div className="pos-detail-left" style={{ opacity: isEditing ? 1 : 0.6, pointerEvents: isEditing ? "auto" : "none" }}>
                 <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
                   <div style={{ display: "flex", gap: "4px", flex: "1 0 auto" }}>
                     <button onClick={() => setPosGender("FEMALE")} style={{ padding: "6px 10px", borderRadius: "6px", border: posGender === "FEMALE" ? "none" : "1px solid #cbd5e1", background: posGender === "FEMALE" ? "#3b82f6" : "white", color: posGender === "FEMALE" ? "white" : "#334155", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer" }}>Female</button>
@@ -1209,8 +1209,8 @@ export default function PosDashboardPage() {
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", padding: "10px 16px", background: "#0f172a", borderRadius: "8px", marginBottom: "16px", fontSize: "11px", color: "#cbd5e1", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
-                      <div style={{ display: "flex", gap: "24px" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", padding: "10px 14px", background: "#0f172a", borderRadius: "8px", marginBottom: "16px", fontSize: "11px", color: "#cbd5e1", gap: "12px", alignItems: "flex-start", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "14px 20px", width: "100%" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.5px", color: "#94a3b8", fontWeight: 700 }}>Guest</span>
                           <strong style={{ color: "#fff", fontSize: "13px" }}>{fullCustomer?.name || detail.customer?.name || "Walk-in"}</strong>
