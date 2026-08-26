@@ -161,12 +161,120 @@ export default function WhatsAppCreditsPage() {
   if (loading) return <PageLoader title="Loading Communication Credits" message="Fetching your live messaging balance and packages..." />;
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 1280, margin: "0 auto", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 16 }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 0 60px 0", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <style>{`
+        .wc-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+        .wc-balance-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 18px;
+          margin-bottom: 28px;
+        }
+        .wc-balance-card {
+          border-radius: 16px;
+          padding: 26px 28px;
+          color: #fff;
+          position: relative;
+          overflow: hidden;
+        }
+        .wc-usage-estimate {
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border-radius: 16px;
+          padding: 22px 28px;
+          margin-bottom: 32px;
+          border: 1px solid #e2e8f0;
+          display: flex;
+          align-items: flex-start;
+          gap: 18px;
+        }
+        .wc-estimate-items {
+          display: flex;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .wc-channel-switch {
+          display: flex;
+          background: #f1f5f9;
+          padding: 5px;
+          border-radius: 14px;
+          gap: 5px;
+          margin-bottom: 28px;
+          border: 1px solid #e2e8f0;
+        }
+        .wc-packages-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+          justify-items: stretch;
+        }
+        .wc-filter-tabs {
+          display: flex;
+          background: #f1f5f9;
+          padding: 4px;
+          border-radius: 10px;
+          gap: 4px;
+          overflow-x: auto;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+          max-width: 100%;
+        }
+        @media (max-width: 768px) {
+          .wc-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .wc-header button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .wc-balance-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            margin-bottom: 20px !important;
+          }
+          .wc-balance-card {
+            padding: 20px 22px !important;
+          }
+          .wc-usage-estimate {
+            flex-direction: column !important;
+            padding: 16px !important;
+            gap: 14px !important;
+            margin-bottom: 24px !important;
+          }
+          .wc-estimate-items {
+            flex-direction: column !important;
+            width: 100% !important;
+          }
+          .wc-channel-switch {
+            flex-direction: row !important;
+            padding: 4px !important;
+            gap: 4px !important;
+          }
+          .wc-channel-switch button {
+            padding: 10px 8px !important;
+            font-size: 12.5px !important;
+            gap: 6px !important;
+            flex-direction: column !important;
+            text-align: center !important;
+          }
+          .wc-packages-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+        }
+      `}</style>
+      
+      <div className="wc-header">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Communication Credits
             </h1>
             <span style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
@@ -226,9 +334,9 @@ export default function WhatsAppCreditsPage() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 28 }}>
+      <div className="wc-balance-grid">
 
-        <div style={{ background: "linear-gradient(135deg, #166534 0%, #14532d 100%)", borderRadius: 16, padding: "26px 28px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(22, 101, 52, 0.3)", position: "relative", overflow: "hidden" }}>
+        <div className="wc-balance-card" style={{ background: "linear-gradient(135deg, #166534 0%, #14532d 100%)", boxShadow: "0 10px 25px -5px rgba(22, 101, 52, 0.3)" }}>
           <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(74, 222, 128, 0.12)", borderRadius: "50%" }} />
           <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(74, 222, 128, 0.08)", borderRadius: "50%" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -245,7 +353,7 @@ export default function WhatsAppCreditsPage() {
           </div>
         </div>
 
-        <div style={{ background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)", borderRadius: 16, padding: "26px 28px", color: "#fff", boxShadow: "0 10px 25px -5px rgba(30, 64, 175, 0.3)", position: "relative", overflow: "hidden" }}>
+        <div className="wc-balance-card" style={{ background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)", boxShadow: "0 10px 25px -5px rgba(30, 64, 175, 0.3)" }}>
           <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(96, 165, 250, 0.12)", borderRadius: "50%" }} />
           <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(96, 165, 250, 0.08)", borderRadius: "50%" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -264,7 +372,7 @@ export default function WhatsAppCreditsPage() {
 
       </div>
 
-      <div style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", borderRadius: 16, padding: "22px 28px", marginBottom: 32, border: "1px solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: 18 }}>
+      <div className="wc-usage-estimate">
         <div style={{ background: "#fff", borderRadius: 12, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
           <Calculator size={20} color="#2563eb" />
         </div>
@@ -275,7 +383,7 @@ export default function WhatsAppCreditsPage() {
           <p style={{ margin: "0 0 14px 0", fontSize: 13.5, color: "#475569", lineHeight: 1.5 }}>
             With your current balances you can send approximately:
           </p>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <div className="wc-estimate-items">
             <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "10px 16px", borderRadius: 10, border: "1px solid #e2e8f0", flex: "1 1 200px" }}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <MessageSquare size={18} color="#16a34a" />
@@ -302,7 +410,7 @@ export default function WhatsAppCreditsPage() {
         </div>
       </div>
 
-      <div style={{ display: "flex", background: "#f1f5f9", padding: 5, borderRadius: 14, gap: 5, marginBottom: 28, border: "1px solid #e2e8f0" }}>
+      <div className="wc-channel-switch">
         <button
           onClick={() => { setActiveChannel("WHATSAPP"); setActiveTab("ALL"); }}
           style={{
@@ -366,7 +474,7 @@ export default function WhatsAppCreditsPage() {
             </p>
           </div>
 
-          <div style={{ display: "flex", background: "#f1f5f9", padding: 4, borderRadius: 10, gap: 4 }}>
+          <div className="wc-filter-tabs">
             {[
               { id: "ALL", label: "All Packages" },
               { id: "STARTER", label: "Starter" },
@@ -395,7 +503,7 @@ export default function WhatsAppCreditsPage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: filteredPackages.length <= 2 ? `repeat(${Math.min(filteredPackages.length, 2)}, minmax(280px, 320px))` : "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, justifyItems: filteredPackages.length <= 2 ? "start" : "stretch" }}>
+        <div className="wc-packages-grid">
           {filteredPackages.map((pkg) => {
             const isPopular = pkg.credits === 2000 || pkg.name.toLowerCase().includes("growth");
             const isPurchasing = purchasingId === pkg.id;
@@ -509,57 +617,59 @@ export default function WhatsAppCreditsPage() {
 
       {activeChannel === "SMS" && smsUsage.stats.total > 0 && (
         <div style={{ marginBottom: 32 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
             <div>
               <h2 style={{ margin: "0 0 4px 0", fontSize: 20, fontWeight: 800, color: "#0f172a" }}>SMS Usage</h2>
               <p style={{ margin: 0, color: "#64748b", fontSize: 13.5 }}>Your recent SMS sending activity</p>
             </div>
-            <div style={{ display: "flex", gap: 12 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #bbf7d0" }}>{smsUsage.stats.totalSent} Sent</span>
               <span style={{ background: "#fef2f2", color: "#dc2626", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #fecaca" }}>{smsUsage.stats.totalFailed} Failed</span>
               <span style={{ background: "#eff6ff", color: "#2563eb", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid #bfdbfe" }}>{smsUsage.stats.totalCreditsUsed} Credits Used</span>
             </div>
           </div>
           <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: 700, fontSize: 12, textTransform: "uppercase" }}>
-                  <th style={{ padding: "12px 20px" }}>Date</th>
-                  <th style={{ padding: "12px 20px" }}>Phone</th>
-                  <th style={{ padding: "12px 20px" }}>Provider</th>
-                  <th style={{ padding: "12px 20px" }}>Credits</th>
-                  <th style={{ padding: "12px 20px" }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {smsUsage.logs.slice(0, 20).map((log) => (
-                  <tr key={log.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: "12px 20px", color: "#475569" }}>
-                      <div style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(log.createdAt).toLocaleDateString([], { dateStyle: "medium" })}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(log.createdAt).toLocaleTimeString([], { timeStyle: "short" })}</div>
-                    </td>
-                    <td style={{ padding: "12px 20px", fontWeight: 600, color: "#0f172a", fontFamily: "monospace" }}>{log.phone}</td>
-                    <td style={{ padding: "12px 20px", color: "#64748b", textTransform: "capitalize" }}>{log.provider || "-"}</td>
-                    <td style={{ padding: "12px 20px" }}>
-                      <span style={{ fontWeight: 800, color: log.creditsUsed > 0 ? "#2563eb" : "#64748b", background: log.creditsUsed > 0 ? "#eff6ff" : "#f8fafc", padding: "4px 10px", borderRadius: 6, fontSize: 12, border: `1px solid ${log.creditsUsed > 0 ? "#bfdbfe" : "#e2e8f0"}` }}>
-                        {log.creditsUsed || 0}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px 20px" }}>
-                      <span style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: log.status === "SENT" ? "#ecfdf5" : "#fef2f2", color: log.status === "SENT" ? "#059669" : "#dc2626" }}>
-                        {log.status}
-                      </span>
-                    </td>
+            <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13, minWidth: 540, whiteSpace: "nowrap" }}>
+                <thead>
+                  <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: 700, fontSize: 12, textTransform: "uppercase" }}>
+                    <th style={{ padding: "12px 20px" }}>Date</th>
+                    <th style={{ padding: "12px 20px" }}>Phone</th>
+                    <th style={{ padding: "12px 20px" }}>Provider</th>
+                    <th style={{ padding: "12px 20px" }}>Credits</th>
+                    <th style={{ padding: "12px 20px" }}>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {smsUsage.logs.slice(0, 20).map((log) => (
+                    <tr key={log.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                      <td style={{ padding: "12px 20px", color: "#475569" }}>
+                        <div style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(log.createdAt).toLocaleDateString([], { dateStyle: "medium" })}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(log.createdAt).toLocaleTimeString([], { timeStyle: "short" })}</div>
+                      </td>
+                      <td style={{ padding: "12px 20px", fontWeight: 600, color: "#0f172a", fontFamily: "monospace" }}>{log.phone}</td>
+                      <td style={{ padding: "12px 20px", color: "#64748b", textTransform: "capitalize" }}>{log.provider || "-"}</td>
+                      <td style={{ padding: "12px 20px" }}>
+                        <span style={{ fontWeight: 800, color: log.creditsUsed > 0 ? "#2563eb" : "#64748b", background: log.creditsUsed > 0 ? "#eff6ff" : "#f8fafc", padding: "4px 10px", borderRadius: 6, fontSize: 12, border: `1px solid ${log.creditsUsed > 0 ? "#bfdbfe" : "#e2e8f0"}` }}>
+                          {log.creditsUsed || 0}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 20px" }}>
+                        <span style={{ padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: log.status === "SENT" ? "#ecfdf5" : "#fef2f2", color: log.status === "SENT" ? "#059669" : "#dc2626" }}>
+                          {log.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
       <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-        <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", flexWrap: "wrap", gap: 10 }}>
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>
               {activeChannel === "WHATSAPP" ? "WhatsApp" : "SMS"} Recharge History
@@ -571,8 +681,8 @@ export default function WhatsAppCreditsPage() {
           </span>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
+        <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13, minWidth: 680, whiteSpace: "nowrap" }}>
             <thead>
               <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0", color: "#475569", fontWeight: 700, fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 <th style={{ padding: "14px 20px" }}>Date & Time</th>
