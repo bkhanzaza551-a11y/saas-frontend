@@ -72,6 +72,29 @@ export default function MyBookingsPage() {
 
   return (
     <div className="storefront-wrapper" style={{ background: "#ffffff", minHeight: "80vh", color: "#0f172a", fontFamily: "'Poppins', -apple-system, sans-serif" }}>
+      <style>{`
+        @media (max-width: 600px) {
+          .my-booking-card {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding: 18px 16px !important;
+          }
+          .my-booking-card > div:last-child {
+            width: 100% !important;
+            align-items: flex-start !important;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+            margin-top: 6px;
+          }
+          .my-booking-card > div:last-child > div:first-child {
+            text-align: left !important;
+          }
+          .my-booking-card > div:last-child > div:last-child {
+            width: 100% !important;
+            justify-content: flex-start !important;
+          }
+        }
+      `}</style>
       
       {/* Luxury Hero Banner */}
       <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#ffffff", padding: "60px 24px 50px", textAlign: "center", position: "relative", overflow: "hidden" }}>
@@ -268,118 +291,121 @@ export default function MyBookingsPage() {
                   const isCompleted = booking.status === "COMPLETED";
                   const isConfirmed = booking.status === "CONFIRMED";
                   const isCancelled = booking.status === "CANCELLED";
+                  const statusLabel = 
+                    booking.status === "NEW" ? "Active (New)" :
+                    booking.status === "ACCEPTED" ? "Confirmed" :
+                    booking.status === "READY" ? "In Progress" :
+                    booking.status === "COMPLETED" ? "Completed" :
+                    booking.status === "CANCELLED" ? "Cancelled" : booking.status;
 
                   return (
                     <div 
                       key={i} 
+                      className="my-booking-card"
                       style={{
                         background: "#ffffff",
                         borderRadius: 20,
                         border: "1px solid #e2e8f0",
-                        padding: "24px",
+                        padding: "22px 24px",
                         boxShadow: "0 6px 20px rgba(0,0,0,0.03)",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         flexWrap: "wrap",
-                        gap: 20,
+                        gap: 16,
                         transition: "all 0.25s ease"
                       }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.borderColor = "#99f6e4";
-                        e.currentTarget.style.boxShadow = "0 12px 28px rgba(13,148,136,0.08)";
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.borderColor = "#e2e8f0";
-                        e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.03)";
-                      }}
                     >
-                      <div style={{ flex: 1, minWidth: 260 }}>
-                        {/* Order Number & Status Pill */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 11.5, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
-                            Order #{booking.orderNumber}
+                      <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+                        {/* Order Number & Clear Status Pill */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 11.5, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700, fontFamily: "monospace" }}>
+                            #{booking.orderNumber}
                           </span>
 
                           <span 
                             style={{ 
-                              padding: "3px 10px", 
+                              padding: "3px 12px", 
                               borderRadius: 100, 
                               fontSize: 11, 
                               fontWeight: 800, 
                               letterSpacing: "0.04em",
-                              background: isCompleted ? "#ecfdf5" : (isConfirmed ? "#eff6ff" : (isCancelled ? "#fef2f2" : "#fef3c7")),
-                              color: isCompleted ? "#059669" : (isConfirmed ? "#2563eb" : (isCancelled ? "#e11d48" : "#d97706")),
-                              border: isCompleted ? "1px solid #a7f3d0" : (isConfirmed ? "1px solid #bfdbfe" : (isCancelled ? "1px solid #fecdd3" : "1px solid #fde68a"))
+                              background: isCompleted ? "#ecfdf5" : (isConfirmed ? "#eff6ff" : (isCancelled ? "#fef2f2" : "#f0fdf4")),
+                              color: isCompleted ? "#059669" : (isConfirmed ? "#2563eb" : (isCancelled ? "#e11d48" : "#0d9488")),
+                              border: isCompleted ? "1px solid #a7f3d0" : (isConfirmed ? "1px solid #bfdbfe" : (isCancelled ? "1px solid #fecdd3" : "1px solid #a7f3d0"))
                             }}
                           >
-                            {booking.status}
+                            ● {statusLabel}
                           </span>
                         </div>
 
                         {/* Title */}
-                        <h4 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>
+                        <h4 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 8px" }}>
                           {serviceTitle}
                         </h4>
 
                         {/* Time & Branch */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#475569", fontSize: 13.5, fontWeight: 500, marginBottom: canCancel ? 12 : 0 }}>
-                          <Clock size={15} color="#0d9488" />
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#475569", fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                          <Clock size={14} color="#0d9488" />
                           <span>{bookingDateTime}</span>
                         </div>
-
-                        {canCancel && (
-                          <button
-                            type="button"
-                            onClick={() => handleCancelBooking(booking.orderNumber)}
-                            disabled={cancellingOrder === booking.orderNumber}
-                            style={{ 
-                              background: "none", 
-                              border: "none", 
-                              color: "#e11d48", 
-                              fontSize: 12.5, 
-                              fontWeight: 700, 
-                              cursor: "pointer", 
-                              display: "inline-flex", 
-                              alignItems: "center", 
-                              gap: 5, 
-                              padding: "4px 0 0" 
-                            }}
-                          >
-                            <XCircle size={14} /> 
-                            <span>{cancellingOrder === booking.orderNumber ? "Cancelling..." : "Cancel Reservation"}</span>
-                          </button>
-                        )}
                       </div>
 
-                      {/* Right Price & Rebook */}
-                      <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
-                        <div>
-                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Total Paid / Due</div>
-                          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>
+                      {/* Right Price, Rebook & Cancel Action */}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10, minWidth: 160 }}>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Total Paid / Due</div>
+                          <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0f172a" }}>
                             {currency} {Number(booking.totalAmount || booking.price || booking.total || 0).toLocaleString()}
                           </div>
                         </div>
 
-                        <Link 
-                          to={`/site/${salon.slug}/services`}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 5,
-                            padding: "8px 16px",
-                            borderRadius: 100,
-                            background: "#0f172a",
-                            color: "#ffffff",
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            textDecoration: "none",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-                          }}
-                        >
-                          <span>Book Again</span>
-                          <ChevronRight size={13} />
-                        </Link>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                          {canCancel && (
+                            <button
+                              type="button"
+                              onClick={() => handleCancelBooking(booking.orderNumber)}
+                              disabled={cancellingOrder === booking.orderNumber}
+                              style={{ 
+                                background: "#fff1f2", 
+                                border: "1px solid #fecdd3", 
+                                color: "#e11d48", 
+                                fontSize: 12, 
+                                fontWeight: 700, 
+                                cursor: "pointer", 
+                                display: "inline-flex", 
+                                alignItems: "center", 
+                                gap: 4, 
+                                padding: "6px 14px",
+                                borderRadius: 100,
+                                transition: "all 0.2s"
+                              }}
+                            >
+                              <XCircle size={13} /> 
+                              <span>{cancellingOrder === booking.orderNumber ? "Cancelling..." : "Cancel"}</span>
+                            </button>
+                          )}
+
+                          <Link 
+                            to={`/site/${salon.slug}/services`}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 5,
+                              padding: "7px 16px",
+                              borderRadius: 100,
+                              background: "#0f172a",
+                              color: "#ffffff",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              textDecoration: "none",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                            }}
+                          >
+                            <span>Book Again</span>
+                            <ChevronRight size={13} />
+                          </Link>
+                        </div>
                       </div>
 
                     </div>
