@@ -1465,10 +1465,8 @@ export default function AppointmentsPage() {
         .cust-gift-balance { font-size:1.1rem; font-weight:700; color:#16a34a; margin-top:6px; }
         .cust-advance-card { background:#f8fafc; border-radius:10px; padding:14px; margin-bottom:10px; border:1px solid #e2e8f0; }
         .cust-due-card { background:#fef2f2; border-radius:10px; padding:14px; margin-bottom:10px; border:1px solid #fecaca; }
-        .cust-empty-state { color:#64748b; font-size:0.85rem; text-align:center; padding:40px 20px; }
-        .cust-assign-btn { background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; margin-top:12px; display:inline-flex; align-items:center; gap:6px; transition:all .15s; }
-        .cust-assign-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,0.3); }
-
+        .cust-detail-close-mobile { display:none; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:32px; height:32px; align-items:center; justify-content:center; cursor:pointer; margin-left:6px; flex-shrink:0; }
+        .cust-detail-close-mobile:hover { background:rgba(255,255,255,0.2); }
         @media (max-width: 768px) {
           .calendar-toolbar { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 12px; }
           .date-navigator { flex-wrap: nowrap !important; justify-content: center; gap: 4px; }
@@ -1477,6 +1475,18 @@ export default function AppointmentsPage() {
           .nav-icon { min-height: 26px !important; width: 26px !important; height: 26px !important; padding: 2px !important; }
           .counters-row { flex-wrap: wrap; justify-content: center; gap: 6px; }
           .counter-badge { flex: 1 1 calc(33.33% - 6px); justify-content: center; text-align: center; }
+
+          .cust-detail-panel { width:100vw !important; max-width:100vw !important; }
+          .cust-detail-layout { display:flex !important; flex-direction:column !important; height:100% !important; overflow-y:auto !important; }
+          .cust-detail-sidebar { width:100% !important; height:auto !important; flex-shrink:0 !important; overflow:visible !important; }
+          .cust-detail-sidebar-info { padding:14px 16px !important; }
+          .cust-detail-sidebar-fields { display:grid !important; grid-template-columns:1fr 1fr !important; gap:8px !important; }
+          .cust-detail-sidebar-nav { display:flex !important; flex-direction:row !important; overflow-x:auto !important; white-space:nowrap !important; padding:8px 12px !important; background:#0f172a !important; border-top:1px solid rgba(255,255,255,0.08) !important; gap:6px !important; }
+          .cust-detail-nav-btn { width:auto !important; flex-shrink:0 !important; padding:6px 12px !important; font-size:0.75rem !important; }
+          .cust-detail-content { flex:1 0 auto !important; overflow:visible !important; width:100% !important; }
+          .cust-detail-content-header { padding:12px 16px !important; }
+          .cust-detail-content-body { padding:14px 16px !important; overflow:visible !important; }
+          .cust-detail-close-mobile { display:inline-flex !important; }
         }
       `}</style>
 
@@ -1971,6 +1981,9 @@ export default function AppointmentsPage() {
                       <div className="cust-detail-name">{selectedCustomer.name || "-"}</div>
                       <div className="cust-detail-phone">{selectedCustomer.phone}</div>
                     </div>
+                    <button type="button" className="cust-detail-close-mobile" onClick={closeCustomerDetail} title="Close Profile">
+                      <X size={18} />
+                    </button>
                   </div>
                   <div className="cust-detail-sidebar-fields">
                     {customerDetail && [

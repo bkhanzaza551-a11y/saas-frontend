@@ -1322,17 +1322,24 @@ export default function CustomersPage() {
           .cust-add-btn { background:#0f172a !important; color:#fff !important; border:1px solid #0f172a !important; padding:10px 20px !important; border-radius:8px !important; font-size:0.85rem !important; font-weight:600 !important; cursor:pointer !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; transition:all .2s !important; min-height:unset !important; height:auto !important; box-shadow:none !important; }
           .cust-add-btn:hover { background:#1e293b !important; border-color:#1e293b !important; transform:translateY(-1px) !important; box-shadow:0 4px 12px rgba(15,23,42,0.15) !important; }
           /* Membership modal plan cards */
-          /* Advance paymode toggle */
-          .cust-paymode-toggle { display:flex; gap:0; border-radius:8px; overflow:hidden; border:1px solid #e2e8f0; }
-          .cust-paymode-btn { flex:1; padding:8px 16px; border:none; background:#f8fafc; color:#64748b; font-size:0.82rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
-          .cust-paymode-btn.active { background:#2563eb; color:#fff; }
-          .cust-paymode-btn:hover:not(.active) { background:#f1f5f9; }
+          .cust-detail-close-mobile { display:none; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:32px; height:32px; align-items:center; justify-content:center; cursor:pointer; margin-left:6px; flex-shrink:0; }
+          .cust-detail-close-mobile:hover { background:rgba(255,255,255,0.2); }
           @media (max-width: 768px) {
             .crm-toolbar { flex-direction:column; align-items:stretch; }
             .crm-search { width:100%; }
             .crm-actions { overflow-x:auto; padding-bottom:8px; }
             .filter-categories { width:160px; }
-            .cust-detail-panel { width:100vw; }
+            .cust-detail-panel { width:100vw !important; max-width:100vw !important; }
+            .cust-detail-layout { display:flex !important; flex-direction:column !important; height:100% !important; overflow-y:auto !important; }
+            .cust-detail-sidebar { width:100% !important; height:auto !important; flex-shrink:0 !important; overflow:visible !important; }
+            .cust-detail-sidebar-info { padding:14px 16px !important; }
+            .cust-detail-sidebar-fields { display:grid !important; grid-template-columns:1fr 1fr !important; gap:8px !important; }
+            .cust-detail-sidebar-nav { display:flex !important; flex-direction:row !important; overflow-x:auto !important; white-space:nowrap !important; padding:8px 12px !important; background:#0f172a !important; border-top:1px solid rgba(255,255,255,0.08) !important; gap:6px !important; }
+            .cust-detail-nav-btn { width:auto !important; flex-shrink:0 !important; padding:6px 12px !important; font-size:0.75rem !important; }
+            .cust-detail-content { flex:1 0 auto !important; overflow:visible !important; width:100% !important; }
+            .cust-detail-content-header { padding:12px 16px !important; }
+            .cust-detail-content-body { padding:14px 16px !important; overflow:visible !important; }
+            .cust-detail-close-mobile { display:inline-flex !important; }
           }
         `}
       </style>
@@ -1659,6 +1666,9 @@ export default function CustomersPage() {
                     </div>
                     <button className="cust-detail-edit-btn" onClick={() => setDetailTab("updateprofile")} title="Edit Profile">
                       <Edit3 size={16} />
+                    </button>
+                    <button type="button" className="cust-detail-close-mobile" onClick={closeCustomerDetail} title="Close Profile">
+                      <X size={18} />
                     </button>
                   </div>
                   <div className="cust-detail-sidebar-fields">
