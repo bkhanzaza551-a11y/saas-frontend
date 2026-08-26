@@ -356,8 +356,8 @@ export default function BranchesPage() {
       </div>
 
       {showModal && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.6)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: 650, borderRadius: 12, maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.6)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 10 }}>
+          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: 650, borderRadius: 12, maxHeight: "94vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
             <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#0f172a" }}>{heading}</h3>
               <button type="button" onClick={resetForm} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4 }}>
@@ -383,7 +383,7 @@ export default function BranchesPage() {
                 </label>
 
                 <div className="settings-input-group" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 6, flexWrap: "wrap" }}>
                     <span className="muted" style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>Branch Location (Geofencing for Attendance)</span>
                     <span style={{ fontSize: 12, fontWeight: 600, color: form.latitude && form.longitude ? "#059669" : "#d97706" }}>
                       {form.latitude && form.longitude ? `📍 Selected: ${Number(form.latitude).toFixed(4)}, ${Number(form.longitude).toFixed(4)}` : "⚠️ Click map or use current location"}

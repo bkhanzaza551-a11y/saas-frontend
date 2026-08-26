@@ -352,26 +352,38 @@
 
 @media (max-width: 640px) {
   .map-picker {
-    padding: 12px;
+    padding: 10px;
+    gap: 8px;
   }
 
   .map-picker__toolbar {
-    grid-template-columns: minmax(90px, 1fr) max-content max-content;
-    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 
   .map-picker__search-field {
-    grid-column: auto;
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .map-picker__button {
-    width: auto;
-    padding-inline: 9px;
+    width: 100%;
+    justify-content: center;
+    padding-inline: 8px;
     font-size: 12px;
+    height: 38px;
+    min-height: 38px;
+  }
+
+  .map-picker__map-shell {
+    height: 240px;
+    min-height: 220px;
   }
 
   .map-picker__preview {
     grid-template-columns: auto minmax(0, 1fr);
+    padding: 10px;
+    gap: 8px;
   }
 
   .map-picker__confirm {
