@@ -860,27 +860,78 @@ export default function ExpensesPage() {
           }
           .expenses-local-sidebar {
             width: 100% !important;
-            border-right: none;
+            border-right: none !important;
             border-bottom: 1px solid #e2e8f0;
-            padding: 16px;
+            padding: 12px 14px;
             flex-direction: row;
             overflow-x: auto;
+            gap: 8px;
+          }
+          .expenses-sidebar-header {
+            display: none !important;
           }
           .expenses-sidebar-btn {
-            padding: 10px 14px;
+            padding: 8px 12px;
             white-space: nowrap;
+            font-size: 13px;
           }
           .expenses-form-grid { grid-template-columns: 1fr !important; }
           .expenses-main-workspace {
-            padding: 16px !important;
+            padding: 14px 10px !important;
             width: 100% !important;
             box-sizing: border-box;
+            gap: 16px;
+          }
+          .expenses-header-bar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px;
+          }
+          .expenses-filter-panel {
+            padding: 14px 12px !important;
+          }
+          .expenses-filters-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            width: 100% !important;
+          }
+          .expenses-filter-field {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 4px !important;
+            width: 100% !important;
+          }
+          .expenses-filter-field select,
+          .expenses-filter-field input,
+          .expenses-filter-field .custom-select-container {
+            width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+          }
+          .expenses-filter-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            width: 100% !important;
+            justify-content: stretch !important;
+          }
+          .expenses-filter-actions button {
+            flex: 1 1 130px !important;
+            justify-content: center !important;
           }
           .types-layout-container {
             grid-template-columns: 1fr !important;
           }
           .ledger-table-container {
             overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+          }
+          .ledger-table {
+            min-width: 680px;
+            white-space: nowrap;
           }
         }
       `}</style>
@@ -957,9 +1008,9 @@ export default function ExpensesPage() {
                   }}
                 >
                   {/* Row 1: Filter Inputs */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                  <div className="expenses-filters-grid" style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
                     {/* Paymode */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div className="expenses-filter-field" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <Wallet size={14} color="#2563eb" /> Paymode:
                       </span>
@@ -979,7 +1030,7 @@ export default function ExpensesPage() {
                     </div>
 
                     {/* Expense Type */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div className="expenses-filter-field" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <FolderKanban size={14} color="#2563eb" /> Expense Type:
                       </span>
@@ -996,7 +1047,7 @@ export default function ExpensesPage() {
                     </div>
 
                     {/* From */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div className="expenses-filter-field" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <Calendar size={14} color="#2563eb" /> From:
                       </span>
@@ -1005,12 +1056,12 @@ export default function ExpensesPage() {
                         value={filters.startDate}
                         onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                         max={filters.endDate || undefined}
-                        style={{ height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none" }}
+                        style={{ height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none", boxSizing: "border-box" }}
                       />
                     </div>
 
                     {/* To */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div className="expenses-filter-field" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                         <Calendar size={14} color="#2563eb" /> To:
                       </span>
@@ -1019,13 +1070,13 @@ export default function ExpensesPage() {
                         value={filters.endDate}
                         onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                         min={filters.startDate || undefined}
-                        style={{ height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none" }}
+                        style={{ height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none", boxSizing: "border-box" }}
                       />
                     </div>
                   </div>
 
                   {/* Row 2: Action Buttons */}
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
+                  <div className="expenses-filter-actions" style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
                     <button 
                       type="button"
                       onClick={loadData}
