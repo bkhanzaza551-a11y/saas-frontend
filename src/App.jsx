@@ -190,9 +190,9 @@ const Protected = () => {
     return saved !== null ? saved === "true" : true;
   });
   
-  const toggleSidebar = () => {
+  const toggleSidebar = (explicitValue) => {
     setSidebarExpanded(prev => {
-      const next = !prev;
+      const next = typeof explicitValue === "boolean" ? explicitValue : !prev;
       localStorage.setItem("sidebarExpanded", next);
       return next;
     });

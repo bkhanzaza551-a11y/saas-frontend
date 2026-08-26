@@ -104,10 +104,13 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
 
   const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
 
-  const closeMobile = () => setMobileOpen(false);
+  const closeMobile = () => {
+    setMobileOpen(false);
+    if (onToggleSidebar) onToggleSidebar(false);
+  };
   const closeWorkspace = () => {
-    if (mobileOpen) setMobileOpen(false);
-    if (sidebarExpanded && onToggleSidebar) onToggleSidebar();
+    setMobileOpen(false);
+    if (onToggleSidebar) onToggleSidebar(false);
   };
 
   useEffect(() => {
@@ -123,8 +126,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
     if (!mobileOpen && !sidebarExpanded) return undefined;
     const onKeyDown = (e) => {
       if (e.key === "Escape") {
-        if (mobileOpen) setMobileOpen(false);
-        if (sidebarExpanded && onToggleSidebar) onToggleSidebar();
+        closeWorkspace();
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -161,14 +163,14 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
           <span /><span /><span />
         </button>
         <div className="sidebar-mobile-brand">
-              <img src="/logo.jfif" alt="Logo" className="mini-rail-logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} />
+          <img src="/logo.jfif" alt="Logo" className="mini-rail-logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} />
         </div>
       </div>
 
       {/* Overlay */}
       <div
-        className={`surface-overlay ${mobileOpen ? "active" : ""}`}
-        onClick={() => setMobileOpen(false)}
+        className={`surface-overlay ${mobileOpen || (sidebarExpanded && typeof window !== 'undefined' && window.innerWidth <= 900) ? "active" : ""}`}
+        onClick={closeWorkspace}
         aria-hidden={!mobileOpen}
       />
 
@@ -200,46 +202,49 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
             <div className="mini-rail-footer">
               <button
                 type="button"
+                className="mini-rail-logout"
                 onClick={onLogout}
-                className="mini-rail-link logout"
+                title="Sign out"
               >
                 <LogOut size={18} />
-                <span className="mini-rail-tooltip">Sign Out</span>
               </button>
             </div>
           </div>
         ) : (
           /* Full Expanded Sidebar Mode */
           <div className="sidebar-expanded-container" style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-            {/* Mobile Close Button */}
-            {mobileOpen && (
-              <button
-                onClick={() => setMobileOpen(false)}
-                style={{
-                  position: 'absolute',
-                  top: 24,
-                  right: 24,
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#475569',
-                  cursor: 'pointer',
-                  zIndex: 50
+            {/* Brand Row with Mobile Close Button */}
+            <div className="sidebar-brand-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px" }}>
+              <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} onClick={closeWorkspace} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
+                <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "40px", maxWidth: "140px", objectFit: "contain" }} />
+              </Link>
+              
+              {/* Close Button for Mobile Screens */}
+              <button 
+                type="button" 
+                onClick={closeWorkspace} 
+                className="sidebar-close-btn-mobile"
+                aria-label="Close sidebar"
+                style={{ 
+                  background: "#f1f5f9", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "50%", 
+                  width: 34, 
+                  height: 34, 
+                  display: "inline-flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  cursor: "pointer",
+                  color: "#0f172a",
+                  padding: 0,
+                  transition: "all 0.2s ease"
                 }}
               >
-                <X size={24} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
-            )}
-
-            {/* Brand Row */}
-            <div className="sidebar-brand-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: "4px" }}>
-                <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
-              </Link>
-              {mobileOpen && (
-                <button type="button" onClick={closeMobile} style={{ background: "transparent", border: "none", color: "#64748b", padding: "8px", cursor: "pointer", display: "flex", alignItems: "center" }}>
-                  <X size={24} />
-                </button>
-              )}
             </div>
 
             {/* Nav Groups */}
