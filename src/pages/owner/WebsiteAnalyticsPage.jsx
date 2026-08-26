@@ -93,14 +93,99 @@ export default function WebsiteAnalyticsPage() {
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>Loading booking analytics...</div>;
 
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
+    <div className="website-analytics-container">
+      <style>{`
+        .website-analytics-container {
+          padding: 24px;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+        .analytics-header-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .analytics-header-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .analytics-kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 16px;
+          margin-bottom: 28px;
+        }
+        .analytics-two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          margin-bottom: 28px;
+        }
+        .analytics-three-col {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+          margin-bottom: 28px;
+        }
+        @media (max-width: 900px) {
+          .website-analytics-container {
+            padding: 14px 10px;
+          }
+          .analytics-header-actions {
+            width: 100%;
+            justify-content: space-between;
+          }
+          .analytics-header-actions a {
+            flex: 1 1 100%;
+            justify-content: center;
+          }
+          .analytics-period-bar {
+            width: 100%;
+            display: flex !important;
+            justify-content: space-between;
+          }
+          .analytics-period-bar button {
+            flex: 1;
+            padding: 6px 4px !important;
+            text-align: center;
+            font-size: 12px !important;
+          }
+          .analytics-kpi-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+            margin-bottom: 20px !important;
+          }
+          .analytics-kpi-card {
+            padding: 12px 14px !important;
+          }
+          .analytics-kpi-card .kpi-val {
+            font-size: 18px !important;
+          }
+          .analytics-two-col {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+            margin-bottom: 20px !important;
+          }
+          .analytics-three-col {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            margin-bottom: 20px !important;
+          }
+        }
+      `}</style>
+
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+      <div className="analytics-header-row">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0 }}>Website & Booking Analytics</h1>
-          <p style={{ color: "#64748b", fontSize: 14, margin: "4px 0 0" }}>{salon?.name || "Salon"} online service bookings, appointments & performance</p>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>Website & Booking Analytics</h1>
+          <p style={{ color: "#64748b", fontSize: "0.85rem", margin: "4px 0 0" }}>{salon?.name || "Salon"} online service bookings, appointments & performance</p>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="analytics-header-actions">
           <a
             href={liveSiteUrl}
             target="_blank"
@@ -121,7 +206,7 @@ export default function WebsiteAnalyticsPage() {
           >
             <Globe size={14} /> View Live Website <ArrowUpRight size={14} />
           </a>
-          <div style={{ display: "flex", gap: 6, background: "#f8fafc", padding: 4, borderRadius: 8, border: "1px solid #e2e8f0" }}>
+          <div className="analytics-period-bar" style={{ display: "flex", gap: 4, background: "#f8fafc", padding: 4, borderRadius: 8, border: "1px solid #e2e8f0" }}>
             {[
               { key: "today", label: "Today" },
               { key: "week", label: "Week" },
@@ -132,12 +217,12 @@ export default function WebsiteAnalyticsPage() {
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
                 style={{
-                  padding: "6px 14px",
+                  padding: "6px 12px",
                   borderRadius: 6,
                   border: "none",
                   background: period === p.key ? "#4f46e5" : "transparent",
                   color: period === p.key ? "#fff" : "#64748b",
-                  fontSize: 13,
+                  fontSize: 12.5,
                   fontWeight: 600,
                   cursor: "pointer",
                   transition: "all 0.2s"
@@ -151,7 +236,7 @@ export default function WebsiteAnalyticsPage() {
       </div>
 
       {/* Top Booking KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
+      <div className="analytics-kpi-grid">
         {[
           { label: "Total Bookings", value: stats?.totalOrders || filtered.length, color: "#4f46e5", bg: "#eef2ff" },
           { label: "Booking Revenue", value: `${currency} ${Number(stats?.totalSales || 0).toLocaleString("en-IN")}`, color: "#10b981", bg: "#ecfdf5" },
@@ -160,17 +245,17 @@ export default function WebsiteAnalyticsPage() {
           { label: "Completed Bookings", value: statusBreakdown.COMPLETED, color: "#10b981", bg: "#ecfdf5" },
           { label: "Cancelled", value: statusBreakdown.CANCELLED, color: "#ef4444", bg: "#fef2f2" },
         ].map((c, i) => (
-          <div key={i} style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", borderLeft: `4px solid ${c.color}`, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.label}</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: c.color }}>{c.value}</div>
+          <div key={i} className="analytics-kpi-card" style={{ background: "#fff", borderRadius: 12, padding: "16px 18px", border: "1px solid #e2e8f0", borderLeft: `4px solid ${c.color}`, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.label}</div>
+            <div className="kpi-val" style={{ fontSize: 22, fontWeight: 800, color: c.color }}>{c.value}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 32 }}>
+      <div className="analytics-two-col">
         {/* Booking Status Breakdown */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 20px" }}>Online Booking Status Breakdown</h3>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 16px" }}>Online Booking Status Breakdown</h3>
           {[
             { key: "NEW", label: "Pending (New)", color: "#3b82f6" },
             { key: "ACCEPTED", label: "Confirmed", color: "#f59e0b" },
@@ -195,19 +280,19 @@ export default function WebsiteAnalyticsPage() {
         </div>
 
         {/* Top Booked Services */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: "0 0 20px" }}>Top Booked Services</h3>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 16px" }}>Top Booked Services</h3>
           {topServicesList.length === 0 ? (
             <div style={{ padding: "30px 0", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>No online service bookings in this timeframe yet.</div>
           ) : topServicesList.map((p, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: i < topServicesList.length - 1 ? "1px solid #f1f5f9" : "none" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ width: 28, height: 28, borderRadius: 8, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#4f46e5" }}>#{i + 1}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>{p.name}</span>
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < topServicesList.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ width: 26, height: 26, borderRadius: 6, background: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#4f46e5" }}>#{i + 1}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{p.name}</span>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{currency} {Number(p.revenue || 0).toLocaleString("en-IN")}</div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>{p.qty} booked</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{currency} {Number(p.revenue || 0).toLocaleString("en-IN")}</div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>{p.qty} booked</div>
               </div>
             </div>
           ))}
@@ -215,31 +300,31 @@ export default function WebsiteAnalyticsPage() {
       </div>
 
       {/* Online Catalog & Services Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 32 }}>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 30, marginBottom: 6 }}>✂️</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>{services.length || 0}</div>
+      <div className="analytics-three-col">
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 16px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ fontSize: 26, marginBottom: 4 }}>✂️</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{services.length || 0}</div>
           <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Active Salon Services</div>
-          <div style={{ fontSize: 12, color: "#10b981", marginTop: 4, fontWeight: 600 }}>Available for online booking</div>
+          <div style={{ fontSize: 11.5, color: "#10b981", marginTop: 2, fontWeight: 600 }}>Available for online booking</div>
         </div>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 30, marginBottom: 6 }}>📂</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>{categories.length || 0}</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 16px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ fontSize: 26, marginBottom: 4 }}>📂</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{categories.length || 0}</div>
           <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Service Categories</div>
         </div>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 24, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 30, marginBottom: 6 }}>💳</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "#10b981" }}>{currency} {Number(stats?.totalSales || 0).toLocaleString("en-IN")}</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 16px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ fontSize: 26, marginBottom: 4 }}>💳</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#10b981" }}>{currency} {Number(stats?.totalSales || 0).toLocaleString("en-IN")}</div>
           <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Total Booking Revenue</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{stats?.totalOrders || filtered.length} bookings fulfilled</div>
+          <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 2 }}>{stats?.totalOrders || filtered.length} bookings fulfilled</div>
         </div>
       </div>
 
       {/* Recent Online Bookings Table */}
       <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-        <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "14px 18px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
           <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", margin: 0 }}>Recent Online Service Bookings</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>Recent Online Service Bookings</h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>Latest customer appointments booked through salon website</p>
           </div>
           <Link to="/admin/order-dashboard" style={{ fontSize: 13, color: "#4f46e5", fontWeight: 700, textDecoration: "none" }}>
@@ -249,7 +334,8 @@ export default function WebsiteAnalyticsPage() {
         {recentBookings.length === 0 ? (
           <div style={{ padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>No online bookings recorded yet.</div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+            <table style={{ width: "100%", minWidth: 700, borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                 <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Booking ID</th>
@@ -304,6 +390,7 @@ export default function WebsiteAnalyticsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>
