@@ -748,6 +748,11 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
             <span style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
               ₹{fmt(booking.total)}
             </span>
+            {Number(booking.discount) > 0 && (
+              <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 600 }}>
+                Saved ₹{fmt(booking.discount)}{booking.couponCode ? ` (${booking.couponCode})` : ""}
+              </span>
+            )}
           </div>
           <div style={{ width: 1, height: 20, background: '#e2e8f0' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -974,12 +979,26 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
               ))}
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, padding: '16px 20px', background: '#f8fafc', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Total Amount</span>
-                <span style={{ fontSize: 12, color: pm.color, fontWeight: 600, marginTop: 4 }}>{pm.label}</span>
+            <div style={{ marginTop: 16, padding: '16px 20px', background: '#f8fafc', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Subtotal</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>₹{fmt(booking.subtotal || booking.total)}</span>
               </div>
-              <span style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{fmt(booking.total)}</span>
+              {Number(booking.discount) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, color: '#16a34a', fontWeight: 500 }}>
+                    Discount {booking.couponCode ? `(${booking.couponCode})` : ""}
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#16a34a' }}>-₹{fmt(booking.discount)}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Total Amount</span>
+                  <span style={{ fontSize: 12, color: pm.color, fontWeight: 600, marginTop: 4 }}>{pm.label}</span>
+                </div>
+                <span style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{fmt(booking.total)}</span>
+              </div>
             </div>
           </Section>
 
