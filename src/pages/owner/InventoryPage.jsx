@@ -1345,8 +1345,8 @@ export default function InventoryPage() {
 
             {/* Table Area */}
             <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-              <div className="table-container">
-                <table className="data-table" style={{ width: "100%", textAlign: "left" }}>
+              <div className="table-container" style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                <table className="data-table" style={{ width: "100%", minWidth: "920px", textAlign: "left", whiteSpace: "nowrap" }}>
                   <thead>
                     <tr>
                       <th style={{ padding: "12px 16px" }}>Category</th>
@@ -1505,7 +1505,7 @@ export default function InventoryPage() {
             </div>
 
             {/* Bottom Actions Bar */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 4 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
               <button
                 onClick={handleClearAllRecon}
                 className="cpn-btn cpn-btn-secondary"

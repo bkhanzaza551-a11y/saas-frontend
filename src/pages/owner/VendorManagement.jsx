@@ -452,145 +452,231 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
   };
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 140px)", background: "#f8fafc", borderRadius: 12, overflow: "hidden", border: "1px solid #e2e8f0" }}>
-      {/* LEFT SIDEBAR */}
-      <div style={{ width: 300, background: "white", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: 16, borderBottom: "1px solid #e2e8f0" }}>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <div style={{ position: "relative", flex: 1 }}>
-              <input
-                placeholder="Search By Firm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{ width: "100%", padding: "9px 12px", paddingLeft: 32, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.85rem", boxSizing: "border-box" }}
-              />
-              <Search size={14} style={{ position: "absolute", left: 10, top: 11, color: "#94a3b8" }} />
+    <>
+      <style>{`
+        .vm-container {
+          display: flex;
+          min-height: calc(100vh - 160px);
+          background: #f8fafc;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 1px solid #e2e8f0;
+        }
+        .vm-sidebar {
+          width: 320px;
+          background: white;
+          border-right: 1px solid #e2e8f0;
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+        }
+        .vm-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          background: #f8fafc;
+        }
+        .vm-form-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px 16px;
+        }
+        .vm-mobile-back-btn {
+          display: none;
+          align-items: center;
+          gap: 6px;
+          background: #f1f5f9;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          padding: 6px 12px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #334155;
+          cursor: pointer;
+          margin-bottom: 12px;
+        }
+        @media (max-width: 768px) {
+          .vm-container {
+            flex-direction: column !important;
+            min-height: auto !important;
+            border-radius: 10px !important;
+          }
+          .vm-sidebar {
+            width: 100% !important;
+            border-right: none !important;
+            min-height: 400px;
+          }
+          .vm-sidebar.vm-hide-mobile {
+            display: none !important;
+          }
+          .vm-content {
+            padding: 14px 10px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+          }
+          .vm-content.vm-hide-mobile {
+            display: none !important;
+          }
+          .vm-form-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .vm-mobile-back-btn {
+            display: inline-flex !important;
+          }
+          .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+        }
+      `}</style>
+      <div className="vm-container">
+        {/* LEFT SIDEBAR */}
+        <div className={`vm-sidebar ${mode !== "list" ? "vm-hide-mobile" : ""}`}>
+          <div style={{ padding: 16, borderBottom: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <input
+                  placeholder="Search By Firm"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ width: "100%", padding: "9px 12px", paddingLeft: 32, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.85rem", boxSizing: "border-box" }}
+                />
+                <Search size={14} style={{ position: "absolute", left: 10, top: 11, color: "#94a3b8" }} />
+              </div>
             </div>
-          </div>
-          <button
-            onClick={handleCreate}
-            className="cpn-btn cpn-btn-primary"
-            style={{ width: "100%", fontSize: 13, padding: "9px 12px", justifyContent: "center" }}
-          >
-            <Plus size={16} /> Create Vendor
-          </button>
-        </div>
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          {filteredVendors.map((vendor) => (
-            <div
-              key={vendor.id}
-              onClick={() => handleSelect(vendor)}
-              style={{
-                padding: "14px 16px",
-                borderBottom: "1px solid #f1f5f9",
-                cursor: "pointer",
-                background: selectedVendor?.id === vendor.id ? "#eff6ff" : "white",
-                borderLeft: selectedVendor?.id === vendor.id ? "3px solid #2563eb" : "3px solid transparent",
-                transition: "all 0.15s"
-              }}
+            <button
+              onClick={handleCreate}
+              className="cpn-btn cpn-btn-primary"
+              style={{ width: "100%", fontSize: 13, padding: "9px 12px", justifyContent: "center" }}
             >
-              <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.9rem" }}>{vendor.firmName || vendor.name}</div>
-              <div style={{ fontSize: "0.8rem", color: "#475569", marginTop: 2 }}>{vendor.name}</div>
-              <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 2 }}>{vendor.phone || "No phone"}</div>
-            </div>
-          ))}
-          {filteredVendors.length === 0 && (
-            <div style={{ padding: 32, textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
-              No vendors found.
+              <Plus size={16} /> Create Vendor
+            </button>
+          </div>
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            {filteredVendors.map((vendor) => (
+              <div
+                key={vendor.id}
+                onClick={() => handleSelect(vendor)}
+                style={{
+                  padding: "14px 16px",
+                  borderBottom: "1px solid #f1f5f9",
+                  cursor: "pointer",
+                  background: selectedVendor?.id === vendor.id ? "#eff6ff" : "white",
+                  borderLeft: selectedVendor?.id === vendor.id ? "3px solid #2563eb" : "3px solid transparent",
+                  transition: "all 0.15s"
+                }}
+              >
+                <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.9rem" }}>{vendor.firmName || vendor.name}</div>
+                <div style={{ fontSize: "0.8rem", color: "#475569", marginTop: 2 }}>{vendor.name}</div>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 2 }}>{vendor.phone || "No phone"}</div>
+              </div>
+            ))}
+            {filteredVendors.length === 0 && (
+              <div style={{ padding: 32, textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
+                No vendors found.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT CONTENT */}
+        <div className={`vm-content ${mode === "list" ? "vm-hide-mobile" : ""}`}>
+          {mode === "list" && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: 280, color: "#64748b", padding: "40px 16px", textAlign: "center" }}>
+              <Building size={48} color="#cbd5e1" style={{ marginBottom: 12 }} />
+              <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Vendor Management</div>
+              <div style={{ fontSize: "0.85rem" }}>Select a vendor from the list to view or edit details, or create a new vendor.</div>
             </div>
           )}
-        </div>
-      </div>
 
-      {/* RIGHT CONTENT */}
-      <div style={{ flex: 1, overflowY: "auto", padding: 24, background: "#f8fafc" }}>
-        {mode === "list" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "#64748b" }}>
-            <Building size={48} color="#cbd5e1" style={{ marginBottom: 12 }} />
-            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>Vendor Management</div>
-            <div style={{ fontSize: "0.85rem" }}>Select a vendor from the left sidebar to view or edit details, or create a new vendor.</div>
-          </div>
-        )}
-
-        {(mode === "create" || mode === "edit") && (
-          <div style={{ maxWidth: 860, margin: "0 auto", background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-            <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff" }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: "1.2rem", color: "#0f172a", fontWeight: 700 }}>
-                  {mode === "create" ? "Create New Vendor" : "Update Vendor Profile"}
-                </h2>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Fill vendor details, contact info, GST, and address.</div>
-              </div>
-              <Toggle
-                checked={form.isActive}
-                onChange={() => setForm(f => ({ ...f, isActive: !f.isActive }))}
-              />
-            </div>
-
-            <form onSubmit={handleSubmit} style={{ padding: 24 }}>
-              {status.error && <div style={{ color: "#991b1b", padding: "10px 14px", background: "#fef2f2", borderRadius: 8, fontSize: "0.85rem", marginBottom: 16, border: "1px solid #fee2e2" }}>{status.error}</div>}
-              {status.success && <div style={{ color: "#166534", padding: "10px 14px", background: "#f0fdf4", borderRadius: 8, fontSize: "0.85rem", marginBottom: 16, border: "1px solid #dcfce7" }}>{status.success}</div>}
-
-              {/* Vendor Basic Info Card */}
-              <div style={{ background: "#f8fafc", padding: 16, borderRadius: 10, border: "1px solid #f1f5f9", marginBottom: 20 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                  <User size={16} color="#2563eb" /> Vendor Basic Details
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px 16px" }}>
-                  <TextInput label="Vendor Name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="e.g. Rajesh Kumar" error={formErrors.name} />
-                  <TextInput label="Firm / Company Name" required value={form.firmName} onChange={(v) => setForm({ ...form, firmName: v })} placeholder="e.g. Apex Cosmetics Traders" error={formErrors.firmName} />
-
-                  <PhoneInput
-                    label="Mobile Number"
-                    required
-                    value={form.phone}
-                    onChange={(v) => setForm({ ...form, phone: v })}
-                    placeholder="XXXXXXXXXX"
-                    error={formErrors.phone}
-                  />
-                  <TextInput label="Email Address" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="vendor@example.com" error={formErrors.email} />
-                  <TextInput label="GST Number" value={form.gstNumber} onChange={(v) => setForm({ ...form, gstNumber: v })} placeholder="e.g. 22AAAAA0000A1Z5" error={formErrors.gstNumber} />
-                </div>
-              </div>
-
-              {/* Address & Location Card */}
-              <div style={{ background: "#f8fafc", padding: 16, borderRadius: 10, border: "1px solid #f1f5f9", marginBottom: 20 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                  <MapPin size={16} color="#2563eb" /> Location & Address Details
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px 16px" }}>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <TextInput label="Full Street Address" required value={form.address} onChange={(v) => setForm({ ...form, address: v })} placeholder="Shop / Building / Street Address..." multiline error={formErrors.address} />
-                  </div>
-
-                  <TextInput label="Area / Sector" value={form.area} onChange={(v) => setForm({ ...form, area: v })} placeholder="e.g. Commercial Belt" />
-                  <TextInput label="Landmark" value={form.landmark} onChange={(v) => setForm({ ...form, landmark: v })} placeholder="e.g. Near City Bank" />
-
-                  <SearchableCitySelect label="City" required value={form.city} onChange={(v) => setForm({ ...form, city: v })} error={formErrors.city} />
-                  <TextInput label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} placeholder="e.g. 110001" />
-
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <TextInput label="Notes / Comments" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Internal notes for this vendor..." multiline />
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
-                {mode === "edit" && (
-                  <button type="button" onClick={() => handleOpenItems(selectedVendor)} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 18px" }}>
-                    Manage Vendor Items
+          {(mode === "create" || mode === "edit") && (
+            <div style={{ maxWidth: 860, margin: "0 auto", background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", flexWrap: "wrap", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <button
+                    type="button"
+                    onClick={() => { setMode("list"); setSelectedVendor(null); }}
+                    className="vm-mobile-back-btn"
+                  >
+                    <ChevronLeft size={16} /> Back to Vendor List
                   </button>
-                )}
-                <button type="button" onClick={() => setMode("list")} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 18px" }}>
-                  Cancel
-                </button>
-                <button type="submit" disabled={loading} className="cpn-btn cpn-btn-primary" style={{ fontSize: 13, padding: "8px 24px", opacity: loading ? 0.7 : 1 }}>
-                  {loading ? "Saving..." : mode === "create" ? "Create Vendor" : "Update Vendor"}
-                </button>
+                  <h2 style={{ margin: 0, fontSize: "1.15rem", color: "#0f172a", fontWeight: 700 }}>
+                    {mode === "create" ? "Create New Vendor" : "Update Vendor Profile"}
+                  </h2>
+                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Fill vendor details, contact info, GST, and address.</div>
+                </div>
+                <Toggle
+                  checked={form.isActive}
+                  onChange={() => setForm(f => ({ ...f, isActive: !f.isActive }))}
+                />
               </div>
-            </form>
-          </div>
-        )}
+
+              <form onSubmit={handleSubmit} style={{ padding: "20px 18px" }}>
+                {status.error && <div style={{ color: "#991b1b", padding: "10px 14px", background: "#fef2f2", borderRadius: 8, fontSize: "0.85rem", marginBottom: 16, border: "1px solid #fee2e2" }}>{status.error}</div>}
+                {status.success && <div style={{ color: "#166534", padding: "10px 14px", background: "#f0fdf4", borderRadius: 8, fontSize: "0.85rem", marginBottom: 16, border: "1px solid #dcfce7" }}>{status.success}</div>}
+
+                {/* Vendor Basic Info Card */}
+                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 10, border: "1px solid #f1f5f9", marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                    <User size={16} color="#2563eb" /> Vendor Basic Details
+                  </div>
+                  <div className="vm-form-grid">
+                    <TextInput label="Vendor Name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="e.g. Rajesh Kumar" error={formErrors.name} />
+                    <TextInput label="Firm / Company Name" required value={form.firmName} onChange={(v) => setForm({ ...form, firmName: v })} placeholder="e.g. Apex Cosmetics Traders" error={formErrors.firmName} />
+
+                    <PhoneInput
+                      label="Mobile Number"
+                      required
+                      value={form.phone}
+                      onChange={(v) => setForm({ ...form, phone: v })}
+                      placeholder="XXXXXXXXXX"
+                      error={formErrors.phone}
+                    />
+                    <TextInput label="Email Address" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="vendor@example.com" error={formErrors.email} />
+                    <TextInput label="GST Number" value={form.gstNumber} onChange={(v) => setForm({ ...form, gstNumber: v })} placeholder="e.g. 22AAAAA0000A1Z5" error={formErrors.gstNumber} />
+                  </div>
+                </div>
+
+                {/* Address & Location Card */}
+                <div style={{ background: "#f8fafc", padding: 16, borderRadius: 10, border: "1px solid #f1f5f9", marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                    <MapPin size={16} color="#2563eb" /> Location & Address Details
+                  </div>
+                  <div className="vm-form-grid">
+                    <div style={{ gridColumn: "1 / -1" }}>
+                      <TextInput label="Full Street Address" required value={form.address} onChange={(v) => setForm({ ...form, address: v })} placeholder="Shop / Building / Street Address..." multiline error={formErrors.address} />
+                    </div>
+
+                    <TextInput label="Area / Sector" value={form.area} onChange={(v) => setForm({ ...form, area: v })} placeholder="e.g. Commercial Belt" />
+                    <TextInput label="Landmark" value={form.landmark} onChange={(v) => setForm({ ...form, landmark: v })} placeholder="e.g. Near City Bank" />
+
+                    <SearchableCitySelect label="City" required value={form.city} onChange={(v) => setForm({ ...form, city: v })} error={formErrors.city} />
+                    <TextInput label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} placeholder="e.g. 110001" />
+
+                    <div style={{ gridColumn: "1 / -1" }}>
+                      <TextInput label="Notes / Comments" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Internal notes for this vendor..." multiline />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 10, borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
+                  {mode === "edit" && (
+                    <button type="button" onClick={() => handleOpenItems(selectedVendor)} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 16px" }}>
+                      Manage Vendor Items
+                    </button>
+                  )}
+                  <button type="button" onClick={() => setMode("list")} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 16px" }}>
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={loading} className="cpn-btn cpn-btn-primary" style={{ fontSize: 13, padding: "8px 22px", opacity: loading ? 0.7 : 1 }}>
+                    {loading ? "Saving..." : mode === "create" ? "Create Vendor" : "Update Vendor"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
         {mode === "items" && (
           <div style={{ maxWidth: 860, margin: "0 auto", background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
@@ -711,5 +797,6 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
         )}
       </div>
     </div>
+    </>
   );
 }
