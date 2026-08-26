@@ -190,6 +190,13 @@ export default function EcommerceOrdersPage() {
           color: white;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+        .storefront-bookings-hero h1 {
+          color: #ffffff !important;
+          margin: 0;
+        }
+        .storefront-bookings-hero p {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
         .storefront-summary-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -238,9 +245,11 @@ export default function EcommerceOrdersPage() {
           }
           .storefront-bookings-hero h1 {
             font-size: 1.4rem !important;
+            color: #ffffff !important;
           }
           .storefront-bookings-hero p {
             font-size: 0.85rem !important;
+            color: rgba(255, 255, 255, 0.9) !important;
           }
           .storefront-summary-grid {
             grid-template-columns: repeat(2, 1fr) !important;
@@ -314,12 +323,13 @@ export default function EcommerceOrdersPage() {
                   fontSize: "1.8rem",
                   fontWeight: 700,
                   letterSpacing: "-0.5px",
+                  color: "#ffffff"
                 }}
               >
                 Storefront Bookings
               </h1>
             </div>
-            <p style={{ margin: 0, opacity: 0.9, fontSize: 14, fontWeight: 300, maxWidth: 600, lineHeight: 1.5 }}>
+            <p style={{ margin: 0, opacity: 0.9, fontSize: 14, fontWeight: 300, maxWidth: 600, lineHeight: 1.5, color: "#ffffff" }}>
               Manage online service reservations from your storefront. Approve, track, and complete appointments seamlessly.
             </p>
           </div>
