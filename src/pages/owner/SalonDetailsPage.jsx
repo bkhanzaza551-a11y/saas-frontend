@@ -56,39 +56,42 @@ export default function SalonDetailsPage() {
   return (
     <div className="page-shell" style={{ padding: "24px 16px", maxWidth: 900, margin: "0 auto" }}>
       <style>{`
-        .sd-card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+        .sd-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
         .sd-card h2 { margin: 0 0 16px; font-size: 1.1rem; font-weight: 800; color: #0f172a; }
         .sd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .sd-field { display: flex; flex-direction: column; gap: 4px; }
         .sd-label { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
         .sd-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
         .sd-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; }
-        .sd-stat { text-align: center; padding: 16px 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .sd-stat-num { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+        .sd-stat { text-align: center; padding: 14px 10px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .sd-stat-num { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
         .sd-stat-label { font-size: 0.72rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-top: 2px; }
-        .sd-progress { height: 8px; background: #e2e8f0; border-radius: 100px; overflow: hidden; margin-top: 6px; }
+        .sd-progress { height: 7px; background: #e2e8f0; border-radius: 100px; overflow: hidden; margin-top: 6px; }
         .sd-progress-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
         @media (max-width: 640px) {
-          .sd-grid { grid-template-columns: 1fr; }
-          .sd-stat-grid { grid-template-columns: 1fr 1fr !important; }
+          .sd-card { padding: 18px 16px !important; margin-bottom: 14px !important; }
+          .sd-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .sd-plan-header { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+          .sd-plan-dates { text-align: left !important; }
+          .sd-stat-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
         }
       `}</style>
 
       {/* Header Card */}
       <div className="sd-card" style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-        <div style={{ width: 56, height: 56, borderRadius: 14, background: "linear-gradient(135deg, #6366f1, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
-          <Building2 size={26} />
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg, #6366f1, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0 }}>
+          <Building2 size={24} />
         </div>
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <h1 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 800, color: "#0f172a" }}>{salon.name}</h1>
-          <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>{salon.businessType || "Salon"} · {salon.slug}</div>
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <h1 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>{salon.name}</h1>
+          <div style={{ fontSize: "0.82rem", color: "#64748b", marginTop: 2 }}>{salon.businessType || "Salon"} · {salon.slug}</div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span className="sd-badge" style={{ background: sc.bg, color: sc.color }}>
-            {sc.label === "Active" ? <CheckCircle2 size={14} /> : <Clock size={14} />}
+            {sc.label === "Active" ? <CheckCircle2 size={13} /> : <Clock size={13} />}
             {sc.label}
           </span>
-            {remaining !== null && (
+          {remaining !== null && (
             <span className="sd-badge" style={{ background: remaining > 14 ? "#ecfdf5" : remaining > 0 ? "#fffbeb" : "#fef2f2", color: remaining > 14 ? "#16a34a" : remaining > 0 ? "#d97706" : "#dc2626" }}>
               {remaining > 1 ? `${remaining} days left` : remaining === 1 ? "1 day left" : remaining === 0 ? "Expires today" : "Expired"}
             </span>
@@ -98,21 +101,21 @@ export default function SalonDetailsPage() {
 
       {/* Plan & Subscription */}
       <div className="sd-card">
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}><CreditCard size={18} color="#6366f1" /> Subscription & Plan</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}><CreditCard size={18} color="#6366f1" /> Subscription & Plan</h2>
         {plan ? (
           <>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
+            <div className="sd-plan-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12, paddingBottom: 14, borderBottom: "1px solid #f1f5f9" }}>
               <div>
                 <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#6366f1" }}>{plan.name}</div>
                 <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
                   {fmtMoney(plan.monthlyPrice)}/month · {fmtMoney(plan.yearlyPrice)}/year
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Started {fmtDate(subscription.startsAt)}</div>
-                <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Expires {fmtDate(expiry)}</div>
+              <div className="sd-plan-dates" style={{ textAlign: "right" }}>
+                <div style={{ fontSize: "0.78rem", color: "#64748b" }}>Started: <strong>{fmtDate(subscription.startsAt)}</strong></div>
+                <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: 2 }}>Expires: <strong>{fmtDate(expiry)}</strong></div>
                 {subscription.paymentStatus && (
-                  <span className="sd-badge" style={{ background: subscription.paymentStatus === "PAID" ? "#ecfdf5" : "#fffbeb", color: subscription.paymentStatus === "PAID" ? "#16a34a" : "#d97706", marginTop: 4 }}>
+                  <span className="sd-badge" style={{ background: subscription.paymentStatus === "PAID" || subscription.paymentStatus === "COMPLETED" ? "#ecfdf5" : "#fffbeb", color: subscription.paymentStatus === "PAID" || subscription.paymentStatus === "COMPLETED" ? "#16a34a" : "#d97706", marginTop: 6, display: "inline-flex" }}>
                     Payment: {subscription.paymentStatus}
                   </span>
                 )}
@@ -120,7 +123,7 @@ export default function SalonDetailsPage() {
             </div>
 
             {/* Limits */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+            <div className="sd-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
               {[
                 { label: "Branches", used: counts.branches || 0, limit: plan.branchLimit, icon: <Building2 size={14} /> },
                 { label: "Staff", used: counts.users || 0, limit: plan.userLimit, icon: <Users size={14} /> },
