@@ -657,38 +657,38 @@ export default function MembershipsPage() {
                 }
               }} style={{ display: "flex", flexDirection: "column" }}>
 
-                <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 24 }}>
+                <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
                   {/* Membership Type Options */}
                   <div>
-                    <label style={{ display: "block", fontSize: 14, color: "#334155", fontWeight: 700, marginBottom: 12 }}>Membership Type</label>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Fixed" })} style={{ padding: "16px", border: membershipForm.membershipType === "Fixed" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Fixed" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
-                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Fixed" ? "#1d4ed8" : "#334155", fontSize: 14 }}>Fixed Wallet Amount</div>
-                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Customer pays a fee and gets a fixed prepaid wallet balance.</div>
+                    <label style={{ display: "block", fontSize: 13.5, color: "#334155", fontWeight: 700, marginBottom: 10 }}>Membership Type</label>
+                    <div className="mem-type-grid">
+                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Fixed" })} style={{ padding: "14px", border: membershipForm.membershipType === "Fixed" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Fixed" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Fixed" ? "#1d4ed8" : "#334155", fontSize: 13.5 }}>Fixed Wallet Amount</div>
+                        <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 3 }}>Customer pays a fee and gets a fixed prepaid wallet balance.</div>
                       </button>
-                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Percentage" })} style={{ padding: "16px", border: membershipForm.membershipType === "Percentage" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Percentage" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
-                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Percentage" ? "#1d4ed8" : "#334155", fontSize: 14 }}>Percentage Discount</div>
-                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Customer gets a flat percentage discount on selected services.</div>
+                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Percentage" })} style={{ padding: "14px", border: membershipForm.membershipType === "Percentage" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Percentage" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Percentage" ? "#1d4ed8" : "#334155", fontSize: 13.5 }}>Percentage Discount</div>
+                        <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 3 }}>Customer gets a flat percentage discount on selected services.</div>
                       </button>
                     </div>
                   </div>
 
                   {/* Name & Active Status */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "end" }}>
-                    <div className="hub-form-group">
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "end" }}>
+                    <div className="hub-form-group" style={{ minWidth: 0 }}>
                       <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Membership Name</label>
                       <input 
                         type="text" 
                         placeholder="e.g. VIP Gold Membership" 
                         value={membershipForm.name} 
                         onChange={(e) => setMembershipForm({ ...membershipForm, name: e.target.value })} 
-                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42 }}
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }}
                         onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                         onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                       />
                     </div>
-                    <div className="hub-form-group">
-                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Active Status</label>
+                    <div className="hub-form-group" style={{ flexShrink: 0 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6, whiteSpace: "nowrap" }}>Active Status</label>
                       <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
                         <ToggleSwitch checked={membershipForm.isActive} onChange={(val) => setMembershipForm({ ...membershipForm, isActive: val })} />
                       </div>
@@ -696,7 +696,7 @@ export default function MembershipsPage() {
                   </div>
 
                   {/* Settings Grid */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                  <div className="mem-form-row-3">
                     <div>
                       <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Selling Price (Fee)</label>
                       <input 
@@ -704,7 +704,7 @@ export default function MembershipsPage() {
                         placeholder="0.00" 
                         value={membershipForm.price} 
                         onChange={(e) => setMembershipForm({ ...membershipForm, price: e.target.value })} 
-                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
                         onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                         onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                       />
@@ -716,19 +716,19 @@ export default function MembershipsPage() {
                         placeholder="e.g. 365" 
                         value={membershipForm.validityDays} 
                         onChange={(e) => setMembershipForm({ ...membershipForm, validityDays: e.target.value })} 
-                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
                         onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                         onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                       />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Renewal Reminder (Days)</label>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Renewal Reminder</label>
                       <input 
                         type="number" 
                         placeholder="e.g. 7" 
                         value={membershipForm.renewalReminder} 
                         onChange={(e) => setMembershipForm({ ...membershipForm, renewalReminder: e.target.value })} 
-                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
                         onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                         onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                       />
@@ -737,7 +737,7 @@ export default function MembershipsPage() {
 
                   {/* Benefit / Discount Specific */}
                   {membershipForm.membershipType === "Percentage" && (
-                    <div style={{ width: "33%" }}>
+                    <div className="mem-single-benefit">
                       <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Standard Discount (%)</label>
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <input 
@@ -745,7 +745,7 @@ export default function MembershipsPage() {
                           placeholder="0" 
                           value={membershipForm.discountValue} 
                           onChange={(e) => setMembershipForm({ ...membershipForm, discountValue: e.target.value })} 
-                          style={{ flex: 1, padding: "10px 14px", borderRadius: "8px 0 0 8px", border: "1px solid #cbd5e1", borderRight: "none", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                          style={{ flex: 1, padding: "10px 14px", borderRadius: "8px 0 0 8px", border: "1px solid #cbd5e1", borderRight: "none", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
                           onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                           onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                         />
@@ -755,14 +755,14 @@ export default function MembershipsPage() {
                   )}
 
                   {membershipForm.membershipType === "Fixed" && (
-                    <div style={{ width: "33%" }}>
+                    <div className="mem-single-benefit">
                       <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Wallet Benefit Amount</label>
                       <input 
                         type="number" 
                         placeholder="0.00" 
                         value={membershipForm.walletValue} 
                         onChange={(e) => setMembershipForm({ ...membershipForm, walletValue: e.target.value })} 
-                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
                         onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
                         onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
                       />
@@ -874,21 +874,21 @@ export default function MembershipsPage() {
                   )}
                 </div>
 
-                <div style={{ padding: "16px 24px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Total Fee</div>
+                    <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Fee</div>
                     <div style={{ fontSize: 18, color: "#0f172a", fontWeight: 800 }}>{formatMoney(membershipForm.price || 0)}</div>
                     {membershipForm.membershipType === "Fixed" && (
                       <div style={{ fontSize: 12, color: "#059669", fontWeight: 600, marginTop: 2 }}>Wallet Benefit: {formatMoney(membershipForm.walletValue || 0)}</div>
                     )}
                   </div>
                   
-                  <div style={{ display: "flex", gap: 12 }}>
-                    <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); }} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14 }}>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); }} style={{ padding: "9px 18px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13.5 }}>
                       Cancel
                     </button>
-                    <button type="submit" style={{ padding: "10px 24px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
-                      <Plus size={16} /> Save Plan
+                    <button type="submit" style={{ padding: "9px 22px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13.5, display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(59,130,246,0.25)" }}>
+                      <Plus size={15} /> Save Plan
                     </button>
                   </div>
                 </div>
