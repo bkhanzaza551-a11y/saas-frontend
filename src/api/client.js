@@ -29,7 +29,7 @@ export const setAuthSessionHandlers = ({ getCurrentSession, onRefreshSuccess, on
 
 api.interceptors.request.use((config) => {
   const url = config.url || "";
-  const isAuthEndpoint = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/forgot-password") || url.includes("/auth/reset-password") || url.includes("/auth/validate-reset-token") || url.includes("/auth/refresh");
+  const isAuthEndpoint = url.startsWith("/auth/") || url.includes("/auth/") || url.startsWith("/public/") || url.includes("/public/");
   if (sessionBlocked && !isAuthEndpoint) {
     return Promise.reject(Object.assign(new Error("Session expired"), { __sessionBlocked: true }));
   }
@@ -60,7 +60,10 @@ api.interceptors.response.use(
     }
 
     const originalRequest = error.config;
-    if (!error.response || error.response.status !== 401 || originalRequest?._retry) {
+    const url = originalRequest?.url || "";
+    const isAuthEndpoint = url.startsWith("/auth/") || url.includes("/auth/") || url.startsWith("/public/") || url.includes("/public/");
+
+    if (!error.response || error.response.status !== 401 || isAuthEndpoint || originalRequest?._retry) {
       return Promise.reject(error);
     }
 
