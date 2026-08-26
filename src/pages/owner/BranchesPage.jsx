@@ -128,6 +128,72 @@ export default function BranchesPage() {
 
   return (
     <div className="page-shell">
+      <style>{`
+        .bp-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+          margin-bottom: 20px;
+        }
+        .bp-toolbar {
+          padding: 14px 16px;
+          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          gap: 12px;
+          background-color: #fff;
+          align-items: center;
+        }
+        .bp-search-box {
+          flex: 1;
+          max-width: 320px;
+          position: relative;
+        }
+        .bp-add-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-left: auto;
+          background: linear-gradient(135deg, #4f46e5, #3b82f6);
+          color: white;
+          font-weight: 700;
+          border-radius: 10px;
+          padding: 10px 20px;
+          border: none;
+          cursor: pointer;
+          font-size: 0.88rem;
+          white-space: nowrap;
+        }
+        .bp-modal-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px 20px;
+        }
+        @media (max-width: 900px) {
+          .bp-stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .bp-toolbar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 12px !important;
+          }
+          .bp-search-box {
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+          .bp-add-btn {
+            width: 100% !important;
+            justify-content: center !important;
+            margin-left: 0 !important;
+          }
+          .bp-modal-form-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
       <div className="page-header" style={{ marginBottom: 24 }}>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Branches</h1>
         <p className="muted" style={{ margin: "4px 0 8px 0" }}>Manage your salon locations, add new branches, and update their details.</p>
@@ -148,69 +214,67 @@ export default function BranchesPage() {
 
       {/* Plan Limit Info Stats */}
       {limitInfo && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
-          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}><Building2 size={18} color="#2563eb" /></div>
+        <div className="bp-stats-grid">
+          <div className="panel-card" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Building2 size={18} color="#2563eb" /></div>
             <div>
               <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Plan</div>
-              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#0f172a" }}>{limitInfo.planName}</div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0f172a" }}>{limitInfo.planName}</div>
             </div>
           </div>
-          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}><Building2 size={18} color="#16a34a" /></div>
+          <div className="panel-card" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Building2 size={18} color="#16a34a" /></div>
             <div>
               <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Branches Used</div>
-              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#2563eb" }}>{limitInfo.branchCount}</div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#2563eb" }}>{limitInfo.branchCount}</div>
             </div>
           </div>
-          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#f5f3ff", display: "flex", alignItems: "center", justifyContent: "center" }}><Building2 size={18} color="#6366f1" /></div>
+          <div className="panel-card" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f5f3ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Building2 size={18} color="#6366f1" /></div>
             <div>
               <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Plan Limit</div>
-              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#6366f1" }}>{limitInfo.branchLimit}</div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#6366f1" }}>{limitInfo.branchLimit}</div>
             </div>
           </div>
-          <div className="panel-card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, background: limitInfo.remaining > 0 ? "#f0fdf4" : "#fef2f2" }}>
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: limitInfo.remaining > 0 ? "#dcfce7" : "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div className="panel-card" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, background: limitInfo.remaining > 0 ? "#f0fdf4" : "#fef2f2" }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: limitInfo.remaining > 0 ? "#dcfce7" : "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <AlertTriangle size={18} color={limitInfo.remaining > 0 ? "#16a34a" : "#dc2626"} />
             </div>
             <div>
               <div style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Remaining</div>
-              <div style={{ fontSize: "1rem", fontWeight: 800, color: limitInfo.remaining > 0 ? "#16a34a" : "#dc2626" }}>{limitInfo.remaining}</div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 800, color: limitInfo.remaining > 0 ? "#16a34a" : "#dc2626" }}>{limitInfo.remaining}</div>
             </div>
           </div>
         </div>
       )}
 
       <div className="panel-card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: 16, borderBottom: "1px solid #e2e8f0", display: "flex", gap: 12, backgroundColor: "#fff", alignItems: "center" }}>
-          <div style={{ flex: 1, maxWidth: 320, position: "relative" }}>
+        <div className="bp-toolbar">
+          <div className="bp-search-box">
             <Search size={16} style={{ position: "absolute", left: 12, top: 10, color: "#64748b" }} />
             <input 
               placeholder="Search branches..." 
               value={query} 
               onChange={(e) => setQuery(e.target.value)} 
-              style={{ width: "100%", padding: "8px 12px 8px 36px", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 14 }}
+              style={{ width: "100%", padding: "8px 12px 8px 36px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
             />
           </div>
           <button
             onClick={() => { resetForm(); setShowModal(true); }}
             disabled={limitInfo && limitInfo.remaining <= 0}
+            className="bp-add-btn"
             style={{
-              display: "flex", alignItems: "center", gap: 6, marginLeft: "auto",
               background: limitInfo && limitInfo.remaining <= 0 ? "#e2e8f0" : "linear-gradient(135deg, #4f46e5, #3b82f6)",
               color: limitInfo && limitInfo.remaining <= 0 ? "#94a3b8" : "white",
-              fontWeight: 700, borderRadius: 10, padding: "10px 20px", border: "none",
-              cursor: limitInfo && limitInfo.remaining <= 0 ? "not-allowed" : "pointer",
-              fontSize: "0.88rem", whiteSpace: "nowrap"
+              cursor: limitInfo && limitInfo.remaining <= 0 ? "not-allowed" : "pointer"
             }}
           >
             <Plus size={16} /> Add Branch
           </button>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: 800 }}>
+        <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: 780, whiteSpace: "nowrap" }}>
             <thead>
               <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                 <th style={{ padding: "12px 16px", fontWeight: 600, color: "#475569", fontSize: 13 }}>Branch Name</th>
@@ -301,8 +365,8 @@ export default function BranchesPage() {
               </button>
             </div>
             
-            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
-              <form id="branch-form" onSubmit={submit} className="settings-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 20px" }}>
+            <div style={{ padding: "16px 14px", overflowY: "auto", flex: 1 }}>
+              <form id="branch-form" onSubmit={submit} className="bp-modal-form-grid">
                 <label className="settings-input-group" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span className="muted" style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>Branch name <span style={{color: "#ef4444"}}>*</span></span>
                   <input required value={form.name} placeholder="e.g. Downtown Styluxe" onChange={(event) => setForm({ ...form, name: event.target.value })} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6 }} />
