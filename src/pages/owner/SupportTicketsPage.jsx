@@ -148,6 +148,77 @@ export default function SupportTicketsPage() {
 
   return (
     <div className="page-shell">
+      <style>{`
+        .st-metrics-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        .st-main-grid {
+          display: grid;
+          grid-template-columns: 1fr 1.6fr;
+          gap: 24px;
+          align-items: start;
+        }
+        .st-sticky-panel {
+          padding: 24px;
+          position: sticky;
+          top: 20px;
+        }
+        .st-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .st-filter-grid {
+          padding: 14px;
+          background: #f8fafc;
+          border-radius: 10px;
+          margin-bottom: 20px;
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr auto;
+          gap: 10px;
+          align-items: center;
+        }
+        @media (max-width: 1024px) {
+          .st-metrics-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
+          }
+          .st-main-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          .st-sticky-panel {
+            position: static !important;
+            padding: 18px 16px !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .st-metrics-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          .st-filter-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            padding: 10px !important;
+          }
+          .st-filter-search {
+            grid-column: 1 / -1 !important;
+          }
+          .st-filter-clear {
+            grid-column: 1 / -1 !important;
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .st-form-2col {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+        }
+      `}</style>
       {/* Hero Banner */}
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
@@ -197,7 +268,7 @@ export default function SupportTicketsPage() {
       </div>
 
       {/* Metrics Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 }}>
+      <div className="st-metrics-grid">
         <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #6366f1" }}>
           <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Total Tickets Raised</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{stats.total}</div>
@@ -217,11 +288,11 @@ export default function SupportTicketsPage() {
       </div>
 
       {/* Main Content Layout */}
-      <div style={{ display: "grid", gridTemplateColumns: hasCreateAccess ? "1fr 2fr" : "1fr", gap: 24, alignItems: "start" }} className="responsive-grid">
+      <div className="st-main-grid" style={{ gridTemplateColumns: hasCreateAccess ? undefined : "1fr" }}>
 
         {/* Left Column: Create Ticket Form */}
         {hasCreateAccess && (
-          <div className="panel-card" style={{ padding: 24, position: "sticky", top: 20 }}>
+          <div className="panel-card st-sticky-panel">
             <h3 style={{ margin: "0 0 14px", fontSize: 17, color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
               <Sparkles size={18} style={{ color: "#6366f1" }} /> Raise Support Ticket
             </h3>
@@ -250,7 +321,7 @@ export default function SupportTicketsPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="st-form-2col">
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Category</label>
                   <CustomSelect
@@ -357,8 +428,8 @@ export default function SupportTicketsPage() {
           </div>
 
           {/* Filter Bar */}
-          <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, marginBottom: 20, display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 10, alignItems: "center" }}>
-            <div style={{ position: "relative" }}>
+          <div className="st-filter-grid">
+            <div className="st-filter-search" style={{ position: "relative" }}>
               <Search size={15} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
               <input
                 value={filters.q}
@@ -395,6 +466,7 @@ export default function SupportTicketsPage() {
 
             <button
               type="button"
+              className="st-filter-clear"
               onClick={() => setFilters({ q: "", status: "", priority: "" })}
               style={{ padding: "8px 14px", background: "white", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
             >
