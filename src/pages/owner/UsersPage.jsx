@@ -1,5 +1,5 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { X, ChevronLeft } from "lucide-react";
 import { api } from "../../api/client";
 import { useBranch } from '../../context/BranchContext';
 import PermissionButton from "../../components/PermissionButton";
@@ -43,7 +43,7 @@ const makeEmptyForm = () => ({
   profileNote: "",
   customRoleId: "",
   showInCatalog: false,
-  attendanceEnabled: true,
+  attendanceEnabled: false,
   attendanceEnrollmentPhotoUrl: "",
   serviceIds: [],
   permissions: clonePermissions(DEFAULT_PERMISSIONS),
@@ -82,6 +82,7 @@ export default function UsersPage() {
   const [enrollmentCaptureBusy, setEnrollmentCaptureBusy] = useState(false);
   const [enrollmentCameraOpen, setEnrollmentCameraOpen] = useState(false);
   const [enrollmentCameraError, setEnrollmentCameraError] = useState("");
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
   const enrollmentVideoRef = useRef(null);
   const enrollmentCanvasRef = useRef(null);
   const enrollmentStreamRef = useRef(null);
@@ -275,6 +276,7 @@ export default function UsersPage() {
   const resetForm = () => {
     setEditingId("");
     setForm(makeEmptyForm());
+    setShowMobileDetail(false);
   };
 
   const applyRolePreset = (roleCode) => {
@@ -524,11 +526,68 @@ export default function UsersPage() {
       setSelectedId(rowId);
       const row = filteredRows.find((r) => r.id === rowId);
       if (row) startEdit(row);
+      setShowMobileDetail(true);
     });
   };
 
   return (
     <div className="page-shell users-page-shell" style={{ padding: 0, height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <style>{`
+        .users-mobile-back-btn {
+          display: none;
+          align-items: center;
+          gap: 6px;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          border-radius: 8px;
+          padding: 8px 14px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #2563eb;
+          cursor: pointer;
+          margin-bottom: 12px;
+          width: fit-content;
+        }
+        @media (max-width: 900px) {
+          .users-page-shell {
+            height: auto !important;
+            min-height: calc(100vh - 70px) !important;
+            overflow-y: auto !important;
+          }
+          .users-page-shell .hub-container {
+            flex-direction: column !important;
+            height: auto !important;
+            min-height: auto !important;
+            display: block !important;
+          }
+          .users-page-shell .hub-sidebar {
+            width: 100% !important;
+            border-right: none !important;
+            height: auto !important;
+            min-height: auto !important;
+            display: flex !important;
+          }
+          .users-page-shell .hub-sidebar.users-hide-mobile {
+            display: none !important;
+          }
+          .users-page-shell .hub-list {
+            max-height: none !important;
+            overflow-y: visible !important;
+          }
+          .users-page-shell .hub-items-col {
+            width: 100% !important;
+            padding: 0 !important;
+            height: auto !important;
+            display: block !important;
+          }
+          .users-page-shell .hub-items-col.users-hide-mobile {
+            display: none !important;
+          }
+          .users-mobile-back-btn {
+            display: inline-flex !important;
+          }
+        }
+      `}</style>
       {enrollmentCameraOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 99999, padding: 16 }}>
           <div style={{ width: 'min(100%, 480px)', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -590,7 +649,7 @@ export default function UsersPage() {
 
       <div className="hub-container" style={{ flex: 1, minHeight: 0, display: 'flex' }}>
         {/* Left Sidebar: Directory */}
-        <div className="hub-sidebar" style={{ width: 340, display: 'flex', flexDirection: 'column', background: 'white', borderRight: '1px solid #e2e8f0', paddingTop: 0 }}>
+        <div className={`hub-sidebar ${showMobileDetail ? "users-hide-mobile" : ""}`} style={{ width: 340, display: 'flex', flexDirection: 'column', background: 'white', borderRight: '1px solid #e2e8f0', paddingTop: 0 }}>
           <div className="hub-sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
             <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a', fontWeight: 600 }}>Team Directory</h3>
           </div>
@@ -707,11 +766,20 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <div className="hub-items-col" style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
+        <div className={`hub-items-col ${!showMobileDetail ? "users-hide-mobile" : ""}`} style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
           {selectedRow ? (
             <>
               <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0' }}>
-                <div className="responsive-profile-header" style={{ padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                <div style={{ padding: "14px 20px 0 20px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileDetail(false)}
+                    className="users-mobile-back-btn"
+                  >
+                    <ChevronLeft size={16} /> Back to Staff Directory
+                  </button>
+                </div>
+                <div className="responsive-profile-header" style={{ padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     {selectedRow.avatarUrl ? (
                       <img src={getImageUrl(selectedRow.avatarUrl)} alt="Avatar" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
