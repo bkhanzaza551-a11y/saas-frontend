@@ -298,8 +298,75 @@ export default function EnquiriesPage() {
         .filter-bar { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 24px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 13px; font-weight: 600; color: #64748b; white-space: nowrap; }
+        .filter-dates-row { display: flex; align-items: center; gap: 10px; }
         
+        .eq-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .eq-reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
         .empty-records-container { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 60px 20px; text-align: center; color: #64748b; font-weight: 600; font-size: 18px; background: #fafafa; }
+
+        .module-tabs {
+          display: flex !important;
+          overflow-x: auto !important;
+          white-space: nowrap !important;
+          -webkit-overflow-scrolling: touch !important;
+          gap: 6px !important;
+          scrollbar-width: none !important;
+        }
+        .module-tab {
+          white-space: nowrap !important;
+          flex-shrink: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+          .filter-bar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 12px !important;
+            gap: 10px !important;
+          }
+          .filter-dates-row {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr auto !important;
+            gap: 8px !important;
+            width: 100% !important;
+            align-items: flex-end !important;
+          }
+          .filter-group {
+            width: 100% !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+          }
+          .filter-group label {
+            font-size: 11px !important;
+          }
+          .filter-group input[type="date"] {
+            width: 100% !important;
+          }
+          .eq-btn-add {
+            width: 100% !important;
+            margin-left: 0 !important;
+            justify-content: center !important;
+          }
+          .modal-content {
+            padding: 18px 14px !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            width: 95% !important;
+          }
+          .eq-form-grid {
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
+          }
+          .eq-form-grid > div {
+            grid-column: 1 / -1 !important;
+          }
+          .eq-reports-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+        }
       `}</style>
 
       <ModuleTabs
@@ -328,41 +395,41 @@ export default function EnquiriesPage() {
               />
             </div>
             
-            <div className="filter-group">
-              <label>From :</label>
-              <input 
-                type="date" 
-                className="eq-input" 
-                style={{ width: "155px" }}
-                value={filterFromDate}
-                onChange={(e) => setFilterFromDate(e.target.value)}
-                max={filterToDate || undefined}
-              />
-            </div>
+            <div className="filter-dates-row">
+              <div className="filter-group">
+                <label>From :</label>
+                <input 
+                  type="date" 
+                  className="eq-input" 
+                  value={filterFromDate}
+                  onChange={(e) => setFilterFromDate(e.target.value)}
+                  max={filterToDate || undefined}
+                />
+              </div>
 
-            <div className="filter-group">
-              <label>To :</label>
-              <input 
-                type="date" 
-                className="eq-input" 
-                style={{ width: "155px" }}
-                value={filterToDate}
-                onChange={(e) => setFilterToDate(e.target.value)}
-                min={filterFromDate || undefined}
-              />
+              <div className="filter-group">
+                <label>To :</label>
+                <input 
+                  type="date" 
+                  className="eq-input" 
+                  value={filterToDate}
+                  onChange={(e) => setFilterToDate(e.target.value)}
+                  min={filterFromDate || undefined}
+                />
+              </div>
+
+              <button 
+                className="eq-btn eq-btn-secondary" 
+                style={{ width: "40px", height: "40px", padding: 0, flexShrink: 0 }} 
+                title="Reset Filters"
+                onClick={() => { setFilterPhone(""); setFilterFromDate(""); setFilterToDate(""); }}
+              >
+                <RefreshCw size={15} />
+              </button>
             </div>
 
             <button 
-              className="eq-btn eq-btn-secondary" 
-              style={{ width: "40px", padding: 0 }} 
-              title="Reset Filters"
-              onClick={() => { setFilterPhone(""); setFilterFromDate(""); setFilterToDate(""); }}
-            >
-              <RefreshCw size={15} />
-            </button>
-
-            <button 
-              className="eq-btn eq-btn-primary" 
+              className="eq-btn eq-btn-primary eq-btn-add" 
               style={{ marginLeft: "auto" }}
               onClick={() => setShowModal(true)}
             >
@@ -463,7 +530,7 @@ export default function EnquiriesPage() {
 
       {/* ── REPORTS MODE ── */}
       {mode === "reports" && report && (
-        <div className="anim-fade delay-1" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div className="anim-fade delay-1 eq-reports-grid">
           <div className="eq-card" style={{ background: "linear-gradient(135deg, #1e293b, #0f172a)", color: "white", border: "none" }}>
             <BarChart3 size={32} color="#818cf8" style={{ marginBottom: 16 }} />
             <div style={{ fontSize: 14, textTransform: "uppercase", fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>Total Leads Captured</div>
@@ -511,7 +578,7 @@ export default function EnquiriesPage() {
             </div>
             
             <form onSubmit={save}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "24px" }}>
+              <div className="eq-form-grid">
                 
                 {/* Follow Up Date */}
                 <div>
