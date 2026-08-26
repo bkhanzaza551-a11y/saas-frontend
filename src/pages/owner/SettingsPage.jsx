@@ -5308,8 +5308,6 @@ export default function SettingsPage() {
         return renderRosterSection();
       case "tax-mapping":
         return renderTaxSection();
-      case "feedback-setting":
-        return renderFeedbackSection();
       case "access-control":
         return renderAccessControlSection();
       case "notification-settings":
