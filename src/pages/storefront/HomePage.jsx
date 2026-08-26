@@ -54,6 +54,31 @@ export default function HomePage() {
 
   return (
     <div className="storefront-wrapper" style={{ background: "#ffffff", color: "#0f172a", fontFamily: "'Poppins', -apple-system, sans-serif" }}>
+      <style>{`
+        @media (max-width: 900px) {
+          .sf-contact-grid {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+          .sf-contact-section {
+            padding: 50px 16px !important;
+          }
+          .sf-contact-card {
+            padding: 24px 18px !important;
+            border-radius: 18px !important;
+          }
+          .sf-about-grid {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+          .sf-about-section {
+            padding: 50px 16px !important;
+          }
+          .sf-about-grid img {
+            height: 260px !important;
+          }
+        }
+      `}</style>
       
       {/* Premium Hero Section */}
       {isSectionEnabled("hero") && (
@@ -355,8 +380,8 @@ export default function HomePage() {
 
       {/* About Section */}
       {isSectionEnabled("about") && (
-        <section id="sf-about-section" style={{ padding: "90px 24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0" }}>
-          <div style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
+        <section id="sf-about-section" className="sf-about-section" style={{ padding: "90px 24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0" }}>
+          <div className="sf-about-grid" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
             
             <div style={{ position: "relative" }}>
               <img 
@@ -528,15 +553,15 @@ export default function HomePage() {
 
       {/* Contact / Visit Us */}
       {isSectionEnabled("contact") && (
-        <section id="sf-contact-section" style={{ padding: "80px 24px", background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#ffffff" }}>
-          <div style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
+        <section id="sf-contact-section" className="sf-contact-section" style={{ padding: "80px 24px", background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#ffffff" }}>
+          <div className="sf-contact-grid" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
             
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 14 }}>
                 <MapPin size={12} /> VISIT OUR SANCTUARY
               </div>
 
-              <h2 style={{ fontSize: "2.4rem", fontWeight: 800, color: "#ffffff", margin: "0 0 16px" }}>
+              <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 800, color: "#ffffff", margin: "0 0 16px" }}>
                 We Look Forward to Welcoming You
               </h2>
 
@@ -569,7 +594,7 @@ export default function HomePage() {
             </div>
 
             {/* Quick Action Card */}
-            <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 24, padding: "40px 32px", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)" }}>
+            <div className="sf-contact-card" style={{ background: "rgba(255,255,255,0.06)", borderRadius: 24, padding: "40px 32px", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)" }}>
               <h3 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#ffffff", margin: "0 0 10px" }}>
                 Ready for your transformation?
               </h3>
