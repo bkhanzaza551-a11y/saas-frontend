@@ -162,8 +162,8 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
         >
           <span /><span /><span />
         </button>
-        <div className="sidebar-mobile-brand">
-          <img src="/logo.jfif" alt="Logo" className="mini-rail-logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} />
+        <div className="sidebar-mobile-brand" style={{ display: "flex", alignItems: "center" }}>
+          <img src="/logo.jfif" alt="SalonNest Logo" style={{ maxHeight: "36px", maxWidth: "150px", objectFit: "contain", display: "block" }} />
         </div>
       </div>
 

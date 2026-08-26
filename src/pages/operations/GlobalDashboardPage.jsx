@@ -81,58 +81,84 @@ export default function GlobalDashboardPage() {
   return (
     <div className="page-shell super-admin-page">
       {/* Hero Card */}
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head">
-          <div>
-            <h1 style={{ marginTop: 0 }}>Global Dashboard — Multi-Branch Intelligence</h1>
-            <p style={{ marginBottom: 0 }}>Cross-branch revenue performance, appointment volume, and growth analytics across all locations.</p>
+      <div className="hero-card" style={{ padding: "20px 24px", marginBottom: 20 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+          <div style={{ minWidth: 260, flex: 1 }}>
+            <h1 style={{ margin: "0 0 6px 0", fontSize: "1.35rem", fontWeight: 800, color: "#0f172a", lineHeight: 1.25 }}>Global Dashboard — Multi-Branch Intelligence</h1>
+            <p style={{ margin: 0, fontSize: "0.88rem", color: "#64748b", lineHeight: 1.4 }}>Cross-branch revenue performance, appointment volume, and growth analytics across all locations.</p>
           </div>
-          <button className="btn btn-outline" onClick={fetchData} disabled={loading} style={{ background: "white" }}>
-            <RefreshCw size={14} className={loading ? "spin" : ""} style={{ marginRight: 6 }} />
+          <button 
+            type="button"
+            className="btn btn-outline" 
+            onClick={fetchData} 
+            disabled={loading} 
+            style={{ 
+              background: "#ffffff", 
+              border: "1.5px solid #e2e8f0", 
+              borderRadius: 10, 
+              padding: "8px 16px", 
+              fontWeight: 600, 
+              fontSize: "0.85rem",
+              color: "#334155",
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: 6,
+              cursor: loading ? "not-allowed" : "pointer",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+            }}
+          >
+            <RefreshCw size={14} className={loading ? "spin" : ""} />
             Refresh Data
           </button>
         </div>
       </div>
 
       {/* Date Period Filter Bar */}
-      <div className="panel-card" style={{ padding: 16, marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Period Filter:</span>
-          {["ALL", "Today", "Month", "Custom"].map(p => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              style={{
-                padding: "6px 14px",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 600,
-                border: "1px solid",
-                borderColor: period === p ? "#6366f1" : "#e2e8f0",
-                background: period === p ? "#eef2ff" : "white",
-                color: period === p ? "#4338ca" : "#64748b",
-                cursor: "pointer"
-              }}
-            >
-              {p === "ALL" ? "All Time" : p === "Today" ? "Today" : p === "Month" ? "This Month" : "Custom Date"}
-            </button>
-          ))}
+      <div className="panel-card" style={{ padding: "14px 18px", marginBottom: 20 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#334155", flexShrink: 0 }}>Period Filter:</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, flex: "1 1 auto" }}>
+            {["ALL", "Today", "Month", "Custom"].map(p => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPeriod(p)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: "1px solid",
+                  borderColor: period === p ? "#6366f1" : "#e2e8f0",
+                  background: period === p ? "#eef2ff" : "#ffffff",
+                  color: period === p ? "#4338ca" : "#64748b",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  flex: "1 1 auto",
+                  textAlign: "center",
+                  minWidth: "70px"
+                }}
+              >
+                {p === "ALL" ? "All Time" : p === "Today" ? "Today" : p === "Month" ? "This Month" : "Custom Date"}
+              </button>
+            ))}
+          </div>
         </div>
 
         {period === "Custom" && (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f5f9" }}>
             <input
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}
+              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, flex: "1 1 130px" }}
             />
-            <span style={{ fontSize: 13, color: "#64748b" }}>to</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>to</span>
             <input
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}
+              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, flex: "1 1 130px" }}
             />
           </div>
         )}
