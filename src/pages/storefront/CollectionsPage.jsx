@@ -171,11 +171,11 @@ export default function CollectionsPage() {
                       >
                         {/* Header: Uploaded Image OR Clean Luxury Branded Container */}
                         {hasImage ? (
-                          <div style={{ height: 210, position: "relative", background: "#f1f5f9", overflow: "hidden" }}>
+                          <div style={{ height: 210, position: "relative", background: "#f8fafc", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <img 
                               src={service.imageUrl} 
                               alt={service.name} 
-                              style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+                              style={{ width: "100%", height: "100%", objectFit: "contain", padding: 10, transition: "transform 0.3s ease" }}
                             />
                             
                             {/* Badges */}

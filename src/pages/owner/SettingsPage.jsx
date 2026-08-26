@@ -1395,13 +1395,6 @@ export default function SettingsPage() {
               </label>
             </div>
           </div>
-
-          <div className="settings-form-grid">
-            <label className="settings-input-group">
-              <span className="muted">Currency :</span>
-              <div style={{ padding: "10px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", fontWeight: 700, color: "#475569" }}>INR — Indian Rupee</div>
-            </label>
-          </div>
         </div>
 
         <div className="settings-panel-card">
