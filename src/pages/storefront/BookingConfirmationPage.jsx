@@ -75,43 +75,145 @@ export default function BookingConfirmationPage() {
   }
 
   return (
-    <div className="storefront-wrapper" style={{ background: 'var(--surface)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px' }}>
-      <div style={{ maxWidth: 700, width: '100%', margin: '0 auto', background: 'var(--bg-main)', padding: '60px 48px', border: '1px solid var(--border)', textAlign: 'center', position: 'relative', overflow: 'hidden', borderRadius: '32px', boxShadow: '0 24px 64px -12px rgba(0,0,0,0.08)' }}>
-        
+    <div className="storefront-wrapper confirmation-page-wrapper">
+      <style>{`
+        .confirmation-page-wrapper {
+          background: var(--surface);
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 20px;
+        }
+        .confirmation-card {
+          max-width: 650px;
+          width: 100%;
+          margin: 0 auto;
+          background: var(--bg-main, #ffffff);
+          padding: 48px 40px;
+          border: 1px solid var(--border);
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+          border-radius: 28px;
+          box-shadow: 0 20px 50px -10px rgba(0,0,0,0.07);
+        }
+        .confirmation-title {
+          font-family: var(--font-serif);
+          font-size: clamp(1.8rem, 5vw, 2.6rem);
+          margin: 0 0 14px;
+          font-weight: 700;
+          color: var(--text-main);
+          letter-spacing: -0.5px;
+        }
+        .confirmation-details-box {
+          background: var(--surface, #f8fafc);
+          border-radius: 20px;
+          border: 1px solid var(--border, #e2e8f0);
+          padding: 24px 20px;
+          margin-bottom: 36px;
+          text-align: left;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+        .booking-ref-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid var(--border, #e2e8f0);
+          padding-bottom: 16px;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .booking-ref-badge {
+          font-size: 0.95rem;
+          font-family: monospace;
+          font-weight: 700;
+          color: var(--accent, #0f766e);
+          background: rgba(15, 118, 110, 0.1);
+          padding: 6px 14px;
+          border-radius: 100px;
+          word-break: break-all;
+          max-width: 100%;
+          letter-spacing: 0.5px;
+        }
+        .confirmation-actions {
+          display: flex;
+          gap: 14px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+          .confirmation-page-wrapper {
+            padding: 30px 12px !important;
+          }
+          .confirmation-card {
+            padding: 32px 18px !important;
+            border-radius: 20px !important;
+          }
+          .confirmation-details-box {
+            padding: 18px 14px !important;
+            margin-bottom: 28px !important;
+          }
+          .booking-ref-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+          }
+          .booking-ref-badge {
+            width: 100% !important;
+            text-align: center !important;
+            box-sizing: border-box !important;
+          }
+          .confirmation-actions {
+            flex-direction: column !important;
+            width: 100% !important;
+          }
+          .confirmation-actions a {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+            justify-content: center !important;
+          }
+        }
+      `}</style>
+
+      <div className="confirmation-card">
         {/* Decorative Top Accent */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 8, background: 'linear-gradient(90deg, var(--accent), #eab308, var(--accent))' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, background: 'linear-gradient(90deg, #10b981, #eab308, #10b981)' }} />
 
         <div className="sf-animate" style={{ animationDelay: '0.1s' }}>
-          <div style={{ width: 96, height: 96, background: "linear-gradient(135deg, var(--accent), #eab308)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px", boxShadow: '0 16px 32px rgba(0,0,0,0.1)' }}>
-            <Check size={44} strokeWidth={2.5} />
+          <div style={{ width: 80, height: 80, background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", boxShadow: '0 12px 24px rgba(16, 185, 129, 0.25)' }}>
+            <Check size={38} strokeWidth={2.8} />
           </div>
           
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', margin: '0 0 16px', fontWeight: 500, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>Reservation Confirmed</h1>
+          <h1 className="confirmation-title">Reservation Confirmed</h1>
           
           {error ? (
-            <div style={{ marginTop: 32, padding: '24px', borderRadius: '16px', background: '#fff1f2', border: '1px solid #fda4af', color: '#be123c' }}>
-              <p style={{ margin: 0, fontWeight: 500, fontSize: '1.1rem' }}>{error}</p>
+            <div style={{ marginTop: 24, padding: '20px', borderRadius: '16px', background: '#fff1f2', border: '1px solid #fda4af', color: '#be123c' }}>
+              <p style={{ margin: 0, fontWeight: 600, fontSize: '1rem' }}>{error}</p>
             </div>
           ) : (
-            <div style={{ marginTop: 24 }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', fontWeight: 300, marginBottom: 40, lineHeight: 1.6 }}>
+            <div style={{ marginTop: 16 }}>
+              <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '1.05rem', fontWeight: 300, marginBottom: 28, lineHeight: 1.6 }}>
                 Thank you for your reservation. A confirmation email has been sent to you.
               </p>
               
-              <div style={{ background: 'var(--surface)', borderRadius: '24px', border: '1px solid var(--border)', padding: '32px', marginBottom: 48, textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: 24 }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>Booking Reference</span>
-                  <span style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--accent)', background: 'rgba(200, 169, 126, 0.1)', padding: '6px 16px', borderRadius: '100px' }}>{orderNumber}</span>
+              <div className="confirmation-details-box">
+                <div className="booking-ref-row">
+                  <span style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>Booking Reference</span>
+                  <span className="booking-ref-badge">{orderNumber}</span>
                 </div>
                 
                 {formattedDisplayDateTime && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-main)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
-                      <CalendarDays size={24} strokeWidth={1.5} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#fff', border: '1px solid var(--border, #e2e8f0)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0 }}>
+                      <CalendarDays size={20} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 4 }}>Date & Time</div>
-                      <div style={{ color: 'var(--text-main)', fontSize: '1.1rem', fontWeight: 500 }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Date & Time</div>
+                      <div style={{ color: 'var(--text-main, #0f172a)', fontSize: '1rem', fontWeight: 600 }}>
                         {formattedDisplayDateTime}
                       </div>
                     </div>
@@ -121,9 +223,13 @@ export default function BookingConfirmationPage() {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to={`/site/${slug}/my-bookings`} className="sf-btn-primary" style={{ display: 'inline-flex', padding: '16px 36px', borderRadius: '100px' }}>Track Reservation <ArrowRight size={18} style={{ marginLeft: 8 }} /></Link>
-            <Link to={`/site/${slug}/services`} className="sf-btn-outline" style={{ display: 'inline-flex', padding: '16px 36px', borderRadius: '100px' }}>Book Another Service</Link>
+          <div className="confirmation-actions">
+            <Link to={`/site/${slug}/my-bookings`} className="sf-btn-primary" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 28px', borderRadius: '100px', fontWeight: 700, fontSize: '0.95rem' }}>
+              Track Reservation <ArrowRight size={16} style={{ marginLeft: 8 }} />
+            </Link>
+            <Link to={`/site/${slug}/services`} className="sf-btn-outline" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 28px', borderRadius: '100px', fontWeight: 700, fontSize: '0.95rem' }}>
+              Book Another Service
+            </Link>
           </div>
         </div>
       </div>
