@@ -4948,9 +4948,9 @@ export default function SettingsPage() {
         </div>
 
         <div className="settings-panel-card" style={{ padding: 0, overflow: "hidden", border: "1px solid #e2e8f0", borderRadius: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 10, fontWeight: 700 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8, fontWeight: 700 }}>
                 <div style={{ width: 4, height: 18, background: "#f59e0b", borderRadius: 4 }} />
                 Tax Slabs
               </h3>
@@ -4958,47 +4958,47 @@ export default function SettingsPage() {
                 Income bracket definitions for corporate & PNL tax calculations.
               </div>
             </div>
-            <button type="button" onClick={startCreate} style={{ padding: "9px 18px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(37,99,235,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#1d4ed8"} onMouseLeave={e => e.currentTarget.style.background="#2563eb"}>
-              <Plus size={16} /> Add Tax Slab
+            <button type="button" onClick={startCreate} style={{ padding: "8px 16px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap", flexShrink: 0, boxShadow: "0 2px 8px rgba(37,99,235,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#1d4ed8"} onMouseLeave={e => e.currentTarget.style.background="#2563eb"}>
+              <Plus size={15} /> Add Tax Slab
             </button>
           </div>
 
-          <div style={{ width: "100%", overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+          <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <table style={{ width: "100%", minWidth: 520, borderCollapse: "collapse", textAlign: "left" }}>
               <thead>
                 <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  <th style={{ padding: "14px 24px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Slab Range</th>
-                  <th style={{ padding: "14px 24px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tax Rate</th>
-                  <th style={{ padding: "14px 24px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
-                  <th style={{ padding: "14px 24px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", textAlign: "right" }}>Actions</th>
+                  <th style={{ padding: "14px 20px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Slab Range</th>
+                  <th style={{ padding: "14px 20px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tax Rate</th>
+                  <th style={{ padding: "14px 20px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
+                  <th style={{ padding: "14px 20px", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id} style={{ borderBottom: "1px solid #f1f5f9", background: "#fff", transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
-                    <td style={{ padding: "16px 24px" }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
+                    <td style={{ padding: "14px 20px" }}>
+                      <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>
                         ₹{Number(row.slabFrom || 0).toLocaleString()} &ndash; ₹{Number(row.slabTo || 0).toLocaleString()}
                       </span>
                     </td>
-                    <td style={{ padding: "16px 24px" }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", padding: "4px 12px", borderRadius: 20, background: "#fef3c7", color: "#b45309", fontSize: 12, fontWeight: 800, border: "1px solid #fde68a" }}>
+                    <td style={{ padding: "14px 20px" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", padding: "4px 10px", borderRadius: 20, background: "#fef3c7", color: "#b45309", fontSize: 12, fontWeight: 800, border: "1px solid #fde68a" }}>
                         {row.rate}% Tax
                       </span>
                     </td>
-                    <td style={{ padding: "16px 24px" }}>
+                    <td style={{ padding: "14px 20px" }}>
                       <span style={{ fontSize: 12, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 20, background: row.active ? "#f0fdf4" : "#f8fafc", color: row.active ? "#16a34a" : "#64748b", border: row.active ? "1px solid #bbf7d0" : "1px solid #e2e8f0" }}>
                         <div style={{ width: 6, height: 6, borderRadius: "50%", background: row.active ? "#22c55e" : "#94a3b8" }} />
                         {row.active ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                    <td style={{ padding: "14px 20px", textAlign: "right" }}>
                       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                        <button type="button" onClick={() => startEdit(row)} style={{ padding: "6px 14px", background: "#fff", color: "#2563eb", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#eff6ff"; e.currentTarget.style.borderColor="#bfdbfe"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
-                          <Edit2 size={14} /> Edit
+                        <button type="button" onClick={() => startEdit(row)} style={{ padding: "6px 12px", background: "#fff", color: "#2563eb", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#eff6ff"; e.currentTarget.style.borderColor="#bfdbfe"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
+                          <Edit2 size={13} /> Edit
                         </button>
-                        <button type="button" onClick={() => deleteRow(row.id)} style={{ padding: "6px 14px", background: "#fff", color: "#dc2626", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#fef2f2"; e.currentTarget.style.borderColor="#fecaca"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
-                          <Trash2 size={14} /> Delete
+                        <button type="button" onClick={() => deleteRow(row.id)} style={{ padding: "6px 12px", background: "#fff", color: "#dc2626", border: "1px solid #cbd5e1", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, transition: "all 0.2s" }} onMouseEnter={e => {e.currentTarget.style.background="#fef2f2"; e.currentTarget.style.borderColor="#fecaca"}} onMouseLeave={e => {e.currentTarget.style.background="#fff"; e.currentTarget.style.borderColor="#cbd5e1"}}>
+                          <Trash2 size={13} /> Delete
                         </button>
                       </div>
                     </td>
@@ -5006,17 +5006,17 @@ export default function SettingsPage() {
                 ))}
                 {!rows.length && (
                   <tr>
-                    <td colSpan={4} style={{ padding: "48px 24px", textAlign: "center" }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fffbeb", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <Layers size={28} />
+                    <td colSpan={4} style={{ padding: "40px 20px", textAlign: "center" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fffbeb", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Layers size={24} />
                         </div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>No Tax Slabs Configured Yet</div>
-                        <div style={{ fontSize: 13, color: "#64748b", maxWidth: 360, lineHeight: 1.5 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>No Tax Slabs Configured Yet</div>
+                        <div style={{ fontSize: 12.5, color: "#64748b", maxWidth: 340, lineHeight: 1.5 }}>
                           Add tax slabs to define income brackets and tax percentages for profit and loss accounting.
                         </div>
-                        <button type="button" onClick={startCreate} style={{ marginTop: 8, padding: "10px 20px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-                          <Plus size={16} /> Create First Tax Slab
+                        <button type="button" onClick={startCreate} style={{ marginTop: 6, padding: "8px 18px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+                          <Plus size={15} /> Create First Tax Slab
                         </button>
                       </div>
                     </td>
