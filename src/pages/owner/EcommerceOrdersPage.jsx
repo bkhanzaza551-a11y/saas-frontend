@@ -175,24 +175,114 @@ export default function EcommerceOrdersPage() {
 
   return (
     <div
-      className="page-shell"
-      style={{ display: "flex", flexDirection: "column", gap: 0, padding: 0, background: '#f8fafc', minHeight: '100vh' }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        background: "#f8fafc",
+      }}
+      className="storefront-bookings-page"
     >
+      <style>{`
+        .storefront-bookings-hero {
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+          padding: 32px 40px;
+          color: white;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .storefront-summary-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 16px;
+          margin-top: 28px;
+          max-width: 1600px;
+        }
+        .storefront-tab-container {
+          display: flex;
+          gap: 8px;
+          border-bottom: 1px solid #e2e8f0;
+          background: white;
+          padding: 0 40px;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+        .storefront-main-layout {
+          flex: 1;
+          padding: 28px 40px;
+          display: flex;
+          gap: 28px;
+          min-height: 0;
+          max-width: 1600px;
+          margin: 0 auto;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .storefront-list-pane {
+          flex: 1 1 55%;
+          min-width: 0;
+        }
+        .storefront-detail-pane {
+          flex: 1 1 45%;
+          min-width: 360px;
+          position: sticky;
+          top: 24px;
+          align-self: flex-start;
+          max-height: calc(100vh - 100px);
+          overflow-y: auto;
+          border-radius: 16px;
+          scrollbar-width: none;
+        }
+        @media (max-width: 900px) {
+          .storefront-bookings-hero {
+            padding: 18px 14px !important;
+          }
+          .storefront-bookings-hero h1 {
+            font-size: 1.4rem !important;
+          }
+          .storefront-bookings-hero p {
+            font-size: 0.85rem !important;
+          }
+          .storefront-summary-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+            margin-top: 16px !important;
+          }
+          .storefront-summary-card {
+            padding: 12px 14px !important;
+            gap: 10px !important;
+          }
+          .storefront-tab-container {
+            padding: 0 12px !important;
+          }
+          .storefront-main-layout {
+            flex-direction: column !important;
+            padding: 14px 10px !important;
+            gap: 16px !important;
+          }
+          .storefront-list-pane {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+          }
+          .storefront-detail-pane {
+            width: 100% !important;
+            min-width: 0 !important;
+            position: static !important;
+            max-height: none !important;
+          }
+          .storefront-detail-placeholder {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       {/* Premium Header */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-          padding: "32px 40px",
-          color: "white",
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-        }}
-      >
+      <div className="storefront-bookings-hero">
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            gap: 24,
+            gap: 20,
             flexWrap: "wrap",
             maxWidth: 1600,
             margin: '0 auto'
@@ -221,7 +311,7 @@ export default function EcommerceOrdersPage() {
               <h1
                 style={{
                   margin: 0,
-                  fontSize: "2rem",
+                  fontSize: "1.8rem",
                   fontWeight: 700,
                   letterSpacing: "-0.5px",
                 }}
@@ -229,7 +319,7 @@ export default function EcommerceOrdersPage() {
                 Storefront Bookings
               </h1>
             </div>
-            <p style={{ margin: 0, opacity: 0.9, fontSize: 15, fontWeight: 300, maxWidth: 600, lineHeight: 1.5 }}>
+            <p style={{ margin: 0, opacity: 0.9, fontSize: 14, fontWeight: 300, maxWidth: 600, lineHeight: 1.5 }}>
               Manage online service reservations from your storefront. Approve, track, and complete appointments seamlessly.
             </p>
           </div>
@@ -243,9 +333,9 @@ export default function EcommerceOrdersPage() {
               border: "none",
               borderRadius: 8,
               color: "#4f46e5",
-              padding: "10px 20px",
+              padding: "9px 18px",
               cursor: "pointer",
-              fontSize: 14,
+              fontSize: 13.5,
               fontWeight: 600,
               transition: "transform 0.2s, box-shadow 0.2s",
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -253,22 +343,13 @@ export default function EcommerceOrdersPage() {
             onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
             onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'; }}
           >
-            <RefreshCw size={16} /> Sync Bookings
+            <RefreshCw size={15} /> Sync Bookings
           </button>
         </div>
 
         {/* Summary Cards */}
         {summary && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-              gap: 16,
-              marginTop: 32,
-              maxWidth: 1600,
-              margin: '32px auto 0'
-            }}
-          >
+          <div className="storefront-summary-grid">
             {[
               { label: "Total Bookings", value: summary.totalOrders, icon: Calendar, color: "#fff" },
               { label: "Pending",        value: summary.newOrders || 0, icon: Clock,       color: "#fde68a" },
@@ -279,23 +360,24 @@ export default function EcommerceOrdersPage() {
             ].map((c) => (
               <div
                 key={c.label}
+                className="storefront-summary-card"
                 style={{
                   background: "rgba(255,255,255,0.1)",
                   border: "1px solid rgba(255,255,255,0.2)",
                   borderRadius: 12,
-                  padding: "16px",
+                  padding: "14px 16px",
                   display: "flex",
                   alignItems: "center",
-                  gap: 16,
+                  gap: 12,
                   backdropFilter: 'blur(10px)'
                 }}
               >
-                <div style={{ background: 'rgba(255,255,255,0.1)', padding: 10, borderRadius: 10, display: 'flex' }}>
-                  <c.icon size={20} color={c.color} />
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: 8, borderRadius: 8, display: 'flex', flexShrink: 0 }}>
+                  <c.icon size={18} color={c.color} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, opacity: 0.9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: c.color, marginTop: 4 }}>
+                  <div style={{ fontSize: 11, opacity: 0.9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: c.color, marginTop: 2 }}>
                     {c.value}
                   </div>
                 </div>
@@ -306,17 +388,8 @@ export default function EcommerceOrdersPage() {
       </div>
 
       {/* Tab Bar */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          borderBottom: "1px solid #e2e8f0",
-          background: "white",
-          padding: "0 40px",
-          overflowX: "auto",
-        }}
-      >
-        <div style={{ display: 'flex', maxWidth: 1600, margin: '0 auto', width: '100%', gap: 32 }}>
+      <div className="storefront-tab-container">
+        <div style={{ display: 'flex', maxWidth: 1600, margin: '0 auto', width: '100%', gap: 24, overflowX: 'auto' }}>
           {STATUS_TABS.map((tab) => {
             const meta = STATUS_META[tab];
             const isActive = activeTab === tab;
@@ -325,27 +398,28 @@ export default function EcommerceOrdersPage() {
                 key={tab}
                 onClick={() => navigate(tabPath(tab))}
                 style={{
-                  padding: "16px 8px",
+                  padding: "14px 6px",
                   border: "none",
                   borderBottom: isActive
                     ? `3px solid ${tab === "ALL" ? "#4f46e5" : meta.color}`
                     : "3px solid transparent",
                   background: "transparent",
                   cursor: "pointer",
-                  fontWeight: isActive ? 600 : 500,
+                  fontWeight: isActive ? 700 : 500,
                   color: isActive
                     ? tab === "ALL" ? "#4f46e5" : meta.color
                     : "#64748b",
-                  fontSize: 14,
+                  fontSize: 13.5,
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 6,
                   whiteSpace: "nowrap",
                   transition: "all 0.2s",
                   marginBottom: -1,
+                  flexShrink: 0
                 }}
               >
-                {meta && <meta.icon size={16} />}
+                {meta && <meta.icon size={15} />}
                 {tab === "ALL" ? "All Bookings" : meta.label}
               </button>
             );
@@ -355,14 +429,14 @@ export default function EcommerceOrdersPage() {
 
       {/* Status Messages */}
       {(statusMsg.error || statusMsg.success) && (
-        <div style={{ maxWidth: 1600, margin: '24px auto 0', width: 'calc(100% - 80px)' }}>
+        <div style={{ maxWidth: 1600, margin: '20px auto 0', width: 'calc(100% - 32px)' }}>
           <div
             style={{
-              padding: "16px 20px",
+              padding: "14px 18px",
               borderRadius: 8,
               background: statusMsg.error ? "#fef2f2" : "#f0fdf4",
               color: statusMsg.error ? "#991b1b" : "#166534",
-              fontSize: 14,
+              fontSize: 13.5,
               fontWeight: 500,
               display: "flex",
               justifyContent: "space-between",
@@ -393,22 +467,10 @@ export default function EcommerceOrdersPage() {
       )}
 
       {/* Main Content */}
-      <div
-        style={{
-          flex: 1,
-          padding: "32px 40px",
-          display: "flex",
-          gap: 32,
-          minHeight: 0,
-          maxWidth: 1600,
-          margin: '0 auto',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}
-      >
+      <div className="storefront-main-layout">
         {/* Bookings List */}
-        <div style={{ flex: "1 1 55%", minWidth: 0 }}>
-          <div style={{ position: "relative", marginBottom: 24 }}>
+        <div className="storefront-list-pane">
+          <div style={{ position: "relative", marginBottom: 20 }}>
             <Search
               size={18}
               style={{
@@ -426,10 +488,10 @@ export default function EcommerceOrdersPage() {
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 width: "100%",
-                padding: "14px 16px 14px 44px",
+                padding: "12px 16px 12px 44px",
                 border: "1px solid #cbd5e1",
-                borderRadius: 12,
-                fontSize: 14,
+                borderRadius: 10,
+                fontSize: 13.5,
                 outline: "none",
                 boxSizing: "border-box",
                 background: "white",
@@ -491,21 +553,10 @@ export default function EcommerceOrdersPage() {
         </div>
 
         {/* Booking Detail Panel */}
-        <div
-          style={{
-            flex: "1 1 45%",
-            minWidth: 360,
-            position: "sticky",
-            top: 32,
-            alignSelf: "flex-start",
-            maxHeight: "calc(100vh - 100px)",
-            overflowY: "auto",
-            borderRadius: 16,
-            scrollbarWidth: 'none'
-          }}
-        >
+        <div className="storefront-detail-pane">
           {!selectedBooking ? (
             <div
+              className="storefront-detail-placeholder"
               style={{
                 background: "white",
                 border: "1px dashed #cbd5e1",
@@ -585,10 +636,12 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: 16,
+          marginBottom: 12,
+          flexWrap: "wrap",
+          gap: 8,
         }}
       >
-        <div>
+        <div style={{ flex: 1, minWidth: 200 }}>
           <div
             style={{
               fontSize: 15,
@@ -597,7 +650,8 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
               marginBottom: 6,
               display: 'flex',
               alignItems: 'center',
-              gap: 8
+              gap: 8,
+              flexWrap: 'wrap'
             }}
           >
             #{booking.orderNumber}
@@ -621,25 +675,26 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
               gap: 8,
               fontSize: 13,
               color: "#475569",
+              flexWrap: "wrap"
             }}
           >
-            <User size={13} color="#94a3b8" /> <span style={{ fontWeight: 500 }}>{booking.customerName}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><User size={13} color="#94a3b8" /> <strong style={{ fontWeight: 600, color: "#1e293b" }}>{booking.customerName}</strong></span>
             <span style={{ color: "#cbd5e1" }}>•</span>
-            <Phone size={13} color="#94a3b8" /> {booking.customerPhone}
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Phone size={13} color="#94a3b8" /> {booking.customerPhone}</span>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
           <span
             style={{
-              fontSize: 12,
-              fontWeight: 600,
-              padding: "4px 10px",
+              fontSize: 11.5,
+              fontWeight: 700,
+              padding: "3px 10px",
               borderRadius: 100,
               background: sm.bg,
               color: sm.color,
               display: "flex",
               alignItems: "center",
-              gap: 6,
+              gap: 5,
             }}
           >
             <sm.icon size={12} />
@@ -655,7 +710,7 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
             background: "#f8fafc",
             borderRadius: 8,
             padding: "10px 14px",
-            marginBottom: 16,
+            marginBottom: 14,
             fontSize: 13,
             color: "#475569",
             border: '1px solid #f1f5f9'
@@ -682,20 +737,22 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
           justifyContent: "space-between",
           alignItems: "center",
           borderTop: '1px solid #f1f5f9',
-          paddingTop: 16
+          paddingTop: 14,
+          flexWrap: 'wrap',
+          gap: 10
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Total</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>
+            <span style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
               ₹{fmt(booking.total)}
             </span>
           </div>
-          <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+          <div style={{ width: 1, height: 20, background: '#e2e8f0' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Date & Time</span>
-            <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date & Time</span>
+            <span style={{ fontSize: 12.5, color: "#334155", fontWeight: 600, display: "flex", alignItems: "center", gap: 4, whiteSpace: 'nowrap' }}>
               <CalendarDays size={13} color="#94a3b8" />
               {booking.bookingDate
                 ? new Date(booking.bookingDate).toLocaleString("en-IN", {
