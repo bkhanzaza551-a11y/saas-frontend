@@ -218,11 +218,83 @@ export default function ProductsRequirementPage() {
 
   return (
     <div className="page-shell">
+      <style>{`
+        .pr-hero-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .pr-tabs-nav {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #e2e8f0;
+          padding-bottom: 10px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .pr-tab-btn {
+          white-space: nowrap;
+          flex-shrink: 0;
+          padding: 8px 14px;
+          border-radius: 8px;
+          border: none;
+          font-weight: 700;
+          font-size: 0.85rem;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .pr-filters-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+          gap: 12px;
+          align-items: center;
+        }
+        .pr-form-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .pr-form-grid-3 {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 12px;
+        }
+        @media (max-width: 900px) {
+          .pr-filters-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .pr-search-box {
+            grid-column: 1 / -1 !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .pr-hero-head {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .pr-hero-head button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .pr-filters-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .pr-form-grid-2, .pr-form-grid-3 {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
       {/* Header */}
       <div className="hero-card" style={{ padding: "20px 24px", marginBottom: 20 }}>
-        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="pr-hero-head">
           <div>
-            <h1 style={{ margin: 0, fontSize: "1.4rem" }}>Product Requests</h1>
+            <h1 style={{ margin: 0, fontSize: "1.35rem" }}>Product Requests</h1>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>
               Explore available catalog items, place new orders/requirements, and track request status.
             </p>
@@ -257,7 +329,7 @@ export default function ProductsRequirementPage() {
               boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)"
             }}
           >
-            <Plus size={16} /> + New Request
+            <Plus size={16} /> New Request
           </button>
         </div>
       </div>
@@ -276,21 +348,13 @@ export default function ProductsRequirementPage() {
       )}
 
       {/* 4 Section Navigation Tabs (Point 2) */}
-      <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 10 }}>
+      <div className="pr-tabs-nav">
         <button
           onClick={() => setActiveSection("available")}
+          className="pr-tab-btn"
           style={{
-            padding: "8px 16px",
-            borderRadius: 8,
-            border: "none",
             background: activeSection === "available" ? "#4f46e5" : "#f1f5f9",
             color: activeSection === "available" ? "white" : "#475569",
-            fontWeight: 700,
-            fontSize: "0.85rem",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6
           }}
         >
           <Package size={16} /> Available Products <span style={{ background: activeSection === "available" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 7px", borderRadius: 10, fontSize: "0.75rem", fontWeight: 700 }}>{catalog.length}</span>
@@ -298,18 +362,10 @@ export default function ProductsRequirementPage() {
 
         <button
           onClick={() => setActiveSection("new_request")}
+          className="pr-tab-btn"
           style={{
-            padding: "8px 16px",
-            borderRadius: 8,
-            border: "none",
             background: activeSection === "new_request" ? "#4f46e5" : "#f1f5f9",
             color: activeSection === "new_request" ? "white" : "#475569",
-            fontWeight: 700,
-            fontSize: "0.85rem",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6
           }}
         >
           <Plus size={16} /> New Request
@@ -317,18 +373,10 @@ export default function ProductsRequirementPage() {
 
         <button
           onClick={() => setActiveSection("my_requests")}
+          className="pr-tab-btn"
           style={{
-            padding: "8px 16px",
-            borderRadius: 8,
-            border: "none",
             background: activeSection === "my_requests" ? "#4f46e5" : "#f1f5f9",
             color: activeSection === "my_requests" ? "white" : "#475569",
-            fontWeight: 700,
-            fontSize: "0.85rem",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6
           }}
         >
           <ListFilter size={16} /> My Requests <span style={{ background: activeSection === "my_requests" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 7px", borderRadius: 10, fontSize: "0.75rem", fontWeight: 700 }}>{requirements.length}</span>
@@ -337,40 +385,32 @@ export default function ProductsRequirementPage() {
         {selectedDetail && (
           <button
             onClick={() => setActiveSection("detail")}
+            className="pr-tab-btn"
             style={{
-              padding: "8px 16px",
-              borderRadius: 8,
-              border: "none",
               background: activeSection === "detail" ? "#4f46e5" : "#f1f5f9",
               color: activeSection === "detail" ? "white" : "#475569",
-              fontWeight: 700,
-              fontSize: "0.85rem",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6
             }}
           >
-            <FileText size={16} /> 4. Request Detail
+            <FileText size={16} /> Request Detail
           </button>
         )}
       </div>
 
       {/* SECTION 1: AVAILABLE PRODUCTS (Points 3, 4, 5, 6) */}
       {activeSection === "available" && (
-        <div className="panel-card" style={{ padding: 24 }}>
+        <div className="panel-card" style={{ padding: "20px 16px" }}>
           {/* Search & Filter Controls (Point 6) */}
-          <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 12, alignItems: "center" }}>
-              <div style={{ position: "relative" }}>
+          <div style={{ background: "#f8fafc", padding: "14px 12px", borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20 }}>
+            <div className="pr-filters-grid">
+              <div className="pr-search-box" style={{ position: "relative" }}>
                 <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                 <input
                   type="text"
                   className="search-input-field"
-                  placeholder="Search Product Name, Brand, Category, Pack Size..."
+                  placeholder="Search Product Name, Brand, Category..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  style={{ width: "100%", padding: "10px 12px", paddingLeft: "42px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px 12px", paddingLeft: "40px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                 />
               </div>
 
@@ -552,7 +592,7 @@ export default function ProductsRequirementPage() {
               </CustomSelect>
             </label>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="pr-form-grid-2">
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
                 <input
@@ -578,7 +618,7 @@ export default function ProductsRequirementPage() {
               </label>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="pr-form-grid-2">
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
                 <CustomSelect
@@ -605,7 +645,7 @@ export default function ProductsRequirementPage() {
               </label>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div className="pr-form-grid-3">
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Quantity *</span>
                 <input
@@ -655,7 +695,7 @@ export default function ProductsRequirementPage() {
               />
             </label>
 
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 10 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap", marginTop: 10 }}>
               <button
                 type="button"
                 onClick={() => setActiveSection("available")}
@@ -677,7 +717,7 @@ export default function ProductsRequirementPage() {
 
       {/* SECTION 3: MY REQUESTS (Points 2 & 8) */}
       {activeSection === "my_requests" && (
-        <div className="panel-card" style={{ padding: 24 }}>
+        <div className="panel-card" style={{ padding: "20px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
             <h3 style={{ margin: 0, fontSize: "1.1rem" }}>My Requests ({filteredRequests.length})</h3>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -706,8 +746,8 @@ export default function ProductsRequirementPage() {
           {filteredRequests.length === 0 ? (
             <EmptyState title="No Requests Found" message="You have not submitted any product requirements in this filter." />
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+              <table style={{ width: "100%", minWidth: "750px", borderCollapse: "collapse", fontSize: 13, whiteSpace: "nowrap" }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Request ID</th>
