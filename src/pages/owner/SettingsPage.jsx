@@ -2454,37 +2454,138 @@ export default function SettingsPage() {
 
         {/* MODAL */}
         {editing && (
-          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={cancelDraft}>
-            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 540, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", maxHeight: "90vh" }} onClick={e => e.stopPropagation()}>
-              <div style={{ padding: "24px 28px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 8, height: 24, background: "#14b8a6", borderRadius: 4 }} />
+          <div className="tax-modal-overlay" onClick={cancelDraft}>
+            <style>{`
+              .tax-modal-overlay {
+                position: fixed;
+                inset: 0;
+                background-color: rgba(15, 23, 42, 0.45);
+                backdrop-filter: blur(4px);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+                box-sizing: border-box;
+              }
+              .tax-modal-card {
+                background: #fff;
+                border-radius: 20px;
+                width: 100%;
+                max-width: 520px;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                max-height: 90vh;
+                box-sizing: border-box;
+              }
+              .tax-modal-header {
+                padding: 18px 24px;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #f8fafc;
+              }
+              .tax-modal-body {
+                padding: 24px;
+                flex: 1;
+                overflow-y: auto;
+                box-sizing: border-box;
+              }
+              .tax-modal-grid-inputs {
+                display: grid;
+                grid-template-columns: 1fr 120px;
+                gap: 14px;
+              }
+              .tax-modal-toggle-box {
+                display: flex;
+                gap: 24px;
+                padding: 16px 18px;
+                background: #f8fafc;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                flex-wrap: wrap;
+              }
+              .tax-modal-applicable-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+              }
+              .tax-modal-footer {
+                padding: 16px 24px;
+                border-top: 1px solid #e2e8f0;
+                background: #f8fafc;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+              }
+              @media (max-width: 540px) {
+                .tax-modal-overlay {
+                  padding: 8px !important;
+                }
+                .tax-modal-card {
+                  border-radius: 16px !important;
+                  max-height: 94vh !important;
+                }
+                .tax-modal-header {
+                  padding: 14px 16px !important;
+                }
+                .tax-modal-body {
+                  padding: 16px 14px !important;
+                }
+                .tax-modal-grid-inputs {
+                  grid-template-columns: 1fr !important;
+                  gap: 12px !important;
+                }
+                .tax-modal-toggle-box {
+                  gap: 16px !important;
+                  padding: 12px 14px !important;
+                }
+                .tax-modal-applicable-grid {
+                  grid-template-columns: 1fr !important;
+                  gap: 8px !important;
+                }
+                .tax-modal-footer {
+                  padding: 12px 16px !important;
+                }
+                .tax-modal-footer button {
+                  flex: 1 !important;
+                  text-align: center !important;
+                  justify-content: center !important;
+                }
+              }
+            `}</style>
+
+            <div className="tax-modal-card" onClick={e => e.stopPropagation()}>
+              <div className="tax-modal-header">
+                <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 6, height: 20, background: "#14b8a6", borderRadius: 4 }} />
                   {draftTax?._isNew ? "Create New Tax" : `Edit Tax Mapping`}
                 </h2>
                 <button type="button" className="modal-close-btn" onClick={cancelDraft}>
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
-              <div style={{ padding: "28px", flex: 1, overflowY: "auto" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <div className="tax-modal-body">
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 16 }}>
+                  <div className="tax-modal-grid-inputs">
                     <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 8 }}>Tax Name <span style={{ color: "#ef4444" }}>*</span></label>
+                      <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Tax Name <span style={{ color: "#ef4444" }}>*</span></label>
                       <input 
                         type="text" 
                         value={draftTax?.label ?? editing.label} 
                         onChange={(e) => draftTax && setDraftTax({ ...draftTax, label: e.target.value })} 
                         placeholder="e.g. VAT, GST, Sales Tax" 
-                        style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, color: "#0f172a", outline: "none", transition: "border-color 0.2s" }} 
-                        onFocus={e => e.currentTarget.style.borderColor = "#14b8a6"} 
-                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"} 
+                        style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, color: "#0f172a", outline: "none", boxSizing: "border-box" }} 
                       />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 8 }}>Rate (%) <span style={{ color: "#ef4444" }}>*</span></label>
-                      <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", transition: "border-color 0.2s" }} onFocusCapture={e => e.currentTarget.style.borderColor = "#14b8a6"} onBlurCapture={e => e.currentTarget.style.borderColor = "#cbd5e1"}>
+                      <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Rate (%) <span style={{ color: "#ef4444" }}>*</span></label>
+                      <div style={{ display: "flex", alignItems: "center", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, overflow: "hidden", boxSizing: "border-box" }}>
                         <input 
                           type="number" 
                           min="0" 
@@ -2492,45 +2593,45 @@ export default function SettingsPage() {
                           value={draftTax?.rate ?? editing.rate} 
                           onChange={(e) => draftTax && setDraftTax({ ...draftTax, rate: Number(e.target.value) })} 
                           placeholder="0" 
-                          style={{ flex: 1, padding: "10px 14px", border: "none", fontSize: 14, color: "#0f172a", outline: "none", width: "100%" }} 
+                          style={{ flex: 1, padding: "9px 12px", border: "none", fontSize: 14, color: "#0f172a", outline: "none", width: "100%", boxSizing: "border-box" }} 
                         />
-                        <span style={{ padding: "10px 14px", background: "#f8fafc", borderLeft: "1px solid #cbd5e1", fontSize: 14, color: "#475569", fontWeight: 700 }}>%</span>
+                        <span style={{ padding: "9px 12px", background: "#f8fafc", borderLeft: "1px solid #cbd5e1", fontSize: 13, color: "#475569", fontWeight: 700 }}>%</span>
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 32, padding: "20px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", margin: 0 }}>
-                      <div style={{ position: "relative", width: 40, height: 24, background: (draftTax?.active ?? editing.active) ? "#14b8a6" : "#cbd5e1", borderRadius: 24, transition: "background 0.3s" }}>
-                        <div style={{ position: "absolute", top: 2, left: (draftTax?.active ?? editing.active) ? 18 : 2, width: 20, height: 20, background: "#fff", borderRadius: "50%", transition: "left 0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }} />
+                  <div className="tax-modal-toggle-box">
+                    <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", margin: 0 }}>
+                      <div style={{ position: "relative", width: 38, height: 22, background: (draftTax?.active ?? editing.active) ? "#14b8a6" : "#cbd5e1", borderRadius: 24, transition: "background 0.3s", flexShrink: 0 }}>
+                        <div style={{ position: "absolute", top: 2, left: (draftTax?.active ?? editing.active) ? 18 : 2, width: 18, height: 18, background: "#fff", borderRadius: "50%", transition: "left 0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }} />
                       </div>
                       <input type="checkbox" checked={draftTax?.active ?? editing.active} onChange={(e) => draftTax && setDraftTax({ ...draftTax, active: e.target.checked })} style={{ display: "none" }} />
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Active Status</div>
-                        <div style={{ fontSize: 12, color: "#64748b" }}>Enable this tax rate</div>
+                        <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1e293b" }}>Active Status</div>
+                        <div style={{ fontSize: 11.5, color: "#64748b" }}>Enable this tax rate</div>
                       </div>
                     </label>
                     
-                    <label style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", margin: 0 }}>
-                      <div style={{ position: "relative", width: 40, height: 24, background: inclusiveTax ? "#14b8a6" : "#cbd5e1", borderRadius: 24, transition: "background 0.3s" }}>
-                        <div style={{ position: "absolute", top: 2, left: inclusiveTax ? 18 : 2, width: 20, height: 20, background: "#fff", borderRadius: "50%", transition: "left 0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }} />
+                    <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", margin: 0 }}>
+                      <div style={{ position: "relative", width: 38, height: 22, background: inclusiveTax ? "#14b8a6" : "#cbd5e1", borderRadius: 24, transition: "background 0.3s", flexShrink: 0 }}>
+                        <div style={{ position: "absolute", top: 2, left: inclusiveTax ? 18 : 2, width: 18, height: 18, background: "#fff", borderRadius: "50%", transition: "left 0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }} />
                       </div>
                       <input type="checkbox" checked={inclusiveTax} onChange={(e) => updateAdvancedObject("taxMapping", { inclusiveTax: e.target.checked })} style={{ display: "none" }} />
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Inclusive Tax</div>
-                        <div style={{ fontSize: 12, color: "#64748b" }}>Global setting</div>
+                        <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1e293b" }}>Inclusive Tax</div>
+                        <div style={{ fontSize: 11.5, color: "#64748b" }}>Global setting</div>
                       </div>
                     </label>
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 12 }}>Apply automatically to:</label>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 10 }}>Apply automatically to:</label>
+                    <div className="tax-modal-applicable-grid">
                       {[
-                        { key: "SERVICE", label: "Services", sub: "Hair, Spa, Beauty", icon: <Scissors size={16} /> },
-                        { key: "PRODUCT", label: "Products", sub: "Retail & Inventory", icon: <ShoppingBag size={16} /> },
-                        { key: "MEMBERSHIP", label: "Memberships", sub: "VIP & Subscriptions", icon: <Users size={16} /> },
-                        { key: "PACKAGE", label: "Packages", sub: "Bundled Deals", icon: <Package size={16} /> }
+                        { key: "SERVICE", label: "Services", sub: "Hair, Spa, Beauty", icon: <Scissors size={15} /> },
+                        { key: "PRODUCT", label: "Products", sub: "Retail & Inventory", icon: <ShoppingBag size={15} /> },
+                        { key: "MEMBERSHIP", label: "Memberships", sub: "VIP & Subscriptions", icon: <Users size={15} /> },
+                        { key: "PACKAGE", label: "Packages", sub: "Bundled Deals", icon: <Package size={15} /> }
                       ].map(({ key, label, sub, icon }) => {
                         const isChecked = (draftTax?.applicableFor ?? (typeof editing.applicableFor === "string" ? editing.applicableFor.split(",") : (editing.applicableFor || []))).includes(key);
                         return (
@@ -2541,22 +2642,21 @@ export default function SettingsPage() {
                               display: "flex", 
                               alignItems: "center", 
                               justifyContent: "space-between", 
-                              padding: "12px 16px", 
+                              padding: "10px 14px", 
                               border: isChecked ? "1.5px solid #14b8a6" : "1px solid #e2e8f0", 
                               background: isChecked ? "#f0fdfa" : "#ffffff", 
-                              borderRadius: 12, 
+                              borderRadius: 10, 
                               cursor: "pointer", 
                               transition: "all 0.2s ease", 
                               boxShadow: isChecked ? "0 2px 8px rgba(20, 184, 166, 0.08)" : "none",
-                              userSelect: "none"
+                              userSelect: "none",
+                              boxSizing: "border-box"
                             }} 
-                            onMouseEnter={e => { if(!isChecked) e.currentTarget.style.borderColor = "#cbd5e1"; }} 
-                            onMouseLeave={e => { if(!isChecked) e.currentTarget.style.borderColor = "#e2e8f0"; }}
                           >
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                               <div style={{
-                                width: 34,
-                                height: 34,
+                                width: 32,
+                                height: 32,
                                 borderRadius: 8,
                                 background: isChecked ? "#ccfbf1" : "#f1f5f9",
                                 color: isChecked ? "#0d9488" : "#64748b",
@@ -2568,8 +2668,8 @@ export default function SettingsPage() {
                                 {icon}
                               </div>
                               <div>
-                                <div style={{ fontSize: 13.5, fontWeight: 700, color: isChecked ? "#0f766e" : "#1e293b" }}>{label}</div>
-                                <div style={{ fontSize: 11, color: isChecked ? "#14b8a6" : "#94a3b8", fontWeight: 500 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: isChecked ? "#0f766e" : "#1e293b" }}>{label}</div>
+                                <div style={{ fontSize: 10.5, color: isChecked ? "#14b8a6" : "#94a3b8", fontWeight: 500 }}>
                                   {sub}
                                 </div>
                               </div>
@@ -2578,8 +2678,8 @@ export default function SettingsPage() {
                             {/* Toggle Switch */}
                             <div style={{
                               position: "relative",
-                              width: 36,
-                              height: 20,
+                              width: 32,
+                              height: 18,
                               background: isChecked ? "#14b8a6" : "#cbd5e1",
                               borderRadius: 20,
                               transition: "background 0.25s ease",
@@ -2588,9 +2688,9 @@ export default function SettingsPage() {
                               <div style={{
                                 position: "absolute",
                                 top: 2,
-                                left: isChecked ? 18 : 2,
-                                width: 16,
-                                height: 16,
+                                left: isChecked ? 16 : 2,
+                                width: 14,
+                                height: 14,
                                 background: "#ffffff",
                                 borderRadius: "50%",
                                 transition: "left 0.25s ease",
@@ -2606,11 +2706,11 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div style={{ padding: "20px 28px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "flex-end", gap: 12 }}>
-                <button type="button" onClick={cancelDraft} style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
+              <div className="tax-modal-footer">
+                <button type="button" onClick={cancelDraft} style={{ padding: "9px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13, transition: "background 0.2s" }}>
                   Cancel
                 </button>
-                <button type="button" onClick={saveDraft} disabled={!draftTax?.label} style={{ padding: "10px 28px", background: "#14b8a6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: draftTax?.label ? "pointer" : "not-allowed", fontSize: 14, opacity: draftTax?.label ? 1 : 0.6, transition: "background 0.2s" }} onMouseEnter={e => { if(draftTax?.label) e.currentTarget.style.background = "#0d9488" }} onMouseLeave={e => { if(draftTax?.label) e.currentTarget.style.background = "#14b8a6" }}>
+                <button type="button" onClick={saveDraft} disabled={!draftTax?.label} style={{ padding: "9px 24px", background: "#14b8a6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: draftTax?.label ? "pointer" : "not-allowed", fontSize: 13, opacity: draftTax?.label ? 1 : 0.6, transition: "background 0.2s" }}>
                   Save Tax
                 </button>
               </div>
