@@ -5279,8 +5279,7 @@ export default function SettingsPage() {
             <input className="settings-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search settings" />
             <div className="settings-sidebar-shortcuts">
               <Link to="/admin/dashboard" className="settings-sidebar-shortcut">
-                <strong>Home / Dashboard</strong>
-                <small>Return to the main workspace</small>
+                <strong>← Back to Dashboard</strong>
               </Link>
             </div>
             <div className="settings-nav-list">

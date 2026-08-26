@@ -126,30 +126,32 @@
 }
 
 .settings-sidebar-shortcuts {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .settings-sidebar-shortcut {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 16px;
-  border-radius: 10px;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 8px;
   text-decoration: none;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
-  color: white;
-  border: 1px solid rgba(59, 130, 246, 0.18);
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
   box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.settings-sidebar-shortcut:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
 .settings-sidebar-shortcut strong {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.settings-sidebar-shortcut small {
-  font-size: 11px;
-  color: rgba(226, 232, 240, 0.92);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .settings-nav-item {
@@ -162,6 +164,7 @@
   transition: all 0.2s;
   color: #475569;
   text-decoration: none;
+  border: 1px solid transparent;
 }
 
 .settings-nav-item:hover {
@@ -171,6 +174,8 @@
 .settings-nav-item.active {
   background: #eff6ff;
   color: #1d4ed8;
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
 }
 
 .settings-nav-item strong {
