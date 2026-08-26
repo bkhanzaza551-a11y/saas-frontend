@@ -1471,26 +1471,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="settings-panel-card">
-          <div className="settings-panel-header-with-toggle" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: 12, marginBottom: 16 }}>
-            <h3>Booking & Invoice Defaults</h3>
-          </div>
-          <div className="settings-form-grid">
-            <label className="settings-input-group">
-              <span className="muted">Tax Label</span>
-              <input type="text" value={form.taxLabel} onChange={(e) => setForm((c) => ({ ...c, taxLabel: e.target.value }))} placeholder="e.g. GST" />
-            </label>
-            <label className="settings-input-group">
-              <span className="muted">Booking Notes</span>
-              <textarea value={form.bookingNotes} onChange={(e) => setForm((c) => ({ ...c, bookingNotes: e.target.value }))} placeholder="e.g. Please arrive 10 minutes early" style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none", minHeight: 60, resize: "vertical", fontFamily: "inherit" }} />
-            </label>
-            <label className="settings-input-group">
-              <span className="muted">Cancellation Policy</span>
-              <textarea value={form.cancellationPolicy} onChange={(e) => setForm((c) => ({ ...c, cancellationPolicy: e.target.value }))} placeholder="e.g. Free cancellation up to 24 hours before" style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none", minHeight: 60, resize: "vertical", fontFamily: "inherit" }} />
-            </label>
-          </div>
-        </div>
-
         </div>{/* End of disabled wrapper */}
       </>
     );
