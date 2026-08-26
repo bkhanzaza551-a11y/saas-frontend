@@ -217,14 +217,44 @@ export default function AttendanceManagementPage() {
 
   return (
     <div className="page-shell">
-      <div className="hero-card" style={{ padding: 20, marginBottom: 20 }}>
+      <style>{`
+        .attendance-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .attendance-stat-card {
+          background: white;
+          border: 1px solid #f1f5f9;
+          border-radius: 12px;
+          padding: 14px 16px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        @media (max-width: 768px) {
+          .attendance-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+            margin-bottom: 16px !important;
+          }
+          .attendance-stat-card {
+            padding: 10px 12px !important;
+            gap: 10px !important;
+          }
+        }
+      `}</style>
+
+      <div className="hero-card" style={{ padding: "16px 20px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: "1.4rem" }}>Attendance Management</h1>
-            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.85rem" }}>Track staff check-ins, shift hours, and manage attendance records.</p>
+            <h1 style={{ margin: 0, fontSize: "1.3rem" }}>Attendance Management</h1>
+            <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.82rem" }}>Track staff check-ins, shift hours, and manage attendance records.</p>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }} />
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, background: "white" }} />
           </div>
         </div>
       </div>
@@ -232,30 +262,30 @@ export default function AttendanceManagementPage() {
       {feedback.error && <div style={{ background: "#fef2f2", color: "#991b1b", border: "1px solid #fca5a5", padding: "10px 14px", borderRadius: 8, marginBottom: 16, fontSize: "0.85rem" }}>{feedback.error}</div>}
       {feedback.success && <div style={{ background: "#ecfdf5", color: "#065f46", border: "1px solid #6ee7b7", padding: "10px 14px", borderRadius: 8, marginBottom: 16, fontSize: "0.85rem" }}>{feedback.success}</div>}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 20 }}>
+      <div className="attendance-stats-grid">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.label} style={{ background: "white", border: "1px solid #f1f5f9", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div key={card.label} className="attendance-stat-card">
               <div style={{ width: 36, height: 36, borderRadius: 8, background: card.bg, color: card.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icon size={18} />
               </div>
               <div>
-                <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>{card.label}</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#0f172a" }}>{card.value}</div>
+                <div style={{ fontSize: "0.68rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>{card.label}</div>
+                <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{card.value}</div>
               </div>
             </div>
           );
         })}
       </div>
 
-      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid #f1f5f9", marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid #f1f5f9", marginBottom: 20, overflowX: "auto", whiteSpace: "nowrap" }}>
         {[
           { key: "today", label: "Today's Attendance" },
           { key: "records", label: "All Records" },
           { key: "reports", label: "Reports" }
         ].map((t) => (
-          <button key={t.key} type="button" onClick={() => setTab(t.key)} style={{ padding: "10px 16px", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f766e" : "2px solid transparent", color: tab === t.key ? "#0f766e" : "#64748b", fontWeight: tab === t.key ? 700 : 500, fontSize: "0.85rem", cursor: "pointer", marginBottom: -2, transition: "all 0.15s" }}>
+          <button key={t.key} type="button" onClick={() => setTab(t.key)} style={{ padding: "10px 16px", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f766e" : "2px solid transparent", color: tab === t.key ? "#0f766e" : "#64748b", fontWeight: tab === t.key ? 700 : 500, fontSize: "0.85rem", cursor: "pointer", marginBottom: -2, transition: "all 0.15s", flexShrink: 0 }}>
             {t.label}
           </button>
         ))}
@@ -263,15 +293,15 @@ export default function AttendanceManagementPage() {
 
       {tab === "today" && (
         <div className="panel-card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 style={{ margin: 0 }}>Day Sheet — {new Date(date).toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Day Sheet — {new Date(date).toLocaleDateString("en-IN", { weekday: "short", year: "numeric", month: "short", day: "numeric" })}</h3>
             <button type="button" onClick={() => { loadSummary(); loadDaySheet(); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", fontSize: 12, fontWeight: 600, background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer" }}><RefreshCw size={13} /> Refresh</button>
           </div>
           {daySheet.length === 0 ? (
             <EmptyState title="No attendance data" message="No staff attendance records found for this date and branch." />
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+              <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                     <th style={{ padding: "10px 14px", textAlign: "left" }}>Staff</th>
@@ -338,8 +368,8 @@ export default function AttendanceManagementPage() {
           {records.length === 0 ? (
             <EmptyState title="No records found" message="Try adjusting your filters or date range." />
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+              <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                     <th style={{ padding: "10px 14px", textAlign: "left" }}>Staff</th>
