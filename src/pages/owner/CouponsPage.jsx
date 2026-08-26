@@ -240,6 +240,13 @@ export default function CouponsPage() {
         .cpn-radio-option { flex: 1; text-align: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; color: #64748b; }
         .cpn-radio-option.active { background: white; color: #4f46e5; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
+        .cpn-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
         .modal-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
@@ -251,6 +258,7 @@ export default function CouponsPage() {
           justify-content: center;
           padding: 20px;
           animation: fadeIn 0.2s ease-out;
+          box-sizing: border-box;
         }
 
         .modal-content {
@@ -263,10 +271,57 @@ export default function CouponsPage() {
           flex-direction: column;
           overflow: hidden;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          box-sizing: border-box;
         }
 
-        @media (max-width: 900px) {
+        .cpn-table-wrap {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .cpn-table-wrap table {
+          min-width: 600px;
+          width: 100%;
+        }
+
+        @media (max-width: 768px) {
           .coupons-form-grid-1, .coupons-form-grid-2 { grid-template-columns: 1fr !important; }
+        }
+
+        @media (max-width: 640px) {
+          .cpn-stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .cpn-stat-card {
+            padding: 10px 12px !important;
+            gap: 10px !important;
+          }
+          .cpn-stat-icon {
+            width: 34px !important;
+            height: 34px !important;
+          }
+          .cpn-stat-title {
+            font-size: 10px !important;
+          }
+          .cpn-stat-val {
+            font-size: 16px !important;
+          }
+          .cpn-search-box {
+            width: 100% !important;
+          }
+          .cpn-search-box input {
+            width: 100% !important;
+            box-sizing: border-box !important;
+          }
+          .modal-overlay {
+            padding: 10px !important;
+          }
+          .modal-content {
+            max-height: 94vh !important;
+            border-radius: 14px !important;
+          }
         }
       `}</style>
       <ModuleTabs
@@ -305,48 +360,48 @@ export default function CouponsPage() {
       />
 
       {/* Top 4 Summary Metrics */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
-        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Tag size={20} />
+      <div className="cpn-stats-grid">
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Tag size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Active Coupons</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
-              {coupons.filter(c => !c.isArchived && (!c.endsAt || new Date(c.endsAt) >= new Date())).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {coupons.length} total</span>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Active Coupons</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {coupons.filter(c => !c.isArchived && (!c.endsAt || new Date(c.endsAt) >= new Date())).length} <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>/ {coupons.length}</span>
             </div>
           </div>
         </div>
 
-        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Gift size={20} />
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Gift size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Gift Cards</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
-              {giftCards.filter(g => g.isActive !== false && (!g.expiresAt || new Date(g.expiresAt) >= new Date())).length} <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>/ {giftCards.length} total</span>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Gift Cards</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {giftCards.filter(g => g.isActive !== false && (!g.expiresAt || new Date(g.expiresAt) >= new Date())).length} <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>/ {giftCards.length}</span>
             </div>
           </div>
         </div>
 
-        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <TrendingUp size={20} />
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <TrendingUp size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Redemptions</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{reports?.redemptions?.length || 0}</div>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Redemptions</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{reports?.redemptions?.length || 0}</div>
           </div>
         </div>
 
-        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#f3e8ff", color: "#9333ea", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <DollarSign size={20} />
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#f3e8ff", color: "#9333ea", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <DollarSign size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Total Savings</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>₹{reports?.totalSavings || 0}</div>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Total Savings</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>₹{reports?.totalSavings || 0}</div>
           </div>
         </div>
       </div>
@@ -363,7 +418,7 @@ export default function CouponsPage() {
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Active Coupons</h3>
                 <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Promotions and vouchers available for checkout redemption.</div>
               </div>
-              <div style={{ position: "relative" }}>
+              <div className="cpn-search-box" style={{ position: "relative" }}>
                 <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                 <input 
                   placeholder="Search coupons..." 
@@ -374,7 +429,7 @@ export default function CouponsPage() {
               </div>
             </div>
             
-            <div className="table-container">
+            <div className="cpn-table-wrap">
               <table className="data-table">
                 <thead>
                   <tr>
@@ -532,7 +587,7 @@ export default function CouponsPage() {
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Gift Card Inventory</h3>
                 <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Issued vouchers and available customer credits.</div>
               </div>
-              <div style={{ position: "relative" }}>
+              <div className="cpn-search-box" style={{ position: "relative" }}>
                 <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                 <input 
                   placeholder="Search by code or title..." 
@@ -649,7 +704,7 @@ export default function CouponsPage() {
         <div className="anim-fade">
           <div className="panel-card" style={{ padding: 24 }}>
             <h3 style={{ marginTop: 0, marginBottom: 18, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Redemption Audit History</h3>
-            <div className="table-container">
+            <div className="cpn-table-wrap">
               <table className="data-table">
                 <thead>
                   <tr>
