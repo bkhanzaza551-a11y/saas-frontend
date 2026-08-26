@@ -55,13 +55,29 @@ export default function HomePage() {
   return (
     <div className="storefront-wrapper" style={{ background: "#ffffff", color: "#0f172a", fontFamily: "'Poppins', -apple-system, sans-serif" }}>
       <style>{`
+        .sf-about-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 56px;
+          align-items: center;
+          max-width: 1240px;
+          margin: 0 auto;
+        }
+        .sf-contact-grid {
+          display: grid;
+          grid-template-columns: 1.1fr 0.9fr;
+          gap: 48px;
+          align-items: center;
+          max-width: 1240px;
+          margin: 0 auto;
+        }
         @media (max-width: 900px) {
           .sf-contact-grid {
             grid-template-columns: 1fr !important;
-            gap: 32px !important;
+            gap: 28px !important;
           }
           .sf-contact-section {
-            padding: 50px 16px !important;
+            padding: 44px 16px !important;
           }
           .sf-contact-card {
             padding: 24px 18px !important;
@@ -69,13 +85,14 @@ export default function HomePage() {
           }
           .sf-about-grid {
             grid-template-columns: 1fr !important;
-            gap: 32px !important;
+            gap: 28px !important;
           }
           .sf-about-section {
-            padding: 50px 16px !important;
+            padding: 44px 16px !important;
           }
           .sf-about-grid img {
-            height: 260px !important;
+            height: 240px !important;
+            width: 100% !important;
           }
         }
       `}</style>
@@ -381,7 +398,7 @@ export default function HomePage() {
       {/* About Section */}
       {isSectionEnabled("about") && (
         <section id="sf-about-section" className="sf-about-section" style={{ padding: "90px 24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0" }}>
-          <div className="sf-about-grid" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
+          <div className="sf-about-grid">
             
             <div style={{ position: "relative" }}>
               <img 
@@ -554,7 +571,7 @@ export default function HomePage() {
       {/* Contact / Visit Us */}
       {isSectionEnabled("contact") && (
         <section id="sf-contact-section" className="sf-contact-section" style={{ padding: "80px 24px", background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#ffffff" }}>
-          <div className="sf-contact-grid" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
+          <div className="sf-contact-grid">
             
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#5eead4", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 14 }}>
