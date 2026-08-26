@@ -76,6 +76,7 @@ export default function WebsiteEditorPage() {
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [status, setStatus] = useState({ error: "", success: "" });
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
+  const [forceMobileView, setForceMobileView] = useState(false);
   const iframeRef = useRef(null);
 
   const slug = config.slug || auth?.membership?.salon?.slug || auth?.membership?.salonSlug || auth?.salon?.slug || auth?.user?.salon?.slug || auth?.user?.salonSlug || "";
@@ -221,10 +222,114 @@ export default function WebsiteEditorPage() {
   ];
 
   return (
-    <div className="we-root" style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      
+    <div className="we-root" style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", position: "relative" }}>
+      <style>{`
+        @media (max-width: 900px) {
+          .we-left-panel {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+          }
+          .we-right-preview {
+            display: none !important;
+          }
+          .we-mobile-splash {
+            display: flex !important;
+          }
+        }
+        @media (min-width: 901px) {
+          .we-mobile-splash {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      {/* ── Mobile Notice Overlay Screen (for screens <= 900px) ── */}
+      {!forceMobileView && (
+        <div 
+          className="we-mobile-splash" 
+          style={{
+            display: "none",
+            position: "absolute",
+            inset: 0,
+            zIndex: 9999,
+            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+            color: "#ffffff",
+            padding: "32px 20px",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center"
+          }}
+        >
+          <div style={{ maxWidth: 440, width: "100%", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.12)", backdropFilter: "blur(16px)", padding: "36px 24px", borderRadius: 28, boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(94, 234, 212, 0.15)", border: "1px solid rgba(94, 234, 212, 0.3)", color: "#5eead4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+              <Monitor size={36} />
+            </div>
+
+            <div style={{ display: "inline-block", padding: "4px 12px", background: "rgba(255,255,255,0.1)", borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "#5eead4", textTransform: "uppercase", marginBottom: 12 }}>
+              DESKTOP RECOMMENDED
+            </div>
+
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, margin: "0 0 12px", color: "#ffffff", letterSpacing: "-0.02em" }}>
+              Design on Desktop for the Best Experience
+            </h2>
+
+            <p style={{ fontSize: "0.9rem", color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.6, margin: "0 0 28px" }}>
+              Website Builder includes a live side-by-side interactive storefront preview with theme presets and responsive canvas. For optimal design accuracy, please open this page on a desktop or laptop.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {slug && (
+                <a 
+                  href={`/site/${slug}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    padding: "14px 20px",
+                    borderRadius: 100,
+                    background: "#0d9488",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    textDecoration: "none",
+                    boxShadow: "0 4px 14px rgba(13,148,136,0.3)"
+                  }}
+                >
+                  <span>View Live Storefront</span>
+                  <ExternalLink size={16} />
+                </a>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setForceMobileView(true)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  padding: "12px 20px",
+                  borderRadius: 100,
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  cursor: "pointer"
+                }}
+              >
+                Continue & Edit on Mobile Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Left Editor Panel ── */}
-      <div style={{ width: "460px", background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", flexShrink: 0, zIndex: 10, boxShadow: "4px 0 20px rgba(0,0,0,0.03)" }}>
+      <div className="we-left-panel" style={{ width: "460px", background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", flexShrink: 0, zIndex: 10, boxShadow: "4px 0 20px rgba(0,0,0,0.03)" }}>
         
         {/* Panel Header */}
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff" }}>
@@ -648,7 +753,7 @@ export default function WebsiteEditorPage() {
       </div>
 
       {/* ── Right Live Preview Area ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#0f172a", overflow: "hidden" }}>
+      <div className="we-right-preview" style={{ flex: 1, display: "flex", flexDirection: "column", background: "#0f172a", overflow: "hidden" }}>
         
         {/* Preview Top Toolbar */}
         <div style={{ padding: "12px 24px", background: "#1e293b", borderBottom: "1px solid #334155", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
