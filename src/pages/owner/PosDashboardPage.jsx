@@ -1113,9 +1113,11 @@ export default function PosDashboardPage() {
       {detail ? createPortal(
         <div className="premium-modal-overlay" onClick={closeDetail} style={{ zIndex: 99999, background: "rgba(0,0,0,0.6)" }}>
           <div className="premium-modal-content pos-dashboard-detail-modal pos-edit-modal-wrapper" onClick={(event) => event.stopPropagation()}>
-            <div className="pos-detail-header-strip" style={{ position: 'relative' }}>
-              <span style={{ color: '#ec4899', fontWeight: 'bold', margin: '0 auto', fontSize: '15px' }}>Update Bill ({invoiceDetail?.status || detailStatus || detail.status}) Invoice Id: {invoiceDetail?.invoiceNumber || detail?.invoiceNumber || "-"}</span>
-              <button type="button" onClick={closeDetail} style={{ position: 'absolute', right: 0, background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '50%', cursor: 'pointer', padding: '6px', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
+            <div className="pos-detail-header-strip">
+              <span style={{ color: '#ec4899', fontWeight: 'bold', fontSize: '13.5px', wordBreak: 'break-all' }}>
+                Update Bill ({invoiceDetail?.status || detailStatus || detail.status}) - {invoiceDetail?.invoiceNumber || detail?.invoiceNumber || "-"}
+              </span>
+              <button type="button" onClick={closeDetail} className="pos-modal-close-btn" title="Close modal"><X size={18} /></button>
             </div>
 
             <div className="pos-detail-split-pane">
@@ -1375,54 +1377,51 @@ export default function PosDashboardPage() {
               </div>
 
                 {/* --- CONSOLIDATED PREMIUM FOOTER --- */}
-                <div style={{ position: "sticky", bottom: -20, background: "#fff", zIndex: 10, marginTop: "auto", paddingTop: 16, paddingBottom: 20, borderTop: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 12 }}>
+                <div className="pos-modal-footer-container">
                   {/* Top Row: Notes & Quick Actions */}
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                    <input type="text" placeholder="Add Order Instruction (Optional)" disabled={!isEditing} value={detailNote} onChange={(e) => setDetailNote(e.target.value)} style={{ flex: 1, padding: "8px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "12px", outline: "none" }} />
-                    <div style={{ display: "flex", gap: 6 }}>
-                      <button type="button" onClick={applyInvoiceLevelDiscount} disabled={!isEditing} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>Discount</button>
-                      <button type="button" onClick={() => { if (!isEditing) return; loadCustomerPackages(); }} disabled={!isEditing || loadingCustomerPkgs} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>{loadingCustomerPkgs ? "..." : "Package"}</button>
-                      <button type="button" onClick={() => { if (!isEditing) return; setGcRedemptionCode(""); setGcRedemptionResult(null); setShowApplyGcModal(true); }} disabled={!isEditing} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>Gift Card</button>
-                      <button type="button" onClick={() => { if (!isEditing) return; setShowTipModal(true); }} disabled={!isEditing} className="pos-checkout-btn-clear" style={{ height: "28px !important", padding: "2px 10px !important", fontSize: "11px !important", flex: "none" }}>Tip</button>
+                  <div className="pos-modal-instruction-row">
+                    <input type="text" placeholder="Add Order Instruction (Optional)" disabled={!isEditing} value={detailNote} onChange={(e) => setDetailNote(e.target.value)} className="pos-modal-note-input" />
+                    <div className="pos-modal-quick-chips">
+                      <button type="button" onClick={applyInvoiceLevelDiscount} disabled={!isEditing} className="pos-checkout-btn-clear">Discount</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; loadCustomerPackages(); }} disabled={!isEditing || loadingCustomerPkgs} className="pos-checkout-btn-clear">{loadingCustomerPkgs ? "..." : "Package"}</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; setGcRedemptionCode(""); setGcRedemptionResult(null); setShowApplyGcModal(true); }} disabled={!isEditing} className="pos-checkout-btn-clear">Gift Card</button>
+                      <button type="button" onClick={() => { if (!isEditing) return; setShowTipModal(true); }} disabled={!isEditing} className="pos-checkout-btn-clear">Tip</button>
                     </div>
                   </div>
 
                   {/* Middle Row: Payment & Settings */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", padding: "10px 14px", borderRadius: 8, border: "1px solid #f1f5f9" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                      <div style={{ fontSize: "11px", fontWeight: 700, color: "#475569", display: "flex", flexDirection: "column", gap: 2 }}>
-                        <span>Total: <strong style={{color:"#0f172a"}}>{formatMoney(totals.total)}</strong></span>
-                        <span>Disc: <strong style={{color:"#0f172a"}}>{formatMoney(invoiceDiscountDraft)}</strong></span>
+                  <div className="pos-modal-payment-row">
+                    <div className="pos-modal-totals-summary">
+                      <span>Total: <strong>{formatMoney(totals.total)}</strong></span>
+                      <span>Disc: <strong>{formatMoney(invoiceDiscountDraft)}</strong></span>
+                    </div>
+                    <div className="pos-modal-pay-inputs">
+                      <div className="pos-modal-input-group">
+                        <span>Online</span>
+                        <input type="number" min={paidOnline} disabled={!isEditing} value={isEditing ? paymentDraft.online : paidOnline.toFixed(0)} onChange={(event) => { const val = event.target.value; if (val === "") { setPaymentDraft((current) => ({ ...current, online: "" })); return; } const numVal = Number(val); const maxOnline = Math.max(paidOnline, totals.total - Number(paymentDraft.offline || 0)); if (numVal <= maxOnline) { setPaymentDraft((current) => ({ ...current, online: val })); } else { setPaymentDraft((current) => ({ ...current, online: String(maxOnline) })); } }} />
                       </div>
-                      <div style={{ width: 1, height: 24, background: "#cbd5e1" }}></div>
-                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontSize: "11px", fontWeight: 600, color: "#64748b" }}>Online</span>
-                          <input type="number" min={paidOnline} disabled={!isEditing} value={isEditing ? paymentDraft.online : paidOnline.toFixed(0)} onChange={(event) => { const val = event.target.value; if (val === "") { setPaymentDraft((current) => ({ ...current, online: "" })); return; } const numVal = Number(val); const maxOnline = Math.max(paidOnline, totals.total - Number(paymentDraft.offline || 0)); if (numVal <= maxOnline) { setPaymentDraft((current) => ({ ...current, online: val })); } else { setPaymentDraft((current) => ({ ...current, online: String(maxOnline) })); } }} style={{ width: 70, padding: "4px 8px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: "12px", fontWeight: 600 }} />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontSize: "11px", fontWeight: 600, color: "#64748b" }}>Cash</span>
-                          <input type="number" min={paidOffline} disabled={!isEditing} value={isEditing ? paymentDraft.offline : paidOffline.toFixed(0)} onChange={(event) => { const val = event.target.value; if (val === "") { setPaymentDraft((current) => ({ ...current, offline: "" })); return; } const numVal = Number(val); const maxOffline = Math.max(paidOffline, totals.total - Number(paymentDraft.online || 0)); if (numVal <= maxOffline) { setPaymentDraft((current) => ({ ...current, offline: val })); } else { setPaymentDraft((current) => ({ ...current, offline: String(maxOffline) })); } }} style={{ width: 70, padding: "4px 8px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: "12px", fontWeight: 600 }} />
-                        </div>
-                        <div style={{ fontSize: "11px", fontWeight: 700, color: "#16a34a", background: "#dcfce7", padding: "4px 8px", borderRadius: 6 }}>
-                          Bal: {formatMoney(Math.max(0, totals.total - (isEditing ? Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0) : (invoiceDetail?.paidAmount || 0))))}
-                        </div>
+                      <div className="pos-modal-input-group">
+                        <span>Cash</span>
+                        <input type="number" min={paidOffline} disabled={!isEditing} value={isEditing ? paymentDraft.offline : paidOffline.toFixed(0)} onChange={(event) => { const val = event.target.value; if (val === "") { setPaymentDraft((current) => ({ ...current, offline: "" })); return; } const numVal = Number(val); const maxOffline = Math.max(paidOffline, totals.total - Number(paymentDraft.online || 0)); if (numVal <= maxOffline) { setPaymentDraft((current) => ({ ...current, offline: val })); } else { setPaymentDraft((current) => ({ ...current, offline: String(maxOffline) })); } }} />
+                      </div>
+                      <div className="pos-modal-bal-badge">
+                        Bal: {formatMoney(Math.max(0, totals.total - (isEditing ? Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0) : (invoiceDetail?.paidAmount || 0))))}
                       </div>
                     </div>
-                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "11px", fontWeight: 600, color: "#475569", cursor: "pointer" }}>
+                    <label className="pos-modal-sms-label">
                       <input type="checkbox" checked={messageConfig.invoiceMessage} onChange={(e) => setMessageConfig({ invoiceMessage: e.target.checked })} disabled={!isEditing} />
                       Send SMS
                     </label>
                   </div>
 
                   {/* Bottom Row: Main Actions */}
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-                    <button type="button" onClick={() => { setIsEditing(false); closeDetail(); }} className="pos-checkout-btn-clear" style={{ height: "36px !important", padding: "4px 16px !important" }}>Clear</button>
-                    <button type="button" onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }} className="pos-checkout-btn-clear" style={{ color: "#ef4444 !important", height: "36px !important", padding: "4px 16px !important" }}>Cancel</button>
-                    <button type="button" onClick={openBillPreview} disabled={billLoading} className="pos-action-btn" style={{ height: "36px !important", padding: "4px 16px !important" }}>{billLoading ? "Loading..." : "View Bill"}</button>
-                    <button type="button" onClick={updateInvoice} disabled={!isEditing} className="pos-checkout-btn-start" style={{ height: "36px !important", padding: "4px 16px !important", flex: "none" }}>Update Bill</button>
+                  <div className="pos-modal-actions-row">
+                    <button type="button" onClick={() => { setIsEditing(false); closeDetail(); }} className="pos-checkout-btn-clear">Clear</button>
+                    <button type="button" onClick={() => { setIsEditing(false); setPaymentDraft({ online: "", offline: "" }); }} className="pos-checkout-btn-clear" style={{ color: "#ef4444" }}>Cancel</button>
+                    <button type="button" onClick={openBillPreview} disabled={billLoading} className="pos-action-btn">{billLoading ? "Loading..." : "View Bill"}</button>
+                    <button type="button" onClick={updateInvoice} disabled={!isEditing} className="pos-checkout-btn-start">Update Bill</button>
                     {(["STARTED", "UNPAID"].includes(invoiceDetail?.status || detailStatus || detail.status)) && (
-                      <button type="button" onClick={handleCompleteInvoice} disabled={completingInvoice} className="pos-checkout-btn-complete" style={{ height: "36px !important", padding: "4px 16px !important", flex: "none" }}>{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
+                      <button type="button" onClick={handleCompleteInvoice} disabled={completingInvoice} className="pos-checkout-btn-complete">{completingInvoice ? "Completing..." : "Complete & Pay"}</button>
                     )}
                   </div>
                 </div>
