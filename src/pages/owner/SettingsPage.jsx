@@ -5362,10 +5362,6 @@ export default function SettingsPage() {
 
       case "crm-segment":
         return renderSegmentSection();
-      case "privacy-policy":
-        return renderLegalSection("Privacy Policy", "privacyPolicy");
-      case "terms-and-conditions":
-        return renderLegalSection("Terms & Conditions", "termsAndConditions");
       case "pnl-categories":
         return renderPnlCategoriesSection();
       case "pnl-income-taxes":
