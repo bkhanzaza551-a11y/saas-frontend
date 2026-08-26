@@ -264,16 +264,14 @@ export default function ProductsRequirementPage() {
           grid-template-columns: 1fr 1fr 1fr;
           gap: 12px;
         }
-        @media (max-width: 900px) {
-          .pr-filters-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 10px !important;
-          }
-          .pr-search-box {
-            grid-column: 1 / -1 !important;
-          }
+        .pr-form-actions {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-end;
+          flex-wrap: wrap;
+          margin-top: 10px;
         }
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .pr-hero-head {
             flex-direction: column !important;
             align-items: stretch !important;
@@ -285,8 +283,22 @@ export default function ProductsRequirementPage() {
           .pr-filters-grid {
             grid-template-columns: 1fr !important;
           }
-          .pr-form-grid-2, .pr-form-grid-3 {
+          .pr-search-box {
+            grid-column: 1 / -1 !important;
+          }
+          .pr-form-grid-2, 
+          .pr-form-grid-3 {
             grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .pr-form-actions {
+            flex-direction: column-reverse !important;
+            width: 100% !important;
+          }
+          .pr-form-actions button {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 12px !important;
           }
         }
       `}</style>
@@ -695,7 +707,7 @@ export default function ProductsRequirementPage() {
               />
             </label>
 
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap", marginTop: 10 }}>
+            <div className="pr-form-actions">
               <button
                 type="button"
                 onClick={() => setActiveSection("available")}
