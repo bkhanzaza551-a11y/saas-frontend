@@ -1082,14 +1082,16 @@ export default function MembershipsPage() {
               </div>
 
               {/* Toggles */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", width: "fit-content" }}>
-                  <span style={{ fontSize: "0.85rem", color: "#0f172a", fontWeight: 600 }}>Does this package include physical products?</span>
-                  <div style={{ position: "relative", width: "36px", height: "20px", background: packageForm.includeProducts ? "#3b82f6" : "#cbd5e1", borderRadius: "20px", transition: "background 0.3s" }}>
-                    <div style={{ position: "absolute", top: "2px", left: packageForm.includeProducts ? "18px" : "2px", width: "16px", height: "16px", background: "white", borderRadius: "50%", transition: "left 0.3s" }}></div>
+              <div style={{ marginTop: "4px", marginBottom: "8px" }}>
+                <div 
+                  onClick={() => setPackageForm(prev => ({ ...prev, includeProducts: !prev.includeProducts }))} 
+                  style={{ display: "inline-flex", alignItems: "center", gap: "12px", cursor: "pointer", userSelect: "none" }}
+                >
+                  <div style={{ position: "relative", width: "40px", height: "22px", background: packageForm.includeProducts ? "#3b82f6" : "#cbd5e1", borderRadius: "20px", transition: "background 0.2s", flexShrink: 0 }}>
+                    <div style={{ position: "absolute", top: "2px", left: packageForm.includeProducts ? "20px" : "2px", width: "18px", height: "18px", background: "white", borderRadius: "50%", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
                   </div>
-                  <input type="checkbox" checked={packageForm.includeProducts} onChange={e => setPackageForm({...packageForm, includeProducts: e.target.checked})} style={{ display: "none" }} />
-                </label>
+                  <span style={{ fontSize: "0.88rem", color: "#0f172a", fontWeight: 600 }}>Does this package include physical products?</span>
+                </div>
               </div>
 
               {/* Service Category + Selected Services + Individual Services */}
