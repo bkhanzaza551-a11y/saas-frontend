@@ -57,6 +57,7 @@ export default function MembershipsPage() {
   const [serviceCategories, setServiceCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [allCustomerPackages, setAllCustomerPackages] = useState([]);
   const [selectedCustomerHistory, setSelectedCustomerHistory] = useState(null);
   const [membershipForm, setMembershipForm] = useState(emptyMembership);
   const [packageForm, setPackageForm] = useState(emptyPackage);
@@ -81,6 +82,7 @@ export default function MembershipsPage() {
     serviceCategoryResponse,
     productResponse,
     customerResponse,
+    customerPackagesResponse,
     activeCustomerId = "",
     active = true,
     membershipId = editableMembershipId,
@@ -94,6 +96,7 @@ export default function MembershipsPage() {
     const nextServiceCategories = serviceCategoryResponse?.status === "fulfilled" ? normalizeRows(serviceCategoryResponse.value.data) : [];
     const nextProducts = productResponse?.status === "fulfilled" ? normalizeRows(productResponse.value.data) : [];
     const nextCustomers = customerResponse.status === "fulfilled" ? normalizeRows(customerResponse.value.data) : [];
+    const nextCustomerPackages = customerPackagesResponse?.status === "fulfilled" ? normalizeRows(customerPackagesResponse.value.data) : [];
 
     setMemberships(nextMemberships);
     setPackages(nextPackages);
@@ -101,6 +104,7 @@ export default function MembershipsPage() {
     setServiceCategories(nextServiceCategories);
     setProducts(nextProducts);
     setCustomers(nextCustomers);
+    setAllCustomerPackages(nextCustomerPackages);
 
     if (activeCustomerId) {
       try {
@@ -181,15 +185,16 @@ export default function MembershipsPage() {
   const loadAll = async (activeCustomerId = customerId || assignMembershipForm.customerId || assignPackageForm.customerId || "") => {
     setLoading(true);
     try {
-      const [membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse] = await Promise.allSettled([
+      const [membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, customerPackagesResponse] = await Promise.allSettled([
         api.get("/owner/memberships", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/packages", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/services", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/service-categories", { params: { branchId: selectedBranchId || undefined } }),
         api.get("/owner/inventory/products", { params: { branchId: selectedBranchId || undefined } }),
-        api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } })
+        api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/customer-packages")
       ]);
-      await applyWorkspaceData({ membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, activeCustomerId });
+      await applyWorkspaceData({ membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, customerPackagesResponse, activeCustomerId });
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not load memberships, packages, customers, or services"), success: "" });
     } finally {
@@ -201,13 +206,14 @@ export default function MembershipsPage() {
     let active = true;
     (async () => {
       try {
-        const [membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse] = await Promise.allSettled([
+        const [membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, customerPackagesResponse] = await Promise.allSettled([
           api.get("/owner/memberships", { params: { branchId: selectedBranchId || undefined } }),
           api.get("/owner/packages", { params: { branchId: selectedBranchId || undefined } }),
           api.get("/owner/services", { params: { branchId: selectedBranchId || undefined } }),
           api.get("/owner/service-categories", { params: { branchId: selectedBranchId || undefined } }),
           api.get("/owner/inventory/products", { params: { branchId: selectedBranchId || undefined } }),
-          api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } })
+          api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/customer-packages")
         ]);
         await applyWorkspaceData({
           membershipResponse,
@@ -216,6 +222,7 @@ export default function MembershipsPage() {
           serviceCategoryResponse,
           productResponse,
           customerResponse,
+          customerPackagesResponse,
           activeCustomerId: customerId,
           active,
           membershipId: editableMembershipId,
@@ -326,10 +333,16 @@ export default function MembershipsPage() {
   const packageEditMode = Boolean(editablePackageId);
   const isListMode = !isCreateMode && !membershipEditMode && !packageEditMode;
   const customerScopeLabel = customerId ? "Customer linked" : "All customers";
-  const customerPackageOptions = useMemo(
-    () => (selectedCustomerHistory?.packages || []).filter((item) => item.status === "ACTIVE" && Number(item.remainingSessions || 0) > 0),
-    [selectedCustomerHistory]
-  );
+  const customerPackageOptions = useMemo(() => {
+    if (customerId && selectedCustomerHistory) {
+      return (selectedCustomerHistory?.packages || []).filter(
+        (item) => item.status === "ACTIVE" && Number(item.remainingSessions || 0) > 0
+      );
+    }
+    return (allCustomerPackages || []).filter(
+      (item) => item.status === "ACTIVE" && Number(item.remainingSessions || 0) > 0
+    );
+  }, [customerId, selectedCustomerHistory, allCustomerPackages]);
   const effectiveCustomerPackageId = redeemForm.customerPackageId || customerPackageOptions[0]?.id || "";
   const customerOptions = customers.map((customer) => (
     <option key={customer.id} value={customer.id}>{customer.name} {customer.phone ? `- ${customer.phone}` : ""}</option>
@@ -932,15 +945,33 @@ export default function MembershipsPage() {
             }} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
                 <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Customer Package *</label>
-                <CustomSelect value={effectiveCustomerPackageId} onChange={(event) => setRedeemForm((current) => ({ ...current, customerPackageId: event.target.value }))}>
+                <CustomSelect 
+                  value={effectiveCustomerPackageId} 
+                  onChange={(event) => {
+                    const chosenId = event.target.value;
+                    const chosenPkg = customerPackageOptions.find(p => p.id === chosenId);
+                    const firstServiceId = chosenPkg?.package?.services?.[0]?.serviceId || "";
+                    setRedeemForm((current) => ({ 
+                      ...current, 
+                      customerPackageId: chosenId,
+                      serviceId: firstServiceId || current.serviceId
+                    }));
+                  }}
+                >
                   <option value="">Select customer package</option>
                   {customerPackageOptions.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.package?.name} - {selectedCustomerHistory?.name || "Customer"} ({item.remainingSessions} left)
+                      {item.customer?.name ? `${item.customer.name} — ` : (selectedCustomerHistory?.name ? `${selectedCustomerHistory.name} — ` : "")}{item.package?.name} ({item.remainingSessions} sessions left)
                     </option>
                   ))}
                 </CustomSelect>
               </div>
+
+              {!customerPackageOptions.length && (
+                <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "12px 14px", color: "#92400e", fontSize: 12.5, lineHeight: "1.5" }}>
+                  <strong>Note:</strong> Yeh dropdown un customers ke active packages dikhata hai jinhone package purchase/assign karwaya ho. Jab kisi customer ko package assign ya sell kiya jaye, woh yahan session redeem karne ke liye appear hoga.
+                </div>
+              )}
 
               <div>
                 <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Service *</label>
