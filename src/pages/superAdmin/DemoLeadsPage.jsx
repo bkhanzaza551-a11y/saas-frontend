@@ -504,6 +504,109 @@ export default function DemoLeadsPage() {
 
   return (
     <div className="page-shell super-admin-page">
+      <style>{`
+        .crm-pipeline-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .crm-filter-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+        }
+        .crm-date-range-row {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          gap: 6px;
+          align-items: center;
+        }
+        .crm-date-range-row input[type="date"] {
+          width: 100% !important;
+          min-width: 0 !important;
+        }
+        .crm-modal-grid-3col {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 12px;
+        }
+        .crm-modal-grid-2col {
+          display: grid;
+          grid-template-columns: 1.2fr 1fr;
+          gap: 12px;
+        }
+        .crm-add-modal-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        .crm-modal-tabs {
+          display: flex;
+          gap: 4px;
+          padding: 0 24px;
+          border-bottom: 1px solid #e2e8f0;
+          background: #f8fafc;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+        }
+        .crm-modal-tabs button {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .crm-table-container {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          overflow-x: auto;
+          overflow-y: hidden;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+          -webkit-overflow-scrolling: touch;
+        }
+        .crm-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13px;
+          min-width: 820px;
+          white-space: nowrap;
+        }
+        @media (max-width: 1024px) {
+          .crm-pipeline-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 10px !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .crm-pipeline-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+          }
+          .crm-filter-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .crm-modal-grid-3col,
+          .crm-modal-grid-2col,
+          .crm-add-modal-2col {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .crm-modal-tabs {
+            padding: 0 12px !important;
+          }
+          .crm-modal-card {
+            width: 96% !important;
+            margin: 0 auto !important;
+            max-height: 94vh !important;
+          }
+          .crm-modal-body {
+            padding: 16px 14px !important;
+          }
+        }
+      `}</style>
+
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
@@ -526,7 +629,7 @@ export default function DemoLeadsPage() {
       </div>
 
       {/* Pipeline Summary */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="crm-pipeline-grid">
         {PIPELINE.map(stage => (
           <div
             key={stage.value}
@@ -578,7 +681,7 @@ export default function DemoLeadsPage() {
           </div>
 
           {/* Bottom Row: Detailed Dropdown Filters */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
+          <div className="crm-filter-grid">
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Salesperson</label>
               <CustomSelect
@@ -618,9 +721,9 @@ export default function DemoLeadsPage() {
               </CustomSelect>
             </div>
             
-            <div style={{ minWidth: "220px" }}>
+            <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Range</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div className="crm-date-range-row">
                 <input type="date" value={filters.from} onChange={(e) => setFilterParam("from", e.target.value)} title="From date" style={{ flex: 1, height: 42, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
                 <span style={{ fontSize: "0.75rem", color: "#cbd5e1", fontWeight: 700 }}>→</span>
                 <input type="date" value={filters.to} onChange={(e) => setFilterParam("to", e.target.value)} title="To date" style={{ flex: 1, height: 42, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
@@ -670,8 +773,8 @@ export default function DemoLeadsPage() {
       ) : rows.length === 0 ? (
         <EmptyState title="No leads found" message="Add a lead or wait for new website inquiries." />
       ) : (
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, overflowX: "auto", overflowY: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="crm-table-container">
+          <table className="crm-table">
             <thead>
               <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0", color: "#64748b", fontWeight: 700, textAlign: "left" }}>
                 <th style={{ padding: "13px 18px" }}>Lead</th>
@@ -752,7 +855,7 @@ export default function DemoLeadsPage() {
         const isConverted = row.status === "CONVERTED";
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 16, backdropFilter: "blur(4px)" }} onClick={closeDetailModal}>
-            <div style={{ background: "white", width: "100%", maxWidth: 780, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
+            <div className="crm-modal-card" style={{ background: "white", width: "100%", maxWidth: 780, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
               {/* Modal Header */}
               <div style={{ padding: "20px 24px 16px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                 <div>
@@ -767,7 +870,7 @@ export default function DemoLeadsPage() {
               </div>
 
               {/* Module Tabs Navigation */}
-              <div style={{ display: "flex", gap: 4, padding: "0 24px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", overflowX: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }} className="no-scrollbar">
+              <div className="crm-modal-tabs no-scrollbar">
                 {[
                   { id: "overview", label: "Overview", icon: Building2 },
                   { id: "demo", label: "Schedule Demo", icon: Video },
@@ -810,7 +913,7 @@ export default function DemoLeadsPage() {
                 })}
               </div>
 
-              <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="crm-modal-body" style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
 
                 {/* TAB 1: OVERVIEW */}
                 {leadModalTab === "overview" && (
@@ -822,7 +925,7 @@ export default function DemoLeadsPage() {
                     )}
 
                     {/* Contact Info Row */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                    <div className="crm-modal-grid-3col">
                       <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
                         <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Email</div>
                         <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Mail size={12} color="#6366f1" />{row.email}</div>
@@ -838,7 +941,7 @@ export default function DemoLeadsPage() {
                     </div>
 
                     {/* Business & Assignment Row */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <div className="crm-modal-grid-2col">
                       <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Lead Owner / Assigned To</div>
                         <CustomSelect
@@ -985,7 +1088,7 @@ export default function DemoLeadsPage() {
                     <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
                       <Building2 size={16} color="#16a34a" /> Convert to Salon & Onboard
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+                    <div className="crm-modal-grid-2col">
                       <div>
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
                         <CustomSelect 
@@ -1021,7 +1124,7 @@ export default function DemoLeadsPage() {
                         <CustomSelect disabled={isConverted} value={draft.billingCycle || "monthly"} onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} options={[{ label: "Monthly", value: "monthly" }, { label: "Yearly (Save 20%)", value: "yearly" }]} />
                       </div>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+                    <div className="crm-modal-grid-2col">
                       <div>
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Salon City *</label>
                         <input disabled={isConverted} type="text" placeholder="e.g. Mumbai" value={draft.city} onChange={e => updateDraft(row.id, "city", e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
@@ -1362,7 +1465,7 @@ export default function DemoLeadsPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="crm-add-modal-2col">
                 <div>
                   <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Email Address *</label>
                   <input
@@ -1404,7 +1507,7 @@ export default function DemoLeadsPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="crm-add-modal-2col">
                 <div>
                   <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Salon / Business Name *</label>
                   <input
@@ -1456,7 +1559,7 @@ export default function DemoLeadsPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="crm-add-modal-2col">
                 <div>
                   <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Assign To</label>
                   <CustomSelect
