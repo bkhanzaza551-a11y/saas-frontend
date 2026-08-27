@@ -2735,170 +2735,177 @@ export default function CustomersPage() {
       {/* Issue Gift Card Modal */}
       {showGiftCardModal && (
         <div className="modal-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)", zIndex: 9999 }}>
-          <div className="modal-content" style={{ width: "min(95vw, 850px)", borderRadius: 12, padding: "24px", overflow: "hidden", background: "#fff", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" style={{ width: "min(95vw, 850px)", borderRadius: 14, padding: 0, overflow: "hidden", background: "#fff", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column", maxHeight: "90vh" }} onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#0f172a" }}>Add Gift Card</div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                <div style={{ position: "relative" }}>
-                  <input 
-                    type="text" 
-                    placeholder="Search For Card" 
-                    value={giftCardSearch}
-                    onChange={(e) => {
-                      setGiftCardSearch(e.target.value);
-                      setShowGiftCardDropdown(true);
-                    }}
-                    onFocus={() => setShowGiftCardDropdown(true)}
-                    onBlur={() => setTimeout(() => setShowGiftCardDropdown(false), 200)}
-                    style={{ padding: "8px 12px", paddingRight: "32px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", width: "200px", outline: "none", color: "#0f172a", backgroundColor: "#ffffff" }} 
-                  />
-                  <Search size={14} style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", color: "#64748b" }} />
-                  {showGiftCardDropdown && (
-                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, marginTop: "4px", maxHeight: "220px", overflowY: "auto", zIndex: 99999, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", width: "200px" }}>
-                      {giftCards
-                        .filter(gc => gc.title && gc.title.toLowerCase().includes(giftCardSearch.toLowerCase()))
-                        .map(gc => (
-                          <div 
-                            key={gc.id} 
-                            style={{ padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", color: "#0f172a" }}
-                            onMouseDown={() => {
-                              setGiftCardForm(prev => ({
-                                ...prev,
-                                title: gc.title,
-                                amount: String(gc.originalAmount),
-                                validityDays: gc.expiresAt ? Math.max(1, Math.round((new Date(gc.expiresAt) - new Date()) / (1000 * 60 * 60 * 24))) : 30,
-                              }));
-                              setGiftCardSearch("");
-                            }}
-                          >
-                            <div style={{ fontWeight: "bold", color: "#1e293b" }}>{gc.title}</div>
-                            <div style={{ fontSize: "0.75rem", color: "#64748b" }}>₹{gc.originalAmount}</div>
-                          </div>
-                        ))}
-                      {giftCards.filter(gc => gc.title && gc.title.toLowerCase().includes(giftCardSearch.toLowerCase())).length === 0 && (
-                        <div style={{ padding: "10px 12px", fontSize: "0.85rem", color: "#94a3b8", textAlign: "center" }}>No cards found</div>
-                      )}
-                    </div>
-                  )}
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f5f9" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#0f172a" }}>Add Gift Card</div>
+                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Assign gift card to {selectedCustomer?.name}</div>
                 </div>
                 <button type="button" className="modal-close" onClick={() => setShowGiftCardModal(false)} title="Close">
                   <X size={18} />
                 </button>
               </div>
-            </div>
-
-            {/* Preview Card */}
-            <div style={{ background: "#fdf4ff", border: "1px solid #fbcfe8", borderRadius: 8, padding: "16px", marginBottom: "24px", width: "300px" }}>
-              <div style={{ color: "var(--accent, #3b82f6)", fontWeight: 800, fontSize: "0.85rem", marginBottom: "8px", textTransform: "uppercase" }}>
-                {giftCardForm.title || `${settings?.salonName || "SALON"} - GIFT CARD`}
-              </div>
-              <div style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "4px" }}>Fee: ₹ {giftCardForm.amount || "1000"}</div>
-              <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Validity: {giftCardForm.validityDays || 30} Days</div>
-            </div>
-
-            {/* Inputs Row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "16px", marginBottom: "24px" }}>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "6px", display: "block" }}>Name</label>
-                <input type="text" placeholder="Enter Name" value={giftCardForm.title || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, title: e.target.value}))} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
-              </div>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "6px", display: "block" }}>Validity</label>
-                <input type="number" placeholder="Enter Validity" value={giftCardForm.validityDays || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, validityDays: e.target.value}))} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
-              </div>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "6px", display: "block" }}>Card Activated From</label>
-                <input type="date" value={giftCardForm.activationDate || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, activationDate: e.target.value}))} max={new Date().toISOString().slice(0, 10)} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
-              </div>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "6px", display: "block" }}>Purchase Amount</label>
-                <input type="number" placeholder="Enter Price" value={giftCardForm.amount || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, amount: e.target.value}))} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
-              </div>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "6px", display: "block" }}>Staff</label>
-                <CustomSelect value={giftCardForm.staffId || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, staffId: e.target.value}))} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }}>
-                  <option value="" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Select Staff</option>
-                  {staffUsers.filter((s) => {
-                    const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
-                    return !effectiveBranchId || s.branchId === effectiveBranchId;
-                  }).map(s => (
-                    <option key={s.id} value={s.id} style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>
-                      {s.user?.name || s.name || s.id}
-                    </option>
-                  ))}
-                </CustomSelect>
-              </div>
-            </div>
-
-            {/* Payment Details */}
-            <div style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "16px", marginBottom: "24px" }}>
-              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1e293b", marginBottom: "16px" }}>Payment Details:</div>
-              <div style={{ display: "flex", gap: "24px" }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "6px", display: "block" }}>Online</label>
-                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 12px" }}>
-                    <Monitor size={18} color="#10b981" style={{ marginRight: "8px" }} />
-                    <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(giftCardForm.amount || 0) - Number(giftCardForm.offline || 0))} placeholder="0.0" value={giftCardForm.online || ""} onFocus={() => {
-                      const amt = Number(giftCardForm.amount || 0);
-                      const offlineVal = Number(giftCardForm.offline || 0);
-                      setGiftCardForm(prev => ({...prev, online: String(Math.max(0, amt - offlineVal)), balance: String(0)}));
-                    }} onChange={(e) => {
-                      const amt = Number(giftCardForm.amount || 0);
-                      const offlineVal = Number(giftCardForm.offline || 0);
-                      const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, amt - offlineVal));
-                      const nextBalance = Math.max(0, amt - val - offlineVal);
-                      setGiftCardForm(prev => ({...prev, online: String(val), balance: String(nextBalance)}));
-                    }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a", backgroundColor: "#ffffff" }} />
+              <div style={{ position: "relative", width: "100%" }}>
+                <input 
+                  type="text" 
+                  placeholder="Search For Gift Card Template..." 
+                  value={giftCardSearch}
+                  onChange={(e) => {
+                    setGiftCardSearch(e.target.value);
+                    setShowGiftCardDropdown(true);
+                  }}
+                  onFocus={() => setShowGiftCardDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowGiftCardDropdown(false), 200)}
+                  style={{ padding: "10px 36px 10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", width: "100%", outline: "none", color: "#0f172a", backgroundColor: "#f8fafc", boxSizing: "border-box" }} 
+                />
+                <Search size={16} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                {showGiftCardDropdown && (
+                  <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, marginTop: "4px", maxHeight: "220px", overflowY: "auto", zIndex: 99999, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", width: "100%" }}>
+                    {giftCards
+                      .filter(gc => gc.title && gc.title.toLowerCase().includes(giftCardSearch.toLowerCase()))
+                      .map(gc => (
+                        <div 
+                          key={gc.id} 
+                          style={{ padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", color: "#0f172a" }}
+                          onMouseDown={() => {
+                            setGiftCardForm(prev => ({
+                              ...prev,
+                              title: gc.title,
+                              amount: String(gc.originalAmount),
+                              validityDays: gc.expiresAt ? Math.max(1, Math.round((new Date(gc.expiresAt) - new Date()) / (1000 * 60 * 60 * 24))) : 30,
+                            }));
+                            setGiftCardSearch("");
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold", color: "#1e293b" }}>{gc.title}</div>
+                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>₹{gc.originalAmount}</div>
+                        </div>
+                      ))}
+                    {giftCards.filter(gc => gc.title && gc.title.toLowerCase().includes(giftCardSearch.toLowerCase())).length === 0 && (
+                      <div style={{ padding: "10px 12px", fontSize: "0.85rem", color: "#94a3b8", textAlign: "center" }}>No cards found</div>
+                    )}
                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: "18px", overflowY: "auto" }}>
+              {/* Preview Card */}
+              <div style={{ background: "#fdf4ff", border: "1px solid #fbcfe8", borderRadius: 8, padding: "14px 16px", width: "100%", maxWidth: "320px", boxSizing: "border-box" }}>
+                <div style={{ color: "var(--accent, #3b82f6)", fontWeight: 800, fontSize: "0.85rem", marginBottom: "6px", textTransform: "uppercase" }}>
+                  {giftCardForm.title || `${settings?.salonName || "SALON"} - GIFT CARD`}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "6px", display: "block" }}>Offline</label>
-                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 12px" }}>
-                    <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(giftCardForm.amount || 0) - Number(giftCardForm.online || 0))} placeholder="0.0" value={giftCardForm.offline || ""} onFocus={() => {
-                      const amt = Number(giftCardForm.amount || 0);
-                      const onlineVal = Number(giftCardForm.online || 0);
-                      setGiftCardForm(prev => ({...prev, offline: String(Math.max(0, amt - onlineVal)), balance: String(0)}));
-                    }} onChange={(e) => {
-                      const amt = Number(giftCardForm.amount || 0);
-                      const onlineVal = Number(giftCardForm.online || 0);
-                      const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, amt - onlineVal));
-                      const nextBalance = Math.max(0, amt - onlineVal - val);
-                      setGiftCardForm(prev => ({...prev, offline: String(val), balance: String(nextBalance)}));
-                    }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a", backgroundColor: "#ffffff" }} />
-                  </div>
+                <div style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "3px" }}>Fee: ₹ {giftCardForm.amount || "1000"}</div>
+                <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Validity: {giftCardForm.validityDays || 30} Days</div>
+              </div>
+
+              {/* Inputs Row */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "12px" }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", marginBottom: "4px", display: "block" }}>Name</label>
+                  <input type="text" placeholder="Enter Name" value={giftCardForm.title || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, title: e.target.value}))} style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "6px", display: "block" }}>Balance</label>
-                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 12px" }}>
-                    <Wallet size={18} color="#10b981" style={{ marginRight: "8px" }} />
-                    <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(giftCardForm.amount || 0) - Number(giftCardForm.online || 0) - Number(giftCardForm.offline || 0))} placeholder="0.0" value={giftCardForm.balance || ""} onFocus={() => {
-                      const amt = Number(giftCardForm.amount || 0);
-                      const onlineVal = Number(giftCardForm.online || 0);
-                      const offlineVal = Number(giftCardForm.offline || 0);
-                      setGiftCardForm(prev => ({...prev, balance: String(Math.max(0, amt - onlineVal - offlineVal))}));
-                    }} onChange={(e) => {
-                      const amt = Number(giftCardForm.amount || 0);
-                      const onlineVal = Number(giftCardForm.online || 0);
-                      const offlineVal = Number(giftCardForm.offline || 0);
-                      const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, amt - onlineVal - offlineVal));
-                      setGiftCardForm(prev => ({...prev, balance: String(val)}));
-                    }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a", backgroundColor: "#ffffff" }} />
-                  </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", marginBottom: "4px", display: "block" }}>Validity (Days)</label>
+                  <input type="number" placeholder="Enter Validity" value={giftCardForm.validityDays || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, validityDays: e.target.value}))} style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", marginBottom: "4px", display: "block" }}>Activated From</label>
+                  <input type="date" value={giftCardForm.activationDate || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, activationDate: e.target.value}))} max={new Date().toISOString().slice(0, 10)} style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", marginBottom: "4px", display: "block" }}>Purchase Amount</label>
+                  <input type="number" placeholder="Enter Price" value={giftCardForm.amount || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, amount: e.target.value}))} style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", marginBottom: "4px", display: "block" }}>Staff</label>
+                  <CustomSelect value={giftCardForm.staffId || ""} onChange={(e) => setGiftCardForm(prev => ({...prev, staffId: e.target.value}))} style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", color: "#0f172a", backgroundColor: "#ffffff" }}>
+                    <option value="" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Select Staff</option>
+                    {staffUsers.filter((s) => {
+                      const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
+                      return !effectiveBranchId || s.branchId === effectiveBranchId;
+                    }).map(s => (
+                      <option key={s.id} value={s.id} style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>
+                        {s.user?.name || s.name || s.id}
+                      </option>
+                    ))}
+                  </CustomSelect>
                 </div>
               </div>
-            </div>
 
-            {giftCardError && (
-              <div style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginBottom: "16px", background: "#fef2f2", padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", display: "flex", alignItems: "center", gap: "6px" }}>
-                <AlertCircle size={14} /> {giftCardError}
+              {/* Payment Details */}
+              <div style={{ border: "1px solid #e2e8f0", borderRadius: 10, padding: "14px 16px", background: "#f8fafc" }}>
+                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b", marginBottom: "12px" }}>Payment Details:</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "12px" }}>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Online</label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", background: "#fff" }}>
+                      <Monitor size={16} color="#10b981" style={{ marginRight: "8px", flexShrink: 0 }} />
+                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(giftCardForm.amount || 0) - Number(giftCardForm.offline || 0))} placeholder="0.0" value={giftCardForm.online || ""} onFocus={() => {
+                        const amt = Number(giftCardForm.amount || 0);
+                        const offlineVal = Number(giftCardForm.offline || 0);
+                        setGiftCardForm(prev => ({...prev, online: String(Math.max(0, amt - offlineVal)), balance: String(0)}));
+                      }} onChange={(e) => {
+                        const amt = Number(giftCardForm.amount || 0);
+                        const offlineVal = Number(giftCardForm.offline || 0);
+                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, amt - offlineVal));
+                        const nextBalance = Math.max(0, amt - val - offlineVal);
+                        setGiftCardForm(prev => ({...prev, online: String(val), balance: String(nextBalance)}));
+                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a", backgroundColor: "#ffffff" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Offline</label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", background: "#fff" }}>
+                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(giftCardForm.amount || 0) - Number(giftCardForm.online || 0))} placeholder="0.0" value={giftCardForm.offline || ""} onFocus={() => {
+                        const amt = Number(giftCardForm.amount || 0);
+                        const onlineVal = Number(giftCardForm.online || 0);
+                        setGiftCardForm(prev => ({...prev, offline: String(Math.max(0, amt - onlineVal)), balance: String(0)}));
+                      }} onChange={(e) => {
+                        const amt = Number(giftCardForm.amount || 0);
+                        const offlineVal = Number(giftCardForm.online || 0);
+                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, amt - onlineVal));
+                        const nextBalance = Math.max(0, amt - onlineVal - val);
+                        setGiftCardForm(prev => ({...prev, offline: String(val), balance: String(nextBalance)}));
+                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a", backgroundColor: "#ffffff" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Balance</label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", background: "#fff" }}>
+                      <Wallet size={16} color="#10b981" style={{ marginRight: "8px", flexShrink: 0 }} />
+                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(giftCardForm.amount || 0) - Number(giftCardForm.online || 0) - Number(giftCardForm.offline || 0))} placeholder="0.0" value={giftCardForm.balance || ""} onFocus={() => {
+                        const amt = Number(giftCardForm.amount || 0);
+                        const onlineVal = Number(giftCardForm.online || 0);
+                        const offlineVal = Number(giftCardForm.offline || 0);
+                        setGiftCardForm(prev => ({...prev, balance: String(Math.max(0, amt - onlineVal - offlineVal))}));
+                      }} onChange={(e) => {
+                        const amt = Number(giftCardForm.amount || 0);
+                        const onlineVal = Number(giftCardForm.online || 0);
+                        const offlineVal = Number(giftCardForm.offline || 0);
+                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, amt - onlineVal - offlineVal));
+                        setGiftCardForm(prev => ({...prev, balance: String(val)}));
+                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a", backgroundColor: "#ffffff" }} />
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+
+              {giftCardError && (
+                <div style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, background: "#fef2f2", padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <AlertCircle size={14} /> {giftCardError}
+                </div>
+              )}
+
+            </div>
 
             {/* Footer */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", borderTop: "1px solid #f1f5f9", paddingTop: "20px" }}>
-              <button onClick={() => setShowGiftCardModal(false)} style={{ padding: "10px 24px", border: "1px solid #cbd5e1", background: "#f1f5f9", borderRadius: 6, cursor: "pointer", fontWeight: 600, color: "#475569" }}>Cancel</button>
-              <button onClick={handleIssueGiftCard} disabled={!giftCardForm.amount || !giftCardForm.title} style={{ padding: "10px 24px", border: "none", background: "var(--button-bg-solid, #3b82f6)", borderRadius: 6, cursor: "pointer", fontWeight: 600, color: "white" }}>Add Gift Card</button>
+            <div style={{ padding: "14px 20px", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button type="button" onClick={() => setShowGiftCardModal(false)} style={{ padding: "10px 20px", border: "1px solid #cbd5e1", background: "#f1f5f9", borderRadius: 8, cursor: "pointer", fontWeight: 600, color: "#475569", fontSize: "0.88rem" }}>Cancel</button>
+              <button type="button" onClick={handleIssueGiftCard} disabled={!giftCardForm.amount || !giftCardForm.title} style={{ padding: "10px 22px", border: "none", background: "var(--button-bg-solid, #3b82f6)", borderRadius: 8, cursor: "pointer", fontWeight: 700, color: "white", fontSize: "0.88rem", boxShadow: "0 2px 6px rgba(59,130,246,0.3)" }}>Add Gift Card</button>
             </div>
           </div>
         </div>
@@ -2907,95 +2914,98 @@ export default function CustomersPage() {
       {/* Assign Package Modal */}
       {showPackageModal && (
         <div className="modal-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)", zIndex: 9999 }}>
-          <div className="modal-content" style={{ width: "min(95vw, 650px)", borderRadius: 12, padding: 0, overflow: "hidden", background: "#fff", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column", maxHeight: "90vh" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" style={{ width: "min(95vw, 650px)", borderRadius: 14, padding: 0, overflow: "hidden", background: "#fff", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column", maxHeight: "90vh" }} onClick={(e) => e.stopPropagation()}>
             
             {/* Header */}
-            <div style={{ padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f1f5f9" }}>
-              <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#0f172a" }}>Add packages</div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ position: "relative", width: "200px" }}>
-                  <input 
-                    placeholder="Search For Package" 
-                    value={packageSearch} 
-                    onChange={(e) => {
-                      setPackageSearch(e.target.value);
-                      setShowPackageDropdown(true);
-                    }} 
-                    onFocus={() => setShowPackageDropdown(true)}
-                    onBlur={() => setTimeout(() => setShowPackageDropdown(false), 200)}
-                    style={{ width: "100%", padding: "8px 32px 8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  />
-                  <Search size={14} style={{ position: "absolute", right: 10, top: 10, color: "#94a3b8" }} />
-                  {showPackageDropdown && (
-                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, marginTop: "4px", maxHeight: "220px", overflowY: "auto", zIndex: 99999, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
-                      <div 
-                        style={{ padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: "#f8fafc", color: "#2563eb", fontWeight: "bold" }}
-                        onMouseDown={() => {
-                          setSelectedPackage({ id: "CUSTOM", name: "Custom Package" });
-                          setPackageForm(prev => ({ ...prev, price: "", validityDays: "30" }));
-                          setCustomServices([]);
-                          setPackageSearch("");
-                        }}
-                      >
-                        🛠️ Build Custom Package (On the fly)
-                      </div>
-                      {packagePlans
-                        .filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase()))
-                        .map(p => (
-                          <div 
-                            key={p.id} 
-                            style={{ padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9" }}
-                            onMouseDown={() => {
-                              setSelectedPackage(p);
-                              setPackageSearch("");
-                              setPackageForm(prev => ({ ...prev, price: p.price, validityDays: p.validityDays }));
-                              
-                              const mapped = (p.services || []).map(s => {
-                                const svcObj = services.find(x => x.id === s.serviceId) || {};
-                                return {
-                                  id: s.serviceId,
-                                  name: svcObj.name || s.service?.name || "Predefined Service",
-                                  price: svcObj.price || s.service?.price || 0,
-                                  sessions: s.sessions || 1
-                                };
-                              });
-                              setCustomServices(mapped);
-                            }}
-                          >
-                            <div style={{ fontWeight: "bold", color: "#1e293b" }}>{p.name}</div>
-                            <div style={{ fontSize: "0.75rem", color: "#64748b" }}>₹{p.price} | {p.validityDays} Days</div>
-                          </div>
-                        ))}
-                      {packagePlans.filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase())).length === 0 && (
-                        <div style={{ padding: "12px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>No packages found</div>
-                      )}
-                    </div>
-                  )}
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f5f9" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#0f172a" }}>Add Package</div>
+                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Assign package to {selectedCustomer?.name}</div>
                 </div>
                 <button type="button" className="modal-close" onClick={() => setShowPackageModal(false)} title="Close">
                   <X size={18} />
                 </button>
               </div>
+              <div style={{ position: "relative", width: "100%" }}>
+                <input 
+                  placeholder="Search For Package Plan..." 
+                  value={packageSearch} 
+                  onChange={(e) => {
+                    setPackageSearch(e.target.value);
+                    setShowPackageDropdown(true);
+                  }} 
+                  onFocus={() => setShowPackageDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowPackageDropdown(false), 200)}
+                  style={{ width: "100%", padding: "10px 36px 10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", outline: "none", background: "#f8fafc" }}
+                />
+                <Search size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                {showPackageDropdown && (
+                  <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, marginTop: "4px", maxHeight: "220px", overflowY: "auto", zIndex: 99999, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
+                    <div 
+                      style={{ padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: "#f8fafc", color: "#2563eb", fontWeight: "bold" }}
+                      onMouseDown={() => {
+                        setSelectedPackage({ id: "CUSTOM", name: "Custom Package" });
+                        setPackageForm(prev => ({ ...prev, price: "", validityDays: "30" }));
+                        setCustomServices([]);
+                        setPackageSearch("");
+                      }}
+                    >
+                      🛠️ Build Custom Package (On the fly)
+                    </div>
+                    {packagePlans
+                      .filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase()))
+                      .map(p => (
+                        <div 
+                          key={p.id} 
+                          style={{ padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9" }}
+                          onMouseDown={() => {
+                            setSelectedPackage(p);
+                            setPackageSearch("");
+                            setPackageForm(prev => ({ ...prev, price: p.price, validityDays: p.validityDays }));
+                            
+                            const mapped = (p.services || []).map(s => {
+                              const svcObj = services.find(x => x.id === s.serviceId) || {};
+                              return {
+                                id: s.serviceId,
+                                name: svcObj.name || s.service?.name || "Predefined Service",
+                                price: svcObj.price || s.service?.price || 0,
+                                sessions: s.sessions || 1
+                              };
+                            });
+                            setCustomServices(mapped);
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold", color: "#1e293b" }}>{p.name}</div>
+                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>₹{p.price} | {p.validityDays} Days</div>
+                        </div>
+                      ))}
+                    {packagePlans.filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase())).length === 0 && (
+                      <div style={{ padding: "12px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>No packages found</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Body */}
-            <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px", overflowY: "auto" }}>
+            <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: "18px", overflowY: "auto" }}>
               
               {/* Selected Package Display if user selected a predefined one */}
               {selectedPackage && selectedPackage.id !== "CUSTOM" && (
-                <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontWeight: 700, color: "#1e3a8a", fontSize: "0.95rem" }}>{selectedPackage.name}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#3b82f6" }}>Validity: {selectedPackage.validityDays} Days</div>
+                    <div style={{ fontSize: "0.8rem", color: "#3b82f6", marginTop: 2 }}>Validity: {selectedPackage.validityDays} Days</div>
                   </div>
-                  <button onClick={() => setSelectedPackage({ id: "CUSTOM", name: "Custom Package" })} style={{ fontSize: "0.8rem", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}>Clear</button>
+                  <button onClick={() => setSelectedPackage({ id: "CUSTOM", name: "Custom Package" })} style={{ fontSize: "0.8rem", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontWeight: 600, padding: "4px 8px" }}>Clear</button>
                 </div>
               )}
 
               {/* Select from Packages Horizontal Scroll */}
-              <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "16px" }}>
-                <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#0f172a", marginBottom: "12px" }}>Select from Predefined Packages</div>
-                <div style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "8px", scrollbarWidth: "thin" }}>
+              <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "14px" }}>
+                <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#0f172a", marginBottom: "10px" }}>Select from Predefined Packages</div>
+                <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "6px", scrollbarWidth: "thin" }}>
                   {packagePlans.map(p => {
                     const isSelected = selectedPackage?.id === p.id;
                     return (
@@ -3017,12 +3027,12 @@ export default function CustomersPage() {
                           setCustomServices(mapped);
                         }}
                         style={{
-                          minWidth: "150px",
-                          maxWidth: "150px",
+                          minWidth: "140px",
+                          maxWidth: "140px",
                           background: isSelected ? "#eff6ff" : "#ffffff",
                           border: isSelected ? "2px solid #2563eb" : "1px solid #cbd5e1",
                           borderRadius: "8px",
-                          padding: "12px",
+                          padding: "10px 12px",
                           cursor: "pointer",
                           transition: "all 0.2s",
                           flexShrink: 0,
@@ -3032,123 +3042,154 @@ export default function CustomersPage() {
                         <div style={{ fontWeight: 700, fontSize: "0.82rem", color: isSelected ? "#1e3a8a" : "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={p.name}>
                           {p.name}
                         </div>
-                        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#2563eb", marginTop: "6px" }}>₹{p.price}</div>
-                        <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "2px" }}>{p.validityDays} Days Validity</div>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#2563eb", marginTop: "4px" }}>₹{p.price}</div>
+                        <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "2px" }}>{p.validityDays} Days</div>
                       </div>
                     );
                   })}
                   {packagePlans.length === 0 && (
-                    <div style={{ fontSize: "0.82rem", color: "#94a3b8", padding: "10px 0" }}>No packages configured</div>
+                    <div style={{ fontSize: "0.82rem", color: "#94a3b8", padding: "8px 0" }}>No packages configured</div>
                   )}
                 </div>
               </div>
 
               {/* Add Services Section */}
-              <div style={{ display: "flex", gap: "16px" }}>
-                <div style={{ width: "120px", fontWeight: 700, fontSize: "0.9rem", color: "#0f172a", paddingTop: "10px" }}>Add services</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ position: "relative" }}>
-                    <input 
-                      placeholder="Search Service By Category Or Name" 
-                      value={pkgServiceSearch}
-                      onChange={(e) => setPkgServiceSearch(e.target.value)}
-                      style={{ width: "100%", padding: "10px 32px 10px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem", boxSizing: "border-box", outline: "none" }}
-                    />
-                    <Search size={16} style={{ position: "absolute", right: 12, top: 12, color: "#94a3b8" }} />
-                    {pkgServiceSearch.trim() !== "" && (
-                      <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, marginTop: "4px", maxHeight: "150px", overflowY: "auto", zIndex: 10, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
-                        {services.filter(s => s.name.toLowerCase().includes(pkgServiceSearch.toLowerCase())).map(s => {
-                          const alreadyAdded = customServices.some(added => added.id === s.id);
-                          return (
-                            <div 
-                              key={s.id} 
-                              onClick={() => {
-                                if (!alreadyAdded) setCustomServices(prev => [...prev, { ...s, sessions: 1 }]);
-                                setPkgServiceSearch("");
-                                setSelectedPackage({ id: "CUSTOM", name: "Custom Package" });
-                              }}
-                              style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f8fafc" : "#fff" }}
-                            >
-                              <span style={{ fontWeight: 600, color: "#334155" }}>{s.name}</span>
-                              <span style={{ color: "#64748b" }}>{s.price}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "8px" }}>({customServices.length} Items Selected)</div>
-                  
-                  {/* Selected Services Tags */}
-                  {customServices.length > 0 && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
-                      {customServices.map((s, idx) => (
-                        <div key={idx} style={{ background: "#f1f5f9", padding: "4px 8px", borderRadius: 4, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#334155" }}>
-                          <span>{s.name}</span>
-                          <span style={{ fontWeight: 700, background: "#e2e8f0", padding: "2px 6px", borderRadius: 4 }}>x{s.sessions}</span>
-                          <button onClick={() => setCustomServices(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex" }}><X size={12} /></button>
-                        </div>
-                      ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#0f172a" }}>Add Services</div>
+                <div style={{ position: "relative" }}>
+                  <input 
+                    placeholder="Search Service By Category Or Name" 
+                    value={pkgServiceSearch}
+                    onChange={(e) => setPkgServiceSearch(e.target.value)}
+                    style={{ width: "100%", padding: "10px 36px 10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", outline: "none" }}
+                  />
+                  <Search size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                  {pkgServiceSearch.trim() !== "" && (
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, marginTop: "4px", maxHeight: "160px", overflowY: "auto", zIndex: 10, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}>
+                      {services.filter(s => s.name.toLowerCase().includes(pkgServiceSearch.toLowerCase())).map(s => {
+                        const alreadyAdded = customServices.some(added => added.id === s.id);
+                        return (
+                          <div 
+                            key={s.id} 
+                            onClick={() => {
+                              if (!alreadyAdded) setCustomServices(prev => [...prev, { ...s, sessions: 1 }]);
+                              setPkgServiceSearch("");
+                              setSelectedPackage({ id: "CUSTOM", name: "Custom Package" });
+                            }}
+                            style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f8fafc" : "#fff" }}
+                          >
+                            <span style={{ fontWeight: 600, color: "#334155" }}>{s.name}</span>
+                            <span style={{ color: "#64748b" }}>₹{s.price}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>({customServices.length} Items Selected)</div>
+                
+                {/* Selected Services Tags */}
+                {customServices.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {customServices.map((s, idx) => (
+                      <div key={idx} style={{ background: "#f1f5f9", padding: "5px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#334155", border: "1px solid #e2e8f0" }}>
+                        <span>{s.name}</span>
+                        <span style={{ fontWeight: 700, background: "#e2e8f0", padding: "2px 6px", borderRadius: 4 }}>x{s.sessions}</span>
+                        <button type="button" onClick={() => setCustomServices(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex", alignItems: "center" }}><X size={13} /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Add Products Section */}
-              <div style={{ display: "flex", gap: "16px" }}>
-                <div style={{ width: "120px", fontWeight: 700, fontSize: "0.9rem", color: "#0f172a", paddingTop: "10px" }}>Add products</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ position: "relative" }}>
-                    <input 
-                      placeholder="Search Product By Category Or Name" 
-                      value={pkgProductSearch}
-                      onChange={(e) => setPkgProductSearch(e.target.value)}
-                      style={{ width: "100%", padding: "10px 32px 10px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.9rem", boxSizing: "border-box", outline: "none" }}
-                    />
-                    <Search size={16} style={{ position: "absolute", right: 12, top: 12, color: "#94a3b8" }} />
-                    {pkgProductSearch.trim() !== "" && (
-                      <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, marginTop: "4px", maxHeight: "150px", overflowY: "auto", zIndex: 10, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
-                        {products.filter(p => p.name.toLowerCase().includes(pkgProductSearch.toLowerCase())).map(p => {
-                          const alreadyAdded = customProducts.some(added => added.id === p.id);
-                          return (
-                            <div 
-                              key={p.id} 
-                              onClick={() => {
-                                if (!alreadyAdded) setCustomProducts(prev => [...prev, { ...p }]);
-                                setPkgProductSearch("");
-                                setSelectedPackage({ id: "CUSTOM", name: "Custom Package" });
-                              }}
-                              style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f8fafc" : "#fff" }}
-                            >
-                              <span style={{ fontWeight: 600, color: "#334155" }}>{p.name}</span>
-                              <span style={{ color: "#64748b" }}>{p.sellingPrice}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  {customProducts.length > 0 && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
-                      {customProducts.map((p, idx) => (
-                        <div key={idx} style={{ background: "#f1f5f9", padding: "4px 8px", borderRadius: 4, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#334155" }}>
-                          <span>{p.name}</span>
-                          <button onClick={() => setCustomProducts(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex" }}><X size={12} /></button>
-                        </div>
-                      ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#0f172a" }}>Add Products</div>
+                <div style={{ position: "relative" }}>
+                  <input 
+                    placeholder="Search Product By Category Or Name" 
+                    value={pkgProductSearch}
+                    onChange={(e) => setPkgProductSearch(e.target.value)}
+                    style={{ width: "100%", padding: "10px 36px 10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.88rem", boxSizing: "border-box", outline: "none" }}
+                  />
+                  <Search size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                  {pkgProductSearch.trim() !== "" && (
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, marginTop: "4px", maxHeight: "160px", overflowY: "auto", zIndex: 10, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}>
+                      {products.filter(p => p.name.toLowerCase().includes(pkgProductSearch.toLowerCase())).map(p => {
+                        const alreadyAdded = customProducts.some(added => added.id === p.id);
+                        return (
+                          <div 
+                            key={p.id} 
+                            onClick={() => {
+                              if (!alreadyAdded) setCustomProducts(prev => [...prev, { ...p }]);
+                              setPkgProductSearch("");
+                              setSelectedPackage({ id: "CUSTOM", name: "Custom Package" });
+                            }}
+                            style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f8fafc" : "#fff" }}
+                          >
+                            <span style={{ fontWeight: 600, color: "#334155" }}>{p.name}</span>
+                            <span style={{ color: "#64748b" }}>₹{p.sellingPrice}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
+                {customProducts.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {customProducts.map((p, idx) => (
+                      <div key={idx} style={{ background: "#f1f5f9", padding: "5px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#334155", border: "1px solid #e2e8f0" }}>
+                        <span>{p.name}</span>
+                        <button type="button" onClick={() => setCustomProducts(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex", alignItems: "center" }}><X size={13} /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Payment Details */}
-              <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: "16px" }}>
-                <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#334155", marginBottom: "16px" }}>Payment Details:</div>
-                <div style={{ display: "flex", gap: "24px" }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block" }}>Balance</label>
-                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 12px" }}>
-                      <Wallet size={18} color="#10b981" style={{ marginRight: "8px" }} />
+              <div style={{ border: "1px solid #e2e8f0", borderRadius: 10, padding: "14px 16px", background: "#f8fafc" }}>
+                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#334155", marginBottom: "12px" }}>Payment Details:</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "12px" }}>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#0f172a", marginBottom: "4px", display: "block" }}>Online</label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", background: "#fff" }}>
+                      <Monitor size={16} color="#10b981" style={{ marginRight: "8px", flexShrink: 0 }} />
+                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(packageForm.price || 0) - Number(packageForm.offline || 0))} placeholder="0.0" value={packageForm.online} onFocus={() => {
+                        const price = Number(packageForm.price || 0);
+                        const offlineVal = Number(packageForm.offline || 0);
+                        const remaining = Math.max(0, price - offlineVal);
+                        setPackageForm(prev => ({...prev, online: String(remaining), balance: String(0)}));
+                      }} onChange={(e) => {
+                        const price = Number(packageForm.price || 0);
+                        const offlineVal = Number(packageForm.offline || 0);
+                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, price - offlineVal));
+                        const nextBalance = Math.max(0, price - val - offlineVal);
+                        setPackageForm(prev => ({...prev, online: String(val), balance: String(nextBalance)}));
+                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#0f172a", marginBottom: "4px", display: "block" }}>Offline</label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", background: "#fff" }}>
+                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(packageForm.price || 0) - Number(packageForm.online || 0))} placeholder="0.0" value={packageForm.offline} onFocus={() => {
+                        const price = Number(packageForm.price || 0);
+                        const onlineVal = Number(packageForm.online || 0);
+                        const remaining = Math.max(0, price - onlineVal);
+                        setPackageForm(prev => ({...prev, offline: String(remaining), balance: String(0)}));
+                      }} onChange={(e) => {
+                        const price = Number(packageForm.price || 0);
+                        const onlineVal = Number(packageForm.online || 0);
+                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, price - onlineVal));
+                        const nextBalance = Math.max(0, price - onlineVal - val);
+                        setPackageForm(prev => ({...prev, offline: String(val), balance: String(nextBalance)}));
+                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#0f172a", marginBottom: "4px", display: "block" }}>Balance</label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 8, padding: "8px 12px", background: "#fff" }}>
+                      <Wallet size={16} color="#10b981" style={{ marginRight: "8px", flexShrink: 0 }} />
                       <input type="number" min="0" step="0.01" inputMode="decimal" max={Number(packageForm.price || 0)} placeholder="0.0" value={packageForm.balance} onFocus={() => {
                         const price = Number(packageForm.price || 0);
                         const onlineVal = Number(packageForm.online || 0);
@@ -3162,60 +3203,25 @@ export default function CustomersPage() {
                         const offlineVal = Number(packageForm.offline || 0);
                         const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, price - onlineVal - offlineVal));
                         setPackageForm(prev => ({...prev, balance: String(val)}));
-                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem" }} />
-                    </div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block" }}>Online</label>
-                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 12px" }}>
-                      <Monitor size={18} color="#10b981" style={{ marginRight: "8px" }} />
-                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(packageForm.price || 0) - Number(packageForm.offline || 0))} placeholder="0.0" value={packageForm.online} onFocus={() => {
-                        const price = Number(packageForm.price || 0);
-                        const offlineVal = Number(packageForm.offline || 0);
-                        const remaining = Math.max(0, price - offlineVal);
-                        setPackageForm(prev => ({...prev, online: String(remaining), balance: String(0)}));
-                      }} onChange={(e) => {
-                        const price = Number(packageForm.price || 0);
-                        const offlineVal = Number(packageForm.offline || 0);
-                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, price - offlineVal));
-                        const nextBalance = Math.max(0, price - val - offlineVal);
-                        setPackageForm(prev => ({...prev, online: String(val), balance: String(nextBalance)}));
-                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem" }} />
-                    </div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block" }}>Offline</label>
-                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 12px" }}>
-                      <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, Number(packageForm.price || 0) - Number(packageForm.online || 0))} placeholder="0.0" value={packageForm.offline} onFocus={() => {
-                        const price = Number(packageForm.price || 0);
-                        const onlineVal = Number(packageForm.online || 0);
-                        const remaining = Math.max(0, price - onlineVal);
-                        setPackageForm(prev => ({...prev, offline: String(remaining), balance: String(0)}));
-                      }} onChange={(e) => {
-                        const price = Number(packageForm.price || 0);
-                        const onlineVal = Number(packageForm.online || 0);
-                        const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(0, price - onlineVal));
-                        const nextBalance = Math.max(0, price - onlineVal - val);
-                        setPackageForm(prev => ({...prev, offline: String(val), balance: String(nextBalance)}));
-                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem" }} />
+                      }} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.9rem", color: "#0f172a" }} />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Required Details (Price, Validity) that were missing in the screenshot but necessary for backend */}
-              <div style={{ display: "flex", gap: "16px" }}>
-                 <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block", fontWeight: 700 }}>Total Price</label>
-                    <input type="number" placeholder="0.0" value={packageForm.price} onChange={(e) => setPackageForm(prev => ({...prev, price: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 6, outline: "none", width: "100%", padding: "10px", fontSize: "0.9rem", boxSizing: "border-box" }} />
+              {/* Total Price, Validity, Staff Assignment */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "12px" }}>
+                 <div>
+                    <label style={{ fontSize: "0.78rem", color: "#0f172a", marginBottom: "4px", display: "block", fontWeight: 700 }}>Total Price</label>
+                    <input type="number" placeholder="0.0" value={packageForm.price} onChange={(e) => setPackageForm(prev => ({...prev, price: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 8, outline: "none", width: "100%", padding: "10px 12px", fontSize: "0.9rem", boxSizing: "border-box" }} />
                  </div>
-                 <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block", fontWeight: 700 }}>Validity (Days)</label>
-                    <input type="number" placeholder="30" value={packageForm.validityDays} onChange={(e) => setPackageForm(prev => ({...prev, validityDays: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 6, outline: "none", width: "100%", padding: "10px", fontSize: "0.9rem", boxSizing: "border-box" }} />
+                 <div>
+                    <label style={{ fontSize: "0.78rem", color: "#0f172a", marginBottom: "4px", display: "block", fontWeight: 700 }}>Validity (Days)</label>
+                    <input type="number" placeholder="30" value={packageForm.validityDays} onChange={(e) => setPackageForm(prev => ({...prev, validityDays: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 8, outline: "none", width: "100%", padding: "10px 12px", fontSize: "0.9rem", boxSizing: "border-box" }} />
                  </div>
-                 <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "0.8rem", color: "#0f172a", marginBottom: "6px", display: "block", fontWeight: 700 }}>Staff Assignment</label>
-                    <CustomSelect value={packageForm.staffId} onChange={(e) => setPackageForm(prev => ({...prev, staffId: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 6, outline: "none", width: "100%", padding: "10px", fontSize: "0.9rem", boxSizing: "border-box", background: "#fff", color: "#0f172a" }}>
+                 <div>
+                    <label style={{ fontSize: "0.78rem", color: "#0f172a", marginBottom: "4px", display: "block", fontWeight: 700 }}>Staff Assignment</label>
+                    <CustomSelect value={packageForm.staffId} onChange={(e) => setPackageForm(prev => ({...prev, staffId: e.target.value}))} style={{ border: "1px solid #cbd5e1", borderRadius: 8, outline: "none", width: "100%", padding: "10px 12px", fontSize: "0.9rem", boxSizing: "border-box", background: "#fff", color: "#0f172a" }}>
                       <option value="" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Select Staff</option>
                       {staffUsers.filter((s) => {
                         const effectiveBranchId = selectedBranchId || selectedCustomer?.branchId;
@@ -3227,17 +3233,17 @@ export default function CustomersPage() {
 
               {/* Remark */}
               <div>
-                <label style={{ fontSize: "0.9rem", fontWeight: 700, color: "#334155", marginBottom: "8px", display: "block" }}>Remark:</label>
+                <label style={{ fontSize: "0.88rem", fontWeight: 700, color: "#334155", marginBottom: "6px", display: "block" }}>Remark:</label>
                 <textarea 
                   value={packageForm.remark}
                   onChange={(e) => setPackageForm(prev => ({...prev, remark: e.target.value}))}
-                  style={{ width: "100%", border: "1px solid #e2e8f0", borderRadius: 8, padding: "12px", minHeight: "80px", outline: "none", boxSizing: "border-box", fontSize: "0.9rem" }}
+                  style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 12px", minHeight: "70px", outline: "none", boxSizing: "border-box", fontSize: "0.88rem" }}
                   placeholder="Enter remarks..."
                 />
               </div>
 
               {packageError && (
-                <div style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "12px", background: "#fef2f2", padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, background: "#fef2f2", padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", display: "flex", alignItems: "center", gap: "6px" }}>
                   <AlertCircle size={14} /> {packageError}
                 </div>
               )}
@@ -3245,9 +3251,9 @@ export default function CustomersPage() {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: "16px 24px", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "flex-end", gap: 12 }}>
-              <button onClick={() => setShowPackageModal(false)} style={{ padding: "10px 24px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 6, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: "0.9rem" }}>Cancel</button>
-              <button onClick={handleAssignPackage} style={{ padding: "10px 24px", background: "var(--button-bg-solid, #3b82f6)", color: "#fff", border: "none", borderRadius: 6, fontWeight: 700, cursor: "pointer", fontSize: "0.9rem" }}>Add Package</button>
+            <div style={{ padding: "14px 20px", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button type="button" onClick={() => setShowPackageModal(false)} style={{ padding: "10px 20px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: "0.88rem" }}>Cancel</button>
+              <button type="button" onClick={handleAssignPackage} style={{ padding: "10px 22px", background: "var(--button-bg-solid, #3b82f6)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: "0.88rem", boxShadow: "0 2px 6px rgba(59,130,246,0.3)" }}>Add Package</button>
             </div>
           </div>
         </div>
