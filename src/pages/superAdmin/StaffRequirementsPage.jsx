@@ -114,6 +114,107 @@ export default function SuperAdminStaffRequirementsPage() {
 
   return (
     <div className="page-shell super-admin-page">
+      <style>{`
+        .sr-status-tabs {
+          display: flex;
+          gap: 8px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+          align-items: center;
+        }
+        .sr-status-tabs button {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .sr-filter-toolbar {
+          background: #fff;
+          padding: 16px 20px;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          margin-bottom: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+        .sr-filter-controls {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          flex: 1 1 450px;
+          max-width: 560px;
+          justify-content: flex-end;
+        }
+        .sr-table-container {
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .sr-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13px;
+          min-width: 820px;
+          white-space: nowrap;
+        }
+        .sr-modal-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+          background: #f8fafc;
+          padding: 16px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+          font-size: 0.85rem;
+        }
+        .sr-assignee-row {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        @media (max-width: 768px) {
+          .sr-filter-toolbar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 14px !important;
+            gap: 12px !important;
+          }
+          .sr-filter-controls {
+            flex-direction: column !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            justify-content: stretch !important;
+            gap: 10px !important;
+          }
+          .sr-filter-controls > div {
+            width: 100% !important;
+            min-width: 100% !important;
+          }
+          .sr-modal-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .sr-assignee-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .sr-assignee-row button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .modal-content-card {
+            width: 95% !important;
+            max-height: 92vh !important;
+          }
+        }
+      `}</style>
+
       {/* Header (Point 1: Staff Requests) */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <div>
@@ -138,8 +239,8 @@ export default function SuperAdminStaffRequirementsPage() {
       )}
 
       {/* Status Filter Tabs & Search / Salon Filter Toolbar */}
-      <div style={{ background: "#fff", padding: "16px 20px", borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+      <div className="sr-filter-toolbar">
+        <div className="sr-status-tabs no-scrollbar">
           {["ALL", "OPEN", "IN_PROGRESS", "CLOSED"].map(key => (
             <button
               key={key}
@@ -162,7 +263,7 @@ export default function SuperAdminStaffRequirementsPage() {
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 10, alignItems: "center", flex: "1 1 450px", maxWidth: 560, justifyContent: "flex-end" }}>
+        <div className="sr-filter-controls">
           <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
             <Search size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none", zIndex: 2 }} />
             <input
@@ -200,8 +301,8 @@ export default function SuperAdminStaffRequirementsPage() {
           message={filter === "ALL" ? "No staff requests submitted yet." : `No ${statusConfig[filter]?.label.toLowerCase()} staff requests found.`} 
         />
       ) : (
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflowX: "auto", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="sr-table-container">
+          <table className="sr-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Salon Name</th>
@@ -314,7 +415,7 @@ export default function SuperAdminStaffRequirementsPage() {
               <button onClick={() => setSelectedReq(null)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8" }}>✕</button>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, background: "#f8fafc", padding: 16, borderRadius: 10, marginBottom: 16, fontSize: "0.85rem" }}>
+            <div className="sr-modal-grid">
               <div><span style={{ color: "#64748b" }}>Position:</span> <strong>{selectedReq.position || selectedReq.title}</strong></div>
               <div><span style={{ color: "#64748b" }}>Number Required:</span> <strong>{selectedReq.count || 1} Person(s)</strong></div>
               <div><span style={{ color: "#64748b" }}>Salary Range:</span> <strong>{selectedReq.salary || "Negotiable"}</strong></div>
@@ -330,7 +431,7 @@ export default function SuperAdminStaffRequirementsPage() {
 
             {/* Manage Handler / Staff Assignee */}
             <div style={{ background: "#eef2ff", padding: "14px 16px", borderRadius: 10, marginBottom: 14, border: "1px solid #e0e7ff", position: "relative" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
                 <span style={{ fontSize: "0.8rem", color: "#3730a3", fontWeight: 700 }}>
                   Manage Handler / Recruiter Assignee:
                 </span>
@@ -340,7 +441,7 @@ export default function SuperAdminStaffRequirementsPage() {
               </div>
               
               <div style={{ position: "relative" }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div className="sr-assignee-row">
                   <div style={{ position: "relative", flex: 1 }}>
                     <input
                       type="text"
