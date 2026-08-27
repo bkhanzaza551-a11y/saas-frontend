@@ -295,6 +295,76 @@ export default function SuperAdminProductsRequirementPage() {
 
   return (
     <div className="page-shell super-admin-page">
+      <style>{`
+        .pr-section-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #e2e8f0;
+          padding-bottom: 10px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+        }
+        .pr-section-tabs button {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .pr-filter-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+          gap: 12px;
+          align-items: center;
+        }
+        .pr-table-container {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .pr-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13px;
+          min-width: 780px;
+          white-space: nowrap;
+        }
+        .pr-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .pr-form-3col {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 12px;
+        }
+        .pr-detail-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          background: #f8fafc;
+          padding: 16px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+          font-size: 0.85rem;
+        }
+        @media (max-width: 768px) {
+          .pr-filter-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .pr-form-2col,
+          .pr-form-3col {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .pr-detail-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+          }
+        }
+      `}</style>
+
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
@@ -324,7 +394,7 @@ export default function SuperAdminProductsRequirementPage() {
               cursor: "pointer"
             }}
           >
-            <Plus size={16} /> + Add Catalog Product
+            <Plus size={16} /> Add Catalog Product
           </button>
         </div>
       </div>
@@ -343,7 +413,7 @@ export default function SuperAdminProductsRequirementPage() {
       )}
 
       {/* 4 Sections Tabs (Point 2) */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 10 }}>
+      <div className="pr-section-tabs no-scrollbar">
         <button
           onClick={() => setActiveSection("available")}
           style={{
@@ -428,7 +498,7 @@ export default function SuperAdminProductsRequirementPage() {
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
           {/* Search and Filters (Point 6) */}
           <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 12, alignItems: "center" }}>
+            <div className="pr-filter-grid">
               <div style={{ position: "relative" }}>
                 <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                 <input
@@ -476,8 +546,8 @@ export default function SuperAdminProductsRequirementPage() {
           {filteredCatalog.length === 0 ? (
             <EmptyState title="No Products" message="No catalog products match your search/filter criteria." />
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div className="pr-table-container">
+              <table className="pr-table">
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>1. Brand</th>
@@ -571,7 +641,7 @@ export default function SuperAdminProductsRequirementPage() {
               </CustomSelect>
             </label>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="pr-form-2col">
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
                 <input
@@ -597,7 +667,7 @@ export default function SuperAdminProductsRequirementPage() {
               </label>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="pr-form-2col">
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category</span>
                 <CustomSelect
@@ -624,7 +694,7 @@ export default function SuperAdminProductsRequirementPage() {
               </label>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div className="pr-form-3col">
               <label>
                 <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Quantity *</span>
                 <input
@@ -731,8 +801,8 @@ export default function SuperAdminProductsRequirementPage() {
           {filteredRequests.length === 0 ? (
             <EmptyState title="No Requests Found" message="No salon product requests match this filter." />
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div className="pr-table-container">
+              <table className="pr-table">
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
                     <th style={{ padding: "12px 14px", textAlign: "left" }}>Request ID</th>
@@ -815,7 +885,7 @@ export default function SuperAdminProductsRequirementPage() {
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, background: "#f8fafc", padding: 16, borderRadius: 10, marginBottom: 16, fontSize: "0.85rem" }}>
+          <div className="pr-detail-grid">
             <div><span style={{ color: "#64748b" }}>Category:</span> <strong>{selectedReq.category || "—"}</strong></div>
             <div><span style={{ color: "#64748b" }}>Pack Size:</span> <strong>{selectedReq.unitPackSize || selectedReq.packSize || "Standard"}</strong></div>
             <div><span style={{ color: "#64748b" }}>Quantity:</span> <strong>{selectedReq.quantity || 1}</strong></div>
@@ -907,7 +977,7 @@ export default function SuperAdminProductsRequirementPage() {
             </div>
 
             <form onSubmit={saveCatalogItem} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="pr-form-2col">
                 <label>
                   <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Brand *</span>
                   <input
@@ -933,7 +1003,7 @@ export default function SuperAdminProductsRequirementPage() {
                 </label>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="pr-form-2col">
                 <label>
                   <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Category *</span>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -978,7 +1048,7 @@ export default function SuperAdminProductsRequirementPage() {
                 </label>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="pr-form-2col">
                 <label>
                   <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>Available Quantity</span>
                   <input
