@@ -287,9 +287,79 @@ export default function PlansPage() {
   if (loading) return <div className="page-shell"><PageLoader /></div>;
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div className="page-shell super-admin-page" style={{ padding: "20px 16px", maxWidth: "1200px", margin: "0 auto" }}>
+      <style>{`
+        .plans-top-links {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+        }
+        .plans-filter-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #e2e8f0;
+          padding-bottom: 12px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+        }
+        .plans-filter-tabs button {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .plans-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 20px;
+        }
+        .plans-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px 20px;
+        }
+        .plans-usage-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 12px;
+        }
+        @media (max-width: 768px) {
+          .plans-top-links {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          .plans-top-links a {
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 10px 8px !important;
+            font-size: 0.78rem !important;
+          }
+          .plans-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+          .plans-form-2col {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .plans-usage-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+          }
+          .modal-content-card {
+            width: 95% !important;
+            max-height: 92vh !important;
+            margin: 0 auto !important;
+            padding: 16px 14px !important;
+          }
+        }
+      `}</style>
+
       {/* Subscriptions Module Sub-Header Navigation */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+      <div className="plans-top-links">
         <Link
           to="/super-admin/plans"
           style={{
@@ -329,13 +399,13 @@ export default function PlansPage() {
       </div>
 
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Plans & Pricing Packages</h1>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Define what we sell with standard and custom packages, usage limits, and module access.</p>
           </div>
           <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-            <Plus size={16} /> + New Plan
+            <Plus size={16} /> New Plan
           </button>
         </div>
       </div>
@@ -344,7 +414,7 @@ export default function PlansPage() {
       {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
       {/* Plan Filter Tabs: All, Standard, Custom, Archived */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+      <div className="plans-filter-tabs no-scrollbar">
         {[
           { id: "all", label: "All Active Plans", count: plans.filter(p => !p.isArchived).length },
           { id: "standard", label: "Standard Plans", count: plans.filter(p => !p.isCustom && !p.isArchived).length },
@@ -377,7 +447,7 @@ export default function PlansPage() {
       {filteredPlans.length === 0 ? (
         <EmptyState title="No Plans Found" message={`No ${filterTab} plans available.`} />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
+        <div className="plans-grid">
           {filteredPlans.map(plan => (
             <PlanCard key={plan.id} plan={plan} onEdit={openEdit} onArchive={(p) => setArchiveModalData(p)} />
           ))}
@@ -392,7 +462,7 @@ export default function PlansPage() {
               <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
             </div>
             <form onSubmit={savePlan} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
+              <div className="plans-form-2col">
                 <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Plan Name *</span>
                   <input placeholder="e.g. Starter, Professional, Enterprise" value={form.name} required onChange={e => setForm({ ...form, name: e.target.value })} />
@@ -448,7 +518,7 @@ export default function PlansPage() {
 
               <div>
                 <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>Usage Limits</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+                <div className="plans-usage-grid">
                   {[
                     { key: "branchLimit", label: "Branch Limit" },
                     { key: "userLimit", label: "Staff Limit" },

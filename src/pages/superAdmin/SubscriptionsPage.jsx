@@ -990,7 +990,7 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
 
       {/* 2. Billing */}
       <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
           <h4 style={{ margin: 0, fontSize: "0.88rem", color: "#334155", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
             <CreditCard size={16} color="#10b981" /> 2. Billing Details
           </h4>
