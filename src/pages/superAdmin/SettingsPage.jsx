@@ -473,6 +473,86 @@ export default function SuperAdminSettingsPage() {
 
   return (
     <div className="page-shell super-admin-page">
+      <style>{`
+        .settings-split-layout {
+          display: flex;
+          gap: 24px;
+          background: white;
+          border-radius: 16px;
+          border: 1px solid #f1f5f9;
+          box-shadow: 0 4px 24px rgba(15,23,42,0.02);
+          overflow: hidden;
+          min-height: 560px;
+        }
+        .settings-sidebar-tabs {
+          width: 220px;
+          background: #f8fafc;
+          border-right: 1px solid #e2e8f0;
+          padding: 20px 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex-shrink: 0;
+        }
+        .settings-content-panel {
+          flex: 1;
+          padding: 28px 32px;
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+        }
+        .settings-grid-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        .settings-grid-3col {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 14px;
+        }
+        @media (max-width: 900px) {
+          .settings-split-layout {
+            flex-direction: column !important;
+            gap: 0 !important;
+          }
+          .settings-sidebar-tabs {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            border-right: none !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            white-space: nowrap !important;
+            padding: 12px 14px !important;
+            scrollbar-width: none !important;
+            -webkit-overflow-scrolling: touch !important;
+            gap: 8px !important;
+          }
+          .settings-sidebar-tabs button {
+            width: auto !important;
+            flex-shrink: 0 !important;
+            padding: 8px 14px !important;
+            white-space: nowrap !important;
+          }
+          .settings-content-panel {
+            padding: 20px 16px !important;
+          }
+          .settings-grid-2col,
+          .settings-grid-3col {
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
+          }
+          .settings-content-panel [style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+          }
+          .modal-content-card {
+            width: 95% !important;
+            max-height: 92vh !important;
+          }
+        }
+      `}</style>
+
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div>
@@ -485,8 +565,8 @@ export default function SuperAdminSettingsPage() {
       {status.error && <div style={{ background: "#fef2f2", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: 13 }}>{status.error}</div>}
       {status.success && <div style={{ background: "#ecfdf5", color: "#065f46", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: 13 }}>{status.success}</div>}
 
-      <div style={{ display: "flex", gap: 24, background: "white", borderRadius: 16, border: "1px solid #f1f5f9", boxShadow: "0 4px 24px rgba(15,23,42,0.02)", overflow: "hidden", minHeight: 560 }}>
-        <div style={{ width: 220, background: "#f8fafc", borderRight: "1px solid #e2e8f0", padding: "20px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
+      <div className="settings-split-layout">
+        <div className="settings-sidebar-tabs no-scrollbar">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -499,7 +579,7 @@ export default function SuperAdminSettingsPage() {
           })}
         </div>
 
-        <div style={{ flex: 1, padding: "28px 32px", display: "flex", flexDirection: "column" }}>
+        <div className="settings-content-panel">
           <form onSubmit={submit} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <div style={{ flex: 1 }}>
 
@@ -509,7 +589,7 @@ export default function SuperAdminSettingsPage() {
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>General Configuration</h3>
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Basic platform metadata, currency, invoice prefix and regional defaults.</p>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div className="settings-grid-2col">
                     <Field label="System Name"><input style={inputStyle} {...f("systemName")} placeholder="SalonNest" /></Field>
                     <Field label="Platform Logo">
                       <div style={{ display: "flex", alignItems: "center", gap: 14, background: "#f8fafc", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0" }}>
