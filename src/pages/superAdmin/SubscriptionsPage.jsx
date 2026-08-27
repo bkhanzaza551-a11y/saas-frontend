@@ -258,8 +258,89 @@ export default function SubscriptionsPage() {
   if (loading) return <PageLoader />;
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1250px", margin: "0 auto" }}>
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+    <div className="page-shell super-admin-page" style={{ padding: "20px 16px", maxWidth: "1250px", margin: "0 auto" }}>
+      <style>{`
+        .subs-top-links {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+        }
+        .subs-status-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 16px;
+          overflow-x: auto;
+          padding-bottom: 6px;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+        }
+        .subs-status-tabs button {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .subs-filter-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+        .subs-table-container {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .subs-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13px;
+          min-width: 860px;
+          white-space: nowrap;
+        }
+        .subs-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px 20px;
+        }
+        .subs-detail-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px 16px;
+          font-size: 0.85rem;
+        }
+        @media (max-width: 768px) {
+          .subs-top-links {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          .subs-top-links a {
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 10px 8px !important;
+            font-size: 0.78rem !important;
+          }
+          .subs-filter-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .subs-form-2col,
+          .subs-detail-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .modal-content-card {
+            width: 95% !important;
+            max-height: 92vh !important;
+            margin: 0 auto !important;
+            padding: 16px 14px !important;
+          }
+        }
+      `}</style>
+
+      <div className="subs-top-links">
         <Link
           to="/super-admin/plans"
           style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 18px", borderRadius: 10, background: "white", color: "#64748b", fontWeight: 600, fontSize: "0.85rem", border: "1px solid #e2e8f0", textDecoration: "none" }}
@@ -275,13 +356,13 @@ export default function SubscriptionsPage() {
       </div>
 
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Salon Subscriptions</h1>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Manage what each salon has purchased, renewals, trial extensions, and plan upgrades. {displaySubs.length} subscription(s) found.</p>
           </div>
           <button onClick={() => { setForm(emptyForm); setIsCreateOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-            <Plus size={16} /> + New Subscription
+            <Plus size={16} /> New Subscription
           </button>
         </div>
       </div>
@@ -290,7 +371,7 @@ export default function SubscriptionsPage() {
       {status.success && <div style={{ padding: 12, background: "#f0fdf4", color: "#16a34a", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
       {/* Subscription Status Filter Cards / Tabs */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+      <div className="subs-status-tabs no-scrollbar">
         {[
           { id: "", label: "All", count: subs.length },
           { id: "TRIAL", label: "Trial", count: subs.filter(s => s.computedStatus === "TRIAL").length },
@@ -327,7 +408,7 @@ export default function SubscriptionsPage() {
 
       <div style={{ background: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)" }}>
         <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div className="search-input-wrapper" style={{ flex: 1, minWidth: 260, position: "relative" }}>
+          <div className="search-input-wrapper" style={{ flex: 1, minWidth: 240, position: "relative" }}>
             <div className="search-icon" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none", zIndex: 2 }}>
               <Search size={18} />
             </div>
@@ -344,13 +425,13 @@ export default function SubscriptionsPage() {
           </div>
           <button 
             onClick={() => { setQ(""); setStatusFilter(""); setPlanFilter(""); setPaymentFilter(""); }} 
-            style={{ height: 42, padding: "0 18px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 6 }}
+            style={{ height: 42, padding: "0 18px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}
           >
             <Filter size={15} /> Reset
           </button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div className="subs-filter-grid">
           <CustomSelect
             value={planFilter}
             onChange={e => setPlanFilter(e.target.value)}
@@ -372,8 +453,8 @@ export default function SubscriptionsPage() {
       {subs.length === 0 ? (
         <EmptyState title="No Subscriptions" message="Onboard a client to create the first subscription." />
       ) : (
-        <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="subs-table-container">
+          <table className="subs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
                 <th style={{ padding: "12px 16px", textAlign: "left" }}>Salon Name</th>
@@ -456,7 +537,7 @@ export default function SubscriptionsPage() {
         <div className="modal-overlay" onClick={() => setIsCreateOpen(false)}>
           <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
             <div className="modal-header"><h3>Onboard Client Subscription</h3><button className="modal-close-btn" onClick={() => setIsCreateOpen(false)}>&times;</button></div>
-            <form onSubmit={handleCreate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
+            <form onSubmit={handleCreate} className="subs-form-2col">
               <label style={{ gridColumn: "1 / -1" }}>
                 <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Salon *</span>
                 <CustomSelect
@@ -896,7 +977,7 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
         <h4 style={{ margin: "0 0 12px", fontSize: "0.88rem", color: "#334155", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
           <Store size={16} color="#4f46e5" /> 1. Subscription Overview
         </h4>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 16px", fontSize: "0.85rem" }}>
+        <div className="subs-detail-grid">
           <div><span style={{ color: "#64748b" }}>Salon:</span> <strong>{sub.salon?.name}</strong></div>
           <div><span style={{ color: "#64748b" }}>Owner:</span> <strong>{ownerName}</strong> ({ownerEmail})</div>
           <div><span style={{ color: "#64748b" }}>Owner Phone:</span> <strong>{ownerPhone}</strong></div>
@@ -922,7 +1003,7 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
             View Finance Transactions →
           </a>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 16px", fontSize: "0.85rem" }}>
+        <div className="subs-detail-grid">
           <div><span style={{ color: "#64748b" }}>Plan Amount:</span> <strong>₹{Number(sub.plan?.monthlyPrice || 0).toLocaleString()}</strong> /month</div>
           <div><span style={{ color: "#64748b" }}>Yearly Equivalent:</span> <strong>₹{Number(sub.plan?.yearlyPrice || 0).toLocaleString()}</strong> /year</div>
           <div><span style={{ color: "#64748b" }}>Billing Cycle:</span> <strong>{sub.billingCycle || "Monthly"}</strong></div>
@@ -937,7 +1018,7 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
         <h4 style={{ margin: "0 0 12px", fontSize: "0.88rem", color: "#334155", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
           <Clock size={16} color="#f59e0b" /> 3. Expiry & Lifecycle Access
         </h4>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 16px", fontSize: "0.85rem" }}>
+        <div className="subs-detail-grid">
           <div><span style={{ color: "#64748b" }}>{isTrial ? "Trial Start Date:" : "Subscription Start:"}</span> <strong>{sub.startsAt ? new Date(sub.startsAt).toLocaleDateString() : "—"}</strong></div>
           <div><span style={{ color: "#64748b" }}>{isTrial ? "Trial End Date:" : "Subscription Expiry:"}</span> <strong>{sub.endsAt ? new Date(sub.endsAt).toLocaleDateString() : "—"}</strong></div>
           <div><span style={{ color: "#64748b" }}>Access Until (+2 Days Grace):</span> <strong style={{ color: "#d97706" }}>{sub.accessUntil ? new Date(sub.accessUntil).toLocaleDateString() : "—"}</strong></div>
