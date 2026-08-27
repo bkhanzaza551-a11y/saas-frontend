@@ -892,8 +892,13 @@ export default function MarketingHomePage() {
           </span>
           <span>{settings.maintenanceMessage || "We are currently performing scheduled platform maintenance. Services will resume shortly."}</span>
           {settings.maintenanceEndTime && (
-            <span style={{ background: "rgba(0,0,0,0.25)", padding: "2px 8px", borderRadius: 6, fontSize: 11 }}>
-              Est. Completion: {settings.maintenanceEndTime}
+            <span style={{ background: "rgba(0,0,0,0.3)", padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
+              ⏱️ Est. Completion: {(() => {
+                const d = new Date(settings.maintenanceEndTime);
+                return !isNaN(d.getTime()) 
+                  ? d.toLocaleString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }) 
+                  : settings.maintenanceEndTime;
+              })()}
             </span>
           )}
         </div>

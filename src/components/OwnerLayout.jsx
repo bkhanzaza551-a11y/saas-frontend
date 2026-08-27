@@ -90,7 +90,12 @@ export default function OwnerLayout() {
           </p>
           {maintenanceInfo.endTime && (
             <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "12px 18px", borderRadius: 12, marginBottom: 20, fontSize: 13, color: "#166534", display: "inline-flex", flexDirection: "column", gap: 4 }}>
-              <div>⏱️ Scheduled End: <strong style={{ color: "#0f172a" }}>{maintenanceInfo.endTime}</strong></div>
+              <div>⏱️ Scheduled End: <strong style={{ color: "#0f172a" }}>{(() => {
+                const d = new Date(maintenanceInfo.endTime);
+                return !isNaN(d.getTime()) 
+                  ? d.toLocaleString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }) 
+                  : maintenanceInfo.endTime;
+              })()}</strong></div>
               {countdownText && <div style={{ fontSize: 14, fontWeight: 800, color: "#059669" }}>⏳ {countdownText}</div>}
             </div>
           )}
