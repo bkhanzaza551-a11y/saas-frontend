@@ -146,8 +146,11 @@ function MaintenanceTimeSelector({ value, onChange }) {
         />
       </div>
       {value && (
-        <div style={{ fontSize: "0.8rem", color: "#059669", fontWeight: 600, background: "#ecfdf5", padding: "6px 12px", borderRadius: 6, border: "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: 6 }}>
-          <span>⏰ Scheduled End: <strong>{value}</strong></span>
+        <div style={{ fontSize: "0.8rem", color: "#059669", fontWeight: 600, background: "#ecfdf5", padding: "8px 12px", borderRadius: 8, border: "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: 6 }}>
+          <span>⏰ Scheduled End: <strong>{(() => {
+            const d = new Date(value);
+            return !isNaN(d.getTime()) ? d.toLocaleString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }) : value;
+          })()}</strong></span>
         </div>
       )}
     </div>
@@ -1237,8 +1240,22 @@ export default function SuperAdminSettingsPage() {
                       </div>
                       
                       <div className="settings-grid-2col" style={{ gap: 14 }}>
-                        <Field label="Maintenance Message" full>
-                          <textarea rows={3} style={{ ...inputStyle, resize: "vertical" }} {...f("maintenanceMessage")} placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly." />
+                        <Field label="Maintenance Message (Shown on lockout screen)" full>
+                          <div>
+                            <textarea
+                              rows={3}
+                              maxLength={250}
+                              style={{ ...inputStyle, resize: "vertical", width: "100%" }}
+                              {...f("maintenanceMessage")}
+                              placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly."
+                            />
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4, fontSize: "0.75rem", color: "#64748b" }}>
+                              <span>This exact message will be displayed prominently to salon owners, staff, and public visitors.</span>
+                              <span style={{ fontWeight: 600, color: (form.maintenanceMessage || "").length > 220 ? "#f59e0b" : "#64748b" }}>
+                                {(form.maintenanceMessage || "").length} / 250 characters
+                              </span>
+                            </div>
+                          </div>
                         </Field>
                         <Field label="Expected End Time (Optional)" full>
                           <MaintenanceTimeSelector
@@ -1335,11 +1352,17 @@ export default function SuperAdminSettingsPage() {
                 </label>
                 <textarea
                   rows={3}
+                  maxLength={250}
                   value={form.maintenanceMessage}
                   onChange={e => setForm(p => ({ ...p, maintenanceMessage: e.target.value }))}
                   style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", resize: "none", boxSizing: "border-box", outline: "none" }}
                   placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly."
                 />
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 3 }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 600, color: (form.maintenanceMessage || "").length > 220 ? "#f59e0b" : "#64748b" }}>
+                    {(form.maintenanceMessage || "").length} / 250 characters
+                  </span>
+                </div>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
