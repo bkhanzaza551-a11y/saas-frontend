@@ -53,6 +53,30 @@ export default function OwnerLayout() {
     return <PageLoader title="Checking workspace access" message="Verifying subscription and system status..." />;
   }
 
+  // Live countdown for maintenance screen
+  const [countdownText, setCountdownText] = useState("");
+  useEffect(() => {
+    if (!maintenance || !maintenanceInfo.endTime) return;
+    const updateCountdown = () => {
+      const end = new Date(maintenanceInfo.endTime).getTime();
+      if (isNaN(end)) return;
+      const diff = end - Date.now();
+      if (diff <= 0) {
+        setCountdownText("Finishing maintenance... unlocking now");
+        api.get("/public/settings").then(res => {
+          if (!res.data?.maintenanceMode) setMaintenance(false);
+        }).catch(() => {});
+      } else {
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        setCountdownText(`${m}m ${s}s remaining`);
+      }
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [maintenance, maintenanceInfo.endTime]);
+
   if (maintenance && auth?.user?.systemRole !== "SUPER_ADMIN") {
     return (
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
@@ -65,8 +89,9 @@ export default function OwnerLayout() {
             {maintenanceInfo.message || "We are currently performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly."}
           </p>
           {maintenanceInfo.endTime && (
-            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "10px 16px", borderRadius: 10, marginBottom: 20, fontSize: 13, color: "#64748b", display: "inline-block" }}>
-              ⏱️ Expected Completion: <strong style={{ color: "#0f172a" }}>{maintenanceInfo.endTime}</strong>
+            <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "12px 18px", borderRadius: 12, marginBottom: 20, fontSize: 13, color: "#166534", display: "inline-flex", flexDirection: "column", gap: 4 }}>
+              <div>⏱️ Scheduled End: <strong style={{ color: "#0f172a" }}>{maintenanceInfo.endTime}</strong></div>
+              {countdownText && <div style={{ fontSize: 14, fontWeight: 800, color: "#059669" }}>⏳ {countdownText}</div>}
             </div>
           )}
           <div>
