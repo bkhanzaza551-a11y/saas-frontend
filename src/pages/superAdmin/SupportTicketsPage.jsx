@@ -239,6 +239,75 @@ export default function SuperAdminSupportTicketsPage() {
 
   return (
     <div className="page-shell super-admin-page">
+      <style>{`
+        .st-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+          margin-bottom: 20px;
+        }
+        .st-filter-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 12px;
+          align-items: end;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .st-table-container {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .st-table {
+          width: 100%;
+          border-collapse: collapse;
+          min-width: 840px;
+          white-space: nowrap;
+        }
+        .st-drawer-body {
+          flex: 1;
+          display: flex;
+          overflow: hidden;
+        }
+        .st-drawer-sidebar {
+          width: 340px;
+          border-left: 1px solid #e2e8f0;
+          background: #f8fafc;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          overflow-y: auto;
+          padding: 20px 18px;
+          gap: 16px;
+        }
+        @media (max-width: 900px) {
+          .st-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+          }
+          .st-drawer-body {
+            flex-direction: column !important;
+            overflow-y: auto !important;
+          }
+          .st-drawer-sidebar {
+            width: 100% !important;
+            border-left: none !important;
+            border-top: 1px solid #e2e8f0 !important;
+            height: auto !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .st-filter-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .modal-content-card {
+            width: 95% !important;
+            max-height: 92vh !important;
+          }
+        }
+      `}</style>
+
       <div className="hero-card" style={{ padding: "18px 24px", marginBottom: 20 }}>
         <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
@@ -272,7 +341,7 @@ export default function SuperAdminSupportTicketsPage() {
       </div>
 
       {/* Point 3: 4 Clickable Summary Cards (Total Tickets, Open, Urgent, Resolved / Closed) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 20 }}>
+      <div className="st-stats-grid">
         {[
           { label: "Total Tickets", value: stats.total, color: "#6366f1", border: "#6366f1", action: () => setFilters({ ...filters, status: "", priority: "" }) },
           { label: "Open", value: stats.open, color: "#ef4444", border: "#ef4444", action: () => setFilters({ ...filters, status: "OPEN", priority: "" }) },
@@ -344,7 +413,7 @@ export default function SuperAdminSupportTicketsPage() {
         </div>
 
         {/* Dropdowns Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, alignItems: "end", width: "100%", boxSizing: "border-box" }}>
+        <div className="st-filter-grid">
           <div style={{ minWidth: 0 }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Status</label>
             <CustomSelect
@@ -412,8 +481,8 @@ export default function SuperAdminSupportTicketsPage() {
         {loading ? (
           <PageLoader title="Loading support queue" message="Pulling tickets, agents, and events." />
         ) : rows.length ? (
-          <div className="table-responsive">
-            <table className="data-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="st-table-container">
+            <table className="st-table">
               <thead>
                 <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                   <th style={{ padding: "12px 14px", textAlign: "left", fontSize: 11, color: "#64748b", fontWeight: 700 }}>TICKET</th>
@@ -538,7 +607,7 @@ export default function SuperAdminSupportTicketsPage() {
             </div>
 
             {/* Main 2-Column Body */}
-            <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            <div className="st-drawer-body">
 
               {/* LEFT COLUMN: Conversation Stream & Reply Composer */}
               <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", background: "#ffffff", minWidth: 0 }}>
@@ -772,7 +841,7 @@ export default function SuperAdminSupportTicketsPage() {
               </div>
 
               {/* RIGHT COLUMN: Salon Context, Assignee & Internal Notes Sidebar */}
-              <div style={{ width: 340, borderLeft: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", flexDirection: "column", height: "100%", overflowY: "auto", padding: "20px 18px", gap: 16 }}>
+              <div className="st-drawer-sidebar">
 
                 {/* Salon Context Card */}
                 {selectedTicket.salon && (
