@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Filter, Plus, Download, Upload, MoreVertical, MoreHorizontal, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor } from "lucide-react";
+import { Search, Filter, Plus, Download, Upload, MoreVertical, MoreHorizontal, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, CheckCircle2, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor } from "lucide-react";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import { api } from "../../api/client";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
@@ -154,6 +154,14 @@ export default function CustomersPage() {
   const [selectedFamilyGuest, setSelectedFamilyGuest] = useState(null);
   const [showFollowUpModal, setShowFollowUpModal] = useState(false);
   const [followUpForm, setFollowUpForm] = useState({ date: "", time: "", message: "", type: "email", staffUserId: "" });
+  const [toastMessage, setToastMessage] = useState(null);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const t = setTimeout(() => setToastMessage(null), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [toastMessage]);
   const [invoiceSuccessData, setInvoiceSuccessData] = useState(null); // { type, name, invoice }
   const [membershipError, setMembershipError] = useState("");
   const [packageError, setPackageError] = useState("");
@@ -200,7 +208,7 @@ export default function CustomersPage() {
   const openWhatsAppForCustomer = (row) => {
     const digits = String(row.phone || "").replace(/\D/g, "");
     if (!digits) {
-      alert("Customer phone number is missing");
+      setToastMessage({ type: "error", title: "Missing Phone", message: "Customer phone number is missing" });
       return;
     }
     const whatsappDigits = digits.startsWith("91") ? digits : `91${digits}`;
@@ -359,8 +367,9 @@ export default function CustomersPage() {
       const invoice = res.data?.invoice || null;
       const planName = res.data?.assignment?.membershipPlan?.name || selectedPlan?.name || "Membership";
       setInvoiceSuccessData({ type: "Membership", name: planName, invoice });
+      setToastMessage({ type: "success", title: "Membership Assigned", message: `${planName} assigned successfully!` });
     } catch (e) {
-      alert("Failed to assign membership");
+      setToastMessage({ type: "error", title: "Membership Failed", message: formatApiError(e, "Failed to assign membership") });
       console.error(e);
     } finally {
       setSaving(false);
@@ -387,8 +396,9 @@ export default function CustomersPage() {
       if (res.data?.invoice) {
         setInvoiceSuccessData({ type: "Advance", name: `₹${Number(advanceForm.amount).toLocaleString("en-IN")} advance added`, invoice: res.data.invoice });
       }
+      setToastMessage({ type: "success", title: "Advance Added", message: `₹${Number(advanceForm.amount).toLocaleString("en-IN")} advance payment added successfully!` });
     } catch (e) {
-      alert("Failed to add advance");
+      setToastMessage({ type: "error", title: "Advance Failed", message: formatApiError(e, "Failed to add advance") });
       console.error(e);
     } finally {
       setSaving(false);
@@ -412,8 +422,9 @@ export default function CustomersPage() {
       setCustomerDetail(res.data);
       setSelectedCustomer((prev) => prev ? { ...prev, name: updateForm.name, phone: updateForm.phone } : prev);
       setDetailTab("profile");
+      setToastMessage({ type: "success", title: "Profile Updated", message: "Customer profile updated successfully!" });
     } catch (e) {
-      alert("Failed to update profile");
+      setToastMessage({ type: "error", title: "Update Failed", message: formatApiError(e, "Failed to update profile") });
       console.error(e);
     } finally {
       setSaving(false);
@@ -428,8 +439,9 @@ export default function CustomersPage() {
       await api.patch(`/owner/customers/${selectedCustomer.id}`, { notes });
       const res = await api.get(`/owner/customers/${selectedCustomer.id}`);
       setCustomerDetail(res.data);
+      setToastMessage({ type: "success", title: "Notes Saved", message: "Customer notes updated successfully!" });
     } catch (e) {
-      alert("Failed to save notes");
+      setToastMessage({ type: "error", title: "Notes Failed", message: formatApiError(e, "Failed to save notes") });
       console.error(e);
     } finally {
       setSaving(false);
@@ -466,9 +478,17 @@ export default function CustomersPage() {
       api.get(`/owner/referrals/wallets/${selectedCustomer.id}`)
         .then(res => setCustomerAffiliateWallet(res.data || null))
         .catch(() => {});
-      alert("Customer is now an affiliate partner!");
+      setToastMessage({ 
+        type: "success", 
+        title: "Partner Onboarded", 
+        message: `${selectedCustomer.name} is now an active Affiliate Partner!` 
+      });
     } catch (err) {
-      alert("Failed: " + (err.response?.data?.message || "Could not onboard partner"));
+      setToastMessage({ 
+        type: "error", 
+        title: "Onboarding Failed", 
+        message: err.response?.data?.message || "Could not onboard partner" 
+      });
     } finally {
       setPartnerLoading(false);
     }
@@ -743,8 +763,9 @@ export default function CustomersPage() {
 
       const res = await api.get(`/owner/customers/${selectedCustomer.id}`);
       setCustomerDetail(res.data);
+      setToastMessage({ type: "success", title: "Member Removed", message: "Family member unlinked successfully." });
     } catch (e) {
-      alert("Failed to remove family member");
+      setToastMessage({ type: "error", title: "Action Failed", message: formatApiError(e, "Failed to remove family member") });
       console.error(e);
     } finally {
       setSaving(false);
@@ -768,8 +789,9 @@ export default function CustomersPage() {
       setFollowUpForm({ date: "", time: "", message: "", type: "email", staffUserId: "" });
       const res = await api.get(`/owner/customers/${selectedCustomer.id}`);
       setCustomerDetail(res.data);
+      setToastMessage({ type: "success", title: "Follow Up Scheduled", message: "Follow-up task scheduled successfully!" });
     } catch (e) {
-      alert("Failed to add follow-up");
+      setToastMessage({ type: "error", title: "Schedule Failed", message: formatApiError(e, "Failed to add follow-up") });
       console.error(e);
     } finally {
       setSaving(false);
@@ -788,8 +810,9 @@ export default function CustomersPage() {
     setShowExportMenu(false);
     try {
       await downloadFromApi(`/owner/customers/export`, { params: { format, ...(selectedBranchId ? { branchId: selectedBranchId } : {}) }, fallbackFilename: `Customers.${format === "csv" ? "csv" : format}` });
+      setToastMessage({ type: "success", title: "Export Started", message: "Customer data export downloaded." });
     } catch {
-      alert("Could not export customers");
+      setToastMessage({ type: "error", title: "Export Failed", message: "Could not export customers" });
     }
   };
 
@@ -812,10 +835,10 @@ export default function CustomersPage() {
             "Content-Type": "multipart/form-data"
           }
         });
-        alert(response.data.message || "CSV imported successfully!");
+        setToastMessage({ type: "success", title: "CSV Imported", message: response.data.message || "CSV imported successfully!" });
         await load();
       } catch (err) {
-        alert(formatApiError(err, "Could not import CSV"));
+        setToastMessage({ type: "error", title: "Import Failed", message: formatApiError(err, "Could not import CSV") });
       } finally {
         setSaving(false);
       }
@@ -840,9 +863,10 @@ export default function CustomersPage() {
         gst: "",
         gender: "FEMALE"
       });
+      setToastMessage({ type: "success", title: "Guest Created", message: "New customer profile created successfully!" });
       await load();
     } catch (error) {
-      alert(formatApiError(error, "Failed to add guest"));
+      setToastMessage({ type: "error", title: "Create Failed", message: formatApiError(error, "Failed to add guest") });
     } finally {
       setSaving(false);
     }
@@ -857,8 +881,9 @@ export default function CustomersPage() {
       await api.delete(`/owner/customers/${row.id}`);
       setRows((current) => current.filter((entry) => entry.id !== row.id));
       setActiveMenuRowId("");
+      setToastMessage({ type: "success", title: "Customer Deleted", message: `${row.name || "Customer"} deleted successfully.` });
     } catch (error) {
-      alert(formatApiError(error, "Could not delete customer"));
+      setToastMessage({ type: "error", title: "Delete Failed", message: formatApiError(error, "Could not delete customer") });
     } finally {
       setActionBusy("");
       setSaving(false);
@@ -866,7 +891,7 @@ export default function CustomersPage() {
   };
 
   const handleMergeCustomer = async () => {
-    alert("Customer merge is coming soon. This feature is currently under development.");
+    setToastMessage({ type: "info", title: "Coming Soon", message: "Customer merge is currently under development." });
   };
 
   const handleSort = (key) => {
@@ -2178,7 +2203,8 @@ export default function CustomersPage() {
                                   setWalletDepositAmount(""); setWalletNote("");
                                   const res = await api.get(`/owner/wallets/${selectedCustomer.id}`);
                                   setCustomerWallet(res.data?.wallet || null); setWalletTransactions(res.data?.transactions || []);
-                                } catch (err) { alert(err.response?.data?.message || "Failed to deposit"); }
+                                  setToastMessage({ type: "success", title: "Deposit Successful", message: "Money deposited into wallet successfully." });
+                                } catch (err) { setToastMessage({ type: "error", title: "Deposit Failed", message: err.response?.data?.message || "Failed to deposit" }); }
                               }} style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#16a34a", color: "white", border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Deposit</button>
                             </div>
                             <div style={{ background: "#fef2f2", borderRadius: 12, padding: 16, border: "1px solid #fecaca" }}>
@@ -2192,7 +2218,8 @@ export default function CustomersPage() {
                                   setWalletDeductAmount(""); setWalletNote("");
                                   const res = await api.get(`/owner/wallets/${selectedCustomer.id}`);
                                   setCustomerWallet(res.data?.wallet || null); setWalletTransactions(res.data?.transactions || []);
-                                } catch (err) { alert(err.response?.data?.message || "Failed to deduct"); }
+                                  setToastMessage({ type: "success", title: "Deduct Successful", message: "Money deducted from wallet successfully." });
+                                } catch (err) { setToastMessage({ type: "error", title: "Deduct Failed", message: err.response?.data?.message || "Failed to deduct" }); }
                               }} style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#dc2626", color: "white", border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Deduct</button>
                             </div>
                           </div>
@@ -3405,7 +3432,7 @@ export default function CustomersPage() {
                     <button
                       onClick={async () => {
                         try { await downloadFromApi(`/owner/invoices/${invoiceSuccessData.invoice.id}/pdf`, { fallbackFilename: `Invoice-${invoiceSuccessData.invoice.invoiceNumber}.pdf` }); }
-                        catch { alert("Could not download PDF"); }
+                        catch { setToastMessage({ type: "error", title: "Download Failed", message: "Could not download PDF" }); }
                       }}
                       style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", transition: "background 0.2s, transform 0.15s" }}
                       onMouseEnter={(e) => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
@@ -3544,6 +3571,69 @@ export default function CustomersPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Premium Custom Toast Notification */}
+      {toastMessage && (
+        <div style={{
+          position: "fixed",
+          top: 24,
+          right: 24,
+          zIndex: 99999,
+          background: "rgba(255, 255, 255, 0.96)",
+          backdropFilter: "blur(12px)",
+          border: toastMessage.type === "error" ? "1px solid #fee2e2" : toastMessage.type === "info" ? "1px solid #e0e7ff" : "1px solid #dcfce7",
+          borderLeft: toastMessage.type === "error" ? "5px solid #ef4444" : toastMessage.type === "info" ? "5px solid #6366f1" : "5px solid #22c55e",
+          borderRadius: 12,
+          padding: "14px 18px",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          minWidth: 300,
+          maxWidth: "90vw",
+          animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
+        }}>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            background: toastMessage.type === "error" ? "#fef2f2" : toastMessage.type === "info" ? "#eef2ff" : "#f0fdf4",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0
+          }}>
+            {toastMessage.type === "error" ? (
+              <AlertCircle size={18} color="#ef4444" />
+            ) : toastMessage.type === "info" ? (
+              <AlertCircle size={18} color="#6366f1" />
+            ) : (
+              <CheckCircle2 size={18} color="#22c55e" />
+            )}
+          </div>
+          <div style={{ flex: 1 }}>
+            <h4 style={{ margin: 0, fontSize: "0.9rem", fontWeight: 700, color: "#0f172a" }}>{toastMessage.title}</h4>
+            <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "#64748b", fontWeight: 500 }}>{toastMessage.message}</p>
+          </div>
+          <button 
+            onClick={() => setToastMessage(null)}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: "1.1rem",
+              cursor: "pointer",
+              color: "#94a3b8",
+              padding: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              lineHeight: 1
+            }}
+          >
+            ✕
+          </button>
         </div>
       )}
     </div>
