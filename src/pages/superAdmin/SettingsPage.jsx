@@ -34,6 +34,126 @@ const Field = ({ label, children, full }) => (
 
 const inputStyle = { border: "1px solid #cbd5e1", borderRadius: 8, padding: "10px 14px", fontSize: 14, width: "100%", boxSizing: "border-box" };
 
+function MaintenanceTimeSelector({ value, onChange }) {
+  const getDatetimeLocalValue = (val) => {
+    if (!val) return "";
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return "";
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const applyPreset = (minutesToAdd, nextMorning = false) => {
+    const d = new Date();
+    if (nextMorning) {
+      d.setDate(d.getDate() + 1);
+      d.setHours(9, 0, 0, 0);
+    } else {
+      d.setMinutes(d.getMinutes() + minutesToAdd);
+    }
+    const formatted = d.toLocaleString("en-IN", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+    onChange(formatted);
+  };
+
+  const handleDatetimeChange = (e) => {
+    const val = e.target.value;
+    if (!val) {
+      onChange("");
+      return;
+    }
+    const d = new Date(val);
+    if (!isNaN(d.getTime())) {
+      const formatted = d.toLocaleString("en-IN", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+      onChange(formatted);
+    } else {
+      onChange(val);
+    }
+  };
+
+  const currentLocal = getDatetimeLocalValue(value);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <button
+          type="button"
+          onClick={() => applyPreset(30)}
+          style={{ padding: "5px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#334155", cursor: "pointer", transition: "all 0.15s" }}
+        >
+          +30 Mins
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset(60)}
+          style={{ padding: "5px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#334155", cursor: "pointer", transition: "all 0.15s" }}
+        >
+          +1 Hour
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset(120)}
+          style={{ padding: "5px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#334155", cursor: "pointer", transition: "all 0.15s" }}
+        >
+          +2 Hours
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset(240)}
+          style={{ padding: "5px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#334155", cursor: "pointer", transition: "all 0.15s" }}
+        >
+          +4 Hours
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset(0, true)}
+          style={{ padding: "5px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#334155", cursor: "pointer", transition: "all 0.15s" }}
+        >
+          Tomorrow 9 AM
+        </button>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            style={{ padding: "5px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #fecaca", background: "#fef2f2", color: "#ef4444", cursor: "pointer" }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <input
+          type="datetime-local"
+          value={currentLocal}
+          onChange={handleDatetimeChange}
+          style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.88rem", background: "#fff", color: "#0f172a", outline: "none", width: "100%", boxSizing: "border-box" }}
+        />
+      </div>
+      {value && (
+        <div style={{ fontSize: "0.8rem", color: "#059669", fontWeight: 600, background: "#ecfdf5", padding: "6px 12px", borderRadius: 6, border: "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: 6 }}>
+          <span>⏰ Scheduled End: <strong>{value}</strong></span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const LOG_TYPE_COLORS = {
   SALON_CREATED:         { bg: "#dbeafe", color: "#1e40af" },
   SUBSCRIPTION_CREATED:  { bg: "#d1fae5", color: "#065f46" },
@@ -1121,7 +1241,10 @@ export default function SuperAdminSettingsPage() {
                           <textarea rows={3} style={{ ...inputStyle, resize: "vertical" }} {...f("maintenanceMessage")} placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly." />
                         </Field>
                         <Field label="Expected End Time (Optional)" full>
-                          <input style={inputStyle} type="text" {...f("maintenanceEndTime")} placeholder="e.g. 2026-08-18 04:00 AM IST" />
+                          <MaintenanceTimeSelector
+                            value={form.maintenanceEndTime}
+                            onChange={val => setForm(p => ({ ...p, maintenanceEndTime: val }))}
+                          />
                         </Field>
                       </div>
                     </div>
@@ -1219,15 +1342,12 @@ export default function SuperAdminSettingsPage() {
                 />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
                   Expected End Time (Optional)
                 </label>
-                <input
-                  type="text"
+                <MaintenanceTimeSelector
                   value={form.maintenanceEndTime}
-                  onChange={e => setForm(p => ({ ...p, maintenanceEndTime: e.target.value }))}
-                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
-                  placeholder="e.g. 2026-08-28 04:00 AM IST"
+                  onChange={val => setForm(p => ({ ...p, maintenanceEndTime: val }))}
                 />
               </div>
             </div>
