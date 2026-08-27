@@ -1321,9 +1321,12 @@ export default function CustomersPage() {
           .cust-assign-btn:hover { background:#1e293b !important; border-color:#1e293b !important; transform:translateY(-1px) !important; box-shadow:0 4px 12px rgba(15,23,42,0.15) !important; }
           .cust-add-btn { background:#0f172a !important; color:#fff !important; border:1px solid #0f172a !important; padding:10px 20px !important; border-radius:8px !important; font-size:0.85rem !important; font-weight:600 !important; cursor:pointer !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; transition:all .2s !important; min-height:unset !important; height:auto !important; box-shadow:none !important; }
           .cust-add-btn:hover { background:#1e293b !important; border-color:#1e293b !important; transform:translateY(-1px) !important; box-shadow:0 4px 12px rgba(15,23,42,0.15) !important; }
-          /* Membership modal plan cards */
-          .cust-detail-close-mobile { display:none; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:32px; height:32px; align-items:center; justify-content:center; cursor:pointer; margin-left:6px; flex-shrink:0; }
-          .cust-detail-close-mobile:hover { background:rgba(255,255,255,0.2); }
+          
+          .cust-detail-close-mobile { display:none; background:rgba(255,255,255,0.12) !important; border:1px solid rgba(255,255,255,0.2) !important; color:#ffffff !important; border-radius:8px !important; width:34px !important; height:34px !important; min-width:34px !important; min-height:34px !important; align-items:center !important; justify-content:center !important; cursor:pointer !important; margin-left:6px !important; flex-shrink:0 !important; padding:0 !important; box-shadow:none !important; transition:all .15s !important; }
+          .cust-detail-close-mobile:hover { background:rgba(239,68,68,0.3) !important; border-color:#ef4444 !important; color:#ffffff !important; }
+          .cust-detail-edit-btn { background:rgba(255,255,255,0.12) !important; border:1px solid rgba(255,255,255,0.2) !important; color:#ffffff !important; border-radius:8px !important; width:34px !important; height:34px !important; min-width:34px !important; min-height:34px !important; padding:0 !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important; transition:all .15s !important; margin-left:auto !important; flex-shrink:0 !important; box-shadow:none !important; }
+          .cust-detail-edit-btn:hover { background:rgba(255,255,255,0.22) !important; color:#ffffff !important; }
+
           @media (max-width: 768px) {
             .crm-toolbar { flex-direction:column; align-items:stretch; }
             .crm-search { width:100%; }
@@ -1334,8 +1337,10 @@ export default function CustomersPage() {
             .cust-detail-sidebar { width:100% !important; height:auto !important; flex-shrink:0 !important; overflow:visible !important; }
             .cust-detail-sidebar-info { padding:14px 16px !important; }
             .cust-detail-sidebar-fields { display:grid !important; grid-template-columns:1fr 1fr !important; gap:8px !important; }
-            .cust-detail-sidebar-nav { display:flex !important; flex-direction:row !important; overflow-x:auto !important; white-space:nowrap !important; padding:8px 12px !important; background:#0f172a !important; border-top:1px solid rgba(255,255,255,0.08) !important; gap:6px !important; }
-            .cust-detail-nav-btn { width:auto !important; flex-shrink:0 !important; padding:6px 12px !important; font-size:0.75rem !important; }
+            .cust-detail-sidebar-nav { position:sticky !important; top:0 !important; z-index:20 !important; display:flex !important; flex-direction:row !important; overflow-x:auto !important; white-space:nowrap !important; padding:10px 14px !important; background:#0f172a !important; border-top:1px solid rgba(255,255,255,0.1) !important; border-bottom:1px solid rgba(255,255,255,0.1) !important; gap:8px !important; -webkit-overflow-scrolling:touch !important; scrollbar-width:none !important; }
+            .cust-detail-sidebar-nav::-webkit-scrollbar { display:none !important; }
+            .cust-detail-nav-btn { width:auto !important; flex-shrink:0 !important; padding:7px 14px !important; font-size:0.8rem !important; border-radius:20px !important; background:rgba(255,255,255,0.06) !important; color:#cbd5e1 !important; white-space:nowrap !important; }
+            .cust-detail-nav-btn.active { background:#3b82f6 !important; color:#ffffff !important; font-weight:700 !important; box-shadow:0 2px 8px rgba(59,130,246,0.35) !important; }
             .cust-detail-content { flex:1 0 auto !important; overflow:visible !important; width:100% !important; }
             .cust-detail-content-header { padding:12px 16px !important; }
             .cust-detail-content-body { padding:14px 16px !important; overflow:visible !important; }
