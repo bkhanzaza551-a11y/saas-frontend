@@ -884,6 +884,21 @@ export default function MarketingHomePage() {
   return (
     <div style={{ minHeight: "100vh", background: "#ffffff", fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, sans-serif", color: "#0f172a", overflowX: "hidden" }}>
       
+      {/* MAINTENANCE ACTIVE BANNER */}
+      {settings?.maintenanceMode && (
+        <div style={{ background: "linear-gradient(90deg, #991b1b 0%, #b91c1c 50%, #991b1b 100%)", color: "#fee2e2", padding: "12px 24px", fontSize: 13, textAlign: "center", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", zIndex: 1000, position: "relative", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.2)", padding: "3px 10px", borderRadius: 20, color: "#fff", fontSize: 11, fontWeight: 800 }}>
+            ⚠️ SYSTEM MAINTENANCE IN PROGRESS
+          </span>
+          <span>{settings.maintenanceMessage || "We are currently performing scheduled platform maintenance. Services will resume shortly."}</span>
+          {settings.maintenanceEndTime && (
+            <span style={{ background: "rgba(0,0,0,0.25)", padding: "2px 8px", borderRadius: 6, fontSize: 11 }}>
+              Est. Completion: {settings.maintenanceEndTime}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* TOP ANNOUNCEMENT BANNER */}
       <div style={{ background: "linear-gradient(90deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)", color: "#ccfbf1", padding: "10px 24px", fontSize: 13, textAlign: "center", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(20,184,166,0.25)", padding: "2px 10px", borderRadius: 20, color: "#5eead4", fontSize: 11, fontWeight: 700 }}>

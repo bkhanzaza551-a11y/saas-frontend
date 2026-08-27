@@ -65,6 +65,7 @@ export default function SuperAdminSettingsPage() {
   const [auditLoading, setAuditLoading] = useState(false);
   const [showSecrets, setShowSecrets] = useState({});
   const [testingInteg, setTestingInteg] = useState("");
+  const [maintenanceModalOpen, setMaintenanceModalOpen] = useState(false);
   const [form, setForm] = useState({
     systemName: "SalonNest", globalLogo: "", maintenanceMode: false, maintenanceMessage: "",
     taxLabel: "GST", defaultCurrency: "INR", currencyOptions: ["INR", "USD", "AED", "GBP", "EUR"],
@@ -458,6 +459,34 @@ export default function SuperAdminSettingsPage() {
     } catch (err) {
       setStatus({ error: formatApiError(err, "Could not save"), success: "" });
     } finally { setSavingTab(""); }
+  };
+
+  const toggleMaintenanceDirect = async (enable, customMsg, customEnd) => {
+    const nextMsg = customMsg !== undefined ? customMsg : form.maintenanceMessage;
+    const nextEnd = customEnd !== undefined ? customEnd : form.maintenanceEndTime;
+    setForm(p => ({ ...p, maintenanceMode: enable, maintenanceMessage: nextMsg, maintenanceEndTime: nextEnd }));
+    setSavingTab("maintenance");
+    setStatus({ error: "", success: "" });
+    try {
+      await api.post("/super-admin/settings", {
+        ...buildPayload(TAB_FIELD_MAP.maintenance),
+        maintenanceMode: enable,
+        maintenanceMessage: nextMsg,
+        maintenanceEndTime: nextEnd
+      });
+      setStatus({ 
+        error: "", 
+        success: enable 
+          ? "⚠️ Maintenance Mode is now ACTIVE across the platform. Salon users are locked out." 
+          : "✅ Maintenance Mode has been DISABLED. All salon operations are normal." 
+      });
+      setMaintenanceModalOpen(false);
+      setTimeout(() => setStatus(p => ({ ...p, success: "" })), 4000);
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not update maintenance mode"), success: "" });
+    } finally {
+      setSavingTab("");
+    }
   };
 
   const TabSaveButton = ({ tabName }) => (
@@ -1078,16 +1107,16 @@ export default function SuperAdminSettingsPage() {
                           value={form.maintenanceMode} 
                           onChange={v => {
                             if (v) {
-                              const confirmEnable = window.confirm("Warning: Salon users will temporarily be unable to use the platform. Are you sure you want to enable Maintenance Mode?");
-                              if (!confirmEnable) return;
+                              setMaintenanceModalOpen(true);
+                            } else {
+                              toggleMaintenanceDirect(false);
                             }
-                            setForm(p => ({ ...p, maintenanceMode: v }));
                           }} 
                           label="Enable Maintenance Mode" 
                         />
                       </div>
                       
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      <div className="settings-grid-2col" style={{ gap: 14 }}>
                         <Field label="Maintenance Message" full>
                           <textarea rows={3} style={{ ...inputStyle, resize: "vertical" }} {...f("maintenanceMessage")} placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly." />
                         </Field>
@@ -1098,7 +1127,7 @@ export default function SuperAdminSettingsPage() {
                     </div>
 
                     {/* System Backup */}
-                    <div style={{ background: "#f8fafc", padding: 18, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ background: "#f8fafc", padding: 18, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                       <div>
                         <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>System Data & Configuration Export</h4>
                         <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Export platform configuration settings, policies, templates, and system metadata as JSON dump.</p>
@@ -1157,6 +1186,72 @@ export default function SuperAdminSettingsPage() {
           </form>
         </div>
       </div>
+
+      {/* Maintenance Confirmation Modal */}
+      {maintenanceModalOpen && (
+        <div className="modal-overlay" onClick={() => setMaintenanceModalOpen(false)}>
+          <div className="modal-content-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 520, borderRadius: 16, padding: "24px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <AlertTriangle size={24} />
+              </div>
+              <div>
+                <h3 style={{ margin: "0 0 6px", fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
+                  Enable Platform Maintenance Mode?
+                </h3>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b", lineHeight: 1.5 }}>
+                  Salon owners, staff, and public users will temporarily see a maintenance screen. Super Admins will retain full management access.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Maintenance Notice Message
+                </label>
+                <textarea
+                  rows={3}
+                  value={form.maintenanceMessage}
+                  onChange={e => setForm(p => ({ ...p, maintenanceMessage: e.target.value }))}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", resize: "none", boxSizing: "border-box", outline: "none" }}
+                  placeholder="We are performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly."
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Expected End Time (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={form.maintenanceEndTime}
+                  onChange={e => setForm(p => ({ ...p, maintenanceEndTime: e.target.value }))}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
+                  placeholder="e.g. 2026-08-28 04:00 AM IST"
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setMaintenanceModalOpen(false)}
+                style={{ padding: "9px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={savingTab === "maintenance"}
+                onClick={() => toggleMaintenanceDirect(true, form.maintenanceMessage, form.maintenanceEndTime)}
+                style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 2px 8px rgba(220, 38, 38, 0.3)" }}
+              >
+                {savingTab === "maintenance" ? "Activating..." : "⚠️ Yes, Enable & Save Now"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

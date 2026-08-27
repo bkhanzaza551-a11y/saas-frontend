@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 export default function OwnerLayout() {
   const [status, setStatus] = useState("loading");
   const [maintenance, setMaintenance] = useState(false);
+  const [maintenanceInfo, setMaintenanceInfo] = useState({ message: "", endTime: "" });
   const [subscription, setSubscription] = useState(null);
   const location = useLocation();
   const nav = useNavigate();
@@ -27,6 +28,12 @@ export default function OwnerLayout() {
 
         if (settingsRes.data?.maintenanceMode) {
           setMaintenance(true);
+          setMaintenanceInfo({
+            message: settingsRes.data?.maintenanceMessage || "The system is currently undergoing scheduled maintenance.",
+            endTime: settingsRes.data?.maintenanceEndTime || ""
+          });
+        } else {
+          setMaintenance(false);
         }
         setSubscription(subRes.data);
         setStatus("ready");
@@ -36,12 +43,8 @@ export default function OwnerLayout() {
       }
     };
     
-    // Only check if logged in as salon staff/owner
-    if (auth && auth.user?.systemRole !== "SUPER_ADMIN") {
-      checkStatus();
-    } else {
-      setStatus("ready");
-    }
+    // Always check public settings for maintenance
+    checkStatus();
 
     return () => { active = false; };
   }, [auth]);
@@ -52,13 +55,28 @@ export default function OwnerLayout() {
 
   if (maintenance && auth?.user?.systemRole !== "SUPER_ADMIN") {
     return (
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "#f8fafc", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div className="panel-card" style={{ textAlign: "center", maxWidth: 500, margin: "auto", padding: 40, boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }}>
-          <h2>Maintenance Mode</h2>
-          <p className="muted" style={{ marginBottom: 20 }}>
-            The system is currently undergoing scheduled maintenance. Please check back later. We apologize for the inconvenience.
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div style={{ textAlign: "center", maxWidth: 520, margin: "auto", padding: "40px 32px", background: "white", borderRadius: 20, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16, fontSize: 28 }}>
+            ⚠️
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>System Maintenance in Progress</h2>
+          <p style={{ color: "#475569", fontSize: 14.5, lineHeight: 1.6, margin: "0 0 20px" }}>
+            {maintenanceInfo.message || "We are currently performing scheduled maintenance to upgrade system infrastructure. SalonNest will be back online shortly."}
           </p>
-          <button className="sf-btn sf-btn-outline" onClick={() => window.location.reload()}>Refresh Page</button>
+          {maintenanceInfo.endTime && (
+            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "10px 16px", borderRadius: 10, marginBottom: 20, fontSize: 13, color: "#64748b", display: "inline-block" }}>
+              ⏱️ Expected Completion: <strong style={{ color: "#0f172a" }}>{maintenanceInfo.endTime}</strong>
+            </div>
+          )}
+          <div>
+            <button 
+              onClick={() => window.location.reload()} 
+              style={{ padding: "10px 24px", background: "#4f46e5", color: "white", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)" }}
+            >
+              Refresh Status
+            </button>
+          </div>
         </div>
       </div>
     );
