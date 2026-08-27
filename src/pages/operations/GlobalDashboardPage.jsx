@@ -114,51 +114,56 @@ export default function GlobalDashboardPage() {
       </div>
 
       {/* Date Period Filter Bar */}
-      <div className="panel-card" style={{ padding: "14px 18px", marginBottom: 20 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#334155", flexShrink: 0 }}>Period Filter:</span>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, flex: "1 1 auto" }}>
-            {["ALL", "Today", "Month", "Custom"].map(p => (
+      <div className="panel-card" style={{ padding: "10px 16px", marginBottom: 16, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#475569", display: "flex", alignItems: "center", gap: 6 }}>
+            <Calendar size={15} color="#6366f1" /> Period:
+          </span>
+          <div style={{ display: "inline-flex", background: "#f1f5f9", padding: "3px", borderRadius: 10, gap: 3, flexWrap: "wrap" }}>
+            {[
+              { id: "ALL", label: "All Time" },
+              { id: "Today", label: "Today" },
+              { id: "Month", label: "This Month" },
+              { id: "Custom", label: "Custom Date" }
+            ].map(p => (
               <button
-                key={p}
+                key={p.id}
                 type="button"
-                onClick={() => setPeriod(p)}
+                onClick={() => setPeriod(p.id)}
                 style={{
-                  padding: "6px 12px",
-                  borderRadius: 8,
+                  padding: "5px 14px",
+                  borderRadius: 7,
                   fontSize: 12,
-                  fontWeight: 600,
-                  border: "1px solid",
-                  borderColor: period === p ? "#6366f1" : "#e2e8f0",
-                  background: period === p ? "#eef2ff" : "#ffffff",
-                  color: period === p ? "#4338ca" : "#64748b",
+                  fontWeight: period === p.id ? 700 : 500,
+                  border: "none",
+                  background: period === p.id ? "#ffffff" : "transparent",
+                  color: period === p.id ? "#4f46e5" : "#64748b",
+                  boxShadow: period === p.id ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
                   cursor: "pointer",
                   transition: "all 0.15s ease",
-                  flex: "1 1 auto",
-                  textAlign: "center",
-                  minWidth: "70px"
+                  whiteSpace: "nowrap"
                 }}
               >
-                {p === "ALL" ? "All Time" : p === "Today" ? "Today" : p === "Month" ? "This Month" : "Custom Date"}
+                {p.label}
               </button>
             ))}
           </div>
         </div>
 
         {period === "Custom" && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f5f9" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <input
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, flex: "1 1 130px" }}
+              style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, outline: "none", background: "#fff" }}
             />
-            <span style={{ fontSize: 12, color: "#64748b" }}>to</span>
+            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>to</span>
             <input
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, flex: "1 1 130px" }}
+              style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, outline: "none", background: "#fff" }}
             />
           </div>
         )}
