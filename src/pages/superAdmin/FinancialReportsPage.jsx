@@ -161,14 +161,96 @@ export default function FinancialReportsPage() {
   if (loading && !summary) return <PageLoader />;
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div className="page-shell super-admin-page" style={{ padding: "20px 16px", maxWidth: "1200px", margin: "0 auto" }}>
+      <style>{`
+        .fin-summary-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        .fin-date-presets {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #f8fafc;
+          padding: 4px;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+        }
+        .fin-date-presets button {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .fin-dropdown-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 16px;
+        }
+        .fin-table-container {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .fin-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13px;
+          min-width: 820px;
+          white-space: nowrap;
+        }
+        .fin-form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+        .fin-detail-grid {
+          display: grid;
+          grid-template-columns: 140px 1fr;
+          gap: 12px 0;
+          font-size: 0.9rem;
+          padding: 16px 0;
+        }
+        @media (max-width: 768px) {
+          .fin-summary-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+          }
+          .fin-dropdown-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .fin-form-2col {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .modal-content-card {
+            width: 95% !important;
+            max-height: 92vh !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .fin-detail-grid {
+            grid-template-columns: 120px 1fr !important;
+            font-size: 0.82rem !important;
+          }
+        }
+      `}</style>
+
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="item-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
             <h1 style={{ marginTop: 0 }}>Finance</h1>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Revenue, transactions, and payment tracking</p>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
             {canRecordPayment && (
               <button onClick={() => setIsRecordOpen(true)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
                 <Plus size={16} /> Record Payment
@@ -188,7 +270,7 @@ export default function FinancialReportsPage() {
 
       {/* Point 1: Finance Summary Top Cards (Respecting Date Range) */}
       {summary && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 }}>
+        <div className="fin-summary-grid">
           {[
             { label: "Total Revenue", value: fmt(summary.totalRevenue), color: "#0f172a", bg: "#f0fdf4", border: "#10b981" },
             { label: "Subscription Revenue", value: fmt(summary.subscriptionRevenue), color: "#4f46e5", bg: "#eef2ff", border: "#6366f1" },
@@ -224,7 +306,7 @@ export default function FinancialReportsPage() {
           </div>
           
           {/* Point 1: Date Filter Presets (Today, This Month, This Year, Custom) */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f8fafc", padding: "4px", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+          <div className="fin-date-presets no-scrollbar">
             {DATE_PRESETS.map(p => (
               <button
                 key={p.key}
@@ -252,7 +334,7 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* Dropdowns Row (Point 2: Payment For, Point 3: Payment Status, Point 4: Payment Method) */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
+        <div className="fin-dropdown-grid">
           <CustomSelect
             value={salonFilter}
             onChange={e => setSalonFilter(e.target.value)}
@@ -302,8 +384,8 @@ export default function FinancialReportsPage() {
       {transactions.length === 0 ? (
         <EmptyState title="No Transactions" message="No financial transactions matching the selected filters." />
       ) : (
-        <div style={{ overflowX: "auto", background: "white", borderRadius: 12, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="fin-table-container">
+          <table className="fin-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #f1f5f9", background: "#f8fafc", color: "#64748b", fontWeight: 700 }}>
                 <th style={{ padding: "14px 16px", textAlign: "left" }}>Transaction ID</th>
@@ -397,7 +479,7 @@ export default function FinancialReportsPage() {
                 </CustomSelect>
               </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Amount (INR) *</span><input type="number" min="0" step="0.01" value={recordForm.amount} required onChange={e => setRecordForm({ ...recordForm, amount: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="fin-form-2col">
                 <label>
                   <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment For</span>
                   <CustomSelect
@@ -439,7 +521,7 @@ export default function FinancialReportsPage() {
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Transaction Detail</h3>
               <button className="modal-close-btn" onClick={() => setDetailTxn(null)}>&times;</button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "12px 0", fontSize: "0.9rem", padding: "16px 0" }}>
+            <div className="fin-detail-grid">
               <div style={{ color: "#64748b" }}>Transaction ID</div>
               <div style={{ fontWeight: 700, fontFamily: "monospace", color: "#4f46e5" }}>{detailTxn.transactionId}</div>
 
