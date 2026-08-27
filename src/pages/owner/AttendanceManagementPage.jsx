@@ -207,10 +207,32 @@ export default function AttendanceManagementPage() {
 
   const formatTime = (dt) => dt ? new Date(dt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "—";
   const formatHours = (mins) => {
-    if (!mins && mins !== 0) return "—";
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
+    if (mins == null) return "—";
+    const totalMins = Math.max(0, Number(mins) || 0);
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    if (h === 0 && m === 0) return "0m";
+    if (h === 0) return `${m}m`;
     return `${h}h ${m}m`;
+  };
+
+  const getDisplayHours = (row) => {
+    if (!row) return "—";
+    if (row.type === "ABSENT" || row.type === "LEAVE" || row.status === "ABSENT" || row.status === "LEAVE") return "—";
+    if (row.workedMinutes != null && row.workedMinutes > 0) {
+      if (row.checkInAt && !row.checkOutAt) {
+        return `${formatHours(row.workedMinutes)} (Active)`;
+      }
+      return formatHours(row.workedMinutes);
+    }
+    if (row.checkInAt && !row.checkOutAt) {
+      const elapsedMins = Math.max(0, Math.round((Date.now() - new Date(row.checkInAt).getTime()) / 60000));
+      return `${formatHours(elapsedMins)} (Active)`;
+    }
+    if (row.workedMinutes === 0) {
+      return "0m";
+    }
+    return "—";
   };
 
   if (loading) return <div className="page-shell"><PageLoader title="Loading attendance" message="Fetching staff attendance data, branches, and settings." /></div>;
@@ -434,7 +456,7 @@ export default function AttendanceManagementPage() {
                           <td style={{ padding: "10px 14px", color: "#475569" }}>{row.branchName || "—"}</td>
                           <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{row.checkInAt ? formatTime(row.checkInAt) : "—"}</td>
                           <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{row.checkOutAt ? formatTime(row.checkOutAt) : "—"}</td>
-                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{formatHours(row.workedMinutes)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{getDisplayHours(row)}</td>
                           <td style={{ padding: "10px 14px", textAlign: "center" }}>
                             <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>
                               {row.type === "ABSENT" ? "ABSENT" : row.type === "LEAVE" ? "LEAVE" : row.status}
@@ -492,7 +514,7 @@ export default function AttendanceManagementPage() {
                         </div>
                         <div className="att-mobile-stat-box">
                           <div className="att-mobile-stat-label">Hours</div>
-                          <div className="att-mobile-stat-value" style={{ color: "#0f766e" }}>{formatHours(row.workedMinutes)}</div>
+                          <div className="att-mobile-stat-value" style={{ color: "#0f766e" }}>{getDisplayHours(row)}</div>
                         </div>
                       </div>
 
@@ -563,7 +585,7 @@ export default function AttendanceManagementPage() {
                           <td style={{ padding: "10px 14px", textAlign: "center" }}>{new Date(r.attendanceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</td>
                           <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{formatTime(r.checkInAt)}</td>
                           <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{formatTime(r.checkOutAt)}</td>
-                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{formatHours(r.workedMinutes)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{getDisplayHours(r)}</td>
                           <td style={{ padding: "10px 14px", textAlign: "center" }}>
                             <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>{r.status}</span>
                           </td>
@@ -623,7 +645,7 @@ export default function AttendanceManagementPage() {
                         </div>
                         <div className="att-mobile-stat-box">
                           <div className="att-mobile-stat-label">Hours</div>
-                          <div className="att-mobile-stat-value" style={{ color: "#0f766e" }}>{formatHours(r.workedMinutes)}</div>
+                          <div className="att-mobile-stat-value" style={{ color: "#0f766e" }}>{getDisplayHours(r)}</div>
                         </div>
                       </div>
 
@@ -694,7 +716,7 @@ export default function AttendanceManagementPage() {
               <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b" }}>Date:</span><strong>{detailRecord.date || date}</strong></div>
               <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b" }}>Check In:</span><strong>{detailRecord.checkInAt ? formatTime(detailRecord.checkInAt) : "—"}</strong></div>
               <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b" }}>Check Out:</span><strong>{detailRecord.checkOutAt ? formatTime(detailRecord.checkOutAt) : "—"}</strong></div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b" }}>Working Hours:</span><strong>{formatHours(detailRecord.workedMinutes)}</strong></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b" }}>Working Hours:</span><strong>{getDisplayHours(detailRecord)}</strong></div>
               <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#64748b" }}>Status:</span><strong>{detailRecord.type === "ABSENT" ? "ABSENT" : detailRecord.type === "LEAVE" ? "LEAVE" : detailRecord.status}</strong></div>
             </div>
           </div>
