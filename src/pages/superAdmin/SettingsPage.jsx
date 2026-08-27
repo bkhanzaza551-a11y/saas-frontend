@@ -542,7 +542,7 @@ export default function SuperAdminSettingsPage() {
   };
 
   const buildPayload = (fields) => {
-    const p = {};
+    const p = { systemName: form.systemName || "SalonNest" };
     for (const k of fields) {
       if (k === "notificationDefaults") {
         p.notificationDefaults = {
