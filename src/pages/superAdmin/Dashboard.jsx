@@ -83,14 +83,113 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="page-shell super-admin-page">
+      <style>{`
+        .sa-date-filter-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: center;
+          justify-content: flex-end;
+        }
+        .sa-date-pills {
+          display: inline-flex;
+          background: #f1f5f9;
+          padding: 4px;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+          overflow-x: auto;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+          max-width: 100%;
+        }
+        .sa-date-pill {
+          padding: 6px 16px;
+          border-radius: 8px;
+          border: none;
+          background: transparent;
+          color: #64748b;
+          font-weight: 600;
+          font-size: 0.82rem;
+          cursor: pointer;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .sa-date-pill.active {
+          background: white;
+          color: #4f46e5;
+          font-weight: 700;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .sa-custom-dates {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        .sa-date-input {
+          padding: 6px 10px;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          font-size: 0.82rem;
+          background: white;
+          color: #0f172a;
+          box-sizing: border-box;
+        }
+        .sa-date-to {
+          color: #64748b;
+          font-size: 0.82rem;
+          font-weight: 600;
+        }
+        .sa-subs-status-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+          .sa-date-filter-wrap {
+            width: 100% !important;
+            justify-content: flex-start !important;
+            margin-top: 12px !important;
+          }
+          .sa-date-pills {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 2px !important;
+            padding: 3px !important;
+          }
+          .sa-date-pill {
+            padding: 6px 2px !important;
+            font-size: 0.72rem !important;
+            text-align: center !important;
+            width: 100% !important;
+          }
+          .sa-custom-dates {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr !important;
+            gap: 6px !important;
+            margin-top: 4px !important;
+          }
+          .sa-date-input {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 8px !important;
+          }
+          .sa-subs-status-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+        }
+      `}</style>
       <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
         <div className="item-head">
           <div style={{ cursor: "pointer" }} onClick={() => navigate("/super-admin/dashboard")}>
             <h1 style={{ marginTop: 0 }}>Dashboard</h1>
             <p style={{ marginBottom: 0 }}>Live SaaS overview for salons, subscriptions, leads, and support.</p>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "flex-end" }}>
-            <div style={{ display: "inline-flex", background: "#f1f5f9", padding: 4, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+          <div className="sa-date-filter-wrap">
+            <div className="sa-date-pills">
               {periodOptions.map((opt) => {
                 const isActive = period === opt.value;
                 return (
@@ -98,18 +197,7 @@ export default function SuperAdminDashboard() {
                     key={opt.value}
                     type="button"
                     onClick={() => setPeriod(opt.value)}
-                    style={{
-                      padding: "6px 16px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: isActive ? "white" : "transparent",
-                      color: isActive ? "#4f46e5" : "#64748b",
-                      fontWeight: isActive ? 700 : 600,
-                      fontSize: "0.82rem",
-                      cursor: "pointer",
-                      boxShadow: isActive ? "0 2px 6px rgba(0,0,0,0.05)" : "none",
-                      transition: "all 0.15s"
-                    }}
+                    className={`sa-date-pill ${isActive ? "active" : ""}`}
                   >
                     {opt.label}
                   </button>
@@ -117,19 +205,19 @@ export default function SuperAdminDashboard() {
               })}
             </div>
             {period === "custom" && (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div className="sa-custom-dates">
                 <input
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", background: "white" }}
+                  className="sa-date-input"
                 />
-                <span style={{ color: "#64748b", fontSize: "0.82rem" }}>to</span>
+                <span className="sa-date-to">to</span>
                 <input
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.82rem", background: "white" }}
+                  className="sa-date-input"
                 />
               </div>
             )}
@@ -318,7 +406,7 @@ export default function SuperAdminDashboard() {
             <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Subscriptions</h3>
             <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10b981", background: "#ecfdf5", padding: "4px 10px", borderRadius: 100 }}>{plans.length} Plans</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+          <div className="sa-subs-status-grid">
             <div onClick={() => navigate("/super-admin/subscriptions?status=ACTIVE")} style={{ background: "#ecfdf5", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #a7f3d0" }}>
               <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#065f46" }}>{subStatus.active ?? 0}</div>
               <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#047857", textTransform: "uppercase" }}>Active</div>
