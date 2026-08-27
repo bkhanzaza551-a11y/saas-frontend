@@ -1231,7 +1231,8 @@ export default function CustomersPage() {
           .modal-content { background:#fff; border-radius:12px; width:min(90vw,520px); max-height:90vh; overflow-y:auto; box-shadow: none; }
           .modal-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #f1f5f9; }
           .modal-header h3 { margin:0; font-size:1rem; color:#0f172a; }
-          .modal-close { background:none; border:none; cursor:pointer; color:#64748b; min-height:unset; box-shadow:none; padding:4px; }
+          .modal-close { background:#f1f5f9 !important; border:1px solid #e2e8f0 !important; cursor:pointer !important; color:#64748b !important; border-radius:8px !important; width:32px !important; height:32px !important; min-width:32px !important; min-height:32px !important; padding:0 !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; box-shadow:none !important; transition:all 0.15s ease !important; }
+          .modal-close:hover { background:#fee2e2 !important; color:#ef4444 !important; border-color:#fecaca !important; }
           .modal-body { padding:16px 18px; display:grid; gap:12px; }
           .modal-footer { padding:12px 18px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:8px; }
           .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:4px; }
@@ -2781,8 +2782,8 @@ export default function CustomersPage() {
                     </div>
                   )}
                 </div>
-                <button onClick={() => setShowGiftCardModal(false)} style={{ background: "#0f172a", color: "white", border: "none", width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                  <X size={16} />
+                <button type="button" className="modal-close" onClick={() => setShowGiftCardModal(false)} title="Close">
+                  <X size={18} />
                 </button>
               </div>
             </div>
@@ -2971,8 +2972,8 @@ export default function CustomersPage() {
                     </div>
                   )}
                 </div>
-                <button onClick={() => setShowPackageModal(false)} style={{ background: "#0f172a", border: "none", width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff" }}>
-                  <X size={14} />
+                <button type="button" className="modal-close" onClick={() => setShowPackageModal(false)} title="Close">
+                  <X size={18} />
                 </button>
               </div>
             </div>
