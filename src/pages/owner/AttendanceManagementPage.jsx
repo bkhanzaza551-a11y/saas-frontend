@@ -234,6 +234,53 @@ export default function AttendanceManagementPage() {
           gap: 12px;
           box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
+        .attendance-tabs {
+          display: flex;
+          gap: 8px;
+          border-bottom: 1px solid #e2e8f0;
+          margin-bottom: 20px;
+          overflow-x: auto;
+          white-space: nowrap;
+          padding-bottom: 8px;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .attendance-tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .attendance-tab-btn {
+          padding: 8px 16px;
+          border-radius: 20px;
+          border: 1px solid #e2e8f0;
+          background: #fff;
+          color: #64748b;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+        }
+        .attendance-tab-btn:hover {
+          border-color: #cbd5e1;
+          color: #334155;
+        }
+        .attendance-tab-btn.active {
+          background: #0f766e;
+          color: #fff;
+          border-color: #0f766e;
+          box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
+        }
+
+        .desktop-table-view {
+          display: block;
+        }
+        .mobile-cards-view {
+          display: none;
+        }
+
         @media (max-width: 768px) {
           .attendance-stats-grid {
             grid-template-columns: repeat(2, 1fr) !important;
@@ -243,6 +290,63 @@ export default function AttendanceManagementPage() {
           .attendance-stat-card {
             padding: 10px 12px !important;
             gap: 10px !important;
+          }
+          .desktop-table-view {
+            display: none !important;
+          }
+          .mobile-cards-view {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .att-mobile-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          }
+          .att-mobile-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+          }
+          .att-mobile-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #f1f5f9;
+          }
+          .att-mobile-stat-box {
+            text-align: center;
+          }
+          .att-mobile-stat-label {
+            font-size: 0.68rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+          }
+          .att-mobile-stat-value {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #0f172a;
+            font-family: monospace;
+          }
+          .att-mobile-card-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            padding-top: 4px;
+            border-top: 1px dashed #f1f5f9;
           }
         }
       `}</style>
@@ -279,150 +383,269 @@ export default function AttendanceManagementPage() {
         })}
       </div>
 
-      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid #f1f5f9", marginBottom: 20, overflowX: "auto", whiteSpace: "nowrap" }}>
+      <div className="attendance-tabs">
         {[
-          { key: "today", label: "Today's Attendance" },
-          { key: "records", label: "All Records" },
-          { key: "reports", label: "Reports" }
-        ].map((t) => (
-          <button key={t.key} type="button" onClick={() => setTab(t.key)} style={{ padding: "10px 16px", background: "none", border: "none", borderBottom: tab === t.key ? "2px solid #0f766e" : "2px solid transparent", color: tab === t.key ? "#0f766e" : "#64748b", fontWeight: tab === t.key ? 700 : 500, fontSize: "0.85rem", cursor: "pointer", marginBottom: -2, transition: "all 0.15s", flexShrink: 0 }}>
-            {t.label}
-          </button>
-        ))}
+          { key: "today", label: "Today's Attendance", icon: Clock },
+          { key: "records", label: "All Records", icon: FileText },
+          { key: "reports", label: "Reports", icon: Download }
+        ].map((t) => {
+          const TabIcon = t.icon;
+          const isActive = tab === t.key;
+          return (
+            <button key={t.key} type="button" onClick={() => setTab(t.key)} className={`attendance-tab-btn ${isActive ? "active" : ""}`}>
+              <TabIcon size={14} />
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {tab === "today" && (
-        <div className="panel-card">
+        <div className="panel-card" style={{ padding: "18px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
-            <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Day Sheet — {new Date(date).toLocaleDateString("en-IN", { weekday: "short", year: "numeric", month: "short", day: "numeric" })}</h3>
-            <button type="button" onClick={() => { loadSummary(); loadDaySheet(); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", fontSize: 12, fontWeight: 600, background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 6, cursor: "pointer" }}><RefreshCw size={13} /> Refresh</button>
+            <h3 style={{ margin: 0, fontSize: "1.05rem", color: "#0f172a" }}>Day Sheet — {new Date(date).toLocaleDateString("en-IN", { weekday: "short", year: "numeric", month: "short", day: "numeric" })}</h3>
+            <button type="button" onClick={() => { loadSummary(); loadDaySheet(); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", fontSize: 12, fontWeight: 600, background: "#f1f5f9", color: "#334155", border: "1px solid #e2e8f0", borderRadius: 8, cursor: "pointer" }}><RefreshCw size={13} /> Refresh</button>
           </div>
           {daySheet.length === 0 ? (
             <EmptyState title="No attendance data" message="No staff attendance records found for this date and branch." />
           ) : (
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
-              <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", fontSize: 13 }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
-                    <th style={{ padding: "10px 14px", textAlign: "left" }}>Staff</th>
-                    <th style={{ padding: "10px 14px", textAlign: "left" }}>Branch</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Check In</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Check Out</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Hours</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Status</th>
-                    <th style={{ padding: "10px 14px", textAlign: "right" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {daySheet.map((row) => {
-                    const sc = STATUS_COLORS[row.status] || { bg: "#f1f5f9", color: "#64748b" };
-                    const isWorking = row.type === "ATTENDANCE" && !row.checkOutAt;
-                    return (
-                      <tr key={row.userSalonId + row.type} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "10px 14px", fontWeight: 600, color: "#0f172a" }}>{row.staffName}</td>
-                        <td style={{ padding: "10px 14px", color: "#475569" }}>{row.branchName || "—"}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{row.checkInAt ? formatTime(row.checkInAt) : "—"}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{row.checkOutAt ? formatTime(row.checkOutAt) : "—"}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{formatHours(row.workedMinutes)}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                          <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>
-                            {row.type === "ABSENT" ? "ABSENT" : row.type === "LEAVE" ? "LEAVE" : row.status}
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px 14px", textAlign: "right" }}>
-                          {row.type === "ABSENT" && (
-                            <button type="button" onClick={() => adminCheckIn(row.userSalonId, row.branchId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px 12px", fontSize: 11, fontWeight: 700, background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }}>
-                              {busyId === row.userSalonId ? "..." : "Check In"}
-                            </button>
-                          )}
-                          {row.type === "ATTENDANCE" && isWorking && (
-                            <button type="button" onClick={() => adminCheckOut(row.userSalonId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px 12px", fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }}>
-                              {busyId === row.userSalonId ? "..." : "Check Out"}
-                            </button>
-                          )}
-                          {row.attendanceId && (
-                            <button type="button" onClick={() => setDetailRecord(row)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 6, cursor: "pointer", marginLeft: 6, transition: "all 0.2s" }} title="View Details">
-                              <Eye size={15} />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <>
+              {/* Desktop Table View */}
+              <div className="desktop-table-view" style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+                <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
+                      <th style={{ padding: "10px 14px", textAlign: "left" }}>Staff</th>
+                      <th style={{ padding: "10px 14px", textAlign: "left" }}>Branch</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Check In</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Check Out</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Hours</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Status</th>
+                      <th style={{ padding: "10px 14px", textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {daySheet.map((row) => {
+                      const sc = STATUS_COLORS[row.status] || { bg: "#f1f5f9", color: "#64748b" };
+                      const isWorking = row.type === "ATTENDANCE" && !row.checkOutAt;
+                      return (
+                        <tr key={row.userSalonId + row.type} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 600, color: "#0f172a" }}>{row.staffName}</td>
+                          <td style={{ padding: "10px 14px", color: "#475569" }}>{row.branchName || "—"}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{row.checkInAt ? formatTime(row.checkInAt) : "—"}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{row.checkOutAt ? formatTime(row.checkOutAt) : "—"}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{formatHours(row.workedMinutes)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                            <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>
+                              {row.type === "ABSENT" ? "ABSENT" : row.type === "LEAVE" ? "LEAVE" : row.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            {row.type === "ABSENT" && (
+                              <button type="button" onClick={() => adminCheckIn(row.userSalonId, row.branchId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px 12px", fontSize: 11, fontWeight: 700, background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }}>
+                                {busyId === row.userSalonId ? "..." : "Check In"}
+                              </button>
+                            )}
+                            {row.type === "ATTENDANCE" && isWorking && (
+                              <button type="button" onClick={() => adminCheckOut(row.userSalonId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px 12px", fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }}>
+                                {busyId === row.userSalonId ? "..." : "Check Out"}
+                              </button>
+                            )}
+                            {row.attendanceId && (
+                              <button type="button" onClick={() => setDetailRecord(row)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "5px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 6, cursor: "pointer", marginLeft: 6, transition: "all 0.2s" }} title="View Details">
+                                <Eye size={15} />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards View */}
+              <div className="mobile-cards-view">
+                {daySheet.map((row) => {
+                  const sc = STATUS_COLORS[row.status] || { bg: "#f1f5f9", color: "#64748b" };
+                  const isWorking = row.type === "ATTENDANCE" && !row.checkOutAt;
+                  return (
+                    <div key={row.userSalonId + row.type} className="att-mobile-card">
+                      <div className="att-mobile-card-header">
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#0f172a" }}>{row.staffName}</div>
+                          <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: 2 }}>{row.branchName || "Main Branch"}</div>
+                        </div>
+                        <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: "0.72rem", padding: "4px 10px", borderRadius: 100, border: `1px solid ${sc.color}20` }}>
+                          {row.type === "ABSENT" ? "ABSENT" : row.type === "LEAVE" ? "LEAVE" : row.status}
+                        </span>
+                      </div>
+
+                      <div className="att-mobile-card-grid">
+                        <div className="att-mobile-stat-box">
+                          <div className="att-mobile-stat-label">Check In</div>
+                          <div className="att-mobile-stat-value">{row.checkInAt ? formatTime(row.checkInAt) : "—"}</div>
+                        </div>
+                        <div className="att-mobile-stat-box">
+                          <div className="att-mobile-stat-label">Check Out</div>
+                          <div className="att-mobile-stat-value">{row.checkOutAt ? formatTime(row.checkOutAt) : "—"}</div>
+                        </div>
+                        <div className="att-mobile-stat-box">
+                          <div className="att-mobile-stat-label">Hours</div>
+                          <div className="att-mobile-stat-value" style={{ color: "#0f766e" }}>{formatHours(row.workedMinutes)}</div>
+                        </div>
+                      </div>
+
+                      <div className="att-mobile-card-footer">
+                        {row.type === "ABSENT" && (
+                          <button type="button" onClick={() => adminCheckIn(row.userSalonId, row.branchId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px 14px", fontSize: 12, fontWeight: 700, background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 8, cursor: "pointer" }}>
+                            {busyId === row.userSalonId ? "..." : "Check In"}
+                          </button>
+                        )}
+                        {row.type === "ATTENDANCE" && isWorking && (
+                          <button type="button" onClick={() => adminCheckOut(row.userSalonId)} disabled={busyId === row.userSalonId} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px 14px", fontSize: 12, fontWeight: 700, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 8, cursor: "pointer" }}>
+                            {busyId === row.userSalonId ? "..." : "Check Out"}
+                          </button>
+                        )}
+                        {row.attendanceId && (
+                          <button type="button" onClick={() => setDetailRecord(row)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px 10px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, gap: 4 }}>
+                            <Eye size={14} /> Details
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </div>
       )}
 
       {tab === "records" && (
-        <div className="panel-card">
+        <div className="panel-card" style={{ padding: "18px" }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-            <input type="text" placeholder="Search staff..." value={searchQ} onChange={(e) => { setSearchQ(e.target.value); setPage(1); }} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, minWidth: 180 }} />
-            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}>
+            <input type="text" placeholder="Search staff..." value={searchQ} onChange={(e) => { setSearchQ(e.target.value); setPage(1); }} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, flex: "1 1 180px" }} />
+            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, background: "#fff" }}>
               {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s || "All Statuses"}</option>)}
             </select>
-            <span style={{ fontSize: 12, color: "#64748b" }}>{recordsMeta.total} records</span>
+            <span style={{ fontSize: 12, color: "#64748b", marginLeft: "auto" }}>{recordsMeta.total} records</span>
           </div>
           {records.length === 0 ? (
             <EmptyState title="No records found" message="Try adjusting your filters or date range." />
           ) : (
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
-              <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse", fontSize: 13 }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
-                    <th style={{ padding: "10px 14px", textAlign: "left" }}>Staff</th>
-                    <th style={{ padding: "10px 14px", textAlign: "left" }}>Branch</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Date</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Check In</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Check Out</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Hours</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Status</th>
-                    <th style={{ padding: "10px 14px", textAlign: "center" }}>Verification</th>
-                    <th style={{ padding: "10px 14px", textAlign: "right" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {records.map((r) => {
-                    const sc = STATUS_COLORS[r.status] || { bg: "#f1f5f9", color: "#64748b" };
-                    const staffName = r.userSalon?.user?.name || "Unknown";
-                    const branchName = r.branch?.name || "—";
-                    return (
-                      <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "10px 14px", fontWeight: 600 }}>{staffName}</td>
-                        <td style={{ padding: "10px 14px", color: "#475569" }}>{branchName}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center" }}>{new Date(r.attendanceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{formatTime(r.checkInAt)}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{formatTime(r.checkOutAt)}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{formatHours(r.workedMinutes)}</td>
-                        <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                          <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>{r.status}</span>
-                        </td>
-                        <td style={{ padding: "10px 14px", textAlign: "center", fontSize: 11, color: "#64748b" }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                            {r.checkInSelfieUrl && <Camera size={12} title="Selfie captured" />}
-                            {r.geoStatus === "INSIDE" && <MapPin size={12} style={{ color: "#10b981" }} title="GPS verified" />}
-                            {r.geoStatus === "OUTSIDE" && <MapPin size={12} style={{ color: "#ef4444" }} title="Outside geofence" />}
-                            <span>{r.verificationMethod}</span>
+            <>
+              {/* Desktop Table View */}
+              <div className="desktop-table-view" style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+                <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
+                      <th style={{ padding: "10px 14px", textAlign: "left" }}>Staff</th>
+                      <th style={{ padding: "10px 14px", textAlign: "left" }}>Branch</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Date</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Check In</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Check Out</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Hours</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Status</th>
+                      <th style={{ padding: "10px 14px", textAlign: "center" }}>Verification</th>
+                      <th style={{ padding: "10px 14px", textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {records.map((r) => {
+                      const sc = STATUS_COLORS[r.status] || { bg: "#f1f5f9", color: "#64748b" };
+                      const staffName = r.userSalon?.user?.name || "Unknown";
+                      const branchName = r.branch?.name || "—";
+                      return (
+                        <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 600 }}>{staffName}</td>
+                          <td style={{ padding: "10px 14px", color: "#475569" }}>{branchName}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center" }}>{new Date(r.attendanceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{formatTime(r.checkInAt)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace" }}>{formatTime(r.checkOutAt)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600 }}>{formatHours(r.workedMinutes)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                            <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: 11, padding: "3px 8px", borderRadius: 100 }}>{r.status}</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontSize: 11, color: "#64748b" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                              {r.checkInSelfieUrl && <Camera size={12} title="Selfie captured" />}
+                              {r.geoStatus === "INSIDE" && <MapPin size={12} style={{ color: "#10b981" }} title="GPS verified" />}
+                              {r.geoStatus === "OUTSIDE" && <MapPin size={12} style={{ color: "#ef4444" }} title="Outside geofence" />}
+                              <span>{r.verificationMethod}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                              <button type="button" onClick={() => setDetailRecord(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }} title="View">
+                                <Eye size={15} />
+                              </button>
+                              <button type="button" onClick={() => openEditModal(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px", background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }} title="Edit">
+                                <Edit2 size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards View */}
+              <div className="mobile-cards-view">
+                {records.map((r) => {
+                  const sc = STATUS_COLORS[r.status] || { bg: "#f1f5f9", color: "#64748b" };
+                  const staffName = r.userSalon?.user?.name || "Unknown";
+                  const branchName = r.branch?.name || "—";
+                  return (
+                    <div key={r.id} className="att-mobile-card">
+                      <div className="att-mobile-card-header">
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#0f172a" }}>{staffName}</div>
+                          <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: 2 }}>
+                            {branchName} • {new Date(r.attendanceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
                           </div>
-                        </td>
-                        <td style={{ padding: "10px 14px", textAlign: "right" }}>
-                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                            <button type="button" onClick={() => setDetailRecord(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }} title="View">
-                              <Eye size={15} />
-                            </button>
-                            <button type="button" onClick={() => openEditModal(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px", background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 6, cursor: "pointer", transition: "all 0.2s" }} title="Edit">
-                              <Edit2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                        <span style={{ background: sc.bg, color: sc.color, fontWeight: 700, fontSize: "0.72rem", padding: "4px 10px", borderRadius: 100, border: `1px solid ${sc.color}20` }}>
+                          {r.status}
+                        </span>
+                      </div>
+
+                      <div className="att-mobile-card-grid">
+                        <div className="att-mobile-stat-box">
+                          <div className="att-mobile-stat-label">Check In</div>
+                          <div className="att-mobile-stat-value">{formatTime(r.checkInAt)}</div>
+                        </div>
+                        <div className="att-mobile-stat-box">
+                          <div className="att-mobile-stat-label">Check Out</div>
+                          <div className="att-mobile-stat-value">{formatTime(r.checkOutAt)}</div>
+                        </div>
+                        <div className="att-mobile-stat-box">
+                          <div className="att-mobile-stat-label">Hours</div>
+                          <div className="att-mobile-stat-value" style={{ color: "#0f766e" }}>{formatHours(r.workedMinutes)}</div>
+                        </div>
+                      </div>
+
+                      <div className="att-mobile-card-footer">
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, marginRight: "auto", fontSize: 11, color: "#64748b" }}>
+                          {r.checkInSelfieUrl && <Camera size={13} title="Selfie captured" />}
+                          {r.geoStatus === "INSIDE" && <MapPin size={13} style={{ color: "#10b981" }} title="GPS verified" />}
+                          {r.geoStatus === "OUTSIDE" && <MapPin size={13} style={{ color: "#ef4444" }} title="Outside geofence" />}
+                          <span>{r.verificationMethod}</span>
+                        </div>
+                        <button type="button" onClick={() => setDetailRecord(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px 10px", background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, gap: 4 }}>
+                          <Eye size={14} /> View
+                        </button>
+                        <button type="button" onClick={() => openEditModal(r)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "6px 10px", background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, gap: 4 }}>
+                          <Edit2 size={14} /> Edit
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
           {recordsMeta.totalPages > 1 && (
             <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 16 }}>
