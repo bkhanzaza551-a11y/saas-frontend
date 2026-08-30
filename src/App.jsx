@@ -185,15 +185,12 @@ const ViewLiveSiteRedirect = () => {
 const Protected = () => {
   const { auth, logout } = useAuth();
   const location = useLocation();
-  const [sidebarExpanded, setSidebarExpanded] = useState(() => {
-    const saved = localStorage.getItem("sidebarExpanded");
-    return saved !== null ? saved === "true" : true;
-  });
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   
   const toggleSidebar = (explicitValue) => {
     setSidebarExpanded(prev => {
       const next = typeof explicitValue === "boolean" ? explicitValue : !prev;
-      localStorage.setItem("sidebarExpanded", next);
+      try { localStorage.setItem("sidebarExpanded", String(next)); } catch {}
       return next;
     });
   };

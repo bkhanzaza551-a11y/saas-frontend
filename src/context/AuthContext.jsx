@@ -73,6 +73,7 @@ export const AuthProvider = ({ children }) => {
       const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe: payload.rememberMe };
       unblockSession();
       persistState(state, payload.rememberMe);
+      try { localStorage.setItem("sidebarExpanded", "true"); } catch {}
     }
     return data;
   };
@@ -83,6 +84,7 @@ export const AuthProvider = ({ children }) => {
     const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe };
     unblockSession();
     persistState(state, rememberMe);
+    try { localStorage.setItem("sidebarExpanded", "true"); } catch {}
     return data;
   };
 
