@@ -2047,10 +2047,10 @@ export default function MarketingHomePage() {
                     </div>
 
                     <div>
-                      <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>City & Branch Count</label>
+                      <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>City / Location</label>
                       <input
                         type="text"
-                        placeholder="e.g. Mumbai (2 Branches)"
+                        placeholder="e.g. Mumbai"
                         value={contactForm.city}
                         onChange={e => setContactForm({ ...contactForm, city: e.target.value })}
                         style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", boxSizing: "border-box" }}

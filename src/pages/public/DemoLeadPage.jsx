@@ -127,7 +127,7 @@ export default function PublicDemoLeadPage() {
         email: form.email,
         phone: `+91${cleanDigits}`,
         company: form.company,
-        notes: `Branch Count: ${form.branchCount} | Requirements: ${form.message || "General Walkthrough"}`
+        notes: form.message || "General Walkthrough"
       };
       await api.post("/public/demo-leads", payload);
       setForm(initialForm);
@@ -451,31 +451,6 @@ export default function PublicDemoLeadPage() {
                         </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Branch Count Selector */}
-                  <div>
-                    <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>How many branch locations do you operate?</label>
-                    <select
-                      value={form.branchCount}
-                      onChange={e => setForm({ ...form, branchCount: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "12px 14px",
-                        borderRadius: 10,
-                        border: "1px solid #cbd5e1",
-                        background: "#ffffff",
-                        fontSize: 14,
-                        outline: "none",
-                        boxSizing: "border-box",
-                        cursor: "pointer"
-                      }}
-                    >
-                      <option value="1">1 Single Salon / Boutique Studio</option>
-                      <option value="2-3">2 - 3 Branch Locations</option>
-                      <option value="4-10">4 - 10 Chain Branches</option>
-                      <option value="10+">10+ Multi-City Franchise Network</option>
-                    </select>
                   </div>
 
                   {/* Message / Notes */}
