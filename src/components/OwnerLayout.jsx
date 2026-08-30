@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { AlertTriangle, Clock, RefreshCw, ShieldAlert, PhoneCall } from "lucide-react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
 import { api } from "../api/client";
 import PageLoader from "./PageLoader";
 import { useAuth } from "../context/AuthContext";
@@ -37,7 +37,7 @@ export default function OwnerLayout() {
         }
         setSubscription(subRes.data);
         setStatus("ready");
-      } catch (err) {
+      } catch {
         if (!active) return;
         setStatus("error");
       }
@@ -48,10 +48,6 @@ export default function OwnerLayout() {
 
     return () => { active = false; };
   }, [auth]);
-
-  if (status === "loading") {
-    return <PageLoader title="Checking workspace access" message="Verifying subscription and system status..." />;
-  }
 
   // Live countdown for maintenance screen
   const [countdownText, setCountdownText] = useState("");
@@ -76,6 +72,10 @@ export default function OwnerLayout() {
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, [maintenance, maintenanceInfo.endTime]);
+
+  if (status === "loading") {
+    return <PageLoader title="Checking workspace access" message="Verifying subscription and system status..." />;
+  }
 
   if (maintenance && auth?.user?.systemRole !== "SUPER_ADMIN") {
     return (
