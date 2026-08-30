@@ -7465,8 +7465,27 @@ html, body {
   animation: floatSlowAlt 5s ease-in-out infinite;
 }
 
+.public-top-announcement-bar {
+  background: linear-gradient(90deg, #0f172a 0%, #134e4a 50%, #0f172a 100%);
+  color: #ccfbf1;
+  padding: 10px 24px;
+  font-size: 13px;
+  text-align: center;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 /* TABLET & MOBILE MEDIA QUERIES (<= 992px & <= 768px) */
 @media (max-width: 992px) {
+  .public-top-announcement-bar,
+  div.public-top-announcement-bar {
+    display: none !important;
+  }
+
   .public-nav-links,
   nav.public-nav-links {
     display: none !important;
@@ -7563,11 +7582,6 @@ html, body {
     justify-content: center !important;
     text-align: center !important;
     box-sizing: border-box !important;
-  }
-
-  .public-top-announcement-bar,
-  div.public-top-announcement-bar {
-    display: none !important;
   }
 }
 
