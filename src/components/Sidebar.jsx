@@ -109,6 +109,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
   };
   const closeWorkspace = () => {
     setMobileOpen(false);
+    if (onToggleSidebar) onToggleSidebar(false);
   };
 
   useEffect(() => {
