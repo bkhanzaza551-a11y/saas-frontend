@@ -1256,8 +1256,8 @@ export default function MarketingHomePage() {
                   </p>
                 </div>
 
-                {/* Module Switcher Tabs */}
-                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 36 }}>
+                {/* Module Switcher Tabs (Equal Width Grid) */}
+                <div className="marketing-interactive-tabs-grid">
                   {interactiveModules.map(m => {
                     const Icon = m.icon;
                     const isActive = m.id === activeTab;
@@ -1269,7 +1269,7 @@ export default function MarketingHomePage() {
                         className={`marketing-interactive-tab ${isActive ? "active" : ""}`}
                       >
                         <Icon size={16} />
-                        {m.name}
+                        <span>{m.name}</span>
                       </button>
                     );
                   })}
