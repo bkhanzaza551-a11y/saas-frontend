@@ -92,52 +92,67 @@ export default function SuperAdminDashboard() {
           justify-content: flex-end;
         }
         .sa-date-pills {
-          display: inline-flex;
-          background: #f1f5f9;
-          padding: 4px;
-          border-radius: 10px;
-          border: 1px solid #e2e8f0;
-          overflow-x: auto;
-          white-space: nowrap;
-          -webkit-overflow-scrolling: touch;
-          max-width: 100%;
+          display: inline-flex !important;
+          align-items: center !important;
+          background: #f1f5f9 !important;
+          padding: 3px !important;
+          border-radius: 10px !important;
+          border: 1px solid #e2e8f0 !important;
+          gap: 3px !important;
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
         }
         .sa-date-pill {
-          padding: 6px 16px;
-          border-radius: 8px;
-          border: none;
-          background: transparent;
-          color: #64748b;
-          font-weight: 600;
-          font-size: 0.82rem;
-          cursor: pointer;
-          transition: all 0.15s;
-          white-space: nowrap;
+          padding: 5px 13px !important;
+          border-radius: 7px !important;
+          border: none !important;
+          outline: none !important;
+          background: transparent !important;
+          color: #64748b !important;
+          font-weight: 600 !important;
+          font-size: 0.78rem !important;
+          line-height: 1.2 !important;
+          cursor: pointer !important;
+          transition: all 0.16s ease !important;
+          white-space: nowrap !important;
+          box-shadow: none !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        .sa-date-pill:hover:not(.active) {
+          color: #0f172a !important;
+          background: rgba(255, 255, 255, 0.7) !important;
         }
         .sa-date-pill.active {
-          background: white;
-          color: #4f46e5;
-          font-weight: 700;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+          background: #ffffff !important;
+          color: #4f46e5 !important;
+          font-weight: 700 !important;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05) !important;
         }
         .sa-custom-dates {
-          display: flex;
-          gap: 8px;
-          align-items: center;
+          display: inline-flex !important;
+          gap: 6px !important;
+          align-items: center !important;
+          background: #f8fafc !important;
+          padding: 3px 8px !important;
+          border-radius: 8px !important;
+          border: 1px solid #e2e8f0 !important;
         }
         .sa-date-input {
-          padding: 6px 10px;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
-          font-size: 0.82rem;
-          background: white;
-          color: #0f172a;
-          box-sizing: border-box;
+          padding: 4px 8px !important;
+          border-radius: 6px !important;
+          border: 1px solid #cbd5e1 !important;
+          font-size: 0.78rem !important;
+          background: #ffffff !important;
+          color: #0f172a !important;
+          outline: none !important;
+          height: 28px !important;
+          box-sizing: border-box !important;
         }
         .sa-date-to {
-          color: #64748b;
-          font-size: 0.82rem;
-          font-weight: 600;
+          color: #94a3b8 !important;
+          font-size: 0.76rem !important;
+          font-weight: 600 !important;
         }
         .sa-subs-status-grid {
           display: grid;
@@ -159,7 +174,7 @@ export default function SuperAdminDashboard() {
             padding: 3px !important;
           }
           .sa-date-pill {
-            padding: 6px 2px !important;
+            padding: 5px 2px !important;
             font-size: 0.72rem !important;
             text-align: center !important;
             width: 100% !important;
@@ -174,7 +189,7 @@ export default function SuperAdminDashboard() {
           .sa-date-input {
             width: 100% !important;
             min-width: 0 !important;
-            padding: 8px !important;
+            padding: 6px !important;
           }
           .sa-subs-status-grid {
             grid-template-columns: 1fr 1fr !important;
@@ -198,6 +213,13 @@ export default function SuperAdminDashboard() {
                     type="button"
                     onClick={() => setPeriod(opt.value)}
                     className={`sa-date-pill ${isActive ? "active" : ""}`}
+                    style={{
+                      background: isActive ? "#ffffff" : "transparent",
+                      color: isActive ? "#4f46e5" : "#64748b",
+                      border: "none",
+                      outline: "none",
+                      boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none"
+                    }}
                   >
                     {opt.label}
                   </button>

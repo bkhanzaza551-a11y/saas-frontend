@@ -106,11 +106,9 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
 
   const closeMobile = () => {
     setMobileOpen(false);
-    if (onToggleSidebar) onToggleSidebar(false);
   };
   const closeWorkspace = () => {
     setMobileOpen(false);
-    if (onToggleSidebar) onToggleSidebar(false);
   };
 
   useEffect(() => {

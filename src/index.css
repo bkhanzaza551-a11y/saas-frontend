@@ -7564,6 +7564,93 @@ html, body {
     text-align: center !important;
     box-sizing: border-box !important;
   }
+
+  .public-top-announcement-bar,
+  div.public-top-announcement-bar {
+    display: none !important;
+  }
+}
+
+/* =========================================================================
+   SUPER ADMIN & OPERATIONS DATE FILTER PILLS (SLEEK SEGMENTED CONTROL)
+   ========================================================================= */
+
+.super-admin-page .sa-date-filter-wrap {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.super-admin-page .sa-date-pills {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #f1f5f9 !important;
+  padding: 3px !important;
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  gap: 3px !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.super-admin-page .sa-date-pill {
+  padding: 5px 14px !important;
+  border-radius: 7px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease-in-out !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.super-admin-page .sa-date-pill:hover:not(.active) {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+.super-admin-page .sa-date-pill.active {
+  background: #ffffff !important;
+  color: #4f46e5 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+.super-admin-page .sa-custom-dates {
+  display: inline-flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+  background: #f8fafc !important;
+  padding: 3px 8px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.super-admin-page .sa-date-input {
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  font-size: 0.78rem !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  outline: none !important;
+  height: 28px !important;
+  box-sizing: border-box !important;
+}
+
+.super-admin-page .sa-date-to {
+  color: #94a3b8 !important;
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
 }
 
 
