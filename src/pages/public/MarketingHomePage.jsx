@@ -922,7 +922,7 @@ export default function MarketingHomePage() {
             <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
           </Link>
 
-          <nav className="public-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          <nav className="public-nav-links">
             {navLinks.map(item => (
               <Link 
                 key={item.to} 
@@ -945,7 +945,7 @@ export default function MarketingHomePage() {
             ))}
           </nav>
 
-          <div className="public-nav-cta" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="public-nav-cta">
             <Link to="/login" style={{ textDecoration: "none", fontSize: 14, fontWeight: 600, color: "#334155", padding: "9px 18px", borderRadius: 10, transition: "all 0.2s" }}>
               Sign In
             </Link>
@@ -975,7 +975,7 @@ export default function MarketingHomePage() {
               <div style={{ position: "absolute", top: "10%", left: "5%", width: 350, height: 350, background: "rgba(13,148,136,0.08)", filter: "blur(80px)", borderRadius: "50%", pointerEvents: "none" }} />
               <div style={{ position: "absolute", top: "30%", right: "5%", width: 450, height: 450, background: "rgba(20,184,166,0.12)", filter: "blur(90px)", borderRadius: "50%", pointerEvents: "none" }} />
 
-              <div className="public-hero" style={{ maxWidth: 1240, margin: "0 auto", padding: "70px 24px 50px", display: "grid", gridTemplateColumns: "1fr 1.05fr", gap: 48, alignItems: "center" }}>
+              <div className="public-hero">
                 
                 {/* Hero Left Content */}
                 <div>
@@ -1028,7 +1028,7 @@ export default function MarketingHomePage() {
                     
                     {/* Live Glass Stats Overlay at Bottom */}
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(15, 23, 42, 0.95))", padding: "40px 20px 20px" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))", gap: 10 }}>
                         <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(12px)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}>
                           <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Live Revenue</div>
                           <div style={{ fontSize: 18, fontWeight: 800, color: "#2dd4bf", marginTop: 2 }}>₹3,84,240</div>
@@ -1057,7 +1057,7 @@ export default function MarketingHomePage() {
                   </div>
 
                   {/* Bottom Left Floating Toast Notification */}
-                  <div style={{ position: "absolute", bottom: -20, left: -20, background: "rgba(15, 23, 42, 0.95)", backdropFilter: "blur(10px)", borderRadius: 16, padding: "12px 18px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", gap: 12, zIndex: 4, border: "1px solid rgba(255,255,255,0.1)", animation: "floatSlowAlt 5s ease-in-out infinite" }}>
+                  <div className="hero-floating-toast">
                     <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
                       <Check size={18} strokeWidth={3} />
                     </div>
@@ -1276,7 +1276,7 @@ export default function MarketingHomePage() {
                 </div>
 
                 {/* Active Module Showcase Card */}
-                <div style={{ background: "#ffffff", borderRadius: 24, padding: "40px", border: "1px solid #e2e8f0", boxShadow: "0 20px 50px rgba(0,0,0,0.06)", display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 40, alignItems: "center" }}>
+                <div className="marketing-interactive-card">
                   <div>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", background: "#f0fdfa", color: "#0d9488", borderRadius: 8, fontSize: 12, fontWeight: 800, textTransform: "uppercase", marginBottom: 14 }}>
                       <Sparkles size={13} /> {selectedModule.badge}
@@ -1304,7 +1304,7 @@ export default function MarketingHomePage() {
                     </Link>
                   </div>
 
-                  <div>
+                  <div style={{ width: "100%", maxWidth: "100%", overflow: "hidden" }}>
                     <ModuleMockup tabId={activeTab} />
                   </div>
                 </div>
@@ -1362,7 +1362,7 @@ export default function MarketingHomePage() {
                 {(() => {
                   const SelIcon = selectedIndustryData.icon;
                   return (
-                    <div style={{ maxWidth: 780, margin: "0 auto", background: selectedIndustryData.bg || "#f8fafc", borderRadius: 20, padding: "28px 36px", border: `1px solid ${selectedIndustryData.color}40`, display: "flex", alignItems: "center", gap: 24, textAlign: "left", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
+                    <div className="marketing-industry-card" style={{ background: selectedIndustryData.bg || "#f8fafc", border: `1px solid ${selectedIndustryData.color}40` }}>
                       <div style={{ background: "#fff", width: 68, height: 68, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 4px 14px rgba(0,0,0,0.06)", border: `1px solid ${selectedIndustryData.color}30` }}>
                         <SelIcon size={32} color={selectedIndustryData.color} />
                       </div>
@@ -1532,23 +1532,27 @@ export default function MarketingHomePage() {
                 </div>
 
                 <div style={{ border: "1px solid #e2e8f0", borderRadius: 20, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", background: "#f8fafc", padding: "16px 24px", borderBottom: "1px solid #e2e8f0", fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: "0.05em", color: "#475569" }}>
-                    <div>Operational Area</div>
-                    <div>Traditional / Legacy Tools</div>
-                    <div style={{ color: "#0d9488" }}>✨ Salon Nest Platform</div>
-                  </div>
+                  <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+                    <div style={{ minWidth: 640 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", background: "#f8fafc", padding: "16px 24px", borderBottom: "1px solid #e2e8f0", fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: "0.05em", color: "#475569" }}>
+                        <div>Operational Area</div>
+                        <div>Traditional / Legacy Tools</div>
+                        <div style={{ color: "#0d9488" }}>✨ Salon Nest Platform</div>
+                      </div>
 
-                  {comparisonPoints.map((row, idx) => (
-                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", padding: "18px 24px", borderBottom: idx < comparisonPoints.length - 1 ? "1px solid #f1f5f9" : "none", alignItems: "center", background: idx % 2 === 0 ? "#ffffff" : "#fcfcfc" }}>
-                      <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 14 }}>{row.feature}</div>
-                      <div style={{ color: "#dc2626", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ fontWeight: 800 }}>✕</span> {row.old}
-                      </div>
-                      <div style={{ color: "#0d9488", fontWeight: 600, fontSize: 13.5, display: "flex", alignItems: "center", gap: 6 }}>
-                        <CheckCircle2 size={16} color="#0d9488" style={{ flexShrink: 0 }} /> {row.nest}
-                      </div>
+                      {comparisonPoints.map((row, idx) => (
+                        <div key={idx} style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", padding: "18px 24px", borderBottom: idx < comparisonPoints.length - 1 ? "1px solid #f1f5f9" : "none", alignItems: "center", background: idx % 2 === 0 ? "#ffffff" : "#fcfcfc" }}>
+                          <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 14 }}>{row.feature}</div>
+                          <div style={{ color: "#dc2626", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ fontWeight: 800 }}>✕</span> {row.old}
+                          </div>
+                          <div style={{ color: "#0d9488", fontWeight: 600, fontSize: 13.5, display: "flex", alignItems: "center", gap: 6 }}>
+                            <CheckCircle2 size={16} color="#0d9488" style={{ flexShrink: 0 }} /> {row.nest}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             </section>
@@ -1653,7 +1657,7 @@ export default function MarketingHomePage() {
             </div>
 
             {/* 8 Full Deep Features Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 28, marginBottom: 60 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: 28, marginBottom: 60 }}>
               {filteredFeatures.map((feat, idx) => {
                 const Icon = feat.icon;
                 return (
@@ -1817,7 +1821,7 @@ export default function MarketingHomePage() {
             </div>
 
             {/* Plans Cards Grid */}
-            <div className="marketing-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 28, marginBottom: 70 }}>
+            <div className="marketing-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 28, marginBottom: 70 }}>
               {plans.map((plan, idx) => {
                 const displayPrice = isAnnualBilling
                   ? Math.round(Number(plan.yearlyPrice) / 12)
@@ -1868,7 +1872,7 @@ export default function MarketingHomePage() {
                       </div>
 
                       {/* Quotas Box */}
-                      <div style={{ background: "#f8fafc", borderRadius: 14, padding: "14px 16px", border: "1px solid #e2e8f0", marginBottom: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 12 }}>
+                      <div className="pricing-quotas-grid">
                         <div>
                           <span style={{ color: "#64748b" }}>Staff Logins:</span>
                           <div style={{ fontWeight: 800, color: "#0f172a" }}>{plan.userLimit} Users</div>
@@ -1966,7 +1970,7 @@ export default function MarketingHomePage() {
             </div>
 
             {/* 2-Column Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: 36, alignItems: "start" }}>
+            <div className="marketing-contact-grid">
               
               {/* Left Column: Interactive Contact Form */}
               <div style={{ background: "#ffffff", borderRadius: 24, padding: "36px", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
@@ -1994,7 +1998,7 @@ export default function MarketingHomePage() {
                   </div>
                 ) : (
                   <form onSubmit={handleContactSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                    <div className="form-grid-2">
                       <div>
                         <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Your Full Name *</label>
                         <input
@@ -2019,7 +2023,7 @@ export default function MarketingHomePage() {
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                    <div className="form-grid-2">
                       <div>
                         <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Email Address</label>
                         <input
@@ -2335,37 +2339,6 @@ export default function MarketingHomePage() {
 
         </div>
       </footer>
-
-      {/* FLOATING WHATSAPP BUTTON */}
-      {whatsappHref && (
-        <a 
-          href={whatsappHref} 
-          target="_blank" 
-          rel="noreferrer" 
-          style={{ 
-            position: "fixed", 
-            bottom: 24, 
-            right: 24, 
-            background: "#25d366", 
-            color: "#fff", 
-            padding: "14px 22px", 
-            borderRadius: 100, 
-            fontWeight: 700, 
-            fontSize: 14, 
-            textDecoration: "none", 
-            boxShadow: "0 6px 20px rgba(37,211,102,0.4)", 
-            zIndex: 1000, 
-            display: "flex", 
-            alignItems: "center", 
-            gap: 8,
-            transition: "all 0.25s ease"
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
-        >
-          <span style={{ fontSize: 18 }}>💬</span> WhatsApp Us
-        </a>
-      )}
 
     </div>
   );

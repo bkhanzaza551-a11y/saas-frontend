@@ -154,7 +154,7 @@ export default function PublicDemoLeadPage() {
             <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
           </Link>
           
-          <nav className="public-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          <nav className="public-nav-links">
             {navLinks.map(item => (
               <Link 
                 key={item.to} 
@@ -174,7 +174,7 @@ export default function PublicDemoLeadPage() {
             ))}
           </nav>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="public-nav-cta">
             <Link to="/login" style={{ textDecoration: "none", fontSize: 14.5, fontWeight: 700, color: "#0f172a", padding: "8px 16px" }}>Sign In</Link>
             <Link to="/book-demo" className="btn-glow-primary" style={{ textDecoration: "none", fontSize: 14, padding: "10px 22px", borderRadius: 10, display: "inline-flex", alignItems: "center", gap: 6 }}>
               <Sparkles size={15} /> Request Demo
@@ -193,7 +193,7 @@ export default function PublicDemoLeadPage() {
         {/* HERO + INTERACTIVE DEMO FORM */}
         <section style={{ padding: "60px 24px 80px", background: "radial-gradient(circle at 80% 20%, rgba(204,251,241,0.5) 0%, rgba(240,253,250,0.3) 40%, #ffffff 80%)", position: "relative" }}>
           
-          <div style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1.05fr 1.05fr", gap: 48, alignItems: "start" }}>
+          <div className="public-demo-hero-grid">
             
             {/* Left Column: Agenda & Value Prop */}
             <div>
@@ -216,7 +216,7 @@ export default function PublicDemoLeadPage() {
                   What We Will Cover in Your Live Session:
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                <div className="agenda-grid-2">
                   {agendaItems.map((item, i) => {
                     const Icon = item.icon;
                     return (
