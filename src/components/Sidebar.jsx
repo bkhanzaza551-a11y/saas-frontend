@@ -57,6 +57,7 @@ const getItemIcon = (label, path) => {
   if (l.includes("dashboard") || l.includes("home")) return <LayoutDashboard size={18} />;
   if (l.includes("salon") || l.includes("branch")) return <Building2 size={18} />;
   if (l.includes("sale") || l.includes("pos")) return <CreditCard size={18} />;
+  if (l.includes("invoice") || l.includes("bill")) return <FileText size={18} />;
   if (l.includes("appointment")) return <Calendar size={18} />;
   if (l.includes("schedule") || l.includes("availability")) return <Clock size={18} />;
   if (l.includes("attendance")) return <CheckSquare size={18} />;
