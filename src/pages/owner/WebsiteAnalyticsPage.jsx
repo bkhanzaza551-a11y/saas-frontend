@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import { Calendar, TrendingUp, CheckCircle2, Clock, XCircle, Tag, Globe, ArrowUpRight } from "lucide-react";
+import { Calendar, TrendingUp, CheckCircle2, Clock, XCircle, Tag, Globe, ArrowUpRight, Scissors, Layers, CreditCard, Sparkles } from "lucide-react";
 import { api } from "../../api/client";
 
 export default function WebsiteAnalyticsPage() {
@@ -301,22 +301,31 @@ export default function WebsiteAnalyticsPage() {
 
       {/* Online Catalog & Services Stats */}
       <div className="analytics-three-col">
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 16px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 26, marginBottom: 4 }}>✂️</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{services.length || 0}</div>
-          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Active Salon Services</div>
-          <div style={{ fontSize: 11.5, color: "#10b981", marginTop: 2, fontWeight: 600 }}>Available for online booking</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 18px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#f5f3ff", color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+            <Scissors size={24} strokeWidth={2.2} />
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a" }}>{services.length || 0}</div>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600, marginTop: 2 }}>Active Salon Services</div>
+          <div style={{ fontSize: 11.5, color: "#10b981", marginTop: 4, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <Sparkles size={12} /> Available for online booking
+          </div>
         </div>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 16px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 26, marginBottom: 4 }}>📂</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{categories.length || 0}</div>
-          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Service Categories</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 18px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+            <Layers size={24} strokeWidth={2.2} />
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a" }}>{categories.length || 0}</div>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600, marginTop: 2 }}>Service Categories</div>
+          <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 4 }}>Categorized catalog offerings</div>
         </div>
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "18px 16px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 26, marginBottom: 4 }}>💳</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#10b981" }}>{currency} {Number(stats?.totalSales || 0).toLocaleString("en-IN")}</div>
-          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Total Booking Revenue</div>
-          <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 2 }}>{stats?.totalOrders || filtered.length} bookings fulfilled</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 18px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#ecfdf5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+            <CreditCard size={24} strokeWidth={2.2} />
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#059669" }}>{currency} {Number(stats?.totalSales || 0).toLocaleString("en-IN")}</div>
+          <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600, marginTop: 2 }}>Total Booking Revenue</div>
+          <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 4 }}>{stats?.totalOrders || filtered.length} bookings fulfilled</div>
         </div>
       </div>
 

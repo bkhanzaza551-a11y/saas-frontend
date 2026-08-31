@@ -6,6 +6,7 @@ import { useBranch } from "../../context/BranchContext";
 import { formatApiError } from "../../utils/apiError";
 
 import CustomSelect from "../../components/CustomSelect";
+import { Scissors } from "lucide-react";
 
 const emptyForm = {
   name: "",
@@ -160,7 +161,7 @@ export default function ServicesPage() {
                 {form.imageUrl ? (
                   <img src={form.imageUrl} alt="Service" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
-                  <span style={{ fontSize: 24 }}>✂️</span>
+                  <Scissors size={28} color="#94a3b8" />
                 )}
               </div>
               <div>
