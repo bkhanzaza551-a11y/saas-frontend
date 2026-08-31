@@ -189,11 +189,12 @@ export default function StorefrontLayout() {
       })
       .catch(() => setSalon(null))
       .finally(() => {
+        setLoading(false);
         const isPreview = typeof window !== 'undefined' && window.location.search.includes("preview=true");
         if (isPreview) {
           setInitialLoading(false);
         } else {
-          setTimeout(() => setInitialLoading(false), 1200);
+          setTimeout(() => setInitialLoading(false), 400);
         }
       });
   }, [slug]);
