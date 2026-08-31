@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Download, X } from "lucide-react";
+import { Download, X, ChevronDown } from "lucide-react";
 import { formatCurrency } from "../utils/currency";
 import { useAuth } from "../context/AuthContext";
 import { readSalonSettingsCache } from "../utils/salonSettings";
@@ -158,9 +158,34 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
         {/* Action Bar */}
         <div style={{ position: "sticky", top: 0, zIndex: 10, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6, padding: isThermal ? "8px 8px" : "12px 16px", background: "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid #f1f5f9", borderRadius: isThermal ? "8px 8px 0 0" : "16px 16px 0 0" }} className="no-print">
           {/* Format Selector */}
-          <select value={format} onChange={(e) => handleFormatChange(e.target.value)} style={{ padding: "4px 6px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 11, fontWeight: 600, color: "#475569", background: "#f8fafc", cursor: "pointer", marginRight: "auto" }}>
-            {FORMATS.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
-          </select>
+          <div style={{ position: "relative", marginRight: "auto", display: "inline-flex", alignItems: "center" }}>
+            <select
+              value={format}
+              onChange={(e) => handleFormatChange(e.target.value)}
+              style={{
+                height: 32,
+                padding: "0 28px 0 10px",
+                borderRadius: 8,
+                border: "1px solid #cbd5e1",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#334155",
+                background: "#f8fafc",
+                cursor: "pointer",
+                appearance: "none",
+                WebkitAppearance: "none",
+                outline: "none",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+              }}
+            >
+              {FORMATS.map((f) => (
+                <option key={f.key} value={f.key}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={13} color="#64748b" style={{ position: "absolute", right: 8, pointerEvents: "none" }} />
+          </div>
           {onDownload && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569", cursor: "pointer" }} title="Download" onClick={onDownload}><Download size={14} /></div>}
           {onClose && !inline && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#ef4444", cursor: "pointer" }} title="Close" onClick={onClose}><X size={14} /></div>}
         </div>

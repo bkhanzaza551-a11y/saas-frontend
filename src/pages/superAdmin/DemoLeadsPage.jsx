@@ -1121,7 +1121,7 @@ export default function DemoLeadsPage() {
                       </div>
                       <div>
                         <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Billing Cycle</label>
-                        <CustomSelect disabled={isConverted} value={draft.billingCycle || "monthly"} onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} options={[{ label: "Monthly", value: "monthly" }, { label: "Yearly (Save 20%)", value: "yearly" }]} />
+                        <CustomSelect disabled={isConverted} value={draft.billingCycle || "monthly"} onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} options={[{ label: "Monthly", value: "monthly" }, { label: "Yearly", value: "yearly" }]} />
                       </div>
                     </div>
                     <div className="crm-modal-grid-2col">
