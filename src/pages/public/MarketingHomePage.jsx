@@ -2082,7 +2082,10 @@ export default function MarketingHomePage() {
                         alignItems: "center",
                         justifyContent: "center",
                         gap: 8,
-                        marginTop: 6
+                        marginTop: 6,
+                        background: "linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)",
+                        color: "#ffffff",
+                        boxShadow: "0 4px 20px rgba(13, 148, 136, 0.35)"
                       }}
                     >
                       <Send size={16} /> Submit Message & Request Demo

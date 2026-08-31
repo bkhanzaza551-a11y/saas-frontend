@@ -497,7 +497,10 @@ export default function PublicDemoLeadPage() {
                       alignItems: "center",
                       justifyContent: "center",
                       gap: 8,
-                      marginTop: 4
+                      marginTop: 4,
+                      background: "linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)",
+                      color: "#ffffff",
+                      boxShadow: "0 4px 20px rgba(13, 148, 136, 0.35)"
                     }}
                   >
                     {submitting ? "Submitting Inquiry..." : <>Request Guided Walkthrough <ArrowRight size={17} /></>}
