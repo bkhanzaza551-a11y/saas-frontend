@@ -672,7 +672,7 @@ button.pos-item-card:hover {
   padding: 0 24px;
 }
 .pos-checkout-btn-clear {
-  padding: 10px 16px !important;
+  padding: 0 16px !important;
   background: #f8fafc !important;
   color: #64748b !important;
   border: 1px solid #cbd5e1 !important;
@@ -680,8 +680,15 @@ button.pos-item-card:hover {
   font-weight: 700 !important;
   cursor: pointer;
   flex: 1;
-  font-size: 0.9rem !important;
+  font-size: 0.88rem !important;
   height: 42px !important;
+  min-height: 42px !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
 }
 .pos-checkout-btn-start {
   padding: 10px 16px !important;

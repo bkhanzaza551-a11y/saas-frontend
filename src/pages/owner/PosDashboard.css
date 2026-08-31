@@ -543,8 +543,25 @@
 
 .pos-modal-quick-chips {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.pos-modal-quick-chips button,
+.pos-modal-quick-chips .pos-checkout-btn-clear {
+  white-space: nowrap !important;
+  font-size: 12.5px !important;
+  padding: 0 16px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  flex: none !important;
+  box-sizing: border-box !important;
 }
 
 .pos-modal-payment-row {
@@ -678,14 +695,18 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    gap: 6px;
   }
 
-  .pos-modal-quick-chips button {
+  .pos-modal-quick-chips button,
+  .pos-modal-quick-chips .pos-checkout-btn-clear {
     width: 100%;
-    padding: 6px 2px !important;
+    padding: 0 4px !important;
     text-align: center;
-    font-size: 10.5px !important;
+    font-size: 11px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    white-space: nowrap !important;
   }
 
   .pos-modal-payment-row {
