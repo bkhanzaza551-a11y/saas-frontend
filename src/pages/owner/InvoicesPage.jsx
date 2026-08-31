@@ -328,7 +328,6 @@ export default function InvoicesPage() {
                 <PosReceipt 
                   invoice={selectedInvoice} 
                   inline={true} 
-                  onPrint={handlePrint}
                   onDownload={() => downloadFromApi(`/owner/invoices/${selectedInvoice.id}/receipt`, { fallbackFilename: `receipt-${selectedInvoice.invoiceNumber || selectedInvoice.id}.html` })}
                 />
               </div>

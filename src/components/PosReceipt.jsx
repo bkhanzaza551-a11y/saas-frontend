@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Download, Printer, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { formatCurrency } from "../utils/currency";
 import { useAuth } from "../context/AuthContext";
 import { readSalonSettingsCache } from "../utils/salonSettings";
@@ -161,7 +161,6 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
           <select value={format} onChange={(e) => handleFormatChange(e.target.value)} style={{ padding: "4px 6px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 11, fontWeight: 600, color: "#475569", background: "#f8fafc", cursor: "pointer", marginRight: "auto" }}>
             {FORMATS.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
           </select>
-          {onPrint && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569", cursor: "pointer" }} title="Print" onClick={handleLocalPrint}><Printer size={14} /></div>}
           {onDownload && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569", cursor: "pointer" }} title="Download" onClick={onDownload}><Download size={14} /></div>}
           {onClose && !inline && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#ef4444", cursor: "pointer" }} title="Close" onClick={onClose}><X size={14} /></div>}
         </div>
