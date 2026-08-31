@@ -17,7 +17,7 @@ const featureFlagKeys = [
   "ecommerce", "digitalCatalog", "catalogAnalytics", "feedback", "reports", "memberships",
   "packages", "loyalty", "couponsGiftCards", "whatsapp", "enquiries", "expenses",
   "attendance", "customerPortal", "publicCatalog",
-  "onlineOrders", "messageTemplates", "notifications", "auditLogs", "advancedReports"
+  "onlineOrders", "notifications", "auditLogs", "advancedReports"
 ];
 const defaultFlags = {
   pos: true, appointments: false, inventory: false, crm: true, 
@@ -25,7 +25,7 @@ const defaultFlags = {
   catalogAnalytics: false, feedback: false, reports: true, memberships: false, packages: false,
   loyalty: false, couponsGiftCards: false, whatsapp: false, enquiries: false, expenses: false,
   attendance: false, leaves: true, customerPortal: false,
-  publicCatalog: true, onlineOrders: false, messageTemplates: false, notifications: true,
+  publicCatalog: true, onlineOrders: false, notifications: true,
   auditLogs: true, advancedReports: true
 };
 const emptyForm = {
@@ -807,7 +807,9 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                       const isEnabled = selectedSalon.featureFlags?.[key] === true;
                       return (
                         <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f8fafc", border: "1px solid #f1f5f9", borderRadius: 8 }}>
-                          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", textTransform: "capitalize" }}>{key.replace(new RegExp("([A-Z])", "g"), " $1")}</span>
+                          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", textTransform: "capitalize" }}>
+                            {key === "onlineOrders" ? "Online Booking" : key.replace(new RegExp("([A-Z])", "g"), " $1")}
+                          </span>
                           <div 
                             onClick={() => toggleFeature(selectedSalon.id, key)}
                             style={{

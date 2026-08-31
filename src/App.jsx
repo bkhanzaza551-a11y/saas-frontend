@@ -319,7 +319,6 @@ const Protected = () => {
 
         { label: "Payments", to: "/admin/payments" },
         { label: "WhatsApp Credits", to: "/admin/whatsapp-credits" },
-        { label: "Campaigns", to: "/admin/campaigns" },
         { label: "Reports Hub", to: "/admin/reports-hub" },
         { label: "Inventory", to: "/admin/inventory" },
         { label: "Support Tickets", to: "/admin/support-tickets" }

@@ -1035,13 +1035,16 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
           4. Feature Access & Overrides
         </h4>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {Object.entries(planFlags).map(([k, v]) => {
+          {Object.entries(planFlags)
+            .filter(([k]) => !["campaigns", "messageTemplates", "incentives"].includes(k))
+            .map(([k, v]) => {
             const isOverridden = salonFlags && salonFlags[k] !== undefined && salonFlags[k] !== v;
             const finalVal = isOverridden ? salonFlags[k] : v;
+            const displayName = k === "onlineOrders" ? "Online Booking" : k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase());
             return (
               <span key={k} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 9px", borderRadius: 6, fontSize: "0.72rem", fontWeight: 600, background: finalVal ? "#f0fdf4" : "#fef2f2", color: finalVal ? "#166534" : "#991b1b", border: `1px solid ${finalVal ? "#bbf7d0" : "#fecaca"}` }}>
                 {finalVal ? <CheckCircle2 size={12} color="#16a34a" /> : <XCircle size={12} color="#dc2626" />}
-                {k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}
+                {displayName}
                 {isOverridden && <span style={{ fontSize: "0.62rem", background: "#fef3c7", color: "#92400e", padding: "1px 4px", borderRadius: 3 }}>Override</span>}
               </span>
             );

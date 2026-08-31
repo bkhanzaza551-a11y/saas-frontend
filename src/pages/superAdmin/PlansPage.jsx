@@ -14,7 +14,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     label: "Sales & Marketing",
-    flags: ["campaigns", "loyalty", "couponsGiftCards", "enquiries"]
+    flags: ["loyalty", "couponsGiftCards", "enquiries"]
   },
   {
     label: "Online Business",
@@ -22,11 +22,11 @@ const FEATURE_CATEGORIES = [
   },
   {
     label: "Staff",
-    flags: ["attendance", "leaves", "payroll", "incentives"]
+    flags: ["attendance", "leaves", "payroll"]
   },
   {
     label: "Customer Engagement",
-    flags: ["whatsapp", "notifications", "feedback", "messageTemplates"]
+    flags: ["whatsapp", "notifications", "feedback"]
   },
   {
     label: "Business",
@@ -44,7 +44,6 @@ const FLAG_LABELS = {
   appointments: "Appointments",
   crm: "CRM",
   inventory: "Inventory",
-  campaigns: "Campaigns",
   loyalty: "Loyalty",
   couponsGiftCards: "Coupons / Gift Cards",
   enquiries: "Enquiries",
@@ -55,11 +54,9 @@ const FLAG_LABELS = {
   attendance: "Attendance",
   leaves: "Leaves",
   payroll: "Payroll",
-  incentives: "Incentives",
   whatsapp: "WhatsApp",
   notifications: "Notifications",
   feedback: "Feedback",
-  messageTemplates: "Message Templates",
   expenses: "Expenses",
   memberships: "Memberships",
   packages: "Packages",

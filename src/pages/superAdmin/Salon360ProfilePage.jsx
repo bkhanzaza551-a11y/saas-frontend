@@ -41,7 +41,6 @@ const FEATURE_LABELS = {
   appointments: "Appointments & Scheduling",
   crm: "Customer CRM",
   inventory: "Inventory & Stock",
-  campaigns: "Marketing Campaigns",
   loyalty: "Loyalty Program",
   coupons: "Coupons & Vouchers",
   couponsGiftCards: "Coupons / Gift Cards",
@@ -53,11 +52,9 @@ const FEATURE_LABELS = {
   attendance: "Staff Attendance",
   leaves: "Leave Management",
   payroll: "Staff Payroll",
-  incentives: "Staff Incentives",
   whatsapp: "WhatsApp Automation",
   notifications: "System Notifications",
   feedback: "Client Feedback",
-  messageTemplates: "Message Templates",
   expenses: "Expense Tracker",
   memberships: "Client Memberships",
   packages: "Service Packages",
@@ -70,7 +67,9 @@ const FEATURE_LABELS = {
 const renderMetadataValue = (key, val) => {
   if (val == null) return "None";
   if (key === "featureFlags" && typeof val === "object") {
-    const enabled = Object.entries(val).filter(([, on]) => on === true).map(([k]) => FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()));
+    const enabled = Object.entries(val)
+      .filter(([k, on]) => on === true && !["campaigns", "messageTemplates", "incentives"].includes(k))
+      .map(([k]) => k === "onlineOrders" ? "Online Booking" : (FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())));
     return enabled.length > 0 ? enabled.join(", ") : "All features disabled";
   }
   if (Array.isArray(val)) return val.join(", ");
@@ -586,8 +585,12 @@ export default function Salon360ProfilePage() {
                   <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
                     <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569", marginBottom: 8 }}>Included Plan Features (Automatic Access)</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {Object.entries(subscription.plan.featureFlags).filter(([_, v]) => v).map(([k]) => (
-                        <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, border: "1px solid #bbf7d0" }}>✓ {k}</span>
+                      {Object.entries(subscription.plan.featureFlags)
+                        .filter(([k, v]) => v && !["campaigns", "messageTemplates", "incentives"].includes(k))
+                        .map(([k]) => (
+                          <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, border: "1px solid #bbf7d0" }}>
+                            ✓ {k === "onlineOrders" ? "Online Booking" : (FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()))}
+                          </span>
                       ))}
                     </div>
                   </div>
@@ -645,7 +648,10 @@ export default function Salon360ProfilePage() {
           </div>
           {featureFlags && Object.keys(featureFlags).length > 0 ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-              {Object.entries(featureFlags).sort(([a], [b]) => a.localeCompare(b)).map(([key, enabled]) => {
+              {Object.entries(featureFlags)
+                .filter(([key]) => !["campaigns", "messageTemplates", "incentives"].includes(key))
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([key, enabled]) => {
                 const planIncluded = subscription?.plan?.featureFlags?.[key] === true;
                 const isOverridden = enabled !== planIncluded;
                 return (
