@@ -320,15 +320,15 @@ a {
 
 /* Mobile Menu */
 .sf-mobile-menu-btn {
-  display: none;
+  display: none !important;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   align-items: center;
   justify-content: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-main);
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  color: var(--text-main, #0f172a);
   cursor: pointer;
   padding: 0;
   transition: all 0.2s ease;

@@ -512,7 +512,6 @@ export default function StorefrontLayout() {
                     width: 42,
                     height: 42,
                     borderRadius: "50%",
-                    display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     background: "#ffffff",
