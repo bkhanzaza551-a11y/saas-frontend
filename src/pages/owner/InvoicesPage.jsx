@@ -161,24 +161,24 @@ export default function InvoicesPage() {
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', padding: '0 4px' }}>
-        <div style={{ flex: '1 1 300px' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Search</div>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', alignItems: 'flex-end', flexWrap: 'wrap', padding: '0 4px' }}>
+        <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>Search</div>
           <input 
             value={filters.q} 
             placeholder="Search by invoice number or customer name..." 
             onChange={(event) => setFilters((current) => ({ ...current, q: event.target.value }))}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)', boxSizing: 'border-box' }}
+            style={{ width: '100%', height: '42px', padding: '0 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)', boxSizing: 'border-box' }}
             onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
             onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
           />
         </div>
-        <div style={{ width: '200px' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Status</div>
+        <div style={{ width: '180px', minWidth: '140px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>Status</div>
           <CustomSelect 
             value={filters.status} 
             onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', outline: 'none', backgroundColor: '#fff', cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px top 50%', backgroundSize: '0.65em auto', boxSizing: 'border-box' }}
+            style={{ width: '100%', height: '42px', padding: '0 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', outline: 'none', backgroundColor: '#fff', cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px top 50%', backgroundSize: '0.65em auto', boxSizing: 'border-box' }}
           >
             <option value="">All statuses</option>
             <option value="UNPAID">Unpaid</option>
@@ -188,16 +188,27 @@ export default function InvoicesPage() {
             <option value="REFUNDED">Refunded</option>
           </CustomSelect>
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
           <button 
             type="button" 
-            onClick={() => setFilters({ q: "", status: "" })} 
-            style={{ height: '46px', padding: '0 24px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#475569', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = '#475569'; }}
+            onClick={() => load()} 
+            style={{ height: '42px', padding: '0 22px', borderRadius: '8px', border: '1px solid #0d9488', backgroundColor: '#0d9488', color: '#ffffff', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#0f766e'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#0d9488'; }}
           >
-            Reset Filters
+            Apply
           </button>
+          {(filters.q || filters.status) && (
+            <button 
+              type="button" 
+              onClick={() => setFilters({ q: "", status: "" })} 
+              style={{ height: '42px', padding: '0 16px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#64748b', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
+            >
+              Reset
+            </button>
+          )}
         </div>
       </div>
 
