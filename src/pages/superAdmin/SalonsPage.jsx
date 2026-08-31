@@ -9,7 +9,7 @@ import { useAlert } from "../../context/AlertContext";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import CustomSelect from "../../components/CustomSelect";
 import { Country, State, City } from "country-state-city";
-import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Landmark, Globe, Clock, CreditCard, Search } from "lucide-react";
+import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Landmark, Globe, Clock, CreditCard, Search, AlertCircle } from "lucide-react";
 
 const businessTypes = ["Salon", "Spa", "Beauty Clinic", "Nail Studio", "Tattoo Studio", "Pet Grooming", "Wellness Center"];
 const featureFlagKeys = [
