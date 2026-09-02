@@ -5,7 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
-import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2, Edit2, Check, AlertTriangle } from "lucide-react";
 
 const PIPELINE = [
   { value: "NEW", label: "New", color: "#3b82f6", bg: "#eff6ff" },
@@ -178,9 +178,34 @@ export default function DemoLeadsPage() {
   const [addingLead, setAddingLead] = useState(false);
   const [duplicateInfo, setDuplicateInfo] = useState(null);
 
+  // Inline Email Editing State for Lead Details Modal
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [inlineEmailInput, setInlineEmailInput] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
+
+  const saveLeadEmail = async (leadId, newEmail) => {
+    setSavingEmail(true);
+    setFeedback({ error: "", success: "" });
+    try {
+      const res = await api.put(`/super-admin/demo-leads/${leadId}`, { email: newEmail?.trim() || null });
+      setRows(prev => prev.map(r => r.id === leadId ? { ...r, email: res.data.email } : r));
+      if (selectedLead && selectedLead.id === leadId) {
+        setSelectedLead(prev => ({ ...prev, email: res.data.email }));
+      }
+      setEditingEmail(false);
+      setFeedback({ error: "", success: "Lead email updated successfully!" });
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to update email"), success: "" });
+    } finally {
+      setSavingEmail(false);
+    }
+  };
+
   const closeDetailModal = () => {
     setSelectedLead(null);
     setLeadModalTab("overview");
+    setEditingEmail(false);
+    setInlineEmailInput("");
   };
 
   const openLeadById = async (id) => {
@@ -192,6 +217,8 @@ export default function DemoLeadsPage() {
     if (lead) {
       setSelectedLead(lead);
       setLeadModalTab("overview");
+      setEditingEmail(false);
+      setInlineEmailInput(lead.email || "");
     }
   };
 
@@ -271,7 +298,7 @@ export default function DemoLeadsPage() {
   // Create Lead Manually
   const handleAddLeadSubmit = async (e) => {
     e.preventDefault();
-    if (!leadForm.name.trim() || !leadForm.email.trim() || !leadForm.phone.trim() || !leadForm.company.trim()) return;
+    if (!leadForm.name.trim() || !leadForm.phone.trim() || !leadForm.company.trim()) return;
 
     const phoneDigits = leadForm.phone.replace(/\D/g, "");
     if (phoneDigits.length !== 10) {
@@ -285,6 +312,7 @@ export default function DemoLeadsPage() {
     try {
       await api.post("/super-admin/demo-leads", {
         ...leadForm,
+        email: leadForm.email.trim() || undefined,
         phone: `+91${phoneDigits}`
       });
       setFeedback({ error: "", success: `Lead '${leadForm.name}' added successfully!` });
@@ -306,6 +334,14 @@ export default function DemoLeadsPage() {
   const generateMeetLink = async (leadId) => {
     setBusyId(leadId);
     setActionType("generate-link");
+    setFeedback({ error: "", success: "" });
+    const lead = rows.find(r => r.id === leadId) || selectedLead;
+    if (!lead?.email || !lead.email.trim()) {
+      setFeedback({ error: "Email put karo pehle! Meeting link create karne ke liye email address zaroori hai.", success: "" });
+      setBusyId("");
+      setActionType("");
+      return;
+    }
     try {
       const draft = draftsById[leadId] || {};
       const res = await api.post(`/super-admin/demo-leads/${leadId}/create-zoho-meeting`, {
@@ -379,6 +415,13 @@ export default function DemoLeadsPage() {
     setBusyId(leadId);
     setActionType("save-demo");
     setFeedback({ error: "", success: "" });
+    const lead = rows.find(r => r.id === leadId) || selectedLead;
+    if (!lead?.email || !lead.email.trim()) {
+      setFeedback({ error: "Email put karo pehle! Demo schedule karne ke liye email address zaroori hai.", success: "" });
+      setBusyId("");
+      setActionType("");
+      return;
+    }
     const draft = draftsById[leadId];
     if (!draft.meetingScheduledAt || !draft.meetingLink) {
       setFeedback({ error: "Please fill meeting date/time and meeting link before scheduling.", success: "" });
@@ -405,6 +448,13 @@ export default function DemoLeadsPage() {
     setBusyId(leadId);
     setActionType("send-pay-link");
     setFeedback({ error: "", success: "" });
+    const lead = rows.find(r => r.id === leadId) || selectedLead;
+    if (!lead?.email || !lead.email.trim()) {
+      setFeedback({ error: "Email put karo pehle! Payment link send karne ke liye email address zaroori hai.", success: "" });
+      setBusyId("");
+      setActionType("");
+      return;
+    }
     const draft = draftsById[leadId];
     if (!draft.planId) {
       setFeedback({ error: "Please select a subscription plan before sending the purchase link.", success: "" });
@@ -926,9 +976,62 @@ export default function DemoLeadsPage() {
 
                     {/* Contact Info Row */}
                     <div className="crm-modal-grid-3col">
-                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Email</div>
-                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}><Mail size={12} color="#6366f1" />{row.email}</div>
+                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>Email</span>
+                          {!isConverted && !editingEmail && (
+                            <button
+                              type="button"
+                              onClick={() => { setEditingEmail(true); setInlineEmailInput(row.email || ""); }}
+                              style={{ background: "none", border: "none", color: "#4f46e5", cursor: "pointer", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 3, padding: 0 }}
+                              title="Edit Email"
+                            >
+                              <Edit2 size={11} /> {row.email ? "Edit" : "+ Add"}
+                            </button>
+                          )}
+                        </div>
+                        {editingEmail ? (
+                          <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 2 }}>
+                            <input
+                              type="email"
+                              autoFocus
+                              placeholder="Enter email..."
+                              value={inlineEmailInput}
+                              onChange={e => setInlineEmailInput(e.target.value)}
+                              style={{ flex: 1, padding: "4px 8px", borderRadius: 6, border: "1px solid #6366f1", fontSize: 12, outline: "none" }}
+                              onKeyDown={e => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  saveLeadEmail(row.id, inlineEmailInput);
+                                } else if (e.key === "Escape") {
+                                  setEditingEmail(false);
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              disabled={savingEmail}
+                              onClick={() => saveLeadEmail(row.id, inlineEmailInput)}
+                              style={{ background: "#10b981", color: "#fff", border: "none", borderRadius: 6, padding: "5px 8px", cursor: "pointer", display: "flex", alignItems: "center" }}
+                              title="Save"
+                            >
+                              {savingEmail ? <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> : <Check size={12} />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingEmail(false)}
+                              style={{ background: "#e2e8f0", color: "#475569", border: "none", borderRadius: 6, padding: "5px 8px", cursor: "pointer", display: "flex", alignItems: "center" }}
+                              title="Cancel"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: 13, color: row.email ? "#0f172a" : "#ef4444", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}>
+                            <Mail size={12} color={row.email ? "#6366f1" : "#ef4444"} />
+                            {row.email ? row.email : <span style={{ fontStyle: "italic", fontSize: 12 }}>No email provided</span>}
+                          </div>
+                        )}
                       </div>
                       <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
                         <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Phone</div>
@@ -1007,6 +1110,39 @@ export default function DemoLeadsPage() {
                 {/* TAB 2: SCHEDULE DEMO */}
                 {leadModalTab === "demo" && (
                   <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
+                    {(!row.email || !row.email.trim()) && (
+                      <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#b91c1c", fontSize: 13, fontWeight: 700 }}>
+                          <AlertTriangle size={16} /> Email Required for Demo Scheduling
+                        </div>
+                        <p style={{ margin: 0, fontSize: 12, color: "#7f1d1d", lineHeight: 1.4 }}>
+                          Demo invite link send karne ke liye is lead ka email address zaroori hai. Please pehle yahan email put karein:
+                        </p>
+                        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                          <input
+                            type="email"
+                            placeholder="Enter client email (e.g. rahul@salon.com)..."
+                            value={inlineEmailInput}
+                            onChange={e => setInlineEmailInput(e.target.value)}
+                            style={{ flex: 1, padding: "8px 12px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 13, background: "#fff" }}
+                            onKeyDown={e => {
+                              if (e.key === "Enter" && inlineEmailInput.trim()) {
+                                e.preventDefault();
+                                saveLeadEmail(row.id, inlineEmailInput);
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            disabled={savingEmail || !inlineEmailInput.trim()}
+                            onClick={() => saveLeadEmail(row.id, inlineEmailInput)}
+                            style={{ padding: "8px 16px", background: "#4f46e5", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: !inlineEmailInput.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                          >
+                            {savingEmail ? <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> : "Save Email"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
                       <Video size={16} color="#6366f1" /> Schedule Product Demo
                     </div>
@@ -1467,11 +1603,10 @@ export default function DemoLeadsPage() {
 
               <div className="crm-add-modal-2col">
                 <div>
-                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Email Address *</label>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Email Address <span style={{ color: "#94a3b8", fontWeight: 500 }}>(Optional)</span></label>
                   <input
                     type="email"
-                    required
-                    placeholder="rahul@salon.com"
+                    placeholder="e.g. rahul@salon.com (optional)"
                     value={leadForm.email}
                     onChange={e => setLeadForm({ ...leadForm, email: e.target.value })}
                     style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b" }}
