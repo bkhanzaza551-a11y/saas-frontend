@@ -41,12 +41,11 @@ const FEATURE_LABELS = {
   appointments: "Appointments & Scheduling",
   crm: "Customer CRM",
   inventory: "Inventory & Stock",
-  loyalty: "Loyalty Program",
-  coupons: "Coupons & Vouchers",
   couponsGiftCards: "Coupons / Gift Cards",
   enquiries: "Enquiries & Leads",
-  ecommerce: "E-Commerce Storefront",
+  ecommerce: "Website & Storefront",
   onlineOrders: "Online Booking",
+  catalogAnalytics: "Website Analytics",
   attendance: "Staff Attendance",
   whatsapp: "WhatsApp Automation",
   notifications: "System Notifications",
@@ -54,17 +53,15 @@ const FEATURE_LABELS = {
   expenses: "Expense Tracker",
   memberships: "Client Memberships",
   packages: "Service Packages",
-  reports: "Standard Reports",
-  advancedReports: "Advanced Analytics",
-  auditLogs: "Audit Trail & Logs",
-  catalogAnalytics: "Catalog Analytics"
+  reports: "Reports & Analytics Hub",
+  auditLogs: "Audit Trail & Logs"
 };
 
 const renderMetadataValue = (key, val) => {
   if (val == null) return "None";
   if (key === "featureFlags" && typeof val === "object") {
     const enabled = Object.entries(val)
-      .filter(([k, on]) => on === true && !["campaigns", "messageTemplates", "incentives", "digitalCatalog", "customerPortal", "leaves", "payroll"].includes(k))
+      .filter(([k, on]) => on === true && !["campaigns", "messageTemplates", "incentives", "digitalCatalog", "customerPortal", "leaves", "payroll", "loyalty", "advancedReports"].includes(k))
       .map(([k]) => k === "onlineOrders" ? "Online Booking" : (FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())));
     return enabled.length > 0 ? enabled.join(", ") : "All features disabled";
   }

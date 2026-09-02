@@ -9,19 +9,19 @@ import PageLoader from "../../components/PageLoader";
 
 const FEATURE_CATEGORIES = [
   {
-    label: "Core",
+    label: "Core Operations",
     flags: ["pos", "appointments", "crm", "inventory"]
   },
   {
-    label: "Sales & Marketing",
-    flags: ["loyalty", "couponsGiftCards", "enquiries"]
+    label: "Marketing & Growth",
+    flags: ["couponsGiftCards", "enquiries"]
   },
   {
-    label: "Online Business",
-    flags: ["ecommerce", "onlineOrders"]
+    label: "Online Presence",
+    flags: ["ecommerce", "onlineOrders", "catalogAnalytics"]
   },
   {
-    label: "Staff",
+    label: "Staff & Attendance",
     flags: ["attendance"]
   },
   {
@@ -29,26 +29,26 @@ const FEATURE_CATEGORIES = [
     flags: ["whatsapp", "notifications", "feedback"]
   },
   {
-    label: "Business",
+    label: "Finance & Memberships",
     flags: ["expenses", "memberships", "packages"]
   },
   {
-    label: "Analytics",
-    flags: ["reports", "advancedReports", "auditLogs", "catalogAnalytics"]
+    label: "Analytics & Logs",
+    flags: ["reports", "auditLogs"]
   }
 ];
 
 const ALL_FLAGS = FEATURE_CATEGORIES.flatMap(c => c.flags);
 const FLAG_LABELS = {
-  pos: "POS",
+  pos: "POS & Invoices",
   appointments: "Appointments",
-  crm: "CRM",
-  inventory: "Inventory",
-  loyalty: "Loyalty",
+  crm: "Customer CRM",
+  inventory: "Inventory & Stock",
   couponsGiftCards: "Coupons / Gift Cards",
   enquiries: "Enquiries",
-  ecommerce: "Ecommerce",
+  ecommerce: "Website / Ecommerce",
   onlineOrders: "Online Booking",
+  catalogAnalytics: "Website Analytics",
   attendance: "Attendance",
   whatsapp: "WhatsApp",
   notifications: "Notifications",
@@ -56,10 +56,8 @@ const FLAG_LABELS = {
   expenses: "Expenses",
   memberships: "Memberships",
   packages: "Packages",
-  reports: "Reports",
-  advancedReports: "Advanced Reports",
-  auditLogs: "Audit Logs",
-  catalogAnalytics: "Catalog Analytics"
+  reports: "Reports & Trends",
+  auditLogs: "Audit Logs"
 };
 
 const defaultFeatureFlags = {};

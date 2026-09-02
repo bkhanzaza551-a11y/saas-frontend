@@ -15,18 +15,18 @@ const businessTypes = ["Salon", "Spa", "Beauty Clinic", "Nail Studio", "Tattoo S
 const featureFlagKeys = [
   "pos", "appointments", "inventory", "crm", 
   "ecommerce", "catalogAnalytics", "feedback", "reports", "memberships",
-  "packages", "loyalty", "couponsGiftCards", "whatsapp", "enquiries", "expenses",
+  "packages", "couponsGiftCards", "whatsapp", "enquiries", "expenses",
   "attendance", "publicCatalog",
-  "onlineOrders", "notifications", "auditLogs", "advancedReports"
+  "onlineOrders", "notifications", "auditLogs"
 ];
 const defaultFlags = {
   pos: true, appointments: false, inventory: false, crm: true, 
   ecommerce: false,
   catalogAnalytics: false, feedback: false, reports: true, memberships: false, packages: false,
-  loyalty: false, couponsGiftCards: false, whatsapp: false, enquiries: false, expenses: false,
+  couponsGiftCards: false, whatsapp: false, enquiries: false, expenses: false,
   attendance: false,
   publicCatalog: true, onlineOrders: false, notifications: true,
-  auditLogs: true, advancedReports: true
+  auditLogs: true
 };
 const emptyForm = {
   name: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
