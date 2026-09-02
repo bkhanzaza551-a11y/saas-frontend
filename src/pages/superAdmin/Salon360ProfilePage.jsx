@@ -46,12 +46,8 @@ const FEATURE_LABELS = {
   couponsGiftCards: "Coupons / Gift Cards",
   enquiries: "Enquiries & Leads",
   ecommerce: "E-Commerce Storefront",
-  digitalCatalog: "Digital Catalog",
   onlineOrders: "Online Booking",
-  customerPortal: "Customer Portal",
   attendance: "Staff Attendance",
-  leaves: "Leave Management",
-  payroll: "Staff Payroll",
   whatsapp: "WhatsApp Automation",
   notifications: "System Notifications",
   feedback: "Client Feedback",
@@ -68,7 +64,7 @@ const renderMetadataValue = (key, val) => {
   if (val == null) return "None";
   if (key === "featureFlags" && typeof val === "object") {
     const enabled = Object.entries(val)
-      .filter(([k, on]) => on === true && !["campaigns", "messageTemplates", "incentives"].includes(k))
+      .filter(([k, on]) => on === true && !["campaigns", "messageTemplates", "incentives", "digitalCatalog", "customerPortal", "leaves", "payroll"].includes(k))
       .map(([k]) => k === "onlineOrders" ? "Online Booking" : (FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())));
     return enabled.length > 0 ? enabled.join(", ") : "All features disabled";
   }

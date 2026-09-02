@@ -14,17 +14,17 @@ import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Land
 const businessTypes = ["Salon", "Spa", "Beauty Clinic", "Nail Studio", "Tattoo Studio", "Pet Grooming", "Wellness Center"];
 const featureFlagKeys = [
   "pos", "appointments", "inventory", "crm", 
-  "ecommerce", "digitalCatalog", "catalogAnalytics", "feedback", "reports", "memberships",
+  "ecommerce", "catalogAnalytics", "feedback", "reports", "memberships",
   "packages", "loyalty", "couponsGiftCards", "whatsapp", "enquiries", "expenses",
-  "attendance", "customerPortal", "publicCatalog",
+  "attendance", "publicCatalog",
   "onlineOrders", "notifications", "auditLogs", "advancedReports"
 ];
 const defaultFlags = {
   pos: true, appointments: false, inventory: false, crm: true, 
-  ecommerce: false, digitalCatalog: true,
+  ecommerce: false,
   catalogAnalytics: false, feedback: false, reports: true, memberships: false, packages: false,
   loyalty: false, couponsGiftCards: false, whatsapp: false, enquiries: false, expenses: false,
-  attendance: false, leaves: true, customerPortal: false,
+  attendance: false,
   publicCatalog: true, onlineOrders: false, notifications: true,
   auditLogs: true, advancedReports: true
 };

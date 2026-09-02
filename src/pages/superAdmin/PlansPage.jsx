@@ -18,11 +18,11 @@ const FEATURE_CATEGORIES = [
   },
   {
     label: "Online Business",
-    flags: ["ecommerce", "digitalCatalog", "onlineOrders", "customerPortal"]
+    flags: ["ecommerce", "onlineOrders"]
   },
   {
     label: "Staff",
-    flags: ["attendance", "leaves", "payroll"]
+    flags: ["attendance"]
   },
   {
     label: "Customer Engagement",
@@ -48,12 +48,8 @@ const FLAG_LABELS = {
   couponsGiftCards: "Coupons / Gift Cards",
   enquiries: "Enquiries",
   ecommerce: "Ecommerce",
-  digitalCatalog: "Digital Catalog",
   onlineOrders: "Online Booking",
-  customerPortal: "Customer Portal",
   attendance: "Attendance",
-  leaves: "Leaves",
-  payroll: "Payroll",
   whatsapp: "WhatsApp",
   notifications: "Notifications",
   feedback: "Feedback",
