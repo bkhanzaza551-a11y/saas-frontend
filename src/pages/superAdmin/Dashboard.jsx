@@ -16,11 +16,23 @@ export default function SuperAdminDashboard() {
   const [period, setPeriod] = useState("lifetime");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [isFetching, setIsFetching] = useState(false);
   const [showFabMenu, setShowFabMenu] = useState(false);
   const navigate = useNavigate();
 
+  const handlePeriodChange = (val) => {
+    setPeriod(val);
+    if (val === "custom" && (!dateFrom || !dateTo)) {
+      const todayStr = new Date().toISOString().split("T")[0];
+      const pastStr = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      setDateFrom(pastStr);
+      setDateTo(todayStr);
+    }
+  };
+
   const fetchDashboard = useCallback(() => {
     setError("");
+    setIsFetching(true);
     const params = { period };
     if (period === "custom") {
       if (dateFrom) params.dateFrom = dateFrom;
@@ -28,7 +40,8 @@ export default function SuperAdminDashboard() {
     }
     api.get("/super-admin/dashboard", { params })
       .then((res) => setData(res.data))
-      .catch((err) => setError(err?.response?.data?.message || "Could not load dashboard."));
+      .catch((err) => setError(err?.response?.data?.message || "Could not load dashboard."))
+      .finally(() => setIsFetching(false));
   }, [period, dateFrom, dateTo]);
 
   useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
@@ -201,7 +214,14 @@ export default function SuperAdminDashboard() {
         <div className="item-head">
           <div style={{ cursor: "pointer" }} onClick={() => navigate("/super-admin/dashboard")}>
             <h1 style={{ marginTop: 0 }}>Dashboard</h1>
-            <p style={{ marginBottom: 0 }}>Live SaaS overview for salons, subscriptions, leads, and support.</p>
+            <p style={{ marginBottom: 0 }}>
+              Live SaaS overview for salons, subscriptions, leads, and support.
+              {period !== "lifetime" && (
+                <span style={{ marginLeft: 8, fontSize: "0.78rem", fontWeight: 700, color: "#4f46e5", background: "#eef2ff", padding: "2px 8px", borderRadius: 6 }}>
+                  {period === "today" ? "Showing: Today" : period === "month" ? "Showing: This Month" : `Showing: ${dateFrom || "..."} to ${dateTo || "..."}`}
+                </span>
+              )}
+            </p>
           </div>
           <div className="sa-date-filter-wrap">
             <div className="sa-date-pills">
@@ -211,7 +231,7 @@ export default function SuperAdminDashboard() {
                   <button
                     key={opt.value}
                     type="button"
-                    onClick={() => setPeriod(opt.value)}
+                    onClick={() => handlePeriodChange(opt.value)}
                     className={`sa-date-pill ${isActive ? "active" : ""}`}
                     style={{
                       background: isActive ? "#ffffff" : "transparent",
@@ -246,6 +266,8 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
       </div>
+
+      <div style={{ opacity: isFetching ? 0.6 : 1, transition: "opacity 0.2s ease" }}>
 
       {/* Attention Required Section - Embedded Clean Dashboard Widget */}
       {showAttention && roleConfig.attention && data.attentionRequired && (
@@ -589,6 +611,8 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
         )}
+      </div>
+
       </div>
 
       {/* Floating "+" Quick Action FAB Button */}
