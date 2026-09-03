@@ -1037,7 +1037,7 @@ const toLocalIsoDateTime = (dt) => {
                             type="button"
                             onClick={(e) => { e.stopPropagation(); reactivateLead(row.id); }}
                             title="Reactivate this lost lead"
-                            disabled={isBusy && actionType === "reactivate"}
+                            disabled={busyId === row.id && actionType === "reactivate"}
                             style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 11px", background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}
                           >
                             <RotateCcw size={11} /> Reactivate
