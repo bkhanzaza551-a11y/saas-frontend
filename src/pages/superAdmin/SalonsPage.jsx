@@ -366,12 +366,6 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <p style={{ marginBottom: 0 }}>Create, activate, suspend, and inspect every salon from one control surface.</p>
           </div>
           <div className="badge-row" style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button type="button" onClick={handleExportCustomers} style={{ background: "#eff6ff", color: "#3b82f6", padding: "8px 16px", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background="#dbeafe"} onMouseOut={e => e.currentTarget.style.background="#eff6ff"}>
-              Export Customers
-            </button>
-            <button type="button" onClick={handleExportInventory} style={{ background: "#ecfdf5", color: "#10b981", padding: "8px 16px", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background="#d1fae5"} onMouseOut={e => e.currentTarget.style.background="#ecfdf5"}>
-              Export Inventory
-            </button>
             <span className="badge" style={{ padding: "8px 12px", background: "#f8fafc", color: "#64748b", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", border: "1px solid #e2e8f0" }}>Total {salons.length}</span>
           </div>
         </div>
@@ -571,11 +565,6 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             <h3 style={{ margin: 0 }}>All Salons</h3>
             <span className="badge" style={{ background: "#e0e7ff", color: "#4f46e5" }}>{salons.length} salons</span>
           </div>
-          {canAddSalon && (
-            <button type="button" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ display: "flex", alignItems: "center", gap: 6, minHeight: 38, padding: "8px 16px" }}>
-              <span>+ Add New Salon</span>
-            </button>
-          )}
         </div>
 
         {loading ? (
@@ -681,7 +670,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             </table>
           </div>
         ) : (
-          <EmptyState title="No salons found" message="Try broadening your search or click '+ Add New Salon'." />
+          <EmptyState title="No salons found" message="Try broadening your search or check your filters." />
         )}
       </div>
 
