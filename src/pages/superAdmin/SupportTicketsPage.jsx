@@ -805,23 +805,9 @@ export default function SuperAdminSupportTicketsPage() {
                           <button
                             disabled={isSendingReply}
                             onClick={() => sendReply(selectedTicket.id, "IN_PROGRESS")}
-                            style={{ background: "#4f46e5", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: 6, opacity: isSendingReply ? 0.7 : 1 }}
+                            style={{ background: "#4f46e5", color: "white", border: "none", padding: "9px 20px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: 6, opacity: isSendingReply ? 0.7 : 1, boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)" }}
                           >
-                            <Send size={13} /> {isSendingReply ? "Sending..." : "Reply"}
-                          </button>
-                          <button
-                            disabled={isSendingReply}
-                            onClick={() => sendReply(selectedTicket.id, "WAITING_FOR_SALON")}
-                            style={{ background: "#d97706", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.82rem", opacity: isSendingReply ? 0.7 : 1 }}
-                          >
-                            {isSendingReply ? "Updating..." : "Reply & Wait for Salon"}
-                          </button>
-                          <button
-                            disabled={isSendingReply}
-                            onClick={() => sendReply(selectedTicket.id, "RESOLVED")}
-                            style={{ background: "#16a34a", color: "white", border: "none", padding: "8px 16px", fontWeight: 700, borderRadius: 8, cursor: isSendingReply ? "not-allowed" : "pointer", fontSize: "0.82rem", opacity: isSendingReply ? 0.7 : 1 }}
-                          >
-                            {isSendingReply ? "Resolving..." : "Reply & Resolve"}
+                            <Send size={14} /> {isSendingReply ? "Sending..." : "Reply"}
                           </button>
                         </div>
                       </>
