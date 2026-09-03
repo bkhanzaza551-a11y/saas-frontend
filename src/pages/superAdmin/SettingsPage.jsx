@@ -809,13 +809,6 @@ export default function SuperAdminSettingsPage() {
                       </CustomSelect>
                     </Field>
                     <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="India" /></Field>
-                    <Field label="Date Format">
-                      <CustomSelect value={form.dateFormat} onChange={e => setForm(p => ({ ...p, dateFormat: e.target.value }))}>
-                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                      </CustomSelect>
-                    </Field>
                   </div>
                   <TabSaveButton tabName="general" />
                 </div>
