@@ -20,9 +20,9 @@ const PAGE_GROUP_LABELS = {
 
 const PERMISSION_PRESETS = [
   { label: "Sales", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans"] },
-  { label: "Support", permissions: ["dashboard", "support-tickets", "salons"] },
-  { label: "Finance", permissions: ["dashboard", "finance", "subscriptions", "plans", "salons"] },
-  { label: "Operations", permissions: ["dashboard", "salons", "subscriptions", "sales-pipeline", "support-tickets", "product-requests", "staff-requests", "finance"] },
+  { label: "Support", permissions: ["dashboard", "support-tickets", "product-requests", "staff-requests"] },
+  { label: "Finance", permissions: ["dashboard", "finance", "subscriptions", "plans"] },
+  { label: "Operations", permissions: ["dashboard", "salons", "subscriptions", "product-requests", "staff-requests"] },
   { label: "Platform Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans", "product-requests", "staff-requests", "support-tickets", "finance", "credits", "staff", "settings", "audit-logs"] },
   { label: "Super Admin", permissions: ["dashboard", "sales-pipeline", "salons", "subscriptions", "plans", "product-requests", "staff-requests", "support-tickets", "finance", "credits", "staff", "settings", "audit-logs"] }
 ];
