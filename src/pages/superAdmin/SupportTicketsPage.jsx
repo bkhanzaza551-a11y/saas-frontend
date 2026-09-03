@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -85,6 +85,26 @@ export default function SuperAdminSupportTicketsPage() {
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
+
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+
+  const scrollToBottom = (behavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: "end" });
+    } else if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTicket && detailTab === "conversation") {
+      const timer = setTimeout(() => {
+        scrollToBottom("auto");
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedTicket?.id, selectedTicket?.messages?.length, detailTab]);
 
   const buildParams = (f) => {
     const p = {};
@@ -193,7 +213,12 @@ export default function SuperAdminSupportTicketsPage() {
       triggerReload();
       if (selectedTicket && selectedTicket.id === ticketId) {
         const updatedTicket = (await api.get(`/super-admin/support-tickets/${ticketId}`)).data;
-        if (updatedTicket) setSelectedTicket(updatedTicket);
+        if (updatedTicket) {
+          setSelectedTicket(updatedTicket);
+          setTimeout(() => {
+            scrollToBottom("smooth");
+          }, 80);
+        }
         setDrawerStatus({ error: "", success: "Support reply sent successfully!" });
         setTimeout(() => setDrawerStatus(s => ({ ...s, success: "" })), 3000);
       }
@@ -658,7 +683,7 @@ export default function SuperAdminSupportTicketsPage() {
                 </div>
 
                 {/* Stream Content */}
-                <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+                <div ref={messagesContainerRef} style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
                   {detailTab === "conversation" ? (
                     <>
                       {/* Customer Initial Query Card */}
@@ -730,6 +755,7 @@ export default function SuperAdminSupportTicketsPage() {
                           </div>
                         );
                       })}
+                      <div ref={messagesEndRef} style={{ height: 1, width: "100%" }} />
                     </>
                   ) : (
                     /* Activity Tab */

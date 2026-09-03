@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
@@ -37,6 +37,23 @@ export default function SupportTicketsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [replyingId, setReplyingId] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = (behavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: "end" });
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTicket) {
+      const timer = setTimeout(() => {
+        scrollToBottom("auto");
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedTicket?.id, selectedTicket?.messages?.length]);
 
   const permissions = auth?.membership?.permissions || {};
   const canCreateTicket = Array.isArray(permissions.support) && permissions.support.includes("create");
@@ -107,6 +124,9 @@ export default function SupportTicketsPage() {
       setReplyAttachments((current) => ({ ...current, [ticketId]: "" }));
       if (res.data) {
         setSelectedTicket(res.data);
+        setTimeout(() => {
+          scrollToBottom("smooth");
+        }, 80);
       }
       triggerReload();
       setStatus({ error: "", success: "Reply sent to support desk." });
@@ -596,6 +616,7 @@ export default function SupportTicketsPage() {
                         </div>
                       );
                     })}
+                    <div ref={messagesEndRef} style={{ height: 1, width: "100%" }} />
                   </div>
                 </div>
               )}
