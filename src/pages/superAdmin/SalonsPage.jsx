@@ -14,18 +14,20 @@ import { MapPin, Scissors, Users, UserCheck, Mail, Phone, Shield, Activity, Land
 const businessTypes = ["Salon", "Spa", "Beauty Clinic", "Nail Studio", "Tattoo Studio", "Pet Grooming", "Wellness Center"];
 const featureFlagKeys = [
   "pos", "appointments", "inventory", "crm", 
+  "whatsapp", "sms", "notifications",
   "ecommerce", "catalogAnalytics", "feedback", "reports", "memberships",
-  "packages", "couponsGiftCards", "whatsapp", "enquiries", "expenses",
+  "packages", "couponsGiftCards", "enquiries", "expenses",
   "attendance", "publicCatalog",
-  "onlineOrders", "notifications", "auditLogs"
+  "onlineOrders", "auditLogs"
 ];
 const defaultFlags = {
   pos: true, appointments: false, inventory: false, crm: true, 
+  whatsapp: false, sms: false, notifications: true,
   ecommerce: false,
   catalogAnalytics: false, feedback: false, reports: true, memberships: false, packages: false,
-  couponsGiftCards: false, whatsapp: false, enquiries: false, expenses: false,
+  couponsGiftCards: false, enquiries: false, expenses: false,
   attendance: false,
-  publicCatalog: true, onlineOrders: false, notifications: true,
+  publicCatalog: true, onlineOrders: false,
   auditLogs: true
 };
 const emptyForm = {
@@ -798,7 +800,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                       return (
                         <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f8fafc", border: "1px solid #f1f5f9", borderRadius: 8 }}>
                           <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", textTransform: "capitalize" }}>
-                            {key === "onlineOrders" ? "Online Booking" : key.replace(new RegExp("([A-Z])", "g"), " $1")}
+                            {key === "whatsapp" ? "WhatsApp Automations" : key === "sms" ? "SMS Automations" : key === "onlineOrders" ? "Online Booking" : key.replace(new RegExp("([A-Z])", "g"), " $1")}
                           </span>
                           <div 
                             onClick={() => toggleFeature(selectedSalon.id, key)}

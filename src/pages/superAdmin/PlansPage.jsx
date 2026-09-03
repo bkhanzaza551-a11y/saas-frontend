@@ -13,6 +13,10 @@ const FEATURE_CATEGORIES = [
     flags: ["pos", "appointments", "crm", "inventory"]
   },
   {
+    label: "Automations",
+    flags: ["whatsapp", "sms", "notifications"]
+  },
+  {
     label: "Marketing & Growth",
     flags: ["couponsGiftCards", "enquiries"]
   },
@@ -26,7 +30,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     label: "Customer Engagement",
-    flags: ["whatsapp", "notifications", "feedback"]
+    flags: ["feedback"]
   },
   {
     label: "Finance & Memberships",
@@ -44,15 +48,16 @@ const FLAG_LABELS = {
   appointments: "Appointments",
   crm: "Customer CRM",
   inventory: "Inventory & Stock",
+  whatsapp: "WhatsApp Automations",
+  sms: "SMS Automations",
+  notifications: "Automated Notifications",
   couponsGiftCards: "Coupons / Gift Cards",
   enquiries: "Enquiries",
   ecommerce: "Website / Ecommerce",
   onlineOrders: "Online Booking",
   catalogAnalytics: "Website Analytics",
   attendance: "Attendance",
-  whatsapp: "WhatsApp",
-  notifications: "Notifications",
-  feedback: "Feedback",
+  feedback: "Feedback & Reviews",
   expenses: "Expenses",
   memberships: "Memberships",
   packages: "Packages",
