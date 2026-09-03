@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import PageLoader from "../../components/PageLoader";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
@@ -15,6 +15,9 @@ const navItems = [
 
 export default function DemoCheckoutPage() {
   const { leadId, planId } = useParams();
+  const [searchParams] = useSearchParams();
+  const finalPriceParam = searchParams.get("finalPrice");
+
   const navigate = useNavigate();
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +29,8 @@ export default function DemoCheckoutPage() {
 
   useEffect(() => {
     document.title = "Checkout & Subscribe | Salon Nest";
-    api.get(`/public/demo-checkout-info/${leadId}/${planId}`)
+    const queryStr = finalPriceParam ? `?finalPrice=${encodeURIComponent(finalPriceParam)}` : "";
+    api.get(`/public/demo-checkout-info/${leadId}/${planId}${queryStr}`)
       .then((res) => {
         setInfo(res.data);
         setLoading(false);
@@ -41,7 +45,7 @@ export default function DemoCheckoutPage() {
         setError(formatApiError(err, "Could not fetch checkout information. Please verify link details."));
         setLoading(false);
       });
-  }, [leadId, planId]);
+  }, [leadId, planId, finalPriceParam]);
 
   const loadScript = (src) => {
     return new Promise((resolve) => {
@@ -65,7 +69,10 @@ export default function DemoCheckoutPage() {
 
       let res;
       try {
-        res = await api.post(`/public/demo-checkout/${leadId}/razorpay-order`, { planId });
+        res = await api.post(`/public/demo-checkout/${leadId}/razorpay-order`, { 
+          planId,
+          finalPrice: info?.price 
+        });
       } catch (orderErr) {
         const status = orderErr?.response?.status;
         const msg = (orderErr?.response?.data?.message || "").toLowerCase();
@@ -108,6 +115,7 @@ export default function DemoCheckoutPage() {
             const verifyRes = await api.post(`/public/demo-checkout/verify-razorpay`, {
               leadId,
               planId,
+              finalPrice: info?.price,
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature
@@ -292,24 +300,32 @@ export default function DemoCheckoutPage() {
                   </div>
                   <div className="ledger-item">
                     <span className="muted">Branches Allowed</span>
-                    <strong>Unlimited</strong>
+                    <strong>{info?.limits?.branches >= 9999 ? "Unlimited" : `${info?.limits?.branches || 1} Location${(info?.limits?.branches || 1) > 1 ? "s" : ""}`}</strong>
                   </div>
                   <div className="ledger-item">
                     <span className="muted">Stylist & Admin Accounts</span>
-                    <strong>{info?.limits?.users} Users</strong>
+                    <strong>{info?.limits?.users || 5} Users</strong>
                   </div>
                   <div className="ledger-item">
                     <span className="muted">CRM Client Limit</span>
-                    <strong>{info?.limits?.customers} Contacts</strong>
+                    <strong>{Number(info?.limits?.customers || 500).toLocaleString("en-IN")} Contacts</strong>
                   </div>
                   <div className="ledger-item">
-                    <span className="muted">POS Invoices / month</span>
-                    <strong>{info?.limits?.invoices} Receipts</strong>
+                    <span className="muted">POS Invoices / year</span>
+                    <strong>{Number(info?.limits?.invoices || 1000).toLocaleString("en-IN")} Receipts</strong>
                   </div>
                   <div className="ledger-item">
                     <span className="muted">Base Annual Fee</span>
-                    <span>INR {Number(info?.price || 0).toLocaleString("en-IN")}</span>
+                    <span style={info?.discountAmount > 0 ? { textDecoration: "line-through", color: "#94a3b8" } : {}}>
+                      INR {Number(info?.originalPrice || info?.price || 0).toLocaleString("en-IN")}
+                    </span>
                   </div>
+                  {info?.discountAmount > 0 && (
+                    <div className="ledger-item" style={{ color: "#16a34a" }}>
+                      <span className="muted">Special Discount</span>
+                      <strong style={{ color: "#16a34a" }}>- INR {Number(info.discountAmount).toLocaleString("en-IN")}</strong>
+                    </div>
+                  )}
                   <div className="ledger-item" style={{ color: "#16a34a" }}>
                     <span className="muted">Setup Cost</span>
                     <span>₹0 (Waived)</span>
@@ -317,7 +333,7 @@ export default function DemoCheckoutPage() {
                 </div>
 
                 <div className="ledger-total">
-                  <span style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1e293b" }}>Total Recurring:</span>
+                  <span style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1e293b" }}>Grand Total Payable:</span>
                   <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#0f766e" }}>INR {Number(info?.price || 0).toLocaleString("en-IN")} <small style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>/ year</small></span>
                 </div>
               </div>
