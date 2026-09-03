@@ -705,8 +705,13 @@ const toLocalIsoDateTime = (dt) => {
         }
         .crm-overview-grid {
           display: grid;
-          grid-template-columns: 1.3fr 1.1fr 1.2fr 0.9fr 0.8fr;
-          gap: 10px;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+        .crm-overview-meta-grid {
+          display: grid;
+          grid-template-columns: 1.2fr 1fr 1fr;
+          gap: 14px;
         }
         .crm-modal-grid-3col {
           display: grid;
@@ -760,7 +765,11 @@ const toLocalIsoDateTime = (dt) => {
             gap: 10px !important;
           }
           .crm-overview-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .crm-overview-meta-grid {
+            grid-template-columns: 1fr 1fr !important;
             gap: 10px !important;
           }
         }
@@ -1184,48 +1193,48 @@ const toLocalIsoDateTime = (dt) => {
                       </div>
                     )}
 
-                    {/* Contact & Primary Info 1-Row Grid */}
-                    <div className="crm-overview-grid">
-                      {/* 1. Email Box with Modern Sleek Edit Button */}
-                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.04em" }}>Email</span>
+                    {/* Section 1: Contact Information (2 Columns) */}
+                    <div className="crm-overview-grid" style={{ marginBottom: 14 }}>
+                      {/* 1. Email Box with Modern Inline Editor */}
+                      <div style={{ background: "#ffffff", borderRadius: 12, padding: "16px 18px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Address</span>
                           {!isConverted && !editingEmail && (
                             <button
                               type="button"
                               onClick={() => { setEditingEmail(true); setInlineEmailInput(row.email || ""); }}
                               style={{
                                 background: "#f1f5f9",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid #cbd5e1",
                                 color: "#4f46e5",
-                                borderRadius: 6,
-                                padding: "3px 7px",
+                                borderRadius: 7,
+                                padding: "4px 9px",
                                 fontSize: 11,
                                 fontWeight: 700,
                                 cursor: "pointer",
                                 display: "inline-flex",
                                 alignItems: "center",
                                 gap: 4,
-                                transition: "all 0.15s ease",
-                                boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+                                transition: "all 0.15s ease"
                               }}
                               title="Edit Email"
                               onMouseOver={e => { e.currentTarget.style.background = "#e0e7ff"; e.currentTarget.style.color = "#4338ca"; e.currentTarget.style.borderColor = "#c7d2fe"; }}
-                              onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                              onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#4f46e5"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
                             >
-                              <Edit2 size={10} /> {row.email ? "Edit" : "+ Add"}
+                              <Edit2 size={11} /> {row.email ? "Edit" : "+ Add"}
                             </button>
                           )}
                         </div>
+
                         {editingEmail ? (
-                          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
                             <input
                               type="email"
                               autoFocus
-                              placeholder="Enter email..."
+                              placeholder="e.g. contact@salon.com"
                               value={inlineEmailInput}
                               onChange={e => setInlineEmailInput(e.target.value)}
-                              style={{ flex: 1, padding: "5px 8px", borderRadius: 6, border: "1.5px solid #6366f1", fontSize: 12, outline: "none", minWidth: 0, background: "#fff" }}
+                              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #4f46e5", fontSize: 13, outline: "none", background: "#fff", boxSizing: "border-box", color: "#0f172a", fontWeight: 600 }}
                               onKeyDown={e => {
                                 if (e.key === "Enter") {
                                   e.preventDefault();
@@ -1235,44 +1244,53 @@ const toLocalIsoDateTime = (dt) => {
                                 }
                               }}
                             />
-                            <button
-                              type="button"
-                              disabled={savingEmail}
-                              onClick={() => saveLeadEmail(row.id, inlineEmailInput)}
-                              style={{ background: "#10b981", color: "#fff", border: "none", borderRadius: 6, width: 26, height: 26, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-                              title="Save"
-                            >
-                              {savingEmail ? <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> : <Check size={12} />}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingEmail(false)}
-                              style={{ background: "#e2e8f0", color: "#475569", border: "none", borderRadius: 6, width: 26, height: 26, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-                              title="Cancel"
-                            >
-                              <X size={12} />
-                            </button>
+                            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                              <button
+                                type="button"
+                                onClick={() => setEditingEmail(false)}
+                                style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 7, padding: "5px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                disabled={savingEmail}
+                                onClick={() => saveLeadEmail(row.id, inlineEmailInput)}
+                                style={{ background: "#10b981", color: "#fff", border: "none", borderRadius: 7, padding: "5px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5, boxShadow: "0 2px 4px rgba(16, 185, 129, 0.25)" }}
+                              >
+                                {savingEmail ? <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> : <Check size={12} />} Save Email
+                              </button>
+                            </div>
                           </div>
                         ) : (
-                          <div style={{ fontSize: 13, color: row.email ? "#0f172a" : "#ef4444", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={row.email}>
-                            <Mail size={13} color={row.email ? "#6366f1" : "#ef4444"} style={{ flexShrink: 0 }} />
-                            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{row.email ? row.email : <span style={{ fontStyle: "italic", fontSize: 11, fontWeight: 500 }}>No email provided</span>}</span>
+                          <div style={{ fontSize: 14, color: row.email ? "#0f172a" : "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                            <div style={{ width: 30, height: 30, borderRadius: 8, background: "#eef2ff", color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <Mail size={15} />
+                            </div>
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {row.email || <span style={{ fontStyle: "italic", fontSize: 12, fontWeight: 500 }}>No email provided</span>}
+                            </span>
                           </div>
                         )}
                       </div>
 
                       {/* 2. Phone Box */}
-                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Phone</div>
-                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-                          <Phone size={13} color="#6366f1" style={{ flexShrink: 0 }} />
+                      <div style={{ background: "#ffffff", borderRadius: 12, padding: "16px 18px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Phone Number</div>
+                        <div style={{ fontSize: 14, color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: "#ecfdf5", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <Phone size={15} />
+                          </div>
                           <span>{row.phone}</span>
                         </div>
                       </div>
+                    </div>
 
+                    {/* Section 2: Meta Details (3 Columns) */}
+                    <div className="crm-overview-meta-grid" style={{ marginBottom: 14 }}>
                       {/* 3. Lead Owner / Assigned To */}
-                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 12px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>Assigned To</div>
+                      <div style={{ background: "#ffffff", borderRadius: 12, padding: "14px 16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Assigned Sales Rep</div>
                         <CustomSelect
                           disabled={isConverted}
                           value={draft.assignedUserId}
@@ -1280,7 +1298,7 @@ const toLocalIsoDateTime = (dt) => {
                             updateDraft(row.id, "assignedUserId", e.target.value);
                             api.put(`/super-admin/demo-leads/${row.id}`, { assignedUserId: e.target.value }).catch(console.error);
                           }}
-                          style={{ width: "100%", minHeight: 32, fontSize: "0.8rem" }}
+                          style={{ width: "100%", height: 36, fontSize: "0.82rem" }}
                         >
                           <option value="">Unassigned</option>
                           {staff.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -1288,40 +1306,63 @@ const toLocalIsoDateTime = (dt) => {
                       </div>
 
                       {/* 4. Lead Source */}
-                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Source</div>
-                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                          <span>🏷️ {row.leadSource || "Direct Website"}</span>
+                      <div style={{ background: "#ffffff", borderRadius: 12, padding: "14px 16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Lead Source</div>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, height: 36 }}>
+                          <span style={{ background: "#f1f5f9", padding: "4px 10px", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                            🏷️ {row.leadSource || "Direct Website"}
+                          </span>
                         </div>
                       </div>
 
                       {/* 5. Added On */}
-                      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 68 }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Added On</div>
-                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-                          <Clock size={13} color="#6366f1" style={{ flexShrink: 0 }} />
-                          <span>{new Date(row.createdAt).toLocaleDateString()}</span>
+                      <div style={{ background: "#ffffff", borderRadius: 12, padding: "14px 16px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Added</div>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, height: 36 }}>
+                          <Clock size={14} color="#6366f1" style={{ flexShrink: 0 }} />
+                          <span>{new Date(row.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Message */}
+                    {/* Section 3: Inquiry Message */}
                     {row.message && (
-                      <div style={{ background: "#fefce8", border: "1px solid #fef08a", borderRadius: 10, padding: "14px 16px" }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#92400e", textTransform: "uppercase", marginBottom: 5 }}>Inquiry Message</div>
-                        <p style={{ margin: 0, fontSize: 13, color: "#451a03", lineHeight: 1.6 }}>"{row.message}"</p>
+                      <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "16px 18px", marginBottom: 14 }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: "#92400e", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Client Inquiry Message</div>
+                        <p style={{ margin: 0, fontSize: 13, color: "#78350f", lineHeight: 1.6, fontWeight: 500 }}>"{row.message}"</p>
                       </div>
                     )}
 
-                    {/* Contacted Quick Action */}
-                    {!isConverted && row.status === "NEW" && (
-                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    {/* Section 4: Quick Action Bar */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, paddingTop: 6 }}>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => setLeadModalTab("demo")}
+                          style={{ padding: "8px 14px", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 12, fontWeight: 700, color: "#334155", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                          onMouseOver={e => e.currentTarget.style.background = "#eef2ff"}
+                          onMouseOut={e => e.currentTarget.style.background = "#f8fafc"}
+                        >
+                          <Video size={13} color="#4f46e5" /> Schedule Demo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLeadModalTab("followups")}
+                          style={{ padding: "8px 14px", background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 12, fontWeight: 700, color: "#334155", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                          onMouseOver={e => e.currentTarget.style.background = "#eef2ff"}
+                          onMouseOut={e => e.currentTarget.style.background = "#f8fafc"}
+                        >
+                          <Calendar size={13} color="#6366f1" /> Follow-Ups & Notes
+                        </button>
+                      </div>
+
+                      {!isConverted && row.status === "NEW" && (
                         <button
                           onClick={() => { markContacted(row.id); }}
                           disabled={isBusy}
                           style={{
                             padding: "9px 18px",
-                            background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "#8b5cf6",
+                            background: isBusy && actionType === "mark-contacted" ? "#7c3aed" : "linear-gradient(135deg, #8b5cf6, #6366f1)",
                             color: "#fff",
                             border: "none",
                             borderRadius: 8,
@@ -1330,7 +1371,8 @@ const toLocalIsoDateTime = (dt) => {
                             cursor: isBusy ? "not-allowed" : "pointer",
                             display: "flex",
                             alignItems: "center",
-                            gap: 6
+                            gap: 6,
+                            boxShadow: "0 2px 6px rgba(139, 92, 246, 0.3)"
                           }}
                         >
                           {isBusy && actionType === "mark-contacted" ? (
@@ -1341,8 +1383,8 @@ const toLocalIsoDateTime = (dt) => {
                             "✓ Mark as Contacted"
                           )}
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 )}
 
