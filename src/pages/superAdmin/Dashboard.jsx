@@ -691,7 +691,7 @@ export default function SuperAdminDashboard() {
                           <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{salon.slug}</div>
                         </div>
                       </div>
-                      <span style={{ fontSize: "0.7rem", fontWeight: 750, color: salon.status === "ACTIVE" ? "#065f46" : salon.status === "TRIAL" ? "#92400e" : "#fee2e2", background: salon.status === "ACTIVE" ? "#d1fae5" : salon.status === "TRIAL" ? "#fef3c7" : "#fee2e2", padding: "4px 10px", borderRadius: 100, textTransform: "uppercase" }}>
+                      <span style={{ fontSize: "0.7rem", fontWeight: 750, color: salon.status === "ACTIVE" ? "#065f46" : salon.status === "TRIAL" ? "#92400e" : "#991b1b", background: salon.status === "ACTIVE" ? "#d1fae5" : salon.status === "TRIAL" ? "#fef3c7" : "#fee2e2", padding: "4px 10px", borderRadius: 100, textTransform: "uppercase" }}>
                         {salon.status}
                       </span>
                     </div>
