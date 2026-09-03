@@ -461,18 +461,9 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
 
             <form onSubmit={createOrUpdateSalon} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Salon Name *</span>
                   <input placeholder="Salon name" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Plan *</span>
-                  <CustomSelect 
-                    value={form.planId} 
-                    onChange={(e) => setForm({ ...form, planId: e.target.value })}
-                    options={plans.map(p => ({ label: p.name, value: p.id }))}
-                    placeholder="Select Plan"
-                  />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Country</span>
