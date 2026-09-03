@@ -29,7 +29,7 @@ const defaultFlags = {
   auditLogs: true
 };
 const emptyForm = {
-  name: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
+  name: "", phone: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
 };
 
 export default function SalonsPage() {
@@ -196,6 +196,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
       const planId = full.subscriptions?.[0]?.planId || "";
       setForm({
         name: full.name || "",
+        phone: full.phone || owner?.phone || "",
         ownerName: owner?.name || "", ownerEmail: owner?.email || "", ownerPhone: owner?.phone || "", planId,
         city: full.city || "", address: full.address || "", state: full.state || "", country: full.country || "", pinCode: full.pinCode || ""
       });
@@ -461,9 +462,18 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
 
             <form onSubmit={createOrUpdateSalon} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
-                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Salon Name *</span>
                   <input placeholder="Salon name" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Phone Number</span>
+                  <IndianPhoneInput
+                    value={form.phone}
+                    onChange={(phone) => setForm((prev) => ({ ...prev, phone }))}
+                    className="indian-phone-field"
+                    style={{ minHeight: 44, borderRadius: 8 }}
+                  />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Country</span>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Search, X } from "lucide-react";
 import "./CustomSelect.css";
 
 const extractOptionsFromChildren = (children) => {
@@ -72,6 +72,7 @@ const extractOptionsFromChildren = (children) => {
  * @param {Function} onChange - Callback receiving the new value, or event object mimicking native select (e.target.value).
  * @param {String} placeholder - Text when nothing is selected.
  * @param {Boolean} disabled - If true, select is disabled.
+ * @param {Boolean} searchable - If true, displays search input inside dropdown (default: true).
  * @param {Object} style - Optional inline styles for the container.
  * @param {String} className - Optional classes.
  * @param {String} id - Optional id.
@@ -84,6 +85,7 @@ export default function CustomSelect({
   onChange,
   placeholder = "Select...",
   disabled = false,
+  searchable = true,
   style = {},
   className = "",
   id,
@@ -105,8 +107,10 @@ export default function CustomSelect({
   }
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
   
   const normalizedOptions = useMemo(() => {
     let opts = [];
@@ -122,6 +126,30 @@ export default function CustomSelect({
     }
     return opts;
   }, [options, children]);
+
+  const filteredOptions = useMemo(() => {
+    if (!searchQuery.trim()) return normalizedOptions;
+    const q = searchQuery.toLowerCase().trim();
+    return normalizedOptions.reduce((acc, opt) => {
+      if (opt.groupLabel) {
+        const matchingSubs = (opt.options || []).filter(sub => {
+          const l = typeof sub.label === "string" ? sub.label : String(sub.label || "");
+          const v = String(sub.value || "");
+          return l.toLowerCase().includes(q) || v.toLowerCase().includes(q);
+        });
+        if (matchingSubs.length > 0) {
+          acc.push({ ...opt, options: matchingSubs });
+        }
+      } else {
+        const l = typeof opt.label === "string" ? opt.label : String(opt.label || "");
+        const v = String(opt.value || "");
+        if (l.toLowerCase().includes(q) || v.toLowerCase().includes(q)) {
+          acc.push(opt);
+        }
+      }
+      return acc;
+    }, []);
+  }, [normalizedOptions, searchQuery]);
 
   const findSelectedOption = () => {
     for (const opt of normalizedOptions) {
@@ -198,6 +226,16 @@ export default function CustomSelect({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setSearchQuery("");
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const toggleOpen = () => {
     if (disabled) return;
     setIsOpen(!isOpen);
@@ -223,12 +261,58 @@ export default function CustomSelect({
           className={`custom-select-dropdown ${isOpen ? "open" : ""}`}
           style={{ transformOrigin: dropdownStyle.transformOrigin }}
         >
-          {normalizedOptions.length === 0 ? (
-            <div className="custom-select-option" style={{ color: "#94a3b8", justifyContent: "center" }}>
-              No options
+          {searchable && normalizedOptions.length > 2 && (
+            <div 
+              className="custom-select-search-container"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="custom-select-search-wrapper">
+                <Search size={14} className="custom-select-search-icon" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setIsOpen(false);
+                    } else if (e.key === "Enter") {
+                      e.preventDefault();
+                      const firstOpt = filteredOptions[0];
+                      if (firstOpt) {
+                        if (firstOpt.groupLabel && firstOpt.options?.length > 0) {
+                          handleSelect(firstOpt.options[0].value);
+                        } else if (firstOpt.value !== undefined) {
+                          handleSelect(firstOpt.value);
+                        }
+                      }
+                    }
+                  }}
+                  className="custom-select-search-input"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      searchInputRef.current?.focus();
+                    }}
+                    className="custom-select-search-clear"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {filteredOptions.length === 0 ? (
+            <div className="custom-select-option" style={{ color: "#94a3b8", justifyContent: "center", padding: "12px 8px", fontSize: "12px" }}>
+              {searchQuery ? "No matching options found" : "No options"}
             </div>
           ) : (
-            normalizedOptions.map((opt, i) => {
+            filteredOptions.map((opt, i) => {
               if (opt.groupLabel) {
                 return (
                   <div key={`group-${i}`}>
