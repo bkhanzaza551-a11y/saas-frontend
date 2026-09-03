@@ -219,7 +219,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
                 <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "40px", maxWidth: "140px", objectFit: "contain" }} />
               </Link>
               
-              {/* Close Button for Mobile Screens */}
+              {/* Close Button for Mobile Screens Only */}
               <button 
                 type="button" 
                 onClick={closeWorkspace} 
@@ -231,7 +231,6 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
                   borderRadius: "50%", 
                   width: 34, 
                   height: 34, 
-                  display: "inline-flex", 
                   alignItems: "center", 
                   justifyContent: "center", 
                   cursor: "pointer",

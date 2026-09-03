@@ -2723,8 +2723,9 @@ pre {
     gap: 8px;
   }
 
-  .sidebar-mobile-close {
-    display: inline-flex;
+  .sidebar-mobile-close,
+  .sidebar-close-btn-mobile {
+    display: inline-flex !important;
   }
 
   .public-hero,
@@ -3642,9 +3643,14 @@ html, body {
     transition: margin-left 240ms ease, width 240ms ease;
   }
 
-  .sidebar-mobile-close {
+  .sidebar-mobile-close,
+  .sidebar-close-btn-mobile {
     display: none !important;
   }
+}
+
+.sidebar-close-btn-mobile {
+  display: none !important;
 }
 
 /* Dedicated Mini Rail Mode Styling */
