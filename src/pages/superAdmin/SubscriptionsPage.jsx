@@ -149,9 +149,9 @@ export default function SubscriptionsPage() {
   const openRenew = (sub) => {
     setRenewSub(sub);
     setRenewForm({
-      months: 1,
+      months: 12,
       paymentMethod: "OTHER",
-      amount: Number(sub.plan?.monthlyPrice || 0),
+      amount: Number(sub.plan?.yearlyPrice || (sub.plan?.monthlyPrice ? sub.plan.monthlyPrice * 10 : 0)),
       notes: ""
     });
     setIsRenewOpen(true);
@@ -438,7 +438,7 @@ export default function SubscriptionsPage() {
             style={{ width: "100%" }}
           >
             <option value="">All Subscription Plans</option>
-            {plans.map(p => <option key={p.id} value={p.id}>{p.name} (₹{Number(p.monthlyPrice).toLocaleString()}/mo)</option>)}
+            {plans.map(p => <option key={p.id} value={p.id}>{p.name} (₹{Number(p.yearlyPrice || (p.monthlyPrice ? p.monthlyPrice * 10 : 0)).toLocaleString()}/yr)</option>)}
           </CustomSelect>
           <CustomSelect
             value={paymentFilter}
@@ -490,7 +490,7 @@ export default function SubscriptionsPage() {
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ fontWeight: 600, color: "#0f172a" }}>{row.plan?.name || "—"}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>₹{Number(row.plan?.monthlyPrice || 0).toLocaleString()}/mo</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>₹{Number(row.plan?.yearlyPrice || (row.plan?.monthlyPrice ? row.plan.monthlyPrice * 10 : 0)).toLocaleString()}/yr</div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <span style={{ background: meta.bg, color: meta.color, padding: "3px 10px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>{meta.label}</span>
@@ -559,7 +559,7 @@ export default function SubscriptionsPage() {
                   style={{ width: "100%" }}
                 >
                   <option value="">Select plan</option>
-                  {plans.filter(p => !p.isArchived).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>)}
+                  {plans.filter(p => !p.isArchived).map(p => <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.yearlyPrice || (p.monthlyPrice ? p.monthlyPrice * 10 : 0)).toLocaleString()}/yr</option>)}
                 </CustomSelect>
               </label>
               <label>
@@ -620,7 +620,7 @@ export default function SubscriptionsPage() {
               {planChangeStep === 1 ? (
                 <>
                   <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: 8, fontSize: 13, border: "1px solid #e2e8f0" }}>
-                    <span style={{ color: "#64748b" }}>Current Plan:</span> <strong>{planChangeSub.plan?.name}</strong> (₹{Number(planChangeSub.plan?.monthlyPrice || 0).toLocaleString()}/mo)
+                    <span style={{ color: "#64748b" }}>Current Plan:</span> <strong>{planChangeSub.plan?.name}</strong> (₹{Number(planChangeSub.plan?.yearlyPrice || (planChangeSub.plan?.monthlyPrice ? planChangeSub.plan.monthlyPrice * 10 : 0)).toLocaleString()}/yr)
                   </div>
 
                   <label>
@@ -633,7 +633,7 @@ export default function SubscriptionsPage() {
                     >
                       <option value="">Select new plan package</option>
                       {plans.filter(p => !p.isArchived && p.id !== planChangeSub.planId).map(p => (
-                        <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.monthlyPrice).toLocaleString()}/mo</option>
+                        <option key={p.id} value={p.id}>{p.name} — ₹{Number(p.yearlyPrice || (p.monthlyPrice ? p.monthlyPrice * 10 : 0)).toLocaleString()}/yr</option>
                       ))}
                     </CustomSelect>
                   </label>
@@ -697,8 +697,8 @@ export default function SubscriptionsPage() {
                 <>
                   {(() => {
                     const nextPlan = plans.find(p => p.id === planChangeForm.planId);
-                    const oldPrice = Number(planChangeSub.plan?.monthlyPrice || 0);
-                    const newPrice = Number(nextPlan?.monthlyPrice || 0);
+                    const oldPrice = Number(planChangeSub.plan?.yearlyPrice || (planChangeSub.plan?.monthlyPrice ? planChangeSub.plan.monthlyPrice * 10 : 0));
+                    const newPrice = Number(nextPlan?.yearlyPrice || (nextPlan?.monthlyPrice ? nextPlan.monthlyPrice * 10 : 0));
                     const isUpgrade = newPrice > oldPrice;
 
                     return (
@@ -714,7 +714,7 @@ export default function SubscriptionsPage() {
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: "0.85rem", background: "#f8fafc", padding: 12, borderRadius: 8 }}>
                           <div><span style={{ color: "#64748b" }}>Timing:</span> <strong>{planChangeForm.timing === "IMMEDIATELY" ? "Immediate" : "On Next Renewal"}</strong></div>
-                          <div><span style={{ color: "#64748b" }}>New Price:</span> <strong>₹{newPrice.toLocaleString()}/mo</strong></div>
+                          <div><span style={{ color: "#64748b" }}>New Price:</span> <strong>₹{newPrice.toLocaleString()}/yr</strong></div>
                           <div><span style={{ color: "#64748b" }}>Effective:</span> <strong>{planChangeForm.effectiveDate}</strong></div>
                           <div><span style={{ color: "#64748b" }}>Features:</span> <strong>Auto-synced</strong></div>
                         </div>
@@ -1004,9 +1004,8 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
           </a>
         </div>
         <div className="subs-detail-grid">
-          <div><span style={{ color: "#64748b" }}>Plan Amount:</span> <strong>₹{Number(sub.plan?.monthlyPrice || 0).toLocaleString()}</strong> /month</div>
-          <div><span style={{ color: "#64748b" }}>Yearly Equivalent:</span> <strong>₹{Number(sub.plan?.yearlyPrice || 0).toLocaleString()}</strong> /year</div>
-          <div><span style={{ color: "#64748b" }}>Billing Cycle:</span> <strong>{sub.billingCycle || "Monthly"}</strong></div>
+          <div><span style={{ color: "#64748b" }}>Annual Plan Amount:</span> <strong>₹{Number(sub.plan?.yearlyPrice || (sub.plan?.monthlyPrice ? sub.plan.monthlyPrice * 10 : 0)).toLocaleString()}</strong> /year</div>
+          <div><span style={{ color: "#64748b" }}>Billing Cycle:</span> <strong>Annual (Yearly)</strong></div>
           <div><span style={{ color: "#64748b" }}>Payment Status:</span> <span style={{ color: sub.paymentStatus === "COMPLETED" ? "#10b981" : "#d97706", fontWeight: 700 }}>{sub.paymentStatus === "COMPLETED" ? "Paid" : sub.paymentStatus || "PENDING"}</span></div>
           {sub.manualDiscount > 0 && <div><span style={{ color: "#64748b" }}>Manual Discount:</span> <strong>₹{Number(sub.manualDiscount).toLocaleString()}</strong></div>}
           <div><span style={{ color: "#64748b" }}>Next Renewal:</span> <strong>{sub.endsAt ? new Date(sub.endsAt).toLocaleDateString() : "—"}</strong></div>

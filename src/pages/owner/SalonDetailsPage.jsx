@@ -108,7 +108,7 @@ export default function SalonDetailsPage() {
               <div>
                 <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#6366f1" }}>{plan.name}</div>
                 <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
-                  {fmtMoney(plan.monthlyPrice)}/month · {fmtMoney(plan.yearlyPrice)}/year
+                  {fmtMoney(plan.yearlyPrice || plan.monthlyPrice)}/year
                 </div>
               </div>
               <div className="sd-plan-dates" style={{ textAlign: "right" }}>

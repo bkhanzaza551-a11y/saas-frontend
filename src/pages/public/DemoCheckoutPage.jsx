@@ -100,7 +100,7 @@ export default function DemoCheckoutPage() {
         amount: order.amount,
         currency: order.currency,
         name: "Salon Nest Salon ERP",
-        description: `Subscription to ${info?.planName} Plan`,
+        description: `1-Year Annual Subscription to ${info?.planName || "Selected"} Plan`,
         order_id: order.orderId,
         handler: async function (response) {
           setSubmitting(true);
@@ -287,6 +287,10 @@ export default function DemoCheckoutPage() {
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <div className="ledger-item">
+                    <span className="muted">Billing Cycle</span>
+                    <strong>Annual (1 Year)</strong>
+                  </div>
+                  <div className="ledger-item">
                     <span className="muted">Branches Allowed</span>
                     <strong>Unlimited</strong>
                   </div>
@@ -303,8 +307,8 @@ export default function DemoCheckoutPage() {
                     <strong>{info?.limits?.invoices} Receipts</strong>
                   </div>
                   <div className="ledger-item">
-                    <span className="muted">Base Platform Fee</span>
-                    <span>INR {info?.price}</span>
+                    <span className="muted">Base Annual Fee</span>
+                    <span>INR {Number(info?.price || 0).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="ledger-item" style={{ color: "#16a34a" }}>
                     <span className="muted">Setup Cost</span>
@@ -314,7 +318,7 @@ export default function DemoCheckoutPage() {
 
                 <div className="ledger-total">
                   <span style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1e293b" }}>Total Recurring:</span>
-                  <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#0f766e" }}>INR {info?.price} <small style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>/ mo</small></span>
+                  <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#0f766e" }}>INR {Number(info?.price || 0).toLocaleString("en-IN")} <small style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>/ year</small></span>
                 </div>
               </div>
             </div>
@@ -366,7 +370,7 @@ export default function DemoCheckoutPage() {
                       Launching Secure Gateway...
                     </span>
                   ) : (
-                    `Pay INR ${info?.price} via Razorpay`
+                    `Pay INR ${Number(info?.price || 0).toLocaleString("en-IN")} via Razorpay`
                   )}
                 </button>
               </form>

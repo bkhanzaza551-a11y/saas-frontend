@@ -776,7 +776,6 @@ export default function MarketingHomePage() {
   const [activeTab, setActiveTab] = useState(interactiveModules[0].id);
   const [activeIndustry, setActiveIndustry] = useState(industriesData[0].id);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
-  const [isAnnualBilling, setIsAnnualBilling] = useState(false);
   const [selectedFeatureCategory, setSelectedFeatureCategory] = useState("All");
 
   const [contactForm, setContactForm] = useState({
@@ -1775,57 +1774,12 @@ export default function MarketingHomePage() {
               <p style={{ fontSize: "1.15rem", color: "#64748b", maxWidth: 680, margin: "0 auto 28px" }}>
                 Choose the plan engineered for your salon stage. Free onboarding, free staff training, and unlimited software updates included.
               </p>
-
-              {/* Monthly vs Annual Toggle */}
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 12, background: "#f1f5f9", padding: "6px 10px", borderRadius: 100, border: "1px solid #e2e8f0" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsAnnualBilling(false)}
-                  style={{
-                    padding: "8px 20px",
-                    borderRadius: 100,
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    background: !isAnnualBilling ? "#ffffff" : "transparent",
-                    color: !isAnnualBilling ? "#0f172a" : "#64748b",
-                    boxShadow: !isAnnualBilling ? "0 2px 8px rgba(0,0,0,0.08)" : "none"
-                  }}
-                >
-                  Monthly Billing
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsAnnualBilling(true)}
-                  style={{
-                    padding: "8px 20px",
-                    borderRadius: 100,
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    background: isAnnualBilling ? "#0d9488" : "transparent",
-                    color: isAnnualBilling ? "#ffffff" : "#64748b",
-                    boxShadow: isAnnualBilling ? "0 2px 8px rgba(13,148,136,0.3)" : "none",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6
-                  }}
-                >
-                  Annual Billing <span style={{ fontSize: 10.5, background: isAnnualBilling ? "rgba(255,255,255,0.25)" : "#dcfce7", color: isAnnualBilling ? "#fff" : "#15803d", padding: "2px 6px", borderRadius: 10, fontWeight: 800 }}>SAVE 20%</span>
-                </button>
-              </div>
             </div>
 
             {/* Plans Cards Grid */}
             <div className="marketing-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 28, marginBottom: 70 }}>
               {plans.map((plan, idx) => {
-                const displayPrice = isAnnualBilling
-                  ? Math.round(Number(plan.yearlyPrice) / 12)
-                  : Number(plan.monthlyPrice);
+                const displayPrice = Number(plan.yearlyPrice || (plan.monthlyPrice ? plan.monthlyPrice * 10 : 0));
 
                 return (
                   <div 
@@ -1862,13 +1816,11 @@ export default function MarketingHomePage() {
                         <span style={{ fontSize: "2.8rem", fontWeight: 900, color: "#0f172a", letterSpacing: "-0.03em" }}>
                           {displayPrice.toLocaleString("en-IN")}
                         </span>
-                        <span style={{ fontSize: 14, color: "#64748b", fontWeight: 600 }}>/month</span>
+                        <span style={{ fontSize: 14, color: "#64748b", fontWeight: 600 }}>/year</span>
                       </div>
                       
                       <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 24 }}>
-                        {isAnnualBilling 
-                          ? `Billed annually at ${currencySymbol}${Number(plan.yearlyPrice).toLocaleString("en-IN")}/yr`
-                          : "Billed monthly. Cancel anytime."}
+                        Billed annually. Cancel anytime.
                       </div>
 
                       {/* Quotas Box */}

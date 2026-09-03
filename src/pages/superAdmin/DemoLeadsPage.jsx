@@ -292,7 +292,7 @@ const toLocalIsoDateTime = (dt) => {
         assignedUserId: row.assignedUserId || "",
         nextFollowUpAt: toLocalIsoDateTime(row.nextFollowUpAt),
         city: row.city || "Mumbai",
-        billingCycle: "monthly"
+        billingCycle: "yearly"
       };
     }
     return map;
@@ -1442,7 +1442,7 @@ const toLocalIsoDateTime = (dt) => {
                     </div>
                     <div className="crm-modal-grid-2col">
                       <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan</label>
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan (Annual / Yearly)</label>
                         <CustomSelect 
                           disabled={isConverted} 
                           value={draft.planId} 
@@ -1455,14 +1455,14 @@ const toLocalIsoDateTime = (dt) => {
                               [row.id]: {
                                 ...(draftsById[row.id] || {}),
                                 planId: newPlanId,
-                                trialDays: planTrial
+                                trialDays: planTrial,
+                                billingCycle: "yearly"
                               }
                             }));
                           }} 
                           options={plans.map(p => {
-                            const isYearly = draft.billingCycle === "yearly";
-                            const priceVal = isYearly ? (p.yearlyPrice || (Number(p.monthlyPrice || 0) * 10)) : (p.monthlyPrice || 0);
-                            const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/${isYearly ? "yr" : "mo"}`;
+                            const priceVal = p.yearlyPrice || (Number(p.monthlyPrice || 0) * 10);
+                            const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/year`;
                             const trialText = p.trialDays !== undefined ? `${p.trialDays}d trial` : "14d trial";
                             return {
                               label: `${p.name} — ${priceText} (${trialText})`,
@@ -1472,8 +1472,10 @@ const toLocalIsoDateTime = (dt) => {
                         />
                       </div>
                       <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Billing Cycle</label>
-                        <CustomSelect disabled={isConverted} value={draft.billingCycle || "monthly"} onChange={e => updateDraft(row.id, "billingCycle", e.target.value)} options={[{ label: "Monthly", value: "monthly" }, { label: "Yearly", value: "yearly" }]} />
+                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Plan Duration</label>
+                        <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, padding: "9px 12px", fontSize: 13, fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                          <span>📅 1 Year (Annual Subscription)</span>
+                        </div>
                       </div>
                     </div>
                     <div className="crm-modal-grid-2col">

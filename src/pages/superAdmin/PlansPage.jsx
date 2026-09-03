@@ -64,7 +64,7 @@ const defaultFeatureFlags = {};
 ALL_FLAGS.forEach(f => { defaultFeatureFlags[f] = true; });
 
 const emptyForm = {
-  name: "", description: "", monthlyPrice: "", yearlyPrice: "", trialDays: 14,
+  name: "", description: "", yearlyPrice: "", trialDays: 14,
   branchLimit: 1, userLimit: 5, customerLimit: 500, invoiceLimit: 1000, storageLimit: 500,
   isCustom: false, isPopular: false, isActive: true, featureFlags: { ...defaultFeatureFlags }
 };
@@ -119,8 +119,7 @@ export default function PlansPage() {
     setForm({
       name: p.name,
       description: p.description || "",
-      monthlyPrice: p.monthlyPrice !== undefined && p.monthlyPrice !== null ? p.monthlyPrice : "",
-      yearlyPrice: p.yearlyPrice !== undefined && p.yearlyPrice !== null ? p.yearlyPrice : "",
+      yearlyPrice: p.yearlyPrice !== undefined && p.yearlyPrice !== null ? p.yearlyPrice : (p.monthlyPrice ? p.monthlyPrice * 10 : ""),
       trialDays: p.trialDays !== undefined && p.trialDays !== null ? p.trialDays : "",
       branchLimit: p.branchLimit !== undefined && p.branchLimit !== null ? p.branchLimit : "",
       userLimit: p.userLimit !== undefined && p.userLimit !== null ? p.userLimit : "",
@@ -198,22 +197,13 @@ export default function PlansPage() {
     }
   };
 
-  const pricingWarning = useMemo(() => {
-    const m = Number(form.monthlyPrice || 0);
-    const y = Number(form.yearlyPrice || 0);
-    if (m > 0 && y > 0 && y < m) {
-      return `⚠️ Warning: Yearly Price (₹${y.toLocaleString()}) is lower than a single Monthly Price (₹${m.toLocaleString()}).`;
-    }
-    return null;
-  }, [form.monthlyPrice, form.yearlyPrice]);
-
   const savePlan = async (e) => {
     e.preventDefault();
     const trimmedName = form.name.trim();
     if (!trimmedName) return setStatus({ error: "Plan name is required.", success: "" });
 
-    const mPrice = form.monthlyPrice === "" ? 0 : Number(form.monthlyPrice);
     const yPrice = form.yearlyPrice === "" ? 0 : Number(form.yearlyPrice);
+    const mPrice = Math.round(yPrice / 12);
     const tDays = form.trialDays === "" ? 0 : Number(form.trialDays);
     const bLimit = form.branchLimit === "" ? 1 : Number(form.branchLimit);
     const uLimit = form.userLimit === "" ? 5 : Number(form.userLimit);
@@ -221,7 +211,7 @@ export default function PlansPage() {
     const iLimit = form.invoiceLimit === "" ? 1000 : Number(form.invoiceLimit);
     const sLimit = form.storageLimit === "" ? 500 : Number(form.storageLimit);
 
-    if (mPrice < 0 || yPrice < 0) {
+    if (yPrice < 0) {
       return setStatus({ error: "Pricing cannot be negative.", success: "" });
     }
     if (tDays < 0 || bLimit < 0 || uLimit < 0 || cLimit < 0 || iLimit < 0 || sLimit < 0) {
@@ -230,8 +220,8 @@ export default function PlansPage() {
 
     const payload = {
       ...form,
-      monthlyPrice: mPrice,
       yearlyPrice: yPrice,
+      monthlyPrice: mPrice,
       trialDays: tDays,
       branchLimit: bLimit,
       userLimit: uLimit,
@@ -463,25 +453,12 @@ export default function PlansPage() {
                   <textarea rows={2} placeholder="Brief summary of who this plan is tailored for..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={{ padding: 10, borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, resize: "vertical" }} />
                 </label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Monthly Price (INR) *</span>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Yearly Price (₹/year) *</span>
                   <input
                     type="number"
                     min="0"
                     step="100"
-                    placeholder="0"
-                    value={form.monthlyPrice ?? ""}
-                    required
-                    onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
-                    onChange={e => setForm({ ...form, monthlyPrice: e.target.value })}
-                  />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Yearly Price (INR) *</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100"
-                    placeholder="0"
+                    placeholder="e.g. 19999"
                     value={form.yearlyPrice ?? ""}
                     required
                     onFocus={e => { if (e.target.value === "0" || e.target.value === "") e.target.select(); }}
@@ -500,12 +477,6 @@ export default function PlansPage() {
                   />
                 </label>
               </div>
-
-              {pricingWarning && (
-                <div style={{ padding: "8px 12px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, color: "#92400e", fontSize: "0.82rem", fontWeight: 600 }}>
-                  {pricingWarning}
-                </div>
-              )}
 
               <div>
                 <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>Usage Limits</h4>
@@ -757,15 +728,9 @@ function PlanCard({ plan, onEdit, onArchive }) {
         </p>
       )}
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 16, background: "#f8fafc", padding: "10px 12px", borderRadius: 8 }}>
-        <div>
-          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.monthlyPrice).toLocaleString()}</div>
-          <div style={{ fontSize: "0.7rem", color: "#64748b" }}>/month</div>
-        </div>
-        <div style={{ borderLeft: "1px solid #e2e8f0", paddingLeft: 16 }}>
-          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.yearlyPrice).toLocaleString()}</div>
-          <div style={{ fontSize: "0.7rem", color: "#64748b" }}>/year</div>
-        </div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 16, background: "#f8fafc", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+        <span style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a" }}>₹{Number(plan.yearlyPrice || plan.monthlyPrice || 0).toLocaleString()}</span>
+        <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>/ year (Annual Plan)</span>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 16, fontSize: "0.8rem" }}>
