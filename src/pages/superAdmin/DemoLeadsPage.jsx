@@ -296,7 +296,11 @@ const toLocalIsoDateTime = (dt) => {
         ...emptyDraft,
         salonName: row.salon?.name || `${row.name.split(" ")[0] || row.name} Salon`,
         planId: defaultPlan?.id || "",
+        isTrial: true,
         trialDays: planTrial,
+        hasDiscount: false,
+        discountType: "flat",
+        discountValue: 0,
         meetingScheduledAt: toLocalIsoDateTime(row.meetingScheduledAt),
         meetingLink: row.meetingLink || "",
         assignedUserId: row.assignedUserId || "",
@@ -307,6 +311,22 @@ const toLocalIsoDateTime = (dt) => {
     }
     return map;
   }, [rows, drafts, plans]);
+
+  const calculatePlanPrice = (planId, hasDiscount, discountType, discountValue) => {
+    const selectedPlan = plans.find(p => p.id === planId) || plans[0];
+    const basePrice = Number(selectedPlan?.yearlyPrice || (Number(selectedPlan?.monthlyPrice || 0) * 10) || 0);
+    let discountAmount = 0;
+    if (hasDiscount && Number(discountValue) > 0) {
+      if (discountType === "percent") {
+        const pct = Math.min(100, Math.max(0, Number(discountValue) || 0));
+        discountAmount = Math.round((basePrice * pct) / 100);
+      } else {
+        discountAmount = Math.min(basePrice, Math.max(0, Number(discountValue) || 0));
+      }
+    }
+    const grandTotal = Math.max(0, basePrice - discountAmount);
+    return { basePrice, discountAmount, grandTotal, selectedPlan };
+  };
 
   const updateDraft = (leadId, key, value) => {
     setDrafts(prev => ({
@@ -570,9 +590,15 @@ const toLocalIsoDateTime = (dt) => {
       setActionType("");
       return;
     }
+    const { grandTotal } = calculatePlanPrice(draft.planId, draft.hasDiscount, draft.discountType, draft.discountValue);
     try {
-      await api.post(`/super-admin/demo-leads/${leadId}/send-purchase-link`, { planId: draft.planId });
-      setFeedback({ error: "", success: "Purchase link sent to customer email!" });
+      await api.post(`/super-admin/demo-leads/${leadId}/send-purchase-link`, {
+        planId: draft.planId,
+        discountType: draft.hasDiscount ? draft.discountType : undefined,
+        discountValue: draft.hasDiscount ? Number(draft.discountValue) : undefined,
+        finalPrice: grandTotal
+      });
+      setFeedback({ error: "", success: `Purchase link (₹${grandTotal.toLocaleString("en-IN")}) sent to customer email!` });
       await load();
     } catch (error) {
       setFeedback({ error: formatApiError(error, "Could not send purchase link."), success: "" });
@@ -594,8 +620,16 @@ const toLocalIsoDateTime = (dt) => {
       setActionType("");
       return;
     }
+    const { grandTotal } = calculatePlanPrice(draft.planId, draft.hasDiscount, draft.discountType, draft.discountValue);
     try {
-      const response = await api.post(`/super-admin/demo-leads/${leadId}/approve`, draft);
+      const response = await api.post(`/super-admin/demo-leads/${leadId}/approve`, {
+        ...draft,
+        isTrial: draft.isTrial !== false,
+        trialDays: draft.isTrial !== false ? (Number(draft.trialDays) || 14) : 0,
+        discountType: draft.hasDiscount ? draft.discountType : null,
+        discountValue: draft.hasDiscount ? Number(draft.discountValue) : 0,
+        finalPrice: grandTotal
+      });
       setLastApprovedLead(response.data);
       setFeedback({
         error: response.data.emailError ? `Salon created but email failed: ${response.data.emailError}` : "",
@@ -1562,205 +1596,283 @@ const toLocalIsoDateTime = (dt) => {
                 )}
 
                 {/* TAB 3: CONVERT TO SALON */}
-                {leadModalTab === "convert" && (
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
-                      <Building2 size={16} color="#16a34a" /> Convert to Salon & Onboard
-                    </div>
-                    <div className="crm-modal-grid-2col">
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan (Annual / Yearly)</label>
-                        <CustomSelect 
-                          disabled={isConverted} 
-                          value={draft.planId} 
-                          onChange={e => {
-                            const newPlanId = e.target.value;
-                            const selectedPlan = plans.find(p => p.id === newPlanId);
-                            const planTrial = selectedPlan ? (selectedPlan.trialDays !== undefined ? selectedPlan.trialDays : 14) : 14;
-                            setDrafts(prev => ({
-                              ...prev,
-                              [row.id]: {
-                                ...(draftsById[row.id] || {}),
-                                planId: newPlanId,
-                                trialDays: planTrial,
-                                billingCycle: "yearly"
-                              }
-                            }));
-                          }} 
-                          options={plans.map(p => {
-                            const priceVal = p.yearlyPrice || (Number(p.monthlyPrice || 0) * 10);
-                            const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/year`;
-                            const trialText = p.trialDays !== undefined ? `${p.trialDays}d trial` : "14d trial";
-                            return {
-                              label: `${p.name} — ${priceText} (${trialText})`,
-                              value: p.id
-                            };
-                          })} 
-                        />
+                {leadModalTab === "convert" && (() => {
+                  const { basePrice, discountAmount, grandTotal, selectedPlan } = calculatePlanPrice(
+                    draft.planId,
+                    draft.hasDiscount,
+                    draft.discountType,
+                    draft.discountValue
+                  );
+                  const isTrialActive = draft.isTrial !== false;
+
+                  return (
+                    <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                        <Building2 size={16} color="#16a34a" /> Convert to Salon & Onboard
                       </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Plan Duration</label>
-                        <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, padding: "9px 12px", fontSize: 13, fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
-                          <span>📅 1 Year (Annual Subscription)</span>
+
+                      {/* Row 1: Plan Selection & Duration */}
+                      <div className="crm-modal-grid-2col">
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Select Plan (Annual / Yearly)</label>
+                          <CustomSelect 
+                            disabled={isConverted} 
+                            value={draft.planId} 
+                            onChange={e => {
+                              const newPlanId = e.target.value;
+                              const selectedPlan = plans.find(p => p.id === newPlanId);
+                              const planTrial = selectedPlan ? (selectedPlan.trialDays !== undefined ? selectedPlan.trialDays : 14) : 14;
+                              setDrafts(prev => ({
+                                ...prev,
+                                [row.id]: {
+                                  ...(draftsById[row.id] || {}),
+                                  planId: newPlanId,
+                                  trialDays: planTrial,
+                                  billingCycle: "yearly"
+                                }
+                              }));
+                            }} 
+                            options={plans.map(p => {
+                              const priceVal = p.yearlyPrice || (Number(p.monthlyPrice || 0) * 10);
+                              const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/year`;
+                              const trialText = p.trialDays !== undefined ? `${p.trialDays}d trial` : "14d trial";
+                              return {
+                                label: `${p.name} — ${priceText} (${trialText})`,
+                                value: p.id
+                              };
+                            })} 
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Plan Duration</label>
+                          <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, padding: "9px 12px", fontSize: 13, fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                            <span>📅 1 Year (Annual Subscription)</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="crm-modal-grid-2col">
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Salon City *</label>
-                        <input disabled={isConverted} type="text" placeholder="e.g. Mumbai" value={draft.city} onChange={e => updateDraft(row.id, "city", e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+
+                      {/* Row 2: Trial Toggle Card */}
+                      <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                            <span>Trial Period</span>
+                            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 100, fontWeight: 750, background: isTrialActive ? "#dcfce7" : "#f1f5f9", color: isTrialActive ? "#15803d" : "#64748b" }}>
+                              {isTrialActive ? `ON (${draft.trialDays || 14} Days Free Trial)` : "OFF (Full 1-Year Active Plan)"}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                            {isTrialActive ? "Lead will start in Trial mode with temporary free access." : "No trial — Assign direct full active 1-year annual subscription."}
+                          </div>
+                        </div>
+                        <div
+                          onClick={() => {
+                            if (isConverted) return;
+                            updateDraft(row.id, "isTrial", !isTrialActive);
+                          }}
+                          style={{
+                            width: 44,
+                            height: 24,
+                            borderRadius: 100,
+                            background: isTrialActive ? "#10b981" : "#cbd5e1",
+                            position: "relative",
+                            cursor: isConverted ? "not-allowed" : "pointer",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <div style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "white",
+                            position: "absolute",
+                            top: 3,
+                            left: isTrialActive ? 23 : 3,
+                            transition: "all 0.2s",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                          }} />
+                        </div>
                       </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
-                        <input disabled={isConverted} type="number" min={1} max={90} value={draft.trialDays} onChange={e => updateDraft(row.id, "trialDays", Number(e.target.value))} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => approveLead(row.id)}
-                      disabled={isConverted || isBusy}
-                      style={{
-                        padding: "12px 16px",
-                        background: isConverted ? "#d1fae5" : isBusy && actionType === "convert" ? "#059669" : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                        color: isConverted ? "#065f46" : "#fff",
-                        border: "none",
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: isConverted || isBusy ? "not-allowed" : "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 6
-                      }}
-                    >
-                      {isBusy && actionType === "convert" ? (
-                        <>
-                          <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
-                          <span>Creating Salon & Sending Login...</span>
-                        </>
-                      ) : isConverted ? (
-                        "✓ Already Converted"
-                      ) : (
-                        "Convert & Create Salon"
+
+                      {/* If Trial is ON, show Trial Days input */}
+                      {isTrialActive && (
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Trial Days</label>
+                          <input 
+                            disabled={isConverted} 
+                            type="number" 
+                            min={1} 
+                            max={90} 
+                            placeholder="e.g. 14"
+                            value={draft.trialDays || ""} 
+                            onChange={e => updateDraft(row.id, "trialDays", Number(e.target.value))} 
+                            style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} 
+                          />
+                        </div>
                       )}
-                    </button>
 
-                    {isConverted && row.salon?.id && (
-                      <a
-                        href={`/super-admin/salons/${row.salon.id}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          padding: "10px 14px",
-                          background: "#0f172a",
-                          color: "#fff",
-                          borderRadius: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          textDecoration: "none",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 6
-                        }}
-                      >
-                        <Building2 size={14} /> View Salon Profile →
-                      </a>
-                    )}
+                      {/* Row 3: Discount Toggle Card */}
+                      <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                            <span>Special Discount</span>
+                            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 100, fontWeight: 750, background: draft.hasDiscount ? "#e0e7ff" : "#f1f5f9", color: draft.hasDiscount ? "#4338ca" : "#64748b" }}>
+                              {draft.hasDiscount ? "ON" : "OFF"}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                            {draft.hasDiscount ? "Apply custom flat (₹) or percentage (%) discount on this subscription." : "No discount applied."}
+                          </div>
+                        </div>
+                        <div
+                          onClick={() => {
+                            if (isConverted) return;
+                            updateDraft(row.id, "hasDiscount", !draft.hasDiscount);
+                          }}
+                          style={{
+                            width: 44,
+                            height: 24,
+                            borderRadius: 100,
+                            background: draft.hasDiscount ? "#4f46e5" : "#cbd5e1",
+                            position: "relative",
+                            cursor: isConverted ? "not-allowed" : "pointer",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <div style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "white",
+                            position: "absolute",
+                            top: 3,
+                            left: draft.hasDiscount ? 23 : 3,
+                            transition: "all 0.2s",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                          }} />
+                        </div>
+                      </div>
 
-                    {!isConverted && (
+                      {/* If Discount is ON, show Discount Type Selector and Value Input */}
+                      {draft.hasDiscount && (
+                        <div className="crm-modal-grid-2col">
+                          <div>
+                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Discount Type</label>
+                            <CustomSelect
+                              disabled={isConverted}
+                              value={draft.discountType || "flat"}
+                              onChange={e => updateDraft(row.id, "discountType", e.target.value)}
+                              options={[
+                                { label: "Flat Discount (₹)", value: "flat" },
+                                { label: "Percentage Discount (%)", value: "percent" }
+                              ]}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>
+                              {draft.discountType === "percent" ? "Discount Percentage (%)" : "Discount Amount (₹)"}
+                            </label>
+                            <input
+                              disabled={isConverted}
+                              type="number"
+                              min={0}
+                              max={draft.discountType === "percent" ? 100 : 1000000}
+                              placeholder={draft.discountType === "percent" ? "e.g. 10" : "e.g. 2000"}
+                              value={draft.discountValue || ""}
+                              onChange={e => updateDraft(row.id, "discountValue", Math.max(0, Number(e.target.value)))}
+                              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Pricing Summary & Grand Total Display */}
+                      <div style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #eef2ff 100%)", borderRadius: 10, padding: "14px 16px", border: "1.5px solid #86efac", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#166534", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                            Pricing Summary
+                          </div>
+                          <div style={{ fontSize: 12, color: "#475569", marginTop: 3, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                            <span>Original Plan: <del>₹{basePrice.toLocaleString("en-IN")}</del></span>
+                            {draft.hasDiscount && discountAmount > 0 && (
+                              <span style={{ color: "#16a34a", fontWeight: 700, background: "#dcfce7", padding: "1px 6px", borderRadius: 4 }}>
+                                Saved: -₹{discountAmount.toLocaleString("en-IN")} {draft.discountType === "percent" ? `(${draft.discountValue}%)` : ""}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase" }}>Grand Total</div>
+                          <div style={{ fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+                            ₹{grandTotal.toLocaleString("en-IN")} <span style={{ fontSize: 12, fontWeight: 600, color: "#64748b" }}>/year</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Convert Button */}
                       <button
                         type="button"
-                        onClick={() => sendPurchaseLink(row.id)}
-                        disabled={isBusy}
+                        onClick={() => approveLead(row.id)}
+                        disabled={isConverted || isBusy}
                         style={{
-                          padding: "10px 14px",
-                          background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
-                          color: "#fff",
+                          padding: "12px 16px",
+                          background: isConverted ? "#d1fae5" : isBusy && actionType === "convert" ? "#059669" : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                          color: isConverted ? "#065f46" : "#fff",
                           border: "none",
                           borderRadius: 8,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: 700,
-                          cursor: isBusy ? "not-allowed" : "pointer",
+                          cursor: isConverted || isBusy ? "not-allowed" : "pointer",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           gap: 6
                         }}
                       >
-                        {isBusy && actionType === "send-pay-link" ? (
+                        {isBusy && actionType === "convert" ? (
                           <>
-                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
-                            <span>Sending Payment Link...</span>
+                            <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
+                            <span>Creating Salon & Sending Login...</span>
                           </>
+                        ) : isConverted ? (
+                          "✓ Already Converted"
+                        ) : isTrialActive ? (
+                          "Convert & Create Salon (Trial Mode)"
                         ) : (
-                          "Send Pay Link"
+                          "Convert & Create Salon (Full 1-Year Plan)"
                         )}
                       </button>
-                    )}
 
-                    {row.status === "CANCELED" && !isConverted && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 16, background: "#ecfdf5", borderRadius: 10, border: "1px solid #a7f3d0" }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "#065f46" }}>
-                          This lead is marked as Lost. Reactivate to resume the sales pipeline and enable salon conversion.
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => reactivateLead(row.id)}
-                          disabled={isBusy}
+                      {isConverted && row.salon?.id && (
+                        <a
+                          href={`/super-admin/salons/${row.salon.id}`}
+                          target="_blank"
+                          rel="noreferrer"
                           style={{
-                            padding: "10px 16px",
-                            background: "linear-gradient(135deg, #10b981, #059669)",
+                            padding: "10px 14px",
+                            background: "#0f172a",
                             color: "#fff",
-                            border: "none",
                             borderRadius: 8,
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: 700,
-                            cursor: isBusy ? "not-allowed" : "pointer",
+                            textDecoration: "none",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            gap: 6,
-                            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)"
+                            gap: 6
                           }}
                         >
-                          {isBusy && actionType === "reactivate" ? (
-                            <>
-                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Reactivating...
-                            </>
-                          ) : (
-                            <>
-                              <RotateCcw size={13} /> Reactivate Lead
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
+                          <Building2 size={14} /> View Salon Profile →
+                        </a>
+                      )}
 
-                    {row.status !== "CANCELED" && !isConverted && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 14, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
-                        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
-                        <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{ label: "Select Reason...", value: "" }, ...LOST_REASONS.map(r => ({ label: r.label, value: r.value }))]} />
-                        {(draft.lostReason === "OTHER" || draft.lostReason === "Other") && (
-                          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                            <label style={{ fontSize: 11, fontWeight: 700, color: "#991b1b" }}>Describe Issue / Reason *</label>
-                            <textarea
-                              rows={2}
-                              placeholder="Please describe the issue or reason..."
-                              value={draft.lostNotes || ""}
-                              onChange={e => updateDraft(row.id, "lostNotes", e.target.value)}
-                              style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box", background: "#ffffff", resize: "vertical" }}
-                            />
-                          </div>
-                        )}
+                      {!isConverted && (
                         <button
                           type="button"
-                          onClick={() => rejectLead(row.id)}
+                          onClick={() => sendPurchaseLink(row.id)}
                           disabled={isBusy}
                           style={{
-                            padding: "9px 12px",
-                            background: isBusy && actionType === "reject" ? "#dc2626" : "#ef4444",
+                            padding: "10px 14px",
+                            background: isBusy && actionType === "send-pay-link" ? "#2563eb" : "#3b82f6",
                             color: "#fff",
                             border: "none",
                             borderRadius: 8,
@@ -1773,18 +1885,103 @@ const toLocalIsoDateTime = (dt) => {
                             gap: 6
                           }}
                         >
-                          {isBusy && actionType === "reject" ? (
+                          {isBusy && actionType === "send-pay-link" ? (
                             <>
-                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+                              <span>Sending Payment Link...</span>
                             </>
                           ) : (
-                            "Mark as Lost"
+                            `Send Pay Link (₹${grandTotal.toLocaleString("en-IN")})`
                           )}
                         </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+
+                      {row.status === "CANCELED" && !isConverted && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 16, background: "#ecfdf5", borderRadius: 10, border: "1px solid #a7f3d0" }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#065f46" }}>
+                            This lead is marked as Lost. Reactivate to resume the sales pipeline and enable salon conversion.
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => reactivateLead(row.id)}
+                            disabled={isBusy}
+                            style={{
+                              padding: "10px 16px",
+                              background: "linear-gradient(135deg, #10b981, #059669)",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              fontSize: 13,
+                              fontWeight: 700,
+                              cursor: isBusy ? "not-allowed" : "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 6,
+                              boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)"
+                            }}
+                          >
+                            {isBusy && actionType === "reactivate" ? (
+                              <>
+                                <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Reactivating...
+                              </>
+                            ) : (
+                              <>
+                                <RotateCcw size={13} /> Reactivate Lead
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                      {row.status !== "CANCELED" && !isConverted && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 14, background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca" }}>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#991b1b", marginBottom: -4 }}>Mark as Lost - Reason</label>
+                          <CustomSelect value={draft.lostReason || ""} onChange={e => updateDraft(row.id, "lostReason", e.target.value)} options={[{ label: "Select Reason...", value: "" }, ...LOST_REASONS.map(r => ({ label: r.label, value: r.value }))]} />
+                          {(draft.lostReason === "OTHER" || draft.lostReason === "Other") && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                              <label style={{ fontSize: 11, fontWeight: 700, color: "#991b1b" }}>Describe Issue / Reason *</label>
+                              <textarea
+                                rows={2}
+                                placeholder="Please describe the issue or reason..."
+                                value={draft.lostNotes || ""}
+                                onChange={e => updateDraft(row.id, "lostNotes", e.target.value)}
+                                style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #fca5a5", fontSize: 12, boxSizing: "border-box", background: "#ffffff", resize: "vertical" }}
+                              />
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => rejectLead(row.id)}
+                            disabled={isBusy}
+                            style={{
+                              padding: "9px 12px",
+                              background: isBusy && actionType === "reject" ? "#dc2626" : "#ef4444",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: isBusy ? "not-allowed" : "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 6
+                            }}
+                          >
+                            {isBusy && actionType === "reject" ? (
+                              <>
+                                <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Updating...
+                              </>
+                            ) : (
+                              "Mark as Lost"
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* TAB 4: MULTIPLE FOLLOW-UPS & NOTES */}
                 {leadModalTab === "followups" && (
