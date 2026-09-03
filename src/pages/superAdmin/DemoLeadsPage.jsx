@@ -538,6 +538,25 @@ export default function DemoLeadsPage() {
     }
   };
 
+  const reactivateLead = async (leadId) => {
+    setBusyId(leadId);
+    setActionType("reactivate");
+    setFeedback({ error: "", success: "" });
+    try {
+      await api.post(`/super-admin/demo-leads/${leadId}/reactivate`);
+      setFeedback({ error: "", success: "Lead reactivated successfully! Status reset to New." });
+      await load();
+      if (selectedLead && selectedLead.id === leadId) {
+        setSelectedLead(prev => ({ ...prev, status: "NEW", lostReason: null, lostNotes: null }));
+      }
+    } catch (error) {
+      setFeedback({ error: formatApiError(error, "Could not reactivate lead."), success: "" });
+    } finally {
+      setBusyId("");
+      setActionType("");
+    }
+  };
+
   const pipelineCounts = useMemo(() => {
     const counts = {};
     PIPELINE.forEach(s => { counts[s.value] = 0; });
@@ -896,12 +915,25 @@ export default function DemoLeadsPage() {
                       {new Date(row.createdAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: "14px 18px", textAlign: "right" }}>
-                      <button
-                        onClick={() => setSelectedLead(row)}
-                        style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 6px rgba(79,70,229,0.25)" }}
-                      >
-                        View Details <ArrowRight size={12} />
-                      </button>
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+                        {row.status === "CANCELED" && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); reactivateLead(row.id); }}
+                            title="Reactivate this lost lead"
+                            disabled={isBusy && actionType === "reactivate"}
+                            style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 11px", background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}
+                          >
+                            <RotateCcw size={11} /> Reactivate
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setSelectedLead(row)}
+                          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 6px rgba(79,70,229,0.25)" }}
+                        >
+                          View Details <ArrowRight size={12} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -986,6 +1018,51 @@ export default function DemoLeadsPage() {
                     {isConverted && (
                       <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, padding: "10px 14px", color: "#065f46", fontSize: 13, fontWeight: 600 }}>
                         ✓ This lead has been converted to a salon. Conversion actions are read-only.
+                      </div>
+                    )}
+
+                    {row.status === "CANCELED" && (
+                      <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <AlertTriangle size={18} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: "#991b1b" }}>This lead is currently marked as LOST</div>
+                            <div style={{ fontSize: 12, color: "#b91c1c", marginTop: 2 }}>
+                              Reason: <strong>{row.lostReason || "Lost / Canceled"}</strong>{row.lostNotes ? ` — ${row.lostNotes}` : ""}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => reactivateLead(row.id)}
+                          disabled={isBusy}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "8px 16px",
+                            background: "linear-gradient(135deg, #10b981, #059669)",
+                            color: "#ffffff",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)"
+                          }}
+                        >
+                          {isBusy && actionType === "reactivate" ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Reactivating...
+                            </>
+                          ) : (
+                            <>
+                              <RotateCcw size={13} /> Reactivate Lead
+                            </>
+                          )}
+                        </button>
                       </div>
                     )}
 
@@ -1368,6 +1445,44 @@ export default function DemoLeadsPage() {
                           "Send Pay Link"
                         )}
                       </button>
+                    )}
+
+                    {row.status === "CANCELED" && !isConverted && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6, padding: 16, background: "#ecfdf5", borderRadius: 10, border: "1px solid #a7f3d0" }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#065f46" }}>
+                          This lead is marked as Lost. Reactivate to resume the sales pipeline and enable salon conversion.
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => reactivateLead(row.id)}
+                          disabled={isBusy}
+                          style={{
+                            padding: "10px 16px",
+                            background: "linear-gradient(135deg, #10b981, #059669)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6,
+                            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)"
+                          }}
+                        >
+                          {isBusy && actionType === "reactivate" ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Reactivating...
+                            </>
+                          ) : (
+                            <>
+                              <RotateCcw size={13} /> Reactivate Lead
+                            </>
+                          )}
+                        </button>
+                      </div>
                     )}
 
                     {row.status !== "CANCELED" && !isConverted && (
