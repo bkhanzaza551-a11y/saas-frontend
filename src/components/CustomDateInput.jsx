@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { Calendar, ChevronLeft, ChevronRight, X, ChevronDown } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -264,7 +264,7 @@ export default function CustomDateInput({
           alignItems: "center",
           gap: 6,
           height: 40,
-          padding: "0 8px 0 10px",
+          padding: "0 10px",
           background: disabled ? "#f8fafc" : "#ffffff",
           border: isOpen ? "1.5px solid #4f46e5" : value ? "1.5px solid #6366f1" : "1px solid #cbd5e1",
           borderRadius: 10,
@@ -300,40 +300,6 @@ export default function CustomDateInput({
         >
           {displayVal || placeholder}
         </span>
-
-        {value && !disabled ? (
-          <button
-            type="button"
-            onClick={handleClear}
-            title="Clear date"
-            style={{
-              background: "#f1f5f9",
-              border: "none",
-              borderRadius: "50%",
-              width: 18,
-              height: 18,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "#64748b",
-              padding: 0,
-              flexShrink: 0,
-              transition: "all 0.15s ease",
-              marginLeft: 2
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = "#fee2e2";
-              e.currentTarget.style.color = "#dc2626";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = "#f1f5f9";
-              e.currentTarget.style.color = "#64748b";
-            }}
-          >
-            <X size={11} color="currentColor" strokeWidth={2.5} style={{ display: "block" }} />
-          </button>
-        ) : null}
       </div>
 
       {isOpen &&

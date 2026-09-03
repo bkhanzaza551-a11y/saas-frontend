@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { Calendar, Clock, ChevronLeft, ChevronRight, X, ChevronDown, Check } from "lucide-react";
+import { Calendar, Clock, ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -260,7 +260,7 @@ export default function CustomDateTimeInput({
           alignItems: "center",
           gap: 6,
           height: 40,
-          padding: "0 8px 0 10px",
+          padding: "0 10px",
           background: disabled ? "#f8fafc" : "#ffffff",
           border: isOpen ? "1.5px solid #4f46e5" : value ? "1.5px solid #6366f1" : "1px solid #cbd5e1",
           borderRadius: 10,
@@ -297,41 +297,7 @@ export default function CustomDateTimeInput({
           {displayVal || placeholder}
         </span>
 
-        {value && !disabled ? (
-          <button
-            type="button"
-            onClick={handleClear}
-            title="Clear date & time"
-            style={{
-              background: "#f1f5f9",
-              border: "none",
-              borderRadius: "50%",
-              width: 18,
-              height: 18,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "#64748b",
-              padding: 0,
-              flexShrink: 0,
-              transition: "all 0.15s ease",
-              marginLeft: 2
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = "#fee2e2";
-              e.currentTarget.style.color = "#dc2626";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = "#f1f5f9";
-              e.currentTarget.style.color = "#64748b";
-            }}
-          >
-            <X size={11} color="currentColor" strokeWidth={2.5} style={{ display: "block" }} />
-          </button>
-        ) : (
-          <Clock size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
-        )}
+        <Clock size={14} color={value || isOpen ? "#4f46e5" : "#94a3b8"} style={{ flexShrink: 0 }} />
       </div>
 
       {isOpen &&
