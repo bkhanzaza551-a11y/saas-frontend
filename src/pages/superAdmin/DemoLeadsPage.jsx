@@ -6,7 +6,7 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import CustomDateInput from "../../components/CustomDateInput";
-import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2, Edit2, Check, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2, Edit2, Check, AlertTriangle, Trash2 } from "lucide-react";
 
 const PIPELINE = [
   { value: "NEW", label: "New", color: "#3b82f6", bg: "#eff6ff" },
@@ -184,6 +184,10 @@ export default function DemoLeadsPage() {
   const [inlineEmailInput, setInlineEmailInput] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
 
+  // Multiple Follow-up Form State
+  const [followUpForm, setFollowUpForm] = useState({ dueAt: "", note: "" });
+  const [addingFollowUp, setAddingFollowUp] = useState(false);
+
   const saveLeadEmail = async (leadId, newEmail) => {
     setSavingEmail(true);
     setFeedback({ error: "", success: "" });
@@ -243,7 +247,12 @@ export default function DemoLeadsPage() {
       ]);
 
       if (leadResult.status === "fulfilled") {
-        setRows(leadResult.value.data || []);
+        const freshLeads = leadResult.value.data || [];
+        setRows(freshLeads);
+        setSelectedLead(prev => {
+          if (!prev) return null;
+          return freshLeads.find(r => r.id === prev.id) || prev;
+        });
       } else {
         setFeedback({ error: formatApiError(leadResult.reason, "Could not load leads."), success: "" });
       }
@@ -378,6 +387,75 @@ const toLocalIsoDateTime = (dt) => {
       await load();
     } catch (error) {
       setFeedback({ error: formatApiError(error, "Could not update lead status."), success: "" });
+    } finally {
+      setBusyId("");
+      setActionType("");
+    }
+  };
+
+  const addFollowUp = async (leadId) => {
+    if (!followUpForm.dueAt) {
+      setFeedback({ error: "Please select follow-up date and time.", success: "" });
+      return;
+    }
+    setAddingFollowUp(true);
+    setFeedback({ error: "", success: "" });
+    try {
+      await api.post(`/super-admin/demo-leads/${leadId}/follow-ups`, {
+        dueAt: followUpForm.dueAt,
+        note: followUpForm.note || ""
+      });
+      setFeedback({ error: "", success: "New follow-up scheduled successfully!" });
+      setFollowUpForm({ dueAt: "", note: "" });
+      await load();
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to schedule follow-up"), success: "" });
+    } finally {
+      setAddingFollowUp(false);
+    }
+  };
+
+  const completeSingleFollowUp = async (leadId, followUpId) => {
+    setBusyId(`fu-${followUpId}`);
+    try {
+      await api.patch(`/super-admin/demo-leads/${leadId}/follow-ups/${followUpId}`, {
+        status: "COMPLETED"
+      });
+      setFeedback({ error: "", success: "Follow-up marked as completed!" });
+      await load();
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to complete follow-up"), success: "" });
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const deleteSingleFollowUp = async (leadId, followUpId) => {
+    setBusyId(`fu-del-${followUpId}`);
+    try {
+      await api.delete(`/super-admin/demo-leads/${leadId}/follow-ups/${followUpId}`);
+      setFeedback({ error: "", success: "Follow-up deleted." });
+      await load();
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to delete follow-up"), success: "" });
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const saveLeadNotesOnly = async (leadId) => {
+    setBusyId(leadId);
+    setActionType("save-notes");
+    setFeedback({ error: "", success: "" });
+    const draft = draftsById[leadId] || {};
+    try {
+      await api.put(`/super-admin/demo-leads/${leadId}`, {
+        leadNotes: draft.leadNotes || ""
+      });
+      setFeedback({ error: "", success: "Internal notes saved successfully." });
+      await load();
+    } catch (err) {
+      setFeedback({ error: formatApiError(err, "Failed to save notes"), success: "" });
     } finally {
       setBusyId("");
       setActionType("");
@@ -983,11 +1061,12 @@ const toLocalIsoDateTime = (dt) => {
 
       {/* View Details Modal */}
       {selectedLead && (() => {
-        const row = selectedLead;
+        const row = rows.find(r => r.id === selectedLead.id) || selectedLead;
         const meta = getStatusMeta(row.status);
         const draft = draftsById[row.id] || {};
         const isBusy = busyId === row.id;
         const isConverted = row.status === "CONVERTED";
+        const pendingFollowUps = (row.followUps || []).filter(f => f.status === "PENDING");
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 16, backdropFilter: "blur(4px)" }} onClick={closeDetailModal}>
             <div className="crm-modal-card" style={{ background: "white", width: "100%", maxWidth: 780, borderRadius: 20, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "92vh", overflowY: "auto", animation: "slideInRight 0.25s ease" }} onClick={e => e.stopPropagation()}>
@@ -1010,7 +1089,7 @@ const toLocalIsoDateTime = (dt) => {
                   { id: "overview", label: "Overview", icon: Building2 },
                   { id: "demo", label: "Schedule Demo", icon: Video },
                   { id: "convert", label: "Convert to Salon", icon: CheckCircle },
-                  { id: "followups", label: "Follow-Ups & Notes", icon: Calendar },
+                  { id: "followups", label: "Follow-Ups & Notes", icon: Calendar, count: pendingFollowUps.length },
                   { id: "activity", label: "Activity", icon: Activity, count: (row.activityLogs || []).length }
                 ].map(tab => {
                   const Icon = tab.icon;
@@ -1659,90 +1738,285 @@ const toLocalIsoDateTime = (dt) => {
                   </div>
                 )}
 
-                {/* TAB 4: FOLLOW-UPS & NOTES */}
+                {/* TAB 4: MULTIPLE FOLLOW-UPS & NOTES */}
                 {leadModalTab === "followups" && (
-                  <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
-                      <Calendar size={16} color="#0ea5e9" /> Follow-Up Schedule & Internal Notes
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Header */}
+                    <div style={{ background: "#f0f9ff", borderRadius: 12, padding: "14px 18px", border: "1px solid #bae6fd", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: "#0369a1", display: "flex", alignItems: "center", gap: 6 }}>
+                        <Calendar size={18} color="#0284c7" /> Follow-Ups Manager & Call Reminders
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", background: "#e0f2fe", padding: "3px 10px", borderRadius: 100 }}>
+                        {pendingFollowUps.length} Pending
+                      </span>
                     </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Next Follow-Up Date & Time</label>
-                      <input 
-                        disabled={isConverted} 
-                        type="datetime-local" 
-                        value={draft.nextFollowUpAt} 
-                        onChange={e => { 
-                          updateDraft(row.id, "nextFollowUpAt", e.target.value); 
-                          api.put(`/super-admin/demo-leads/${row.id}`, { nextFollowUpAt: e.target.value || null }).catch(console.error); 
-                        }} 
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} 
-                      />
+
+                    {/* Section 1: Schedule New Follow-Up */}
+                    <div style={{ background: "#ffffff", borderRadius: 12, padding: 18, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                        <Plus size={15} color="#4f46e5" /> Schedule a New Follow-Up
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr auto", gap: 12, alignItems: "flex-end" }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Date & Time *</label>
+                          <input
+                            disabled={isConverted || addingFollowUp}
+                            type="datetime-local"
+                            value={followUpForm.dueAt}
+                            onChange={e => setFollowUpForm({ ...followUpForm, dueAt: e.target.value })}
+                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Purpose / Agenda (optional)</label>
+                          <input
+                            disabled={isConverted || addingFollowUp}
+                            type="text"
+                            placeholder="e.g. Call back regarding pricing discount..."
+                            value={followUpForm.note}
+                            onChange={e => setFollowUpForm({ ...followUpForm, note: e.target.value })}
+                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => addFollowUp(row.id)}
+                          disabled={isConverted || addingFollowUp || !followUpForm.dueAt}
+                          style={{
+                            padding: "9px 16px",
+                            background: isConverted || !followUpForm.dueAt ? "#94a3b8" : "linear-gradient(135deg, #0284c7, #0369a1)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: isConverted || !followUpForm.dueAt || addingFollowUp ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            whiteSpace: "nowrap"
+                          }}
+                        >
+                          {addingFollowUp ? (
+                            <>
+                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Scheduling...
+                            </>
+                          ) : (
+                            <>
+                              <Plus size={13} /> Add Follow-Up
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Internal Notes</label>
+
+                    {/* Section 2: Multiple Follow-ups List */}
+                    {(() => {
+                      const followUps = row.followUps || [];
+                      const pending = followUps.filter(f => f.status === "PENDING");
+                      const completed = followUps.filter(f => f.status === "COMPLETED");
+
+                      return (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                          {/* Active / Pending List */}
+                          <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 16 }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "#0369a1", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <Clock size={14} color="#0284c7" /> Active & Upcoming Follow-Ups ({pending.length})
+                              </span>
+                            </div>
+
+                            {pending.length === 0 ? (
+                              <div style={{ padding: "14px", textAlign: "center", background: "#f8fafc", borderRadius: 8, border: "1px dashed #cbd5e1", color: "#64748b", fontSize: 12 }}>
+                                No active follow-ups scheduled for this lead. Use the form above to add one!
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                {pending.map(fu => {
+                                  const isOverdue = new Date(fu.dueAt) < new Date();
+                                  const isActionBusy = busyId === `fu-${fu.id}` || busyId === `fu-del-${fu.id}`;
+
+                                  return (
+                                    <div
+                                      key={fu.id}
+                                      style={{
+                                        background: isOverdue ? "#fff1f2" : "#f0f9ff",
+                                        border: `1px solid ${isOverdue ? "#fecdd3" : "#bae6fd"}`,
+                                        borderRadius: 8,
+                                        padding: "12px 14px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        gap: 12,
+                                        flexWrap: "wrap"
+                                      }}
+                                    >
+                                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                                        <div style={{ fontSize: 13, fontWeight: 700, color: isOverdue ? "#be123c" : "#0369a1", display: "flex", alignItems: "center", gap: 6 }}>
+                                          <span>📅 {new Date(fu.dueAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true })}</span>
+                                          {isOverdue && (
+                                            <span style={{ fontSize: 10, background: "#ffe4e6", color: "#e11d48", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>
+                                              Overdue
+                                            </span>
+                                          )}
+                                        </div>
+                                        {fu.note && <div style={{ fontSize: 12, color: "#334155", fontWeight: 500 }}>📝 {fu.note}</div>}
+                                        <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                                          Scheduled by {fu.createdBy || "Admin"} • {new Date(fu.createdAt).toLocaleDateString()}
+                                        </div>
+                                      </div>
+
+                                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                        <button
+                                          type="button"
+                                          disabled={isActionBusy || isConverted}
+                                          onClick={() => completeSingleFollowUp(row.id, fu.id)}
+                                          style={{
+                                            padding: "7px 14px",
+                                            background: "linear-gradient(135deg, #10b981, #059669)",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 6,
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                            cursor: isActionBusy || isConverted ? "not-allowed" : "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 4,
+                                            boxShadow: "0 1px 4px rgba(16, 185, 129, 0.2)"
+                                          }}
+                                        >
+                                          {busyId === `fu-${fu.id}` ? (
+                                            <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} />
+                                          ) : (
+                                            <Check size={12} />
+                                          )}
+                                          Mark Done
+                                        </button>
+                                        <button
+                                          type="button"
+                                          disabled={isActionBusy || isConverted}
+                                          onClick={() => deleteSingleFollowUp(row.id, fu.id)}
+                                          style={{
+                                            padding: "7px 10px",
+                                            background: "#fee2e2",
+                                            color: "#b91c1c",
+                                            border: "1px solid #fca5a5",
+                                            borderRadius: 6,
+                                            fontSize: 12,
+                                            cursor: isActionBusy || isConverted ? "not-allowed" : "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center"
+                                          }}
+                                          title="Delete follow-up"
+                                        >
+                                          {busyId === `fu-del-${fu.id}` ? (
+                                            <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} />
+                                          ) : (
+                                            <Trash2 size={12} />
+                                          )}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Completed Follow-ups History */}
+                          {completed.length > 0 && (
+                            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 16 }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: "#047857", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                                <CheckCircle size={15} color="#059669" /> Completed Follow-Ups History ({completed.length})
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                {completed.map(fu => (
+                                  <div
+                                    key={fu.id}
+                                    style={{
+                                      background: "#f8fafc",
+                                      border: "1px solid #f1f5f9",
+                                      borderRadius: 6,
+                                      padding: "8px 12px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      gap: 10
+                                    }}
+                                  >
+                                    <div>
+                                      <div style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>
+                                        <span>📅 {new Date(fu.dueAt).toLocaleDateString()}</span> {fu.note && <span>• {fu.note}</span>}
+                                      </div>
+                                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+                                        Completed: {fu.completedAt ? new Date(fu.completedAt).toLocaleString() : "Done"}
+                                      </div>
+                                    </div>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: "#047857", background: "#d1fae5", padding: "3px 8px", borderRadius: 6 }}>
+                                      ✓ Completed
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Section 3: General Private Internal Notes */}
+                    <div style={{ background: "#ffffff", borderRadius: 12, padding: 18, border: "1px solid #e2e8f0" }}>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 6 }}>
+                        General Internal Notes & Comments
+                      </label>
                       <textarea
                         disabled={isConverted}
                         value={draft.leadNotes !== undefined ? draft.leadNotes : (row.leadNotes || "")}
                         onChange={e => updateDraft(row.id, "leadNotes", e.target.value)}
-                        onBlur={() => api.put(`/super-admin/demo-leads/${row.id}`, { leadNotes: draft.leadNotes }).catch(console.error)}
                         placeholder="Add private internal notes about conversations with this lead..."
-                        style={{ width: "100%", padding: "10px 12px", fontSize: 13, color: "#0c4a6e", background: "#f0f9ff", border: "1px dashed #7dd3fc", borderRadius: 8, resize: "vertical", minHeight: 90, boxSizing: "border-box" }}
-                      />
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
-                      <button
-                        onClick={() => saveFollowUp(row.id)}
-                        disabled={isBusy}
                         style={{
-                          padding: "10px 18px",
-                          background: isBusy && actionType === "save-followup" ? "#0284c7" : "#0ea5e9",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 8,
+                          width: "100%",
+                          padding: "10px 12px",
                           fontSize: 13,
-                          fontWeight: 700,
-                          cursor: isBusy ? "not-allowed" : "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6
+                          color: "#0f172a",
+                          background: "#f8fafc",
+                          border: "1px solid #cbd5e1",
+                          borderRadius: 8,
+                          resize: "vertical",
+                          minHeight: 80,
+                          boxSizing: "border-box"
                         }}
-                      >
-                        {isBusy && actionType === "save-followup" ? (
-                          <>
-                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Saving...
-                          </>
-                        ) : (
-                          "Save Follow-Up"
-                        )}
-                      </button>
-
-                      {row.nextFollowUpAt && (
+                      />
+                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
                         <button
-                          onClick={() => markFollowUpCompleted(row.id)}
-                          disabled={isBusy}
+                          type="button"
+                          onClick={() => saveLeadNotesOnly(row.id)}
+                          disabled={isBusy || isConverted}
                           style={{
-                            padding: "10px 18px",
-                            background: "#ecfdf5",
-                            color: "#065f46",
-                            border: "1px solid #a7f3d0",
-                            borderRadius: 8,
-                            fontSize: 13,
+                            padding: "8px 16px",
+                            background: isBusy && actionType === "save-notes" ? "#374151" : "#0f172a",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 6,
+                            fontSize: 12,
                             fontWeight: 700,
-                            cursor: isBusy ? "not-allowed" : "pointer",
+                            cursor: isBusy || isConverted ? "not-allowed" : "pointer",
                             display: "flex",
                             alignItems: "center",
                             gap: 6
                           }}
                         >
-                          {isBusy && actionType === "complete-followup" ? (
+                          {isBusy && actionType === "save-notes" ? (
                             <>
-                              <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> Completing...
+                              <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> Saving...
                             </>
                           ) : (
-                            "✓ Follow-Up Done"
+                            "Save Notes"
                           )}
                         </button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 )}
