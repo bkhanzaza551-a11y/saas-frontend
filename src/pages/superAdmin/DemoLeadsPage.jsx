@@ -5,6 +5,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
+import CustomDateInput from "../../components/CustomDateInput";
 import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2, Edit2, Check, AlertTriangle } from "lucide-react";
 
 const PIPELINE = [
@@ -773,10 +774,24 @@ export default function DemoLeadsPage() {
             
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Range</label>
-              <div className="crm-date-range-row">
-                <input type="date" value={filters.from} onChange={(e) => setFilterParam("from", e.target.value)} title="From date" style={{ flex: 1, height: 42, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
-                <span style={{ fontSize: "0.75rem", color: "#cbd5e1", fontWeight: 700 }}>→</span>
-                <input type="date" value={filters.to} onChange={(e) => setFilterParam("to", e.target.value)} title="To date" style={{ flex: 1, height: 42, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s" }} onFocus={e => { e.target.style.borderColor = "#6366f1"; e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.08)"; }} onBlur={e => { e.target.style.borderColor = "#cbd5e1"; e.target.style.background = "#f8fafc"; e.target.style.boxShadow = "none"; }} />
+              <div className="crm-date-range-row" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <CustomDateInput
+                  value={filters.from}
+                  onChange={(e) => setFilterParam("from", e.target.value)}
+                  placeholder="From date"
+                  title="Filter by start date"
+                  max={filters.to || undefined}
+                  style={{ flex: 1 }}
+                />
+                <span style={{ fontSize: "0.85rem", color: "#94a3b8", fontWeight: 700 }}>→</span>
+                <CustomDateInput
+                  value={filters.to}
+                  onChange={(e) => setFilterParam("to", e.target.value)}
+                  placeholder="To date"
+                  title="Filter by end date"
+                  min={filters.from || undefined}
+                  style={{ flex: 1 }}
+                />
               </div>
             </div>
           </div>

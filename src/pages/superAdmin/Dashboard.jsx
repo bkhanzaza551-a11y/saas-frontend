@@ -4,6 +4,7 @@ import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import CustomDateInput from "../../components/CustomDateInput";
 import { Building2, CheckCircle, Clock, AlertTriangle, Sparkles, LifeBuoy, TrendingUp, IndianRupee, Layers, AlertCircle, Activity, Plus, UserPlus, Ticket, FileText, X } from "lucide-react";
 
 const fmt = (val) => Number(val || 0).toLocaleString("en-IN");
@@ -331,19 +332,23 @@ export default function SuperAdminDashboard() {
               })}
             </div>
             {period === "custom" && (
-              <div className="sa-custom-dates">
-                <input
-                  type="date"
+              <div className="sa-custom-dates" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0 }}>
+                <CustomDateInput
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="sa-date-input"
+                  placeholder="From date"
+                  title="Start date"
+                  max={dateTo || undefined}
+                  style={{ height: 34, fontSize: "0.78rem", minWidth: 125, padding: "0 10px", borderRadius: 8 }}
                 />
-                <span className="sa-date-to">to</span>
-                <input
-                  type="date"
+                <span className="sa-date-to" style={{ color: "#94a3b8", fontWeight: 700, fontSize: "0.8rem" }}>to</span>
+                <CustomDateInput
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="sa-date-input"
+                  placeholder="To date"
+                  title="End date"
+                  min={dateFrom || undefined}
+                  style={{ height: 34, fontSize: "0.78rem", minWidth: 125, padding: "0 10px", borderRadius: 8 }}
                 />
               </div>
             )}
