@@ -6,6 +6,7 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import CustomDateInput from "../../components/CustomDateInput";
+import CustomDateTimeInput from "../../components/CustomDateTimeInput";
 import { CheckCircle, XCircle, X, Clock, Mail, Phone, Calendar, Building2, RotateCcw, Plus, Video, ArrowRight, Activity, Eye, Search, Filter, Loader2, Edit2, Check, AlertTriangle, Trash2 } from "lucide-react";
 
 const PIPELINE = [
@@ -1386,7 +1387,12 @@ const toLocalIsoDateTime = (dt) => {
                     </div>
                     <div>
                       <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Meeting Date & Time</label>
-                      <input disabled={isConverted} type="datetime-local" value={draft.meetingScheduledAt} onChange={e => updateDraft(row.id, "meetingScheduledAt", e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                      <CustomDateTimeInput
+                        disabled={isConverted}
+                        value={draft.meetingScheduledAt}
+                        onChange={e => updateDraft(row.id, "meetingScheduledAt", e.target.value)}
+                        placeholder="Select meeting date & time..."
+                      />
                     </div>
                     <div>
                       <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Meeting Link</label>
@@ -1759,12 +1765,12 @@ const toLocalIsoDateTime = (dt) => {
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr auto", gap: 12, alignItems: "flex-end" }}>
                         <div>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Date & Time *</label>
-                          <input
+                          <CustomDateTimeInput
                             disabled={isConverted || addingFollowUp}
-                            type="datetime-local"
                             value={followUpForm.dueAt}
                             onChange={e => setFollowUpForm({ ...followUpForm, dueAt: e.target.value })}
-                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, boxSizing: "border-box" }}
+                            placeholder="Select due date & time..."
+                            style={{ height: 36, fontSize: 12 }}
                           />
                         </div>
                         <div>
@@ -2236,13 +2242,10 @@ const toLocalIsoDateTime = (dt) => {
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6, color: "#475569" }}>Next Follow-Up</label>
-                  <input
-                    type="datetime-local"
+                  <CustomDateTimeInput
                     value={leadForm.nextFollowUpAt}
                     onChange={e => setLeadForm({ ...leadForm, nextFollowUpAt: e.target.value })}
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: "0.9rem", boxSizing: "border-box", transition: "all 0.2s", outline: "none", background: "#f8fafc", color: "#1e293b", height: 42 }}
-                    onFocus={e => { e.target.style.background = "#fff"; e.target.style.borderColor = "#6366f1"; e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)"; }}
-                    onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
+                    placeholder="Select next follow-up date & time..."
                   />
                 </div>
               </div>
