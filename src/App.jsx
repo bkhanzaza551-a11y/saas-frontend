@@ -320,7 +320,7 @@ const Protected = () => {
         { label: "Referral Program", to: "/admin/referral-coupons", children: [{ label: "Coupons", to: "/admin/referral-coupons" }, { label: "Partners", to: "/admin/referral-coupons" }, { label: "Wallets", to: "/admin/referral-coupons" }] },
 
         { label: "Payments", to: "/admin/payments" },
-        { label: "WhatsApp Credits", to: "/admin/whatsapp-credits" },
+        { label: "Credits", to: "/admin/whatsapp-credits" },
         { label: "Reports Hub", to: "/admin/reports-hub" },
         { label: "Inventory", to: "/admin/inventory" },
         { label: "Support Tickets", to: "/admin/support-tickets" }
@@ -342,7 +342,7 @@ const Protected = () => {
         { label: "Staff Requests", to: "/super-admin/staff-requests" },
         { label: "Support", to: "/super-admin/support-tickets" },
         { label: "Finance", to: "/super-admin/finance" },
-        { label: "WhatsApp Credits", to: "/super-admin/credits" },
+        { label: "Credits", to: "/super-admin/credits" },
         { label: "Team & Roles", to: "/super-admin/staff" },
         { label: "Platform", to: "/super-admin/settings" }
       ]
