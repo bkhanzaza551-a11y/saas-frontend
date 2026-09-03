@@ -808,32 +808,11 @@ export default function SuperAdminSettingsPage() {
                       </CustomSelect>
                     </Field>
                     <Field label="Default Country"><input style={inputStyle} {...f("defaultCountry")} placeholder="India" /></Field>
-                    <Field label="Timezone"><input style={inputStyle} {...f("defaultTimezone")} placeholder="Asia/Kolkata" /></Field>
                     <Field label="Date Format">
                       <CustomSelect value={form.dateFormat} onChange={e => setForm(p => ({ ...p, dateFormat: e.target.value }))}>
                         <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                         <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                         <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                      </CustomSelect>
-                    </Field>
-                    <Field label="Time Format">
-                      <CustomSelect value={form.timeFormat || "12"} onChange={e => setForm(p => ({ ...p, timeFormat: e.target.value }))}>
-                        <option value="12">12-Hour (1:00 PM)</option>
-                        <option value="24">24-Hour (13:00)</option>
-                      </CustomSelect>
-                    </Field>
-                    <Field label="Default Language">
-                      <CustomSelect value={form.defaultLanguage || "en"} onChange={e => setForm(p => ({ ...p, defaultLanguage: e.target.value }))}>
-                        <option value="en">English</option>
-                        <option value="hi">Hindi</option>
-                        <option value="ur">Urdu</option>
-                        <option value="ar">Arabic</option>
-                        <option value="bn">Bengali</option>
-                        <option value="ta">Tamil</option>
-                        <option value="te">Telugu</option>
-                        <option value="mr">Marathi</option>
-                        <option value="kn">Kannada</option>
-                        <option value="ml">Malayalam</option>
                       </CustomSelect>
                     </Field>
                   </div>
