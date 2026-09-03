@@ -4,6 +4,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
+import CustomDateTimeInput from "../../components/CustomDateTimeInput";
 import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle, Save } from "lucide-react";
 
 const TABS = [
@@ -138,11 +139,11 @@ function MaintenanceTimeSelector({ value, onChange }) {
       </div>
 
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <input
-          type="datetime-local"
+        <CustomDateTimeInput
           value={currentLocal}
           onChange={handleDatetimeChange}
-          style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.88rem", background: "#fff", color: "#0f172a", outline: "none", width: "100%", boxSizing: "border-box" }}
+          placeholder="Select scheduled end date & time..."
+          style={{ width: "100%", height: 42 }}
         />
       </div>
       {value && (

@@ -7,6 +7,7 @@ import { useAlert } from "../../context/AlertContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
+import CustomDateInput from "../../components/CustomDateInput";
 
 const STATUS_OPTIONS = [
   { label: "All Statuses", value: "" },
@@ -583,9 +584,15 @@ export default function SubscriptionsPage() {
                   <option value="PENDING">Pending</option>
                   <option value="COMPLETED">Paid / Completed</option>
                 </CustomSelect>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Start Date *</span>
+                <CustomDateInput
+                  value={form.startsAt}
+                  onChange={e => setForm({ ...form, startsAt: e.target.value })}
+                  placeholder="Select start date..."
+                  style={{ width: "100%", height: 42 }}
+                />
               </label>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Start Date *</span><input type="date" required value={form.startsAt} onChange={e => setForm({ ...form, startsAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} /></label>
-              <label style={{ gridColumn: "1 / -1" }}>
                 <span style={{ fontSize: 12, fontWeight: 700 }}>Manual Discount (INR)</span>
                 <input
                   type="number"
@@ -677,8 +684,13 @@ export default function SubscriptionsPage() {
                   </div>
 
                   <label>
-                    <span style={{ fontSize: 12, fontWeight: 700 }}>Effective Date *</span>
-                    <input type="date" required value={planChangeForm.effectiveDate} onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Effective Date *</span>
+                    <CustomDateInput
+                      value={planChangeForm.effectiveDate}
+                      onChange={e => setPlanChangeForm({ ...planChangeForm, effectiveDate: e.target.value })}
+                      placeholder="Select effective date..."
+                      style={{ width: "100%", height: 42 }}
+                    />
                   </label>
 
                   <label>

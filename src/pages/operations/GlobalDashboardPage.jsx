@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, Calendar, Users, Building2, Activity, ArrowUpRight, ArrowDownRight, Award, DollarSign, PieChart, Shield, RefreshCw } from "lucide-react";
 import { api } from "../../api/client";
+import CustomDateInput from "../../components/CustomDateInput";
 
 export default function GlobalDashboardPage() {
   const [period, setPeriod] = useState("ALL");
@@ -152,18 +153,20 @@ export default function GlobalDashboardPage() {
 
         {period === "Custom" && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <input
-              type="date"
+            <CustomDateInput
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, outline: "none", background: "#fff" }}
+              placeholder="Start date"
+              max={endDate || undefined}
+              style={{ height: 36, fontSize: 12, minWidth: 140 }}
             />
-            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>to</span>
-            <input
-              type="date"
+            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 700 }}>to</span>
+            <CustomDateInput
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, outline: "none", background: "#fff" }}
+              placeholder="End date"
+              min={startDate || undefined}
+              style={{ height: 36, fontSize: 12, minWidth: 140 }}
             />
           </div>
         )}

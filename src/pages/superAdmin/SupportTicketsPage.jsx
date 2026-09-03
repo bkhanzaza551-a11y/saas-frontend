@@ -6,6 +6,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
+import CustomDateInput from "../../components/CustomDateInput";
 import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
 
 const isImageAttachment = (value) => {
@@ -465,9 +466,23 @@ export default function SuperAdminSupportTicketsPage() {
           <div style={{ minWidth: 0, width: "100%" }}>
             <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Date Range</label>
             <div style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", boxSizing: "border-box" }}>
-              <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} title="Created from" style={{ flex: 1, minWidth: 0, width: "100%", height: 38, padding: "6px 8px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.76rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box" }} />
+              <CustomDateInput
+                value={filters.from}
+                onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+                placeholder="From date"
+                title="Created from"
+                max={filters.to || undefined}
+                style={{ flex: 1, minWidth: 0, height: 38, fontSize: "0.76rem" }}
+              />
               <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, flexShrink: 0 }}>to</span>
-              <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} title="Created to" style={{ flex: 1, minWidth: 0, width: "100%", height: 38, padding: "6px 8px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.76rem", fontWeight: 500, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box" }} />
+              <CustomDateInput
+                value={filters.to}
+                onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+                placeholder="To date"
+                title="Created to"
+                min={filters.from || undefined}
+                style={{ flex: 1, minWidth: 0, height: 38, fontSize: "0.76rem" }}
+              />
             </div>
           </div>
         </div>

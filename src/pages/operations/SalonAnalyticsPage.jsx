@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Building, DollarSign, TrendingUp, TrendingDown, Users, Package, UserCheck, Calendar, Filter, Activity, PieChart, ShieldCheck, Award } from "lucide-react";
 import { api } from "../../api/client";
 import { useBranch } from "../../context/BranchContext";
+import CustomDateInput from "../../components/CustomDateInput";
 
 export default function SalonAnalyticsPage() {
   const { selectedBranchId: globalBranchId } = useBranch();
@@ -322,19 +323,21 @@ export default function SalonAnalyticsPage() {
         </div>
 
         {period === "Custom" && (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <input
-              type="date"
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <CustomDateInput
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}
+              placeholder="Start date"
+              max={endDate || undefined}
+              style={{ height: 38, fontSize: 13, minWidth: 140 }}
             />
-            <span style={{ fontSize: 13, color: "#64748b" }}>to</span>
-            <input
-              type="date"
+            <span style={{ fontSize: 13, color: "#64748b", fontWeight: 700 }}>to</span>
+            <CustomDateInput
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13 }}
+              placeholder="End date"
+              min={startDate || undefined}
+              style={{ height: 38, fontSize: 13, minWidth: 140 }}
             />
           </div>
         )}

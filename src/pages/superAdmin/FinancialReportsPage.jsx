@@ -6,6 +6,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
+import CustomDateInput from "../../components/CustomDateInput";
 import { Plus, Eye, Search, Calendar, Download } from "lucide-react";
 
 const fmt = (val) => `₹${Number(val || 0).toLocaleString("en-IN")}`;
@@ -371,10 +372,24 @@ export default function FinancialReportsPage() {
           </CustomSelect>
           
           {datePreset === "custom" && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} title="Date from" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
-              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>to</span>
-              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} title="Date to" style={{ flex: 1, height: 42, padding: "0 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "#f8fafc", color: "#334155", outline: "none", cursor: "pointer", boxSizing: "border-box", minWidth: 0 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <CustomDateInput
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                placeholder="From date"
+                title="Date from"
+                max={dateTo || undefined}
+                style={{ flex: 1, height: 42, fontSize: 13 }}
+              />
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700 }}>to</span>
+              <CustomDateInput
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                placeholder="To date"
+                title="Date to"
+                min={dateFrom || undefined}
+                style={{ flex: 1, height: 42, fontSize: 13 }}
+              />
             </div>
           )}
         </div>
@@ -501,7 +516,15 @@ export default function FinancialReportsPage() {
                   </CustomSelect>
                 </label>
               </div>
-              <label><span style={{ fontSize: 12, fontWeight: 700 }}>Payment Date</span><input type="date" value={recordForm.paidAt} onChange={e => setRecordForm({ ...recordForm, paidAt: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
+              <label>
+                <span style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>Payment Date</span>
+                <CustomDateInput
+                  value={recordForm.paidAt}
+                  onChange={e => setRecordForm({ ...recordForm, paidAt: e.target.value })}
+                  placeholder="Select payment date..."
+                  style={{ width: "100%", height: 42 }}
+                />
+              </label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Reference</span><input value={recordForm.reference} placeholder="Invoice #, transaction ref..." onChange={e => setRecordForm({ ...recordForm, reference: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0" }} /></label>
               <label><span style={{ fontSize: 12, fontWeight: 700 }}>Notes</span><textarea rows={2} value={recordForm.notes} onChange={e => setRecordForm({ ...recordForm, notes: e.target.value })} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", boxSizing: "border-box" }} /></label>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
