@@ -180,7 +180,7 @@ export default function ManageCreditsPage() {
   };
 
   return (
-    <div className="manage-credits-container" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto", fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+    <div className="manage-credits-container" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto", fontFamily: "'Poppins', 'Segoe UI', sans-serif", color: "#1e293b" }}>
       <style>{`
         .credits-table-wrapper {
           width: 100%;

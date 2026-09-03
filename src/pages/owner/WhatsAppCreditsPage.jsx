@@ -161,7 +161,7 @@ export default function WhatsAppCreditsPage() {
   if (loading) return <PageLoader title="Loading Communication Credits" message="Fetching your live messaging balance and packages..." />;
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 0 60px 0", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 0 60px 0", fontFamily: "'Poppins', 'Segoe UI', sans-serif" }}>
       <style>{`
         .wc-header {
           display: flex;
