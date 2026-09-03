@@ -1124,7 +1124,31 @@ const toLocalIsoDateTime = (dt) => {
                   </div>
                   {row.company && <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>{row.company}</div>}
                 </div>
-                <button onClick={closeDetailModal} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontSize: 18, flexShrink: 0 }}>✕</button>
+                <button 
+                  type="button"
+                  onClick={closeDetailModal} 
+                  style={{ 
+                    background: "#f8fafc", 
+                    border: "1px solid #e2e8f0", 
+                    cursor: "pointer", 
+                    width: 36, 
+                    height: 36, 
+                    borderRadius: 10, 
+                    display: "inline-flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    color: "#475569", 
+                    flexShrink: 0,
+                    transition: "all 0.15s ease",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "#fca5a5"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                  title="Close modal"
+                  aria-label="Close"
+                >
+                  <X size={18} strokeWidth={2.5} />
+                </button>
               </div>
 
               {/* Module Tabs Navigation */}
@@ -2322,22 +2346,26 @@ const toLocalIsoDateTime = (dt) => {
                 type="button"
                 onClick={() => { setIsAddModalOpen(false); setDuplicateInfo(null); }}
                 style={{
-                  border: "none",
-                  background: "#f1f5f9",
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  display: "flex",
+                  border: "1px solid #e2e8f0",
+                  background: "#f8fafc",
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
                   color: "#475569",
-                  transition: "all 0.2s"
+                  flexShrink: 0,
+                  transition: "all 0.15s ease",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
                 }}
-                onMouseOver={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#475569"; }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "#fca5a5"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                title="Close modal"
+                aria-label="Close"
               >
-                <X size={18} />
+                <X size={18} strokeWidth={2.5} />
               </button>
             </div>
 
