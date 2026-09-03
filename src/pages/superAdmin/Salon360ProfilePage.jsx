@@ -11,7 +11,7 @@ import {
   ArrowLeft, Building2, User, CreditCard, Ticket, ShieldCheck,
   Landmark, Key, Package, Users, BarChart3, Activity as ActivityIcon,
   Download, RefreshCw, Eye, Calendar, Clock, CheckCircle2, XCircle,
-  AlertTriangle, Scissors, Mail, Phone, MapPin, AlertCircle
+  AlertTriangle, Scissors, Mail, Phone, MapPin, AlertCircle, DollarSign, TrendingUp, IndianRupee
 } from "lucide-react";
 
 const TABS = [
@@ -364,28 +364,59 @@ export default function Salon360ProfilePage() {
               )}
             </div>
           </div>
-          <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-            <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Quick Stats</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[
-                { label: "Services", val: analytics?.services || 0, icon: Scissors, color: "#8b5cf6", bg: "#f5f3ff" },
-                { label: "Staff", val: analytics?.staff || 0, icon: Users, color: "#3b82f6", bg: "#eff6ff" },
-                { label: "Branches", val: analytics?.branches || 0, icon: Landmark, color: "#10b981", bg: "#ecfdf5" },
-                { label: "Customers", val: analytics?.customers || 0, icon: User, color: "#f59e0b", bg: "#fffbeb" },
-                { label: "Appointments", val: analytics?.appointments || 0, icon: Calendar, color: "#ec4899", bg: "#fdf2f8" },
-                { label: "Products", val: analytics?.products || 0, icon: Package, color: "#6366f1", bg: "#eef2ff" },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <div key={idx} style={{ background: item.bg, borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                    <Icon size={20} color={item.color} />
-                    <div>
-                      <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>{item.val}</div>
-                      <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{item.label}</div>
+          <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 20 }}>
+            <div>
+              <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Quick Stats</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { label: "Services", val: analytics?.services || 0, icon: Scissors, color: "#8b5cf6", bg: "#f5f3ff" },
+                  { label: "Staff", val: analytics?.staff || 0, icon: Users, color: "#3b82f6", bg: "#eff6ff" },
+                  { label: "Branches", val: analytics?.branches || 0, icon: Landmark, color: "#10b981", bg: "#ecfdf5" },
+                  { label: "Customers", val: analytics?.customers || 0, icon: User, color: "#f59e0b", bg: "#fffbeb" },
+                  { label: "Appointments", val: analytics?.appointments || 0, icon: Calendar, color: "#ec4899", bg: "#fdf2f8" },
+                  { label: "Products", val: analytics?.products || 0, icon: Package, color: "#6366f1", bg: "#eef2ff" },
+                ].map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={idx} style={{ background: item.bg, borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                      <Icon size={20} color={item.color} />
+                      <div>
+                        <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>{item.val}</div>
+                        <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{item.label}</div>
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Till Date Revenue Section */}
+            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                  <TrendingUp size={18} color="#10b981" /> Till Date Revenue
+                </h3>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#047857", background: "#d1fae5", padding: "3px 10px", borderRadius: 100 }}>
+                  Lifetime POS Sales
+                </span>
+              </div>
+
+              <div style={{ background: "linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%)", borderRadius: 14, padding: "18px 20px", color: "white", boxShadow: "0 4px 14px rgba(5, 150, 105, 0.25)" }}>
+                <div style={{ fontSize: "0.8rem", color: "#a7f3d0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Total Salon Revenue
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 800, margin: "6px 0 10px", letterSpacing: "-0.02em" }}>
+                  ₹{Number(analytics?.totalRevenue || 0).toLocaleString("en-IN")}
+                </div>
+                <div style={{ display: "flex", gap: 20, borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 10, fontSize: "0.8rem", color: "#d1fae5" }}>
+                  <div>
+                    Invoices Billed: <strong style={{ color: "#fff" }}>{analytics?.invoices || 0}</strong>
                   </div>
-                );
-              })}
+                  <div>
+                    Avg Ticket Size: <strong style={{ color: "#fff" }}>₹{analytics?.invoices ? Math.round(Number(analytics?.totalRevenue || 0) / analytics.invoices).toLocaleString("en-IN") : "0"}</strong>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
