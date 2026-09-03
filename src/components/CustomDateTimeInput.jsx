@@ -258,9 +258,9 @@ export default function CustomDateTimeInput({
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 8,
+          gap: 6,
           height: 40,
-          padding: "0 12px",
+          padding: "0 8px 0 10px",
           background: disabled ? "#f8fafc" : "#ffffff",
           border: isOpen ? "1.5px solid #4f46e5" : value ? "1.5px solid #6366f1" : "1px solid #cbd5e1",
           borderRadius: 10,
@@ -270,6 +270,8 @@ export default function CustomDateTimeInput({
           transition: "all 0.18s ease",
           userSelect: "none",
           width: "100%",
+          minWidth: 0,
+          overflow: "hidden",
           boxShadow: isOpen
             ? "0 0 0 3px rgba(79, 70, 229, 0.12)"
             : value
@@ -283,7 +285,8 @@ export default function CustomDateTimeInput({
         <span
           style={{
             flex: 1,
-            fontSize: "0.84rem",
+            minWidth: 0,
+            fontSize: "0.82rem",
             fontWeight: value ? 700 : 500,
             color: value ? "#0f172a" : "#94a3b8",
             whiteSpace: "nowrap",
@@ -305,14 +308,15 @@ export default function CustomDateTimeInput({
               borderRadius: "50%",
               width: 18,
               height: 18,
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
               color: "#64748b",
               padding: 0,
               flexShrink: 0,
-              transition: "all 0.15s"
+              transition: "all 0.15s ease",
+              marginLeft: 2
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.background = "#fee2e2";
@@ -323,7 +327,7 @@ export default function CustomDateTimeInput({
               e.currentTarget.style.color = "#64748b";
             }}
           >
-            <X size={11} />
+            <X size={11} color="currentColor" strokeWidth={2.5} style={{ display: "block" }} />
           </button>
         ) : (
           <Clock size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
@@ -426,7 +430,7 @@ export default function CustomDateTimeInput({
                   <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#0f172a" }}>
                     {MONTH_NAMES[selectedMonth]} {selectedYear}
                   </div>
-                  <div style={{ display: "flex", gap: 4 }}>
+                  <div style={{ display: "flex", gap: 5 }}>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -438,9 +442,11 @@ export default function CustomDateTimeInput({
                           setSelectedMonth(selectedMonth - 1);
                         }
                       }}
-                      style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      style={{ width: 28, height: 28, borderRadius: 7, border: "1px solid #cbd5e1", background: "#f8fafc", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#0f172a", padding: 0 }}
+                      onMouseOver={(e) => { e.currentTarget.style.background = "#eef2ff"; e.currentTarget.style.borderColor = "#818cf8"; e.currentTarget.style.color = "#4f46e5"; }}
+                      onMouseOut={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#0f172a"; }}
                     >
-                      <ChevronLeft size={14} />
+                      <ChevronLeft size={16} color="currentColor" strokeWidth={2.6} style={{ display: "block", pointerEvents: "none" }} />
                     </button>
                     <button
                       type="button"
@@ -453,9 +459,11 @@ export default function CustomDateTimeInput({
                           setSelectedMonth(selectedMonth + 1);
                         }
                       }}
-                      style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      style={{ width: 28, height: 28, borderRadius: 7, border: "1px solid #cbd5e1", background: "#f8fafc", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#0f172a", padding: 0 }}
+                      onMouseOver={(e) => { e.currentTarget.style.background = "#eef2ff"; e.currentTarget.style.borderColor = "#818cf8"; e.currentTarget.style.color = "#4f46e5"; }}
+                      onMouseOut={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#0f172a"; }}
                     >
-                      <ChevronRight size={14} />
+                      <ChevronRight size={16} color="currentColor" strokeWidth={2.6} style={{ display: "block", pointerEvents: "none" }} />
                     </button>
                   </div>
                 </div>

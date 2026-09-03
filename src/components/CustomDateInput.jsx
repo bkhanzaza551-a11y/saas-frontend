@@ -262,9 +262,9 @@ export default function CustomDateInput({
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 8,
+          gap: 6,
           height: 40,
-          padding: "0 12px",
+          padding: "0 8px 0 10px",
           background: disabled ? "#f8fafc" : "#ffffff",
           border: isOpen ? "1.5px solid #4f46e5" : value ? "1.5px solid #6366f1" : "1px solid #cbd5e1",
           borderRadius: 10,
@@ -273,7 +273,9 @@ export default function CustomDateInput({
           boxSizing: "border-box",
           transition: "all 0.18s ease",
           userSelect: "none",
-          minWidth: 140,
+          minWidth: 0,
+          width: "100%",
+          overflow: "hidden",
           boxShadow: isOpen
             ? "0 0 0 3px rgba(79, 70, 229, 0.12)"
             : value
@@ -287,7 +289,8 @@ export default function CustomDateInput({
         <span
           style={{
             flex: 1,
-            fontSize: "0.84rem",
+            minWidth: 0,
+            fontSize: "0.82rem",
             fontWeight: value ? 700 : 500,
             color: value ? "#0f172a" : "#94a3b8",
             whiteSpace: "nowrap",
@@ -309,14 +312,15 @@ export default function CustomDateInput({
               borderRadius: "50%",
               width: 18,
               height: 18,
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
               color: "#64748b",
               padding: 0,
               flexShrink: 0,
-              transition: "all 0.15s"
+              transition: "all 0.15s ease",
+              marginLeft: 2
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.background = "#fee2e2";
@@ -327,7 +331,7 @@ export default function CustomDateInput({
               e.currentTarget.style.color = "#64748b";
             }}
           >
-            <X size={11} />
+            <X size={11} color="currentColor" strokeWidth={2.5} style={{ display: "block" }} />
           </button>
         ) : null}
       </div>
@@ -427,50 +431,54 @@ export default function CustomDateInput({
                 <ChevronDown size={14} color="#64748b" />
               </button>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button
                   type="button"
                   onClick={handlePrevMonth}
                   title="Previous Month"
                   style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 7,
-                    border: "1px solid #e2e8f0",
-                    background: "#ffffff",
-                    display: "flex",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#f8fafc",
+                    display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                    color: "#475569",
-                    transition: "all 0.15s"
+                    color: "#0f172a",
+                    padding: 0,
+                    transition: "all 0.15s ease",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)"
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = "#eef2ff"; e.currentTarget.style.borderColor = "#818cf8"; e.currentTarget.style.color = "#4f46e5"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#0f172a"; }}
                 >
-                  <ChevronLeft size={15} />
+                  <ChevronLeft size={17} color="currentColor" strokeWidth={2.6} style={{ display: "block", pointerEvents: "none" }} />
                 </button>
                 <button
                   type="button"
                   onClick={handleNextMonth}
                   title="Next Month"
                   style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 7,
-                    border: "1px solid #e2e8f0",
-                    background: "#ffffff",
-                    display: "flex",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background: "#f8fafc",
+                    display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                    color: "#475569",
-                    transition: "all 0.15s"
+                    color: "#0f172a",
+                    padding: 0,
+                    transition: "all 0.15s ease",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)"
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = "#eef2ff"; e.currentTarget.style.borderColor = "#818cf8"; e.currentTarget.style.color = "#4f46e5"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.color = "#0f172a"; }}
                 >
-                  <ChevronRight size={15} />
+                  <ChevronRight size={17} color="currentColor" strokeWidth={2.6} style={{ display: "block", pointerEvents: "none" }} />
                 </button>
               </div>
             </div>
