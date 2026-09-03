@@ -173,6 +173,90 @@ export default function SuperAdminDashboard() {
           gap: 10px;
           margin-bottom: 20px;
         }
+        .sa-kpis-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 12px;
+          margin-bottom: 28px;
+        }
+        @media (min-width: 960px) {
+          .sa-kpis-container {
+            grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+          }
+        }
+        @media (max-width: 959px) and (min-width: 600px) {
+          .sa-kpis-container {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+          }
+        }
+        @media (max-width: 599px) {
+          .sa-kpis-container {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+          }
+        }
+        .sa-kpi-card {
+          background: #ffffff;
+          border: 1px solid #f1f5f9;
+          border-radius: 14px;
+          padding: 16px 14px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 10px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+          position: relative;
+          overflow: hidden;
+          cursor: pointer;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+          min-width: 0;
+        }
+        .sa-kpi-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+          border-color: #cbd5e1;
+        }
+        .sa-kpi-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 4px;
+        }
+        .sa-kpi-label {
+          color: #64748b;
+          font-weight: 700;
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .sa-kpi-icon {
+          width: 28px;
+          height: 28px;
+          border-radius: 7px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .sa-kpi-value {
+          font-size: 1.6rem;
+          font-weight: 800;
+          color: #0f172a;
+          line-height: 1;
+        }
+        .sa-kpi-caption {
+          font-size: 0.75rem;
+          color: #94a3b8;
+          margin-top: 4px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         @media (max-width: 768px) {
           .sa-date-filter-wrap {
             width: 100% !important;
@@ -368,25 +452,25 @@ export default function SuperAdminDashboard() {
         </div>
       ) : null}
 
-      <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, marginBottom: 32 }}>
+      <div className="sa-kpis-container">
         {visibleCards.map((card) => {
           const Icon = card.icon;
           return (
             <div 
               key={card.label} 
-              className="stat-card" 
+              className="sa-kpi-card" 
               onClick={() => navigate(card.path)}
-              style={{ background: "white", border: "1px solid #f1f5f9", borderRadius: 16, padding: "20px", display: "flex", flexDirection: "column", gap: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.02)", position: "relative", overflow: "hidden", cursor: "pointer", transition: "transform 0.2s" }}
+              title={card.label}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span className="item-meta" style={{ color: "#64748b", fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{card.label}</span>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: card.bg, color: card.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon size={16} />
+              <div className="sa-kpi-header">
+                <span className="sa-kpi-label">{card.label}</span>
+                <div className="sa-kpi-icon" style={{ background: card.bg, color: card.color }}>
+                  <Icon size={15} />
                 </div>
               </div>
               <div>
-                <div className="stat-value" style={{ fontSize: "1.75rem", fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{card.value}</div>
-                <div className="item-meta" style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 4 }}>{card.caption}</div>
+                <div className="sa-kpi-value">{card.value}</div>
+                <div className="sa-kpi-caption" title={card.caption}>{card.caption}</div>
               </div>
             </div>
           );
