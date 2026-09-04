@@ -754,7 +754,7 @@ const toLocalIsoDateTime = (dt) => {
         }
         .crm-modal-grid-2col {
           display: grid;
-          grid-template-columns: 1.2fr 1fr;
+          grid-template-columns: 1fr 1fr;
           gap: 12px;
         }
         .crm-add-modal-2col {
@@ -1128,26 +1128,26 @@ const toLocalIsoDateTime = (dt) => {
                   type="button"
                   onClick={closeDetailModal} 
                   style={{ 
-                    background: "#f8fafc", 
-                    border: "1px solid #e2e8f0", 
+                    background: "#f1f5f9", 
+                    border: "2px solid #cbd5e1", 
                     cursor: "pointer", 
-                    width: 36, 
-                    height: 36, 
+                    width: 38, 
+                    height: 38, 
                     borderRadius: 10, 
                     display: "inline-flex", 
                     alignItems: "center", 
                     justifyContent: "center", 
-                    color: "#475569", 
+                    color: "#1e293b", 
                     flexShrink: 0,
                     transition: "all 0.15s ease",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.08)"
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "#fca5a5"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "#f87171"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#1e293b"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
                   title="Close modal"
                   aria-label="Close"
                 >
-                  <X size={18} strokeWidth={2.5} />
+                  <X size={20} strokeWidth={2.5} />
                 </button>
               </div>
 
@@ -1642,6 +1642,7 @@ const toLocalIsoDateTime = (dt) => {
                           <CustomSelect 
                             disabled={isConverted} 
                             value={draft.planId} 
+                            style={{ width: "100%", "--select-height": "40px" }}
                             onChange={e => {
                               const newPlanId = e.target.value;
                               const selectedPlan = plans.find(p => p.id === newPlanId);
@@ -1669,7 +1670,7 @@ const toLocalIsoDateTime = (dt) => {
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Plan Duration</label>
-                          <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, padding: "9px 12px", fontSize: 13, fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                          <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, padding: "0 12px", height: "40px", fontSize: 13, fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: 6, boxSizing: "border-box" }}>
                             <span>📅 1 Year (Annual Subscription)</span>
                           </div>
                         </div>
@@ -1729,7 +1730,7 @@ const toLocalIsoDateTime = (dt) => {
                             placeholder="e.g. 14"
                             value={draft.trialDays || ""} 
                             onChange={e => updateDraft(row.id, "trialDays", Number(e.target.value))} 
-                            style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} 
+                            style={{ width: "100%", height: "40px", padding: "0 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", background: "white", outline: "none", color: "#1e293b", fontFamily: "inherit" }} 
                           />
                         </div>
                       )}
@@ -1785,6 +1786,7 @@ const toLocalIsoDateTime = (dt) => {
                               disabled={isConverted}
                               value={draft.discountType || "flat"}
                               onChange={e => updateDraft(row.id, "discountType", e.target.value)}
+                              style={{ width: "100%", "--select-height": "40px" }}
                               options={[
                                 { label: "Flat Discount (₹)", value: "flat" },
                                 { label: "Percentage Discount (%)", value: "percent" }
@@ -1803,7 +1805,7 @@ const toLocalIsoDateTime = (dt) => {
                               placeholder={draft.discountType === "percent" ? "e.g. 10" : "e.g. 2000"}
                               value={draft.discountValue || ""}
                               onChange={e => updateDraft(row.id, "discountValue", Math.max(0, Number(e.target.value)))}
-                              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                              style={{ width: "100%", height: "40px", padding: "0 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", background: "white", outline: "none", color: "#1e293b", fontFamily: "inherit" }}
                             />
                           </div>
                         </div>
