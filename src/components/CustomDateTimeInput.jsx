@@ -89,15 +89,16 @@ export default function CustomDateTimeInput({
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
-    const dropdownHeight = 360;
-    const dropdownWidth = 460;
+    const dropdownHeight = 400;
+    const dropdownWidth = 500;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
     const openUp = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight;
 
     let left = rect.left;
-    if (left + dropdownWidth > window.innerWidth - 10) {
-      left = Math.max(10, window.innerWidth - dropdownWidth - 10);
+    // Ensure the dropdown never goes off the right edge of the viewport
+    if (left + dropdownWidth > window.innerWidth - 16) {
+      left = Math.max(10, window.innerWidth - dropdownWidth - 16);
     }
 
     setCoords({
@@ -309,7 +310,7 @@ export default function CustomDateTimeInput({
               top: coords.top,
               left: coords.left,
               width: 480,
-              maxWidth: "calc(100vw - 20px)",
+              maxWidth: "calc(100vw - 32px)",
               background: "#ffffff",
               borderRadius: 16,
               boxShadow: "0 20px 40px -6px rgba(15, 23, 42, 0.2), 0 8px 16px -4px rgba(15, 23, 42, 0.1)",
@@ -318,7 +319,8 @@ export default function CustomDateTimeInput({
               zIndex: 9999999,
               fontFamily: "'Poppins', 'Segoe UI', sans-serif",
               animation: "fadeInPicker 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              overflow: "hidden"
             }}
           >
             <style>{`

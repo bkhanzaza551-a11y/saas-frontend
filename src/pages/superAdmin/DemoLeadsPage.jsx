@@ -1128,26 +1128,27 @@ const toLocalIsoDateTime = (dt) => {
                   type="button"
                   onClick={closeDetailModal} 
                   style={{ 
-                    background: "#f1f5f9", 
-                    border: "2px solid #cbd5e1", 
+                    background: "#e2e8f0", 
+                    border: "2px solid #94a3b8", 
                     cursor: "pointer", 
-                    width: 38, 
-                    height: 38, 
-                    borderRadius: 10, 
+                    width: 40, 
+                    height: 40, 
+                    borderRadius: 12, 
                     display: "inline-flex", 
                     alignItems: "center", 
                     justifyContent: "center", 
-                    color: "#1e293b", 
+                    color: "#0f172a", 
                     flexShrink: 0,
                     transition: "all 0.15s ease",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.08)"
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+                    padding: 0
                   }}
                   onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "#f87171"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#1e293b"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; e.currentTarget.style.borderColor = "#94a3b8"; }}
                   title="Close modal"
                   aria-label="Close"
                 >
-                  <X size={20} strokeWidth={2.5} />
+                  <X size={22} strokeWidth={3} />
                 </button>
               </div>
 
