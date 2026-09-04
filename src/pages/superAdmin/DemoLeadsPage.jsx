@@ -172,6 +172,13 @@ export default function DemoLeadsPage() {
   const [feedback, setFeedback] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
   const [lastApprovedLead, setLastApprovedLead] = useState(null);
+
+  // Auto-dismiss feedback toast after 5 seconds
+  useEffect(() => {
+    if (!feedback.error && !feedback.success) return;
+    const timer = setTimeout(() => setFeedback({ error: "", success: "" }), 5000);
+    return () => clearTimeout(timer);
+  }, [feedback.error, feedback.success]);
   const [selectedLead, setSelectedLead] = useState(null);
   const [leadModalTab, setLeadModalTab] = useState("overview");
 
