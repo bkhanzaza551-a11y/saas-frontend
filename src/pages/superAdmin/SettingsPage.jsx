@@ -1089,18 +1089,10 @@ export default function SuperAdminSettingsPage() {
                 <div>
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Security Settings</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Authentication policies, session timeouts, verification requirements, and account protection thresholds.</p>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Authentication policies, session timeouts, and account protection thresholds.</p>
                   </div>
                   
                   <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    {/* Verification Toggles */}
-                    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
-                      <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Verification Rules</h4>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <Toggle value={form.requireEmailVerification} onChange={v => setForm(p => ({ ...p, requireEmailVerification: v }))} label="Require Email Verification" />
-                        <Toggle value={form.requireMobileVerification} onChange={v => setForm(p => ({ ...p, requireMobileVerification: v }))} label="Require Mobile Verification" />
-                      </div>
-                    </div>
 
                     {/* Expiries & Timeouts */}
                     <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
