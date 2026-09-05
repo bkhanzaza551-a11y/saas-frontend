@@ -31,7 +31,7 @@ const defaultFlags = {
   auditLogs: true
 };
 const emptyForm = {
-  name: "", phone: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
+  name: "", phone: "", email: "", ownerName: "", ownerEmail: "", ownerPhone: "", planId: "", city: "", address: "", state: "", country: "", pinCode: ""
 };
 
 export default function SalonsPage() {
@@ -150,6 +150,10 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
       setStatus({ error: "City is required.", success: "" });
       return;
     }
+    if (form.email && form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setStatus({ error: "Please enter a valid email address.", success: "" });
+      return;
+    }
     if (!editingId) {
       if (!form.ownerName || !form.ownerEmail || !form.ownerPhone || !form.planId) {
         setStatus({ error: "All fields are required.", success: "" });
@@ -164,6 +168,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
     setSaving(true);
     try {
       const payload = { ...form };
+      if (form.email) payload.email = form.email.trim();
       if (editingId) {
         await api.patch(`/super-admin/salons/${editingId}`, payload);
         setStatus({ error: "", success: "Salon updated successfully." });
@@ -193,13 +198,14 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
       const res = await api.get(`/super-admin/salons/${salon.id}`);
       const full = res.data;
       setEditingId(full.id);
-      const ownerMembership = full.users?.find(u => u.role === "OWNER");
+      const ownerMembership = full.users?.find(u => u.role === "OWNER" || u.salonRole === "SALON_OWNER");
       const owner = ownerMembership?.user;
       const planId = full.subscriptions?.[0]?.planId || "";
       setForm({
         name: full.name || "",
+        email: full.email || owner?.email || "",
         phone: full.phone || owner?.phone || "",
-        ownerName: owner?.name || "", ownerEmail: owner?.email || "", ownerPhone: owner?.phone || "", planId,
+        ownerName: owner?.name || "", ownerEmail: owner?.email || full.email || "", ownerPhone: owner?.phone || full.phone || "", planId,
         city: full.city || "", address: full.address || "", state: full.state || "", country: full.country || "", pinCode: full.pinCode || ""
       });
       setIsModalOpen(true);
@@ -522,6 +528,15 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Postal Code</span>
                   <input placeholder="6-digit code" value={form.pinCode} maxLength={6} onChange={(e) => setForm({ ...form, pinCode: e.target.value.replace(/\D/g, "") })} />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569" }}>Email Address</span>
+                  <input
+                    type="email"
+                    placeholder="e.g. salon@example.com"
+                    value={form.email || ""}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  />
                 </label>
 
                 {!editingId && (
