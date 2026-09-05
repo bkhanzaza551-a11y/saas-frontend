@@ -862,16 +862,13 @@ export default function SuperAdminSettingsPage() {
                 <div>
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Communications</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control how SalonNest sends email, SMS, and WhatsApp communications.</p>
+                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control how SalonNest sends system transactional emails and notifications.</p>
                   </div>
 
                   {/* Test Recipient Section */}
-                  <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+                  <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 20 }}>
                     <Field label="Test Recipient Email">
                       <input style={inputStyle} type="email" value={testRecipient.email} onChange={e => setTestRecipient(p => ({ ...p, email: e.target.value }))} placeholder="test@yourcompany.com" />
-                    </Field>
-                    <Field label="Test Recipient Phone">
-                      <input style={inputStyle} value={testRecipient.phone} onChange={e => setTestRecipient(p => ({ ...p, phone: e.target.value }))} placeholder="+91 98765 43210" />
                     </Field>
                   </div>
 
@@ -901,27 +898,6 @@ export default function SuperAdminSettingsPage() {
                       </Field>
                       <Field label="Support Email">
                         <input style={inputStyle} type="email" {...f("supportEmail")} placeholder="help@salonnest.in" />
-                      </Field>
-                    </div>
-                  </div>
-
-                  {/* Section 3.2: WhatsApp */}
-                  <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                      <div>
-                        <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>WhatsApp</h4>
-                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>Business messaging and real-time confirmations</p>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Toggle value={form.notificationWhatsappEnabled} onChange={v => setForm(p => ({ ...p, notificationWhatsappEnabled: v }))} label="Enable WhatsApp" />
-                        <button type="button" disabled={!form.notificationWhatsappEnabled || !!testingChannel} onClick={() => testChannel("whatsapp")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.notificationWhatsappEnabled || testingChannel ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
-                          {testingChannel === "whatsapp" ? "Sending..." : "Test WhatsApp"}
-                        </button>
-                      </div>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
-                      <Field label="WhatsApp Business Number / Helpline">
-                        <input style={inputStyle} {...f("whatsappNumber")} placeholder="+91 98765 43210" />
                       </Field>
                     </div>
                   </div>
