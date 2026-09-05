@@ -424,8 +424,9 @@ export default function SuperAdminSettingsPage() {
   const [testingChannel, setTestingChannel] = useState("");
   const [testRecipient, setTestRecipient] = useState({ email: "", phone: "" });
   const testChannel = async (channel) => {
-    if (channel === "email" && !testRecipient.email?.trim()) {
-      setStatus({ error: "Enter a test email address first.", success: "" });
+    const targetEmail = testRecipient.email?.trim() || user?.email || form.notificationEmail || form.supportEmail;
+    if (channel === "email" && !targetEmail) {
+      setStatus({ error: "No recipient email configured for test.", success: "" });
       return;
     }
     if (channel !== "email" && !testRecipient.phone?.trim()) {
@@ -437,9 +438,9 @@ export default function SuperAdminSettingsPage() {
     try {
       const res = await api.post("/super-admin/settings/test-channel", {
         channel,
-        ...(channel === "email" ? { toEmail: testRecipient.email } : { to: testRecipient.phone })
+        ...(channel === "email" ? { toEmail: targetEmail } : { to: testRecipient.phone })
       });
-      setStatus({ error: "", success: res.data?.message || `${channel} test sent.` });
+      setStatus({ error: "", success: res.data?.message || (channel === "email" ? `Test email sent to ${targetEmail}` : `${channel} test sent.`) });
     } catch (err) {
       setStatus({ error: formatApiError(err, "Test failed."), success: "" });
     } finally {
@@ -863,13 +864,6 @@ export default function SuperAdminSettingsPage() {
                   <div style={{ marginBottom: 24 }}>
                     <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Communications</h3>
                     <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control how SalonNest sends system transactional emails and notifications.</p>
-                  </div>
-
-                  {/* Test Recipient Section */}
-                  <div style={{ padding: 14, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 20 }}>
-                    <Field label="Test Recipient Email">
-                      <input style={inputStyle} type="email" value={testRecipient.email} onChange={e => setTestRecipient(p => ({ ...p, email: e.target.value }))} placeholder="test@yourcompany.com" />
-                    </Field>
                   </div>
 
                   {/* Section 3.1: Email */}
