@@ -89,22 +89,31 @@ export default function CustomDateTimeInput({
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
-    const dropdownHeight = 400;
-    const dropdownWidth = 500;
+    const dropdownHeight = 340;
+    const dropdownWidth = 510;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
-    const openUp = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight;
+    const openUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
 
     let left = rect.left;
     // Ensure the dropdown never goes off the right edge of the viewport
     if (left + dropdownWidth > window.innerWidth - 16) {
-      left = Math.max(10, window.innerWidth - dropdownWidth - 16);
+      left = Math.max(12, window.innerWidth - dropdownWidth - 16);
+    }
+
+    let top = openUp ? rect.top - dropdownHeight - 6 : rect.bottom + 6;
+    // Clamp top so it never extends past the bottom of the viewport
+    if (!openUp && top + dropdownHeight > window.innerHeight - 12) {
+      top = Math.max(12, window.innerHeight - dropdownHeight - 12);
+    }
+    if (openUp && top < 12) {
+      top = 12;
     }
 
     setCoords({
-      top: openUp ? rect.top - dropdownHeight - 6 : rect.bottom + 6,
+      top,
       left,
-      width: Math.max(dropdownWidth, rect.width),
+      width: dropdownWidth,
       openUp
     });
   }, []);
@@ -309,18 +318,20 @@ export default function CustomDateTimeInput({
               position: "fixed",
               top: coords.top,
               left: coords.left,
-              width: 480,
-              maxWidth: "calc(100vw - 32px)",
+              width: 510,
+              maxWidth: "calc(100vw - 24px)",
+              maxHeight: "calc(100vh - 24px)",
               background: "#ffffff",
               borderRadius: 16,
               boxShadow: "0 20px 40px -6px rgba(15, 23, 42, 0.2), 0 8px 16px -4px rgba(15, 23, 42, 0.1)",
               border: "1px solid #e2e8f0",
-              padding: "18px",
+              padding: "16px",
               zIndex: 9999999,
               fontFamily: "'Poppins', 'Segoe UI', sans-serif",
               animation: "fadeInPicker 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
               boxSizing: "border-box",
-              overflow: "hidden"
+              overflowY: "auto",
+              overflowX: "hidden"
             }}
           >
             <style>{`
@@ -329,13 +340,13 @@ export default function CustomDateTimeInput({
                 to { opacity: 1; transform: translateY(0) scale(1); }
               }
               .dt-day-cell {
-                width: 32px;
-                height: 32px;
+                width: 30px;
+                height: 30px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 8px;
-                font-size: 0.8rem;
+                font-size: 0.78rem;
                 font-weight: 600;
                 cursor: pointer;
                 transition: all 0.15s ease;
@@ -365,11 +376,11 @@ export default function CustomDateTimeInput({
                 font-weight: 500;
               }
               .time-pill-btn {
-                padding: 6px 10px;
+                padding: 5px 8px;
                 border-radius: 8px;
                 border: 1px solid #e2e8f0;
                 background: #f8fafc;
-                font-size: 0.78rem;
+                font-size: 0.76rem;
                 font-weight: 600;
                 color: #334155;
                 cursor: pointer;
@@ -390,9 +401,9 @@ export default function CustomDateTimeInput({
               }
             `}</style>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "246px 1fr", gap: 16 }}>
               {/* Left Column: Calendar Date */}
-              <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: 16 }}>
+              <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: 14 }}>
                 {/* Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                   <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#0f172a" }}>
@@ -463,14 +474,14 @@ export default function CustomDateTimeInput({
               </div>
 
               {/* Right Column: Time Selection */}
-              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
                 <div>
                   <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}>
                     <Clock size={13} color="#4f46e5" /> Time
                   </div>
 
                   {/* Hour : Minute : AM/PM selector */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 12 }}>
                     {/* Hour dropdown */}
                     <select
                       value={timeState.hour}
@@ -479,7 +490,7 @@ export default function CustomDateTimeInput({
                         setTimeState(nt);
                         emitDateTime(selectedYear, selectedMonth, selectedDay, nt);
                       }}
-                      style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", outline: "none", textAlign: "center" }}
+                      style={{ flex: 1, minWidth: 44, padding: "5px 2px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.82rem", fontWeight: 700, color: "#0f172a", outline: "none", textAlign: "center" }}
                     >
                       {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(h => (
                         <option key={h} value={h}>{h}</option>
@@ -496,7 +507,7 @@ export default function CustomDateTimeInput({
                         setTimeState(nt);
                         emitDateTime(selectedYear, selectedMonth, selectedDay, nt);
                       }}
-                      style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", outline: "none", textAlign: "center" }}
+                      style={{ flex: 1, minWidth: 44, padding: "5px 2px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.82rem", fontWeight: 700, color: "#0f172a", outline: "none", textAlign: "center" }}
                     >
                       {["00", "15", "30", "45"].map(m => (
                         <option key={m} value={m}>{m}</option>
@@ -504,7 +515,7 @@ export default function CustomDateTimeInput({
                     </select>
 
                     {/* AM / PM toggle */}
-                    <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 8, padding: 2, border: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 8, padding: 2, border: "1px solid #e2e8f0", flexShrink: 0 }}>
                       <button
                         type="button"
                         onClick={() => {
@@ -512,7 +523,7 @@ export default function CustomDateTimeInput({
                           setTimeState(nt);
                           emitDateTime(selectedYear, selectedMonth, selectedDay, nt);
                         }}
-                        style={{ padding: "4px 8px", border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: timeState.ampm === "AM" ? "#4f46e5" : "transparent", color: timeState.ampm === "AM" ? "#fff" : "#64748b" }}
+                        style={{ padding: "4px 7px", minWidth: 26, border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: timeState.ampm === "AM" ? "#4f46e5" : "transparent", color: timeState.ampm === "AM" ? "#fff" : "#64748b" }}
                       >
                         AM
                       </button>
@@ -523,7 +534,7 @@ export default function CustomDateTimeInput({
                           setTimeState(nt);
                           emitDateTime(selectedYear, selectedMonth, selectedDay, nt);
                         }}
-                        style={{ padding: "4px 8px", border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: timeState.ampm === "PM" ? "#4f46e5" : "transparent", color: timeState.ampm === "PM" ? "#fff" : "#64748b" }}
+                        style={{ padding: "4px 7px", minWidth: 26, border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: timeState.ampm === "PM" ? "#4f46e5" : "transparent", color: timeState.ampm === "PM" ? "#fff" : "#64748b" }}
                       >
                         PM
                       </button>
