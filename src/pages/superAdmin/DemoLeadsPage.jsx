@@ -121,7 +121,8 @@ const emptyLeadForm = {
 const emptyDraft = {
   salonName: "",
   planId: "",
-  trialDays: 30,
+  isTrial: false,
+  trialDays: 14,
   meetingScheduledAt: "",
   meetingLink: "",
   assignedUserId: "",
@@ -130,7 +131,7 @@ const emptyDraft = {
   lostNotes: "",
   leadNotes: "",
   city: "Mumbai",
-  billingCycle: "monthly"
+  billingCycle: "yearly"
 };
 
 export default function DemoLeadsPage() {
@@ -326,7 +327,7 @@ const toLocalIsoDateTime = (dt) => {
         ...emptyDraft,
         salonName: row.salon?.name || `${row.name.split(" ")[0] || row.name} Salon`,
         planId: defaultPlan?.id || "",
-        isTrial: true,
+        isTrial: false,
         trialDays: planTrial,
         hasDiscount: false,
         discountType: "flat",
@@ -657,8 +658,8 @@ const toLocalIsoDateTime = (dt) => {
     try {
       const response = await api.post(`/super-admin/demo-leads/${leadId}/approve`, {
         ...draft,
-        isTrial: draft.isTrial !== false,
-        trialDays: draft.isTrial !== false ? (Number(draft.trialDays) || 14) : 0,
+        isTrial: Boolean(draft.isTrial),
+        trialDays: draft.isTrial ? (Number(draft.trialDays) || 14) : 0,
         discountType: draft.hasDiscount ? draft.discountType : null,
         discountValue: draft.hasDiscount ? Number(draft.discountValue) : 0,
         finalPrice: grandTotal
@@ -1725,7 +1726,7 @@ const toLocalIsoDateTime = (dt) => {
                     draft.discountType,
                     draft.discountValue
                   );
-                  const isTrialActive = draft.isTrial !== false;
+                  const isTrialActive = Boolean(draft.isTrial);
 
                   return (
                     <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 16 }}>
