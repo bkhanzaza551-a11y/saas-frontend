@@ -20,7 +20,6 @@ const COMMON_SECURITY_QUESTIONS = [
 const TABS = [
   { id: "general",       label: "General",               icon: Settings },
   { id: "business",      label: "Business & Tax",        icon: CreditCard },
-  { id: "comms",         label: "Communications",         icon: MessageSquare },
   { id: "notifications", label: "Notifications",         icon: MessageSquare },
   { id: "policy",        label: "Subscription Policies",  icon: CreditCard },
   { id: "security",      label: "Security",               icon: Shield },
@@ -524,32 +523,6 @@ export default function SuperAdminSettingsPage() {
     }
   };
 
-  const [testingChannel, setTestingChannel] = useState("");
-  const [testRecipient, setTestRecipient] = useState({ email: "", phone: "" });
-  const testChannel = async (channel) => {
-    const targetEmail = testRecipient.email?.trim() || user?.email || form.notificationEmail || form.supportEmail;
-    if (channel === "email" && !targetEmail) {
-      setStatus({ error: "No recipient email configured for test.", success: "" });
-      return;
-    }
-    if (channel !== "email" && !testRecipient.phone?.trim()) {
-      setStatus({ error: "Enter a test phone number first.", success: "" });
-      return;
-    }
-    setTestingChannel(channel);
-    setStatus({ error: "", success: "" });
-    try {
-      const res = await api.post("/super-admin/settings/test-channel", {
-        channel,
-        ...(channel === "email" ? { toEmail: targetEmail } : { to: testRecipient.phone })
-      });
-      setStatus({ error: "", success: res.data?.message || (channel === "email" ? `Test email sent to ${targetEmail}` : `${channel} test sent.`) });
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Test failed."), success: "" });
-    } finally {
-      setTestingChannel("");
-    }
-  };
 
   const testIntegration = async (type, provider) => {
     setTestingInteg(type);
@@ -641,7 +614,6 @@ export default function SuperAdminSettingsPage() {
   const TAB_FIELD_MAP = {
     general: ["systemName", "globalLogo", "defaultCurrency", "defaultCountry", "defaultTimezone", "dateFormat", "timeFormat", "defaultLanguage", "currencyOptions", "invoicePrefix", "invoiceFormat"],
     business: ["businessName", "businessEmail", "businessPhone", "businessAddress", "businessCity", "businessState", "businessCountry", "businessPin", "taxNumber", "taxLabel", "taxRate"],
-    comms: ["notificationEmailEnabled", "notificationSmsEnabled", "notificationWhatsappEnabled", "emailProviderName", "smsProviderName", "whatsappProviderName", "emailSenderId", "smsSenderId", "whatsappSenderId", "notificationEmail", "contactEmail", "supportEmail", "whatsappNumber"],
     notifications: ["notificationDefaults", "messageTemplates"],
     integrations: ["integrations"],
     policy: ["trialDays", "reminderDaysBefore", "gracePeriodDays", "autoSuspendOnExpiry", "retentionDays", "retentionWarningDays", "retentionAction", "termsUrl", "privacyUrl", "termsContent", "privacyContent", "demoBookingUrl"],
@@ -961,46 +933,7 @@ export default function SuperAdminSettingsPage() {
                   <TabSaveButton tabName="business" />
                 </div>
               )}
- 
-              {activeTab === "comms" && (
-                <div>
-                  <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Communications</h3>
-                    <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Control how SalonNest sends system transactional emails and notifications.</p>
-                  </div>
 
-                  {/* Section 3.1: Email */}
-                  <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 18, marginBottom: 20 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                      <div>
-                        <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>Email</h4>
-                        <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>System transactional emails and notifications</p>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Toggle value={form.notificationEmailEnabled} onChange={v => setForm(p => ({ ...p, notificationEmailEnabled: v }))} label="Enable Email" />
-                        <button type="button" disabled={!form.notificationEmailEnabled || !!testingChannel} onClick={() => testChannel("email")} style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, cursor: !form.notificationEmailEnabled || testingChannel ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700 }}>
-                          {testingChannel === "email" ? "Sending..." : "Test Email"}
-                        </button>
-                      </div>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                      <Field label="Sender Name">
-                        <input style={inputStyle} {...f("emailSenderId")} placeholder="SalonNest" />
-                      </Field>
-                      <Field label="Sender Email">
-                        <input style={inputStyle} type="email" {...f("notificationEmail")} placeholder="alerts@salonnest.in" />
-                      </Field>
-                      <Field label="Reply-to Email">
-                        <input style={inputStyle} type="email" {...f("contactEmail")} placeholder="support@salonnest.in" />
-                      </Field>
-                      <Field label="Support Email">
-                        <input style={inputStyle} type="email" {...f("supportEmail")} placeholder="help@salonnest.in" />
-                      </Field>
-                    </div>
-                  </div>
-                  <TabSaveButton tabName="comms" />
-                </div>
-              )}
 
               {/* Section 4: Notification Settings */}
               {activeTab === "notifications" && (
