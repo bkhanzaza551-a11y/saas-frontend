@@ -68,13 +68,33 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (payload) => {
     const { data } = await api.post("/auth/login", payload);
-    if (!data.requireOtp) {
+    if (!data.requireOtp && !data.requireSecurityPin) {
       const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
       const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe: payload.rememberMe };
       unblockSession();
       persistState(state, payload.rememberMe);
       try { localStorage.setItem("sidebarExpanded", "true"); } catch {}
     }
+    return data;
+  };
+
+  const verifySecurityPin = async (payload, rememberMe = true) => {
+    const { data } = await api.post("/auth/verify-security-pin", payload);
+    const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
+    const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe };
+    unblockSession();
+    persistState(state, rememberMe);
+    try { localStorage.setItem("sidebarExpanded", "true"); } catch {}
+    return data;
+  };
+
+  const forgotSecurityPin = async (payload, rememberMe = true) => {
+    const { data } = await api.post("/auth/forgot-security-pin", payload);
+    const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
+    const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe };
+    unblockSession();
+    persistState(state, rememberMe);
+    try { localStorage.setItem("sidebarExpanded", "true"); } catch {}
     return data;
   };
 
@@ -191,7 +211,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [auth?.accessToken, auth?.membership?.salonId]);
 
-  const value = { auth, login, verifyOtp, resendOtp, logout, clearSession, switchSalon };
+  const value = { auth, login, verifyOtp, verifySecurityPin, forgotSecurityPin, resendOtp, logout, clearSession, switchSalon };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 };
 

@@ -5,7 +5,17 @@ import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import CustomSelect from "../../components/CustomSelect";
 import CustomDateTimeInput from "../../components/CustomDateTimeInput";
-import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle, Save } from "lucide-react";
+import { Settings, MessageSquare, CreditCard, Shield, AlertTriangle, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle, Save, Lock, Key, ShieldCheck } from "lucide-react";
+
+const COMMON_SECURITY_QUESTIONS = [
+  "What was the name of your first school?",
+  "In what city were you born?",
+  "What was your childhood nickname?",
+  "What is your mother's maiden name?",
+  "What was the make and model of your first car?",
+  "What is the name of your favorite teacher?",
+  "Custom question (write your own)..."
+];
 
 const TABS = [
   { id: "general",       label: "General",               icon: Settings },
@@ -420,6 +430,99 @@ export default function SuperAdminSettingsPage() {
     setAuditLoading(true);
     api.get("/super-admin/audit-logs").then(res => setAuditLogs(res.data || [])).catch(console.error).finally(() => setAuditLoading(false));
   }, []);
+
+  const [pinStatus, setPinStatus] = useState({ hasSecurityPin: false, securityQuestion: "" });
+  const [securityPinModalOpen, setSecurityPinModalOpen] = useState(false);
+  const [pinForm, setPinForm] = useState({
+    pin: "",
+    confirmPin: "",
+    question: "What was the name of your first school?",
+    customQuestion: "",
+    answer: "",
+    currentPin: "",
+    showPin: false
+  });
+  const [pinSaving, setPinSaving] = useState(false);
+  const [pinError, setPinError] = useState("");
+
+  const loadPinStatus = useCallback(() => {
+    api.get("/super-admin/security-pin-status")
+      .then(res => setPinStatus(res.data || {}))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadPinStatus();
+  }, [loadPinStatus]);
+
+  const handleToggle2FA = (newVal) => {
+    if (newVal) {
+      if (!pinStatus.hasSecurityPin) {
+        setPinError("");
+        setPinForm({
+          pin: "",
+          confirmPin: "",
+          question: "What was the name of your first school?",
+          customQuestion: "",
+          answer: "",
+          currentPin: "",
+          showPin: false
+        });
+        setSecurityPinModalOpen(true);
+        return;
+      }
+      setForm(p => ({ ...p, enforce2FA: true }));
+    } else {
+      setForm(p => ({ ...p, enforce2FA: false }));
+    }
+  };
+
+  const handleSavePinSetup = async (e) => {
+    e?.preventDefault?.();
+    setPinError("");
+    const selectedQuestion = pinForm.question === "Custom question (write your own)..."
+      ? pinForm.customQuestion.trim()
+      : pinForm.question;
+
+    if (!pinForm.pin || pinForm.pin.length < 4 || pinForm.pin.length > 8) {
+      setPinError("Security PIN must be 4 to 8 digits (recommended 6 digits).");
+      return;
+    }
+    if (pinForm.pin !== pinForm.confirmPin) {
+      setPinError("New Security PIN and Confirm PIN do not match.");
+      return;
+    }
+    if (!selectedQuestion) {
+      setPinError("Please select or write a recovery security question.");
+      return;
+    }
+    if (!pinForm.answer.trim()) {
+      setPinError("Please provide a secret answer to the recovery question.");
+      return;
+    }
+    if (pinStatus.hasSecurityPin && !pinForm.currentPin.trim()) {
+      setPinError("Please enter your current Security PIN to authorize this change.");
+      return;
+    }
+
+    setPinSaving(true);
+    try {
+      await api.post("/super-admin/setup-security-pin", {
+        pin: pinForm.pin.trim(),
+        question: selectedQuestion,
+        answer: pinForm.answer.trim(),
+        currentPin: pinStatus.hasSecurityPin ? pinForm.currentPin.trim() : undefined
+      });
+      setForm(p => ({ ...p, enforce2FA: true }));
+      setPinStatus({ hasSecurityPin: true, securityQuestion: selectedQuestion, enforce2FA: true });
+      setSecurityPinModalOpen(false);
+      setStatus({ success: "Admin Security PIN & Recovery Question configured successfully. 2FA is now active.", error: "" });
+    } catch (err) {
+      setPinError(formatApiError(err, "Failed to save Security PIN."));
+    } finally {
+      setPinSaving(false);
+    }
+  };
 
   const [testingChannel, setTestingChannel] = useState("");
   const [testRecipient, setTestRecipient] = useState({ email: "", phone: "" });
@@ -1125,8 +1228,91 @@ export default function SuperAdminSettingsPage() {
                           <input style={inputStyle} {...n("passwordLength")} min={6} max={32} placeholder="8" />
                         </Field>
                       </div>
-                      <div style={{ marginTop: 14 }}>
-                        <Toggle value={form.enforce2FA} onChange={v => setForm(p => ({ ...p, enforce2FA: v }))} label="Enforce Two-Factor Authentication (2FA) for Admins" />
+                      <div style={{ marginTop: 16, padding: "14px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <ShieldCheck size={18} color={form.enforce2FA ? "#4f46e5" : "#64748b"} />
+                              <span style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>
+                                Enforce Two-Factor Authentication (2FA) for Admins
+                              </span>
+                            </div>
+                            <p style={{ margin: "3px 0 0", fontSize: 12, color: "#64748b" }}>
+                              {form.enforce2FA
+                                ? "Super Admins must enter their 6-digit Security PIN upon logging in."
+                                : "Require a secondary Security PIN when Super Admins log in."}
+                            </p>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            {pinStatus.hasSecurityPin && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setPinError("");
+                                  setPinForm({
+                                    pin: "",
+                                    confirmPin: "",
+                                    question: pinStatus.securityQuestion || "What was the name of your first school?",
+                                    customQuestion: "",
+                                    answer: "",
+                                    currentPin: "",
+                                    showPin: false
+                                  });
+                                  setSecurityPinModalOpen(true);
+                                }}
+                                style={{
+                                  background: "#ffffff",
+                                  border: "1px solid #cbd5e1",
+                                  color: "#334155",
+                                  padding: "6px 12px",
+                                  borderRadius: 8,
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6
+                                }}
+                              >
+                                <Key size={13} color="#6366f1" />
+                                <span>Change PIN / Recovery Question</span>
+                              </button>
+                            )}
+                            <div
+                              onClick={() => handleToggle2FA(!form.enforce2FA)}
+                              style={{
+                                width: 42,
+                                height: 24,
+                                borderRadius: 100,
+                                background: form.enforce2FA ? "#4f46e5" : "#cbd5e1",
+                                position: "relative",
+                                transition: "all 0.25s",
+                                cursor: "pointer",
+                                flexShrink: 0
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: "50%",
+                                  background: "white",
+                                  position: "absolute",
+                                  top: 3,
+                                  left: form.enforce2FA ? 21 : 3,
+                                  transition: "all 0.25s",
+                                  boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {form.enforce2FA && (
+                          <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#16a34a", fontWeight: 600 }}>
+                            <CheckCircle2 size={14} />
+                            <span>Security PIN active • Recovery via question & answer enabled</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1327,6 +1513,158 @@ export default function SuperAdminSettingsPage() {
                 {savingTab === "maintenance" ? "Activating..." : "⚠️ Yes, Enable & Save Now"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin 2FA Security PIN & Recovery Question Setup Modal */}
+      {securityPinModalOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.65)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 16 }}>
+          <div style={{ background: "white", borderRadius: 16, maxWidth: 520, width: "100%", padding: 24, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", border: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 18 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: "#e0e7ff", color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <ShieldCheck size={24} />
+              </div>
+              <div>
+                <h3 style={{ margin: "0 0 4px", fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
+                  {pinStatus.hasSecurityPin ? "Update Security PIN & Recovery" : "Configure Admin 2FA Security PIN"}
+                </h3>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b", lineHeight: 1.5 }}>
+                  Set your personal Security PIN and a secret recovery question. If you ever forget your PIN upon logging in, your answer will allow you to reset it.
+                </p>
+              </div>
+            </div>
+
+            {pinError && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, color: "#dc2626", fontSize: 13, marginBottom: 16 }}>
+                <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                <span>{pinError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSavePinSetup} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {pinStatus.hasSecurityPin && (
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    Current Security PIN
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={8}
+                    required
+                    value={pinForm.currentPin}
+                    onChange={e => setPinForm(p => ({ ...p, currentPin: e.target.value.replace(/\D/g, "") }))}
+                    placeholder="Enter current PIN"
+                    style={{ ...inputStyle, width: "100%", letterSpacing: "2px" }}
+                  />
+                </div>
+              )}
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    New 6-Digit Security PIN
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={pinForm.showPin ? "text" : "password"}
+                      maxLength={8}
+                      required
+                      value={pinForm.pin}
+                      onChange={e => setPinForm(p => ({ ...p, pin: e.target.value.replace(/\D/g, "") }))}
+                      placeholder="e.g. 123456"
+                      style={{ ...inputStyle, width: "100%", letterSpacing: "3px", fontWeight: 700 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPinForm(p => ({ ...p, showPin: !p.showPin }))}
+                      style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 0 }}
+                    >
+                      {pinForm.showPin ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    Confirm Security PIN
+                  </label>
+                  <input
+                    type={pinForm.showPin ? "text" : "password"}
+                    maxLength={8}
+                    required
+                    value={pinForm.confirmPin}
+                    onChange={e => setPinForm(p => ({ ...p, confirmPin: e.target.value.replace(/\D/g, "") }))}
+                    placeholder="Repeat PIN"
+                    style={{ ...inputStyle, width: "100%", letterSpacing: "3px", fontWeight: 700 }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Recovery Security Question
+                </label>
+                <CustomSelect
+                  value={pinForm.question}
+                  onChange={e => setPinForm(p => ({ ...p, question: e.target.value }))}
+                  style={{ width: "100%" }}
+                >
+                  {COMMON_SECURITY_QUESTIONS.map((q, idx) => (
+                    <option key={idx} value={q}>{q}</option>
+                  ))}
+                </CustomSelect>
+              </div>
+
+              {pinForm.question === "Custom question (write your own)..." && (
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    Your Custom Recovery Question
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={pinForm.customQuestion}
+                    onChange={e => setPinForm(p => ({ ...p, customQuestion: e.target.value }))}
+                    placeholder="e.g. What is the name of your first pet?"
+                    style={{ ...inputStyle, width: "100%" }}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Secret Recovery Answer
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={pinForm.answer}
+                  onChange={e => setPinForm(p => ({ ...p, answer: e.target.value }))}
+                  placeholder="e.g. St. Xavier's High School"
+                  style={{ ...inputStyle, width: "100%" }}
+                />
+                <span style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 3, display: "block" }}>
+                  Answers are case-insensitive and stored securely with one-way encryption.
+                </span>
+              </div>
+
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => setSecurityPinModalOpen(false)}
+                  style={{ padding: "9px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={pinSaving}
+                  style={{ padding: "9px 22px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: pinSaving ? "not-allowed" : "pointer", boxShadow: "0 2px 8px rgba(79, 70, 229, 0.3)" }}
+                >
+                  {pinSaving ? "Saving..." : "Save & Enable 2FA PIN"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

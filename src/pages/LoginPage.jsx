@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PageLoader from "../components/PageLoader";
 import { formatApiError } from "../utils/apiError";
+import { ShieldCheck, Key, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -13,7 +14,7 @@ export default function LoginPage() {
   });
   const [err, setErr] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, verifyOtp, resendOtp, auth } = useAuth();
+  const { login, verifyOtp, verifySecurityPin, forgotSecurityPin, resendOtp, auth } = useAuth();
   const nav = useNavigate();
 
   // OTP and persistent login states
@@ -25,6 +26,16 @@ export default function LoginPage() {
   const [resendTimer, setResendTimer] = useState(60);
   const [resendMsg, setResendMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Admin 2FA Security PIN states
+  const [pinMode, setPinMode] = useState(false);
+  const [securityPin, setSecurityPin] = useState("");
+  const [forgotPinMode, setForgotPinMode] = useState(false);
+  const [securityQuestion, setSecurityQuestion] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmNewPin, setConfirmNewPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
 
   const getLoginRedirectPath = (authData) => {
     if (authData?.user?.systemRole === "SUPER_ADMIN") {
@@ -86,7 +97,13 @@ export default function LoginPage() {
         rememberMe: rememberMe
       };
       const res = await login(payload);
-      if (res?.requireOtp) {
+      if (res?.requireSecurityPin) {
+        setTempToken(res.tempToken);
+        setSecurityQuestion(res.securityQuestion || "What is your secret security answer?");
+        setPinMode(true);
+        setForgotPinMode(false);
+        setSecurityPin("");
+      } else if (res?.requireOtp) {
         setTempToken(res.tempToken);
         if (res.otp) {
           setSandboxOtp(res.otp);
@@ -98,6 +115,56 @@ export default function LoginPage() {
       }
     } catch (error) {
       setErr(formatApiError(error, "Login failed"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const onPinSubmit = async (event) => {
+    event.preventDefault();
+    setErr("");
+    if (!securityPin || securityPin.length < 4) {
+      setErr("Please enter your complete Security PIN.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const payload = { tempToken, securityPin: securityPin.trim() };
+      const res = await verifySecurityPin(payload, rememberMe);
+      nav(getLoginRedirectPath(res));
+    } catch (error) {
+      setErr(formatApiError(error, "Invalid Security PIN"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const onForgotPinSubmit = async (event) => {
+    event.preventDefault();
+    setErr("");
+    if (!securityAnswer.trim()) {
+      setErr("Please enter your answer to the security question.");
+      return;
+    }
+    if (!newPin || newPin.length < 4 || newPin.length > 8) {
+      setErr("New PIN must be between 4 and 8 digits (recommended 6 digits).");
+      return;
+    }
+    if (newPin !== confirmNewPin) {
+      setErr("New PIN and Confirm PIN do not match.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        tempToken,
+        answer: securityAnswer.trim(),
+        newPin: newPin.trim()
+      };
+      const res = await forgotSecurityPin(payload, rememberMe);
+      nav(getLoginRedirectPath(res));
+    } catch (error) {
+      setErr(formatApiError(error, "Failed to reset Security PIN. Please check your answer."));
     } finally {
       setIsSubmitting(false);
     }
@@ -427,6 +494,184 @@ export default function LoginPage() {
                           </button>
                         )}
                       </div>
+                    </>
+                  )}
+                </>
+              ) : pinMode ? (
+                <>
+                  {!forgotPinMode ? (
+                    <>
+                      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                        <div style={{ width: '52px', height: '52px', margin: '0 auto 12px', borderRadius: '14px', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)' }}>
+                          <ShieldCheck size={28} />
+                        </div>
+                        <h2 className="login-title">Admin Security PIN</h2>
+                        <p className="login-subtitle">Two-Factor Authentication is active for Super Admins.</p>
+                      </div>
+
+                      {isSubmitting ? (
+                        <PageLoader title="Verifying Security PIN" message="Checking Admin credentials and preparing workspace..." />
+                      ) : (
+                        <>
+                          <form onSubmit={onPinSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+                            <div className="premium-input-group">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <label className="premium-label">6-Digit Security PIN</label>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPin(!showPin)}
+                                  style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                  {showPin ? <><EyeOff size={14} /> Hide</> : <><Eye size={14} /> Show</>}
+                                </button>
+                              </div>
+                              <input
+                                type={showPin ? "text" : "password"}
+                                required
+                                autoFocus
+                                maxLength={8}
+                                placeholder="••••••"
+                                value={securityPin}
+                                onChange={(e) => setSecurityPin(e.target.value.replace(/\D/g, ""))}
+                                className="premium-input"
+                                style={{ fontSize: '1.4rem', letterSpacing: '8px', textAlign: 'center', padding: '12px', fontWeight: 800 }}
+                              />
+                            </div>
+
+                            {err && (
+                              <div className="error-text" style={{ padding: '12px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '16px', fontWeight: 500 }}>
+                                {err}
+                              </div>
+                            )}
+
+                            <button type="submit" className="premium-button" disabled={isSubmitting || securityPin.length < 4}>
+                              {isSubmitting ? "Verifying..." : "Verify & Enter Portal"}
+                            </button>
+
+                            <div style={{ textAlign: 'center', marginTop: '14px' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setForgotPinMode(true);
+                                  setErr("");
+                                  setSecurityAnswer("");
+                                  setNewPin("");
+                                  setConfirmNewPin("");
+                                }}
+                                style={{ background: 'none', border: 'none', color: '#6366f1', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }}
+                              >
+                                Forgot Security PIN?
+                              </button>
+                            </div>
+                          </form>
+
+                          <div style={{ textAlign: 'center', marginTop: '20px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPinMode(false);
+                                setSecurityPin("");
+                                setErr("");
+                              }}
+                              style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                            >
+                              ← Back to Login
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                        <div style={{ width: '52px', height: '52px', margin: '0 auto 12px', borderRadius: '14px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.15)' }}>
+                          <Key size={26} />
+                        </div>
+                        <h2 className="login-title">Reset Security PIN</h2>
+                        <p className="login-subtitle">Answer your security question to restore admin access.</p>
+                      </div>
+
+                      {isSubmitting ? (
+                        <PageLoader title="Resetting Security PIN" message="Validating recovery answer..." />
+                      ) : (
+                        <>
+                          <form onSubmit={onForgotPinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                              <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                                Security Question
+                              </span>
+                              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>
+                                {securityQuestion}
+                              </span>
+                            </div>
+
+                            <div className="premium-input-group">
+                              <label className="premium-label">Your Secret Answer</label>
+                              <input
+                                type="text"
+                                required
+                                autoFocus
+                                placeholder="Enter your secret answer"
+                                value={securityAnswer}
+                                onChange={(e) => setSecurityAnswer(e.target.value)}
+                                className="premium-input"
+                              />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                              <div className="premium-input-group">
+                                <label className="premium-label">New PIN</label>
+                                <input
+                                  type="password"
+                                  required
+                                  maxLength={8}
+                                  placeholder="New PIN"
+                                  value={newPin}
+                                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                                  className="premium-input"
+                                  style={{ textAlign: 'center', letterSpacing: '2px', fontWeight: 700 }}
+                                />
+                              </div>
+                              <div className="premium-input-group">
+                                <label className="premium-label">Confirm PIN</label>
+                                <input
+                                  type="password"
+                                  required
+                                  maxLength={8}
+                                  placeholder="Confirm PIN"
+                                  value={confirmNewPin}
+                                  onChange={(e) => setConfirmNewPin(e.target.value.replace(/\D/g, ""))}
+                                  className="premium-input"
+                                  style={{ textAlign: 'center', letterSpacing: '2px', fontWeight: 700 }}
+                                />
+                              </div>
+                            </div>
+
+                            {err && (
+                              <div className="error-text" style={{ padding: '10px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500 }}>
+                                {err}
+                              </div>
+                            )}
+
+                            <button type="submit" className="premium-button" disabled={isSubmitting || !securityAnswer.trim() || newPin.length < 4}>
+                              {isSubmitting ? "Resetting..." : "Reset PIN & Log In"}
+                            </button>
+
+                            <div style={{ textAlign: 'center', marginTop: '6px' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setForgotPinMode(false);
+                                  setErr("");
+                                }}
+                                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                              >
+                                ← Back to PIN Verification
+                              </button>
+                            </div>
+                          </form>
+                        </>
+                      )}
                     </>
                   )}
                 </>
