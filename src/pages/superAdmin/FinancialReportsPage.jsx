@@ -93,7 +93,7 @@ export default function FinancialReportsPage() {
   const [modeFilter, setModeFilter] = useState(searchParams.get("mode") || "");
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
   const [paymentForFilter, setPaymentForFilter] = useState(searchParams.get("paymentFor") || "");
-  const [datePreset, setDatePreset] = useState(searchParams.get("status") || searchParams.get("salonId") || searchParams.get("paymentFor") ? "all" : "month");
+  const [datePreset, setDatePreset] = useState(searchParams.get("preset") || searchParams.get("datePreset") || "all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
