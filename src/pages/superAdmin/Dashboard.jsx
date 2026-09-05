@@ -192,24 +192,24 @@ export default function SuperAdminDashboard() {
   // Page Subtitles according to active capabilities
   const dashboardTitle = isSuperAdmin
     ? "Dashboard"
-    : canSeeSupport && !canSeeFinance && !canSeeSales && !canSeeSalons
-    ? "Support & Helpdesk Dashboard"
-    : canSeeFinance && !canSeeSupport && !canSeeSales && !canSeeSalons
+    : canSeeFinance && !canSeeSupport && !canSeeSales
     ? "Financial & Billing Dashboard"
-    : canSeeSales && !canSeeFinance && !canSeeSupport && !canSeeSalons
+    : canSeeSales && !canSeeFinance && !canSeeSupport
     ? "Sales CRM & Pipeline Dashboard"
+    : canSeeSupport && !canSeeFinance && !canSeeSales
+    ? "Support & Helpdesk Dashboard"
     : canSeeSalons && !canSeeFinance && !canSeeSupport && !canSeeSales
     ? "Salon Operations & Onboarding Dashboard"
     : "Dashboard";
 
   const dashboardSubtitle = isSuperAdmin
     ? "Live SaaS overview for salons, subscriptions, leads, and support."
-    : canSeeSupport && !canSeeFinance && !canSeeSales && !canSeeSalons
-    ? "Live support tickets queue, issue resolution metrics, and salon requests."
-    : canSeeFinance && !canSeeSupport && !canSeeSales && !canSeeSalons
+    : canSeeFinance && !canSeeSupport && !canSeeSales
     ? "Subscription revenue, collected payments, and subscription statuses."
-    : canSeeSales && !canSeeFinance && !canSeeSupport && !canSeeSalons
+    : canSeeSales && !canSeeFinance && !canSeeSupport
     ? "Lead conversion, scheduled product demos, and pipeline health."
+    : canSeeSupport && !canSeeFinance && !canSeeSales
+    ? "Live support tickets queue, issue resolution metrics, and salon requests."
     : canSeeSalons && !canSeeFinance && !canSeeSupport && !canSeeSales
     ? "Salon onboarding lifecycle, operational statuses, and resource requests."
     : "Live SaaS overview for salons, subscriptions, leads, and support.";
