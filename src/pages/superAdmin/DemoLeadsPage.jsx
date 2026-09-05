@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
@@ -169,16 +169,39 @@ export default function DemoLeadsPage() {
   const [drafts, setDrafts] = useState({});
   const [busyId, setBusyId] = useState("");
   const [actionType, setActionType] = useState("");
-  const [feedback, setFeedback] = useState({ error: "", success: "" });
+  const [feedback, setFeedbackState] = useState({ error: "", success: "", ts: 0 });
   const [loading, setLoading] = useState(true);
   const [lastApprovedLead, setLastApprovedLead] = useState(null);
 
-  // Auto-dismiss feedback toast after 5 seconds
+  const setFeedback = useCallback((fb) => {
+    if (typeof fb === "function") {
+      setFeedbackState(prev => {
+        const next = fb(prev);
+        const hasMsg = Boolean(next?.error || next?.success);
+        return {
+          error: next?.error || "",
+          success: next?.success || "",
+          ts: hasMsg ? Date.now() : 0
+        };
+      });
+    } else {
+      const hasMsg = Boolean(fb?.error || fb?.success);
+      setFeedbackState({
+        error: fb?.error || "",
+        success: fb?.success || "",
+        ts: hasMsg ? Date.now() : 0
+      });
+    }
+  }, []);
+
+  // Auto-dismiss feedback toast reliably after 3.5 seconds
   useEffect(() => {
-    if (!feedback.error && !feedback.success) return;
-    const timer = setTimeout(() => setFeedback({ error: "", success: "" }), 5000);
+    if (!feedback.ts || (!feedback.error && !feedback.success)) return;
+    const timer = setTimeout(() => {
+      setFeedbackState({ error: "", success: "", ts: 0 });
+    }, 3500);
     return () => clearTimeout(timer);
-  }, [feedback.error, feedback.success]);
+  }, [feedback.ts]);
   const [selectedLead, setSelectedLead] = useState(null);
   const [leadModalTab, setLeadModalTab] = useState("overview");
 
@@ -988,16 +1011,80 @@ const toLocalIsoDateTime = (dt) => {
       </div>
 
       {/* Feedback Toast */}
+      {(feedback.error || feedback.success) && (
+        <style>{`
+          @keyframes toastSlideIn {
+            from { transform: translateY(-16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          @keyframes toastProgressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+          }
+        `}</style>
+      )}
       {feedback.error && (
-        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 10000, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#991b1b", fontSize: 14, fontWeight: 600 }}>
-          <XCircle size={20} /> {feedback.error}
-          <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "12px", cursor: "pointer", color: "#dc2626", fontWeight: 700, padding: 4 }}>x</span>
+        <div style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          zIndex: 10000,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "14px 18px 18px 18px",
+          background: "#fef2f2",
+          border: "1px solid #fca5a5",
+          borderRadius: 12,
+          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
+          color: "#991b1b",
+          fontSize: 14,
+          fontWeight: 600,
+          overflow: "hidden",
+          animation: "toastSlideIn 0.25s ease-out"
+        }}>
+          <XCircle size={20} style={{ flexShrink: 0 }} />
+          <span>{feedback.error}</span>
+          <span
+            onClick={() => setFeedback({ error: "", success: "" })}
+            style={{ marginLeft: "12px", cursor: "pointer", color: "#dc2626", fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "rgba(220,38,38,0.1)" }}
+            title="Dismiss"
+          >
+            ✕
+          </span>
+          <div style={{ position: "absolute", bottom: 0, left: 0, height: 3, background: "#ef4444", animation: "toastProgressBar 3.5s linear forwards" }} />
         </div>
       )}
       {feedback.success && (
-        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 10000, display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", color: "#065f46", fontSize: 14, fontWeight: 600 }}>
-          <CheckCircle size={20} /> {feedback.success}
-          <span onClick={() => setFeedback({ error: "", success: "" })} style={{ marginLeft: "12px", cursor: "pointer", color: "#059669", fontWeight: 700, padding: 4 }}>x</span>
+        <div style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          zIndex: 10000,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "14px 18px 18px 18px",
+          background: "#ecfdf5",
+          border: "1px solid #a7f3d0",
+          borderRadius: 12,
+          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
+          color: "#065f46",
+          fontSize: 14,
+          fontWeight: 600,
+          overflow: "hidden",
+          animation: "toastSlideIn 0.25s ease-out"
+        }}>
+          <CheckCircle size={20} style={{ flexShrink: 0 }} />
+          <span>{feedback.success}</span>
+          <span
+            onClick={() => setFeedback({ error: "", success: "" })}
+            style={{ marginLeft: "12px", cursor: "pointer", color: "#059669", fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "rgba(5,150,105,0.1)" }}
+            title="Dismiss"
+          >
+            ✕
+          </span>
+          <div style={{ position: "absolute", bottom: 0, left: 0, height: 3, background: "#10b981", animation: "toastProgressBar 3.5s linear forwards" }} />
         </div>
       )}
 
