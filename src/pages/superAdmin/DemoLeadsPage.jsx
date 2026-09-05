@@ -422,6 +422,7 @@ const toLocalIsoDateTime = (dt) => {
   };
 
   const addFollowUp = async (leadId) => {
+    if (addingFollowUp) return; // Prevent double-clicks
     if (!followUpForm.dueAt) {
       setFeedback({ error: "Please select follow-up date and time.", success: "" });
       return;
@@ -444,6 +445,7 @@ const toLocalIsoDateTime = (dt) => {
   };
 
   const completeSingleFollowUp = async (leadId, followUpId) => {
+    if (busyId) return; // Prevent double-clicks
     setBusyId(`fu-${followUpId}`);
     try {
       await api.patch(`/super-admin/demo-leads/${leadId}/follow-ups/${followUpId}`, {
@@ -527,6 +529,7 @@ const toLocalIsoDateTime = (dt) => {
   };
 
   const scheduleMeeting = async (leadId) => {
+    if (busyId) return; // Prevent double-clicks
     setBusyId(leadId);
     setActionType("save-demo");
     setFeedback({ error: "", success: "" });

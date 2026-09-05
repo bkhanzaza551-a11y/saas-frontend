@@ -363,24 +363,23 @@ const Protected = () => {
   const visibleGroups = auth?.user?.systemRole === "SUPER_ADMIN"
     ? (() => {
         const roleName = (auth?.user?.adminRole?.name || "").toLowerCase();
-        if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth?.user?.adminRole) {
+        if ((!auth?.user?.adminRole && !auth?.user?.adminRoleId) || roleName.includes("super admin") || roleName.includes("master admin")) {
           return superAdminGroups;
         }
 
-        const adminPerms = auth?.user?.adminRole?.permissions;
-        const pagePerms = auth?.user?.pagePermissions;
-        
         let allowedPages = [];
-        if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms) && Object.keys(adminPerms).length > 0) {
-          allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
-        } else if (Array.isArray(adminPerms) && adminPerms.length > 0) {
-          allowedPages = [...adminPerms];
-        }
-        if (Array.isArray(pagePerms) && pagePerms.length > 0) {
-          allowedPages = [...allowedPages, ...pagePerms];
+        if (auth?.user?.adminRole) {
+          const adminPerms = auth?.user?.adminRole?.permissions;
+          if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms)) {
+            allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
+          } else if (Array.isArray(adminPerms)) {
+            allowedPages = [...adminPerms];
+          }
+        } else if (Array.isArray(auth?.user?.pagePermissions)) {
+          allowedPages = [...auth?.user?.pagePermissions];
         }
 
-        if (!allowedPages || allowedPages.length === 0 || allowedPages.includes("*") || allowedPages.includes("all")) {
+        if (allowedPages.includes("*") || allowedPages.includes("all")) {
           return superAdminGroups;
         }
 
@@ -515,23 +514,23 @@ const SuperAdminRoute = ({ pageKey, element }) => {
   }
 
   const roleName = (auth.user?.adminRole?.name || "").toLowerCase();
-  if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || !auth.user?.adminRole) {
+  if ((!auth.user?.adminRole && !auth.user?.adminRoleId) || roleName.includes("super admin") || roleName.includes("master admin")) {
     return element;
   }
 
-  const adminPerms = auth.user?.adminRole?.permissions;
-  const pagePerms = auth.user?.pagePermissions;
   let allowedPages = [];
-  if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms) && Object.keys(adminPerms).length > 0) {
-    allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
-  } else if (Array.isArray(adminPerms) && adminPerms.length > 0) {
-    allowedPages = [...adminPerms];
-  }
-  if (Array.isArray(pagePerms) && pagePerms.length > 0) {
-    allowedPages = [...allowedPages, ...pagePerms];
+  if (auth.user?.adminRole) {
+    const adminPerms = auth.user?.adminRole?.permissions;
+    if (adminPerms && typeof adminPerms === "object" && !Array.isArray(adminPerms)) {
+      allowedPages = Object.keys(adminPerms).filter(k => adminPerms[k] === true);
+    } else if (Array.isArray(adminPerms)) {
+      allowedPages = [...adminPerms];
+    }
+  } else if (Array.isArray(auth.user?.pagePermissions)) {
+    allowedPages = [...auth.user?.pagePermissions];
   }
 
-  if (allowedPages.length === 0 || allowedPages.includes("*") || allowedPages.includes("all")) {
+  if (allowedPages.includes("*") || allowedPages.includes("all")) {
     return element;
   }
 

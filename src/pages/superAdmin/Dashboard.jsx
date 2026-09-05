@@ -49,37 +49,36 @@ export default function SuperAdminDashboard() {
 
   // Dynamic RBAC Permission & Role Resolution
   const permissions = useMemo(() => {
-    const rolePerms = auth?.user?.adminRole?.permissions;
-    const userPerms = auth?.user?.pagePermissions;
-    let list = [];
-    if (Array.isArray(rolePerms)) {
-      list.push(...rolePerms);
-    } else if (rolePerms && typeof rolePerms === "object") {
-      list.push(...Object.keys(rolePerms).filter((k) => rolePerms[k] === true));
+    if (auth?.user?.adminRole) {
+      const rolePerms = auth?.user?.adminRole?.permissions;
+      if (Array.isArray(rolePerms)) {
+        return rolePerms;
+      } else if (rolePerms && typeof rolePerms === "object") {
+        return Object.keys(rolePerms).filter((k) => rolePerms[k] === true);
+      }
+      return [];
     }
-    if (Array.isArray(userPerms)) {
-      list.push(...userPerms);
+    if (Array.isArray(auth?.user?.pagePermissions)) {
+      return auth.user.pagePermissions;
     }
-    return list;
+    return [];
   }, [auth]);
 
   const roleName = (auth?.user?.adminRole?.name || "").toLowerCase();
-  const department = (auth?.user?.department || "").toLowerCase();
 
   const isSuperAdmin = useMemo(() => {
     if (!auth?.user?.adminRoleId && !auth?.user?.adminRole) return true; // Default Root SuperAdmin
-    if (roleName.includes("super admin") || roleName.includes("master admin") || roleName === "admin" || roleName === "platform admin") return true;
+    if (roleName.includes("super admin") || roleName.includes("master admin")) return true;
     if (permissions.includes("*") || permissions.includes("all")) return true;
-    const core = ["salons", "finance", "support-tickets", "sales-pipeline"];
-    return core.every((p) => permissions.includes(p));
+    return false;
   }, [auth, roleName, permissions]);
 
-  // Modular Capability Flags
-  const canSeeFinance = isSuperAdmin || permissions.includes("finance") || permissions.includes("subscriptions") || permissions.includes("plans") || roleName.includes("finance") || department.includes("finance");
-  const canSeeSupport = isSuperAdmin || permissions.includes("support-tickets") || permissions.includes("support") || roleName.includes("support") || department.includes("support");
-  const canSeeSales = isSuperAdmin || permissions.includes("sales-pipeline") || permissions.includes("demo-leads") || roleName.includes("sales") || department.includes("sales");
-  const canSeeSalons = isSuperAdmin || permissions.includes("salons") || roleName.includes("operation") || department.includes("operation");
-  const canSeeRequests = isSuperAdmin || permissions.includes("product-requests") || permissions.includes("staff-requests") || canSeeSupport || canSeeSalons;
+  // Modular Capability Flags strictly based on permissions & role
+  const canSeeFinance = isSuperAdmin || permissions.includes("finance") || permissions.includes("subscriptions") || permissions.includes("plans") || roleName.includes("finance");
+  const canSeeSupport = isSuperAdmin || permissions.includes("support-tickets") || permissions.includes("support") || roleName.includes("support");
+  const canSeeSales = isSuperAdmin || permissions.includes("sales-pipeline") || permissions.includes("demo-leads") || roleName.includes("sales");
+  const canSeeSalons = isSuperAdmin || permissions.includes("salons") || roleName.includes("operation");
+  const canSeeRequests = isSuperAdmin || permissions.includes("product-requests") || permissions.includes("staff-requests");
   const canSeeActivity = isSuperAdmin || permissions.includes("audit-logs") || permissions.includes("staff");
 
   const totalPendingRequests = (data?.pendingProductRequests || 0) + (data?.pendingStaffRequests || 0);
@@ -136,13 +135,15 @@ export default function SuperAdminDashboard() {
 
     // Dynamic combination for custom cross-role permissions
     const list = [];
-    if (canSeeSalons) {
-      list.push({ label: "Total Salons", value: data?.totalSalons || 0, caption: "All salons", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" });
-      list.push({ label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons?status=ACTIVE" });
-    }
     if (canSeeFinance) {
       list.push({ label: "Collected Revenue", value: `₹${fmt(data?.totalSubscriptionRevenue)}`, caption: "Subscriptions", icon: IndianRupee, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/finance?status=COMPLETED" });
       list.push({ label: "Monthly Revenue", value: `₹${fmt(data?.monthlySubscriptionRevenue)}`, caption: "MRR", icon: TrendingUp, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/finance" });
+      list.push({ label: "Pending Payments", value: `₹${fmt(data?.pendingSubscriptionRevenue)}`, caption: "Awaiting settlement", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/finance?status=PENDING" });
+      list.push({ label: "Active Subscriptions", value: data?.subscriptionStatusSummary?.active || 0, caption: "Active Plans", icon: CheckCircle, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/subscriptions?status=ACTIVE" });
+    }
+    if (canSeeSalons && list.length < 6) {
+      list.push({ label: "Total Salons", value: data?.totalSalons || 0, caption: "All salons", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" });
+      list.push({ label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons?status=ACTIVE" });
     }
     if (canSeeSales && list.length < 6) {
       list.push({ label: "Pipeline Leads", value: data?.activeDemoLeads ?? data?.demoLeadsCount ?? 0, caption: "Active leads", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" });
