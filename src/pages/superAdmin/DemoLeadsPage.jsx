@@ -1933,7 +1933,7 @@ const toLocalIsoDateTime = (dt) => {
                         </div>
                       </div>
 
-                      {/* Convert Button */}
+                      {/* Convert Button (Commented out per user request)
                       <button
                         type="button"
                         onClick={() => approveLead(row.id)}
@@ -1966,6 +1966,7 @@ const toLocalIsoDateTime = (dt) => {
                           "Convert & Create Salon (Full 1-Year Plan)"
                         )}
                       </button>
+                      */}
 
                       {isConverted && row.salon?.id && (
                         <a
