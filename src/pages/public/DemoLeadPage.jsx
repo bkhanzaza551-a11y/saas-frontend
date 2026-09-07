@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
+import { City } from "country-state-city";
 import {
   Check, ArrowRight, Calendar, Users, CreditCard, BarChart3, Shield, Store,
   AlertCircle, Sparkles, CheckCircle2, Phone, Mail, MapPin, HeadphonesIcon,
-  ShieldCheck, Zap, Building2, Send
+  ShieldCheck, Zap, Building2, Send, ChevronDown, X, Search
 } from "lucide-react";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
 
-const initialForm = { name: "", email: "", phone: "", company: "", branchCount: "1", message: "" };
+const initialForm = { name: "", email: "", phone: "", company: "", city: "", branchCount: "1", message: "" };
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -42,6 +43,19 @@ export default function PublicDemoLeadPage() {
   const [state, setState] = useState({ error: "", success: "" });
   const [submitting, setSubmitting] = useState(false);
   const [settings, setSettings] = useState(null);
+  const [citySearch, setCitySearch] = useState("");
+  const [cityOpen, setCityOpen] = useState(false);
+
+  const indianCities = useMemo(() => {
+    const all = City.getCitiesOfCountry("IN") || [];
+    return Array.from(new Set(all.map(c => c.name))).sort((a, b) => a.localeCompare(b));
+  }, []);
+
+  const filteredCities = useMemo(() => {
+    if (!citySearch.trim()) return indianCities;
+    const q = citySearch.toLowerCase();
+    return indianCities.filter(c => c.toLowerCase().includes(q));
+  }, [indianCities, citySearch]);
 
   useEffect(() => {
     document.title = "Request 1-on-1 Live Demo | Salon Nest ERP";
@@ -127,12 +141,15 @@ export default function PublicDemoLeadPage() {
         email: form.email,
         phone: `+91${cleanDigits}`,
         company: form.company,
+        city: form.city?.trim() || undefined,
         notes: form.message || "General Walkthrough"
       };
       await api.post("/public/demo-leads", payload);
       setForm(initialForm);
       setErrors({});
       setTouched({});
+      setCitySearch("");
+      setCityOpen(false);
       setState({ 
         error: "", 
         success: "Your demo walkthrough request has been received! Our deployment specialist will reach out on WhatsApp/Phone shortly." 
@@ -451,6 +468,96 @@ export default function PublicDemoLeadPage() {
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  {/* City Dropdown */}
+                  <div style={{ position: "relative" }}>
+                    <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Your City (Optional)</label>
+                    <div
+                      onClick={() => { setCityOpen(o => !o); setCitySearch(""); }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "12px 14px",
+                        borderRadius: 10,
+                        border: "1px solid #cbd5e1",
+                        background: "#ffffff",
+                        fontSize: 14,
+                        cursor: "pointer",
+                        userSelect: "none",
+                        boxSizing: "border-box"
+                      }}
+                    >
+                      <span style={{ color: form.city ? "#0f172a" : "#94a3b8" }}>
+                        {form.city || "Select your city..."}
+                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        {form.city && (
+                          <span
+                            onClick={e => { e.stopPropagation(); setForm(p => ({ ...p, city: "" })); setCityOpen(false); }}
+                            style={{ color: "#94a3b8", cursor: "pointer", display: "flex" }}
+                          >
+                            <X size={14} />
+                          </span>
+                        )}
+                        <ChevronDown size={16} color="#94a3b8" style={{ transform: cityOpen ? "rotate(180deg)" : "none", transition: "0.2s" }} />
+                      </div>
+                    </div>
+
+                    {cityOpen && (
+                      <div style={{
+                        position: "absolute",
+                        top: "calc(100% + 4px)",
+                        left: 0,
+                        right: 0,
+                        background: "#fff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 12,
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                        zIndex: 1000,
+                        overflow: "hidden"
+                      }}>
+                        <div style={{ padding: "10px 12px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 8 }}>
+                          <Search size={14} color="#94a3b8" />
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Search city..."
+                            value={citySearch}
+                            onChange={e => setCitySearch(e.target.value)}
+                            onClick={e => e.stopPropagation()}
+                            style={{ border: "none", outline: "none", fontSize: 13, flex: 1, background: "transparent", color: "#0f172a" }}
+                          />
+                          {citySearch && <span onClick={() => setCitySearch("")} style={{ cursor: "pointer", color: "#94a3b8", display: "flex" }}><X size={12} /></span>}
+                        </div>
+                        <div style={{ maxHeight: 200, overflowY: "auto" }}>
+                          {filteredCities.length === 0 ? (
+                            <div style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 13, textAlign: "center" }}>No cities found</div>
+                          ) : (
+                            filteredCities.map(c => (
+                              <div
+                                key={c}
+                                onClick={() => { setForm(p => ({ ...p, city: c })); setCityOpen(false); setCitySearch(""); }}
+                                style={{
+                                  padding: "10px 16px",
+                                  fontSize: 13,
+                                  cursor: "pointer",
+                                  color: form.city === c ? "#0d9488" : "#1e293b",
+                                  fontWeight: form.city === c ? 700 : 400,
+                                  background: form.city === c ? "#f0fdfa" : "transparent",
+                                  transition: "background 0.1s"
+                                }}
+                                onMouseEnter={e => { if (form.city !== c) e.currentTarget.style.background = "#f8fafc"; }}
+                                onMouseLeave={e => { if (form.city !== c) e.currentTarget.style.background = "transparent"; }}
+                              >
+                                {c}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Message / Notes */}

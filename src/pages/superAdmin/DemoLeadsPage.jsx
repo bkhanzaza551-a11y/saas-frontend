@@ -115,7 +115,7 @@ const emptyLeadForm = {
   planId: "",
   source: "Website",
   message: "",
-  city: "Mumbai"
+  city: ""
 };
 
 const emptyDraft = {
@@ -130,7 +130,7 @@ const emptyDraft = {
   lostReason: "",
   lostNotes: "",
   leadNotes: "",
-  city: "Mumbai",
+  city: "",
   billingCycle: "yearly"
 };
 
@@ -336,7 +336,7 @@ const toLocalIsoDateTime = (dt) => {
         meetingLink: row.meetingLink || "",
         assignedUserId: row.assignedUserId || "",
         nextFollowUpAt: toLocalIsoDateTime(row.nextFollowUpAt),
-        city: row.city || "Mumbai",
+        city: row.city || "",
         billingCycle: "yearly"
       };
     }
