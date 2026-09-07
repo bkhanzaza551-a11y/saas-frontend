@@ -4,9 +4,43 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
 import { useAuth } from "../../context/AuthContext";
-import { LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, XCircle, Send, Paperclip, AlertTriangle, HelpCircle, Shield, Sparkles } from "lucide-react";
+import { LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, XCircle, Send, Paperclip, AlertTriangle, HelpCircle, Shield, Sparkles, Download } from "lucide-react";
 
 import CustomSelect from "../../components/CustomSelect";
+
+const handleOpenOrDownloadImage = (url) => {
+  const str = String(url || "").trim();
+  if (!str) return;
+  if (str.startsWith("data:")) {
+    try {
+      const parts = str.split(",");
+      const mime = parts[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.target = "_blank";
+      link.download = `attachment_${Date.now()}.${mime.split("/")[1] || "jpg"}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (e) {
+      const win = window.open();
+      if (win) {
+        win.document.write(`<img src="${str}" style="max-width:100%;height:auto;" />`);
+      }
+    }
+  } else {
+    window.open(str, "_blank");
+  }
+};
 
 const formatAttachmentValue = (value) => String(value || "").trim();
 const isAttachmentLink = (value) => /^(https?:\/\/|data:)/i.test(formatAttachmentValue(value));
@@ -37,6 +71,7 @@ export default function SupportTicketsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [replyingId, setReplyingId] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState(null);
 
   const messagesEndRef = useRef(null);
 
@@ -526,13 +561,28 @@ export default function SupportTicketsPage() {
                   <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px dashed #e2e8f0" }}>
                     {isImageAttachment(selectedTicket.attachmentUrl) ? (
                       <div>
-                        <img src={selectedTicket.attachmentUrl} alt="Attachment" style={{ maxWidth: 300, maxHeight: 220, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 6 }} />
-                        <a href={selectedTicket.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: 600, fontSize: 12 }}>Open Full Image &rarr;</a>
+                        <img 
+                          src={selectedTicket.attachmentUrl} 
+                          alt="Attachment" 
+                          onClick={() => setPreviewImageUrl(selectedTicket.attachmentUrl)}
+                          style={{ maxWidth: 300, maxHeight: 220, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 6, cursor: "pointer" }} 
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => setPreviewImageUrl(selectedTicket.attachmentUrl)}
+                          style={{ background: "none", border: "none", padding: 0, color: "#2563eb", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
+                        >
+                          Open Full Image &rarr;
+                        </button>
                       </div>
                     ) : (
-                      <a href={selectedTicket.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: "#2563eb", fontWeight: 600, fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>
+                      <button 
+                        type="button"
+                        onClick={() => handleOpenOrDownloadImage(selectedTicket.attachmentUrl)}
+                        style={{ background: "none", border: "none", padding: 0, color: "#2563eb", fontWeight: 600, fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                      >
                         <Paperclip size={13} /> {getAttachmentMeta(selectedTicket.attachmentUrl).label} &rarr;
-                      </a>
+                      </button>
                     )}
                   </div>
                 )}
@@ -610,13 +660,28 @@ export default function SupportTicketsPage() {
                               }}>
                                 {isImageAttachment(msg.attachmentUrl) ? (
                                   <div>
-                                    <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: isOwnerAuthor ? "1px solid rgba(255,255,255,0.4)" : "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
-                                    <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isOwnerAuthor ? "#e0e7ff" : "#2563eb", fontWeight: 600, fontSize: 11, textDecoration: "underline" }}>View Full Image &rarr;</a>
+                                    <img 
+                                      src={msg.attachmentUrl} 
+                                      alt="Attachment" 
+                                      onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
+                                      style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: isOwnerAuthor ? "1px solid rgba(255,255,255,0.4)" : "1px solid #cbd5e1", display: "block", marginBottom: 4, cursor: "pointer" }} 
+                                    />
+                                    <button 
+                                      type="button"
+                                      onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
+                                      style={{ background: "none", border: "none", padding: 0, color: isOwnerAuthor ? "#e0e7ff" : "#2563eb", fontWeight: 600, fontSize: 11, textDecoration: "underline", cursor: "pointer" }}
+                                    >
+                                      View Full Image &rarr;
+                                    </button>
                                   </div>
                                 ) : isAttachmentLink(msg.attachmentUrl) ? (
-                                  <a href={formatAttachmentValue(msg.attachmentUrl)} target="_blank" rel="noreferrer" download style={{ color: isOwnerAuthor ? "#ffffff" : "#2563eb", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", background: isOwnerAuthor ? "rgba(255,255,255,0.2)" : "#eff6ff", border: isOwnerAuthor ? "1px solid rgba(255,255,255,0.3)" : "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>
+                                  <button 
+                                    type="button"
+                                    onClick={() => handleOpenOrDownloadImage(msg.attachmentUrl)}
+                                    style={{ background: "none", border: "none", padding: 0, color: isOwnerAuthor ? "#ffffff" : "#2563eb", fontWeight: 600, fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer" }}
+                                  >
                                     <Paperclip size={11} /> {getAttachmentMeta(msg.attachmentUrl).label} &rarr;
-                                  </a>
+                                  </button>
                                 ) : (
                                   <span style={{ color: isOwnerAuthor ? "rgba(255,255,255,0.8)" : "#64748b" }}>{formatAttachmentValue(msg.attachmentUrl)}</span>
                                 )}
@@ -675,7 +740,111 @@ export default function SupportTicketsPage() {
               })}
             </div>
           )}
+      </div>
+
+      {/* IMAGE PREVIEW LIGHTBOX MODAL */}
+      {previewImageUrl && (
+        <div 
+          onClick={() => setPreviewImageUrl(null)}
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(15, 23, 42, 0.92)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            zIndex: 99999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: 900,
+              marginBottom: 16,
+              color: "white"
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
+              <span>📷 Image Attachment Preview</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => handleOpenOrDownloadImage(previewImageUrl)}
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  color: "white",
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <Download size={14} /> Download / Open
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewImageUrl(null)}
+                style={{
+                  background: "rgba(255,255,255,0.2)",
+                  border: "none",
+                  color: "white",
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxHeight: "82vh",
+              maxWidth: "92vw",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 12,
+              overflow: "hidden",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+              background: "#000"
+            }}
+          >
+            <img 
+              src={previewImageUrl} 
+              alt="Attachment Preview" 
+              style={{
+                maxWidth: "100%",
+                maxHeight: "82vh",
+                objectFit: "contain",
+                display: "block"
+              }} 
+            />
+          </div>
         </div>
+      )}
       </div>
     </div>
   );
