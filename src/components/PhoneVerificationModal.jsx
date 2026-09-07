@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function PhoneVerificationModal() {
   const { auth } = useAuth();
-  const [step, setStep] = useState(1); // 1 = Enter/Confirm Phone -> Send OTP, 2 = Verify OTP
+  const [step, setStep] = useState(1); // 1 = Confirm Phone -> Send OTP, 2 = Verify OTP
 
-  const rawPhone = auth?.membership?.phone || "";
+  const rawPhone = auth?.membership?.phone || auth?.salon?.phone || auth?.user?.phone || "";
   const initialDigits = rawPhone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
   const [phoneDigits, setPhoneDigits] = useState(initialDigits);
+  const [loadingPhone, setLoadingPhone] = useState(!initialDigits);
 
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState("");
@@ -18,12 +19,36 @@ export default function PhoneVerificationModal() {
 
   const isPhoneValid = /^[6-9]\d{9}$/.test(phoneDigits);
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.body.style.overflow = "hidden";
+    let isMounted = true;
+
+    // Fetch freshest phone info from server
+    const fetchInfo = async () => {
+      try {
+        const res = await api.get("/owner/verify-phone/info", {
+          headers: { Authorization: `Bearer ${auth?.accessToken}` }
+        });
+        if (isMounted && res.data?.phone) {
+          const digits = res.data.phone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
+          if (digits) {
+            setPhoneDigits(digits);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load phone info:", e);
+      } finally {
+        if (isMounted) setLoadingPhone(false);
+      }
+    };
+
+    fetchInfo();
+
     return () => {
       document.body.style.overflow = "auto";
+      isMounted = false;
     };
-  }, []);
+  }, [auth?.accessToken]);
 
   const handlePhoneChange = (e) => {
     let digits = e.target.value.replace(/\D/g, "");
@@ -156,8 +181,8 @@ export default function PhoneVerificationModal() {
         </h2>
         <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#64748b", lineHeight: "1.5" }}>
           {step === 1
-            ? "Enter your mobile number to receive a verification code and secure your owner account."
-            : `We sent a 6-digit verification code to +91 ${phoneDigits}. Enter it below to continue.`}
+            ? "A 6-digit verification code will be sent to your registered mobile number."
+            : `We sent a 6-digit verification code to +91 ${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}. Enter it below to continue.`}
         </p>
 
         {error && (
@@ -184,90 +209,117 @@ export default function PhoneVerificationModal() {
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <div style={{ textAlign: "left" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
-                Mobile Number (India) <span style={{ color: "#ef4444" }}>*</span>
-              </label>
+            {loadingPhone ? (
               <div style={{
+                padding: "24px 16px",
+                background: "#f8fafc",
+                borderRadius: "14px",
+                border: "1px solid #e2e8f0",
                 display: "flex",
                 alignItems: "center",
-                border: isPhoneValid ? "1.5px solid #10b981" : (phoneDigits.length > 0 && !/^[6-9]/.test(phoneDigits)) ? "1.5px solid #ef4444" : "1.5px solid #cbd5e1",
-                borderRadius: "12px",
-                background: "#ffffff",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                overflow: "hidden",
-                transition: "all 0.2s ease"
+                justifyContent: "center",
+                gap: "10px",
+                color: "#64748b",
+                fontSize: "14px",
+                fontWeight: 600
               }}>
+                <Loader size={18} style={{ animation: "spin 1s linear infinite" }} />
+                <span>Loading registered number...</span>
+              </div>
+            ) : phoneDigits ? (
+              <div>
+                <div style={{
+                  background: "#f8fafc",
+                  border: "1.5px solid #cbd5e1",
+                  borderRadius: "14px",
+                  padding: "16px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "12px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)"
+                }}>
+                  <span style={{ fontSize: "22px", userSelect: "none" }}>🇮🇳</span>
+                  <span style={{
+                    fontSize: "20px",
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    letterSpacing: "1.5px"
+                  }}>
+                    +91 {phoneDigits.slice(0, 5)} {phoneDigits.slice(5)}
+                  </span>
+                </div>
+                <p style={{ margin: "8px 0 0", fontSize: "12.5px", color: "#64748b" }}>
+                  Verification code will be sent to this number
+                </p>
+              </div>
+            ) : (
+              /* Fallback only if no number registered */
+              <div style={{ textAlign: "left" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                  Mobile Number (India) <span style={{ color: "#ef4444" }}>*</span>
+                </label>
                 <div style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 6,
-                  padding: "12px 14px",
-                  background: "#f8fafc",
-                  borderRight: "1px solid #e2e8f0",
-                  color: "#0f172a",
-                  fontWeight: 700,
-                  fontSize: "14.5px",
-                  userSelect: "none"
+                  border: isPhoneValid ? "1.5px solid #10b981" : (phoneDigits.length > 0 && !/^[6-9]/.test(phoneDigits)) ? "1.5px solid #ef4444" : "1.5px solid #cbd5e1",
+                  borderRadius: "12px",
+                  background: "#ffffff",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  overflow: "hidden"
                 }}>
-                  <span>🇮🇳</span>
-                  <span>+91</span>
-                </div>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength={10}
-                  placeholder="98765 43210"
-                  value={phoneDigits}
-                  onChange={handlePhoneChange}
-                  onPaste={(e) => {
-                    e.preventDefault();
-                    const text = e.clipboardData?.getData("text") || "";
-                    let d = text.replace(/\D/g, "");
-                    if (d.startsWith("91") && d.length > 10) d = d.slice(2);
-                    else if (d.startsWith("0") && d.length > 10) d = d.slice(1);
-                    setPhoneDigits(d.slice(0, 10));
-                  }}
-                  style={{
-                    flex: 1,
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                     padding: "12px 14px",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    letterSpacing: "0.5px",
-                    border: "none",
-                    outline: "none",
-                    background: "transparent",
+                    background: "#f8fafc",
+                    borderRight: "1px solid #e2e8f0",
                     color: "#0f172a",
-                    width: "100%",
-                    boxSizing: "border-box"
-                  }}
-                  required
-                  autoFocus
-                />
+                    fontWeight: 700,
+                    fontSize: "14.5px"
+                  }}>
+                    <span>🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="98765 43210"
+                    value={phoneDigits}
+                    onChange={handlePhoneChange}
+                    style={{
+                      flex: 1,
+                      padding: "12px 14px",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      color: "#0f172a"
+                    }}
+                    required
+                    autoFocus
+                  />
+                </div>
               </div>
-              <div style={{ marginTop: 6, fontSize: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                {phoneDigits.length === 0 ? (
-                  <span style={{ color: "#94a3b8" }}>Enter 10-digit Indian mobile number</span>
-                ) : !/^[6-9]/.test(phoneDigits) ? (
-                  <span style={{ color: "#ef4444", fontWeight: 600 }}>Must start with 6, 7, 8, or 9</span>
-                ) : phoneDigits.length < 10 ? (
-                  <span style={{ color: "#64748b" }}>{10 - phoneDigits.length} more digits needed</span>
-                ) : (
-                  <span style={{ color: "#059669", fontWeight: 700 }}>✓ Valid 10-digit number</span>
-                )}
-                <span style={{ color: "#94a3b8", fontWeight: 600 }}>{phoneDigits.length}/10</span>
-              </div>
-            </div>
+            )}
 
             <button
               type="submit"
-              disabled={loading || !isPhoneValid}
+              disabled={loading || loadingPhone || !isPhoneValid}
               style={{
-                width: "100%", padding: "13px", fontSize: "15px", fontWeight: 700,
-                color: "#fff", background: isPhoneValid ? "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)" : "#cbd5e1",
-                border: "none", borderRadius: "10px", cursor: (loading || !isPhoneValid) ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : (isPhoneValid ? 1 : 0.6), display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                boxShadow: isPhoneValid ? "0 4px 14px rgba(79, 70, 229, 0.25)" : "none",
+                width: "100%", padding: "14px", fontSize: "15px", fontWeight: 700,
+                color: "#fff",
+                background: (isPhoneValid && !loadingPhone)
+                  ? "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)"
+                  : "#cbd5e1",
+                border: "none", borderRadius: "12px",
+                cursor: (loading || loadingPhone || !isPhoneValid) ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : ((isPhoneValid && !loadingPhone) ? 1 : 0.6),
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                boxShadow: (isPhoneValid && !loadingPhone) ? "0 4px 14px rgba(79, 70, 229, 0.25)" : "none",
                 transition: "all 0.2s ease"
               }}
             >
@@ -275,7 +327,7 @@ export default function PhoneVerificationModal() {
               {loading ? "Sending Code..." : "Send Verification Code"}
             </button>
 
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 8 }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 4 }}>
               <button
                 type="button"
                 onClick={handleSkip}
@@ -324,7 +376,7 @@ export default function PhoneVerificationModal() {
                 onClick={() => { setStep(1); setError(""); setMessage(""); }}
                 style={{ background: "none", border: "none", color: "#64748b", display: "flex", alignItems: "center", gap: 4, cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
               >
-                <ArrowLeft size={14} /> Change Number
+                <ArrowLeft size={14} /> Back
               </button>
               <button
                 type="button"
