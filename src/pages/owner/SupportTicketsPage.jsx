@@ -84,14 +84,24 @@ export default function SupportTicketsPage() {
   }, [filters, reloadKey]);
 
   useEffect(() => {
-    if (!selectedTicket) return;
+    if (!selectedTicket?.id) return;
     const interval = setInterval(() => {
       api.get(`/owner/support-tickets/${selectedTicket.id}`).then(res => {
-        if (res.data) setSelectedTicket(res.data);
+        if (res.data) {
+          const fresh = res.data;
+          const prevMsgCount = selectedTicket.messages?.length || 0;
+          const freshMsgCount = fresh.messages?.length || 0;
+          if (freshMsgCount > prevMsgCount || fresh.status !== selectedTicket.status) {
+            setSelectedTicket(fresh);
+            if (freshMsgCount > prevMsgCount) {
+              setTimeout(() => scrollToBottom("smooth"), 100);
+            }
+          }
+        }
       }).catch(() => {});
-    }, 30000);
+    }, 3000);
     return () => clearInterval(interval);
-  }, [selectedTicket?.id]);
+  }, [selectedTicket?.id, selectedTicket?.messages?.length, selectedTicket?.status]);
 
   const submit = async (event) => {
     event.preventDefault();

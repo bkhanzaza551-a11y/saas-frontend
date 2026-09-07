@@ -106,6 +106,30 @@ export default function SuperAdminSupportTicketsPage() {
     }
   }, [selectedTicket?.id, selectedTicket?.messages?.length, detailTab]);
 
+  useEffect(() => {
+    if (!selectedTicket?.id) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get(`/super-admin/support-tickets/${selectedTicket.id}`);
+        const fresh = res.data;
+        if (fresh) {
+          const currentCount = (selectedTicket.messages?.length || 0) + (selectedTicket.events?.length || 0);
+          const freshCount = (fresh.messages?.length || 0) + (fresh.events?.length || 0);
+          if (freshCount > currentCount || fresh.status !== selectedTicket.status || fresh.priority !== selectedTicket.priority || fresh.assignedToId !== selectedTicket.assignedToId) {
+            setSelectedTicket(fresh);
+            if (freshCount > currentCount) {
+              setTimeout(() => scrollToBottom("smooth"), 100);
+            }
+          }
+        }
+      } catch (err) {
+        // silent fail on poll error
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [selectedTicket?.id, selectedTicket?.messages?.length, selectedTicket?.events?.length, selectedTicket?.status]);
+
   const buildParams = (f) => {
     const p = {};
     if (f.q) p.q = f.q;
