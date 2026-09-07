@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
+import { useAuth } from "../../context/AuthContext";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
@@ -136,6 +137,11 @@ const emptyDraft = {
 
 export default function DemoLeadsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { auth } = useAuth();
+  const currentUserId = auth?.user?.id;
+  const roleName = (auth?.user?.adminRole?.name || auth?.user?.systemRole || "").toLowerCase();
+  const isMasterAdmin = (!auth?.user?.adminRoleId && !auth?.user?.adminRole) || roleName.includes("super admin") || roleName.includes("master admin");
+
   const [rows, setRows] = useState([]);
   const [plans, setPlans] = useState([]);
   const [staff, setStaff] = useState([]);
@@ -144,12 +150,12 @@ export default function DemoLeadsPage() {
   const filters = useMemo(() => ({
     q: searchParams.get("q") || "",
     status: searchParams.get("status") || "",
-    assigned: searchParams.get("assigned") || "",
+    assigned: searchParams.get("assigned") || (!isMasterAdmin && currentUserId ? currentUserId : ""),
     source: searchParams.get("source") || "",
     from: searchParams.get("from") || "",
     to: searchParams.get("to") || "",
     followUp: searchParams.get("followUp") || ""
-  }), [searchParams]);
+  }), [searchParams, isMasterAdmin, currentUserId]);
 
   const setFilterParam = (key, val) => {
     setSearchParams(prev => {

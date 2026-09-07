@@ -7,7 +7,41 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
 import CustomDateInput from "../../components/CustomDateInput";
-import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search } from "lucide-react";
+import { MessageSquare, Calendar, User, Tag, AlertCircle, Filter, RefreshCw, FileText, CheckCircle, CheckCircle2, Building2, Send, Paperclip, Shield, Clock, ChevronDown, Eye, History, X, Search, Download } from "lucide-react";
+
+const handleOpenOrDownloadImage = (url) => {
+  const str = String(url || "").trim();
+  if (!str) return;
+  if (str.startsWith("data:")) {
+    try {
+      const parts = str.split(",");
+      const mime = parts[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.target = "_blank";
+      link.download = `attachment_${Date.now()}.${mime.split("/")[1] || "jpg"}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (e) {
+      const win = window.open();
+      if (win) {
+        win.document.write(`<img src="${str}" style="max-width:100%;height:auto;" />`);
+      }
+    }
+  } else {
+    window.open(str, "_blank");
+  }
+};
 
 const isImageAttachment = (value) => {
   const url = String(value || "").trim();
@@ -60,11 +94,14 @@ export default function SuperAdminSupportTicketsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { auth } = useAuth();
   const currentUserId = auth?.user?.id;
+  const roleName = (auth?.user?.adminRole?.name || auth?.user?.systemRole || "").toLowerCase();
+  const isMasterAdmin = (!auth?.user?.adminRoleId && !auth?.user?.adminRole) || roleName.includes("super admin") || roleName.includes("master admin");
+
   const [rows, setRows] = useState([]);
   const [filters, setFilters] = useState({
     q: "", status: searchParams.get("status") || "",
-    priority: "", category: "", assignedToId: "",
-    assignedToMe: false, from: "", to: ""
+    priority: "", category: "", assignedToId: (!isMasterAdmin && currentUserId) ? currentUserId : "",
+    assignedToMe: !isMasterAdmin, from: "", to: ""
   });
   const [savingId, setSavingId] = useState("");
   const [notes, setNotes] = useState({});
@@ -85,6 +122,7 @@ export default function SuperAdminSupportTicketsPage() {
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState(null);
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -765,13 +803,28 @@ export default function SuperAdminSupportTicketsPage() {
                                 <div style={{ marginTop: 8, fontSize: 11, borderTop: isSalon ? "1px dashed #cbd5e1" : "1px dashed rgba(255,255,255,0.3)", paddingTop: 6 }}>
                                   {isImageAttachment(msg.attachmentUrl) ? (
                                     <div>
-                                      <img src={msg.attachmentUrl} alt="Attachment" style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4 }} />
-                                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" style={{ color: isSalon ? "#2563eb" : "#a5b4fc", textDecoration: "underline", fontWeight: 600 }}>View Full Image &rarr;</a>
+                                      <img 
+                                        src={msg.attachmentUrl} 
+                                        alt="Attachment" 
+                                        onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
+                                        style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 4, cursor: "pointer" }} 
+                                      />
+                                      <button 
+                                        type="button"
+                                        onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
+                                        style={{ background: "none", border: "none", padding: 0, color: isSalon ? "#2563eb" : "#a5b4fc", textDecoration: "underline", fontWeight: 600, fontSize: 11, cursor: "pointer" }}
+                                      >
+                                        View Full Image &rarr;
+                                      </button>
                                     </div>
                                   ) : (
-                                    <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" download style={{ color: isSalon ? "#2563eb" : "#ffffff", textDecoration: "underline", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                    <button 
+                                      type="button"
+                                      onClick={() => handleOpenOrDownloadImage(msg.attachmentUrl)}
+                                      style={{ background: "none", border: "none", padding: 0, color: isSalon ? "#2563eb" : "#ffffff", textDecoration: "underline", fontWeight: 600, fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer" }}
+                                    >
                                       <Paperclip size={11} /> {getAttachmentLabel(msg.attachmentUrl)} &rarr;
-                                    </a>
+                                    </button>
                                   )}
                                 </div>
                               )}
@@ -1158,6 +1211,110 @@ export default function SuperAdminSupportTicketsPage() {
                 setClosureReason("");
               }} style={{ padding: "8px 16px", background: "#ef4444", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Confirm Close</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* IMAGE PREVIEW LIGHTBOX MODAL */}
+      {previewImageUrl && (
+        <div 
+          onClick={() => setPreviewImageUrl(null)}
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(15, 23, 42, 0.92)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            zIndex: 99999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: 900,
+              marginBottom: 16,
+              color: "white"
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
+              <span>📷 Image Attachment Preview</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => handleOpenOrDownloadImage(previewImageUrl)}
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  color: "white",
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <Download size={14} /> Download / Open
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewImageUrl(null)}
+                style={{
+                  background: "rgba(255,255,255,0.2)",
+                  border: "none",
+                  color: "white",
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxHeight: "82vh",
+              maxWidth: "92vw",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 12,
+              overflow: "hidden",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+              background: "#000"
+            }}
+          >
+            <img 
+              src={previewImageUrl} 
+              alt="Attachment Preview" 
+              style={{
+                maxWidth: "100%",
+                maxHeight: "82vh",
+                objectFit: "contain",
+                display: "block"
+              }} 
+            />
           </div>
         </div>
       )}
