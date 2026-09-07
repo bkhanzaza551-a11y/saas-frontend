@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
-import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 
 export default function PhoneVerificationModal() {
   const { auth } = useAuth();
-  const [step, setStep] = useState(1); // 1 = Confirm Phone -> Send OTP, 2 = Verify OTP
+  const [step, setStep] = useState(1); // 1 = Confirm/Change Phone -> Send OTP, 2 = Verify OTP
 
   const rawPhone = auth?.membership?.phone || auth?.salon?.phone || auth?.user?.phone || "";
   const initialDigits = rawPhone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
-  const [phoneDigits, setPhoneDigits] = useState(initialDigits);
+  const [registeredDigits, setRegisteredDigits] = useState(initialDigits);
+  const [isChangingNumber, setIsChangingNumber] = useState(false);
+  const [customPhoneDigits, setCustomPhoneDigits] = useState("");
   const [loadingPhone, setLoadingPhone] = useState(!initialDigits);
 
   const [loading, setLoading] = useState(false);
@@ -17,7 +19,8 @@ export default function PhoneVerificationModal() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const isPhoneValid = /^[6-9]\d{9}$/.test(phoneDigits);
+  const activeDigits = isChangingNumber ? customPhoneDigits : (registeredDigits || customPhoneDigits);
+  const isPhoneValid = /^[6-9]\d{9}$/.test(activeDigits);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -32,7 +35,7 @@ export default function PhoneVerificationModal() {
         if (isMounted && res.data?.phone) {
           const digits = res.data.phone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
           if (digits) {
-            setPhoneDigits(digits);
+            setRegisteredDigits(digits);
           }
         }
       } catch (e) {
@@ -50,14 +53,14 @@ export default function PhoneVerificationModal() {
     };
   }, [auth?.accessToken]);
 
-  const handlePhoneChange = (e) => {
+  const handleCustomPhoneChange = (e) => {
     let digits = e.target.value.replace(/\D/g, "");
     if (digits.startsWith("91") && digits.length > 10) {
       digits = digits.slice(2);
     } else if (digits.startsWith("0") && digits.length > 10) {
       digits = digits.slice(1);
     }
-    setPhoneDigits(digits.slice(0, 10));
+    setCustomPhoneDigits(digits.slice(0, 10));
     if (error) setError("");
   };
 
@@ -71,7 +74,7 @@ export default function PhoneVerificationModal() {
     setMessage("");
     setLoading(true);
     try {
-      const fullPhone = `+91${phoneDigits}`;
+      const fullPhone = `+91${activeDigits}`;
       const res = await api.post(
         "/owner/verify-phone/send",
         { phone: fullPhone },
@@ -104,17 +107,23 @@ export default function PhoneVerificationModal() {
     }
     setLoading(true);
     try {
+      const fullPhone = `+91${activeDigits}`;
       await api.post(
         "/owner/verify-phone/verify",
-        { otpCode: otp.trim() },
+        { otpCode: otp.trim(), phone: fullPhone },
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
       // Update session in storage & state
       const stored = JSON.parse(localStorage.getItem("salonnest_auth") || "{}");
       if (stored?.user) {
         stored.user.isPhoneVerified = true;
-        localStorage.setItem("salonnest_auth", JSON.stringify(stored));
+        stored.user.phone = fullPhone;
       }
+      if (stored?.membership) {
+        stored.membership.phone = fullPhone;
+        if (stored.membership.salon) stored.membership.salon.phone = fullPhone;
+      }
+      localStorage.setItem("salonnest_auth", JSON.stringify(stored));
       window.location.reload();
     } catch (err) {
       setError(err.response?.data?.message || "Invalid OTP. Please check the code and retry.");
@@ -181,8 +190,10 @@ export default function PhoneVerificationModal() {
         </h2>
         <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#64748b", lineHeight: "1.5" }}>
           {step === 1
-            ? "A 6-digit verification code will be sent to your registered mobile number."
-            : `We sent a 6-digit verification code to +91 ${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}. Enter it below to continue.`}
+            ? isChangingNumber
+              ? "Enter your new mobile number. Once verified, it will update your salon and profile."
+              : "A 6-digit verification code will be sent to your registered mobile number."
+            : `We sent a 6-digit verification code to +91 ${activeDigits.slice(0, 5)} ${activeDigits.slice(5)}. Enter it below to continue.`}
         </p>
 
         {error && (
@@ -226,7 +237,7 @@ export default function PhoneVerificationModal() {
                 <Loader size={18} style={{ animation: "spin 1s linear infinite" }} />
                 <span>Loading registered number...</span>
               </div>
-            ) : phoneDigits ? (
+            ) : (!isChangingNumber && registeredDigits) ? (
               <div>
                 <div style={{
                   background: "#f8fafc",
@@ -246,23 +257,74 @@ export default function PhoneVerificationModal() {
                     color: "#0f172a",
                     letterSpacing: "1.5px"
                   }}>
-                    +91 {phoneDigits.slice(0, 5)} {phoneDigits.slice(5)}
+                    +91 {registeredDigits.slice(0, 5)} {registeredDigits.slice(5)}
                   </span>
                 </div>
-                <p style={{ margin: "8px 0 0", fontSize: "12.5px", color: "#64748b" }}>
+                <p style={{ margin: "8px 0 12px", fontSize: "12.5px", color: "#64748b" }}>
                   Verification code will be sent to this number
                 </p>
+
+                {/* Option to change/use another number */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsChangingNumber(true);
+                    setError("");
+                    setMessage("");
+                  }}
+                  style={{
+                    background: "#f1f5f9",
+                    border: "1px solid #e2e8f0",
+                    color: "#4f46e5",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    padding: "7px 14px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <Phone size={13} />
+                  Use another number
+                </button>
               </div>
             ) : (
-              /* Fallback only if no number registered */
+              /* New / Another Number Input Field */
               <div style={{ textAlign: "left" }}>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
-                  Mobile Number (India) <span style={{ color: "#ef4444" }}>*</span>
-                </label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 700, color: "#334155" }}>
+                    {registeredDigits ? "New Mobile Number (India)" : "Mobile Number (India)"} <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  {registeredDigits && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsChangingNumber(false);
+                        setError("");
+                        setMessage("");
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#4f46e5",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                    >
+                      Use registered number
+                    </button>
+                  )}
+                </div>
+
                 <div style={{
                   display: "flex",
                   alignItems: "center",
-                  border: isPhoneValid ? "1.5px solid #10b981" : (phoneDigits.length > 0 && !/^[6-9]/.test(phoneDigits)) ? "1.5px solid #ef4444" : "1.5px solid #cbd5e1",
+                  border: isPhoneValid ? "1.5px solid #10b981" : (customPhoneDigits.length > 0 && !/^[6-9]/.test(customPhoneDigits)) ? "1.5px solid #ef4444" : "1.5px solid #cbd5e1",
                   borderRadius: "12px",
                   background: "#ffffff",
                   boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
@@ -287,8 +349,8 @@ export default function PhoneVerificationModal() {
                     inputMode="numeric"
                     maxLength={10}
                     placeholder="98765 43210"
-                    value={phoneDigits}
-                    onChange={handlePhoneChange}
+                    value={customPhoneDigits}
+                    onChange={handleCustomPhoneChange}
                     style={{
                       flex: 1,
                       padding: "12px 14px",
@@ -297,12 +359,33 @@ export default function PhoneVerificationModal() {
                       border: "none",
                       outline: "none",
                       background: "transparent",
-                      color: "#0f172a"
+                      color: "#0f172a",
+                      width: "100%",
+                      boxSizing: "border-box"
                     }}
                     required
                     autoFocus
                   />
                 </div>
+
+                <div style={{ marginTop: 6, fontSize: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  {customPhoneDigits.length === 0 ? (
+                    <span style={{ color: "#94a3b8" }}>Enter 10-digit Indian mobile number</span>
+                  ) : !/^[6-9]/.test(customPhoneDigits) ? (
+                    <span style={{ color: "#ef4444", fontWeight: 600 }}>Must start with 6, 7, 8, or 9</span>
+                  ) : customPhoneDigits.length < 10 ? (
+                    <span style={{ color: "#64748b" }}>{10 - customPhoneDigits.length} more digits needed</span>
+                  ) : (
+                    <span style={{ color: "#059669", fontWeight: 700 }}>✓ Valid 10-digit number</span>
+                  )}
+                  <span style={{ color: "#94a3b8", fontWeight: 600 }}>{customPhoneDigits.length}/10</span>
+                </div>
+
+                {registeredDigits && (
+                  <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#64748b", lineHeight: "1.4" }}>
+                    ℹ️ This new number will replace your current registered number (+91 {registeredDigits.slice(0, 5)} {registeredDigits.slice(5)}) across your salon details and demo leads once verified.
+                  </p>
+                )}
               </div>
             )}
 
