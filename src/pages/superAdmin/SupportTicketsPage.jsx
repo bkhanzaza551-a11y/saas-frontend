@@ -466,38 +466,6 @@ export default function SuperAdminSupportTicketsPage() {
               onBlur={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "#cbd5e1"; e.target.style.boxShadow = "none"; }}
             />
           </div>
-          
-          <button
-            type="button"
-            onClick={() => setFilters({ ...filters, assignedToMe: !filters.assignedToMe })}
-            style={{ 
-              height: 42, 
-              padding: "0 16px", 
-              background: filters.assignedToMe ? "#eef2ff" : "#fff", 
-              border: filters.assignedToMe ? "2px solid #6366f1" : "1px solid #cbd5e1", 
-              color: filters.assignedToMe ? "#4f46e5" : "#475569", 
-              borderRadius: 10, 
-              fontSize: "0.85rem", 
-              fontWeight: 700, 
-              cursor: "pointer", 
-              display: "flex", 
-              alignItems: "center", 
-              gap: 8, 
-              transition: "all 0.2s", 
-              whiteSpace: "nowrap",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-            }}
-          >
-            <span style={{ 
-              width: 8, 
-              height: 8, 
-              borderRadius: "50%", 
-              background: filters.assignedToMe ? "#4f46e5" : "#cbd5e1", 
-              display: "inline-block",
-              transition: "background 0.2s"
-            }} />
-            Assigned to Me
-          </button>
         </div>
 
         {/* Dropdowns Row */}
