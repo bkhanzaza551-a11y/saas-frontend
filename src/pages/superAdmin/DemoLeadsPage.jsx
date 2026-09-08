@@ -1560,7 +1560,7 @@ const toLocalIsoDateTime = (dt) => {
                           <AlertTriangle size={16} /> Email Required for Demo Scheduling
                         </div>
                         <p style={{ margin: 0, fontSize: 12, color: "#7f1d1d", lineHeight: 1.4 }}>
-                          Demo invite link send karne ke liye is lead ka email address zaroori hai. Please pehle yahan email put karein:
+                          An email address is required to send the demo invite link. Please enter client email address below:
                         </p>
                         <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                           <input

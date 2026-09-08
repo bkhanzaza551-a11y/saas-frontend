@@ -969,7 +969,7 @@ export default function MembershipsPage() {
 
               {!customerPackageOptions.length && (
                 <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "12px 14px", color: "#92400e", fontSize: 12.5, lineHeight: "1.5" }}>
-                  <strong>Note:</strong> Yeh dropdown un customers ke active packages dikhata hai jinhone package purchase/assign karwaya ho. Jab kisi customer ko package assign ya sell kiya jaye, woh yahan session redeem karne ke liye appear hoga.
+                  <strong>Note:</strong> This dropdown displays active packages for customers who have purchased or been assigned a package. Once assigned or sold, the customer will appear here for session redemption.
                 </div>
               )}
 
