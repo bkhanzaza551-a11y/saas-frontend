@@ -565,7 +565,7 @@ const toLocalIsoDateTime = (dt) => {
     setFeedback({ error: "", success: "" });
     const lead = rows.find(r => r.id === leadId) || selectedLead;
     if (!lead?.email || !lead.email.trim()) {
-      setFeedback({ error: "Email put karo pehle! Demo schedule karne ke liye email address zaroori hai.", success: "" });
+      setFeedback({ error: "Please enter an email address first! Email address is required to schedule a demo.", success: "" });
       setBusyId("");
       setActionType("");
       return;
@@ -618,7 +618,7 @@ const toLocalIsoDateTime = (dt) => {
     setFeedback({ error: "", success: "" });
     const lead = rows.find(r => r.id === leadId) || selectedLead;
     if (!lead?.email || !lead.email.trim()) {
-      setFeedback({ error: "Email put karo pehle! Payment link send karne ke liye email address zaroori hai.", success: "" });
+      setFeedback({ error: "Please enter an email address first! Email address is required to send the payment link.", success: "" });
       setBusyId("");
       setActionType("");
       return;
