@@ -1,0 +1,479 @@
+import React, { useState, useEffect } from "react";
+import { api } from "../api/client";
+import { useAuth } from "../context/AuthContext";
+import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
+
+export default function PhoneVerificationModal() {
+  const { auth } = useAuth();
+  const [step, setStep] = useState(1); // 1 = Confirm/Change Phone -> Send OTP, 2 = Verify OTP
+
+  const rawPhone = auth?.membership?.phone || auth?.salon?.phone || auth?.user?.phone || "";
+  const initialDigits = rawPhone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
+  const [registeredDigits, setRegisteredDigits] = useState(initialDigits);
+  const [isChangingNumber, setIsChangingNumber] = useState(false);
+  const [customPhoneDigits, setCustomPhoneDigits] = useState("");
+  const [loadingPhone, setLoadingPhone] = useState(!initialDigits);
+
+  const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const activeDigits = isChangingNumber ? customPhoneDigits : (registeredDigits || customPhoneDigits);
+  const isPhoneValid = /^[6-9]\d{9}$/.test(activeDigits);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    let isMounted = true;
+
+    // Fetch freshest phone info from server
+    const fetchInfo = async () => {
+      try {
+        const res = await api.get("/owner/verify-phone/info", {
+          headers: { Authorization: `Bearer ${auth?.accessToken}` }
+        });
+        if (isMounted && res.data?.phone) {
+          const digits = res.data.phone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
+          if (digits) {
+            setRegisteredDigits(digits);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load phone info:", e);
+      } finally {
+        if (isMounted) setLoadingPhone(false);
+      }
+    };
+
+    fetchInfo();
+
+    return () => {
+      document.body.style.overflow = "auto";
+      isMounted = false;
+    };
+  }, [auth?.accessToken]);
+
+  const handleCustomPhoneChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.startsWith("91") && digits.length > 10) {
+      digits = digits.slice(2);
+    } else if (digits.startsWith("0") && digits.length > 10) {
+      digits = digits.slice(1);
+    }
+    setCustomPhoneDigits(digits.slice(0, 10));
+    if (error) setError("");
+  };
+
+  const handleSendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!isPhoneValid) {
+      setError("Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.");
+      return;
+    }
+    setError("");
+    setMessage("");
+    setLoading(true);
+    try {
+      const fullPhone = `+91${activeDigits}`;
+      const res = await api.post(
+        "/owner/verify-phone/send",
+        { phone: fullPhone },
+        { headers: { Authorization: `Bearer ${auth.accessToken}` } }
+      );
+      let successMsg = res.data.message || "OTP code sent successfully!";
+      if (res.data.channel) {
+        const channelLabel = res.data.channel === "whatsapp" ? "WhatsApp" : "SMS";
+        successMsg = `OTP sent via ${channelLabel}!`;
+      }
+      if (res.data.otpCode) {
+        successMsg += ` (Code: ${res.data.otpCode})`;
+      }
+      setMessage(successMsg);
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send verification code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    if (!otp || otp.trim().length < 6) {
+      setError("Please enter the complete 6-digit OTP code.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const fullPhone = `+91${activeDigits}`;
+      await api.post(
+        "/owner/verify-phone/verify",
+        { otpCode: otp.trim(), phone: fullPhone },
+        { headers: { Authorization: `Bearer ${auth.accessToken}` } }
+      );
+      // Update session in storage & state
+      const stored = JSON.parse(localStorage.getItem("salonnest_auth") || "{}");
+      if (stored?.user) {
+        stored.user.isPhoneVerified = true;
+        stored.user.phone = fullPhone;
+      }
+      if (stored?.membership) {
+        stored.membership.phone = fullPhone;
+        if (stored.membership.salon) stored.membership.salon.phone = fullPhone;
+      }
+      localStorage.setItem("salonnest_auth", JSON.stringify(stored));
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid OTP. Please check the code and retry.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await api.post(
+        "/owner/verify-phone/skip",
+        {},
+        { headers: { Authorization: `Bearer ${auth.accessToken}` } }
+      );
+      sessionStorage.setItem("salonnest_phone_verify_skipped", "true");
+      const stored = JSON.parse(localStorage.getItem("salonnest_auth") || "{}");
+      if (stored?.user) {
+        stored.user.isPhoneVerified = false;
+        stored.user.phoneVerificationSkipped = true;
+        localStorage.setItem("salonnest_auth", JSON.stringify(stored));
+      }
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.message || "Mobile verification is mandatory on this platform.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: "rgba(15, 23, 42, 0.85)",
+      backdropFilter: "blur(8px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 999999, padding: "20px"
+    }}>
+      <div style={{
+        background: "#ffffff",
+        padding: "36px 32px",
+        borderRadius: "20px",
+        width: "100%",
+        maxWidth: "460px",
+        textAlign: "center",
+        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        position: "relative"
+      }}>
+        {/* Icon */}
+        <div style={{
+          width: 60, height: 60, borderRadius: "50%",
+          background: "linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)",
+          color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 20px",
+          border: "2px solid #c7d2fe"
+        }}>
+          {step === 1 ? <Phone size={28} /> : <KeyRound size={28} />}
+        </div>
+
+        <h2 style={{ margin: "0 0 8px", fontSize: "22px", fontWeight: 800, color: "#0f172a" }}>
+          {step === 1 ? "Link & Verify Mobile Number" : "Enter Verification Code"}
+        </h2>
+        <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#64748b", lineHeight: "1.5" }}>
+          {step === 1
+            ? isChangingNumber
+              ? "Enter your new mobile number. Once verified, it will update your salon and profile."
+              : "A 6-digit verification code will be sent to your registered mobile number."
+            : `We sent a 6-digit verification code to +91 ${activeDigits.slice(0, 5)} ${activeDigits.slice(5)}. Enter it below to continue.`}
+        </p>
+
+        {error && (
+          <div style={{
+            background: "#fef2f2", color: "#b91c1c", padding: "12px 14px",
+            borderRadius: "10px", marginBottom: "20px", fontSize: "13px",
+            textAlign: "left", display: "flex", alignItems: "center", gap: 8,
+            border: "1px solid #fecaca"
+          }}>
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {message && (
+          <div style={{
+            background: "#f0fdf4", color: "#166534", padding: "12px 14px",
+            borderRadius: "10px", marginBottom: "20px", fontSize: "13px",
+            textAlign: "left", border: "1px solid #bbf7d0"
+          }}>
+            {message}
+          </div>
+        )}
+
+        {step === 1 ? (
+          <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {loadingPhone ? (
+              <div style={{
+                padding: "24px 16px",
+                background: "#f8fafc",
+                borderRadius: "14px",
+                border: "1px solid #e2e8f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                color: "#64748b",
+                fontSize: "14px",
+                fontWeight: 600
+              }}>
+                <Loader size={18} style={{ animation: "spin 1s linear infinite" }} />
+                <span>Loading registered number...</span>
+              </div>
+            ) : (!isChangingNumber && registeredDigits) ? (
+              <div>
+                <div style={{
+                  background: "#f8fafc",
+                  border: "1.5px solid #cbd5e1",
+                  borderRadius: "14px",
+                  padding: "16px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "12px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)"
+                }}>
+                  <span style={{ fontSize: "22px", userSelect: "none" }}>🇮🇳</span>
+                  <span style={{
+                    fontSize: "20px",
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    letterSpacing: "1.5px"
+                  }}>
+                    +91 {registeredDigits.slice(0, 5)} {registeredDigits.slice(5)}
+                  </span>
+                </div>
+                <p style={{ margin: "8px 0 12px", fontSize: "12.5px", color: "#64748b" }}>
+                  Verification code will be sent to this number
+                </p>
+
+                {/* Option to change/use another number */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsChangingNumber(true);
+                    setError("");
+                    setMessage("");
+                  }}
+                  style={{
+                    background: "#f1f5f9",
+                    border: "1px solid #e2e8f0",
+                    color: "#4f46e5",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    padding: "7px 14px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <Phone size={13} />
+                  Use another number
+                </button>
+              </div>
+            ) : (
+              /* New / Another Number Input Field */
+              <div style={{ textAlign: "left" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 700, color: "#334155" }}>
+                    {registeredDigits ? "New Mobile Number (India)" : "Mobile Number (India)"} <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  {registeredDigits && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsChangingNumber(false);
+                        setError("");
+                        setMessage("");
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#4f46e5",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                    >
+                      Use registered number
+                    </button>
+                  )}
+                </div>
+
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: isPhoneValid ? "1.5px solid #10b981" : (customPhoneDigits.length > 0 && !/^[6-9]/.test(customPhoneDigits)) ? "1.5px solid #ef4444" : "1.5px solid #cbd5e1",
+                  borderRadius: "12px",
+                  background: "#ffffff",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  overflow: "hidden"
+                }}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "12px 14px",
+                    background: "#f8fafc",
+                    borderRight: "1px solid #e2e8f0",
+                    color: "#0f172a",
+                    fontWeight: 700,
+                    fontSize: "14.5px"
+                  }}>
+                    <span>🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="98765 43210"
+                    value={customPhoneDigits}
+                    onChange={handleCustomPhoneChange}
+                    style={{
+                      flex: 1,
+                      padding: "12px 14px",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      color: "#0f172a",
+                      width: "100%",
+                      boxSizing: "border-box"
+                    }}
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div style={{ marginTop: 6, fontSize: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  {customPhoneDigits.length === 0 ? (
+                    <span style={{ color: "#94a3b8" }}>Enter 10-digit Indian mobile number</span>
+                  ) : !/^[6-9]/.test(customPhoneDigits) ? (
+                    <span style={{ color: "#ef4444", fontWeight: 600 }}>Must start with 6, 7, 8, or 9</span>
+                  ) : customPhoneDigits.length < 10 ? (
+                    <span style={{ color: "#64748b" }}>{10 - customPhoneDigits.length} more digits needed</span>
+                  ) : (
+                    <span style={{ color: "#059669", fontWeight: 700 }}>✓ Valid 10-digit number</span>
+                  )}
+                  <span style={{ color: "#94a3b8", fontWeight: 600 }}>{customPhoneDigits.length}/10</span>
+                </div>
+
+                {registeredDigits && (
+                  <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#64748b", lineHeight: "1.4" }}>
+                    ℹ️ This new number will replace your current registered number (+91 {registeredDigits.slice(0, 5)} {registeredDigits.slice(5)}) across your salon details and demo leads once verified.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || loadingPhone || !isPhoneValid}
+              style={{
+                width: "100%", padding: "14px", fontSize: "15px", fontWeight: 700,
+                color: "#fff",
+                background: (isPhoneValid && !loadingPhone)
+                  ? "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)"
+                  : "#cbd5e1",
+                border: "none", borderRadius: "12px",
+                cursor: (loading || loadingPhone || !isPhoneValid) ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : ((isPhoneValid && !loadingPhone) ? 1 : 0.6),
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                boxShadow: (isPhoneValid && !loadingPhone) ? "0 4px 14px rgba(79, 70, 229, 0.25)" : "none",
+                transition: "all 0.2s ease"
+              }}
+            >
+              {loading ? <Loader size={16} style={{ animation: "spin 1s linear infinite" }} /> : null}
+              {loading ? "Sending Code..." : "Send Verification Code"}
+            </button>
+
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 4 }}>
+              <button
+                type="button"
+                onClick={handleSkip}
+                disabled={loading}
+                style={{ background: "none", border: "none", color: "#64748b", fontWeight: 600, fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
+              >
+                Skip for now
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <input
+              type="text"
+              placeholder="000000"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              style={{
+                width: "100%", padding: "14px", fontSize: "26px", letterSpacing: "8px",
+                textAlign: "center", border: "2px solid #4f46e5", borderRadius: "12px",
+                fontWeight: "bold", outline: "none", boxSizing: "border-box", background: "#f8fafc"
+              }}
+              autoFocus
+            />
+
+            <button
+              type="submit"
+              disabled={loading || otp.length < 6}
+              style={{
+                width: "100%", padding: "13px", fontSize: "15px", fontWeight: 700,
+                color: "#fff", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)",
+                border: "none", borderRadius: "10px",
+                cursor: loading || otp.length < 6 ? "not-allowed" : "pointer",
+                opacity: loading || otp.length < 6 ? 0.6 : 1,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8
+              }}
+            >
+              {loading ? <Loader size={16} style={{ animation: "spin 1s linear infinite" }} /> : <ShieldCheck size={16} />}
+              {loading ? "Verifying..." : "Verify & Continue"}
+            </button>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+              <button
+                type="button"
+                onClick={() => { setStep(1); setError(""); setMessage(""); }}
+                style={{ background: "none", border: "none", color: "#64748b", display: "flex", alignItems: "center", gap: 4, cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+              >
+                <ArrowLeft size={14} /> Back
+              </button>
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={loading}
+                style={{ background: "none", border: "none", color: "#4f46e5", fontWeight: 700, cursor: "pointer", fontSize: "13px" }}
+              >
+                Resend Code
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}

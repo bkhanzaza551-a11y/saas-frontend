@@ -1,0 +1,2088 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../../api/client";
+import { useSalonSettings } from "../../context/SalonSettingsContext";
+import { useBranch } from "../../context/BranchContext";
+import { formatApiError } from "../../utils/apiError";
+import PageLoader from "../../components/PageLoader";
+import VendorManagement from "./VendorManagement";
+import IndianPhoneInput from "../../components/IndianPhoneInput";
+import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Tag, Layers, RefreshCw, Users, FileText, Activity, Plus, Trash2, ChevronDown, Save, Upload, Download } from "lucide-react";
+import "./InventoryPage.css";
+
+import CustomSelect from "../../components/CustomSelect";
+
+const emptyCategory = { name: "", description: "", imageUrl: "", sortOrder: 0, isPublicVisible: true };
+const emptyProduct = { branchId: "", categoryId: "", name: "", productType: "RETAIL", costPrice: 0, sellingPrice: 0, currentStock: 0, minStock: 0, sku: "", barcode: "", imageUrl: "", unit: "", secondaryUnit: "", unitConversion: "", favourite: false };
+const emptyMovement = { productId: "", branchId: "", movementType: "STOCK_IN", quantity: 1, note: "" };
+const emptyVendor = { name: "", phone: "", email: "", address: "", notes: "" };
+const createEmptyPoItem = () => ({ productId: "", quantityOrdered: 1, unitCost: 0 });
+
+const getInventoryTabFromPath = (path) => {
+  if (path.includes("/low-stock")) return "Low Stock";
+  if (path.includes("/approval")) return "Approval";
+  if (path.includes("/reconciliation")) return "Stock Reconciliation";
+  if (path.includes("/purchases/vendors")) return "Vendor Management";
+  if (path.includes("/purchases/orders")) return "Purchase Order";
+  return "Dashboard";
+};
+
+export default function InventoryPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { formatMoney } = useSalonSettings();
+  const { selectedBranchId } = useBranch();
+
+  const [activeTab, setActiveTab] = useState(() => getInventoryTabFromPath(location.pathname));
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [movements, setMovements] = useState([]);
+  const [lowStock, setLowStock] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [topSelling, setTopSelling] = useState([]);
+  const [poFilterStatus, setPoFilterStatus] = useState("Placed");
+  const [poFromDate, setPoFromDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [poToDate, setPoToDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [selectedPoId, setSelectedPoId] = useState(null);
+  const [tempPoItems, setTempPoItems] = useState([]);
+  const [commentText, setCommentText] = useState("");
+
+  const [reconciliationEdits, setReconciliationEdits] = useState({});
+  const [reconSearch, setReconSearch] = useState("");
+  const [reconCategoryId, setReconCategoryId] = useState("All");
+
+  const getEditValue = (productId, field, defaultValue) => {
+    if (reconciliationEdits[productId]?.[field] !== undefined) {
+      return reconciliationEdits[productId][field];
+    }
+    return defaultValue;
+  };
+
+  const handleEditChange = (productId, field, val) => {
+    setReconciliationEdits(prev => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        [field]: val
+      }
+    }));
+  };
+
+  const handleSaveIndividualRecon = async (product) => {
+    const edits = reconciliationEdits[product.id] || {};
+    const adjustStock = edits.adjustStock !== undefined ? edits.adjustStock : (product.productType === "RETAIL" ? Number(product.currentStock || 0) : 0);
+    const adjustConsumable = edits.adjustConsumable !== undefined ? edits.adjustConsumable : (product.productType === "CONSUMABLE" ? Number(product.currentStock || 0) : 0);
+    
+    // Choose physicalStock based on type
+    const physicalStock = product.productType === "CONSUMABLE" ? adjustConsumable : adjustStock;
+    const remark = edits.remark || "";
+    
+    const branchId = product.branchId || branches[0]?.id;
+    if (!branchId) {
+      setStatus({ error: "No branch ID found to perform reconciliation.", success: "" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post("/owner/purchases/reconciliation", {
+        branchId,
+        note: remark || `Reconciliation for ${product.name}`,
+        items: [
+          {
+            productId: product.id,
+            physicalStock
+          }
+        ]
+      });
+      setStatus({ success: `Stock reconciled for ${product.name}!`, error: "" });
+      // Remove edit for this product from state since it is saved
+      setReconciliationEdits(prev => {
+        const copy = { ...prev };
+        delete copy[product.id];
+        return copy;
+      });
+      loadAll();
+    } catch (err) {
+      setStatus({ error: formatApiError(err), success: "" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateAllRecon = async (filteredReconProducts) => {
+    const items = [];
+    
+    // Default to first branch or branch from first product
+    const defaultBranchId = branches[0]?.id || (filteredReconProducts[0] && filteredReconProducts[0].branchId);
+    if (!defaultBranchId) {
+      setStatus({ error: "No branch ID found.", success: "" });
+      return;
+    }
+
+    // Go through the filtered list of products
+    for (const p of filteredReconProducts) {
+      const edits = reconciliationEdits[p.id];
+      if (edits) {
+        const adjustStock = edits.adjustStock !== undefined ? edits.adjustStock : (p.productType === "RETAIL" ? Number(p.currentStock || 0) : 0);
+        const adjustConsumable = edits.adjustConsumable !== undefined ? edits.adjustConsumable : (p.productType === "CONSUMABLE" ? Number(p.currentStock || 0) : 0);
+        const physicalStock = p.productType === "CONSUMABLE" ? adjustConsumable : adjustStock;
+        
+        items.push({
+          productId: p.id,
+          physicalStock
+        });
+      }
+    }
+
+    if (items.length === 0) {
+      setStatus({ error: "No stock adjustments modified to update.", success: "" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post("/owner/purchases/reconciliation", {
+        branchId: defaultBranchId,
+        note: "Batch stock reconciliation update",
+        items
+      });
+      setStatus({ success: "All stock levels reconciled successfully!", error: "" });
+      setReconciliationEdits({});
+      loadAll();
+    } catch (err) {
+      setStatus({ error: formatApiError(err), success: "" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearAllRecon = () => {
+    setReconciliationEdits({});
+  };
+
+  const handleExportReconCsv = (rows) => {
+    const header = ["productId", "sku", "name", "productType", "adjustStock", "adjustConsumable", "remark"];
+    const csvRows = rows.map((product) => {
+      const actualStock = product.productType === "RETAIL" ? Number(product.currentStock || 0) : 0;
+      const actualConsumable = product.productType === "CONSUMABLE" ? Number(product.currentStock || 0) : 0;
+      const adjustStock = getEditValue(product.id, "adjustStock", actualStock);
+      const adjustConsumable = getEditValue(product.id, "adjustConsumable", actualConsumable);
+      const remark = getEditValue(product.id, "remark", "");
+      return [
+        product.id,
+        product.sku || "",
+        `"${String(product.name || "").replaceAll('"', '""')}"`,
+        product.productType,
+        adjustStock,
+        adjustConsumable,
+        `"${String(remark || "").replaceAll('"', '""')}"`
+      ].join(",");
+    });
+
+    const blob = new Blob([[header.join(","), ...csvRows].join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `stock-reconciliation-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportReconCsv = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const [, ...lines] = text.split(/\r?\n/).filter(Boolean);
+    const nextEdits = {};
+
+    lines.forEach((line) => {
+      const cells = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map((cell) => cell.replace(/^"|"$/g, "").replace(/""/g, '"').trim()) || [];
+      const [productId, sku, name, , adjustStock, adjustConsumable, remark] = cells;
+      const product = products.find((entry) => (
+        (productId && entry.id === productId) ||
+        (sku && entry.sku === sku) ||
+        (name && entry.name?.toLowerCase() === name.toLowerCase())
+      ));
+      if (!product) return;
+      nextEdits[product.id] = {
+        adjustStock: adjustStock !== undefined && adjustStock !== "" ? Number(adjustStock) : getEditValue(product.id, "adjustStock", Number(product.currentStock || 0)),
+        adjustConsumable: adjustConsumable !== undefined && adjustConsumable !== "" ? Number(adjustConsumable) : getEditValue(product.id, "adjustConsumable", Number(product.currentStock || 0)),
+        remark: remark || getEditValue(product.id, "remark", "")
+      };
+    });
+
+    setReconciliationEdits((prev) => ({ ...prev, ...nextEdits }));
+    setStatus({ success: `${Object.keys(nextEdits).length} reconciliation rows imported.`, error: "" });
+    event.target.value = "";
+  };
+
+
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState({ error: "", success: "" });
+
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
+  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [isPurchaseOrderModalOpen, setIsPurchaseOrderModalOpen] = useState(false);
+
+  const [productForm, setProductForm] = useState(emptyProduct);
+  const [categoryForm, setCategoryForm] = useState(emptyCategory);
+  const [movementForm, setMovementForm] = useState(emptyMovement);
+  const [vendorForm, setVendorForm] = useState(emptyVendor);
+  const [purchaseOrderForm, setPurchaseOrderForm] = useState({
+    branchId: "",
+    vendorId: "",
+    notes: "",
+    items: [createEmptyPoItem()]
+  });
+  const reconImportRef = useRef(null);
+
+  const loadAll = async () => {
+    try {
+      const branchParams = selectedBranchId ? { branchId: selectedBranchId } : {};
+      const [
+        categoriesResponse,
+        productsResponse,
+        movementsResponse,
+        lowStockResponse,
+        branchesResponse,
+        vendorsResponse,
+        ordersResponse,
+        topSellingResponse
+      ] = await Promise.allSettled([
+        api.get("/owner/inventory/categories", { params: branchParams }),
+        api.get("/owner/inventory/products", { params: branchParams }),
+        api.get("/owner/inventory/stock-movements", { params: branchParams }),
+        api.get("/owner/inventory/low-stock", { params: branchParams }),
+        api.get("/owner/branches"),
+        api.get("/owner/purchases/vendors", { params: branchParams }),
+        api.get("/owner/purchases/orders", { params: branchParams }),
+        api.get("/owner/inventory/top-selling-items", { params: branchParams })
+      ]);
+
+      if (categoriesResponse.status === "fulfilled") setCategories(categoriesResponse.value.data);
+      else console.error(categoriesResponse.reason);
+
+      if (productsResponse.status === "fulfilled") setProducts(productsResponse.value.data);
+      else console.error(productsResponse.reason);
+
+      if (movementsResponse.status === "fulfilled") {
+        const body = movementsResponse.value.data;
+        setMovements(Array.isArray(body) ? body : (body?.data || []));
+      }
+      else console.error(movementsResponse.reason);
+
+      if (lowStockResponse.status === "fulfilled") setLowStock(lowStockResponse.value.data);
+      else console.error(lowStockResponse.reason);
+
+      if (branchesResponse.status === "fulfilled") setBranches(branchesResponse.value.data);
+      else console.error(branchesResponse.reason);
+
+      if (vendorsResponse.status === "fulfilled") setVendors(vendorsResponse.value.data);
+      else console.error(vendorsResponse.reason);
+
+      if (ordersResponse.status === "fulfilled") setOrders(ordersResponse.value.data);
+      else console.error(ordersResponse.reason);
+
+      if (topSellingResponse.status === "fulfilled") setTopSelling(topSellingResponse.value.data);
+      else console.error(topSellingResponse.reason);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAll();
+  }, [selectedBranchId]);
+
+  useEffect(() => {
+    setActiveTab(getInventoryTabFromPath(location.pathname));
+    setIsPurchaseOrderModalOpen(location.pathname.includes("/admin/purchases/orders/create"));
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isProductModalOpen || isCategoryModalOpen || isMovementModalOpen || isVendorModalOpen || isPurchaseOrderModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isProductModalOpen, isCategoryModalOpen, isMovementModalOpen, isVendorModalOpen, isPurchaseOrderModalOpen]);
+
+  const totalStock = products.reduce((acc, p) => acc + Number(p.currentStock || 0), 0);
+  const activeItems = products.filter(p => p.isActive !== false).length;
+  const pendingOrders = orders.filter(o => o.status === "DRAFT").length;
+  const approvedOrders = orders.filter(o => o.status === "ORDERED" || o.status === "PARTIALLY_RECEIVED" || o.status === "RECEIVED").length;
+  const rejectedOrders = orders.filter(o => o.status === "CANCELLED").length;
+  const stockYetToBeReceived = orders.reduce((acc, order) => (
+    acc + (order.items || []).reduce((itemAcc, item) => itemAcc + Math.max(Number(item.quantityOrdered || 0) - Number(item.quantityReceived || 0), 0), 0)
+  ), 0);
+  const poCounts = useMemo(() => {
+    const dateFiltered = orders.filter(o => {
+      const oDate = new Date(o.createdAt || o.orderedAt).toISOString().slice(0, 10);
+      return oDate >= poFromDate && oDate <= poToDate;
+    });
+    return {
+      Placed: dateFiltered.filter(o => o.status === "DRAFT" || o.status === "ORDERED").length,
+      Approved: dateFiltered.filter(o => o.status === "ORDERED").length,
+      Rejected: dateFiltered.filter(o => o.status === "CANCELLED").length,
+      Partial_Settled: dateFiltered.filter(o => o.status === "PARTIALLY_RECEIVED").length,
+      Settled: dateFiltered.filter(o => o.status === "RECEIVED").length,
+      Cancelled: dateFiltered.filter(o => o.status === "CANCELLED").length,
+      Total: dateFiltered.length
+    };
+  }, [orders, poFromDate, poToDate]);
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter(o => {
+      const oDate = new Date(o.createdAt || o.orderedAt).toISOString().slice(0, 10);
+      const inDateRange = oDate >= poFromDate && oDate <= poToDate;
+      if (!inDateRange) return false;
+
+      if (poFilterStatus === "Placed") return o.status === "DRAFT" || o.status === "ORDERED";
+      if (poFilterStatus === "Approved") return o.status === "ORDERED";
+      if (poFilterStatus === "Rejected") return o.status === "CANCELLED";
+      if (poFilterStatus === "Partial_Settled") return o.status === "PARTIALLY_RECEIVED";
+      if (poFilterStatus === "Settled") return o.status === "RECEIVED";
+      if (poFilterStatus === "Cancelled") return o.status === "CANCELLED";
+      return true;
+    });
+  }, [orders, poFilterStatus, poFromDate, poToDate]);
+  const draftOrders = useMemo(() => orders.filter(o => o.status === "DRAFT"), [orders]);
+
+  useEffect(() => {
+    if (draftOrders.length > 0 && !selectedPoId) {
+      setSelectedPoId(draftOrders[0].id);
+    }
+  }, [draftOrders, selectedPoId]);
+
+  const selectedOrder = useMemo(() => {
+    return draftOrders.find(o => o.id === selectedPoId) || draftOrders[0] || null;
+  }, [draftOrders, selectedPoId]);
+
+  const filteredReconProducts = useMemo(() => {
+    return products.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(reconSearch.toLowerCase()) || 
+                            (p.sku && p.sku.toLowerCase().includes(reconSearch.toLowerCase())) ||
+                            (p.barcode && p.barcode.toLowerCase().includes(reconSearch.toLowerCase()));
+      const matchesCategory = reconCategoryId === "All" || p.categoryId === reconCategoryId;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, reconSearch, reconCategoryId]);
+
+  const mostUsedConsumables = useMemo(() => {
+    const consumedMap = {};
+    movements.forEach(m => {
+      if (m.product?.productType === "CONSUMABLE" && m.quantity < 0) {
+        if (!consumedMap[m.product.id]) {
+          consumedMap[m.product.id] = { product: m.product, totalConsumed: 0, lastUsed: m.createdAt };
+        }
+        consumedMap[m.product.id].totalConsumed += Math.abs(m.quantity);
+        if (new Date(m.createdAt) > new Date(consumedMap[m.product.id].lastUsed)) {
+          consumedMap[m.product.id].lastUsed = m.createdAt;
+        }
+      }
+    });
+    return Object.values(consumedMap)
+      .sort((a, b) => b.totalConsumed - a.totalConsumed)
+      .slice(0, 5);
+  }, [movements]);
+
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setTempPoItems(selectedOrder.items || []);
+    } else {
+      setTempPoItems([]);
+    }
+  }, [selectedOrder]);
+
+  useEffect(() => {
+    setPurchaseOrderForm((prev) => ({
+      ...prev,
+      branchId: prev.branchId || branches[0]?.id || "",
+      vendorId: prev.vendorId || vendors[0]?.id || "",
+      items: prev.items.map((item) => {
+        if (!item.productId && products[0]?.id) {
+          return {
+            ...item,
+            productId: products[0].id,
+            unitCost: item.unitCost || Number(products[0].costPrice || 0)
+          };
+        }
+        return item;
+      })
+    }));
+  }, [branches, vendors, products]);
+
+  const handleProductSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/owner/inventory/products", { 
+        ...productForm, 
+        branchId: selectedBranchId || undefined,
+        costPrice: Number(productForm.costPrice), 
+        sellingPrice: Number(productForm.sellingPrice), 
+        currentStock: Number(productForm.currentStock), 
+        minStock: Number(productForm.minStock), 
+        unit: productForm.unit || null,
+        secondaryUnit: productForm.secondaryUnit || null,
+        unitConversion: productForm.unitConversion !== "" ? Number(productForm.unitConversion) : null,
+        favourite: Boolean(productForm.favourite) 
+      });
+      setIsProductModalOpen(false);
+      setProductForm(emptyProduct);
+      loadAll();
+    } catch (error) {
+      setStatus({ error: formatApiError(error), success: "" });
+    }
+  };
+
+  const handleCategorySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/owner/inventory/categories", { ...categoryForm, sortOrder: Number(categoryForm.sortOrder) });
+      setIsCategoryModalOpen(false);
+      setCategoryForm(emptyCategory);
+      loadAll();
+    } catch (error) {
+      setStatus({ error: formatApiError(error), success: "" });
+    }
+  };
+
+  const handleMovementSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/owner/inventory/stock-movements", { 
+        ...movementForm, 
+        branchId: selectedBranchId || undefined,
+        quantity: Number(movementForm.quantity) 
+      });
+      setIsMovementModalOpen(false);
+      setMovementForm(emptyMovement);
+      loadAll();
+    } catch (error) {
+      setStatus({ error: formatApiError(error), success: "" });
+    }
+  };
+
+  const handleVendorSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/owner/purchases/vendors", {
+        ...vendorForm,
+        branchId: selectedBranchId || null
+      });
+      setStatus({ success: "Vendor created successfully!", error: "" });
+      setVendorForm(emptyVendor);
+      setIsVendorModalOpen(false);
+      loadAll();
+    } catch (error) {
+      setStatus({ error: formatApiError(error), success: "" });
+    }
+  };
+
+  const updatePoItem = (index, field, value) => {
+    setPurchaseOrderForm((prev) => ({
+      ...prev,
+      items: prev.items.map((item, itemIndex) => (
+        itemIndex === index ? { ...item, [field]: value } : item
+      ))
+    }));
+  };
+
+  const addPoItemRow = () => {
+    setPurchaseOrderForm((prev) => ({
+      ...prev,
+      items: [...prev.items, createEmptyPoItem()]
+    }));
+  };
+
+  const removePoItemRow = (index) => {
+    setPurchaseOrderForm((prev) => ({
+      ...prev,
+      items: prev.items.length === 1 ? prev.items : prev.items.filter((_, itemIndex) => itemIndex !== index)
+    }));
+  };
+
+  const closePurchaseOrderModal = () => {
+    setIsPurchaseOrderModalOpen(false);
+    setPurchaseOrderForm({
+      branchId: branches[0]?.id || "",
+      vendorId: vendors[0]?.id || "",
+      notes: "",
+      items: [createEmptyPoItem()]
+    });
+    if (location.pathname.includes("/admin/purchases/orders/create")) {
+      navigate("/admin/purchases/orders");
+    }
+  };
+
+  const handlePurchaseOrderSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/owner/purchases/orders", {
+        branchId: selectedBranchId || branches[0]?.id || "",
+        vendorId: purchaseOrderForm.vendorId,
+        notes: purchaseOrderForm.notes,
+        items: purchaseOrderForm.items.map((item) => ({
+          productId: item.productId,
+          quantityOrdered: Number(item.quantityOrdered),
+          unitCost: Number(item.unitCost)
+        }))
+      });
+      setStatus({ success: "Purchase order created successfully!", error: "" });
+      closePurchaseOrderModal();
+      loadAll();
+    } catch (error) {
+      setStatus({ error: formatApiError(error), success: "" });
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!selectedOrder) return;
+    try {
+      setLoading(true);
+      await api.patch(`/owner/purchases/orders/${selectedOrder.id}/approve`, { notes: commentText });
+      setStatus({ success: "Purchase order approved successfully!", error: "" });
+      setSelectedPoId(null);
+      setCommentText("");
+      loadAll();
+    } catch (err) {
+      setStatus({ error: formatApiError(err), success: "" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!selectedOrder) return;
+    try {
+      setLoading(true);
+      await api.patch(`/owner/purchases/orders/${selectedOrder.id}/reject`, { notes: commentText });
+      setStatus({ success: "Purchase order rejected.", error: "" });
+      setSelectedPoId(null);
+      setCommentText("");
+      loadAll();
+    } catch (err) {
+      setStatus({ error: formatApiError(err), success: "" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteItem = (itemId) => {
+    setTempPoItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const tabs = [
+    { name: "Dashboard", icon: <Activity size={18} /> },
+    { name: "Low Stock", icon: <AlertTriangle size={18} /> },
+    { name: "Purchase Order", icon: <ShoppingCart size={18} /> },
+    { name: "Approval", icon: <CheckCircle size={18} /> },
+    { name: "Stock Reconciliation", icon: <RefreshCw size={18} /> },
+    { name: "Vendor Management", icon: <Users size={18} /> }
+  ];
+
+  return (
+    <div className="inventory-layout">
+      {/* SIDEBAR */}
+      <div className="inventory-sidebar">
+        <div style={{
+          padding: "14px 12px 10px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)"
+        }} />
+        <div className="sidebar-nav-container" style={{ flexGrow: 1, overflowY: "auto", padding: "10px 10px", display: "flex", flexDirection: "column", gap: "2px" }}>
+          {tabs.map(tab => {
+            const isActive = activeTab === tab.name;
+            return (
+              <button
+                key={tab.name}
+                onClick={() => {
+                  setActiveTab(tab.name);
+                  if (tab.name === "Dashboard") navigate("/admin/inventory");
+                  if (tab.name === "Low Stock") navigate("/admin/inventory/low-stock");
+                  if (tab.name === "Purchase Order") navigate("/admin/purchases/orders");
+                  if (tab.name === "Approval") navigate("/admin/inventory/approval");
+                  if (tab.name === "Stock Reconciliation") navigate("/admin/inventory/reconciliation");
+                  if (tab.name === "Vendor Management") navigate("/admin/purchases/vendors");
+                }}
+                style={{
+                  display: "flex", alignItems: "center", gap: "11px", width: "100%",
+                  padding: "10px 12px",
+                  border: "none", borderRadius: "8px",
+                  background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
+                  color: isActive ? "#e2e8f0" : "#7c8494",
+                  fontSize: "0.845rem",
+                  fontWeight: isActive ? "600" : "500",
+                  cursor: "pointer",
+                  transition: "background 140ms ease, color 140ms ease",
+                  textAlign: "left",
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                    e.currentTarget.style.color = "#c8cdd6";
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "#7c8494";
+                  }
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", color: isActive ? "#c8cdd6" : "#555e6e", flexShrink: 0 }}>
+                  {tab.icon}
+                </span>
+                {tab.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MAIN CONTENT */}
+      <div className="inventory-content">
+        {loading && <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 100 }}><PageLoader title="Loading..." /></div>}
+        
+        {activeTab === "Dashboard" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Real-time stock analytics, purchase order tracking, and product performance.</div>
+            </div>
+            
+            {/* Top KPI Row */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Pending PO</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{pendingOrders}</div>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#f3e8ff", color: "#9333ea", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <ShoppingCart size={22} />
+                </div>
+              </div>
+
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Approved PO</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{approvedOrders}</div>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <CheckCircle size={22} />
+                </div>
+              </div>
+
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Rejected PO</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{rejectedOrders}</div>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#fef2f2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <XCircle size={22} />
+                </div>
+              </div>
+
+              <div style={{ background: "#ffffff", border: lowStock.length > 0 ? "1px solid #fde68a" : "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", transition: "all 0.15s" }} onClick={() => { setActiveTab("Low Stock"); navigate("/admin/inventory/low-stock"); }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Min Stock Items</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: lowStock.length > 0 ? "#d97706" : "#0f172a", marginTop: 4 }}>{lowStock.length}</div>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <AlertTriangle size={22} />
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Cards Row */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
+              <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>Inventory Summary</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div style={{ background: "#f8fafc", padding: "14px 16px", borderRadius: 10, border: "1px solid #f1f5f9" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Stock In Hand</div>
+                    <div style={{ fontSize: 22, color: "#0f172a", fontWeight: 800, marginTop: 4 }}>{totalStock.toFixed(0)}</div>
+                  </div>
+                  <div style={{ background: "#f8fafc", padding: "14px 16px", borderRadius: 10, border: "1px solid #f1f5f9" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Incoming Stock</div>
+                    <div style={{ fontSize: 22, color: "#2563eb", fontWeight: 800, marginTop: 4 }}>{stockYetToBeReceived}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>Product Catalog Summary</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                  <div style={{ background: "#f8fafc", padding: "14px 12px", borderRadius: 10, border: "1px solid #f1f5f9", textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Total</div>
+                    <div style={{ fontSize: 20, color: "#0f172a", fontWeight: 800, marginTop: 4 }}>{products.length}</div>
+                  </div>
+                  <div style={{ background: "#f0fdf4", padding: "14px 12px", borderRadius: 10, border: "1px solid #dcfce7", textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#166534", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Active</div>
+                    <div style={{ fontSize: 20, color: "#16a34a", fontWeight: 800, marginTop: 4 }}>{activeItems}</div>
+                  </div>
+                  <div style={{ background: "#fef2f2", padding: "14px 12px", borderRadius: 10, border: "1px solid #fee2e2", textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#991b1b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Inactive</div>
+                    <div style={{ fontSize: 20, color: "#dc2626", fontWeight: 800, marginTop: 4 }}>{products.length - activeItems}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Selling Items */}
+            {topSelling.length > 0 && (
+              <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <h3 style={{ margin: "0 0 16px 0", fontSize: 14, color: "#0f172a", fontWeight: 700 }}>Top Selling Items</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 14 }}>
+                  {topSelling.map((item, idx) => (
+                    <div key={item.product?.id || idx} style={{ background: "#f8fafc", border: "1px solid #f1f5f9", borderRadius: 10, padding: 14, display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
+                      <div style={{ position: "absolute", top: 6, right: 8, fontSize: 10, fontWeight: 800, color: "#64748b", background: "#e2e8f0", padding: "2px 6px", borderRadius: 10 }}>#{idx + 1}</div>
+                      <div style={{ width: 44, height: 44, borderRadius: 10, border: "1px solid #cbd5e1", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
+                        {item.product?.imageUrl ? (
+                          <img src={item.product.imageUrl} alt={item.product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          <Package size={22} color="#64748b" />
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, color: "#0f172a", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {item.product?.name || "Product"}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#2563eb", fontWeight: 600, marginTop: 2 }}>
+                          {item.totalSold} {item.totalSold === 1 ? "sold" : "sold"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Consumables Table */}
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", background: "#fff" }}>
+                <h3 style={{ margin: 0, fontSize: 14, color: "#0f172a", fontWeight: 700 }}>Most Used Consumables</h3>
+              </div>
+              <div className="table-container">
+                <table className="data-table" style={{ width: "100%" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: "12px 24px" }}>Product Name</th>
+                      <th style={{ padding: "12px 24px" }}>Category</th>
+                      <th style={{ padding: "12px 24px" }}>Total Consumed</th>
+                      <th style={{ padding: "12px 24px" }}>Last Used</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mostUsedConsumables.map(m => (
+                      <tr key={m.product.id}>
+                        <td style={{ padding: "12px 24px", fontWeight: 600, color: "#0f172a" }}>{m.product.name}</td>
+                        <td style={{ padding: "12px 24px", color: "#64748b" }}>{m.product.category?.name || "Consumable"}</td>
+                        <td style={{ padding: "12px 24px" }}>
+                          <span style={{ padding: "3px 8px", borderRadius: 12, background: "#fef2f2", color: "#dc2626", fontSize: 12, fontWeight: 700 }}>
+                            {m.totalConsumed} {m.product.secondaryUnit || m.product.unit || ""}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 24px", fontSize: 12, color: "#64748b" }}>{new Date(m.lastUsed).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                    {mostUsedConsumables.length === 0 && <tr><td colSpan="4" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No consumables used yet.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Dynamic Tab Implementations */}
+
+        {activeTab === "Low Stock" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Low Stock Inventory</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Products running below minimum threshold limit that need re-ordering.</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ 
+                  fontSize: 12, 
+                  fontWeight: 700, 
+                  padding: "6px 14px", 
+                  borderRadius: 20, 
+                  background: lowStock.length > 0 ? "#fef2f2" : "#f0fdf4", 
+                  color: lowStock.length > 0 ? "#dc2626" : "#16a34a",
+                  border: lowStock.length > 0 ? "1px solid #fee2e2" : "1px solid #dcfce7"
+                }}>
+                  {lowStock.length} {lowStock.length === 1 ? "Product" : "Products"} Below Minimum
+                </span>
+              </div>
+            </div>
+
+            {lowStock.length === 0 ? (
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "48px 24px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#f0fdf4", border: "1px solid #dcfce7", color: "#16a34a", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                  <CheckCircle size={32} />
+                </div>
+                <h3 style={{ margin: "0 0 6px 0", fontSize: 17, color: "#0f172a", fontWeight: 700 }}>All Products Are Sufficiently Stocked</h3>
+                <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
+                  Great news! Every product currently has stock levels above its configured minimum threshold limit. No urgent re-orders required.
+                </p>
+              </div>
+            ) : (
+              <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+                <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h3 style={{ margin: 0, fontSize: 14, color: "#0f172a", fontWeight: 700 }}>Items Requiring Restock</h3>
+                </div>
+                <div className="table-container">
+                  <table className="data-table" style={{ width: "100%" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ padding: "12px 24px" }}>Product Details</th>
+                        <th style={{ padding: "12px 24px" }}>Category</th>
+                        <th style={{ padding: "12px 24px" }}>Current Stock</th>
+                        <th style={{ padding: "12px 24px" }}>Min Threshold</th>
+                        <th style={{ padding: "12px 24px" }}>Shortage / Reorder</th>
+                        <th style={{ padding: "12px 24px", textAlign: "right" }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lowStock.map((item) => {
+                        const deficit = Number(item.minStock) - Number(item.currentStock);
+                        return (
+                          <tr key={item.id}>
+                            <td style={{ padding: "14px 24px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#fef2f2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  <AlertTriangle size={18} />
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 14 }}>{item.name}</div>
+                                  {item.sku && <div style={{ fontSize: 11, color: "#64748b" }}>SKU: {item.sku}</div>}
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding: "14px 24px", color: "#475569", fontSize: 13 }}>
+                              {item.category?.name || "General"}
+                            </td>
+                            <td style={{ padding: "14px 24px" }}>
+                              <span style={{ padding: "4px 10px", borderRadius: 12, background: "#fef2f2", color: "#dc2626", fontSize: 13, fontWeight: 800, border: "1px solid #fee2e2" }}>
+                                {item.currentStock} {item.unit || ""}
+                              </span>
+                            </td>
+                            <td style={{ padding: "14px 24px", color: "#475569", fontSize: 13, fontWeight: 600 }}>
+                              {item.minStock} {item.unit || ""}
+                            </td>
+                            <td style={{ padding: "14px 24px" }}>
+                              <span style={{ padding: "4px 10px", borderRadius: 12, background: "#fff7ed", color: "#c2410c", fontSize: 12, fontWeight: 700, border: "1px solid #ffedd5" }}>
+                                Need +{deficit > 0 ? deficit : 1} {item.unit || ""}
+                              </span>
+                            </td>
+                            <td style={{ padding: "14px 24px", textAlign: "right" }}>
+                              <button 
+                                onClick={() => { setActiveTab("Purchase Order"); navigate("/admin/inventory/purchase-orders"); }} 
+                                className="cpn-btn cpn-btn-secondary" 
+                                style={{ fontSize: 12, padding: "6px 12px" }}
+                              >
+                                + Re-order
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab !== "Dashboard" && activeTab === "Purchase Order" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Page Title & Top Action Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Purchase Orders</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Manage vendor orders, approvals, and stock deliveries.</div>
+              </div>
+              <button
+                onClick={() => setIsPurchaseOrderModalOpen(true)}
+                className="cpn-btn cpn-btn-primary"
+                style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                + New Purchase Order
+              </button>
+            </div>
+
+            {/* Filter Controls Card */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              {/* Date Filters */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>From:</span>
+                  <input 
+                    type="date" 
+                    value={poFromDate} 
+                    onChange={(e) => setPoFromDate(e.target.value)}
+                    max={poToDate || undefined}
+                    style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, outline: "none", color: "#0f172a" }} 
+                  />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>To:</span>
+                  <input 
+                    type="date" 
+                    value={poToDate} 
+                    onChange={(e) => setPoToDate(e.target.value)}
+                    min={poFromDate || undefined}
+                    style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, outline: "none", color: "#0f172a" }} 
+                  />
+                </div>
+              </div>
+
+              {/* Status Filter Tab Pills */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap", overflowX: "auto", paddingBottom: 2 }}>
+                {[
+                  { label: "Placed", count: poCounts.Placed },
+                  { label: "Approved", count: poCounts.Approved },
+                  { label: "Rejected", count: poCounts.Rejected },
+                  { label: "Partial_Settled", count: poCounts.Partial_Settled },
+                  { label: "Settled", count: poCounts.Settled },
+                  { label: "Cancelled", count: poCounts.Cancelled },
+                  { label: "Total", count: poCounts.Total }
+                ].map((btn) => {
+                  const isActive = poFilterStatus === btn.label;
+                  return (
+                    <button
+                      key={btn.label}
+                      onClick={() => setPoFilterStatus(btn.label)}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "6px 12px",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                        border: isActive ? "1px solid #2563eb" : "1px solid #e2e8f0",
+                        background: isActive ? "#eff6ff" : "#f8fafc",
+                        color: isActive ? "#1d4ed8" : "#475569"
+                      }}
+                    >
+                      <span>{btn.label.replace("_", " ")}</span>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "1px 6px",
+                        borderRadius: 10,
+                        background: isActive ? "#2563eb" : "#e2e8f0",
+                        color: isActive ? "#ffffff" : "#64748b"
+                      }}>
+                        {btn.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Content Panel */}
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", padding: filteredOrders.length === 0 ? "80px 24px" : "0px", minHeight: 300, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              {filteredOrders.length === 0 ? (
+                <div style={{ textAlign: "center", color: "#64748b" }}>
+                  <span style={{ fontSize: "1.25rem", fontWeight: 600, display: "block" }}>
+                    {poFilterStatus.replace("_", " ")} Purchase Orders Not Available
+                  </span>
+                </div>
+              ) : (
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                  <thead>
+                    <tr style={{ background: "#f8fafc", color: "#475569", fontSize: "0.85rem", textTransform: "uppercase" }}>
+                      <th style={{ padding: "16px 24px", fontWeight: 600 }}>PO #</th>
+                      <th style={{ padding: "16px 24px", fontWeight: 600 }}>Date</th>
+                      <th style={{ padding: "16px 24px", fontWeight: 600 }}>Vendor</th>
+                      <th style={{ padding: "16px 24px", fontWeight: 600 }}>Products</th>
+                      <th style={{ padding: "16px 24px", fontWeight: 600 }}>Amount</th>
+                      <th style={{ padding: "16px 24px", fontWeight: 600 }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.map(o => (
+                      <tr key={o.id} style={{ borderTop: "1px solid #e2e8f0" }}>
+                        <td style={{ padding: "16px 24px", fontWeight: 500, color: "#0f172a" }}>{o.orderNumber || o.id?.slice(-6)}</td>
+                        <td style={{ padding: "16px 24px", color: "#64748b" }}>{new Date(o.createdAt || o.orderedAt).toLocaleDateString()}</td>
+                        <td style={{ padding: "16px 24px", color: "#64748b" }}>{o.vendor?.name || "-"}</td>
+                        <td style={{ padding: "16px 24px", color: "#64748b" }}>{o.items?.length || 0} items</td>
+                        <td style={{ padding: "16px 24px", fontWeight: 600 }}>{formatMoney(o.totalCost || 0)}</td>
+                        <td style={{ padding: "16px 24px" }}>
+                          <span style={{ padding: "4px 8px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 600, background: o.status === "RECEIVED" ? "#dcfce7" : o.status === "CANCELLED" ? "#fee2e2" : "#fef3c7", color: o.status === "RECEIVED" ? "#166534" : o.status === "CANCELLED" ? "#991b1b" : "#92400e" }}>{o.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Approval Tab Custom Implementation */}
+        {activeTab !== "Dashboard" && activeTab === "Approval" && (
+          <div style={{ display: "flex", gap: 24, background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", minHeight: 600 }}>
+            {/* Left sidebar block */}
+            <div style={{ width: 280, minWidth: 280, borderRight: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0", fontWeight: 700, color: "#1e293b", fontSize: "0.95rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <ChevronDown size={18} color="#64748b" />
+                  Purchase Order
+                </div>
+                <span style={{ background: "#cbd5e1", color: "#475569", borderRadius: 20, fontSize: "0.75rem", padding: "2px 8px", fontWeight: 700 }}>
+                  {draftOrders.length}
+                </span>
+              </div>
+              <div style={{ flexGrow: 1, overflowY: "auto" }}>
+                {draftOrders.map(o => {
+                  const isSelected = selectedPoId === o.id;
+                  return (
+                    <button
+                      key={o.id}
+                      onClick={() => setSelectedPoId(o.id)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        textAlign: "left",
+                        background: isSelected ? "#3b82f6" : "transparent",
+                        color: isSelected ? "white" : "#475569",
+                        border: "none",
+                        borderBottom: "1px solid #e2e8f0",
+                        cursor: "pointer",
+                        fontWeight: 600,
+                        fontSize: "0.9rem",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      {o.orderNumber || o.id?.slice(-6)}
+                    </button>
+                  );
+                })}
+                {draftOrders.length === 0 && (
+                  <div style={{ padding: 24, textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>
+                    No pending purchase orders
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right details block */}
+            <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", padding: 24 }}>
+              {!selectedOrder ? (
+                <div style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 600 }}>
+                  Select a purchase order to view details and approval actions.
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 24 }}>
+                  {/* Meta Details Row */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, borderBottom: "1px solid #f1f5f9", paddingBottom: 20 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Requested To :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>{selectedOrder.vendor?.name || "-"}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Created On :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>
+                        {new Date(selectedOrder.createdAt || selectedOrder.orderedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Expected On :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>
+                        {new Date(new Date(selectedOrder.createdAt || selectedOrder.orderedAt).getTime() + 48*60*60*1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Po Id :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>{selectedOrder.orderNumber || selectedOrder.id}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Requested By :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>{selectedOrder.createdByUser?.name || "Owner"}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Request Remark :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>{selectedOrder.notes || "-"}</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Total Items :</span>
+                      <span style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>{tempPoItems.length}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>Total Value :</span>
+                      <span style={{ fontSize: "0.95rem", color: "var(--accent, #3b82f6)", fontWeight: 700 }}>
+                        {formatMoney(tempPoItems.reduce((acc, item) => acc + (Number(item.quantityOrdered) * Number(item.unitCost)), 0))}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Items List Table */}
+                  <div style={{ flexGrow: 1, overflowY: "auto", minHeight: 250 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                      <thead>
+                        <tr style={{ background: "#e0f2fe", color: "#0369a1", fontSize: "0.85rem", textTransform: "uppercase" }}>
+                          <th style={{ padding: "12px 16px", fontWeight: 600 }}>Sr.No.</th>
+                          <th style={{ padding: "12px 16px", fontWeight: 600 }}>Item Name</th>
+                          <th style={{ padding: "12px 16px", fontWeight: 600 }}>In Stock</th>
+                          <th style={{ padding: "12px 16px", fontWeight: 600, width: 100 }}>Quantity</th>
+                          <th style={{ padding: "12px 16px", fontWeight: 600 }}>Price</th>
+                          <th style={{ padding: "12px 16px", fontWeight: 600 }}>Total Value</th>
+                          <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tempPoItems.map((item, idx) => {
+                          const product = products.find(p => p.id === item.productId);
+                          const inStock = product ? (product.currentStock || 0) : 0;
+                          const totalVal = Number(item.quantityOrdered) * Number(item.unitCost);
+                          return (
+                            <tr key={item.id || idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                              <td style={{ padding: "14px 16px", fontSize: "0.9rem", color: "#475569" }}>{idx + 1}.</td>
+                              <td style={{ padding: "14px 16px", fontSize: "0.9rem", color: "#0f172a", fontWeight: 500 }}>{item.product?.name || product?.name || "-"}</td>
+                              <td style={{ padding: "14px 16px", fontSize: "0.9rem", color: "#475569" }}>{inStock}</td>
+                              <td style={{ padding: "14px 16px", fontSize: "0.9rem", color: "#334155", fontWeight: 600 }}>
+                                {item.quantityOrdered}
+                              </td>
+                              <td style={{ padding: "14px 16px", fontSize: "0.9rem", color: "#475569" }}>{formatMoney(item.unitCost)}</td>
+                              <td style={{ padding: "14px 16px", fontSize: "0.9rem", color: "#0f172a", fontWeight: 600 }}>{formatMoney(totalVal)}</td>
+                              <td style={{ padding: "14px 16px", textAlign: "center", color: "#94a3b8", fontWeight: 600 }}>
+                                Review only
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {tempPoItems.length === 0 && (
+                          <tr>
+                            <td colSpan="7" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>
+                              No items in this purchase order
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Comment & Buttons Block */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
+                    <textarea
+                      placeholder="Write a comment"
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      style={{
+                        width: "100%",
+                        minHeight: 60,
+                        maxHeight: 120,
+                        padding: "12px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 8,
+                        outline: "none",
+                        fontSize: "0.9rem",
+                        fontFamily: "inherit",
+                        resize: "vertical"
+                      }}
+                    />
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                      <button
+                        onClick={handleReject}
+                        style={{
+                          padding: "10px 24px",
+                          border: "1px solid #cbd5e1",
+                          borderRadius: 8,
+                          background: "white",
+                          color: "#475569",
+                          fontWeight: 600,
+                          fontSize: "0.9rem",
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        Reject
+                      </button>
+                      <button
+                        onClick={handleApprove}
+                        style={{
+                          padding: "10px 24px",
+                          border: "none",
+                          borderRadius: 8,
+                          background: "var(--button-bg-solid, #3b82f6)",
+                          color: "white",
+                          fontWeight: 600,
+                          fontSize: "0.9rem",
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        Approve
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Stock Reconciliation Tab */}
+        {activeTab === "Stock Reconciliation" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Title Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Stock Reconciliation & Audit</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Audit physical stock levels, adjust floor inventory, and track stock variance.</div>
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <input
+                  ref={reconImportRef}
+                  type="file"
+                  accept=".csv"
+                  style={{ display: "none" }}
+                  onChange={handleImportReconCsv}
+                />
+                <button
+                  className="cpn-btn cpn-btn-secondary"
+                  style={{ fontSize: 13, padding: "8px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                  onClick={() => reconImportRef.current?.click()}
+                >
+                  <Upload size={14} /> Import CSV
+                </button>
+                <button
+                  className="cpn-btn cpn-btn-secondary"
+                  style={{ fontSize: 13, padding: "8px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                  onClick={() => handleExportReconCsv(filteredReconProducts)}
+                >
+                  <Download size={14} /> Export CSV
+                </button>
+              </div>
+            </div>
+
+            {/* Status Messages */}
+            {status.success && (
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "#f0fdf4", color: "#166534", fontSize: "0.9rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #dcfce7" }}>
+                <span>{status.success}</span>
+                <button onClick={() => setStatus({ error: "", success: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#166534", fontWeight: 700 }}>✕</button>
+              </div>
+            )}
+            {status.error && (
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "#fef2f2", color: "#991b1b", fontSize: "0.9rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #fee2e2" }}>
+                <span>{status.error}</span>
+                <button onClick={() => setStatus({ error: "", success: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#991b1b", fontWeight: 700 }}>✕</button>
+              </div>
+            )}
+
+            {/* Header Filters row */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                {/* Search */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontWeight: 600, color: "#64748b", fontSize: 13 }}>Item:</span>
+                  <div style={{ position: "relative" }}>
+                    <Search size={15} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                    <input
+                      type="text"
+                      placeholder="Search product..."
+                      value={reconSearch}
+                      onChange={(e) => setReconSearch(e.target.value)}
+                      style={{
+                        padding: "7px 12px 7px 32px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 8,
+                        fontSize: 13,
+                        outline: "none",
+                        width: 220
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Category Select */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontWeight: 600, color: "#64748b", fontSize: 13 }}>Category:</span>
+                  <CustomSelect
+                    value={reconCategoryId}
+                    onChange={(e) => setReconCategoryId(e.target.value)}
+                    style={{
+                      padding: "7px 12px",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 8,
+                      fontSize: 13,
+                      background: "white",
+                      outline: "none",
+                      minWidth: 140
+                    }}
+                  >
+                    <option value="All">All Categories</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </CustomSelect>
+                </div>
+              </div>
+
+              <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>
+                Showing {filteredReconProducts.length} product{filteredReconProducts.length !== 1 ? "s" : ""}
+              </div>
+            </div>
+
+            {/* Table Area */}
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div className="table-container" style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                <table className="data-table" style={{ width: "100%", minWidth: "920px", textAlign: "left", whiteSpace: "nowrap" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: "12px 16px" }}>Category</th>
+                      <th style={{ padding: "12px 16px" }}>Item Name</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Actual Stock</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Adjust Stock</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Stock Diff</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Stock Value</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Actual Consumable</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Adjust Consumable</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Unit</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Consumable Diff</th>
+                      <th style={{ padding: "12px 16px" }}>Remark</th>
+                      <th style={{ padding: "12px 16px", textAlign: "center" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredReconProducts.map(p => {
+                      const totalStock = Number(p.currentStock || 0);
+                      const onFloor = Number(p.onFloor || 0);
+                      
+                      let baseActualStock = 0;
+                      let baseActualConsumable = 0;
+                      
+                      if (p.productType === "RETAIL") {
+                        baseActualStock = totalStock;
+                      } else if (p.productType === "CONSUMABLE") {
+                        baseActualConsumable = totalStock;
+                      } else {
+                        // BOTH
+                        baseActualConsumable = onFloor;
+                        baseActualStock = Math.max(0, totalStock - onFloor);
+                      }
+
+                      const actualStock = baseActualStock;
+                      const adjustStock = getEditValue(p.id, "adjustStock", actualStock);
+                      const stockDiff = adjustStock - actualStock;
+
+                      const actualConsumable = baseActualConsumable;
+                      const adjustConsumable = getEditValue(p.id, "adjustConsumable", actualConsumable);
+                      const consumableDiff = adjustConsumable - actualConsumable;
+
+                      const stockValue = (adjustStock + adjustConsumable) * Number(p.costPrice || 0);
+
+                      const remark = getEditValue(p.id, "remark", "");
+                      const unit = p.unit || (p.productType === "CONSUMABLE" ? "ml" : "gm");
+
+                      return (
+                        <tr key={p.id}>
+                          <td style={{ padding: "12px 16px", color: "#64748b", fontSize: 13 }}>{p.category?.name || "General"}</td>
+                          <td style={{ padding: "12px 16px", fontWeight: 700, color: "#0f172a", fontSize: 13 }}>
+                            {p.name}
+                            {p.featured && <span style={{ fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "1px 6px", borderRadius: 4, fontWeight: 700, marginLeft: 6 }}>★ Featured</span>}
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", color: "#475569", fontSize: 13, fontWeight: 600 }}>{actualStock}</td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <input
+                              type="number"
+                              value={adjustStock}
+                              onChange={(e) => handleEditChange(p.id, "adjustStock", Number(e.target.value))}
+                              style={{
+                                width: 70,
+                                padding: "5px 8px",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                textAlign: "center",
+                                outline: "none",
+                                fontSize: 13,
+                                fontWeight: 700
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: stockDiff !== 0 ? (stockDiff > 0 ? "#16a34a" : "#dc2626") : "#64748b", background: stockDiff !== 0 ? (stockDiff > 0 ? "#f0fdf4" : "#fef2f2") : "transparent", padding: stockDiff !== 0 ? "2px 8px" : 0, borderRadius: 10 }}>
+                              {stockDiff > 0 ? `+${stockDiff}` : stockDiff}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", fontWeight: 700, color: "#0f172a", fontSize: 13 }}>
+                            {formatMoney(stockValue)}
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b", fontSize: 13 }}>{actualConsumable}</td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <input
+                              type="number"
+                              value={adjustConsumable}
+                              onChange={(e) => handleEditChange(p.id, "adjustConsumable", Number(e.target.value))}
+                              style={{
+                                width: 70,
+                                padding: "5px 8px",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                textAlign: "center",
+                                outline: "none",
+                                fontSize: 13,
+                                fontWeight: 700
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center", color: "#64748b", fontSize: 12 }}>{unit}</td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: consumableDiff !== 0 ? (consumableDiff > 0 ? "#16a34a" : "#dc2626") : "#64748b", background: consumableDiff !== 0 ? (consumableDiff > 0 ? "#f0fdf4" : "#fef2f2") : "transparent", padding: consumableDiff !== 0 ? "2px 8px" : 0, borderRadius: 10 }}>
+                              {consumableDiff > 0 ? `+${consumableDiff}` : consumableDiff}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px 16px" }}>
+                            <input
+                              type="text"
+                              placeholder="Add remark"
+                              value={remark}
+                              onChange={(e) => handleEditChange(p.id, "remark", e.target.value)}
+                              style={{
+                                width: "100%",
+                                minWidth: 100,
+                                padding: "5px 8px",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: 6,
+                                outline: "none",
+                                fontSize: 12
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                            <button
+                              onClick={() => handleSaveIndividualRecon(p)}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                background: "#eff6ff",
+                                color: "#2563eb",
+                                border: "1px solid #bfdbfe",
+                                borderRadius: 6,
+                                cursor: "pointer",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.15s"
+                              }}
+                              title="Save individual adjustment"
+                            >
+                              <Save size={15} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filteredReconProducts.length === 0 && (
+                      <tr>
+                        <td colSpan="12" style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>
+                          No products found matching the criteria.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Bottom Actions Bar */}
+            <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
+              <button
+                onClick={handleClearAllRecon}
+                className="cpn-btn cpn-btn-secondary"
+                style={{ fontSize: 13, padding: "8px 18px" }}
+              >
+                Clear Edits
+              </button>
+              <button
+                onClick={() => handleUpdateAllRecon(filteredReconProducts)}
+                className="cpn-btn cpn-btn-primary"
+                style={{ fontSize: 13, padding: "8px 20px" }}
+              >
+                Update All Reconciliations
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Vendor Management Tab */}
+        {activeTab === "Vendor Management" && (
+          <VendorManagement branches={branches} selectedBranchId={selectedBranchId} formatMoney={formatMoney} />
+        )}
+
+      </div>
+
+      {/* MODALS - SLIDE PANELS */}
+      <style>{`
+        .slide-panel-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); z-index: 1200; backdrop-filter: blur(2px); }
+        .slide-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 450px; background: #fff; z-index: 1201; display: flex; flex-direction: column; box-shadow: none; transform: translateX(100%); animation: slideIn 0.3s forwards; }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        .sp-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; background: white; border-bottom: 1px solid #e2e8f0; }
+        .sp-header h3 { margin: 0; font-size: 1.2rem; color: #0f172a; font-weight: 700; }
+        .sp-close { background: transparent; border: none; border-radius: 8px; padding: 6px; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .sp-close:hover { background: #f1f5f9; color: #0f172a; }
+        .sp-body { flex-grow: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; background: #f8fafc; }
+        .sp-group { display: flex; flex-direction: column; gap: 6px; }
+        .sp-label { font-size: 0.85rem; font-weight: 600; color: #475569; }
+        .sp-input { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white; transition: all 0.2s; }
+        .sp-input:focus { border-color: #3b82f6; outline: none; box-shadow: none; }
+        .sp-btn { padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; margin-top: 10px; }
+        .sp-btn:hover { background: #2563eb; }
+      `}</style>
+
+      {isProductModalOpen && (
+        <div className="slide-panel-overlay" onClick={() => setIsProductModalOpen(false)}>
+          <div className="slide-panel" onClick={e => e.stopPropagation()}>
+            <div className="sp-header">
+              <button className="sp-close" onClick={() => setIsProductModalOpen(false)}><ArrowLeft size={18} /></button>
+              <h3>Create Product</h3>
+            </div>
+            <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
+              <div className="sp-body">
+                {status.error && <div style={{ color: '#ef4444', padding: 12, background: '#fef2f2', borderRadius: 8, fontSize: '0.9rem' }}>{status.error}</div>}
+                <div className="sp-group">
+                  <label className="sp-label">Product Name</label>
+                  <input className="sp-input" required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} placeholder="E.g., L'Oreal Shampoo" />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Type</label>
+                  <CustomSelect className="sp-input" value={productForm.productType} onChange={e => setProductForm({...productForm, productType: e.target.value})}>
+                    <option value="RETAIL">Retail</option>
+                    <option value="CONSUMABLE">Consumable</option>
+                  </CustomSelect>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="sp-group">
+                    <label className="sp-label">Cost Price ({formatMoney(1).replace(/[\d.,]/g, '').trim()})</label>
+                    <input type="number" className="sp-input" required value={productForm.costPrice} onChange={e => setProductForm({...productForm, costPrice: e.target.value})} />
+                  </div>
+                  <div className="sp-group">
+                    <label className="sp-label">Selling Price ({formatMoney(1).replace(/[\d.,]/g, '').trim()})</label>
+                    <input type="number" className="sp-input" required value={productForm.sellingPrice} onChange={e => setProductForm({...productForm, sellingPrice: e.target.value})} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="sp-group">
+                    <label className="sp-label">Current Stock</label>
+                    <input type="number" className="sp-input" required value={productForm.currentStock} onChange={e => setProductForm({...productForm, currentStock: e.target.value})} />
+                  </div>
+                  <div className="sp-group">
+                    <label className="sp-label">Min Stock</label>
+                    <input type="number" className="sp-input" required value={productForm.minStock} onChange={e => setProductForm({...productForm, minStock: e.target.value})} />
+                  </div>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Category</label>
+                  <CustomSelect className="sp-input" value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})}>
+                    <option value="">No Category</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </CustomSelect>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="sp-group">
+                    <label className="sp-label">Primary Unit</label>
+                    <CustomSelect className="sp-input" value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})}>
+                      <option value="">None</option>
+                      {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
+                    </CustomSelect>
+                  </div>
+                  <div className="sp-group">
+                    <label className="sp-label">Secondary Unit <span style={{ color: "#94a3b8", fontWeight: 400, fontSize: 11 }}>(consumption)</span></label>
+                    <CustomSelect className="sp-input" value={productForm.secondaryUnit} onChange={e => setProductForm({...productForm, secondaryUnit: e.target.value})}>
+                      <option value="">None</option>
+                      {["pcs", "ml", "gm", "kg", "ltr", "box", "pack", "tube", "bottle", "jar", "sachet", "strip"].map(u => <option key={u} value={u}>{u}</option>)}
+                    </CustomSelect>
+                  </div>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Unit Conversion</label>
+                  <input type="number" className="sp-input" value={productForm.unitConversion} onChange={e => setProductForm({...productForm, unitConversion: e.target.value})} placeholder="e.g. 12 (1 box = 12 pcs)" min="0" />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={productForm.favourite} onChange={e => setProductForm({...productForm, favourite: e.target.checked})} style={{ width: 18, height: 18, accentColor: "#ec4899" }} />
+                    Mark as Favourite
+                  </label>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Product Image</label>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                    {productForm.imageUrl && <img src={productForm.imageUrl} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover", border: "1px solid #e2e8f0" }} />}
+                    <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#475569", cursor: "pointer" }}>
+                      Choose Image
+                      <input type="file" accept="image/*" hidden onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 2 * 1024 * 1024) { setStatus({ error: "Image exceeds 2MB limit.", success: "" }); return; }
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const img = new Image();
+                          img.onload = () => {
+                            if (img.width < 500 || img.height < 500) { setStatus({ error: `Image must be at least 500x500 pixels (current: ${img.width}x${img.height}).`, success: "" }); return; }
+                            setProductForm(prev => ({ ...prev, imageUrl: ev.target.result }));
+                          };
+                          img.src = ev.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                      }} />
+                    </label>
+                    {productForm.imageUrl && <button type="button" onClick={() => setProductForm(prev => ({ ...prev, imageUrl: "" }))} style={{ padding: "6px 10px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Remove</button>}
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>
+                <button type="submit" className="sp-btn">Save Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isCategoryModalOpen && (
+        <div className="slide-panel-overlay" onClick={() => setIsCategoryModalOpen(false)}>
+          <div className="slide-panel" onClick={e => e.stopPropagation()}>
+            <div className="sp-header">
+              <button className="sp-close" onClick={() => setIsCategoryModalOpen(false)}><ArrowLeft size={18} /></button>
+              <h3>Create Category</h3>
+            </div>
+            <form onSubmit={handleCategorySubmit} style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
+              <div className="sp-body">
+                {status.error && <div style={{ color: '#ef4444', padding: 12, background: '#fef2f2', borderRadius: 8, fontSize: '0.9rem' }}>{status.error}</div>}
+                <div className="sp-group">
+                  <label className="sp-label">Category Name</label>
+                  <input className="sp-input" required value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} placeholder="E.g., Hair Care" />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Description</label>
+                  <textarea className="sp-input" rows="4" value={categoryForm.description} onChange={e => setCategoryForm({...categoryForm, description: e.target.value})} placeholder="Short description" />
+                </div>
+              </div>
+              <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>
+                <button type="submit" className="sp-btn">Save Category</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isMovementModalOpen && (
+        <div className="slide-panel-overlay" onClick={() => setIsMovementModalOpen(false)}>
+          <div className="slide-panel" onClick={e => e.stopPropagation()}>
+            <div className="sp-header">
+              <button className="sp-close" onClick={() => setIsMovementModalOpen(false)}><ArrowLeft size={18} /></button>
+              <h3>Record Stock Movement</h3>
+            </div>
+            <form onSubmit={handleMovementSubmit} style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
+              <div className="sp-body">
+                {status.error && <div style={{ color: '#ef4444', padding: 12, background: '#fef2f2', borderRadius: 8, fontSize: '0.9rem' }}>{status.error}</div>}
+                <div className="sp-group">
+                  <label className="sp-label">Product</label>
+                  <CustomSelect className="sp-input" required value={movementForm.productId} onChange={e => setMovementForm({...movementForm, productId: e.target.value})}>
+                    <option value="">Select product...</option>
+                    {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </CustomSelect>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Movement Type</label>
+                  <CustomSelect className="sp-input" value={movementForm.movementType} onChange={e => setMovementForm({...movementForm, movementType: e.target.value})}>
+                    <option value="STOCK_IN">Stock In</option>
+                    <option value="STOCK_OUT">Stock Out</option>
+                    <option value="ADJUSTMENT">Adjustment</option>
+                  </CustomSelect>
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Quantity</label>
+                  <input type="number" className="sp-input" required value={movementForm.quantity} onChange={e => setMovementForm({...movementForm, quantity: e.target.value})} />
+                </div>
+              </div>
+              <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>
+                <button type="submit" className="sp-btn">Save Movement</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isVendorModalOpen && (
+        <div className="slide-panel-overlay" onClick={() => setIsVendorModalOpen(false)}>
+          <div className="slide-panel" onClick={e => e.stopPropagation()}>
+            <div className="sp-header">
+              <button className="sp-close" onClick={() => setIsVendorModalOpen(false)}><ArrowLeft size={18} /></button>
+              <h3>Create Vendor</h3>
+            </div>
+            <form onSubmit={handleVendorSubmit} style={{ display: "flex", flexDirection: "column", flexGrow: 1, overflow: "hidden" }}>
+              <div className="sp-body">
+                {status.error && <div style={{ color: "#ef4444", padding: 12, background: "#fef2f2", borderRadius: 8, fontSize: "0.9rem" }}>{status.error}</div>}
+                <div className="sp-group">
+                  <label className="sp-label">Vendor Name</label>
+                  <input className="sp-input" required value={vendorForm.name} onChange={e => setVendorForm({ ...vendorForm, name: e.target.value })} placeholder="Enter vendor name" />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Phone</label>
+                  <IndianPhoneInput value={vendorForm.phone} onChange={(phone) => setVendorForm(prev => ({ ...prev, phone }))} />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Email</label>
+                  <input className="sp-input" value={vendorForm.email} onChange={e => setVendorForm({ ...vendorForm, email: e.target.value })} placeholder="vendor@example.com" />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Address</label>
+                  <textarea className="sp-input" rows="3" value={vendorForm.address} onChange={e => setVendorForm({ ...vendorForm, address: e.target.value })} placeholder="Vendor address" />
+                </div>
+                <div className="sp-group">
+                  <label className="sp-label">Notes</label>
+                  <textarea className="sp-input" rows="3" value={vendorForm.notes} onChange={e => setVendorForm({ ...vendorForm, notes: e.target.value })} placeholder="Internal notes" />
+                </div>
+              </div>
+              <div style={{ padding: 24, borderTop: "1px solid #e2e8f0", background: "white" }}>
+                <button type="submit" className="sp-btn">Save Vendor</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isPurchaseOrderModalOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(15, 23, 42, 0.5)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20
+          }}
+          onClick={closePurchaseOrderModal}
+        >
+          <div 
+            onClick={e => e.stopPropagation()} 
+            style={{
+              width: "100%",
+              maxWidth: 620,
+              maxHeight: "90vh",
+              background: "#ffffff",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column"
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{
+              padding: "20px 26px",
+              borderBottom: "1px solid #e2e8f0",
+              background: "#f8fafc",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 12,
+                  background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+                  color: "#2563eb",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
+                  <ShoppingCart size={22} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#0f172a" }}>Create Purchase Order</h3>
+                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Generate new stock re-orders for suppliers.</div>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={closePurchaseOrderModal}
+                style={{
+                  background: "#e2e8f0",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#475569",
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 0.2s"
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Modal Body & Form */}
+            <form onSubmit={handlePurchaseOrderSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+              <div style={{ padding: "24px 26px", overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 18 }}>
+                {status.error && (
+                  <div style={{ color: "#dc2626", padding: "12px 16px", background: "#fef2f2", borderRadius: 10, fontSize: 13, border: "1px solid #fee2e2", fontWeight: 600 }}>
+                    {status.error}
+                  </div>
+                )}
+
+                {/* Branch & Vendor */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Branch</label>
+                    <input 
+                      value={branches.find(b => b.id === selectedBranchId)?.name || "All Branches"} 
+                      disabled 
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: "1px solid #cbd5e1",
+                        fontSize: 13,
+                        background: "#f1f5f9",
+                        color: "#475569",
+                        fontWeight: 600,
+                        boxSizing: "border-box"
+                      }} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Vendor *</label>
+                    <CustomSelect 
+                      required 
+                      value={purchaseOrderForm.vendorId} 
+                      onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, vendorId: e.target.value })}
+                    >
+                      <option value="">Select vendor</option>
+                      {vendors.map((vendor) => <option key={vendor.id} value={vendor.id}>{vendor.name}</option>)}
+                    </CustomSelect>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6 }}>Order Notes / Instructions</label>
+                  <textarea 
+                    rows={2} 
+                    value={purchaseOrderForm.notes} 
+                    onChange={e => setPurchaseOrderForm({ ...purchaseOrderForm, notes: e.target.value })} 
+                    placeholder="Enter any supplier instructions, delivery terms or notes..."
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      border: "1px solid #cbd5e1",
+                      fontSize: 13,
+                      background: "#f8fafc",
+                      color: "#0f172a",
+                      fontWeight: 500,
+                      resize: "vertical",
+                      boxSizing: "border-box"
+                    }}
+                  />
+                </div>
+
+                {/* Items Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", letterSpacing: "0.02em", textTransform: "uppercase" }}>
+                    Order Items ({purchaseOrderForm.items.length})
+                  </label>
+                  <button 
+                    type="button" 
+                    onClick={addPoItemRow} 
+                    style={{
+                      border: "1px solid #dbeafe",
+                      background: "#eff6ff",
+                      color: "#2563eb",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      padding: "6px 14px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4
+                    }}
+                  >
+                    <Plus size={14} /> Add Item
+                  </button>
+                </div>
+
+                {/* Items List */}
+                {purchaseOrderForm.items.map((item, index) => {
+                  const selectedProduct = products.find((product) => product.id === item.productId);
+                  return (
+                    <div 
+                      key={`${item.productId || "item"}-${index}`} 
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 14,
+                        padding: 16,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                      }}
+                    >
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 110px 38px", gap: 10, alignItems: "end" }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Product *</label>
+                          <CustomSelect
+                            required
+                            value={item.productId}
+                            onChange={(e) => {
+                              const nextProduct = products.find((product) => product.id === e.target.value);
+                              updatePoItem(index, "productId", e.target.value);
+                              updatePoItem(index, "unitCost", Number(nextProduct?.costPrice || 0));
+                            }}
+                          >
+                            <option value="">Select product</option>
+                            {products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
+                          </CustomSelect>
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Quantity</label>
+                          <input 
+                            type="number" 
+                            min="1" 
+                            required 
+                            value={item.quantityOrdered} 
+                            onChange={e => updatePoItem(index, "quantityOrdered", Number(e.target.value))} 
+                            style={{
+                              width: "100%",
+                              padding: "9px 12px",
+                              borderRadius: 8,
+                              border: "1px solid #cbd5e1",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              background: "#f8fafc",
+                              boxSizing: "border-box"
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Unit Cost (₹)</label>
+                          <input 
+                            type="number" 
+                            min="0" 
+                            step="0.01" 
+                            required 
+                            value={item.unitCost} 
+                            onChange={e => updatePoItem(index, "unitCost", Number(e.target.value))} 
+                            style={{
+                              width: "100%",
+                              padding: "9px 12px",
+                              borderRadius: 8,
+                              border: "1px solid #cbd5e1",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              background: "#f8fafc",
+                              boxSizing: "border-box"
+                            }}
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => removePoItemRow(index)} 
+                          style={{
+                            border: "none",
+                            background: "#fef2f2",
+                            color: "#dc2626",
+                            borderRadius: 8,
+                            width: 38,
+                            height: 38,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "background 0.2s"
+                          }} 
+                          title="Remove item"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+
+                      {/* Stock & Cost Pill */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#64748b", background: "#f8fafc", padding: "6px 12px", borderRadius: 8, border: "1px solid #f1f5f9" }}>
+                        <span>Current Cost: <strong style={{ color: "#0f172a" }}>{formatMoney(selectedProduct?.costPrice || 0)}</strong></span>
+                        <span>•</span>
+                        <span>Current Stock: <strong style={{ color: selectedProduct?.currentStock <= (selectedProduct?.minStock || 0) ? "#dc2626" : "#16a34a" }}>{selectedProduct?.currentStock || 0} units</strong></span>
+                        <span style={{ marginLeft: "auto", fontWeight: 700, color: "#2563eb" }}>
+                          Total: {formatMoney((item.quantityOrdered || 0) * (item.unitCost || 0))}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Modal Footer */}
+              <div style={{ padding: "16px 26px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", gap: 12, justifyContent: "flex-end" }}>
+                <button 
+                  type="button" 
+                  onClick={closePurchaseOrderModal}
+                  style={{
+                    padding: "10px 20px",
+                    background: "#ffffff",
+                    border: "1px solid #cbd5e1",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#475569",
+                    cursor: "pointer"
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  style={{
+                    padding: "10px 24px",
+                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                    border: "none",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
+                  }}
+                >
+                  Create Purchase Order
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+

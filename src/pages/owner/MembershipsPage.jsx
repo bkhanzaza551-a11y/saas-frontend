@@ -1,0 +1,1542 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { Trash2, Edit2, Plus, PackageOpen, Package, X, CheckCircle } from "lucide-react";
+import { api } from "../../api/client";
+import { useSalonSettings } from "../../context/SalonSettingsContext";
+import { useBranch } from "../../context/BranchContext";
+import EmptyState from "../../components/EmptyState";
+import { formatApiError } from "../../utils/apiError";
+import ModuleTabs from "../../components/ModuleTabs";
+import PageLoader from "../../components/PageLoader";
+import "./MembershipsPage.css";
+import ToggleSwitch from "../../components/ToggleSwitch";
+
+import CustomSelect from "../../components/CustomSelect";
+
+const emptyMembership = {
+  membershipType: "Fixed", // 'Fixed' or 'Percentage'
+  name: "",
+  isActive: true,
+  price: "",
+  validityDays: "",
+  renewalReminder: "",
+  isSharable: false,
+  maxShareCount: "",
+  applySelectedDays: false,
+  applySelectedServices: false,
+  description: "",
+  benefits: [{ label: "", value: "" }],
+  benefitType: "WALLET_VALUE", // We will set this dynamically based on membershipType
+  discountValue: "",
+  walletValue: "",
+  serviceIds: []
+};
+const emptyPackage = { name: "", price: 0, totalSessions: 5, validityDays: 60, services: [], products: [], includeProducts: false, selectedCategoryId: "" };
+const emptyPackageRedeem = { customerPackageId: "", serviceId: "", sessionsUsed: 1, note: "" };
+const normalizeRows = (value) => Array.isArray(value) ? value : value?.items || value?.rows || [];
+const normalizeBenefits = (value) => {
+  const rows = Array.isArray(value) ? value : [];
+  return rows.length ? rows.map((item) => ({ label: item.label || "", value: item.value || "" })) : [{ label: "", value: "" }];
+};
+const cleanBenefits = (value) => normalizeBenefits(value).map((item) => ({
+  label: String(item.label || "").trim(),
+  value: String(item.value || "").trim()
+})).filter((item) => item.label);
+
+export default function MembershipsPage() {
+  const location = useLocation();
+  const { id: routeId } = useParams();
+  const { formatMoney } = useSalonSettings();
+  const { selectedBranchId } = useBranch();
+  const customerId = location.pathname.includes("/customers/") ? routeId : "";
+  const [editableMembershipId, setEditableMembershipId] = useState("");
+  const [editablePackageId, setEditablePackageId] = useState("");
+  const [memberships, setMemberships] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [services, setServices] = useState([]);
+  const [serviceCategories, setServiceCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [allCustomerPackages, setAllCustomerPackages] = useState([]);
+  const [selectedCustomerHistory, setSelectedCustomerHistory] = useState(null);
+  const [membershipForm, setMembershipForm] = useState(emptyMembership);
+  const [packageForm, setPackageForm] = useState(emptyPackage);
+  const [assignMembershipForm, setAssignMembershipForm] = useState({ customerId: customerId || "", membershipPlanId: "", startsAt: "" });
+  const [assignPackageForm, setAssignPackageForm] = useState({ customerId: customerId || "", packageId: "", startsAt: "" });
+  const [redeemForm, setRedeemForm] = useState(emptyPackageRedeem);
+  const [membershipLifecycleForm, setMembershipLifecycleForm] = useState({ customerMembershipId: "", topUpAmount: 0, upgradePlanId: "", transferCustomerId: "", note: "" });
+  const [packageLifecycleForm, setPackageLifecycleForm] = useState({ customerPackageId: "", additionalSessions: 0, transferCustomerId: "", note: "" });
+  const [status, setStatus] = useState({ error: "", success: "" });
+  const [loading, setLoading] = useState(true);
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [showPackageModal, setShowPackageModal] = useState(false);
+  const [showAssignMembershipModal, setShowAssignMembershipModal] = useState(false);
+  const [showAssignPackageModal, setShowAssignPackageModal] = useState(false);
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const applyWorkspaceData = useCallback(async ({
+    membershipResponse,
+    packageResponse,
+    serviceResponse,
+    serviceCategoryResponse,
+    productResponse,
+    customerResponse,
+    customerPackagesResponse,
+    activeCustomerId = "",
+    active = true,
+    membershipId = editableMembershipId,
+    packageId = editablePackageId
+  }) => {
+    if (!active) return;
+
+    const nextMemberships = membershipResponse.status === "fulfilled" ? normalizeRows(membershipResponse.value.data) : [];
+    const nextPackages = packageResponse.status === "fulfilled" ? normalizeRows(packageResponse.value.data) : [];
+    const nextServices = serviceResponse.status === "fulfilled" ? normalizeRows(serviceResponse.value.data) : [];
+    const nextServiceCategories = serviceCategoryResponse?.status === "fulfilled" ? normalizeRows(serviceCategoryResponse.value.data) : [];
+    const nextProducts = productResponse?.status === "fulfilled" ? normalizeRows(productResponse.value.data) : [];
+    const nextCustomers = customerResponse.status === "fulfilled" ? normalizeRows(customerResponse.value.data) : [];
+    const nextCustomerPackages = customerPackagesResponse?.status === "fulfilled" ? normalizeRows(customerPackagesResponse.value.data) : [];
+
+    setMemberships(nextMemberships);
+    setPackages(nextPackages);
+    setServices(nextServices);
+    setServiceCategories(nextServiceCategories);
+    setProducts(nextProducts);
+    setCustomers(nextCustomers);
+    setAllCustomerPackages(nextCustomerPackages);
+
+    if (activeCustomerId) {
+      try {
+        const historyResponse = await api.get(`/owner/customers/${activeCustomerId}/history`);
+        if (!active) return;
+        setSelectedCustomerHistory(historyResponse.data);
+      } catch {
+        if (!active) return;
+        setSelectedCustomerHistory(null);
+      }
+    } else {
+      setSelectedCustomerHistory(null);
+    }
+
+    if (membershipId) {
+      try {
+        const membershipDetail = await api.get(`/owner/memberships/${membershipId}`);
+        if (!active) return;
+        setMembershipForm({
+          membershipType: membershipDetail.data.benefitType === "DISCOUNT_PERCENT" ? "Percentage" : "Fixed",
+          name: membershipDetail.data.name || "",
+          isActive: true, // Assuming true by default if no active flag
+          description: membershipDetail.data.description || "",
+          benefits: normalizeBenefits(membershipDetail.data.benefits),
+          price: membershipDetail.data.price || "",
+          validityDays: membershipDetail.data.validityDays || "",
+          renewalReminder: membershipDetail.data.renewalReminder || "", 
+          isSharable: membershipDetail.data.sharable || false,
+          maxShareCount: membershipDetail.data.maxShareCount || "",
+          applySelectedDays: false,
+          applySelectedServices: (membershipDetail.data.services || []).length > 0,
+          benefitType: membershipDetail.data.benefitType || "WALLET_VALUE",
+          discountValue: membershipDetail.data.discountValue || "",
+          walletValue: membershipDetail.data.walletValue || "",
+          serviceIds: (membershipDetail.data.services || []).map((item) => item.serviceId)
+        });
+      } catch {
+        if (!active) return;
+      }
+    }
+
+    if (packageId) {
+      try {
+        const packageDetail = await api.get(`/owner/packages/${packageId}`);
+        if (!active) return;
+        setPackageForm({
+          name: packageDetail.data.name || "",
+          price: packageDetail.data.price || 0,
+          totalSessions: packageDetail.data.totalSessions || 5,
+          validityDays: packageDetail.data.validityDays || 60,
+          services: (packageDetail.data.services || []).map((item) => ({
+            serviceId: item.serviceId,
+            sessions: item.sessions || 1
+          })),
+          products: (packageDetail.data.products || []).map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity || 1
+          })),
+          includeProducts: (packageDetail.data.products || []).length > 0,
+          selectedCategoryId: ""
+        });
+      } catch {
+        if (!active) return;
+      }
+    }
+
+    const failedCoreLoads = [membershipResponse, packageResponse, serviceResponse, customerResponse].filter((entry) => entry.status !== "fulfilled");
+    if (failedCoreLoads.length) {
+      setStatus((current) => ({
+        ...current,
+        error: "Some memberships workspace data could not be loaded completely. Available lists are still usable."
+      }));
+    } else {
+      setStatus((current) => ({ ...current, error: "" }));
+    }
+  }, [editableMembershipId, editablePackageId]);
+
+  const loadAll = async (activeCustomerId = customerId || assignMembershipForm.customerId || assignPackageForm.customerId || "") => {
+    setLoading(true);
+    try {
+      const [membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, customerPackagesResponse] = await Promise.allSettled([
+        api.get("/owner/memberships", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/packages", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/services", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/service-categories", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/inventory/products", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } }),
+        api.get("/owner/customer-packages")
+      ]);
+      await applyWorkspaceData({ membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, customerPackagesResponse, activeCustomerId });
+    } catch (error) {
+      setStatus({ error: formatApiError(error, "Could not load memberships, packages, customers, or services"), success: "" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const [membershipResponse, packageResponse, serviceResponse, serviceCategoryResponse, productResponse, customerResponse, customerPackagesResponse] = await Promise.allSettled([
+          api.get("/owner/memberships", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/packages", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/services", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/service-categories", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/inventory/products", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/customers", { params: { branchId: selectedBranchId || undefined } }),
+          api.get("/owner/customer-packages")
+        ]);
+        await applyWorkspaceData({
+          membershipResponse,
+          packageResponse,
+          serviceResponse,
+          serviceCategoryResponse,
+          productResponse,
+          customerResponse,
+          customerPackagesResponse,
+          activeCustomerId: customerId,
+          active,
+          membershipId: editableMembershipId,
+          packageId: editablePackageId
+        });
+      } catch (error) {
+        if (!active) return;
+        setStatus({ error: formatApiError(error, "Could not load memberships workspace"), success: "" });
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [applyWorkspaceData, customerId, editableMembershipId, editablePackageId, selectedBranchId]);
+
+  const toggleMembershipService = (serviceId) => {
+    setMembershipForm((current) => ({
+      ...current,
+      serviceIds: current.serviceIds.includes(serviceId) ? current.serviceIds.filter((id) => id !== serviceId) : [...current.serviceIds, serviceId]
+    }));
+  };
+
+  const updateMembershipBenefit = (index, patch) => {
+    setMembershipForm((current) => ({
+      ...current,
+      benefits: normalizeBenefits(current.benefits).map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item)
+    }));
+  };
+
+  const addMembershipBenefit = () => {
+    setMembershipForm((current) => ({
+      ...current,
+      benefits: [...normalizeBenefits(current.benefits), { label: "", value: "" }]
+    }));
+  };
+
+  const removeMembershipBenefit = (index) => {
+    setMembershipForm((current) => {
+      const nextBenefits = normalizeBenefits(current.benefits).filter((_, itemIndex) => itemIndex !== index);
+      return { ...current, benefits: nextBenefits.length ? nextBenefits : [{ label: "", value: "" }] };
+    });
+  };
+
+  const togglePackageService = (serviceId) => {
+    setPackageForm((current) => ({
+      ...current,
+      services: current.services.some((item) => item.serviceId === serviceId)
+        ? current.services.filter((item) => item.serviceId !== serviceId)
+        : [...current.services, { serviceId, sessions: 1 }]
+    }));
+  };
+
+  const togglePackageProduct = (productId) => {
+    setPackageForm((current) => ({
+      ...current,
+      products: current.products.some((item) => item.productId === productId)
+        ? current.products.filter((item) => item.productId !== productId)
+        : [...current.products, { productId, quantity: 1 }]
+    }));
+  };
+
+  const collectCategoryServiceIds = (categoryId) => {
+    const cat = serviceCategories.find((c) => c.id === categoryId);
+    if (!cat) return [];
+    const ids = new Set();
+    (cat.services || []).forEach((s) => ids.add(s.id));
+    (cat.children || []).forEach((child) => {
+      (child.services || []).forEach((s) => ids.add(s.id));
+    });
+    return Array.from(ids);
+  };
+
+  const handleCategorySelect = (categoryId) => {
+    if (!categoryId) {
+      setPackageForm((current) => ({ ...current, selectedCategoryId: "" }));
+      return;
+    }
+    const serviceIds = collectCategoryServiceIds(categoryId);
+    setPackageForm((current) => {
+      const existingIds = new Set(current.services.map((s) => s.serviceId));
+      const merged = [...current.services];
+      serviceIds.forEach((id) => {
+        if (!existingIds.has(id)) {
+          merged.push({ serviceId: id, sessions: 1 });
+        }
+      });
+      return { ...current, selectedCategoryId: categoryId, services: merged };
+    });
+  };
+
+  const removePackageService = (serviceId) => {
+    setPackageForm((current) => ({
+      ...current,
+      services: current.services.filter((item) => item.serviceId !== serviceId)
+    }));
+  };
+
+  const [serviceSearch, setServiceSearch] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+
+  const activeSection = location.pathname.includes("/packages") ? "packages" : "memberships";
+  const customerMembershipMode = location.pathname.includes("/customers/") && location.pathname.includes("/memberships");
+  const customerPackageMode = location.pathname.includes("/customers/") && location.pathname.includes("/packages");
+  const isCreateMode = location.pathname.endsWith("/create");
+  const membershipEditMode = Boolean(editableMembershipId);
+  const packageEditMode = Boolean(editablePackageId);
+  const isListMode = !isCreateMode && !membershipEditMode && !packageEditMode;
+  const customerScopeLabel = customerId ? "Customer linked" : "All customers";
+  const customerPackageOptions = useMemo(() => {
+    if (customerId && selectedCustomerHistory) {
+      return (selectedCustomerHistory?.packages || []).filter(
+        (item) => item.status === "ACTIVE" && Number(item.remainingSessions || 0) > 0
+      );
+    }
+    return (allCustomerPackages || []).filter(
+      (item) => item.status === "ACTIVE" && Number(item.remainingSessions || 0) > 0
+    );
+  }, [customerId, selectedCustomerHistory, allCustomerPackages]);
+  const effectiveCustomerPackageId = redeemForm.customerPackageId || customerPackageOptions[0]?.id || "";
+  const customerOptions = customers.map((customer) => (
+    <option key={customer.id} value={customer.id}>{customer.name} {customer.phone ? `- ${customer.phone}` : ""}</option>
+  ));
+
+  // Strict branch-wise filtering — only show items for the selected branch or global items
+  const filteredMemberships = selectedBranchId
+    ? memberships.filter(m => m.branchId === selectedBranchId || !m.branchId)
+    : memberships;
+  const filteredPackages = selectedBranchId
+    ? packages.filter(p => p.branchId === selectedBranchId || !p.branchId)
+    : packages;
+
+  return (
+    <div className="mem-page" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      {status.error && (
+        <div style={{ position: "fixed", top: 80, right: 24, background: "#fef2f2", color: "#dc2626", padding: "12px 20px", borderRadius: 10, fontSize: 14, zIndex: 9999, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 12, fontWeight: 600 }}>
+          {status.error}
+          <button onClick={() => setStatus({...status, error: ""})} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontWeight: 700, fontSize: 16 }}>×</button>
+        </div>
+      )}
+      {status.success && (
+        <div style={{ position: "fixed", top: 80, right: 24, background: "#ecfdf5", color: "#059669", padding: "12px 20px", borderRadius: 10, fontSize: 14, zIndex: 9999, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 12, fontWeight: 600 }}>
+          ✓ {status.success}
+          <button onClick={() => setStatus({...status, success: ""})} style={{ background: "none", border: "none", color: "#059669", cursor: "pointer", fontWeight: 700, fontSize: 16 }}>×</button>
+        </div>
+      )}
+      <div className="page-shell">
+      {customerId ? (
+        <ModuleTabs
+          title="Customer Timeline"
+          description="Complete CRM view with service history, billing, memberships, packages, and event trail."
+          items={[
+            { label: "Customer List", to: "/admin/customers", hint: "Back" },
+            { label: "History View", to: `/admin/customers/${customerId}/history`, hint: "Profile" },
+            { label: "Memberships", to: `/admin/customers/${customerId}/memberships`, hint: "Loyalty" },
+            { label: "Packages", to: `/admin/customers/${customerId}/packages`, hint: "Prepaid" }
+          ]}
+          actions={<Link to="/admin/customers" className="module-tab">Back to Customers</Link>}
+        />
+      ) : (
+        <ModuleTabs
+          title="Memberships & Packages"
+          description="Control recurring loyalty products, prepaid sessions, and service access in one revenue workspace."
+          items={[
+            { label: "Membership Plans", to: "/admin/memberships", hint: "Recurring" },
+            { label: "Packages", to: "/admin/packages", hint: "Prepaid" }
+          ]}
+          actions={
+            <div style={{ display: "flex", gap: "10px" }}>
+              {(activeSection === "memberships") && (
+                <button type="button" onClick={() => { setEditableMembershipId(""); setMembershipForm(emptyMembership); setShowMembershipModal(true); }} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                  <Plus size={16} color="#2563eb" /> Add Membership
+                </button>
+              )}
+              {(activeSection === "packages") && (
+                <>
+                  <button type="button" onClick={() => setShowRedeemModal(true)} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                    <CheckCircle size={16} color="#16a34a" /> Redeem Package
+                  </button>
+                  <button type="button" onClick={() => { setEditablePackageId(""); setPackageForm(emptyPackage); setShowPackageModal(true); }} className="secondary-button" style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 8, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                    <PackageOpen size={16} color="#2563eb" /> Add Package
+                  </button>
+                </>
+              )}
+            </div>
+          }
+        />
+      )}
+      <div className="settings-section-grid" style={{ gridTemplateColumns: "1fr" }}>
+        {(activeSection === "memberships") && isListMode && <div className="panel-card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h3 style={{ margin: 0 }}>{customerMembershipMode ? "Assigned Memberships" : "Membership Plans"}</h3>
+            {customerMembershipMode && (
+              <button type="button" onClick={() => setShowAssignMembershipModal(true)} className="primary-button" style={{ padding: "6px 12px", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                <Plus size={14} /> Assign Membership
+              </button>
+            )}
+          </div>
+          {loading ? <PageLoader compact title="Loading memberships" message="Preparing plans, assignments, and customer usage balances." /> : null}
+          <div className="crm-table-container">
+            <table className="crm-table">
+              <thead>
+                <tr>
+                  <th>Plan Name</th>
+                  <th>{customerMembershipMode ? "Status" : "Fees"}</th>
+                  <th>{customerMembershipMode ? "Wallet Balance" : "Validity"}</th>
+                  <th>Benefits</th>
+                  <th style={{ width: 100, textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(customerMembershipMode ? (selectedCustomerHistory?.memberships || []) : filteredMemberships).map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div style={{ fontWeight: 600, color: "#0f172a" }}>{customerMembershipMode ? item.membershipPlan?.name : item.name}</div>
+                      <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 4 }}>
+                        {customerMembershipMode ? `Ends ${String(item.endsAt).slice(0, 10)}` : (item.description || "—")}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge">{customerMembershipMode ? item.status : formatMoney(Number(item.price || 0))}</span>
+                    </td>
+                    <td>
+                      {customerMembershipMode
+                        ? formatMoney(Number(item.remainingWalletValue || 0))
+                        : `${item.validityDays} Days`}
+                    </td>
+                    <td>
+                      <div className="badge-row" style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                        {!customerMembershipMode && (
+                          <span className="badge" style={{ background: "#fef3c7", color: "#d97706", borderColor: "#fde68a" }}>
+                            {item.benefitType === "WALLET_VALUE" ? "Fixed Wallet" : "Percentage Discount"}
+                          </span>
+                        )}
+                        {cleanBenefits(customerMembershipMode ? item.membershipPlan?.benefits : item.benefits).map((benefit) => (
+                          <span key={`${benefit.label}-${benefit.value}`} className="badge">{benefit.label}{benefit.value ? `: ${benefit.value}` : ""}</span>
+                        ))}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      {!customerMembershipMode ? (
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                          <button type="button" className="cta-secondary" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={() => {
+                            setEditableMembershipId(item.id);
+                            setMembershipForm({
+                              membershipType: item.benefitType === "DISCOUNT_PERCENT" ? "Percentage" : "Fixed",
+                              name: item.name || "",
+                              isActive: true,
+                              description: item.description || "",
+                              benefits: normalizeBenefits(item.benefits),
+                              price: item.price || "",
+                              validityDays: item.validityDays || "",
+                              renewalReminder: item.renewalReminder || "",
+                              isSharable: item.sharable || false,
+                              maxShareCount: item.maxShareCount || "",
+                              applySelectedDays: false,
+                              applySelectedServices: (item.services || []).length > 0,
+                              benefitType: item.benefitType || "WALLET_VALUE",
+                              discountValue: item.discountValue || "",
+                              walletValue: item.walletValue || "",
+                              serviceIds: (item.services || []).map((s) => s.serviceId)
+                            });
+                            setShowMembershipModal(true);
+                          }}>
+                            <Edit2 size={14} />
+                          </button>
+                          <button type="button" className="cta-secondary" style={{ padding: "4px 8px", fontSize: "0.75rem", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }} disabled={deletingId === item.id} onClick={async () => {
+                            if (!window.confirm(`Delete membership plan "${item.name}"?`)) return;
+                            try {
+                              setDeletingId(item.id);
+                              await api.delete(`/owner/memberships/${item.id}`);
+                              setStatus({ error: "", success: "Membership plan deleted." });
+                              setTimeout(() => setStatus({ error: "", success: "" }), 3000);
+                              await loadAll(customerId);
+                            } catch (error) {
+                              setStatus({ error: formatApiError(error, "Could not delete membership plan"), success: "" });
+                            } finally {
+                              setDeletingId(null);
+                            }
+                          }}>
+                            {deletingId === item.id ? "..." : <Trash2 size={14} />}
+                          </button>
+                        </div>
+                      ) : (
+                        <button type="button" className="secondary-button" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={() => {
+                          setMembershipLifecycleForm((current) => ({ ...current, customerMembershipId: item.id }));
+                        }}>
+                          Manage
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {customerMembershipMode && !loading && !selectedCustomerHistory?.memberships?.length && <EmptyState title="No memberships assigned yet" message="Assign a membership to start tracking customer benefits and renewal activity." />}
+            {!customerMembershipMode && !loading && !filteredMemberships.length && <EmptyState title="No membership plans yet" message="Create your first membership plan to launch recurring loyalty offers." />}
+          </div>
+        </div>}
+
+        {(activeSection === "packages") && isListMode && <div className="panel-card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h3 style={{ margin: 0 }}>{customerPackageMode ? "Assigned Packages" : "Packages"}</h3>
+            {customerPackageMode && (
+              <button type="button" onClick={() => setShowAssignPackageModal(true)} className="primary-button" style={{ padding: "6px 12px", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                <Plus size={14} /> Assign Package
+              </button>
+            )}
+          </div>
+          <div className="crm-table-container">
+            <table className="crm-table">
+              <thead>
+                <tr>
+                  <th>Package Name</th>
+                  <th>{customerPackageMode ? "Status" : "Price"}</th>
+                  <th>{customerPackageMode ? "Remaining Sessions" : "Total Sessions"}</th>
+                  <th>Validity</th>
+                  <th style={{ width: 100, textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(customerPackageMode ? (selectedCustomerHistory?.packages || []) : filteredPackages).map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div style={{ fontWeight: 600, color: "#0f172a" }}>{customerPackageMode ? item.package?.name : item.name}</div>
+                    </td>
+                    <td>
+                      <span className="badge">{customerPackageMode ? item.status : formatMoney(Number(item.price || 0))}</span>
+                    </td>
+                    <td>
+                      {customerPackageMode ? item.remainingSessions : item.totalSessions} Sessions
+                    </td>
+                    <td>
+                      {customerPackageMode ? `Ends ${String(item.endsAt).slice(0, 10)}` : `${item.validityDays} Days`}
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      {!customerPackageMode ? (
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                          <button type="button" className="cta-secondary" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={() => {
+                            setEditablePackageId(item.id);
+                            setPackageForm({
+                              name: item.name || "",
+                              price: item.price || 0,
+                              totalSessions: item.totalSessions || 5,
+                              validityDays: item.validityDays || 60,
+                              services: (item.services || []).map((s) => ({
+                                serviceId: s.serviceId,
+                                sessions: s.sessions || 1
+                              })),
+                              products: (item.products || []).map((p) => ({
+                                productId: p.productId,
+                                quantity: p.quantity || 1
+                              })),
+                              includeProducts: (item.products || []).length > 0,
+                              selectedCategoryId: ""
+                            });
+                            setShowPackageModal(true);
+                          }}>
+                            <Edit2 size={14} />
+                          </button>
+                          <button type="button" className="cta-secondary" style={{ padding: "4px 8px", fontSize: "0.75rem", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }} disabled={deletingId === item.id} onClick={async () => {
+                            if (!window.confirm(`Delete package "${item.name}"?`)) return;
+                            try {
+                              setDeletingId(item.id);
+                              await api.delete(`/owner/packages/${item.id}`);
+                              setStatus({ error: "", success: "Package deleted." });
+                              setTimeout(() => setStatus({ error: "", success: "" }), 3000);
+                              await loadAll(customerId);
+                            } catch (error) {
+                              setStatus({ error: formatApiError(error, "Could not delete package"), success: "" });
+                            } finally {
+                              setDeletingId(null);
+                            }
+                          }}>
+                            {deletingId === item.id ? "..." : <Trash2 size={14} />}
+                          </button>
+                        </div>
+                      ) : (
+                        <button type="button" className="secondary-button" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={() => {
+                          setPackageLifecycleForm((current) => ({ ...current, customerPackageId: item.id }));
+                        }}>
+                          Manage
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {customerPackageMode && !loading && !selectedCustomerHistory?.packages?.length && <EmptyState title="No packages assigned yet" message="Assign a package to start tracking prepaid sessions for this customer." />}
+            {!customerPackageMode && !loading && !filteredPackages.length && <EmptyState title="No packages yet" message="Create your first package to launch prepaid session bundles." />}
+          </div>
+        </div>}
+      {showMembershipModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => setShowMembershipModal(false)} />
+          <div style={{ position: "relative", width: 800, maxWidth: "90vw", maxHeight: "90vh", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                {membershipEditMode ? <Edit2 size={20} color="#3b82f6" /> : <Plus size={20} color="#3b82f6" />}
+                {membershipEditMode ? "Edit Membership Plan" : "Create Membership Plan"}
+              </h2>
+              <button type="button" onClick={() => setShowMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px", margin: 0 }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              <form onSubmit={async (event) => {
+                event.preventDefault();
+                setStatus({ error: "", success: "" });
+                try {
+                  if (!membershipForm.name.trim()) throw new Error("Membership name is required.");
+                  const isFixed = membershipForm.membershipType === "Fixed";
+                  const payload = {
+                    ...membershipForm,
+                    name: membershipForm.name.trim(),
+                    description: membershipForm.description.trim(),
+                    benefits: cleanBenefits(membershipForm.benefits),
+                    price: Number(membershipForm.price),
+                    validityDays: Number(membershipForm.validityDays),
+                    benefitType: isFixed ? "WALLET_VALUE" : "DISCOUNT_PERCENT",
+                    walletValue: isFixed ? Number(membershipForm.walletValue || 0) : 0,
+                    discountValue: !isFixed ? Number(membershipForm.discountValue || 0) : 0,
+                    renewalReminder: Number(membershipForm.renewalReminder || 0),
+                    sharable: membershipForm.isSharable,
+                    maxShareCount: membershipForm.isSharable && membershipForm.maxShareCount ? Number(membershipForm.maxShareCount) : null,
+                    applySelectedDays: membershipForm.applySelectedDays,
+                    applySelectedServices: membershipForm.applySelectedServices,
+                    serviceIds: membershipForm.applySelectedServices ? membershipForm.serviceIds : [],
+                    branchId: selectedBranchId || null
+                  };
+                  if (membershipEditMode) {
+                    await api.patch(`/owner/memberships/${editableMembershipId}`, payload);
+                  } else {
+                    await api.post("/owner/memberships", payload);
+                  }
+                  setMembershipForm(emptyMembership);
+                  await loadAll();
+                  setStatus({ error: "", success: membershipEditMode ? "Membership updated." : "Membership created." });
+                  setShowMembershipModal(false);
+                } catch (error) {
+                  setStatus({ error: formatApiError(error, "Could not save membership"), success: "" });
+                }
+              }} style={{ display: "flex", flexDirection: "column" }}>
+
+                <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+                  {/* Membership Type Options */}
+                  <div>
+                    <label style={{ display: "block", fontSize: 13.5, color: "#334155", fontWeight: 700, marginBottom: 10 }}>Membership Type</label>
+                    <div className="mem-type-grid">
+                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Fixed" })} style={{ padding: "14px", border: membershipForm.membershipType === "Fixed" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Fixed" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Fixed" ? "#1d4ed8" : "#334155", fontSize: 13.5 }}>Fixed Wallet Amount</div>
+                        <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 3 }}>Customer pays a fee and gets a fixed prepaid wallet balance.</div>
+                      </button>
+                      <button type="button" onClick={() => setMembershipForm({ ...membershipForm, membershipType: "Percentage" })} style={{ padding: "14px", border: membershipForm.membershipType === "Percentage" ? "2px solid #3b82f6" : "1px solid #e2e8f0", borderRadius: 12, background: membershipForm.membershipType === "Percentage" ? "#eff6ff" : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: membershipForm.membershipType === "Percentage" ? "#1d4ed8" : "#334155", fontSize: 13.5 }}>Percentage Discount</div>
+                        <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 3 }}>Customer gets a flat percentage discount on selected services.</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Name & Active Status */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "end" }}>
+                    <div className="hub-form-group" style={{ minWidth: 0 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Membership Name</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. VIP Gold Membership" 
+                        value={membershipForm.name} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, name: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                    <div className="hub-form-group" style={{ flexShrink: 0 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6, whiteSpace: "nowrap" }}>Active Status</label>
+                      <div style={{ height: "42px", display: "flex", alignItems: "center" }}>
+                        <ToggleSwitch checked={membershipForm.isActive} onChange={(val) => setMembershipForm({ ...membershipForm, isActive: val })} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Settings Grid */}
+                  <div className="mem-form-row-3">
+                    <div>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Selling Price (Fee)</label>
+                      <input 
+                        type="number" 
+                        placeholder="0.00" 
+                        value={membershipForm.price} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, price: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Validity (Days)</label>
+                      <input 
+                        type="number" 
+                        placeholder="e.g. 365" 
+                        value={membershipForm.validityDays} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, validityDays: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Renewal Reminder</label>
+                      <input 
+                        type="number" 
+                        placeholder="e.g. 7" 
+                        value={membershipForm.renewalReminder} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, renewalReminder: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Benefit / Discount Specific */}
+                  {membershipForm.membershipType === "Percentage" && (
+                    <div className="mem-single-benefit">
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Standard Discount (%)</label>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <input 
+                          type="number" 
+                          placeholder="0" 
+                          value={membershipForm.discountValue} 
+                          onChange={(e) => setMembershipForm({ ...membershipForm, discountValue: e.target.value })} 
+                          style={{ flex: 1, padding: "10px 14px", borderRadius: "8px 0 0 8px", border: "1px solid #cbd5e1", borderRight: "none", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
+                          onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                          onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                        />
+                        <span style={{ padding: "10px 16px", background: "#f8fafc", border: "1px solid #cbd5e1", borderLeft: "none", borderRadius: "0 8px 8px 0", fontSize: 14, color: "#475569", fontWeight: 600 }}>%</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {membershipForm.membershipType === "Fixed" && (
+                    <div className="mem-single-benefit">
+                      <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Wallet Benefit Amount</label>
+                      <input 
+                        type="number" 
+                        placeholder="0.00" 
+                        value={membershipForm.walletValue} 
+                        onChange={(e) => setMembershipForm({ ...membershipForm, walletValue: e.target.value })} 
+                        style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                    </div>
+                  )}
+
+                  {/* Toggles Container */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>Sharable Membership</div>
+                        <div style={{ fontSize: 12, color: "#64748b" }}>Allow multiple clients (family/friends) to use this membership.</div>
+                      </div>
+                      <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                        <input type="checkbox" checked={membershipForm.isSharable} onChange={e => setMembershipForm({...membershipForm, isSharable: e.target.checked})} />
+                        <span className="toggle-switch-slider" />
+                      </div>
+                    </div>
+                    {membershipForm.isSharable && (
+                      <div style={{ marginTop: 12 }}>
+                        <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Max Members Allowed</label>
+                        <input 
+                          type="number" 
+                          min="1"
+                          placeholder="e.g. 3" 
+                          value={membershipForm.maxShareCount} 
+                          onChange={(e) => setMembershipForm({ ...membershipForm, maxShareCount: e.target.value })} 
+                          style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s" }}
+                          onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                          onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                        />
+                        <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748b" }}>Specify how many people can share this membership.</p>
+                      </div>
+                    )}
+
+                    {membershipForm.membershipType === "Percentage" && (
+                      <>
+                        <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "4px 0" }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>Apply for Selected Days</div>
+                            <div style={{ fontSize: 12, color: "#64748b" }}>Restrict this discount to specific days of the week.</div>
+                          </div>
+                          <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                            <input type="checkbox" checked={membershipForm.applySelectedDays} onChange={e => setMembershipForm({...membershipForm, applySelectedDays: e.target.checked})} />
+                            <span className="toggle-switch-slider" />
+                          </div>
+                        </div>
+
+                        <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "4px 0" }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>Apply on Selected Services Only</div>
+                            <div style={{ fontSize: 12, color: "#64748b" }}>Limit this discount to specific services.</div>
+                          </div>
+                          <div className="toggle-switch-label" style={{ margin: 0, cursor: "pointer" }}>
+                            <input type="checkbox" checked={membershipForm.applySelectedServices} onChange={e => setMembershipForm({...membershipForm, applySelectedServices: e.target.checked})} />
+                            <span className="toggle-switch-slider" />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Service Selection for Percentage (If enabled) */}
+                  {membershipForm.membershipType === "Percentage" && membershipForm.applySelectedServices && (
+                    <div style={{ background: "#fff", padding: 16, borderRadius: 12, border: "1px solid #cbd5e1" }}>
+                      <label style={{ display: "block", fontSize: 14, color: "#1e293b", fontWeight: 700, marginBottom: 12 }}>Select Eligible Services</label>
+                      <input 
+                        type="text" 
+                        placeholder="Search services..." 
+                        value={serviceSearch} 
+                        onChange={(e) => setServiceSearch(e.target.value)} 
+                        style={{ marginBottom: 16, padding: "10px 14px", width: "100%", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, outline: "none" }}
+                        onFocus={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                        onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
+                      />
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, maxHeight: 180, overflowY: "auto", paddingBottom: 4 }}>
+                        {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).map((service) => {
+                          const isSelected = membershipForm.serviceIds.includes(service.id);
+                          return (
+                            <button 
+                              type="button" 
+                              key={service.id} 
+                              onClick={() => {
+                                setMembershipForm(cur => ({
+                                  ...cur,
+                                  serviceIds: isSelected ? cur.serviceIds.filter(id => id !== service.id) : [...cur.serviceIds, service.id]
+                                }));
+                              }}
+                              style={{
+                                padding: "8px 16px", borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                                background: isSelected ? "#3b82f6" : "#f1f5f9",
+                                color: isSelected ? "#fff" : "#475569",
+                                border: isSelected ? "1px solid #3b82f6" : "1px solid #cbd5e1",
+                                display: "flex", alignItems: "center", gap: 6
+                              }}
+                            >
+                              {isSelected && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />}
+                              {service.name}
+                            </button>
+                          );
+                        })}
+                        {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && (
+                          <div style={{ color: "#94a3b8", fontSize: 14, padding: "10px 0" }}>No services found</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Fee</div>
+                    <div style={{ fontSize: 18, color: "#0f172a", fontWeight: 800 }}>{formatMoney(membershipForm.price || 0)}</div>
+                    {membershipForm.membershipType === "Fixed" && (
+                      <div style={{ fontSize: 12, color: "#059669", fontWeight: 600, marginTop: 2 }}>Wallet Benefit: {formatMoney(membershipForm.walletValue || 0)}</div>
+                    )}
+                  </div>
+                  
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); }} style={{ padding: "9px 18px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13.5 }}>
+                      Cancel
+                    </button>
+                    <button type="submit" style={{ padding: "9px 22px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13.5, display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(59,130,246,0.25)" }}>
+                      <Plus size={15} /> Save Plan
+                    </button>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRedeemModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => setShowRedeemModal(false)} />
+          <div style={{ position: "relative", width: 500, maxWidth: "90vw", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Redeem Package Session</h2>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Deduct prepaid sessions consumed by a customer.</div>
+              </div>
+              <button onClick={() => setShowRedeemModal(false)} type="button" className="modal-close-btn">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={async (event) => {
+              event.preventDefault();
+              setStatus({ error: "", success: "" });
+              try {
+                await api.post("/owner/packages/redeem", {
+                  ...redeemForm,
+                  customerPackageId: effectiveCustomerPackageId,
+                  sessionsUsed: Number(redeemForm.sessionsUsed)
+                });
+                await loadAll(customerId || assignPackageForm.customerId);
+                setRedeemForm(emptyPackageRedeem);
+                setShowRedeemModal(false);
+                setStatus({ error: "", success: "Package session redeemed successfully." });
+              } catch (error) {
+                setStatus({ error: formatApiError(error, "Could not redeem package"), success: "" });
+              }
+            }} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Customer Package *</label>
+                <CustomSelect 
+                  value={effectiveCustomerPackageId} 
+                  onChange={(event) => {
+                    const chosenId = event.target.value;
+                    const chosenPkg = customerPackageOptions.find(p => p.id === chosenId);
+                    const firstServiceId = chosenPkg?.package?.services?.[0]?.serviceId || "";
+                    setRedeemForm((current) => ({ 
+                      ...current, 
+                      customerPackageId: chosenId,
+                      serviceId: firstServiceId || current.serviceId
+                    }));
+                  }}
+                >
+                  <option value="">Select customer package</option>
+                  {customerPackageOptions.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.customer?.name ? `${item.customer.name} — ` : (selectedCustomerHistory?.name ? `${selectedCustomerHistory.name} — ` : "")}{item.package?.name} ({item.remainingSessions} sessions left)
+                    </option>
+                  ))}
+                </CustomSelect>
+              </div>
+
+              {!customerPackageOptions.length && (
+                <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "12px 14px", color: "#92400e", fontSize: 12.5, lineHeight: "1.5" }}>
+                  <strong>Note:</strong> This dropdown displays active packages for customers who have purchased or been assigned a package. Once assigned or sold, the customer will appear here for session redemption.
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Service *</label>
+                <CustomSelect value={redeemForm.serviceId} onChange={(event) => setRedeemForm((current) => ({ ...current, serviceId: event.target.value }))}>
+                  <option value="">Select service</option>
+                  {services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
+                </CustomSelect>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Sessions Used</label>
+                <input type="number" min="1" value={redeemForm.sessionsUsed} onChange={(event) => setRedeemForm((current) => ({ ...current, sessionsUsed: event.target.value }))} placeholder="1" style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none" }} />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Redemption Note</label>
+                <textarea rows="3" value={redeemForm.note} onChange={(event) => setRedeemForm((current) => ({ ...current, note: event.target.value }))} placeholder="Optional redemption note..." style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, outline: "none", resize: "vertical" }} />
+              </div>
+
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8, paddingTop: 16, borderTop: "1px solid #e2e8f0" }}>
+                <button type="button" onClick={() => setShowRedeemModal(false)} style={{ padding: "10px 20px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 14 }}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={!customerPackageOptions.length} style={{ padding: "10px 20px", background: customerPackageOptions.length ? "#2563eb" : "#cbd5e1", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: customerPackageOptions.length ? "pointer" : "not-allowed", fontSize: 14 }}>
+                  Redeem Package
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showPackageModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 800, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
+            <div className="modal-header">
+              <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                {packageEditMode ? <><Edit2 size={20} color="#64748b" /> Edit Package</> : <><Package size={20} color="#64748b" /> Create Package</>}
+              </span>
+              <button type="button" onClick={() => setShowPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+            <form onSubmit={async (event) => {
+              event.preventDefault();
+              setStatus({ error: "", success: "" });
+              try {
+                if (!packageForm.name.trim()) throw new Error("Package name is required.");
+                if (!packageForm.services.length) throw new Error("Select at least one service for this package.");
+                const payload = {
+                  ...packageForm,
+                  name: packageForm.name.trim(),
+                  price: Number(packageForm.price),
+                  totalSessions: Number(packageForm.totalSessions),
+                  validityDays: Number(packageForm.validityDays),
+                  branchId: selectedBranchId || undefined,
+                  services: packageForm.services.map((item) => ({
+                    serviceId: item.serviceId,
+                    sessions: Number(item.sessions || 1)
+                  })),
+                  products: packageForm.includeProducts ? packageForm.products.map((item) => ({
+                    productId: item.productId,
+                    quantity: Number(item.quantity || 1)
+                  })) : []
+                };
+                delete payload.selectedCategoryId;
+                if (packageEditMode) {
+                  await api.patch(`/owner/packages/${editablePackageId}`, payload);
+                } else {
+                  await api.post("/owner/packages", payload);
+                }
+                setPackageForm(emptyPackage);
+                setServiceSearch("");
+                setProductSearch("");
+                await loadAll();
+                setStatus({ error: "", success: packageEditMode ? "Package updated." : "Package created." });
+                setShowPackageModal(false);
+              } catch (error) {
+                setStatus({ error: formatApiError(error, "Could not save package"), success: "" });
+              }
+            }} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              
+              {/* Name & Active */}
+              <div style={{ display: "flex", gap: "24px", alignItems: "flex-end", flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: "250px" }}>
+                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Package name</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Bridal Package" 
+                    value={packageForm.name} 
+                    onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })} 
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
+                  />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", height: "38px" }}>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={true}
+                    style={{ accentColor: "var(--accent, #3b82f6)", width: "16px", height: "16px", cursor: "pointer" }}
+                  />
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#0f172a" }}>Active</span>
+                </div>
+              </div>
+
+              {/* Price, Total Sessions, Validity */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Price</label>
+                  <input 
+                    type="number" 
+                    min="0"
+                    placeholder="0" 
+                    value={packageForm.price} 
+                    onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })} 
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Total sessions</label>
+                  <input 
+                    type="number" 
+                    min="1"
+                    placeholder="5" 
+                    value={packageForm.totalSessions} 
+                    onChange={(e) => setPackageForm({ ...packageForm, totalSessions: e.target.value })} 
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "6px" }}>Validity (Days)</label>
+                  <input 
+                    type="number" 
+                    min="1"
+                    placeholder="60" 
+                    value={packageForm.validityDays} 
+                    onChange={(e) => setPackageForm({ ...packageForm, validityDays: e.target.value })} 
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
+                  />
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div style={{ marginTop: "4px", marginBottom: "8px" }}>
+                <div 
+                  onClick={() => setPackageForm(prev => ({ ...prev, includeProducts: !prev.includeProducts }))} 
+                  style={{ display: "inline-flex", alignItems: "center", gap: "12px", cursor: "pointer", userSelect: "none" }}
+                >
+                  <div style={{ position: "relative", width: "40px", height: "22px", background: packageForm.includeProducts ? "#3b82f6" : "#cbd5e1", borderRadius: "20px", transition: "background 0.2s", flexShrink: 0 }}>
+                    <div style={{ position: "absolute", top: "2px", left: packageForm.includeProducts ? "20px" : "2px", width: "18px", height: "18px", background: "white", borderRadius: "50%", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
+                  </div>
+                  <span style={{ fontSize: "0.88rem", color: "#0f172a", fontWeight: 600 }}>Does this package include physical products?</span>
+                </div>
+              </div>
+
+              {/* Service Category + Selected Services + Individual Services */}
+              <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "8px" }}>Service Category</label>
+                <CustomSelect
+                  value={packageForm.selectedCategoryId}
+                  onChange={(e) => handleCategorySelect(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none", marginBottom: "12px" }}
+                >
+                  <option value="">Select a category to auto-add services</option>
+                  {serviceCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </CustomSelect>
+
+                {packageForm.services.length > 0 && (
+                  <>
+                    <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "8px" }}>
+                      Included Services ({packageForm.services.length})
+                    </label>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "200px", overflowY: "auto", marginBottom: "16px" }}>
+                      {packageForm.services.map((item) => {
+                        const svc = services.find((s) => s.id === item.serviceId);
+                        if (!svc) return null;
+                        return (
+                          <div key={item.serviceId} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "white", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                            <span style={{ fontSize: "0.8rem", color: "#0f172a", fontWeight: 500 }}>
+                              {svc.name}
+                              {svc.category ? <span style={{ color: "#94a3b8", marginLeft: "6px" }}>({svc.category.name})</span> : null}
+                              {svc.price ? <span style={{ color: "#64748b", marginLeft: "6px" }}>— {formatMoney(svc.price)}</span> : null}
+                            </span>
+                            <button type="button" onClick={() => removePackageService(item.serviceId)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, padding: "2px 6px" }}>
+                              Remove
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "0 0 12px 0" }} />
+
+                <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "8px" }}>Add Individual Services</label>
+                <input
+                  type="text"
+                  placeholder="Search services..."
+                  value={serviceSearch}
+                  onChange={(e) => setServiceSearch(e.target.value)}
+                  style={{ marginBottom: "12px", padding: "8px 12px", width: "100%", borderRadius: "6px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "0.8rem", outline: "none" }}
+                />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto" }}>
+                  {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).map((service) => {
+                    const isSelected = packageForm.services.some((item) => item.serviceId === service.id);
+                    return (
+                      <button
+                        type="button"
+                        key={service.id}
+                        onClick={() => togglePackageService(service.id)}
+                        style={{
+                          padding: "6px 12px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                          background: isSelected ? "#3b82f6" : "white",
+                          color: isSelected ? "white" : "#475569",
+                          border: isSelected ? "1px solid #3b82f6" : "1px solid #cbd5e1"
+                        }}
+                      >
+                        {service.name}
+                      </button>
+                    );
+                  })}
+                  {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>No services found</span>}
+                </div>
+              </div>
+
+              {/* Product Selection */}
+              {packageForm.includeProducts && (
+                <div style={{ background: "#fdf8f5", padding: "16px", borderRadius: "8px", border: "1px solid #f0e1df" }}>
+                  <label style={{ display: "block", fontSize: "0.85rem", color: "#475569", fontWeight: 600, marginBottom: "8px" }}>Included Products</label>
+                  <input 
+                    type="text" 
+                    placeholder="Search products..." 
+                    value={productSearch} 
+                    onChange={(e) => setProductSearch(e.target.value)} 
+                    style={{ marginBottom: "12px", padding: "8px 12px", width: "100%", borderRadius: "6px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "0.8rem", outline: "none" }}
+                  />
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto" }}>
+                    {products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase())).map((product) => {
+                      const isSelected = packageForm.products.some((item) => item.productId === product.id);
+                      return (
+                        <button 
+                          type="button" 
+                          key={product.id} 
+                          onClick={() => togglePackageProduct(product.id)}
+                          style={{
+                            padding: "6px 12px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                            background: isSelected ? "#2563eb" : "white",
+                            color: isSelected ? "white" : "#475569",
+                            border: isSelected ? "1px solid #2563eb" : "1px solid #cbd5e1"
+                          }}
+                        >
+                          {product.name}
+                        </button>
+                      );
+                    })}
+                    {products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>No products found</span>}
+                  </div>
+                </div>
+              )}
+
+              <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "10px 0" }} />
+
+              {/* Bottom Totals */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div style={{ alignSelf: "flex-end", fontSize: "0.9rem", color: "#475569", fontWeight: 600 }}>
+                  Total Amount To Pay: <span style={{ color: "#0f172a", fontWeight: 800 }}>{formatMoney(packageForm.price || 0)}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "10px" }}>
+                <button type="button" onClick={() => { setPackageForm(emptyPackage); setServiceSearch(""); setProductSearch(""); setShowPackageModal(false); }} style={{ padding: "8px 24px", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#f1f5f9", color: "#475569", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+                <button type="submit" style={{ padding: "8px 32px", borderRadius: "6px", border: "none", background: "var(--button-bg-solid, #3b82f6)", color: "white", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s" }}>Save</button>
+              </div>
+
+            </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAssignMembershipModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 500, width: "100%" }}>
+            <div className="modal-header">
+              <h2><Plus size={20} /> Assign Membership</h2>
+              <button type="button" onClick={() => setShowAssignMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+          <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>{customerScopeLabel}</p>
+          <form onSubmit={async (event) => {
+            event.preventDefault();
+            setStatus({ error: "", success: "" });
+            try {
+              await api.post("/owner/memberships/assign", {
+                ...assignMembershipForm,
+                customerId: customerId || assignMembershipForm.customerId,
+                startsAt: assignMembershipForm.startsAt || undefined
+              });
+              await loadAll(customerId || assignMembershipForm.customerId);
+              setAssignMembershipForm({ customerId: customerId || "", membershipPlanId: "", startsAt: "" });
+              setStatus({ error: "", success: "Membership assigned." });
+              setTimeout(() => setStatus({ error: "", success: "" }), 3000);
+            } catch (error) {
+              setStatus({ error: formatApiError(error, "Could not assign membership"), success: "" });
+            }
+          }} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {!customerId && (
+              <label>
+                <span className="muted">Customer</span>
+                <CustomSelect value={assignMembershipForm.customerId} onChange={async (event) => {
+                  const nextCustomerId = event.target.value;
+                  setAssignMembershipForm((current) => ({ ...current, customerId: nextCustomerId }));
+                  if (nextCustomerId) await loadAll(nextCustomerId);
+                }}>
+                  <option value="">Select customer</option>
+                  {loading ? <option value="" disabled>Loading customers...</option> : null}
+                  {!loading && !customers.length ? <option value="" disabled>No customers found</option> : null}
+                  {customerOptions}
+                </CustomSelect>
+              </label>
+            )}
+            <label>
+              <span className="muted">Membership plan</span>
+              <CustomSelect value={assignMembershipForm.membershipPlanId} onChange={(event) => setAssignMembershipForm((current) => ({ ...current, membershipPlanId: event.target.value }))}>
+                <option value="">Select membership plan</option>
+                {filteredMemberships.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+              </CustomSelect>
+            </label>
+            <label>
+              <span className="muted">Start Date</span>
+              <input type="date" value={assignMembershipForm.startsAt} onChange={(event) => setAssignMembershipForm((current) => ({ ...current, startsAt: event.target.value }))} />
+            </label>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button type="submit" style={{ padding: "10px 28px", borderRadius: 8, border: "none", background: "#0f172a", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Assign Membership</button>
+            </div>
+          </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAssignPackageModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 500, width: "100%" }}>
+            <div className="modal-header">
+              <h2><Plus size={20} /> Assign Package</h2>
+              <button type="button" onClick={() => setShowAssignPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+          <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>{customerScopeLabel}</p>
+          <form onSubmit={async (event) => {
+            event.preventDefault();
+            setStatus({ error: "", success: "" });
+            try {
+              await api.post("/owner/packages/assign", {
+                ...assignPackageForm,
+                customerId: customerId || assignPackageForm.customerId,
+                startsAt: assignPackageForm.startsAt || undefined
+              });
+              await loadAll(customerId || assignPackageForm.customerId);
+              setAssignPackageForm({ customerId: customerId || "", packageId: "", startsAt: "" });
+              setStatus({ error: "", success: "Package assigned." });
+              setTimeout(() => setStatus({ error: "", success: "" }), 3000);
+            } catch (error) {
+              setStatus({ error: formatApiError(error, "Could not assign package"), success: "" });
+            }
+          }} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {!customerId && (
+              <label>
+                <span className="muted">Customer</span>
+                <CustomSelect value={assignPackageForm.customerId} onChange={async (event) => {
+                  const nextCustomerId = event.target.value;
+                  setAssignPackageForm((current) => ({ ...current, customerId: nextCustomerId }));
+                  if (nextCustomerId) await loadAll(nextCustomerId);
+                }}>
+                  <option value="">Select customer</option>
+                  {loading ? <option value="" disabled>Loading customers...</option> : null}
+                  {!loading && !customers.length ? <option value="" disabled>No customers found</option> : null}
+                  {customerOptions}
+                </CustomSelect>
+              </label>
+            )}
+            <label>
+              <span className="muted">Package</span>
+              <CustomSelect value={assignPackageForm.packageId} onChange={(event) => setAssignPackageForm((current) => ({ ...current, packageId: event.target.value }))}>
+                <option value="">Select package</option>
+                {filteredPackages.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+              </CustomSelect>
+            </label>
+            <label>
+              <span className="muted">Start Date</span>
+              <input type="date" value={assignPackageForm.startsAt} onChange={(event) => setAssignPackageForm((current) => ({ ...current, startsAt: event.target.value }))} />
+            </label>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button type="submit" style={{ padding: "10px 28px", borderRadius: 8, border: "none", background: "#0f172a", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Assign Package</button>
+            </div>
+          </form>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+
+
+
+      {selectedCustomerHistory && (
+        <div className="settings-section-grid" style={{ marginTop: 18 }}>
+          <div className="panel-card">
+            <h3>Customer Membership History</h3>
+            <div className="list-stack" style={{ maxHeight: "55vh", overflowY: "auto" }}>
+              {(selectedCustomerHistory.memberships || []).map((item) => (
+                <div key={item.id} className="list-item">
+                  <div className="item-head">
+                    <strong>{item.membershipPlan?.name}</strong>
+                    <span className="badge">{item.status}</span>
+                  </div>
+                  <div className="item-meta">Ends {String(item.endsAt).slice(0, 10)} | Wallet {Number(item.remainingWalletValue || 0).toFixed(2)}</div>
+                  <div className="item-meta">Usage records {(item.usageLogs || []).length}</div>
+                </div>
+              ))}
+              {!loading && !selectedCustomerHistory.memberships?.length && <EmptyState title="No membership history yet" message="Once memberships are assigned, customer history and usage logs will appear here." />}
+            </div>
+          </div>
+          <div className="panel-card">
+            <h3>Customer Package History</h3>
+            <div className="list-stack">
+              {(selectedCustomerHistory.packages || []).map((item) => (
+                <div key={item.id} className="list-item">
+                  <div className="item-head">
+                    <strong>{item.package?.name}</strong>
+                    <span className="badge">{item.status}</span>
+                  </div>
+                  <div className="item-meta">Remaining {item.remainingSessions} | Ends {String(item.endsAt).slice(0, 10)}</div>
+                  <div className="item-meta">Usage records {(item.usageLogs || []).length}</div>
+                </div>
+              ))}
+              {!loading && !selectedCustomerHistory.packages?.length && <EmptyState title="No package history yet" message="Assigned packages and redemption usage will appear here once active." />}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(customerMembershipMode || customerPackageMode) && (
+        <div className="settings-section-grid" style={{ marginTop: 18 }}>
+          {customerMembershipMode && (
+            <div className="panel-card">
+              <h3>Membership Lifecycle</h3>
+              <form style={{ display: "grid", gap: 10 }}>
+                <label>
+              <span className="muted">Assigned membership</span>
+              <CustomSelect value={membershipLifecycleForm.customerMembershipId} onChange={(event) => setMembershipLifecycleForm((current) => ({ ...current, customerMembershipId: event.target.value }))}>
+                  <option value="">Select assigned membership</option>
+                  {(selectedCustomerHistory?.memberships || []).map((item) => (
+                    <option key={item.id} value={item.id}>{item.membershipPlan?.name} - {item.status}</option>
+                  ))}
+                </CustomSelect>
+            </label>
+                <label>
+              <span className="muted">Wallet top-up amount</span>
+              <input type="number" min="0" value={membershipLifecycleForm.topUpAmount} placeholder="Wallet top-up amount" onChange={(event) => setMembershipLifecycleForm((current) => ({ ...current, topUpAmount: event.target.value }))} />
+            </label>
+                <label>
+              <span className="muted">Upgrade to plan</span>
+              <CustomSelect value={membershipLifecycleForm.upgradePlanId} onChange={(event) => setMembershipLifecycleForm((current) => ({ ...current, upgradePlanId: event.target.value }))}>
+                  <option value="">Upgrade to plan</option>
+                  {filteredMemberships.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                </CustomSelect>
+            </label>
+                <label>
+              <span className="muted">Transfer to another customer</span>
+              <CustomSelect value={membershipLifecycleForm.transferCustomerId} onChange={(event) => setMembershipLifecycleForm((current) => ({ ...current, transferCustomerId: event.target.value }))}>
+                  <option value="">Transfer to another customer</option>
+                  {customers.filter((customer) => customer.id !== customerId).map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}
+                </CustomSelect>
+            </label>
+                <textarea rows="3" value={membershipLifecycleForm.note} placeholder="Lifecycle note" onChange={(event) => setMembershipLifecycleForm((current) => ({ ...current, note: event.target.value }))} />
+                <div className="inline-actions">
+                  <button type="button" className="secondary-button" onClick={async () => {
+                    await api.post(`/owner/customer-memberships/${membershipLifecycleForm.customerMembershipId}/renew`, { note: membershipLifecycleForm.note });
+                    await loadAll(customerId);
+                    setStatus({ error: "", success: "Membership renewed." });
+                  }}>Renew</button>
+                  <button type="button" className="secondary-button" onClick={async () => {
+                    await api.post(`/owner/customer-memberships/${membershipLifecycleForm.customerMembershipId}/top-up`, {
+                      amount: Number(membershipLifecycleForm.topUpAmount || 0),
+                      note: membershipLifecycleForm.note
+                    });
+                    await loadAll(customerId);
+                    setStatus({ error: "", success: "Membership top-up posted." });
+                  }}>Top Up</button>
+                  <button type="button" className="secondary-button" onClick={async () => {
+                    await api.post(`/owner/customer-memberships/${membershipLifecycleForm.customerMembershipId}/upgrade`, {
+                      membershipPlanId: membershipLifecycleForm.upgradePlanId,
+                      note: membershipLifecycleForm.note
+                    });
+                    await loadAll(customerId);
+                    setStatus({ error: "", success: "Membership upgraded." });
+                  }}>Upgrade</button>
+                  <button type="button" onClick={async () => {
+                    await api.post(`/owner/customer-memberships/${membershipLifecycleForm.customerMembershipId}/transfer`, {
+                      customerId: membershipLifecycleForm.transferCustomerId,
+                      note: membershipLifecycleForm.note
+                    });
+                    await loadAll(customerId);
+                    setStatus({ error: "", success: "Membership transferred." });
+                  }}>Transfer</button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {customerPackageMode && (
+            <div className="panel-card">
+              <h3>Package Lifecycle</h3>
+              <form style={{ display: "grid", gap: 10 }}>
+                <label>
+              <span className="muted">Assigned package</span>
+              <CustomSelect value={packageLifecycleForm.customerPackageId} onChange={(event) => setPackageLifecycleForm((current) => ({ ...current, customerPackageId: event.target.value }))}>
+                  <option value="">Select assigned package</option>
+                  {(selectedCustomerHistory?.packages || []).map((item) => (
+                    <option key={item.id} value={item.id}>{item.package?.name} - {item.status}</option>
+                  ))}
+                </CustomSelect>
+            </label>
+                <label>
+              <span className="muted">Extra sessions on renewal</span>
+              <input type="number" min="0" value={packageLifecycleForm.additionalSessions} placeholder="Extra sessions on renewal" onChange={(event) => setPackageLifecycleForm((current) => ({ ...current, additionalSessions: event.target.value }))} />
+            </label>
+                <label>
+              <span className="muted">Transfer to another customer</span>
+              <CustomSelect value={packageLifecycleForm.transferCustomerId} onChange={(event) => setPackageLifecycleForm((current) => ({ ...current, transferCustomerId: event.target.value }))}>
+                  <option value="">Transfer to another customer</option>
+                  {customers.filter((customer) => customer.id !== customerId).map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}
+                </CustomSelect>
+            </label>
+                <textarea rows="3" value={packageLifecycleForm.note} placeholder="Lifecycle note" onChange={(event) => setPackageLifecycleForm((current) => ({ ...current, note: event.target.value }))} />
+                <div className="inline-actions">
+                  <button type="button" className="secondary-button" onClick={async () => {
+                    await api.post(`/owner/customer-packages/${packageLifecycleForm.customerPackageId}/renew`, {
+                      additionalSessions: Number(packageLifecycleForm.additionalSessions || 0),
+                      note: packageLifecycleForm.note
+                    });
+                    await loadAll(customerId);
+                    setStatus({ error: "", success: "Package renewed." });
+                  }}>Renew</button>
+                  <button type="button" onClick={async () => {
+                    await api.post(`/owner/customer-packages/${packageLifecycleForm.customerPackageId}/transfer`, {
+                      customerId: packageLifecycleForm.transferCustomerId,
+                      note: packageLifecycleForm.note
+                    });
+                    await loadAll(customerId);
+                    setStatus({ error: "", success: "Package transferred." });
+                  }}>Transfer</button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Status toasts are shown at top of page now */}
+    </div>
+    </div>
+  );
+}
+

@@ -1,0 +1,903 @@
+﻿import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../api/client";
+import { useBranch } from "../context/BranchContext";
+import { useAuth } from "../context/AuthContext";
+import { Menu, Settings, FileText, Monitor, Calendar as CalendarIcon, Users, BarChart2, Package, TrendingUp, Search, Bell, LayoutDashboard, Building2, ChevronDown, Check } from "lucide-react";
+
+export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogout }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { branches, selectedBranchId, selectedBranchName, setSelectedBranchId, isOwner: isBranchOwner } = useBranch();
+  const { switchSalon } = useAuth();
+  const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
+  const [switchingSalon, setSwitchingSalon] = useState(false);
+  const [salonName, setSalonName] = useState("");
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isBranchOpen, setIsBranchOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [quickSearch, setQuickSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const permissions = auth?.membership?.permissions || {};
+  const featureFlags = auth?.membership?.featureFlags || {};
+  const can = (key, action = "view") => Array.isArray(permissions[key]) && permissions[key].includes(action);
+  const enabled = (key) => featureFlags[key] !== false;
+  const canPos = can("pos") && enabled("pos");
+  const canNotifications = can("notifications");
+  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
+  const canGlobalSearch = can("customers") || can("appointments") || can("services") || isSuperAdmin;
+  const canSettings = can("settings", "edit");
+  const canProfile = isSuperAdmin || can("myProfile");
+
+  useEffect(() => {
+    let active = true;
+    const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
+
+    if (canPos && !isSuperAdmin) {
+      api.get("/owner/pos/context").then(res => {
+        if (active && res.data?.salon?.name) setSalonName(res.data.salon.name);
+      }).catch(()=> {});
+    }
+
+    const fetchNotifications = () => {
+      if (canNotifications && !isSuperAdmin) {
+        api.get("/owner/notifications", { params: { limit: 5 } }).then((res) => {
+          if (active && res.data) {
+            setNotifications(res.data);
+          }
+        }).catch(() => {});
+      }
+    };
+
+    fetchNotifications();
+    const notifInterval = setInterval(fetchNotifications, 120000); // 2 minutes
+
+    return () => { active = false; clearInterval(notifInterval); };
+  }, [canNotifications, canPos, auth?.user?.systemRole]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+        setIsNotifOpen(false);
+        setIsProfileOpen(false);
+        setIsBranchOpen(false);
+      }
+    };
+    const handleClickOutside = (event) => {
+      if (!event.target.closest?.(".salonnest-search-wrap")) setSearchOpen(false);
+      if (!event.target.closest?.(".salonnest-notif-wrap")) setIsNotifOpen(false);
+      if (!event.target.closest?.(".salonnest-profile-wrap")) setIsProfileOpen(false);
+      if (!event.target.closest?.(".salonnest-branch-wrap")) setIsBranchOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  useEffect(() => {
+    if (!canGlobalSearch) return undefined;
+    const term = quickSearch.trim();
+    if (term.length < 2) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return undefined;
+    }
+
+    let active = true;
+    setSearchLoading(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const endpoint = isSuperAdmin ? "/super-admin/global-search" : "/owner/global-search";
+        const response = await api.get(endpoint, { params: { q: term } });
+        if (!active) return;
+        setSearchResults(response.data?.results || []);
+        setSearchOpen(true);
+      } catch {
+        if (active) setSearchResults([]);
+      } finally {
+        if (active) setSearchLoading(false);
+      }
+    }, 220);
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
+  }, [canGlobalSearch, quickSearch, isSuperAdmin]);
+
+  const handleMarkAllRead = async (e) => {
+    e.stopPropagation();
+    try {
+      await api.patch("/owner/notifications/read-all");
+      setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleNotificationClick = async (e, notif) => {
+    e.stopPropagation();
+    if (!notif.isRead) {
+      try {
+        await api.patch(`/owner/notifications/${notif.id}/read`);
+        setNotifications(notifications.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+      } catch {}
+    }
+    if (notif.linkUrl) {
+      setIsNotifOpen(false);
+      navigate(notif.linkUrl);
+    }
+  };
+
+  const today = new Date();
+  const dateOpts = { weekday: 'short', day: '2-digit', month: 'short' };
+  const dateStr = today.toLocaleDateString('en-GB', dateOpts);
+
+
+  return (
+    <div className="salonnest-header-container">
+      <style>{`
+        .salonnest-header-container {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          z-index: 50;
+        }
+        .salonnest-top-row {
+          background: var(--navbar-bg, white);
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          border-bottom: 1px solid #e2e8f0;
+          position: relative;
+        }
+        .salonnest-logo-area {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex: 1;
+        }
+        .salonnest-brand-image {
+          height: 42px;
+          width: auto;
+          object-fit: contain;
+        }
+        .salonnest-salon-name {
+          color: #475569;
+          font-size: 0.95rem;
+          font-weight: 600;
+          border-left: 2px solid #e2e8f0;
+          padding-left: 16px;
+        }
+        
+        .salonnest-search-bar {
+          display: flex;
+          align-items: center;
+          background: #f1f5f9;
+          border-radius: 24px;
+          padding: 6px 18px;
+          width: 100%;
+          max-width: 480px;
+          border: 1px solid transparent;
+          transition: all 0.2s;
+          position: relative;
+        }
+        .salonnest-search-bar:focus-within {
+          background: white;
+          border: 1px solid #cbd5e1;
+          box-shadow: none;
+        }
+        .salonnest-search-bar input {
+          border: none;
+          background: transparent;
+          outline: none;
+          width: 100%;
+          margin-left: 8px;
+          font-size: 0.85rem;
+          color: #0f172a;
+          min-height: auto;
+          padding: 0;
+          border-radius: 0;
+        }
+        .salonnest-search-bar input::placeholder {
+          color: #94a3b8;
+        }
+        .salonnest-search-wrap {
+          position: relative;
+        }
+        .salonnest-branch-wrap {
+          position: relative;
+        }
+        .salonnest-branch-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 8px !important;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 4px !important;
+          cursor: pointer;
+          font-size: 0.7rem !important;
+          color: #475569 !important;
+          font-weight: 600 !important;
+          white-space: nowrap;
+          transition: all 0.15s;
+          height: 26px !important;
+        }
+        .salonnest-branch-btn:hover {
+          background: #e2e8f0;
+          border-color: #cbd5e1;
+        }
+        .salonnest-branch-dropdown {
+          position: absolute;
+          top: calc(100% + 8px);
+          left: 0;
+          min-width: 220px;
+          max-height: 320px;
+          overflow-y: auto;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+          z-index: 120;
+          padding: 6px;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar {
+          width: 6px;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 8px;
+        }
+        .salonnest-branch-dropdown::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+        .salonnest-branch-option {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          border: none !important;
+          background: transparent;
+          text-align: left;
+          padding: 8px 10px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 0.82rem;
+          color: #334155;
+          font-weight: 500;
+          transition: all 0.15s ease;
+          margin-bottom: 2px;
+          white-space: nowrap;
+        }
+        .salonnest-branch-option:last-child {
+          margin-bottom: 0;
+        }
+        .salonnest-branch-option:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+        .salonnest-branch-option.active {
+          background: #eff6ff;
+          color: #2563eb;
+          font-weight: 600;
+        }
+        .salonnest-branch-option-check {
+          width: 16px;
+          height: 16px;
+          flex-shrink: 0;
+        }
+        .salonnest-search-dropdown {
+          position: absolute;
+          top: calc(100% + 10px);
+          left: 50%;
+          transform: translateX(-50%);
+          width: 520px;
+          max-height: 480px;
+          overflow-y: auto;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+          z-index: 120;
+          padding: 8px;
+        }
+        .salonnest-search-section-title {
+          padding: 8px 12px 4px;
+          font-size: 0.68rem;
+          font-weight: 800;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+        }
+        .salonnest-search-result {
+          width: 100%;
+          border: 0;
+          background: transparent;
+          text-align: left;
+          padding: 10px 12px;
+          border-radius: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          transition: background 0.15s;
+        }
+        .salonnest-search-result:hover {
+          background: #eff6ff;
+        }
+        .salonnest-search-module-badge {
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #ffffff;
+          background: #4f46e5;
+          border-radius: 6px;
+          padding: 4px 8px;
+          text-align: center;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+          min-width: 70px;
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .salonnest-search-module-badge.crm,
+        .salonnest-search-module-badge.customer,
+        .salonnest-search-module-badge.customers { background: #3b82f6; }
+        .salonnest-search-module-badge.services,
+        .salonnest-search-module-badge.service { background: #8b5cf6; }
+        .salonnest-search-module-badge.inventory,
+        .salonnest-search-module-badge.product,
+        .salonnest-search-module-badge.products { background: #f59e0b; }
+        .salonnest-search-module-badge.staff,
+        .salonnest-search-module-badge.team { background: #10b981; }
+        .salonnest-search-module-badge.appointments,
+        .salonnest-search-module-badge.appointment { background: #06b6d4; }
+        .salonnest-search-module-badge.invoices,
+        .salonnest-search-module-badge.invoice,
+        .salonnest-search-module-badge.billing { background: #6366f1; }
+        .salonnest-search-module-badge.memberships,
+        .salonnest-search-module-badge.membership { background: #ec4899; }
+        .salonnest-search-module-badge.packages,
+        .salonnest-search-module-badge.package { background: #f97316; }
+        .salonnest-search-module-badge.pos { background: #14b8a6; }
+        .salonnest-search-module-badge.salon,
+        .salonnest-search-module-badge.salons { background: #3b82f6; }
+        .salonnest-search-module-badge.lead,
+        .salonnest-search-module-badge.leads,
+        .salonnest-search-module-badge.demo-leads { background: #10b981; }
+        .salonnest-search-module-badge.plan,
+        .salonnest-search-module-badge.plans,
+        .salonnest-search-module-badge.subscription-plans { background: #8b5cf6; }
+        .salonnest-search-module-badge.user,
+        .salonnest-search-module-badge.users,
+        .salonnest-search-module-badge.platform-users { background: #f59e0b; }
+        .salonnest-search-module-badge.subscription,
+        .salonnest-search-module-badge.subscriptions,
+        .salonnest-search-module-badge.subscription-contracts { background: #0284c7; }
+        .salonnest-search-module-badge.ticket,
+        .salonnest-search-module-badge.tickets,
+        .salonnest-search-module-badge.support-tickets { background: #ec4899; }
+        .salonnest-search-result-text {
+          flex: 1;
+          min-width: 0;
+        }
+        .salonnest-search-result-text strong {
+          display: block;
+          color: #0f172a;
+          font-size: 0.88rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .salonnest-search-result-text small {
+          display: block;
+          color: #64748b;
+          font-size: 0.73rem;
+          margin-top: 2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .salonnest-search-result-nav {
+          font-size: 0.68rem;
+          color: #94a3b8;
+          flex-shrink: 0;
+        }
+        .salonnest-search-empty {
+          padding: 24px 18px;
+          text-align: center;
+          color: #94a3b8;
+          font-size: 0.85rem;
+        }
+
+        .salonnest-top-right {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex: 1;
+          justify-content: flex-end;
+        }
+        .salonnest-date {
+          font-size: 0.85rem;
+          color: #475569;
+          font-weight: 600;
+          padding: 4px 12px;
+          background: #f8fafc;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .salonnest-icon-btn {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          color: #64748b;
+          cursor: pointer;
+          transition: all 0.2s;
+          position: relative;
+        }
+        .salonnest-icon-btn:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+        
+        /* Notifications Dropdown */
+        .notif-dropdown {
+          position: absolute;
+          top: 50px;
+          right: 0;
+          width: 320px;
+          background: white;
+          border-radius: 12px;
+          box-shadow: none;
+          border: 1px solid #e2e8f0;
+          overflow: hidden;
+          z-index: 100;
+        }
+        .notif-header {
+          padding: 16px;
+          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: #f8fafc;
+        }
+        .notif-header h4 { margin: 0; font-size: 0.95rem; color: #0f172a; }
+        .notif-header button { background: none !important; border: none !important; color: #3b82f6 !important; font-size: 0.8rem !important; cursor: pointer; font-weight: 600; padding: 0 !important; box-shadow: none !important; min-height: unset !important; }
+        .notif-header button:hover { text-decoration: underline !important; transform: none !important; filter: none !important; }
+        .notif-body { max-height: 300px; overflow-y: auto; }
+        .notif-item { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; gap: 12px; transition: background 0.2s; }
+        .notif-item:hover { background: #f8fafc; }
+        .notif-item.unread { background: #eff6ff; }
+        .notif-item.unread:hover { background: #e0f2fe; }
+        .notif-item p { margin: 0 0 4px; font-size: 0.85rem; color: #334155; line-height: 1.4; }
+        .notif-item span { font-size: 0.75rem; color: #94a3b8; }
+        
+        /* Profile Dropdown */
+        .profile-dropdown {
+          position: absolute;
+          top: 50px;
+          right: 0;
+          width: 240px;
+          background: white;
+          border-radius: 12px;
+          box-shadow: none;
+          border: 1px solid #e2e8f0;
+          padding: 16px;
+          z-index: 100;
+          cursor: default;
+          text-align: left;
+        }
+        .profile-dropdown-name {
+          font-weight: 700;
+          color: #0f172a;
+          margin: 0 0 4px;
+          font-size: 0.95rem;
+        }
+        .profile-dropdown-role {
+          font-size: 0.8rem;
+          color: #64748b;
+          margin: 0 0 16px;
+        }
+        .profile-dropdown-btn {
+          width: 100%;
+          padding: 10px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+        .profile-dropdown-btn.primary {
+          background: #3b82f6;
+          color: white;
+          border: none;
+        }
+        .profile-dropdown-btn.primary:hover {
+          background: #2563eb;
+        }
+        .profile-dropdown-btn.secondary {
+          background: white;
+          color: #3b82f6;
+          border: 1px solid #3b82f6;
+        }
+        .profile-dropdown-btn.secondary:hover {
+          background: #eff6ff;
+        }
+        .profile-dropdown-version {
+          text-align: center;
+          font-size: 0.75rem;
+          color: #94a3b8;
+          margin: 0;
+        }
+        
+        .salonnest-nav-row {
+          background: var(--sidebar-bg, #334155); /* Slightly darker and richer than #475569 */
+          height: 48px;
+          display: flex;
+          align-items: center;
+          padding: 0;
+        }
+        .salonnest-menu-btn {
+          background: transparent;
+          border: none;
+          color: white;
+          height: 100%;
+          padding: 0 24px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .salonnest-menu-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        .salonnest-tabs {
+          display: flex;
+          height: 100%;
+          flex-grow: 1;
+        }
+        .salonnest-tab {
+          color: #f8fafc;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          font-size: 0.78rem;
+          font-weight: 600;
+          letter-spacing: 0.05em;
+          border-right: 1px solid rgba(255,255,255,0.1);
+          border-bottom: 3px solid transparent;
+          transition: all 0.2s;
+        }
+        .salonnest-tab:hover {
+          background: rgba(255,255,255,0.05);
+        }
+        .salonnest-tab.active {
+          background: #0f172a;
+          border-bottom: 3px solid var(--accent, #ef4444);
+          color: white;
+        }
+      `}</style>
+
+      {/* Top White Row */}
+      <div className="salonnest-top-row">
+        <div className="salonnest-logo-area" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button 
+            type="button" 
+            className="salonnest-menu-btn" 
+            onClick={onToggleSidebar}
+            style={{ 
+              background: "transparent", 
+              border: "none", 
+              cursor: "pointer", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              padding: 6, 
+              borderRadius: 6, 
+              color: "#1e1b4b"
+            }}
+          >
+            <Menu size={20} />
+          </button>
+          {auth?.user?.systemRole === "SUPER_ADMIN" ? (
+            <Link to="/super-admin/dashboard" style={{ textDecoration: "none" }}>
+              <div className="salonnest-salon-name" style={{ borderLeft: "none", paddingLeft: 0, fontWeight: 800, fontSize: "1.2rem", color: "#1e1b4b", cursor: "pointer" }}>
+                Super Admin
+              </div>
+            </Link>
+          ) : (
+            <Link to="/admin/dashboard" style={{ textDecoration: "none" }}>
+              <div className="salonnest-salon-name" style={{ borderLeft: "none", paddingLeft: 0, cursor: "pointer" }}>{salonName}</div>
+            </Link>
+          )}
+        </div>
+
+        {/* Centered Search Bar */}
+        {(canGlobalSearch || auth?.user?.systemRole === "SUPER_ADMIN") ? (
+          <div className="salonnest-search-wrap" style={{ display: "flex", flex: 2, justifyContent: "center", position: "relative" }}>
+            <div className="salonnest-search-bar">
+              <Search size={16} color="#64748b" />
+              <input
+                type="text"
+                placeholder={isSuperAdmin ? "Search salons, plans, leads, users..." : "Search customers, services, products, staff, invoices..."}
+                value={quickSearch}
+                onFocus={() => setSearchOpen(true)}
+                onChange={(event) => setQuickSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") setSearchOpen(false);
+                  if (event.key === "Enter") {
+                    const term = quickSearch.trim();
+                    const first = searchResults[0];
+                    if (first?.to) {
+                      navigate(first.to);
+                      setSearchOpen(false);
+                      setQuickSearch("");
+                    } else if (term) {
+                      if (isSuperAdmin) {
+                        navigate(`/super-admin/salons?q=${encodeURIComponent(term)}`);
+                      } else {
+                        navigate(`/admin/customers?q=${encodeURIComponent(term)}`);
+                      }
+                      setSearchOpen(false);
+                    }
+                  }
+                }}
+              />
+            </div>
+            {searchOpen && quickSearch.trim().length >= 2 ? (
+              <div className="salonnest-search-dropdown" onMouseDown={(event) => event.preventDefault()}>
+                {searchLoading ? <div className="salonnest-search-empty">Searching...</div> : null}
+                {!searchLoading && !searchResults.length ? <div className="salonnest-search-empty">No results found for "{quickSearch.trim()}"</div> : null}
+                {!searchLoading && searchResults.map((item) => (
+                  <button
+                    type="button"
+                    key={`${item.module}-${item.id}`}
+                    className="salonnest-search-result"
+                    onClick={() => {
+                      navigate(item.to);
+                      setSearchOpen(false);
+                      setQuickSearch("");
+                    }}
+                  >
+                    <span className={`salonnest-search-module-badge ${(item.module || "").toLowerCase().replace(/\s+/g, "-")}`}>{item.module}</span>
+                    <span className="salonnest-search-result-text">
+                      <strong>{item.title}</strong>
+                      <small>{item.subtitle || "Open record"}</small>
+                    </span>
+                    <span className="salonnest-search-result-nav">→</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="salonnest-top-right">
+          {/* Branch Selector â€” full dropdown for owner, static badge for staff */}
+          {auth?.user?.systemRole !== "SUPER_ADMIN" && isBranchOwner && (
+            <div className="salonnest-branch-wrap">
+              <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
+                <Building2 size={12} color="#64748b" />
+                {selectedBranchName}
+                <ChevronDown size={12} color="#64748b" />
+              </button>
+              {isBranchOpen && (
+                <div className="salonnest-branch-dropdown" onClick={e => e.stopPropagation()}>
+                  <button className={`salonnest-branch-option ${!selectedBranchId ? "active" : ""}`} onClick={() => { setSelectedBranchId(""); setIsBranchOpen(false); }}>
+                    <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{!selectedBranchId ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
+                    All Branches
+                  </button>
+                  {branches.filter(b => b.isActive).map(branch => (
+                    <button key={branch.id} className={`salonnest-branch-option ${selectedBranchId === branch.id ? "active" : ""}`} onClick={() => { setSelectedBranchId(branch.id); setIsBranchOpen(false); }}>
+                      <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{selectedBranchId === branch.id ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
+                      {branch.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {auth?.user?.systemRole !== "SUPER_ADMIN" && !isBranchOwner && (
+            <div className="salonnest-branch-wrap">
+              <span className="salonnest-branch-btn" style={{ cursor: "default" }}>
+                <Building2 size={12} color="#64748b" />
+                {selectedBranchName}
+              </span>
+            </div>
+          )}
+
+          <div className="salonnest-date">{dateStr}</div>
+          
+          {/* Notifications */}
+          {canNotifications ? <div className="salonnest-icon-btn salonnest-notif-wrap" onClick={() => setIsNotifOpen(!isNotifOpen)}>
+            <Bell size={20} />
+            {unreadCount > 0 && (
+              <span style={{
+                position: "absolute", top: 8, right: 8, width: 10, height: 10,
+                backgroundColor: "#ef4444", borderRadius: "50%",
+                boxShadow: "none"
+              }}></span>
+            )}
+            
+            {isNotifOpen && (
+              <div className="notif-dropdown" onClick={e => e.stopPropagation()}>
+                <div className="notif-header">
+                  <h4>Notifications</h4>
+                  {unreadCount > 0 && (
+                    <button onClick={handleMarkAllRead}>Mark all as read</button>
+                  )}
+                </div>
+                <div className="notif-body">
+                  {notifications.length === 0 ? (
+                    <div style={{ padding: "24px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
+                      No recent notifications
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div key={notif.id} className={`notif-item ${!notif.isRead ? "unread" : ""}`} onClick={(e) => handleNotificationClick(e, notif)}>
+                        <div style={{ fontSize: "1.2rem" }}>
+                          {notif.type === 'APPOINTMENT' ? '📅' : notif.type === 'PAYMENT' ? '💵' : notif.type === 'FEEDBACK' ? '⭐' : '🔔'}
+                        </div>
+                        <div>
+                          <p><strong>{notif.title}</strong> - {notif.message}</p>
+                          <span>{new Date(notif.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div style={{ padding: "12px", textAlign: "center", background: "#f8fafc", borderTop: "1px solid #e2e8f0", fontSize: "0.85rem", color: "var(--accent, #3b82f6)", cursor: "pointer", fontWeight: 500 }} onClick={() => { setIsNotifOpen(false); navigate("/admin/notifications"); }}>
+                  View all alerts
+                </div>
+              </div>
+            )}
+          </div> : null}
+          
+          {/* Settings */}
+          {canSettings ? <div className="salonnest-icon-btn" onClick={() => navigate('/admin/settings')}>
+             <Settings size={20} /> 
+          </div> : null}
+          
+          {/* Profile Logo */}
+          {canProfile ? <div 
+            className="salonnest-profile-wrap"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            style={{ 
+              width: 36, height: 36, borderRadius: '50%', background: "var(--button-bg-solid, #3b82f6)", color: 'white', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, 
+              fontSize: '0.9rem', cursor: 'pointer', marginLeft: 8, position: 'relative'
+            }}
+          >
+            {auth?.user?.name ? auth.user.name.substring(0, 2).toUpperCase() : "AD"}
+            
+            {isProfileOpen && (
+              <div className="profile-dropdown" onClick={e => e.stopPropagation()}>
+                <div className="profile-dropdown-name">{auth?.user?.name || salonName || "Admin"}</div>
+                {(auth?.user?.email || auth?.membership?.salon?.email) && (
+                  <div className="profile-dropdown-role" style={{ marginBottom: 4 }}>
+                    {auth?.user?.email || auth?.membership?.salon?.email}
+                  </div>
+                )}
+                <div className="profile-dropdown-role" style={{ fontWeight: 600, color: "#3b82f6", marginBottom: 8 }}>
+                  {auth?.user?.systemRole === "SUPER_ADMIN" ? (auth?.user?.adminRole?.name || auth?.user?.role?.name || "Master Admin") : (salonName || auth?.membership?.salonName || "Salon Owner")}
+                </div>
+                {auth?.user?.systemRole !== "SUPER_ADMIN" && auth?.memberships?.length > 1 && (
+                  <div style={{ marginBottom: 12, position: "relative" }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setIsSalonSwitcherOpen(!isSalonSwitcherOpen); }}
+                      style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#f1f5f9", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", fontSize: "0.8rem", color: "#475569", fontWeight: 600 }}
+                    >
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Switch Salon</span>
+                      <ChevronDown size={14} />
+                    </button>
+                    {isSalonSwitcherOpen && (
+                      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4, background: "white", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 999, maxHeight: 200, overflowY: "auto" }}>
+                        {auth.memberships.map((m) => {
+                          const isActive = m.salonId === auth.salonId;
+                          return (
+                            <button
+                              key={m.salonId}
+                              disabled={switchingSalon || isActive}
+                              onClick={async () => {
+                                if (isActive || switchingSalon) return;
+                                setSwitchingSalon(true);
+                                try {
+                                  await switchSalon(m.salonId);
+                                  setIsSalonSwitcherOpen(false);
+                                  window.location.reload();
+                                } catch {
+                                  setSwitchingSalon(false);
+                                }
+                              }}
+                              style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: isActive ? "#eff6ff" : "white", border: "none", borderBottom: "1px solid #f1f5f9", cursor: isActive ? "default" : "pointer", fontSize: "0.8rem", textAlign: "left", color: isActive ? "#3b82f6" : "#334155", fontWeight: isActive ? 600 : 400 }}
+                            >
+                              {isActive && <Check size={14} color="#3b82f6" />}
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.salonName || m.salonId}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {subscription?.plan && (
+                  <div
+                    onClick={() => { setIsProfileOpen(false); navigate("/admin/settings/subscription"); }}
+                    style={{ margin: "8px 0 12px", padding: "8px 10px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", textAlign: "left" }}
+                  >
+                    <div style={{ fontSize: "0.65rem", color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>Active Subscribed Plan</div>
+                    <div style={{ fontSize: "0.82rem", color: "#0f172a", fontWeight: 800, display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 2 }}>
+                      <span>{subscription.plan.name}</span>
+                      <span style={{ fontSize: "0.65rem", padding: "2px 6px", borderRadius: 4, background: "#dcfce7", color: "#15803d", fontWeight: 700 }}>
+                        {subscription.daysRemaining !== undefined ? `${subscription.daysRemaining}d left` : "Active"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                {auth?.user?.systemRole === "SUPER_ADMIN" && (
+                  <button 
+                    className="profile-dropdown-btn secondary" 
+                    onClick={() => { setIsProfileOpen(false); navigate("/super-admin/settings"); }}
+                  >
+                    Profile / Account Settings
+                  </button>
+                )}
+                
+                <button 
+                  className="profile-dropdown-btn primary" 
+                  onClick={() => { setIsProfileOpen(false); if(onLogout) onLogout(); }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                  </span>
+                </button>
+                {can('auditLogs') && (
+                  <button 
+                    className="profile-dropdown-btn secondary" 
+                    onClick={() => { setIsProfileOpen(false); navigate("/admin/audit-logs"); }}
+                  >
+                    Activity Log
+                  </button>
+                )}
+              </div>
+            )}
+          </div> : null}
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
