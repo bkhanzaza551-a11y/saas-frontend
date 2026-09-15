@@ -6,7 +6,6 @@ const CATEGORIES = [
   {
     title: "Catalogue",
     items: [
-      { title: "Services", description: "Add, edit, and update the services you offer.", to: "/admin/services", icon: Scissors, reqPerm: "services" },
       { title: "Memberships / Packages", description: "Create and manage service bundles.", to: "/admin/memberships", icon: BadgeCheck, reqPerm: "memberships" },
       { title: "Loyalty / Coupons", description: "Offers, gift cards, referral programs.", to: "/admin/coupons", icon: Sparkles, reqPerm: "couponsGiftCards" }
     ]
@@ -14,9 +13,7 @@ const CATEGORIES = [
   {
     title: "Inventory & Finance",
     items: [
-      { title: "Manage Inventory", description: "Manage overall stock and warehouses.", to: "/admin/inventory", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Products", description: "Keep track of your products and stock.", to: "/admin/product-categories", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
-      { title: "Online Bookings", description: "Manage online service appointments and storefront reservations.", to: "/admin/order-dashboard", icon: CalendarDays, reqPerm: "orders", reqFlag: "ecommerce" },
       { title: "Product Requirements", description: "Submit requests for stock, electronics, or software.", to: "/admin/product-requirements", icon: Boxes, reqPerm: "inventory" },
       { title: "POS Dashboard", description: "Point of sale metrics and terminal management.", to: "/admin/pos-dashboard", icon: Monitor, reqPerm: "pos", reqFlag: "pos" },
     ]
@@ -25,7 +22,6 @@ const CATEGORIES = [
     title: "Staff & Operations",
     items: [
       { title: "Branches", description: "Manage locations, outlets, and salon operational identity.", to: "/admin/branches", icon: Layers3, reqPerm: "branches" },
-      { title: "Staff Details", description: "Register team members and configure access.", to: "/admin/users", icon: Users, reqPerm: "staff" },
       { title: "Roles & Permissions", description: "Manage organizational roles and permissions.", to: "/admin/roles-permissions", icon: UserCheck, reqPerm: "staff" },
       { title: "Staff Requests", description: "Submit hiring requisitions and requests.", to: "/admin/staff-requirements", icon: Users, reqPerm: "staff" },
       { title: "Attendance Management", description: "Monitor and manage staff attendance records.", to: "/admin/attendance", icon: CheckSquare, reqPerm: "attendance", reqFlag: "attendance" },
