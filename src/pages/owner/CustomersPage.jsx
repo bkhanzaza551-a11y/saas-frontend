@@ -3728,7 +3728,7 @@ const handleExportClick = async (format) => {
                 <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#64748b", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Enter 6-Digit Code</label>
                 <input
                   type="text"
-                  placeholder="ï¿½ ï¿½ ï¿½ ï¿½ ï¿½ ï¿½"
+                  placeholder="- - - - - -"
                   value={otpValue}
                   maxLength={6} onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, ""))}
                   style={{ width: "100%", boxSizing: "border-box", padding: "16px", fontSize: 28, fontWeight: 700, textAlign: "center", letterSpacing: 12, borderRadius: 12, border: "2px solid #e2e8f0", background: "#f8fafc", color: "#0f172a", outline: "none", transition: "all 0.2s" }}
