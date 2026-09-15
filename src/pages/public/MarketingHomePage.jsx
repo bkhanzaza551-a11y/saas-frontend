@@ -432,7 +432,7 @@ function ModuleMockup({ tabId }) {
         </div>
 
         <div style={{ marginTop: 12, textAlign: "center", fontSize: 11, color: "#0d9488", fontWeight: 700 }}>
-          âš¡ 100% Branded Online Storefront ⬢ Razorpay Checkout Active
+          ⚡ 100% Branded Online Storefront ⬢ Razorpay Checkout Active
         </div>
       </div>
     );
@@ -503,7 +503,7 @@ function ModuleMockup({ tabId }) {
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>₹1,42,800</div>
-              <div style={{ fontSize: 10, color: "#4ade80" }}>â†‘ +24% today</div>
+              <div style={{ fontSize: 10, color: "#4ade80" }}>↑ +24% today</div>
             </div>
           </div>
 
@@ -514,7 +514,7 @@ function ModuleMockup({ tabId }) {
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>₹1,18,500</div>
-              <div style={{ fontSize: 10, color: "#4ade80" }}>â†‘ +18% today</div>
+              <div style={{ fontSize: 10, color: "#4ade80" }}>↑ +18% today</div>
             </div>
           </div>
 
@@ -525,13 +525,13 @@ function ModuleMockup({ tabId }) {
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 15, fontWeight: 900, color: "#fff" }}>₹94,200</div>
-              <div style={{ fontSize: 10, color: "#4ade80" }}>â†‘ +12% today</div>
+              <div style={{ fontSize: 10, color: "#4ade80" }}>↑ +12% today</div>
             </div>
           </div>
         </div>
 
         <div style={{ background: "rgba(13,148,136,0.2)", padding: "8px 12px", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#5eead4" }}>
-          <span>âš¡</span>
+          <span>⚡</span>
           <span>Inter-branch inventory transfer and central financial consolidation synced.</span>
         </div>
       </div>
@@ -624,7 +624,7 @@ const testimonialsList = [
     city: "Hyderabad",
     rating: 5,
     metric: "99.4% Client Rating",
-    text: "From walk-in queue management to instant digital WhatsApp receipts, our clients love the upscale modern experience. The interface is intuitiveâ€”our new receptionists learned it in 15 minutes!",
+    text: "From walk-in queue management to instant digital WhatsApp receipts, our clients love the upscale modern experience. The interface is intuitive—our new receptionists learned it in 15 minutes!",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&fit=crop"
   },
   {
@@ -887,7 +887,7 @@ export default function MarketingHomePage() {
       {settings?.maintenanceMode && (
         <div style={{ background: "linear-gradient(90deg, #991b1b 0%, #b91c1c 50%, #991b1b 100%)", color: "#fee2e2", padding: "12px 24px", fontSize: 13, textAlign: "center", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", zIndex: 1000, position: "relative", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.2)", padding: "3px 10px", borderRadius: 20, color: "#fff", fontSize: 11, fontWeight: 800 }}>
-            âš ï¸ SYSTEM MAINTENANCE IN PROGRESS
+            ⚠️ï¸ SYSTEM MAINTENANCE IN PROGRESS
           </span>
           <span>{settings.maintenanceMessage || "We are currently performing scheduled platform maintenance. Services will resume shortly."}</span>
           {settings.maintenanceEndTime && (
@@ -988,7 +988,7 @@ export default function MarketingHomePage() {
                   </h1>
 
                   <p style={{ fontSize: "1.15rem", color: "#475569", lineHeight: 1.7, margin: "0 0 32px", maxWidth: 540 }}>
-                    Super Admin oversight, lightning POS billing, automated WhatsApp alerts, client CRM, stylist commissions, and real-time inventoryâ€”built specifically for high-growth salons and spas.
+                    Super Admin oversight, lightning POS billing, automated WhatsApp alerts, client CRM, stylist commissions, and real-time inventory—built specifically for high-growth salons and spas.
                   </p>
 
                   <div className="public-hero-actions" style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 36 }}>
@@ -1051,7 +1051,7 @@ export default function MarketingHomePage() {
                     </div>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>Multi-Branch Synced</div>
-                      <div style={{ fontSize: 12, color: "#0d9488", fontWeight: 700 }}>â†‘ +38% Client Retention</div>
+                      <div style={{ fontSize: 12, color: "#0d9488", fontWeight: 700 }}>↑ +38% Client Retention</div>
                     </div>
                   </div>
 
@@ -1107,7 +1107,7 @@ export default function MarketingHomePage() {
                       color: "#0d9488",
                       title: "Luxury Hair Studios & Barbershops", 
                       tag: "Styling & Chemical Care", 
-                      metric: "âš¡ 5-Sec POS ⬢ 98% Chair Rate",
+                      metric: "⚡ 5-Sec POS ⬢ 98% Chair Rate",
                       desc: "Engineered for high-throughput salons managing rapid styling rotations, chemical formulas, and tiered commission payouts.",
                       features: [
                         "Hair color formula vault with allergy notes",
@@ -1543,7 +1543,7 @@ export default function MarketingHomePage() {
                         <div key={idx} style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.4fr", padding: "18px 24px", borderBottom: idx < comparisonPoints.length - 1 ? "1px solid #f1f5f9" : "none", alignItems: "center", background: idx % 2 === 0 ? "#ffffff" : "#fcfcfc" }}>
                           <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 14 }}>{row.feature}</div>
                           <div style={{ color: "#dc2626", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontWeight: 800 }}>âœ•</span> {row.old}
+                            <span style={{ fontWeight: 800 }}>✖</span> {row.old}
                           </div>
                           <div style={{ color: "#0d9488", fontWeight: 600, fontSize: 13.5, display: "flex", alignItems: "center", gap: 6 }}>
                             <CheckCircle2 size={16} color="#0d9488" style={{ flexShrink: 0 }} /> {row.nest}
@@ -2179,9 +2179,9 @@ export default function MarketingHomePage() {
             </div>
 
             <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: 32, color: "#94a3b8", fontSize: 13, fontWeight: 500 }}>
-              <span>âœ“ 14-Day Free Evaluation</span>
-              <span>âœ“ Free Data Import Assistance</span>
-              <span>âœ“ Dedicated Staff Training</span>
+              <span>✓ 14-Day Free Evaluation</span>
+              <span>✓ Free Data Import Assistance</span>
+              <span>✓ Dedicated Staff Training</span>
             </div>
           </div>
         </section>

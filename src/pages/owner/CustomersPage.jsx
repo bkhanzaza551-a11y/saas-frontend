@@ -399,9 +399,9 @@ export default function CustomersPage() {
       setCustomerDetail(detailRes.data);
       // Show popup with View Invoice + Download buttons (like Membership/Package)
       if (res.data?.invoice) {
-        setInvoiceSuccessData({ type: "Advance", name: `ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${Number(advanceForm.amount).toLocaleString("en-IN")} advance added`, invoice: res.data.invoice });
+        setInvoiceSuccessData({ type: "Advance", name: `₹${Number(advanceForm.amount).toLocaleString("en-IN")} advance added`, invoice: res.data.invoice });
       }
-      setToastMessage({ type: "success", title: "Advance Added", message: `ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${Number(advanceForm.amount).toLocaleString("en-IN")} advance payment added successfully!` });
+      setToastMessage({ type: "success", title: "Advance Added", message: `₹${Number(advanceForm.amount).toLocaleString("en-IN")} advance payment added successfully!` });
     } catch (e) {
       setToastMessage({ type: "error", title: "Advance Failed", message: formatApiError(e, "Failed to add advance") });
       console.error(e);
@@ -571,7 +571,7 @@ export default function CustomersPage() {
       const totalPayment = onlineVal + offlineVal + balanceVal;
 
       if (totalPayment !== amountVal) {
-        setGiftCardError(`Total payments (Online: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${onlineVal} + Offline: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${offlineVal} + Balance: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${balanceVal} = ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${totalPayment}) must be equal to the gift card amount (ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${amountVal}).`);
+        setGiftCardError(`Total payments (Online: ₹${onlineVal} + Offline: ₹${offlineVal} + Balance: ₹${balanceVal} = ₹${totalPayment}) must be equal to the gift card amount (₹${amountVal}).`);
         return;
       }
 
@@ -625,7 +625,7 @@ export default function CustomersPage() {
       const totalPayment = onlineVal + offlineVal + balanceVal;
 
       if (totalPayment !== priceVal) {
-        setPackageError(`Total payments (Online: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${onlineVal} + Offline: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${offlineVal} + Balance: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${balanceVal} = ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${totalPayment}) must be equal to the package price (ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹${priceVal}).`);
+        setPackageError(`Total payments (Online: ₹${onlineVal} + Offline: ₹${offlineVal} + Balance: ₹${balanceVal} = ₹${totalPayment}) must be equal to the package price (₹${priceVal}).`);
         return;
       }
 
@@ -958,7 +958,7 @@ const handleExportClick = async (format) => {
       <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
         {children}
         {sortConfig.key === sortKey && (
-          <span style={{ fontSize: "0.7rem", color: "#2563eb" }}>{sortConfig.direction === "asc" ? "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â²" : "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¼"}</span>
+          <span style={{ fontSize: "0.7rem", color: "#2563eb" }}>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
         )}
       </span>
     </th>
@@ -1326,7 +1326,7 @@ const handleExportClick = async (format) => {
           .crm-row-menu .crm-action-btn.danger { color:#dc2626 !important; }
           .crm-row-menu .crm-action-btn.danger:hover { background: #fee2e2 !important; color: #b91c1c !important; }
           .crm-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:22px; padding:2px 7px; border-radius:999px; background:#eff6ff; color:#2563eb; font-weight:700; font-size:0.72rem; }
-          /* Customer Detail Slide-out Panel ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ Two-column layout */
+          /* Customer Detail Slide-out Panel ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€¦Ã¢─Å“ Two-column layout */
           .cust-detail-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.25); backdrop-filter:blur(2px); z-index:2000; }
           .cust-detail-panel { position:fixed; top:0; right:0; bottom:0; width:min(95vw,900px); background:#fff; color:#0f172a; display:flex; flex-direction:column; z-index:2001; box-shadow:-8px 0 30px rgba(0,0,0,0.12); animation:slideInRight 0.25s ease-out; }
           @keyframes slideInRight { from { transform:translateX(100%); } to { transform:translateX(0); } }
@@ -1733,7 +1733,7 @@ const handleExportClick = async (format) => {
         )}
       </div>
 
-      {/* Customer Detail Slide-out Panel ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ Two-Column Layout */}
+      {/* Customer Detail Slide-out Panel ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€¦Ã¢─Å“ Two-Column Layout */}
       {selectedCustomer && (
         <>
           <div className="cust-detail-overlay" onClick={closeCustomerDetail} />
@@ -1938,7 +1938,7 @@ const handleExportClick = async (format) => {
 
                                   {inv.discountAmount > 0 && (
                                     <div>
-                                      Total Discount: {inv.discountAmount} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹.
+                                      Total Discount: {inv.discountAmount} ₹.
                                     </div>
                                   )}
 
@@ -1976,7 +1976,7 @@ const handleExportClick = async (format) => {
                                     <span className={`cust-mem-status ${isActive ? "ACTIVE" : "EXPIRED"}`}>{isActive ? "ACTIVE" : m.status}</span>
                                   </div>
                                   <div className="cust-mem-meta">
-                                    Valid: {new Date(m.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ {new Date(m.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
+                                    Valid: {new Date(m.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬ÃƒÂ¢Ã¢─Å¾Ã‚Â¢ {new Date(m.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
                                   </div>
                                   {m.remainingWalletValue != null && (
                                     <div style={{ marginTop: "6px", fontSize: "0.78rem", color: "#10b981", fontWeight: 600 }}>
@@ -2122,7 +2122,7 @@ const handleExportClick = async (format) => {
                                   </div>
                                   <div className="cust-pkg-sessions">Sessions Remaining: {p.remainingSessions ?? "-"}</div>
                                   <div className="cust-pkg-meta">
-                                    Valid: {new Date(p.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ {new Date(p.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
+                                    Valid: {new Date(p.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬ÃƒÂ¢Ã¢─Å¾Ã‚Â¢ {new Date(p.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
                                   </div>
                                   {(p.package?.services || []).length > 0 && (
                                     <div style={{ marginTop: "10px" }}>
@@ -2289,7 +2289,7 @@ const handleExportClick = async (format) => {
                                 <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "white", borderRadius: 10, border: "1px solid #e2e8f0" }}>
                                   <div>
                                     <div style={{ fontSize: 13, fontWeight: 600, color: t.type === "DEPOSIT" ? "#16a34a" : "#dc2626" }}>{t.type === "DEPOSIT" ? "Deposit" : "Deduction"}</div>
-                                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{t.note || "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"}</div>
+                                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{t.note || "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"}</div>
                                     <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>{new Date(t.createdAt).toLocaleString()}</div>
                                   </div>
                                   <div style={{ textAlign: "right" }}>
@@ -2541,7 +2541,7 @@ const handleExportClick = async (format) => {
                         />
                       </div>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "6px" }}>Price (ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹)</label>
+                        <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "6px" }}>Price (₹)</label>
                         <input 
                           type="number" 
                           placeholder="Enter Price" 
@@ -2834,7 +2834,7 @@ const handleExportClick = async (format) => {
                           }}
                         >
                           <div style={{ fontWeight: "bold", color: "#1e293b" }}>{gc.title}</div>
-                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹{gc.originalAmount}</div>
+                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>₹{gc.originalAmount}</div>
                         </div>
                       ))}
                     {giftCards.filter(gc => gc.title && gc.title.toLowerCase().includes(giftCardSearch.toLowerCase())).length === 0 && (
@@ -2852,7 +2852,7 @@ const handleExportClick = async (format) => {
                 <div style={{ color: "var(--accent, #3b82f6)", fontWeight: 800, fontSize: "0.85rem", marginBottom: "6px", textTransform: "uppercase" }}>
                   {giftCardForm.title || `${settings?.salonName || "SALON"} - GIFT CARD`}
                 </div>
-                <div style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "3px" }}>Fee: ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹ {giftCardForm.amount || "1000"}</div>
+                <div style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "3px" }}>Fee: ₹ {giftCardForm.amount || "1000"}</div>
                 <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Validity: {giftCardForm.validityDays || 30} Days</div>
               </div>
 
@@ -3005,7 +3005,7 @@ const handleExportClick = async (format) => {
                         setPackageSearch("");
                       }}
                     >
-                      ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂºÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â Build Custom Package (On the fly)
+                      ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢─Â¦Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€šÃ‚ÂºÃƒÆ’Ã¢─Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢─Å¡Ãƒâ€šÃ‚Â¸ÃƒÆ’Ã¢─Å¡Ãƒâ€šÃ‚Â Build Custom Package (On the fly)
                     </div>
                     {packagePlans
                       .filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase()))
@@ -3031,7 +3031,7 @@ const handleExportClick = async (format) => {
                           }}
                         >
                           <div style={{ fontWeight: "bold", color: "#1e293b" }}>{p.name}</div>
-                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹{p.price} | {p.validityDays} Days</div>
+                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>₹{p.price} | {p.validityDays} Days</div>
                         </div>
                       ))}
                     {packagePlans.filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase())).length === 0 && (
@@ -3096,7 +3096,7 @@ const handleExportClick = async (format) => {
                         <div style={{ fontWeight: 700, fontSize: "0.82rem", color: isSelected ? "#1e3a8a" : "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={p.name}>
                           {p.name}
                         </div>
-                        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#2563eb", marginTop: "4px" }}>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹{p.price}</div>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#2563eb", marginTop: "4px" }}>₹{p.price}</div>
                         <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "2px" }}>{p.validityDays} Days</div>
                       </div>
                     );
@@ -3133,7 +3133,7 @@ const handleExportClick = async (format) => {
                             style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f8fafc" : "#fff" }}
                           >
                             <span style={{ fontWeight: 600, color: "#334155" }}>{s.name}</span>
-                            <span style={{ color: "#64748b" }}>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹{s.price}</span>
+                            <span style={{ color: "#64748b" }}>₹{s.price}</span>
                           </div>
                         );
                       })}
@@ -3182,7 +3182,7 @@ const handleExportClick = async (format) => {
                             style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", fontSize: "0.85rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f8fafc" : "#fff" }}
                           >
                             <span style={{ fontWeight: 600, color: "#334155" }}>{p.name}</span>
-                            <span style={{ color: "#64748b" }}>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹{p.sellingPrice}</span>
+                            <span style={{ color: "#64748b" }}>₹{p.sellingPrice}</span>
                           </div>
                         );
                       })}
@@ -3466,7 +3466,7 @@ const handleExportClick = async (format) => {
               </div>
               <div style={{ color: "#fff", fontSize: "1.25rem", fontWeight: 800, letterSpacing: "-0.01em" }}>{invoiceSuccessData.type} Assigned!</div>
               <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.85rem", marginTop: 6, fontWeight: 500 }}>{invoiceSuccessData.name}</div>
-              <button onClick={() => setInvoiceSuccessData(null)} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "rgba(255,255,255,0.8)", fontSize: "1.5rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.15)"} onMouseLeave={(e) => e.currentTarget.style.background = "none"}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â</button>
+              <button onClick={() => setInvoiceSuccessData(null)} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "rgba(255,255,255,0.8)", fontSize: "1.5rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.15)"} onMouseLeave={(e) => e.currentTarget.style.background = "none"}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢─â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â</button>
             </div>
             <div style={{ padding: "24px" }}>
               {invoiceSuccessData.invoice ? (
@@ -3475,7 +3475,7 @@ const handleExportClick = async (format) => {
                     <FileText size={20} style={{ color: "#0284c7" }} />
                     <div>
                       <div style={{ fontWeight: 750, fontSize: "0.9rem", color: "#0369a1" }}>Invoice Generated</div>
-                      <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{invoiceSuccessData.invoice.invoiceNumber} ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¹{Number(invoiceSuccessData.invoice.total || 0).toLocaleString("en-IN")}</div>
+                      <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{invoiceSuccessData.invoice.invoiceNumber} ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢─Å¡Ãƒâ€šÃ‚Â· ₹{Number(invoiceSuccessData.invoice.total || 0).toLocaleString("en-IN")}</div>
                     </div>
                     <div style={{ marginLeft: "auto", fontWeight: 700, fontSize: "0.75rem", padding: "4px 10px", borderRadius: 8, background: invoiceSuccessData.invoice.status === "PAID" ? "#e0f2fe" : "#fef9c3", color: invoiceSuccessData.invoice.status === "PAID" ? "#0369a1" : "#92400e" }}>{invoiceSuccessData.invoice.status}</div>
                   </div>
@@ -3507,7 +3507,7 @@ const handleExportClick = async (format) => {
                 </>
               ) : (
                 <>
-                  <div style={{ textAlign: "center", color: "#64748b", fontSize: "0.9rem", marginBottom: 20 }}>Assignment successful! Invoice could not be auto-generated ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â create one from POS.</div>
+                  <div style={{ textAlign: "center", color: "#64748b", fontSize: "0.9rem", marginBottom: 20 }}>Assignment successful! Invoice could not be auto-generated ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€šÃ‚Â create one from POS.</div>
                   <button onClick={() => setInvoiceSuccessData(null)} style={{ width: "100%", padding: "14px", background: "linear-gradient(135deg, #0ea5e9, #0284c7)", color: "#fff", border: "none", borderRadius: 12, fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(14,165,233,0.2)", transition: "transform 0.15s, box-shadow 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(14,165,233,0.3)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(14,165,233,0.2)"; }}>Done</button>
                 </>
               )}

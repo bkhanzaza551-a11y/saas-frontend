@@ -619,7 +619,7 @@ export default function EcommerceOrdersPage() {
   );
 }
 
-// â”€â”€â”€ BookingCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── BookingCard ──────────────────────────────────────────────────────────────
 function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, onAssign }) {
   const sm = STATUS_META[booking.status] || STATUS_META.PENDING;
   const pm = PAYMENT_META[booking.paymentStatus] || PAYMENT_META.PENDING;
@@ -815,7 +815,7 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
   );
 }
 
-// â”€â”€â”€ BookingDetailPanel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── BookingDetailPanel ────────────────────────────────────────────────────
 function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction, onAssign }) {
   const sm = STATUS_META[booking.status] || STATUS_META.PENDING;
   const pm = PAYMENT_META[booking.paymentStatus] || PAYMENT_META.PENDING;
@@ -1039,7 +1039,7 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
   );
 }
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function Section({ title, icon: Icon, children }) {
   return (
@@ -1095,7 +1095,7 @@ function ActionBtn({ loading, onClick, color, bg, hoverBg, children }) {
   );
 }
 
-// â”€â”€â”€ AssignStaffPopup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── AssignStaffPopup ────────────────────────────────────────────────────────
 function AssignStaffPopup({ booking, onClose, onSuccess }) {
   const { selectedBranchId } = useBranch();
   const [staffList, setStaffList] = useState([]);

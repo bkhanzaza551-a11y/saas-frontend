@@ -458,7 +458,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
             {duplicateWarnings.length > 0 && !editingId && (
               <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "12px 16px", marginBottom: 4 }}>
                 <div style={{ fontWeight: 700, color: "#b45309", fontSize: 13, display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                  <span>âš ï¸ Duplicate Identifier Detected:</span>
+                  <span>⚠️ï¸ Duplicate Identifier Detected:</span>
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12, color: "#92400e" }}>
                   {duplicateWarnings.map((dup, idx) => (
@@ -635,7 +635,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                                 </span>
                               ) : (
                                 <span style={{ background: "#ecfdf5", color: "#065f46", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>
-                                  âœ“ Verified
+                                  ✓ Verified
                                 </span>
                               )}
                             </div>
@@ -879,7 +879,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                 <AlertCircle size={20} />
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#991b1b" }}>Suspend Salon</h3>
               </div>
-              <button onClick={() => setSuspendModalData(null)} style={{ border: "none", background: "#f1f5f9", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", color: "#64748b" }}>âœ•</button>
+              <button onClick={() => setSuspendModalData(null)} style={{ border: "none", background: "#f1f5f9", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", color: "#64748b" }}>✖</button>
             </div>
 
             <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "#475569" }}>

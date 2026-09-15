@@ -336,7 +336,7 @@ export default function PosPage() {
       setToastMessage({
         type: "success",
         title: "Coupon Applied",
-        message: `${data.coupon.title || data.coupon.code} Ã¢â‚¬â€ ${formatMoney(data.totalDiscount)} discount on ${data.eligibleItems.filter(i => i.isEligible).length} eligible item(s).${data.totalPartnerCredits > 0 ? ` Partner earns ${data.totalPartnerCredits.toFixed(1)} credits.` : ""}`,
+        message: `${data.coupon.title || data.coupon.code} Ã¢─â€ ${formatMoney(data.totalDiscount)} discount on ${data.eligibleItems.filter(i => i.isEligible).length} eligible item(s).${data.totalPartnerCredits > 0 ? ` Partner earns ${data.totalPartnerCredits.toFixed(1)} credits.` : ""}`,
       });
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to validate coupon.";
@@ -765,10 +765,10 @@ export default function PosPage() {
       const discount = Number(current.discount || 0);
       const total = subtotal + itemTax + extraTax - discount;
       if (total <= 0) return current;
-      // Check existing non-advance payments Ã¢â‚¬â€ if user has already entered CASH/ONLINE/BALANCE, don't auto-apply
+      // Check existing non-advance payments Ã¢─â€ if user has already entered CASH/ONLINE/BALANCE, don't auto-apply
       const nonAdvancePayments = (current.payments || []).filter(p => p.mode !== "ADVANCE" && Number(p.amount || 0) > 0);
       if (nonAdvancePayments.length > 0) return current;
-      // Check if user has already set an advance amount Ã¢â‚¬â€ if yes, don't override
+      // Check if user has already set an advance amount Ã¢─â€ if yes, don't override
       const existingAdvance = (current.payments || []).find(p => p.mode === "ADVANCE");
       if (existingAdvance && Number(existingAdvance.amount || 0) > 0) return current;
       // Auto-apply advance up to min(advance, total)
@@ -2212,14 +2212,14 @@ export default function PosPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#1e40af" }}>
                     Coupon: {couponValidation.coupon.code}
-                    {couponValidation.coupon.title ? ` Ã¢â‚¬â€ ${couponValidation.coupon.title}` : ""}
+                    {couponValidation.coupon.title ? ` Ã¢─â€ ${couponValidation.coupon.title}` : ""}
                   </span>
                   <button type="button" onClick={removeCoupon} style={{ background: "none", border: "none", color: "#ef4444", fontSize: 12, cursor: "pointer", fontWeight: 600, padding: 0 }}>Remove</button>
                 </div>
                 <div style={{ fontSize: 12, color: "#334155" }}>
                   {couponValidation.coupon.discountType === "PERCENT"
                     ? `${couponValidation.coupon.discountValue}% off`
-                    : `${formatMoney(couponValidation.coupon.discountValue)} off`} Ã¢â‚¬â€ Eligible: {couponValidation.eligibleItems.filter(i => i.isEligible).length} item(s)
+                    : `${formatMoney(couponValidation.coupon.discountValue)} off`} Ã¢─â€ Eligible: {couponValidation.eligibleItems.filter(i => i.isEligible).length} item(s)
                 </div>
                 <div style={{ marginTop: 8, display: "grid", gap: 4 }}>
                   {couponValidation.eligibleItems
@@ -2239,7 +2239,7 @@ export default function PosPage() {
                 </div>
                 {couponValidation.totalPartnerCredits > 0 && (
                   <div style={{ marginTop: 4, fontSize: 11, color: "#7c3aed", fontWeight: 600 }}>
-                    Partner earns {couponValidation.totalPartnerCredits.toFixed(2)} credits Ã¢â‚¬â€ {couponValidation.partnerCreditNote}
+                    Partner earns {couponValidation.totalPartnerCredits.toFixed(2)} credits Ã¢─â€ {couponValidation.partnerCreditNote}
                   </div>
                 )}
               </div>
@@ -2523,7 +2523,7 @@ export default function PosPage() {
                   </label>
                   {totals.membershipWalletUsed > 0 && (
                     <div style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 600, marginTop: 8 }}>
-                      Payment done by: <span style={{ color: "#0f172a" }}>Membership Ã¢â€šÂ¹{totals.membershipWalletUsed.toFixed(0)}</span>
+                      Payment done by: <span style={{ color: "#0f172a" }}>Membership ₹{totals.membershipWalletUsed.toFixed(0)}</span>
                     </div>
                   )}
                 </div>
@@ -3293,11 +3293,11 @@ export default function PosPage() {
                     : Number(mem.discountValue || 0);
 
                   const dealText = isFixed
-                    ? `Pay Ã¢â€šÂ¹ ${price} and get ${Number(mem.walletValue || 0)}. Benefit: Ã¢â€šÂ¹ ${benefitAmt} Extra.`
-                    : `Pay Ã¢â€šÂ¹ ${price} and get ${benefitAmt}% Discount on services.`;
+                    ? `Pay ₹ ${price} and get ${Number(mem.walletValue || 0)}. Benefit: ₹ ${benefitAmt} Extra.`
+                    : `Pay ₹ ${price} and get ${benefitAmt}% Discount on services.`;
 
                   const benefitLabel = isFixed
-                    ? `Ã¢â€šÂ¹ ${benefitAmt} Extra`
+                    ? `₹ ${benefitAmt} Extra`
                     : `${benefitAmt}% Discount`;
 
                   return (
@@ -3341,7 +3341,7 @@ export default function PosPage() {
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4, borderTop: "1px solid #f1f5f9", paddingTop: 8 }}>
                         <div style={{ fontSize: "0.85rem", color: "#334155" }}>
-                          <strong>Fee:</strong> Ã¢â€šÂ¹ {price}
+                          <strong>Fee:</strong> ₹ {price}
                         </div>
                         <div style={{ fontSize: "0.85rem", color: "#334155" }}>
                           <strong>Validity:</strong> {validity} Days
@@ -3403,7 +3403,7 @@ export default function PosPage() {
                 <div style={{ marginTop: 16, padding: "16px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                     <div style={{ fontWeight: 700, color: "#0f172a" }}>Payment Split</div>
-                    <div style={{ fontWeight: 700, color: "#2563eb", fontSize: "1.1rem" }}>Total: Ã¢â€šÂ¹{memDraft.price || 0}</div>
+                    <div style={{ fontWeight: 700, color: "#2563eb", fontSize: "1.1rem" }}>Total: ₹{memDraft.price || 0}</div>
                   </div>
                   <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                     <div style={{ flex: 1, minWidth: 120 }}>
@@ -3669,7 +3669,7 @@ export default function PosPage() {
                       onChange={(e) => updateConsumableItem(ciIndex, { unit: e.target.value })}
                       style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: ci.productId ? '#f1f5f9' : '#fff', color: ci.productId ? '#64748b' : '#0f172a' }}
                     />
-                    <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>Ã°Å¸â€”â€˜</button>
+                    <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>Ã°Å¸—â€˜</button>
                   </div>
                 ))
               )}
@@ -3959,7 +3959,7 @@ export default function PosPage() {
                       <div style={{ fontSize: "0.9rem", color: "#475569" }}>Membership Type: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.membershipPlan?.benefitType === "WALLET_VALUE" ? "Fixed" : "Discount"}</span></div>
                       <div style={{ fontSize: "0.9rem", color: "#475569" }}>Expiry Date: <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(membership.endsAt).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')}</span></div>
                       <div style={{ fontSize: "0.9rem", color: "#475569" }}>Expires In: <span style={{ fontWeight: 600, color: "#0f172a" }}>{daysLeft} days</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Balance Amount: <span style={{ fontWeight: 600, color: "#0f172a" }}>Ã¢â€šÂ¹ {Number(membership.remainingWalletValue || membership.membershipPlan?.price || 0)}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Balance Amount: <span style={{ fontWeight: 600, color: "#0f172a" }}>₹ {Number(membership.remainingWalletValue || membership.membershipPlan?.price || 0)}</span></div>
                       
                       <button type="button" onClick={() => !isSelected && selectMembershipForApply(membership)} style={{ marginTop: 12, padding: "10px", background: isSelected ? "#fff" : "var(--button-bg-solid, #3b82f6)", color: isSelected ? "#0f172a" : "#fff", border: isSelected ? "1px solid #e2e8f0" : "none", borderRadius: 6, fontWeight: 600, cursor: isSelected ? "default" : "pointer", boxShadow: isSelected ? "none" : "0 4px 6px -1px rgba(59, 130, 246, 0.3)" }}>{isSelected ? "Selected" : "Select"}</button>
                     </div>
@@ -4029,7 +4029,7 @@ export default function PosPage() {
         </div>
       )}
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ VARIATION SELECTOR MODAL Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* Ã¢â€─Ã¢â€─ VARIATION SELECTOR MODAL Ã¢â€─Ã¢â€─ */}
       {variationModal.open && variationModal.product && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setVariationModal({ open: false, product: null })}>
           <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }} onClick={e => e.stopPropagation()}>

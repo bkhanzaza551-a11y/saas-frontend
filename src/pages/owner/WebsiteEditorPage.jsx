@@ -243,7 +243,7 @@ export default function WebsiteEditorPage() {
         }
       `}</style>
 
-      {/* â”€â”€ Mobile Notice Overlay Screen (for screens <= 900px) â”€â”€ */}
+      {/* ── Mobile Notice Overlay Screen (for screens <= 900px) ── */}
       {!forceMobileView && (
         <div 
           className="we-mobile-splash" 
@@ -328,7 +328,7 @@ export default function WebsiteEditorPage() {
         </div>
       )}
 
-      {/* â”€â”€ Left Editor Panel â”€â”€ */}
+      {/* ── Left Editor Panel ── */}
       <div className="we-left-panel" style={{ width: "460px", background: "#ffffff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", flexShrink: 0, zIndex: 10, boxShadow: "4px 0 20px rgba(0,0,0,0.03)" }}>
         
         {/* Panel Header */}
@@ -752,7 +752,7 @@ export default function WebsiteEditorPage() {
         </div>
       </div>
 
-      {/* â”€â”€ Right Live Preview Area â”€â”€ */}
+      {/* ── Right Live Preview Area ── */}
       <div className="we-right-preview" style={{ flex: 1, display: "flex", flexDirection: "column", background: "#0f172a", overflow: "hidden" }}>
         
         {/* Preview Top Toolbar */}

@@ -703,7 +703,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         ) : null}
 
         <div className="salonnest-top-right">
-          {/* Branch Selector â€” full dropdown for owner, static badge for staff */}
+          {/* Branch Selector — full dropdown for owner, static badge for staff */}
           {auth?.user?.systemRole !== "SUPER_ADMIN" && isBranchOwner && (
             <div className="salonnest-branch-wrap">
               <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>

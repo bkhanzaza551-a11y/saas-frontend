@@ -144,7 +144,7 @@ export default function AppointmentsPage() {
         if (valStr.includes("pm") && h < 12) h += 12;
         if (valStr.includes("am") && h === 12) h = 0;
       }
-      // If no AM/PM â†’ already 24-hour, use as-is
+      // If no AM/PM → already 24-hour, use as-is
       return h;
     };
 
@@ -222,7 +222,7 @@ export default function AppointmentsPage() {
         if (isPM && h < 12) h += 12;
         if (isAM && h === 12) h = 0;
       }
-      // No AM/PM â†’ already 24-hour format, use as-is
+      // No AM/PM → already 24-hour format, use as-is
       return h * 60 + m;
     };
 
@@ -1423,7 +1423,7 @@ export default function AppointmentsPage() {
           color: #991b1b;
         }
 
-        /* Customer Detail Slide-out Panel â€“ Two-column layout */
+        /* Customer Detail Slide-out Panel – Two-column layout */
         .cust-detail-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.25); backdrop-filter:blur(2px); z-index:2000; }
         .cust-detail-panel { position:fixed; top:0; right:0; bottom:0; width:min(95vw,900px); background:#fff; color:#0f172a; display:flex; flex-direction:column; z-index:2001; box-shadow:-8px 0 30px rgba(0,0,0,0.12); animation:slideInRight 0.25s ease-out; }
         @keyframes slideInRight { from { transform:translateX(100%); } to { transform:translateX(0); } }
@@ -2005,7 +2005,7 @@ export default function AppointmentsPage() {
           </div>
         </>
       )}
-      {/* Customer Detail Slide-out Panel â€“ Two-Column Layout */}
+      {/* Customer Detail Slide-out Panel – Two-Column Layout */}
       {selectedCustomer && (
         <>
           <div className="cust-detail-overlay" onClick={closeCustomerDetail} />
@@ -2183,7 +2183,7 @@ export default function AppointmentsPage() {
                                     <span className={`cust-mem-status ${isActive ? "ACTIVE" : "EXPIRED"}`}>{isActive ? "ACTIVE" : m.status}</span>
                                   </div>
                                   <div className="cust-mem-meta">
-                                    Valid: {new Date(m.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} â†’ {new Date(m.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
+                                    Valid: {new Date(m.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} → {new Date(m.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
                                   </div>
                                   {m.remainingWalletValue != null && (
                                     <div style={{ marginTop: "6px", fontSize: "0.78rem", color: "#10b981", fontWeight: 600 }}>
@@ -2297,7 +2297,7 @@ export default function AppointmentsPage() {
                                   </div>
                                   <div className="cust-pkg-sessions">Sessions Remaining: {p.remainingSessions ?? "-"}</div>
                                   <div className="cust-pkg-meta">
-                                    Valid: {new Date(p.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} â†’ {new Date(p.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
+                                    Valid: {new Date(p.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })} → {new Date(p.endsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}
                                   </div>
                                   {(p.package?.services || []).length > 0 && (
                                     <div style={{ marginTop: "10px" }}>

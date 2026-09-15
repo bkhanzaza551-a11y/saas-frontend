@@ -841,7 +841,7 @@ function ColumnPicker({ reportKey, visibleColumns, onToggle, onClose, onSelectAl
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 6, borderBottom: "1px solid #e2e8f0", marginBottom: 6 }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }}>Columns</span>
-        <button type="button" onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 16, lineHeight: 1 }}>Ã—</button>
+        <button type="button" onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 16, lineHeight: 1 }}>×</button>
       </div>
       <div style={{ display: "flex", gap: 10, paddingBottom: 6, borderBottom: "1px solid #f1f5f9", marginBottom: 4 }}>
         <button type="button" onClick={onSelectAll} disabled={allSelected} style={{ fontSize: 11, fontWeight: 600, color: allSelected ? "#94a3b8" : "#2563eb", background: "none", border: "none", cursor: allSelected ? "default" : "pointer", padding: 0 }}>
@@ -884,7 +884,7 @@ function ReportTable({ reportKey, rows, loading, visibleColumns }) {
             <tr key={rowIndex} style={isTotalRow ? { fontWeight: 700, background: "#f1f5f9", borderTop: "2px solid #334155" } : undefined}>
               {cols.map((col, cellIndex) => {
                 const value = col === "SR. NO." ? (isTotalRow ? "" : rowIndex + 1) : getCellValue(row, col);
-                return <td key={cellIndex} style={isTotalRow ? { fontWeight: 700 } : undefined}>{value ?? "â€”"}</td>;
+                return <td key={cellIndex} style={isTotalRow ? { fontWeight: 700 } : undefined}>{value ?? "—"}</td>;
               })}
             </tr>
           );
@@ -1639,7 +1639,7 @@ export default function ReportsHubPage() {
 
     rows.forEach((row) => {
       const csvRow = cols.map((col) => {
-        const value = getCellValue(row, col) ?? "â€”";
+        const value = getCellValue(row, col) ?? "—";
         return `"${String(value).replace(/"/g, "\"\"")}"`;
       });
       csv += `${csvRow.join(",")}\n`;
@@ -1837,7 +1837,7 @@ export default function ReportsHubPage() {
               <input type="date" value={filters.end} onChange={(e) => { setQuickRange(""); setFilters((current) => ({ ...current, end: e.target.value })); }} min={filters.start || undefined} style={{ padding: "4px 8px", border: "1px solid #e2e8f0", borderRadius: "5px", fontSize: "0.72rem" }} />
             </div>
             {(filters.start || filters.end) && (
-              <button type="button" className="rpt-btn rpt-btn-clear" onClick={() => { setQuickRange(""); setFilters((current) => ({ ...current, start: "", end: "" })); }}>Ã—</button>
+              <button type="button" className="rpt-btn rpt-btn-clear" onClick={() => { setQuickRange(""); setFilters((current) => ({ ...current, start: "", end: "" })); }}>×</button>
             )}
             {activeReport !== "sales_summary" && (
               <button type="button" className="rpt-icon-btn" title="Export CSV" onClick={handleExportCSV}>

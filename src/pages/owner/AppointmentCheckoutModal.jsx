@@ -410,10 +410,10 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
       return;
     }
 
-    // Payment amount validation â€” at least one of Online or Offline must be > 0
+    // Payment amount validation — at least one of Online or Offline must be > 0
     const totalPaid = Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0);
     if (totalPaid <= 0) {
-      setStatus({ error: "âš ï¸ Please enter a payment amount first. Enter an amount in either Online or Offline.", success: "" });
+      setStatus({ error: "⚠️ï¸ Please enter a payment amount first. Enter an amount in either Online or Offline.", success: "" });
       return;
     }
 
@@ -876,7 +876,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <div style={{ background: bgColor, borderRadius: "8px", border: `1px solid ${borderColor}`, padding: "10px", transition: "all 0.2s" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
                       <h4 style={{ margin: 0, color: "#334155", fontSize: "0.75rem", textTransform: "uppercase" }}>Payment Details</h4>
-                      {noPay && <span style={{ fontSize: "0.7rem", color: "#ef4444", fontWeight: 700 }}>âš ï¸ Amount is required!</span>}
+                      {noPay && <span style={{ fontSize: "0.7rem", color: "#ef4444", fontWeight: 700 }}>⚠️ï¸ Amount is required!</span>}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
                       <div>

@@ -383,7 +383,7 @@ export default function EnquiriesPage() {
 
       {mode === "enquiries" && (
         <div className="anim-fade">
-          {/* â”€â”€ FILTER BAR â”€â”€ */}
+          {/* ── FILTER BAR ── */}
           <div className="filter-bar">
             <div className="filter-group" style={{ flex: "1 1 200px" }}>
               <input 
@@ -437,7 +437,7 @@ export default function EnquiriesPage() {
             </button>
           </div>
 
-          {/* â”€â”€ ENQUIRIES TABLE OR EMPTY STATE â”€â”€ */}
+          {/* ── ENQUIRIES TABLE OR EMPTY STATE ── */}
           {loading ? (
             <PageLoader compact title="Loading enquiries pipeline..." />
           ) : filteredRows.length === 0 ? (
@@ -528,7 +528,7 @@ export default function EnquiriesPage() {
         </div>
       )}
 
-      {/* â”€â”€ REPORTS MODE â”€â”€ */}
+      {/* ── REPORTS MODE ── */}
       {mode === "reports" && report && (
         <div className="anim-fade delay-1 eq-reports-grid">
           <div className="eq-card" style={{ background: "linear-gradient(135deg, #1e293b, #0f172a)", color: "white", border: "none" }}>
@@ -544,7 +544,7 @@ export default function EnquiriesPage() {
         </div>
       )}
 
-      {/* â”€â”€ FOLLOW-UPS MODE â”€â”€ */}
+      {/* ── FOLLOW-UPS MODE ── */}
       {mode === "followUps" && (
         <div className="eq-card anim-fade delay-1" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: 24, borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
@@ -568,7 +568,7 @@ export default function EnquiriesPage() {
         </div>
       )}
 
-      {/* â”€â”€ ADD ENQUIRY MODAL (Matching Screenshot 2 & 3) â”€â”€ */}
+      {/* ── ADD ENQUIRY MODAL (Matching Screenshot 2 & 3) ── */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -696,7 +696,7 @@ export default function EnquiriesPage() {
         </div>
       )}
 
-      {/* â”€â”€ UPDATE STATUS MODAL â”€â”€ */}
+      {/* ── UPDATE STATUS MODAL ── */}
       {showActionModal && selectedEnquiry && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: "500px" }}>
