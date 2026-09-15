@@ -106,13 +106,13 @@ export default function DomainSettingsPage() {
             <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm font-mono text-pink-700 hover:text-pink-800 truncate flex items-center gap-2">
               {url} <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
             </a>
-            <button onClick={() => { navigator.clipboard.writeText(url); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} className="p-2 text-pink-500 hover:text-pink-700 hover:bg-pink-50 rounded-lg transition-colors">
+            <button type="button" onClick={() => { navigator.clipboard.writeText(url); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} style={{ background: "transparent", border: "none", color: "#64748b", padding: "8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "6px" }} onMouseEnter={e => e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background="transparent"}>
               <Copy className="h-4 w-4" />
             </button>
           </div>
           <div className="mt-3 flex items-center gap-2 text-xs text-pink-600">
             <span>Also available at:</span>
-            <button onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} className="font-mono hover:underline">
+            <button type="button" onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} style={{ background: "transparent", border: "none", color: "var(--button-bg, #3b82f6)", cursor: "pointer", fontFamily: "monospace", textDecoration: "underline" }}>
               salonnest.in/site/{slug}
             </button>
           </div>
@@ -148,11 +148,11 @@ export default function DomainSettingsPage() {
         </div>
         <p className="text-xs text-gray-400 mt-1">Lowercase letters, numbers, and hyphens. 3-63 characters.</p>
         <div className="flex gap-2 mt-4">
-          <button onClick={handleSave} disabled={saving || !subdomain.trim() || subdomain.length < 3 || avail === false} className="px-5 py-2.5 bg-pink-600 text-white text-sm font-medium rounded-lg hover:bg-pink-700 disabled:opacity-50 transition-colors">
+          <button type="button" onClick={handleSave} disabled={saving || !subdomain.trim() || subdomain.length < 3 || avail === false} style={{ padding: "10px 24px", background: "var(--button-bg, #3b82f6)", border: "none", borderRadius: 8, fontWeight: 600, cursor: (saving || !subdomain.trim() || subdomain.length < 3 || avail === false) ? "not-allowed" : "pointer", color: "#fff", fontSize: 14, transition: "background 0.2s", opacity: (saving || !subdomain.trim() || subdomain.length < 3 || avail === false) ? 0.6 : 1 }}>
             {saving ? "Saving..." : savedSubdomain ? "Update" : "Activate"}
           </button>
           {savedSubdomain && (
-            <button onClick={handleRemove} className="px-4 py-2.5 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1.5">
+            <button type="button" onClick={handleRemove} style={{ padding: "10px 24px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#dc2626", fontSize: 14, transition: "background 0.2s", display: "flex", alignItems: "center", gap: 6 }} onMouseEnter={e => e.currentTarget.style.background="#fee2e2"} onMouseLeave={e => e.currentTarget.style.background="#fef2f2"}>
               <Trash2 className="h-4 w-4" /> Remove
             </button>
           )}
