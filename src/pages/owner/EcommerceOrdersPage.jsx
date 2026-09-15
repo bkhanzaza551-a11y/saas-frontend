@@ -72,6 +72,31 @@ const NEXT_STATUS = {
 
 const STATUS_TABS = ["ALL", "NEW", "ACCEPTED", "READY", "COMPLETED", "CANCELLED"];
 
+
+const getBookingDate = (booking) => {
+  if (booking.bookingDate) return new Date(booking.bookingDate);
+  if (booking.note && booking.note.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(booking.note);
+      if (parsed.preferredDate && parsed.preferredTime) {
+        const d = new Date(parsed.preferredDate + "T" + parsed.preferredTime + ":00");
+        if (!isNaN(d.getTime())) return d;
+      }
+    } catch (e) {}
+  }
+  return new Date(booking.createdAt);
+};
+
+const getUserNote = (booking) => {
+  if (booking.note && booking.note.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(booking.note);
+      return parsed.userNote || null;
+    } catch (e) {}
+  }
+  return booking.note;
+};
+
 export default function EcommerceOrdersPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -769,14 +794,7 @@ function BookingCard({ booking, isSelected, actionLoading, onSelect, onAction, o
             <span style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date & Time</span>
             <span style={{ fontSize: 12.5, color: "#334155", fontWeight: 600, display: "flex", alignItems: "center", gap: 4, whiteSpace: 'nowrap' }}>
               <CalendarDays size={13} color="#94a3b8" />
-              {booking.bookingDate
-                ? new Date(booking.bookingDate).toLocaleString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : new Date(booking.createdAt).toLocaleString("en-IN", {
+              {getBookingDate(booking).toLocaleString("en-IN", {
                     day: "2-digit",
                     month: "short",
                     hour: "2-digit",
@@ -939,25 +957,25 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
 
           {/* Booking Info */}
           <Section title="Booking Schedule" icon={CalendarDays}>
-            {booking.bookingDate ? (
-              <div style={{ display: 'flex', background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', gap: 24 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px', marginBottom: 4 }}>Date</div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{new Date(booking.bookingDate).toLocaleDateString("en-IN", { weekday: 'short', day: "numeric", month: "short", year: 'numeric' })}</div>
+            {getBookingDate(booking) ? (
+                <div style={{ display: 'flex', background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', gap: 24 }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px', marginBottom: 4 }}>Date</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{getBookingDate(booking).toLocaleDateString("en-IN", { weekday: 'short', day: "numeric", month: "short", year: 'numeric' })}</div>
+                  </div>
+                  <div style={{ width: 1, background: '#e2e8f0' }} />
+                  <div>
+                    <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px', marginBottom: 4 }}>Time</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{getBookingDate(booking).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</div>
+                  </div>
                 </div>
-                <div style={{ width: 1, background: '#e2e8f0' }} />
-                <div>
-                  <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px', marginBottom: 4 }}>Time</div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{new Date(booking.bookingDate).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ color: '#64748b', fontSize: 14 }}>No scheduled date provided.</div>
-            )}
-            {booking.note && (
+              ) : (
+                <div style={{ color: '#64748b', fontSize: 14 }}>No scheduled date provided.</div>
+              )}
+            {getUserNote(booking) && (
               <div style={{ marginTop: 12, padding: 12, background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: 8, fontSize: 13, color: '#92400e' }}>
                 <strong style={{ display: 'block', marginBottom: 4 }}>Special Request:</strong>
-                {booking.note}
+                {getUserNote(booking)}
               </div>
             )}
           </Section>
