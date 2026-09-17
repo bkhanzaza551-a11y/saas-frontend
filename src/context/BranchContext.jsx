@@ -46,7 +46,10 @@ export const BranchProvider = ({ children }) => {
           setBranches(isOwner ? all : all.filter((b) => b.id === staffBranchId));
           if (!isOwner && staffBranchId) {
             setSelectedBranchIdState(staffBranchId);
-          } else if (isOwner && all.length > 0) {
+          } else if (isOwner && all.length === 1) {
+            setSelectedBranchIdState(all[0].id);
+            try { localStorage.setItem(STORAGE_KEY, all[0].id); } catch {}
+          } else if (isOwner && all.length > 1) {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved === null) {
               setSelectedBranchIdState(all[0].id);

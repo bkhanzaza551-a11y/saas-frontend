@@ -704,29 +704,35 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
 
         <div className="salonnest-top-right">
           {/* Branch Selector — full dropdown for owner, static badge for staff */}
-          {auth?.user?.systemRole !== "SUPER_ADMIN" && isBranchOwner && (
-            <div className="salonnest-branch-wrap">
-              <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
-                <Building2 size={12} color="#64748b" />
-                {selectedBranchName}
-                <ChevronDown size={12} color="#64748b" />
-              </button>
-              {isBranchOpen && (
-                <div className="salonnest-branch-dropdown" onClick={e => e.stopPropagation()}>
-                  <button className={`salonnest-branch-option ${!selectedBranchId ? "active" : ""}`} onClick={() => { setSelectedBranchId(""); setIsBranchOpen(false); }}>
-                    <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{!selectedBranchId ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
-                    All Branches
-                  </button>
-                  {branches.filter(b => b.isActive).map(branch => (
-                    <button key={branch.id} className={`salonnest-branch-option ${selectedBranchId === branch.id ? "active" : ""}`} onClick={() => { setSelectedBranchId(branch.id); setIsBranchOpen(false); }}>
-                      <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{selectedBranchId === branch.id ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
-                      {branch.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {auth?.user?.systemRole !== "SUPER_ADMIN" && isBranchOwner && (() => {
+            const analyticsOnlyRoutes = ["/admin/global-dashboard", "/admin/reports", "/admin/trends", "/admin/salon-analytics", "/admin/financial-reports"];
+            const isAnalyticsPage = analyticsOnlyRoutes.some(r => location.pathname.startsWith(r));
+            return (
+              <div className="salonnest-branch-wrap">
+                <button className="salonnest-branch-btn" onClick={() => setIsBranchOpen(!isBranchOpen)}>
+                  <Building2 size={12} color="#64748b" />
+                  {selectedBranchName}
+                  <ChevronDown size={12} color="#64748b" />
+                </button>
+                {isBranchOpen && (
+                  <div className="salonnest-branch-dropdown" onClick={e => e.stopPropagation()}>
+                    {isAnalyticsPage && (
+                      <button className={`salonnest-branch-option ${!selectedBranchId ? "active" : ""}`} onClick={() => { setSelectedBranchId(""); setIsBranchOpen(false); }}>
+                        <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{!selectedBranchId ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
+                        All Branches
+                      </button>
+                    )}
+                    {branches.filter(b => b.isActive).map(branch => (
+                      <button key={branch.id} className={`salonnest-branch-option ${selectedBranchId === branch.id ? "active" : ""}`} onClick={() => { setSelectedBranchId(branch.id); setIsBranchOpen(false); }}>
+                        <svg className="salonnest-branch-option-check" viewBox="0 0 16 16" fill="none">{selectedBranchId === branch.id ? <path d="M2 8.5l4 4 8-8" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> : null}</svg>
+                        {branch.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           {auth?.user?.systemRole !== "SUPER_ADMIN" && !isBranchOwner && (
             <div className="salonnest-branch-wrap">
               <span className="salonnest-branch-btn" style={{ cursor: "default" }}>

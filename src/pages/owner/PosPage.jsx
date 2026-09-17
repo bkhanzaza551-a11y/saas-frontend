@@ -623,6 +623,11 @@ export default function PosPage() {
   const loadContextReqId = useRef(0);
 
   const loadContext = useCallback(async (customerId = form.customerId, branchId = form.branchId) => {
+    if (!branchId) {
+      setLoading(false);
+      setContext({ customers: [], branches: [], services: [], staffUsers: [], products: [], memberships: [], packages: [], customerPackages: [], coupons: [], giftCards: [], customerProfile: null, settings: null });
+      return;
+    }
     const reqId = ++loadContextReqId.current;
     setLoading(true);
     try {
@@ -1716,6 +1721,20 @@ export default function PosPage() {
   };
 
 
+
+  if (!form.branchId) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "60vh", gap: 16 }}>
+        <div style={{ background: "#fef3c7", padding: 16, borderRadius: 12, border: "1px solid #fcd34d" }}>
+          <AlertCircle size={48} color="#d97706" />
+        </div>
+        <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>Branch Selection Required</h3>
+        <p style={{ margin: 0, color: "#64748b", textAlign: "center", maxWidth: 400 }}>
+          Please select a branch from the top navigation bar to start billing. Services, products, and staff are branch-specific.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="pos-layout">

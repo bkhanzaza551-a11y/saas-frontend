@@ -91,12 +91,12 @@ export default function OwnerDashboard() {
   const formatMoney = (val) => Number(val || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   const stats = [
-    { label: "Today Sales", value: formatMoney(data.todaySales), icon: TrendingUp, color: "#10b981", bg: "#ecfdf5" },
-    { label: "Monthly Sales", value: formatMoney(data.monthlySales), icon: Wallet, color: "#3b82f6", bg: "#eff6ff" },
-    { label: "Customers", value: data.customers, icon: Users, color: "#8b5cf6", bg: "#f5f3ff" },
-    { label: "Staff Users", value: data.users, icon: Activity, color: "#f59e0b", bg: "#fffbeb" },
-    { label: "Services", value: data.services, icon: Scissors, color: "#ec4899", bg: "#fdf2f8" },
-    { label: "Invoices", value: data.invoices, icon: Receipt, color: "#6366f1", bg: "#eef2ff" },
+    { label: "Today Sales", value: formatMoney(data.todaySales), icon: TrendingUp, color: "#10b981", bg: "#ecfdf5", onClick: () => navigate("/admin/reports") },
+    { label: "Monthly Sales", value: formatMoney(data.monthlySales), icon: Wallet, color: "#3b82f6", bg: "#eff6ff", onClick: () => navigate("/admin/reports") },
+    { label: "Customers", value: data.customers, icon: Users, color: "#8b5cf6", bg: "#f5f3ff", onClick: () => navigate("/admin/customers") },
+    { label: "Staff Users", value: data.users, icon: Activity, color: "#f59e0b", bg: "#fffbeb", onClick: () => navigate("/admin/experts") },
+    { label: "Services", value: data.services, icon: Scissors, color: "#ec4899", bg: "#fdf2f8", onClick: () => navigate("/admin/services") },
+    { label: "Invoices", value: data.invoices, icon: Receipt, color: "#6366f1", bg: "#eef2ff", onClick: () => navigate("/admin/invoices") },
   ];
 
   return (
@@ -109,7 +109,7 @@ export default function OwnerDashboard() {
       {/* Stats Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16, marginBottom: 32 }}>
         {stats.map((stat, i) => (
-          <div key={i} style={{ background: "#fff", padding: "16px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", border: "1px solid #f1f5f9", display: "flex", flexDirection: "column", transition: "transform 0.2s, box-shadow 0.2s", cursor: "default" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)"; }}>
+          <div key={i} onClick={stat.onClick} style={{ background: "#fff", padding: "16px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", border: "1px solid #f1f5f9", display: "flex", flexDirection: "column", transition: "transform 0.2s, box-shadow 0.2s", cursor: stat.onClick ? "pointer" : "default" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)"; }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
               <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
               <div style={{ background: stat.bg, color: stat.color, padding: 8, borderRadius: 10 }}><stat.icon size={16} /></div>
@@ -132,12 +132,12 @@ export default function OwnerDashboard() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Financial Cards */}
             <div className="dashboard-grid-2">
-              <div style={{ background: "linear-gradient(135deg, #f8fafc, #f1f5f9)", padding: 24, borderRadius: 16, border: "1px solid #e2e8f0" }}>
+              <div onClick={() => navigate("/admin/payments")} style={{ background: "linear-gradient(135deg, #f8fafc, #f1f5f9)", padding: 24, borderRadius: 16, border: "1px solid #e2e8f0", cursor: "pointer" }}>
                 <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Total Revenue (Paid)</div>
                 <div style={{ fontSize: "2rem", fontWeight: 800, color: "#10b981" }}>{formatMoney(data.paymentSummary?.totalPaid)}</div>
                 <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 8, fontWeight: 500 }}>Collected across all invoices</div>
               </div>
-              <div style={{ background: "linear-gradient(135deg, #fef2f2, #fee2e2)", padding: 24, borderRadius: 16, border: "1px solid #fecaca" }}>
+              <div onClick={() => navigate("/admin/invoices")} style={{ background: "linear-gradient(135deg, #fef2f2, #fee2e2)", padding: 24, borderRadius: 16, border: "1px solid #fecaca", cursor: "pointer" }}>
                 <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#991b1b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Pending Dues</div>
                 <div style={{ fontSize: "2rem", fontWeight: 800, color: "#ef4444" }}>{formatMoney(data.paymentSummary?.totalDue)}</div>
                 <div style={{ fontSize: "0.8rem", color: "#991b1b", marginTop: 8, fontWeight: 500 }}>Outstanding payment balances</div>

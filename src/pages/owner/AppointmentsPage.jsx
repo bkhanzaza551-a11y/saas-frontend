@@ -17,7 +17,7 @@ import CustomSelect from "../../components/CustomSelect";
 const APPOINTMENT_START_HOUR = 9;
 const APPOINTMENT_END_HOUR = 21;
 const APPOINTMENT_SLOT_MINUTES = 15;
-const DEFAULT_APPOINTMENT_DURATION_MINUTES = 15;
+const DEFAULT_APPOINTMENT_DURATION_MINUTES = 30;
 
 const emptyItem = { serviceId: "", staffUserIds: [], startAt: "", endAt: "", notes: "" };
 const toApiDateTime = (value) => (value ? new Date(value).toISOString() : "");
@@ -855,10 +855,10 @@ export default function AppointmentsPage() {
   }, [serviceSelectionList]);
 
   const filteredStaffUsers = useMemo(() => {
-    // Show ALL staff in the calendar grid (branch filter only applies to booking form fields)
-    // Staff with branchId=null are global/owner-level and always visible
-    return staffUsers;
-  }, [staffUsers]);
+    const selectedBranch = form.branchId || selectedBranchId;
+    if (!selectedBranch) return staffUsers;
+    return staffUsers.filter((s) => !s.branchId || s.branchId === selectedBranch);
+  }, [staffUsers, form.branchId, selectedBranchId]);
 
   const displayedRows = useMemo(() => {
     if (!isCreateModalOpen || !editMode || !editingAppointmentId) return rows;
@@ -1817,19 +1817,11 @@ export default function AppointmentsPage() {
                           </CustomSelect>
                         </div>
                         <div>
-                          <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>To Time</label>
-                          <CustomSelect className="sp-input" value={item.endAt ? formatTimeForSelect(item.endAt) : ""} onChange={(event) => handleUpdateItem(idx, "endAt", combineDateAndTime(currentDate, event.target.value))} required disabled={!item.startAt}>
-                            <option value="">Select Time</option>
-                            {TIME_SLOTS.filter(slot => {
-                              if (!item.startAt) return true;
-                              const startIdx = TIME_SLOT_INDEX.get(formatTimeForSelect(item.startAt)) ?? 0;
-                              const slotIdx = TIME_SLOT_INDEX.get(slot) ?? 0;
-                              if (slotIdx <= startIdx) return false;
-                              if (slotIdx > startIdx + 8) return false;
-                              return true;
-                            }).map(slot => <option key={slot} value={slot}>{slot}</option>)}
-                          </CustomSelect>
-                        </div>
+                            <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>To Time (Auto)</label>
+                            <div style={{ padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 13, border: "1px solid #e2e8f0", color: "#64748b" }}>
+                              {item.endAt ? formatTimeForSelect(item.endAt) : "Select service & start time"}
+                            </div>
+                          </div>
                       </div>
                     </div>
                   ))}
@@ -2034,7 +2026,6 @@ export default function AppointmentsPage() {
                       { label: "Last Visited", val: customerDetail.lastVisitAt ? formatCompactDate(customerDetail.lastVisitAt) : "Not visited" },
                       { label: "Lifetime Visits", val: Number(customerDetail.totalOrders || 0) },
                       { label: "Loyalty Points", val: Number(customerDetail.loyaltyPoints || customerDetail.loyalty || 0) },
-                      { label: "Referral Code", val: customerDetail.referralCode || "-" },
                     ].map(({ label, val }) => (
                       <div key={label} className="cust-detail-field">
                         <span className="cust-detail-field-label">{label}</span>
@@ -2046,13 +2037,11 @@ export default function AppointmentsPage() {
                 <nav className="cust-detail-sidebar-nav">
                   {[
                     { key: "profile", icon: User, label: "Profile Info" },
-                    { key: "orders", icon: FileText, label: "Orders" },
+                    { key: "orders", icon: FileText, label: "Invoices" },
                     { key: "membership", icon: CreditCard, label: "Membership" },
                     { key: "giftcard", icon: Gift, label: "Gift Card" },
-                    { key: "advance", icon: Wallet, label: "Advance" },
                     { key: "duebalance", icon: AlertCircle, label: "Due Balances" },
                     { key: "packages", icon: Package, label: "Packages" },
-                    { key: "family", icon: Users, label: "Family Members" },
                     { key: "notes", icon: StickyNote, label: "Notes" },
                   ].map(({ key, icon: Icon, label }) => (
                     <button key={key} className={`cust-detail-nav-btn${detailTab === key ? " active" : ""}`} onClick={() => setDetailTab(key)}>
@@ -2104,7 +2093,6 @@ export default function AppointmentsPage() {
                             { label: "Last Visited", val: customerDetail.lastVisitAt ? formatCompactDate(customerDetail.lastVisitAt) : "Not visited yet!" },
                             { label: "Lifetime Visit Count", val: Number(customerDetail.totalOrders || 0) },
                             { label: "Loyalty Points", val: Number(customerDetail.loyaltyPoints || 0) },
-                            { label: "Referral Code", val: customerDetail.referralCode || "-" },
                           ].map(({ label, val }) => (
                             <div key={label} className="cust-profile-row">
                               <span className="cust-profile-label">{label}</span>

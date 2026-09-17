@@ -1765,7 +1765,6 @@ const handleExportClick = async (format) => {
                       { label: "Last Visited", val: customerDetail.lastVisitAt ? formatCompactDate(customerDetail.lastVisitAt) : "Not visited" },
                       { label: "Lifetime Visits", val: Number(customerDetail.totalOrders || 0) },
                       { label: "Loyalty Points", val: Number(customerDetail.loyaltyPoints || customerDetail.loyalty || 0) },
-                      { label: "Referral Code", val: customerDetail.referralCode || "-" },
                     ].map(({ label, val }) => (
                       <div key={label} className="cust-detail-field">
                         <span className="cust-detail-field-label">{label}</span>
@@ -1777,17 +1776,13 @@ const handleExportClick = async (format) => {
                 <nav className="cust-detail-sidebar-nav">
                   {[
                     { key: "profile", icon: User, label: "Profile Info" },
-                    { key: "orders", icon: FileText, label: "Orders" },
+                    { key: "orders", icon: FileText, label: "Invoices" },
                     { key: "membership", icon: CreditCard, label: "Membership" },
                     { key: "giftcard", icon: Gift, label: "Gift Card" },
-                    { key: "advance", icon: Wallet, label: "Advance" },
                     { key: "wallet", icon: Wallet, label: "Wallet" },
                     { key: "duebalance", icon: AlertCircle, label: "Due Balances" },
                     { key: "packages", icon: Package, label: "Packages" },
-                    { key: "family", icon: Users, label: "Family Members" },
                     { key: "updateprofile", icon: UserCog, label: "Update Profile" },
-                    { key: "affiliate", icon: Wallet, label: "Affiliate Wallet" },
-                    { key: "followup", icon: Phone, label: "Follow Up" },
                     { key: "notes", icon: StickyNote, label: "Notes" },
                   ].map(({ key, icon: Icon, label }) => (
                     <button key={key} className={`cust-detail-nav-btn${detailTab === key ? " active" : ""}`} onClick={() => setDetailTab(key)}>
@@ -1804,17 +1799,13 @@ const handleExportClick = async (format) => {
                   <span>
                     {[
                       { key: "profile", label: "Profile Info" },
-                      { key: "orders", label: "Orders" },
+                      { key: "orders", label: "Invoices" },
                       { key: "membership", label: "Membership" },
                       { key: "giftcard", label: "Gift Card" },
-                      { key: "advance", label: "Advance" },
                       { key: "wallet", label: "Wallet" },
                       { key: "duebalance", label: "Due Balances" },
                       { key: "packages", label: "Packages" },
-                      { key: "family", label: "Family Members" },
                       { key: "updateprofile", label: "Update Profile" },
-                      { key: "affiliate", label: "Affiliate Wallet" },
-                      { key: "followup", label: "Follow Up" },
                       { key: "notes", label: "Notes" },
                     ].find(t => t.key === detailTab)?.label || "Details"}
                   </span>
@@ -1843,23 +1834,12 @@ const handleExportClick = async (format) => {
                             { label: "Last Visited", val: customerDetail.lastVisitAt ? formatCompactDate(customerDetail.lastVisitAt) : "Not visited yet!" },
                             { label: "Lifetime Visit Count", val: Number(customerDetail.totalOrders || 0) },
                             { label: "Loyalty Points", val: Number(customerDetail.loyaltyPoints || 0) },
-                            { label: "Referral Code", val: customerDetail.referralCode || "-" },
                           ].map(({ label, val }) => (
                             <div key={label} className="cust-profile-row">
                               <span className="cust-profile-label">{label}</span>
                               <span className="cust-profile-val">{val}</span>
                             </div>
                           ))}
-                          <button
-                            className="btn btn-ghost"
-                            onClick={() => {
-                              setPartnerForm({ discountValue: 10, partnerCreditValue: 5, title: "" });
-                              setShowMakePartnerModal(true);
-                            }}
-                            style={{ marginTop: 12, fontSize: 12, border: "1px solid #6366f1", background: "transparent", color: "#6366f1", width: "100%" }}
-                          >
-                            Make Affiliate Partner
-                          </button>
                         </div>
                       )}
 
@@ -2040,36 +2020,6 @@ const handleExportClick = async (format) => {
                         </div>
                       )}
 
-                      {/* Advance Tab */}
-                      {detailTab === "advance" && (
-                        <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Advance Balance</div>
-                          <div className="cust-advance-card">
-                            <div style={{ fontSize: "0.78rem", color: "#64748b" }}>Current Advance</div>
-                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#16a34a", marginTop: "4px" }}>
-                              {formatMoney(customerDetail.advanceAmount || 0)}
-                            </div>
-                          </div>
-                          {customerAdvances.length > 0 && (
-                            <>
-                              <div className="cust-detail-section-title" style={{ marginTop: "16px" }}>History</div>
-                              {customerAdvances.map((adv) => (
-                                <div key={adv.id} className="cust-advance-card">
-                                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <div style={{ fontSize: "0.82rem", fontWeight: 700 }}>{formatMoney(adv.amount)}</div>
-                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{formatCompactDate(adv.createdAt)}</div>
-                                  </div>
-                                  {adv.mode && <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "4px" }}>Mode: {adv.mode}</div>}
-                                  {adv.remark && <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "2px" }}>{adv.remark}</div>}
-                                </div>
-                              ))}
-                            </>
-                          )}
-                          <button className="cust-add-btn" style={{ marginTop: "12px" }} onClick={() => setShowAddAdvanceModal(true)}>
-                            <Plus size={16} /> Add Advance
-                          </button>
-                        </div>
-                      )}
 
                       {/* Due Balances Tab */}
                       {detailTab === "duebalance" && (
@@ -2145,49 +2095,8 @@ const handleExportClick = async (format) => {
                         </div>
                       )}
 
-                      {/* Family Members Tab */}
-                      {detailTab === "family" && (
-                        <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Family Members</div>
-                          {(customerDetail.familyMembers || []).length === 0 ? (
-                            <div className="cust-empty-state">
-                              <Users size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
-                              <div>N<X size={16} />family members linked yet</div>
-                            </div>
-                          ) : (
-                            (customerDetail.familyMembers || []).map((fm) => {
-                              const fmNotes = fm.notes || "";
-                              const match = fmNotes.match(new RegExp(`familyMemberOf:${selectedCustomer.id}\\s+relation:(\\S+)`));
-                              const relation = match && match[1] ? match[1].charAt(0).toUpperCase() + match[1].slice(1) : "Linked";
-                              return (
-                                <div key={fm.id} className="cust-membership-card">
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <div>
-                                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>{fm.name}</div>
-                                      <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{fm.phone}</div>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                      <span className="cust-mem-status ACTIVE" style={{ textTransform: "capitalize" }}>{relation}</span>
-                                      <button 
-                                        onClick={() => handleRemoveFamilyMember(fm)} 
-                                        style={{ border: "none", background: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", padding: "4px" }}
-                                        title="Unlink family member"
-                                      >
-                                        <Trash2 size={14} />
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
-                          <button className="cust-assign-btn" onClick={() => setShowFamilyModal(true)}>
-                            <Users size={16} /> Add Family Member
-                          </button>
-                        </div>
-                      )}
 
-                      {/* Update Profile Tab */}
+                      {/* Update Profile Tab */}                      {/* Update Profile Tab */}
                       {detailTab === "updateprofile" && (
                         <div className="cust-detail-section">
                           <div className="cust-detail-section-title">Update Profile</div>
@@ -2232,10 +2141,19 @@ const handleExportClick = async (format) => {
                       {detailTab === "wallet" && (
                         <div style={{ padding: "20px", maxWidth: 600 }}>
                           <div className="cust-detail-section-title">Customer Wallet</div>
+                          {/* Advance Balance (merged from old Advance tab) */}
+                          {Number(customerDetail.advanceAmount || 0) > 0 && (
+                            <div style={{ background: "#f0fdf4", borderRadius: 12, padding: 16, border: "1px solid #bbf7d0", marginBottom: 16 }}>
+                              <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Advance Balance</div>
+                              <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>
+                                {formatMoney(customerDetail.advanceAmount || 0)}
+                              </div>
+                            </div>
+                          )}
                           <div style={{ background: "#f8fafc", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0", marginBottom: 20 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div>
-                                <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Current Balance</div>
+                                <div style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Wallet Balance</div>
                                 <div style={{ fontSize: 28, fontWeight: 800, color: customerWallet && Number(customerWallet.balance) > 0 ? "#10b981" : "#0f172a", marginTop: 4 }}>
                                   {customerWallet ? Number(customerWallet.balance).toFixed(2) : "0.00"}
                                 </div>
@@ -2289,7 +2207,7 @@ const handleExportClick = async (format) => {
                                 <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "white", borderRadius: 10, border: "1px solid #e2e8f0" }}>
                                   <div>
                                     <div style={{ fontSize: 13, fontWeight: 600, color: t.type === "DEPOSIT" ? "#16a34a" : "#dc2626" }}>{t.type === "DEPOSIT" ? "Deposit" : "Deduction"}</div>
-                                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{t.note || "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢─Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"}</div>
+                                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{t.note || "—"}</div>
                                     <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>{new Date(t.createdAt).toLocaleString()}</div>
                                   </div>
                                   <div style={{ textAlign: "right" }}>
@@ -2302,101 +2220,9 @@ const handleExportClick = async (format) => {
                           )}
                         </div>
                       )}
-
-                      {/* Affiliate Wallet Tab */}
-                      {detailTab === "affiliate" && (
-                        <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Affiliate Wallet</div>
-                          {!customerAffiliateWallet ? (
-                            <div className="cust-empty-state">
-                              <Wallet size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
-                              <div>{customerAffiliateWallet === null ? "Loading..." : "Not an affiliate partner"}</div>
-                            </div>
-                          ) : customerAffiliateWallet.wallet ? (
-                            <>
-                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
-                                <div style={{ padding: "12px 14px", borderRadius: 8, background: "linear-gradient(135deg, #16a34a22, #16a34a08)", border: "1px solid #16a34a33" }}>
-                                  <div style={{ fontSize: 11, color: "#94a3b8" }}>Balance</div>
-                                  <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#16a34a", marginTop: 4 }}>
-                                    {Number(customerAffiliateWallet.wallet.balance ?? 0)} Credits
-                                  </div>
-                                  <div style={{ fontSize: 10, color: "#64748b" }}>Service: {formatMoney(Number(customerAffiliateWallet.wallet.balance ?? 0))}</div>
-                                </div>
-                                <div style={{ padding: "12px 14px", borderRadius: 8, background: "linear-gradient(135deg, #6366f122, #6366f108)", border: "1px solid #6366f133" }}>
-                                  <div style={{ fontSize: 11, color: "#94a3b8" }}>Total Earned</div>
-                                  <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#6366f1", marginTop: 4 }}>
-                                    {Number(customerAffiliateWallet.wallet.totalEarned ?? 0)} Credits
-                                  </div>
-                                </div>
-                                <div style={{ padding: "12px 14px", borderRadius: 8, background: "linear-gradient(135deg, #f59e0b22, #f59e0b08)", border: "1px solid #f59e0b33" }}>
-                                  <div style={{ fontSize: 11, color: "#94a3b8" }}>Total Redeemed</div>
-                                  <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#f59e0b", marginTop: 4 }}>
-                                    {Number(customerAffiliateWallet.wallet.totalRedeemed ?? 0)} Credits
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginBottom: 8 }}>Transaction History</div>
-                              {(customerAffiliateWallet.transactions || []).length === 0 ? (
-                                <div className="cust-empty-state" style={{ padding: "16px 0" }}>
-                                  <div style={{ fontSize: 12, color: "#64748b" }}>N<X size={16} />transactions yet</div>
-                                </div>
-                              ) : (
-                                <div style={{ maxHeight: 260, overflowY: "auto" }}>
-                                  {(customerAffiliateWallet.transactions || []).map((t) => (
-                                    <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", borderRadius: 6, background: "#0f172a", marginBottom: 6, border: "1px solid #1e293b" }}>
-                                      <div>
-                                        <div style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 500 }}>{t.type}</div>
-                                        <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{t.note || "-"}</div>
-                                      </div>
-                                      <div style={{ textAlign: "right" }}>
-                                        <div style={{ fontSize: 13, fontWeight: 700, color: t.type === "EARN" || t.type === "MANUAL_ADJUSTMENT" ? "#16a34a" : "#ef4444" }}>
-                                          {t.type === "EARN" || t.type === "MANUAL_ADJUSTMENT" ? "+" : "-"}{Number(t.amount ?? 0)} Credits
-                                        </div>
-                                        {t.invoiceId && (
-                                          <div style={{ fontSize: 10, color: "#64748b" }}>{t.invoice?.invoiceNumber || ""}</div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <div className="cust-empty-state">
-                              <Wallet size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
-                              <div>N<X size={16} />affiliate wallet found</div>
-                              <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>Wallet is created when a referral coupon is used by this customer's referred user.</div>
-                            </div>
-                          )}
                         </div>
                       )}
 
-                      {/* Follow Up Tab */}
-                      {detailTab === "followup" && (
-                        <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Follow Up History</div>
-                          {(customerDetail.followUps || []).length === 0 ? (
-                            <div className="cust-empty-state">
-                              <Phone size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
-                              <div>N<X size={16} />follow-ups scheduled</div>
-                            </div>
-                          ) : (
-                            (customerDetail.followUps || []).map((fu, i) => (
-                              <div key={i} className="cust-membership-card">
-                                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                  <div style={{ fontSize: "0.82rem", fontWeight: 600 }}>{fu.message || fu.note || "Follow Up"}</div>
-                                  <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{formatCompactDate(fu.createdAt || fu.date)}</div>
-                                </div>
-                                {fu.status && <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "4px" }}>Status: {fu.status}</div>}
-                              </div>
-                            ))
-                          )}
-                          <button className="cust-assign-btn" onClick={openFollowUpModal}>
-                            <Phone size={16} /> Add Follow Up
-                          </button>
-                        </div>
-                      )}
 
                       {/* Notes Tab */}
                       {detailTab === "notes" && (

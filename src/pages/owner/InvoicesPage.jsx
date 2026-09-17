@@ -16,7 +16,7 @@ export default function InvoicesPage() {
   const navigate = useNavigate();
   const { selectedBranchId } = useBranch();
   const [rows, setRows] = useState([]);
-  const [filters, setFilters] = useState({ q: "", status: "" });
+  const [filters, setFilters] = useState({ q: "", status: "", startDate: "", endDate: "" });
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [paymentForm, setPaymentForm] = useState({ mode: "CASH", amount: 0, note: "" });
   const [reminderPreview, setReminderPreview] = useState("");
@@ -29,7 +29,9 @@ export default function InvoicesPage() {
       const params = {
         ...(branchId ? { branchId } : {}),
         ...(filters.q ? { q: filters.q } : {}),
-        ...(filters.status ? { status: filters.status } : {})
+        ...(filters.status ? { status: filters.status } : {}),
+        ...(filters.startDate ? { startDate: filters.startDate } : {}),
+        ...(filters.endDate ? { endDate: filters.endDate } : {})
       };
       const response = await api.get("/owner/invoices", { params });
       const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
@@ -46,7 +48,9 @@ export default function InvoicesPage() {
     const params = {
       ...(selectedBranchId ? { branchId: selectedBranchId } : {}),
       ...(filters.q ? { q: filters.q } : {}),
-      ...(filters.status ? { status: filters.status } : {})
+      ...(filters.status ? { status: filters.status } : {}),
+      ...(filters.startDate ? { startDate: filters.startDate } : {}),
+      ...(filters.endDate ? { endDate: filters.endDate } : {})
     };
     api.get("/owner/invoices", { params }).then((response) => {
       if (!active) return;
@@ -188,6 +192,24 @@ export default function InvoicesPage() {
             <option value="REFUNDED">Refunded</option>
           </CustomSelect>
         </div>
+        <div style={{ width: '160px', minWidth: '130px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>From Date</div>
+          <input 
+            type="date"
+            value={filters.startDate} 
+            onChange={(event) => setFilters((current) => ({ ...current, startDate: event.target.value }))}
+            style={{ width: '100%', height: '42px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+        <div style={{ width: '160px', minWidth: '130px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>To Date</div>
+          <input 
+            type="date"
+            value={filters.endDate} 
+            onChange={(event) => setFilters((current) => ({ ...current, endDate: event.target.value }))}
+            style={{ width: '100%', height: '42px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
           <button 
             type="button" 
@@ -198,10 +220,10 @@ export default function InvoicesPage() {
           >
             Apply
           </button>
-          {(filters.q || filters.status) && (
+          {(filters.q || filters.status || filters.startDate || filters.endDate) && (
             <button 
               type="button" 
-              onClick={() => setFilters({ q: "", status: "" })} 
+              onClick={() => setFilters({ q: "", status: "", startDate: "", endDate: "" })} 
               style={{ height: '42px', padding: '0 16px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#64748b', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}

@@ -144,7 +144,7 @@ export default function AppointmentEditPage() {
               </CustomSelect>
               <input value={form.title} placeholder="Appointment title" onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
               <label><span className="muted">Appointment start</span><input type="datetime-local" min={nowStr} value={form.startAt} onChange={(event) => setForm((current) => ({ ...current, startAt: event.target.value }))} /></label>
-              <label><span className="muted">Appointment end</span><input type="datetime-local" min={nowStr} value={form.endAt} onChange={(event) => setForm((current) => ({ ...current, endAt: event.target.value }))} /></label>
+              <label><span className="muted">Appointment end (auto)</span><input type="datetime-local" value={form.endAt} readOnly style={{ background: "#f1f5f9", cursor: "not-allowed" }} /></label>
             </div>
 
             <div className="form-grid">
@@ -173,7 +173,7 @@ export default function AppointmentEditPage() {
                       {context.services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
                     </CustomSelect>
                     <label><span className="muted">Service start time</span><input type="datetime-local" min={nowStr} value={item.startAt} onChange={(event) => updateItem(index, { startAt: event.target.value })} /></label>
-                    <label><span className="muted">Service end time</span><input type="datetime-local" min={nowStr} value={item.endAt} onChange={(event) => updateItem(index, { endAt: event.target.value })} /></label>
+                    <label><span className="muted">Service end time (auto)</span><input type="datetime-local" value={item.endAt} readOnly style={{ background: "#f1f5f9", cursor: "not-allowed" }} /></label>
                   </div>
                   <div className="badge-row" style={{ marginTop: 10 }}>
                     {!staffByBranch.length ? <EmptyState title="No active staff in this branch" message="Assign or activate branch staff first so service timing can be mapped cleanly." /> : null}
