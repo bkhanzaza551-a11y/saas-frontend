@@ -340,8 +340,16 @@ export default function AppointmentsPage() {
   };
 
   const handleCancelAction = async (apptId) => {
+    const appt = contextMenu?.appt;
+    if (appt && (appt.status === "IN_PROGRESS" || appt.status === "COMPLETED")) {
+      setContextMenu(null);
+      return;
+    }
+    const reason = prompt("Please enter a reason for cancellation:");
+    if (reason === null) { setContextMenu(null); return; }
+    if (!reason.trim()) { setContextMenu(null); return; }
     try {
-      await api.patch(`/owner/appointments/${apptId}/status`, { status: "CANCELLED", note: "Cancelled from context menu" });
+      await api.patch(`/owner/appointments/${apptId}/status`, { status: "CANCELLED", note: reason.trim() });
       setStatus({ error: "", success: "Appointment cancelled." });
       await loadAppointments();
     } catch (error) {
@@ -1947,14 +1955,16 @@ export default function AppointmentsPage() {
                   </div>
                 )}
                 
-                <div className="context-menu-item" onClick={() => handleRescheduleAction(contextMenu.appt)}>
-                  <div className="context-menu-icon-wrapper">
-                    <Calendar size={16} />
+                {contextMenu.appt.status !== "IN_PROGRESS" && contextMenu.appt.status !== "COMPLETED" && (
+                  <div className="context-menu-item" onClick={() => handleRescheduleAction(contextMenu.appt)}>
+                    <div className="context-menu-icon-wrapper">
+                      <Calendar size={16} />
+                    </div>
+                    <span>Reschedule Booking</span>
                   </div>
-                  <span>Reschedule Booking</span>
-                </div>
+                )}
 
-                {contextMenu.appt.status !== "CANCELLED" && (
+                {contextMenu.appt.status !== "CANCELLED" && contextMenu.appt.status !== "IN_PROGRESS" && contextMenu.appt.status !== "COMPLETED" && (
                   <div className="context-menu-item" onClick={() => handleCancelAction(contextMenu.appt.id)}>
                     <div className="context-menu-icon-wrapper">
                       <XCircle size={16} />

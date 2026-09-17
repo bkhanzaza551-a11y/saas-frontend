@@ -34,8 +34,7 @@ const CATEGORIES = [
       { title: "Website Editor", description: "Design homepage text, sections, themes, and banners.", to: "/admin/website-editor", icon: NotebookPen, reqPerm: "settings" },
       { title: "Messaging & SMS Credits", description: "Purchase and manage credits for WhatsApp & SMS notifications.", to: "/admin/whatsapp-credits", icon: MessagesSquare, reqFlag: "whatsapp" },
       { title: "Branch Analytics", description: "Global performance analytics across all branches.", to: "/admin/global-dashboard", icon: Activity, reqPerm: "pos", reqFlag: "pos" },
-      { title: "Website Analytics", description: "Track visitors and behavior on your storefront.", to: "/admin/website-analytics", icon: LineChart, reqPerm: "settings", reqFlag: "catalogAnalytics" },
-      { title: "Business Trends", description: "View overall business growth and sales trends.", to: "/admin/trends", icon: TrendingUp, reqPerm: "reports", reqFlag: "reports" }
+      { title: "Website Analytics", description: "Track visitors and behavior on your storefront.", to: "/admin/website-analytics", icon: LineChart, reqPerm: "settings", reqFlag: "catalogAnalytics" }
     ]
   },
   {

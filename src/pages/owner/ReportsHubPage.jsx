@@ -1655,6 +1655,31 @@ export default function ReportsHubPage() {
     document.body.removeChild(link);
   };
 
+  const handleExportExcel = () => {
+    if (!rows.length) return;
+    const cols = (visibleColumns !== null && visibleColumns !== undefined ? visibleColumns : (COLUMNS[activeReport] || ["Data"]));
+    let html = "<table border='1'><thead><tr>";
+    cols.forEach(col => { html += `<th style="background:#f8fafc;font-weight:700;padding:8px 12px;">${col}</th>`; });
+    html += "</tr></thead><tbody>";
+    rows.forEach(row => {
+      html += "<tr>";
+      cols.forEach(col => {
+        const value = getCellValue(row, col) ?? "—";
+        html += `<td style="padding:6px 10px;">${String(value).replace(/</g, "&lt;").replace(/>/g, "&gt;")}</td>`;
+      });
+      html += "</tr>";
+    });
+    html += "</tbody></table>";
+    const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${currentReport?.label || "Report"}_${new Date().toISOString().split("T")[0]}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const toggleColumn = (col) => {
     setVisibleColumns((current) => {
       const all = COLUMNS[activeReport] || ["Data"];
@@ -1713,7 +1738,7 @@ export default function ReportsHubPage() {
           .rpt-stat-label { font-size: 0.58rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1px; }
           .rpt-stat-val { font-size: 0.78rem; font-weight: 700; color: #0f172a; white-space: nowrap; }
           .rpt-table-wrap { flex: 1; margin: 10px 12px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: auto; }
-          .rpt-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+          .rpt-table { width: 100%; border-collapse: collapse; }
           .rpt-table th { background: #f8fafc; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; text-align: left; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 2; font-size: 0.68rem; }
           .rpt-table td { padding: 7px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; font-size: 0.78rem; }
           .rpt-table tr:hover td { background: #f8fafc; }
@@ -1840,6 +1865,7 @@ export default function ReportsHubPage() {
               <button type="button" className="rpt-btn rpt-btn-clear" onClick={() => { setQuickRange(""); setFilters((current) => ({ ...current, start: "", end: "" })); }}>×</button>
             )}
             {activeReport !== "sales_summary" && (
+              <>
               <button type="button" className="rpt-icon-btn" title="Export CSV" onClick={handleExportCSV}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -1847,6 +1873,15 @@ export default function ReportsHubPage() {
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
               </button>
+              <button type="button" className="rpt-icon-btn" title="Export Excel" onClick={handleExportExcel}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="8" y1="13" x2="16" y2="13" />
+                  <line x1="8" y1="17" x2="16" y2="17" />
+                </svg>
+              </button>
+              </>
             )}
             <button type="button" className="rpt-icon-btn" title="Print" onClick={() => window.print()}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

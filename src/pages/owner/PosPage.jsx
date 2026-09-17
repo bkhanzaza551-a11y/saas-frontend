@@ -2135,15 +2135,15 @@ export default function PosPage() {
                             </button>
                           )}
                           {(item.itemType === "SERVICE" || item.itemType === "PRODUCT") && (
-                            <button type="button" title="Mark as Complimentary" onClick={() => {
+                            <PermissionButton permission="pos" action="edit" onClick={() => {
                               if (item.isGift) {
                                 updateItem(index, { isGift: false, discountPct: 0, complimentaryRemark: "" });
                               } else {
                                 setCompModal({ open: true, index, serviceName: baseObj.name, remark: "" });
                               }
-                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: item.isGift ? '#3b82f6' : '#94a3b8' }}>
+                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: item.isGift ? '#3b82f6' : '#94a3b8' }} title="Mark as Complimentary">
                               <Gift size={20} />
-                            </button>
+                            </PermissionButton>
                           )}
                           {item.itemType === "SERVICE" && (
                             <button type="button" title="Add Consumables" onClick={() => openConsumableModal(index)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: item.consumableItems?.length ? '#16a34a' : '#3b82f6' }}>
