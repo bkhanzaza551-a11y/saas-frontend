@@ -59,9 +59,14 @@ export default function OwnerDashboard() {
   const [stockPage, setStockPage] = useState(1);
   const stockPerPage = 5;
 
+  
   useEffect(() => {
     let active = true;
-    const params = selectedBranchId ? { branchId: selectedBranchId } : {};
+    if (!selectedBranchId) {
+      setData(null);
+      return;
+    }
+    const params = { branchId: selectedBranchId };
     api.get("/owner/dashboard", { params }).then((response) => {
       if (!active) return;
       setData(response.data);
@@ -73,6 +78,7 @@ export default function OwnerDashboard() {
       active = false;
     };
   }, [selectedBranchId]);
+
 
   const branchName = selectedBranchName;
 

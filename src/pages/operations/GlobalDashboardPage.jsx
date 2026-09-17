@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { TrendingUp, Calendar, Users, Building2, Activity, ArrowUpRight, ArrowDownRight, Award, DollarSign, PieChart, Shield, RefreshCw } from "lucide-react";
 import { api } from "../../api/client";
 import CustomDateInput from "../../components/CustomDateInput";
-
+import { useBranch } from "../../context/BranchContext";
 export default function GlobalDashboardPage() {
+  const { branches } = useBranch();
   const [period, setPeriod] = useState("ALL");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [branchIdFilter, setBranchIdFilter] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState({
@@ -47,6 +49,9 @@ export default function GlobalDashboardPage() {
         params.startDate = queryStart;
         params.endDate = queryEnd;
       }
+      if (branchIdFilter) {
+        params.branchId = branchIdFilter;
+      }
 
       const res = await api.get("/owner/operations/global-dashboard", { params });
       setData(res.data);
@@ -59,8 +64,11 @@ export default function GlobalDashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, [period, startDate, endDate]);
+  }, [period, startDate, endDate, branchIdFilter]);
 
+  const isMultiBranch = branches.length > 1;
+  const isAllBranches = !branchIdFilter;
+  
   const renderGrowthBadge = (growthStr) => {
     if (!growthStr || growthStr === "-") return (
       <span style={{ background: "#f1f5f9", color: "#64748b", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
@@ -86,7 +94,7 @@ export default function GlobalDashboardPage() {
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
           <div style={{ minWidth: 260, flex: 1 }}>
             <h1 style={{ margin: "0 0 6px 0", fontSize: "1.35rem", fontWeight: 800, color: "#0f172a", lineHeight: 1.25 }}>Branch Analytics</h1>
-            <p style={{ margin: 0, fontSize: "0.88rem", color: "#64748b", lineHeight: 1.4 }}>Cross-branch revenue performance, appointment volume, and growth analytics across all locations.</p>
+            <p style={{ margin: 0, fontSize: "0.88rem", color: "#64748b", lineHeight: 1.4 }}>{isMultiBranch && isAllBranches ? "Cross-branch revenue performance, appointment volume, and growth analytics across all locations." : "Revenue performance, appointment volume, and growth analytics."}</p>
           </div>
           <button 
             type="button"
@@ -151,6 +159,23 @@ export default function GlobalDashboardPage() {
           </div>
         </div>
 
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {isMultiBranch && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Building2 size={15} color="#6366f1" />
+              <select 
+                value={branchIdFilter} 
+                onChange={(e) => setBranchIdFilter(e.target.value)}
+                style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, minWidth: 160 }}
+              >
+                <option value="">All Branches</option>
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
         {period === "Custom" && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <CustomDateInput
@@ -180,7 +205,7 @@ export default function GlobalDashboardPage() {
             {renderGrowthBadge(data.revenueGrowth)}
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 6 }}>₹{data.totalRevenue.toLocaleString("en-IN")}</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Across all {data.activeBranchesCount} active branches</div>
+          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? `Across all ${data.activeBranchesCount} active branches` : "Selected branch revenue"}</div>
         </div>
 
         <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #06b6d4" }}>
@@ -189,23 +214,55 @@ export default function GlobalDashboardPage() {
             {renderGrowthBadge(data.appointmentGrowth)}
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 6 }}>{data.totalAppointments} Bookings</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Appointments across network</div>
+          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Appointments across network" : "Appointments booked"}</div>
         </div>
 
         <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #10b981" }}>
           <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Guests Served</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#047857", marginTop: 6 }}>{data.totalCustomers}</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Multi-branch customer registry</div>
+          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Multi-branch customer registry" : "Customer registry"}</div>
         </div>
 
         <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #f59e0b" }}>
           <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Active Salon Branches</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706", marginTop: 6 }}>{data.activeBranchesCount} Locations</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Active in your network</div>
+          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Active in your network" : "Currently active"}</div>
         </div>
       </div>
 
+      
+      {/* Attendance Summary */}
+      {data.attendanceSummary && (
+        <div className="panel-card" style={{ padding: 24, marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a" }}>Attendance Summary</h3>
+            <span className="badge" style={{ background: "#f8fafc", color: "#475569", fontWeight: 700 }}>
+              {data.attendanceSummary.percentage}% Attendance Rate
+            </span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 16 }}>
+            <div style={{ padding: 16, background: "#f0fdf4", borderRadius: 10, border: "1px solid #bbf7d0", textAlign: "center" }}>
+              <div style={{ fontSize: 13, color: "#166534", fontWeight: 700 }}>Present</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#15803d", marginTop: 4 }}>{data.attendanceSummary.PRESENT}</div>
+            </div>
+            <div style={{ padding: 16, background: "#fef2f2", borderRadius: 10, border: "1px solid #fecaca", textAlign: "center" }}>
+              <div style={{ fontSize: 13, color: "#991b1b", fontWeight: 700 }}>Absent</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#b91c1c", marginTop: 4 }}>{data.attendanceSummary.ABSENT}</div>
+            </div>
+            <div style={{ padding: 16, background: "#fffbeb", borderRadius: 10, border: "1px solid #fde68a", textAlign: "center" }}>
+              <div style={{ fontSize: 13, color: "#92400e", fontWeight: 700 }}>Late</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#b45309", marginTop: 4 }}>{data.attendanceSummary.LATE}</div>
+            </div>
+            <div style={{ padding: 16, background: "#eff6ff", borderRadius: 10, border: "1px solid #bfdbfe", textAlign: "center" }}>
+              <div style={{ fontSize: 13, color: "#1e40af", fontWeight: 700 }}>On Leave</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#1d4ed8", marginTop: 4 }}>{data.attendanceSummary.LEAVE}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Branch Performance Comparison Table */}
+
       <div className="panel-card" style={{ padding: 24, marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a" }}>Branch Growth & Revenue Comparison</h3>
@@ -269,7 +326,7 @@ export default function GlobalDashboardPage() {
 
       {/* Monthly Growth Trend Visual Deck */}
       <div className="panel-card" style={{ padding: 24 }}>
-        <h3 style={{ marginTop: 0, fontSize: 18, color: "#0f172a" }}>Monthly Multi-Branch Trajectory</h3>
+        <h3 style={{ marginTop: 0, fontSize: 18, color: "#0f172a" }}>Monthly Trajectory</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginTop: 16 }}>
           {data.growthTrends.map((t, idx) => (
             <div key={idx} style={{ padding: 16, background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
