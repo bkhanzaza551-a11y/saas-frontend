@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { TrendingUp, Calendar, Users, Building2, Activity, ArrowUpRight, ArrowDownRight, Award, DollarSign, PieChart, Shield, RefreshCw } from "lucide-react";
 import { api } from "../../api/client";
 import CustomDateInput from "../../components/CustomDateInput";
 import { useBranch } from "../../context/BranchContext";
 export default function GlobalDashboardPage() {
+  const navigate = useNavigate();
   const { branches } = useBranch();
   const [period, setPeriod] = useState("ALL");
   const [startDate, setStartDate] = useState("");
@@ -199,7 +201,7 @@ export default function GlobalDashboardPage() {
 
       {/* Multi-Branch Key Metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 20 }}>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1" }}>
+        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/reports/branch-sales")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Combined Revenue</span>
             {renderGrowthBadge(data.revenueGrowth)}
@@ -208,7 +210,7 @@ export default function GlobalDashboardPage() {
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? `Across all ${data.activeBranchesCount} active branches` : "Selected branch revenue"}</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #06b6d4" }}>
+        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #06b6d4", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/appointments")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Appointments</span>
             {renderGrowthBadge(data.appointmentGrowth)}
@@ -217,13 +219,13 @@ export default function GlobalDashboardPage() {
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Appointments across network" : "Appointments booked"}</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #10b981" }}>
+        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #10b981", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/customers")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
           <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Guests Served</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#047857", marginTop: 6 }}>{data.totalCustomers}</div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Multi-branch customer registry" : "Customer registry"}</div>
         </div>
 
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #f59e0b" }}>
+        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #f59e0b", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/branches")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
           <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Active Salon Branches</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706", marginTop: 6 }}>{data.activeBranchesCount} Locations</div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Active in your network" : "Currently active"}</div>
@@ -241,19 +243,19 @@ export default function GlobalDashboardPage() {
             </span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 16 }}>
-            <div style={{ padding: 16, background: "#f0fdf4", borderRadius: 10, border: "1px solid #bbf7d0", textAlign: "center" }}>
+            <div style={{ padding: 16, background: "#f0fdf4", borderRadius: 10, border: "1px solid #bbf7d0", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
               <div style={{ fontSize: 13, color: "#166534", fontWeight: 700 }}>Present</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#15803d", marginTop: 4 }}>{data.attendanceSummary.PRESENT}</div>
             </div>
-            <div style={{ padding: 16, background: "#fef2f2", borderRadius: 10, border: "1px solid #fecaca", textAlign: "center" }}>
+            <div style={{ padding: 16, background: "#fef2f2", borderRadius: 10, border: "1px solid #fecaca", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
               <div style={{ fontSize: 13, color: "#991b1b", fontWeight: 700 }}>Absent</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#b91c1c", marginTop: 4 }}>{data.attendanceSummary.ABSENT}</div>
             </div>
-            <div style={{ padding: 16, background: "#fffbeb", borderRadius: 10, border: "1px solid #fde68a", textAlign: "center" }}>
+            <div style={{ padding: 16, background: "#fffbeb", borderRadius: 10, border: "1px solid #fde68a", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
               <div style={{ fontSize: 13, color: "#92400e", fontWeight: 700 }}>Late</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#b45309", marginTop: 4 }}>{data.attendanceSummary.LATE}</div>
             </div>
-            <div style={{ padding: 16, background: "#eff6ff", borderRadius: 10, border: "1px solid #bfdbfe", textAlign: "center" }}>
+            <div style={{ padding: 16, background: "#eff6ff", borderRadius: 10, border: "1px solid #bfdbfe", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
               <div style={{ fontSize: 13, color: "#1e40af", fontWeight: 700 }}>On Leave</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#1d4ed8", marginTop: 4 }}>{data.attendanceSummary.LEAVE}</div>
             </div>
