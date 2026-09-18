@@ -1291,16 +1291,7 @@ export default function AppointmentsPage() {
           gap: 8px;
           flex-shrink: 0;
         }
-        .sp-footer-checks {
-          display: flex;
-          gap: 16px;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.8rem;
-          font-weight: 500;
-          color: #334155;
-          flex-wrap: wrap;
-        }
+        .sp-footer-checks { display: flex; flex-direction: row; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: center; background: #f8fafc; padding: 14px 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 16px; } @media(max-width: 480px) { .sp-footer-checks { flex-direction: column; align-items: flex-start; gap: 12px; } }
         .sp-btn-primary {
           width: 100% !important;
           padding: 6px 12px !important;
