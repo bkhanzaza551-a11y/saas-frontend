@@ -2221,8 +2221,6 @@ const handleExportClick = async (format) => {
                           )}
                         </div>
                       )}
-                        </div>
-                      )}
 
 
                       {/* Notes Tab */}
