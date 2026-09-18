@@ -13,45 +13,37 @@ import {
 } from "recharts";
 
 const ALL_REPORTS = [
-  { key: "salon_analytics", label: "Salon Analytics" },
-  { key: "financial_reports", label: "Financial Reports" },
-  { key: "sales_summary", label: "Sales Summary" },
-  { key: "product_sales", label: "Product Revenue" },
-  { key: "service_sales", label: "Service Revenue" },
-  { key: "service_reminder", label: "Service Reminder" },
-  { key: "customers", label: "Customer Collection" },
-  { key: "feedback", label: "Feedback" },
-  { key: "staff_performance", label: "Stylist Revenue" },
-  { key: "monthly_sale", label: "Monthly Sale" },
-  { key: "staff_attendance", label: "Staff Attendance" },
-  { key: "memberships", label: "Membership Sold" },
-  { key: "membership_redemption", label: "Membership Redemption" },
-  { key: "inter_store_membership", label: "Inter-Store Membership Report" },
-  { key: "packages", label: "Packages Sold" },
-  { key: "package_redemption", label: "Package Redemption" },
-  { key: "gift_card_sold", label: "Gift Card Sold Report" },
-  { key: "gift_card_redemption", label: "Gift Card Redemption" },
-  { key: "advance_received", label: "Advance Received" },
-  { key: "balance_received", label: "Balance Received" },
-  { key: "coupon_redemption", label: "Coupon Redemption" },
-  { key: "day_wise", label: "Day Wise Report" },
-  { key: "tip_report", label: "Tip Report" },
-  { key: "complimentary", label: "Complimentary Report" },
-  { key: "cancelled_invoices", label: "Cancelled Orders" },
-  { key: "appointments", label: "Appointment Report" },
-  { key: "gst_returns", label: "GST Returns Report" },
-  { key: "guest_followups", label: "Customer Followups" },
-  { key: "daily_stock", label: "Daily Stock" },
-  { key: "stock_transaction", label: "Stock Transaction" },
-  { key: "material_received", label: "Material Received" },
-  { key: "minimum_stock", label: "Minimum Stock" },
-  { key: "reconcile_stock", label: "Reconcile Stock" },
-  { key: "consumable_tracking", label: "Consumable Tracking" },
-  { key: "total_consumed", label: "Total Consumed" },
-  { key: "purchase_order", label: "Purchase Order Report" },
-  { key: "gst_outwards", label: "GST Outwards Report" },
-  { key: "inventory_transaction", label: "Inventory Transaction Report" },
-  { key: "pnl_report", label: "PnL Report" },
+  { key: "salon_analytics", label: "Salon Analytics", group: "Overview" },
+  { key: "financial_reports", label: "Financial Reports", group: "Overview" },
+  { key: "pnl_report", label: "P&L Report", group: "Overview" },
+  { key: "sales_summary", label: "Sales Summary", group: "Revenue" },
+  { key: "service_sales", label: "Service Revenue", group: "Revenue" },
+  { key: "product_sales", label: "Product Revenue", group: "Revenue" },
+  { key: "monthly_sale", label: "Monthly Sale", group: "Revenue" },
+  { key: "day_wise", label: "Day Wise Report", group: "Revenue" },
+  { key: "tip_report", label: "Tip Report", group: "Revenue" },
+  { key: "complimentary", label: "Complimentary Report", group: "Revenue" },
+  { key: "cancelled_invoices", label: "Cancelled Orders", group: "Revenue" },
+  { key: "staff_performance", label: "Stylist Revenue", group: "Staff" },
+  { key: "staff_attendance", label: "Staff Attendance", group: "Staff" },
+  { key: "customers", label: "Customer Collection", group: "Customers" },
+  { key: "feedback", label: "Feedback", group: "Customers" },
+  { key: "appointments", label: "Appointment Report", group: "Customers" },
+  { key: "guest_followups", label: "Customer Followups", group: "Customers" },
+  { key: "memberships", label: "Memberships Sold", group: "Memberships & Packages" },
+  { key: "membership_redemption", label: "Membership Redemption", group: "Memberships & Packages" },
+  { key: "packages", label: "Packages Sold", group: "Memberships & Packages" },
+  { key: "package_redemption", label: "Package Redemption", group: "Memberships & Packages" },
+  { key: "gift_card_sold", label: "Gift Card Sold", group: "Gift Cards & Advances" },
+  { key: "gift_card_redemption", label: "Gift Card Redemption", group: "Gift Cards & Advances" },
+  { key: "advance_received", label: "Advance Received", group: "Gift Cards & Advances" },
+  { key: "balance_received", label: "Balance Received", group: "Gift Cards & Advances" },
+  { key: "coupon_redemption", label: "Coupon Redemption", group: "Gift Cards & Advances" },
+  { key: "gst_returns", label: "GST Returns", group: "Tax" },
+  { key: "gst_outwards", label: "GST Outwards", group: "Tax" },
+  { key: "daily_stock", label: "Daily Stock", group: "Inventory" },
+  { key: "stock_transaction", label: "Stock Transaction", group: "Inventory" },
+  { key: "service_reminder", label: "Service Reminder", group: "Inventory" },
 ];
 
 const COLUMNS = {
@@ -194,12 +186,10 @@ const REPORTS_WITH_CHARTS = new Set([
   "sales_summary", "product_sales", "service_sales", "customers", "staff_performance",
   "monthly_sale", "day_wise", "memberships", "packages", "gift_card_sold",
   "membership_redemption", "package_redemption", "tip_report", "appointments",
-  "daily_stock", "material_received", "feedback", "pnl_report",
+  "daily_stock", "feedback", "pnl_report",
   "balance_received", "advance_received", "coupon_redemption", "complimentary",
   "cancelled_invoices", "service_reminder", "guest_followups", "gst_returns",
-  "gst_outwards", "reconcile_stock", "consumable_tracking", "total_consumed",
-  "purchase_order", "inventory_transaction", "minimum_stock", "stock_transaction",
-  "inter_store_membership", "staff_attendance", "gift_card_redemption"
+  "gst_outwards", "stock_transaction", "staff_attendance", "gift_card_redemption"
 ]);
 
 const REPORTS_WITH_COLUMN_PICKER = new Set(Object.keys(COLUMNS));
@@ -1770,19 +1760,29 @@ export default function ReportsHubPage() {
           </div>
         </div>
         <div style={{ flex: 1, paddingTop: 4 }}>
-          {filteredReports.map((report) => (
-            <button
-              key={report.key}
-              type="button"
-              className={`rpt-nav-item ${activeReport === report.key ? "active" : ""}`}
-              onClick={() => {
-                setActiveReport(report.key);
-                setSearch("");
-              }}
-            >
-              {report.label}
-            </button>
-          ))}
+          {(() => {
+            const groups = {};
+            filteredReports.forEach(report => {
+              const g = report.group || "Other";
+              if (!groups[g]) groups[g] = [];
+              groups[g].push(report);
+            });
+            return Object.entries(groups).map(([groupName, reports]) => (
+              <div key={groupName}>
+                <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", padding: "8px 12px 4px", marginTop: 4 }}>{groupName}</div>
+                {reports.map((report) => (
+                  <button
+                    key={report.key}
+                    type="button"
+                    className={`rpt-nav-item ${activeReport === report.key ? "active" : ""}`}
+                    onClick={() => { setActiveReport(report.key); setSearch(""); }}
+                  >
+                    {report.label}
+                  </button>
+                ))}
+              </div>
+            ));
+          })()}
         </div>
       </div>
 
