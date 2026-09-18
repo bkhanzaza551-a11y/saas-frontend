@@ -96,6 +96,7 @@ export default function PosPage() {
   const [productCategoryFilter, setProductCategoryFilter] = useState("");
   const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const [customerBenefits, setCustomerBenefits] = useState(null);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [activeServiceInvoice, setActiveServiceInvoice] = useState(null);
 //   const [showActiveServicePopup, setShowActiveServicePopup] = useState(false);
@@ -369,6 +370,33 @@ export default function PosPage() {
       .catch(() => {
         if (active) setAffiliateWallet(null);
       });
+    return () => { active = false; };
+  }, [form.customerId]);
+
+  useEffect(() => {
+    let active = true;
+    if (!form.customerId) { setCustomerBenefits(null); return undefined; }
+    Promise.allSettled([
+      api.get(`/owner/customers/${form.customerId}`),
+      api.get(`/owner/wallets/${form.customerId}`),
+      api.get(`/owner/customers/${form.customerId}/gift-cards`)
+    ]).then(([detailRes, walletRes, gcRes]) => {
+      if (!active) return;
+      const detail = detailRes.status === "fulfilled" ? detailRes.value?.data : null;
+      const wallet = walletRes.status === "fulfilled" ? walletRes.value?.data : null;
+      const giftCards = gcRes.status === "fulfilled" ? gcRes.value?.data : null;
+      const loyalty = Number(detail?.loyaltyPoints || detail?.loyalty || 0);
+      const walletBalance = Number(wallet?.balance || 0);
+      const advanceBalance = Number(detail?.advanceAmount || 0);
+      const activeGiftCards = (giftCards || []).filter(gc => gc.status === "ACTIVE" && Number(gc.balance || 0) > 0);
+      const giftCardTotal = activeGiftCards.reduce((sum, gc) => sum + Number(gc.balance || 0), 0);
+      const activeMemberships = (detail?.memberships || []).filter(m => m.status === "ACTIVE");
+      if (loyalty > 0 || walletBalance > 0 || advanceBalance > 0 || giftCardTotal > 0 || activeMemberships.length > 0) {
+        setCustomerBenefits({ loyalty, walletBalance, advanceBalance, giftCardTotal, activeGiftCards: activeGiftCards.length, activeMemberships: activeMemberships.length, membershipPlans: activeMemberships.map(m => m.plan?.name || "Membership") });
+      } else {
+        setCustomerBenefits(null);
+      }
+    }).catch(() => { if (active) setCustomerBenefits(null); });
     return () => { active = false; };
   }, [form.customerId]);
 
@@ -1993,6 +2021,15 @@ export default function PosPage() {
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>A customer must be selected to create an invoice.
+              </div>
+            )}
+            {form.customerId && customerBenefits && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 8 }}>
+                {customerBenefits.loyalty > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fef3c7", color: "#92400e", fontWeight: 600, border: "1px solid #fde68a" }}>Loyalty: {customerBenefits.loyalty} pts</span>}
+                {customerBenefits.walletBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dcfce7", color: "#166534", fontWeight: 600, border: "1px solid #bbf7d0" }}>Wallet: ₹{customerBenefits.walletBalance}</span>}
+                {customerBenefits.advanceBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dbeafe", color: "#1e40af", fontWeight: 600, border: "1px solid #bfdbfe" }}>Advance: ₹{customerBenefits.advanceBalance}</span>}
+                {customerBenefits.giftCardTotal > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fce7f3", color: "#9d174d", fontWeight: 600, border: "1px solid #fbcfe8" }}>Gift Card: ₹{customerBenefits.giftCardTotal}</span>}
+                {customerBenefits.activeMemberships > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#ede9fe", color: "#5b21b6", fontWeight: 600, border: "1px solid #ddd6fe" }}>Membership: {customerBenefits.membershipPlans.join(", ")}</span>}
               </div>
             )}
 
