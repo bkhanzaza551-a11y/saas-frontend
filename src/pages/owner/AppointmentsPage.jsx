@@ -112,6 +112,7 @@ export default function AppointmentsPage() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerDetail, setCustomerDetail] = useState(null);
   const [customerDetailLoading, setCustomerDetailLoading] = useState(false);
+  const [customerAppointments, setCustomerAppointments] = useState([]);
   const [detailTab, setDetailTab] = useState("profile");
   const [customerGiftCards, setCustomerGiftCards] = useState([]);
   const [customerAdvances, setCustomerAdvances] = useState([]);
@@ -416,8 +417,19 @@ export default function AppointmentsPage() {
   const closeCustomerDetail = () => {
     setSelectedCustomer(null);
     setCustomerDetail(null);
+    setCustomerAppointments([]);
     setDetailTab("profile");
   };
+
+  useEffect(() => {
+    if (!customerDetail?.id) { setCustomerAppointments([]); return; }
+    (async () => {
+      try {
+        const res = await api.get(`/owner/customers/${customerDetail.id}/history`);
+        setCustomerAppointments(res.data?.appointments || []);
+      } catch (e) { console.error(e); }
+    })();
+  }, [customerDetail?.id]);
 
   const handleSaveNotes = async () => {
     if (!selectedCustomer) return;
@@ -2051,6 +2063,7 @@ export default function AppointmentsPage() {
                   {[
                     { key: "profile", icon: User, label: "Profile Info" },
                     { key: "orders", icon: FileText, label: "Invoices" },
+                    { key: "appointments", icon: Calendar, label: "Appointments" },
                     { key: "membership", icon: CreditCard, label: "Membership" },
                     { key: "giftcard", icon: Gift, label: "Gift Card" },
                     { key: "duebalance", icon: AlertCircle, label: "Due Balances" },
@@ -2114,10 +2127,10 @@ export default function AppointmentsPage() {
                         </div>
                       )}
 
-                      {/* Orders Tab */}
+                      {/* Invoices Tab */}
                       {detailTab === "orders" && (
                         <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Order History ({(customerDetail.invoices || []).length})</div>
+                          <div className="cust-detail-section-title">Invoices ({(customerDetail.invoices || []).length})</div>
                           {(customerDetail.invoices || []).length === 0 ? (
                             <div className="cust-empty-state">No orders yet</div>
                           ) : (
@@ -2161,6 +2174,47 @@ export default function AppointmentsPage() {
                                     Balance Due: {formatMoney(inv.balanceAmount)}
                                   </div>
                                 )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+
+                      {/* Appointments Tab */}
+                      {detailTab === "appointments" && (
+                        <div className="cust-detail-section">
+                          <div className="cust-detail-section-title">Appointment History ({customerAppointments.length})</div>
+                          {customerAppointments.length === 0 ? (
+                            <div className="cust-empty-state">
+                              <Calendar size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
+                              <div>No appointments found</div>
+                            </div>
+                          ) : (
+                            customerAppointments.map((appt) => (
+                              <div key={appt.id} className="cust-membership-card">
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                  <div>
+                                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>
+                                      {(appt.items || []).map(s => s.service?.name || s.name).join(", ") || "Appointment"}
+                                    </div>
+                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 4 }}>
+                                      {appt.branch?.name || "Main"} &bull; {appt.staffUser?.name || "Any Staff"}
+                                    </div>
+                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 2 }}>
+                                      {new Date(appt.start).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}{" "}
+                                      {new Date(appt.start).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} -{" "}
+                                      {new Date(appt.end).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                                    </div>
+                                    {appt.invoice && (
+                                      <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 2 }}>
+                                        Invoice: {appt.invoice.invoiceNumber}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span className={`cust-mem-status ${appt.status === "COMPLETED" ? "ACTIVE" : appt.status === "CANCELLED" ? "EXPIRED" : ""}`} style={{ fontSize: "0.65rem" }}>
+                                    {appt.status}
+                                  </span>
+                                </div>
                               </div>
                             ))
                           )}

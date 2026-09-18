@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import {  Search, Filter, Plus, Download, Upload, MoreVertical, MoreHorizontal, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, CheckCircle2, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor , Shield } from "lucide-react";
+import {  Search, Filter, Plus, Download, Upload, MoreVertical, MoreHorizontal, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X, ChevronDown, Trash2, GitMerge, MessageCircle, User, FileText, CreditCard, Gift, Wallet, AlertCircle, CheckCircle2, Package, Users, UserCog, Tag, Phone, StickyNote, Edit3, CheckCircle, Circle, Eye, Monitor , Shield, Calendar } from "lucide-react";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import { api } from "../../api/client";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
@@ -108,6 +108,7 @@ export default function CustomersPage() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerDetail, setCustomerDetail] = useState(null);
   const [customerDetailLoading, setCustomerDetailLoading] = useState(false);
+  const [customerAppointments, setCustomerAppointments] = useState([]);
   const [detailTab, setDetailTab] = useState("profile");
   const [showAssignMembershipModal, setShowAssignMembershipModal] = useState(false);
   const [membershipPlans, setMembershipPlans] = useState([]);
@@ -254,11 +255,22 @@ export default function CustomersPage() {
   const closeCustomerDetail = () => {
     setSelectedCustomer(null);
     setCustomerDetail(null);
+    setCustomerAppointments([]);
     setDetailTab("profile");
     setShowAssignMembershipModal(false);
     setShowAddAdvanceModal(false);
     setSelectedPlan(null);
   };
+
+  useEffect(() => {
+    if (!customerDetail?.id) { setCustomerAppointments([]); return; }
+    (async () => {
+      try {
+        const res = await api.get(`/owner/customers/${customerDetail.id}/history`);
+        setCustomerAppointments(res.data?.appointments || []);
+      } catch (e) { console.error(e); }
+    })();
+  }, [customerDetail?.id]);
 
   const fetchMembershipPlans = async () => {
     try {
@@ -1801,6 +1813,7 @@ const handleExportClick = async (format) => {
                     {[
                       { key: "profile", label: "Profile Info" },
                       { key: "orders", label: "Invoices" },
+                      { key: "appointments", label: "Appointments" },
                       { key: "membership", label: "Membership" },
                       { key: "giftcard", label: "Gift Card" },
                       { key: "wallet", label: "Wallet" },
@@ -1844,10 +1857,10 @@ const handleExportClick = async (format) => {
                         </div>
                       )}
 
-                      {/* Orders Tab */}
+                      {/* Invoices Tab */}
                       {detailTab === "orders" && (
                         <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Order History ({(customerDetail.invoices || []).length})</div>
+                          <div className="cust-detail-section-title">Invoices ({(customerDetail.invoices || []).length})</div>
                           {(customerDetail.invoices || []).length === 0 ? (
                             <div className="cust-empty-state">N<X size={16} />orders yet</div>
                           ) : (
@@ -1934,6 +1947,47 @@ const handleExportClick = async (format) => {
                                       Balance Due: {formatMoney(inv.balanceAmount)}
                                     </div>
                                   )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+
+                      {/* Appointments Tab */}
+                      {detailTab === "appointments" && (
+                        <div className="cust-detail-section">
+                          <div className="cust-detail-section-title">Appointment History ({customerAppointments.length})</div>
+                          {customerAppointments.length === 0 ? (
+                            <div className="cust-empty-state">
+                              <Calendar size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
+                              <div>No appointments found</div>
+                            </div>
+                          ) : (
+                            customerAppointments.map((appt) => (
+                              <div key={appt.id} className="cust-membership-card">
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                  <div>
+                                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>
+                                      {(appt.items || []).map(s => s.service?.name || s.name).join(", ") || "Appointment"}
+                                    </div>
+                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 4 }}>
+                                      {appt.branch?.name || "Main"} &bull; {appt.staffUser?.name || "Any Staff"}
+                                    </div>
+                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 2 }}>
+                                      {new Date(appt.start).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}{" "}
+                                      {new Date(appt.start).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} -{" "}
+                                      {new Date(appt.end).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                                    </div>
+                                    {appt.invoice && (
+                                      <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 2 }}>
+                                        Invoice: {appt.invoice.invoiceNumber}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span className={`cust-mem-status ${appt.status === "COMPLETED" ? "ACTIVE" : appt.status === "CANCELLED" ? "EXPIRED" : ""}`} style={{ fontSize: "0.65rem" }}>
+                                    {appt.status}
+                                  </span>
                                 </div>
                               </div>
                             ))
