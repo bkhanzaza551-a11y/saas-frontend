@@ -1347,7 +1347,7 @@ const handleExportClick = async (format) => {
           .cust-detail-field-label { font-size:0.6rem; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
           .cust-detail-field-val { font-size:0.8rem; color:#334155; font-weight:600; }
           .cust-detail-sidebar-nav { display:flex; flex-direction:column; gap:2px; padding:8px; }
-          .cust-detail-nav-btn { display:flex; align-items:center; gap:8px; padding:10px 14px; border:none; background:transparent !important; color:#64748b !important; font-size:0.85rem; font-weight:600; cursor:pointer; border-radius:8px; transition:all .15s; text-align:left; width:100%; margin-bottom: 2px; }
+          .cust-detail-nav-btn { display:flex; align-items:center; gap:8px; padding:8px 12px; border:none !important; background:transparent !important; color:#475569 !important; font-size:0.8rem; font-weight:600; cursor:pointer; border-radius:6px; transition:all .15s; text-align:left; width:100%; margin-bottom: 2px; min-height: unset !important; line-height: 1.2 !important; box-shadow: none !important; }
           .cust-detail-nav-btn:hover { background:#f1f5f9 !important; color:#0f172a !important; }
           .cust-detail-nav-btn.active { background:#eff6ff !important; color:#2563eb !important; font-weight:700; }
           .cust-detail-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
@@ -1787,7 +1787,7 @@ const handleExportClick = async (format) => {
                     { key: "notes", icon: StickyNote, label: "Notes" },
                   ].map(({ key, icon: Icon, label }) => (
                     <button key={key} className={`cust-detail-nav-btn${detailTab === key ? " active" : ""}`} onClick={() => setDetailTab(key)}>
-                      <Icon size={18} />
+                      <Icon size={16} />
                       {label}
                     </button>
                   ))}
