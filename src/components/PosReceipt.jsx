@@ -251,6 +251,13 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
 
           {/* Totals */}
           <div>
+            {(() => {
+              const compTotal = items.reduce((sum, item) => {
+                if (item.isGift || item.complimentaryRemark) return sum + Number(item.lineTotal || item.unitPrice || 0) * Number(item.qty || 1);
+                return sum;
+              }, 0);
+              return compTotal > 0 ? <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span style={{ color: "#3b82f6", fontSize: isThermal ? 8 : 11 }}>Complimentary</span><span style={{ color: "#3b82f6", fontFamily: "'JetBrains Mono', monospace", fontSize: isThermal ? 8 : 11 }}>{money(compTotal)}</span></div> : null;
+            })()}
             <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span style={{ color: "#64748b", fontSize: isThermal ? 9 : 12 }}>Subtotal</span><span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: isThermal ? 9 : 12 }}>{money(subtotal)}</span></div>
             {discount > 0 && <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span style={{ color: "#22c55e", fontSize: isThermal ? 8 : 11 }}>Discount</span><span style={{ color: "#22c55e", fontFamily: "'JetBrains Mono', monospace", fontSize: isThermal ? 8 : 11 }}>- {money(discount)}</span></div>}
             {tax > 0 && <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span style={{ color: "#f59e0b", fontSize: isThermal ? 8 : 11 }}>Tax</span><span style={{ color: "#f59e0b", fontFamily: "'JetBrains Mono', monospace", fontSize: isThermal ? 8 : 11 }}>+ {money(tax)}</span></div>}

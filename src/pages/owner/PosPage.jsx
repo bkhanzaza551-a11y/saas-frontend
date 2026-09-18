@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X,   Search } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import PermissionButton from "../../components/PermissionButton";
+import { useAuth } from "../../context/AuthContext";
+import { useAlert } from "../../context/AlertContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
 import { api } from "../../api/client";
@@ -64,9 +66,13 @@ const genderMatches = (item, selectedGender) => {
 export default function PosPage() {
   const { formatMoney } = useSalonSettings();
   const { selectedBranchId } = useBranch();
+  const { auth } = useAuth();
+  const alert = useAlert();
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdInvoice, setCreatedInvoice] = useState(null);
+  const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
+  const canEditTax = isOwner || (Array.isArray(auth?.membership?.permissions?.pos) && auth.membership.permissions.pos.includes("edit"));
   const [tab, setTab] = useState("billing");
   const [context, setContext] = useState({ customers: [], branches: [], services: [], staffUsers: [], products: [], memberships: [], packages: [], customerPackages: [], coupons: [], giftCards: [], customerProfile: null, settings: null });
   const [status, setStatus] = useState({ error: "", success: "" });
@@ -2190,10 +2196,7 @@ export default function PosPage() {
                           </div>
                         </td>
                         <td>
-                          <input type="number" min="0" max="100" step="0.1" value={item.taxPct || 0} onChange={(e) => {
-                            const newTax = Math.max(0, Math.min(100, Number(e.target.value) || 0));
-                            updateItem(index, { taxPct: newTax, taxOverridden: true });
-                          }} style={{ width: 56, padding: '2px 4px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: '0.78rem', textAlign: 'center', background: item.taxOverridden ? '#fffbeb' : '#fff' }} title={item.taxOverridden ? "Tax manually overridden" : "Tax % (auto-filled)"} />
+                          <input type="number" min="0" max="100" step="0.1" value={item.taxPct || 0} readOnly={!canEditTax} onClick={(e) => { if (!canEditTax) { e.stopPropagation(); alert.showAlert("You don't have permission to override tax. Please contact your salon owner.", "Access Restricted"); } }} onChange={(e) => { if (!canEditTax) return; const newTax = Math.max(0, Math.min(100, Number(e.target.value) || 0)); updateItem(index, { taxPct: newTax, taxOverridden: true }); }} style={{ width: 56, padding: '2px 4px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: '0.78rem', textAlign: 'center', background: item.taxOverridden ? '#fffbeb' : '#fff', cursor: canEditTax ? 'text' : 'not-allowed', opacity: canEditTax ? 1 : 0.7 }} title={!canEditTax ? "No permission to override tax" : (item.taxOverridden ? "Tax manually overridden" : "Tax % (auto-filled)")} />
                         </td>
                         <td>{Math.max(0, total - Number(item.membershipWalletUsed || 0)).toFixed(0)}</td>
                         <td style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -2449,109 +2452,62 @@ export default function PosPage() {
                     </div>
                   </div>
                 )}
-                <div className="pos-payment-input">
-                  <label><svg width="16" height="16" style={{ color: "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" /></svg> Online</label>
-                  <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "ONLINE")?.amount || ""} onFocus={() => {
-                    setForm((current) => {
-                      const fixedTotal = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                      const maxAllowed = Math.max(0, totals.total - fixedTotal);
-                      const oldCash = Number((current.payments || []).find(p => p.mode === "CASH")?.amount || 0);
-                      const newOnline = Math.max(0, maxAllowed - oldCash);
-                      const newPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode));
-                      if (newOnline > 0) newPayments.push({ mode: "ONLINE", amount: newOnline, note: "" });
-                      if (oldCash > 0) newPayments.push({ mode: "CASH", amount: oldCash, note: "" });
-                      const remaining = Math.max(0, maxAllowed - newOnline - oldCash);
-                      if (remaining > 0) newPayments.push({ mode: "BALANCE", amount: remaining, note: "" });
-                      return { ...current, payments: newPayments };
-                    });
-                  }} onChange={(e) => {
-                    const enteredAmount = Number(e.target.value) || 0;
-                    setForm((current) => {
-                      const fixedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode));
-                      const fixedTotal = fixedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                      const maxAllowed = Math.max(0, totals.total - fixedTotal);
-                      const targetAmt = Math.min(enteredAmount, maxAllowed);
-                      let remaining = maxAllowed - targetAmt;
-                      const oldCash = Number((current.payments || []).find(p => p.mode === "CASH")?.amount || 0);
-                      const newCash = Math.min(oldCash, remaining);
-                      remaining -= newCash;
-                      const newBalance = remaining;
-                      if (targetAmt > 0) fixedPayments.push({ mode: "ONLINE", amount: targetAmt, note: "" });
-                      if (newCash > 0) fixedPayments.push({ mode: "CASH", amount: newCash, note: "" });
-                      if (newBalance > 0) fixedPayments.push({ mode: "BALANCE", amount: newBalance, note: "" });
-                      return { ...current, payments: fixedPayments };
-                    });
-                  }} />
-                </div>
-                <div className="pos-payment-input">
-                  <label><svg width="16" height="16" style={{ color: "#64748b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Cash</label>
-                  <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "CASH")?.amount || ""} onFocus={() => {
-                    setForm((current) => {
-                      const fixedTotal = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                      const maxAllowed = Math.max(0, totals.total - fixedTotal);
-                      const oldOnline = Number((current.payments || []).find(p => p.mode === "ONLINE")?.amount || 0);
-                      const newCash = Math.max(0, maxAllowed - oldOnline);
-                      const newPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode));
-                      if (oldOnline > 0) newPayments.push({ mode: "ONLINE", amount: oldOnline, note: "" });
-                      if (newCash > 0) newPayments.push({ mode: "CASH", amount: newCash, note: "" });
-                      const remaining = Math.max(0, maxAllowed - oldOnline - newCash);
-                      if (remaining > 0) newPayments.push({ mode: "BALANCE", amount: remaining, note: "" });
-                      return { ...current, payments: newPayments };
-                    });
-                  }} onChange={(e) => {
-                    const enteredAmount = Number(e.target.value) || 0;
-                    setForm((current) => {
-                      const fixedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode));
-                      const fixedTotal = fixedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                      const maxAllowed = Math.max(0, totals.total - fixedTotal);
-                      const targetAmt = Math.min(enteredAmount, maxAllowed);
-                      let remaining = maxAllowed - targetAmt;
-                      const oldOnline = Number((current.payments || []).find(p => p.mode === "ONLINE")?.amount || 0);
-                      const newOnline = Math.min(oldOnline, remaining);
-                      remaining -= newOnline;
-                      const newBalance = remaining;
-                      if (newOnline > 0) fixedPayments.push({ mode: "ONLINE", amount: newOnline, note: "" });
-                      if (targetAmt > 0) fixedPayments.push({ mode: "CASH", amount: targetAmt, note: "" });
-                      if (newBalance > 0) fixedPayments.push({ mode: "BALANCE", amount: newBalance, note: "" });
-                      return { ...current, payments: fixedPayments };
-                    });
-                  }} />
-                </div>
-                <div className="pos-payment-input">
-                  <label><svg width="16" height="16" style={{ color: "#f59e0b" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> Balance</label>
-                  <input type="number" placeholder="0.0" value={form.payments.find((payment) => payment.mode === "BALANCE")?.amount || ""} onFocus={() => {
-                    setForm((current) => {
-                      const fixedTotal = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                      const maxAllowed = Math.max(0, totals.total - fixedTotal);
-                      const oldOnline = Number((current.payments || []).find(p => p.mode === "ONLINE")?.amount || 0);
-                      const oldCash = Number((current.payments || []).find(p => p.mode === "CASH")?.amount || 0);
-                      const newBalance = Math.max(0, maxAllowed - oldOnline - oldCash);
-                      const newPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode));
-                      if (oldOnline > 0) newPayments.push({ mode: "ONLINE", amount: oldOnline, note: "" });
-                      if (oldCash > 0) newPayments.push({ mode: "CASH", amount: oldCash, note: "" });
-                      if (newBalance > 0) newPayments.push({ mode: "BALANCE", amount: newBalance, note: "" });
-                      return { ...current, payments: newPayments };
-                    });
-                  }} onChange={(e) => {
-                    const enteredAmount = Number(e.target.value) || 0;
-                    setForm((current) => {
-                      const fixedPayments = (current.payments || []).filter(p => !["ONLINE", "CASH", "BALANCE"].includes(p.mode));
-                      const fixedTotal = fixedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                      const maxAllowed = Math.max(0, totals.total - fixedTotal);
-                      const targetAmt = Math.min(enteredAmount, maxAllowed);
-                      let remaining = maxAllowed - targetAmt;
-                      const oldOnline = Number((current.payments || []).find(p => p.mode === "ONLINE")?.amount || 0);
-                      const newOnline = Math.min(oldOnline, remaining);
-                      remaining -= newOnline;
-                      const oldCash = Number((current.payments || []).find(p => p.mode === "CASH")?.amount || 0);
-                      const newCash = Math.min(oldCash, remaining);
-                      if (newOnline > 0) fixedPayments.push({ mode: "ONLINE", amount: newOnline, note: "" });
-                      if (newCash > 0) fixedPayments.push({ mode: "CASH", amount: newCash, note: "" });
-                      if (targetAmt > 0) fixedPayments.push({ mode: "BALANCE", amount: targetAmt, note: "" });
-                      return { ...current, payments: fixedPayments };
-                    });
-                  }} />
-                </div>
+                {(() => {
+                  const pm = context.settings?.paymentModes || {};
+                  const modeMap = { cash: "CASH", card: "CARD", upi: "UPI", bankTransfer: "BANK_TRANSFER", wallet: "WALLET", online: "ONLINE" };
+                  const modeLabels = { CASH: "Cash", CARD: "Card", UPI: "UPI", BANK_TRANSFER: "Bank Transfer", WALLET: "Wallet", ONLINE: "Online" };
+                  const modeIcons = { CASH: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z", CARD: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z", UPI: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z", BANK_TRANSFER: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z", WALLET: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z", ONLINE: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" };
+                  const enabledModes = Object.entries(modeMap).filter(([key]) => pm[key] !== false).map(([, val]) => val);
+                  const balanceIdx = enabledModes.indexOf("BALANCE");
+                  if (balanceIdx > -1) enabledModes.splice(balanceIdx, 1);
+                  if (!enabledModes.includes("BALANCE")) enabledModes.push("BALANCE");
+                  const allModes = [...new Set([...enabledModes, "WALLET", "ADVANCE", "AFFILIATE_CREDIT"])];
+
+                  const smartDistribute = (currentPayments, focusMode, enteredAmount) => {
+                    const fixed = currentPayments.filter(p => !allModes.includes(p.mode) || p.mode === focusMode);
+                    const fixedTotal = fixed.filter(p => p.mode !== focusMode).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                    const maxAllowed = Math.max(0, totals.total - fixedTotal);
+                    const targetAmt = Math.min(enteredAmount, maxAllowed);
+                    let remaining = maxAllowed - targetAmt;
+                    const result = fixed.filter(p => p.mode !== focusMode);
+                    if (targetAmt > 0) result.push({ mode: focusMode, amount: targetAmt, note: "" });
+                    for (const m of enabledModes) {
+                      if (m === focusMode || m === "BALANCE") continue;
+                      const avail = Math.min(Number((currentPayments.find(p => p.mode === m)?.amount) || 0), remaining);
+                      if (avail > 0) { result.push({ mode: m, amount: avail, note: "" }); remaining -= avail; }
+                    }
+                    if (remaining > 0) result.push({ mode: "BALANCE", amount: remaining, note: "" });
+                    return result;
+                  };
+
+                  const autoFill = (currentPayments, focusMode) => {
+                    const fixed = currentPayments.filter(p => !allModes.includes(p.mode) || p.mode === focusMode);
+                    const fixedTotal = fixed.filter(p => p.mode !== focusMode).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+                    const maxAllowed = Math.max(0, totals.total - fixedTotal);
+                    let remaining = maxAllowed;
+                    const result = fixed.filter(p => p.mode !== focusMode);
+                    for (const m of enabledModes) {
+                      if (m === focusMode || m === "BALANCE") continue;
+                      const avail = Math.min(Number((currentPayments.find(p => p.mode === m)?.amount) || 0), remaining);
+                      if (avail > 0) { result.push({ mode: m, amount: avail, note: "" }); remaining -= avail; }
+                    }
+                    const fill = Math.max(0, remaining);
+                    if (fill > 0) result.push({ mode: focusMode, amount: fill, note: "" });
+                    const leftover = Math.max(0, maxAllowed - fill - (maxAllowed - remaining));
+                    if (leftover > 0) result.push({ mode: "BALANCE", amount: leftover, note: "" });
+                    return result;
+                  };
+
+                  return enabledModes.map(mode => (
+                    <div key={mode} className="pos-payment-input">
+                      <label>
+                        <svg width="16" height="16" style={{ color: mode === "CASH" ? "#64748b" : "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={modeIcons[mode] || modeIcons.CASH} /></svg>
+                        {modeLabels[mode] || mode}
+                      </label>
+                      <input type="number" placeholder="0.0" value={form.payments.find(p => p.mode === mode)?.amount || ""} onFocus={() => setForm(c => ({ ...c, payments: autoFill(c.payments, mode) }))} onChange={(e) => setForm(c => ({ ...c, payments: smartDistribute(c.payments, mode, Number(e.target.value) || 0) }))} />
+                    </div>
+                  ));
+                })()}
                 {form.customerId && (() => {
                   const customer = context.customers.find(c => c.id === form.customerId);
                   const adv = Number(customer?.advanceAmount || 0);

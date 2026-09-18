@@ -1721,7 +1721,8 @@ export default function ReportsHubPage() {
           .rpt-stat-label { font-size: 0.58rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1px; }
           .rpt-stat-val { font-size: 0.78rem; font-weight: 700; color: #0f172a; white-space: nowrap; }
           .rpt-table-wrap { flex: 1; margin: 10px 12px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: auto; }
-          .rpt-table { width: 100%; border-collapse: collapse; }
+          .rpt-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+          .rpt-table th, .rpt-table td { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
           .rpt-table th { background: #f8fafc; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; text-align: left; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 2; font-size: 0.68rem; }
           .rpt-table td { padding: 7px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; font-size: 0.78rem; }
           .rpt-table tr:hover td { background: #f8fafc; }

@@ -2074,10 +2074,9 @@ export default function AppointmentsPage() {
                       { key: "orders", label: "Orders" },
                       { key: "membership", label: "Membership" },
                       { key: "giftcard", label: "Gift Card" },
-                      { key: "advance", label: "Advance" },
+                      { key: "wallet", label: "Wallet" },
                       { key: "duebalance", label: "Due Balances" },
                       { key: "packages", label: "Packages" },
-                      { key: "family", label: "Family Members" },
                       { key: "notes", label: "Notes" },
                     ].find(t => t.key === detailTab)?.label || "Details"}
                   </span>
@@ -2314,31 +2313,6 @@ export default function AppointmentsPage() {
                                 </div>
                               );
                             })
-                          )}
-                        </div>
-                      )}
-
-                      {/* Family Members Tab */}
-                      {detailTab === "family" && (
-                        <div className="cust-detail-section">
-                          <div className="cust-detail-section-title">Family Members</div>
-                          {(customerDetail.familyMembers || []).length === 0 ? (
-                            <div className="cust-empty-state">
-                              <Users size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
-                              <div>No family members linked yet</div>
-                            </div>
-                          ) : (
-                            (customerDetail.familyMembers || []).map((fm) => (
-                              <div key={fm.id} className="cust-membership-card">
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <div>
-                                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>{fm.name}</div>
-                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{fm.phone}</div>
-                                  </div>
-                                  <span className="cust-mem-status ACTIVE">Linked</span>
-                                </div>
-                              </div>
-                            ))
                           )}
                         </div>
                       )}
