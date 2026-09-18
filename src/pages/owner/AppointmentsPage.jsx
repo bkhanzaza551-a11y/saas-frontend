@@ -311,6 +311,7 @@ export default function AppointmentsPage() {
     isWalkIn: false,
     items: [emptyItem],
     smsToGuest: true,
+    whatsappToGuest: true,
     smsToOwner: false
   });
 
@@ -587,6 +588,7 @@ export default function AppointmentsPage() {
       isWalkIn: false,
       items: [{ serviceId: "", staffUserIds: staffId ? [staffId] : [], startAt: startAtStr, endAt: endAtStr, notes: "" }],
       smsToGuest: true,
+      whatsappToGuest: true,
       smsToOwner: false
     });
     setServiceSearch("");
@@ -633,6 +635,7 @@ export default function AppointmentsPage() {
       isWalkIn: Boolean(appt.isWalkIn),
       items: formattedItems,
       smsToGuest: true,
+      whatsappToGuest: true,
       smsToOwner: false,
       status: appt.status || "PENDING",
       convertedInvoiceId: appt.convertedInvoiceId || null
@@ -1876,12 +1879,12 @@ export default function AppointmentsPage() {
                 {!editMode && (
                   <div className="sp-footer-checks">
                     <label style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" className="styled-checkbox" checked={form.smsToGuest} onChange={(event) => setForm({ ...form, smsToGuest: event.target.checked })} style={{ margin: 0 }} />
-                      Confirmation Email
+                      <input type="checkbox" className="styled-checkbox" checked={form.whatsappToGuest !== false} onChange={(event) => setForm({ ...form, whatsappToGuest: event.target.checked })} style={{ margin: 0 }} />
+                      WhatsApp to Guest
                     </label>
                     <label style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
-                      <input type="checkbox" className="styled-checkbox" checked={form.smsToOwner} onChange={(event) => setForm({ ...form, smsToOwner: event.target.checked })} style={{ margin: 0 }} />
-                      Email To Owner
+                      <input type="checkbox" className="styled-checkbox" checked={form.smsToGuest !== false} onChange={(event) => setForm({ ...form, smsToGuest: event.target.checked })} style={{ margin: 0 }} />
+                      SMS to Guest
                     </label>
                   </div>
                 )}
