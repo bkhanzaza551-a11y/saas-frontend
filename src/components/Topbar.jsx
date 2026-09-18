@@ -637,6 +637,27 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           >
             <Menu size={20} />
           </button>
+          {showBackButton && (
+            <button 
+              type="button" 
+              onClick={() => navigate(-1)}
+              style={{ 
+                background: "#f1f5f9", 
+                border: "none", 
+                cursor: "pointer", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center", 
+                padding: 6, 
+                borderRadius: 6, 
+                color: "#334155",
+                marginLeft: 4
+              }}
+              title="Go Back"
+            >
+              <ChevronLeft size={18} strokeWidth={2.5} />
+            </button>
+          )}
           {auth?.user?.systemRole === "SUPER_ADMIN" ? (
             <Link to="/super-admin/dashboard" style={{ textDecoration: "none" }}>
               <div className="salonnest-salon-name" style={{ borderLeft: "none", paddingLeft: 0, fontWeight: 800, fontSize: "1.2rem", color: "#1e1b4b", cursor: "pointer" }}>
