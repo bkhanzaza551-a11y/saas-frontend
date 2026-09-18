@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import { useBranch } from "../context/BranchContext";
 import { useAuth } from "../context/AuthContext";
-import { Menu, Settings, FileText, Monitor, Calendar as CalendarIcon, Users, BarChart2, Package, TrendingUp, Search, Bell, LayoutDashboard, Building2, ChevronDown, Check } from "lucide-react";
+import { Menu, Settings, ChevronLeft, FileText, Monitor, Calendar as CalendarIcon, Users, BarChart2, Package, TrendingUp, Search, Bell, LayoutDashboard, Building2, ChevronDown, Check } from "lucide-react";
 
 export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogout }) {
   const navigate = useNavigate();
@@ -28,6 +28,14 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   const enabled = (key) => featureFlags[key] !== false;
   const canPos = can("pos") && enabled("pos");
   const canNotifications = can("notifications");
+  
+  const MAIN_TABS = [
+    "/admin/dashboard", "/admin/pos", "/admin/appointments", "/admin/customers",
+    "/admin/services", "/admin/inventory", "/admin/users", "/admin/expenses/dashboard",
+    "/admin/reports", "/admin/order-dashboard", "/admin/manage"
+  ];
+  const showBackButton = location.pathname.startsWith("/admin/") && !MAIN_TABS.includes(location.pathname);
+
   const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
   const canGlobalSearch = can("customers") || can("appointments") || can("services") || isSuperAdmin;
   const canSettings = can("settings", "edit");
