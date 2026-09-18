@@ -848,9 +848,10 @@ const handleExportClick = async (format) => {
     try {
       await api.post("/owner/customers/export/verify-otp", { otp: otpValue });
       setShowOtpModal(false);
-      handleExport(pendingExportFormat); // The actual download function
+      await api.post("/owner/customers/export/email", { format: pendingExportFormat, branchId: selectedBranchId || undefined });
+      setToastMessage({ type: "success", title: "Export Sent", message: "Customer export file has been sent to your email." });
     } catch (err) {
-      setToastMessage({ type: "error", title: "Verification Failed", message: err.response?.data?.message || "Invalid OTP" });
+      setToastMessage({ type: "error", title: "Failed", message: err.response?.data?.message || "Could not send export email" });
     } finally {
       setIsVerifyingOtp(false);
     }
