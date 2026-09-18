@@ -1915,7 +1915,7 @@ export default function PosPage() {
             )}
           </div>
 
-          {tab === "billing" && serviceSubcategories.length > 0 && (
+          {tab === "billing" && serviceSubcategories.length > 1 && (
             <div style={{ display: "flex", gap: 6, padding: "0 8px 6px", overflowX: "auto" }}>
               <button className={`pos-cat-btn ${!serviceSubcategoryFilter ? "active" : ""}`} onClick={() => setServiceSubcategoryFilter("")} style={{ fontSize: "0.65rem", padding: "4px 8px" }}>ALL</button>
               {serviceSubcategories.map(sc => (
@@ -2598,9 +2598,7 @@ export default function PosPage() {
               <div className="pos-message-config">
                 <h5>Message Configurations:</h5>
                 <div className="pos-message-options">
-                  <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
-                    <input type="checkbox" checked={form.sendFeedbackMessage !== false} onChange={(e) => setForm(c => ({ ...c, sendFeedbackMessage: e.target.checked }))} style={{ width: 16, height: 16, margin: 0, cursor: "pointer" }} /> Feedback Message
-                  </label>
+                  
                   <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
                     <input type="checkbox" checked={form.sendInvoiceMessage !== false} onChange={(e) => setForm(c => ({ ...c, sendInvoiceMessage: e.target.checked }))} style={{ width: 16, height: 16, margin: 0, cursor: "pointer" }} /> Invoice Message
                   </label>
