@@ -2604,6 +2604,7 @@ export default function PosPage() {
                   <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
                     <input type="checkbox" checked={form.sendInvoiceMessage !== false} onChange={(e) => setForm(c => ({ ...c, sendInvoiceMessage: e.target.checked }))} style={{ width: 16, height: 16, margin: 0, cursor: "pointer" }} /> Invoice Message
                   </label>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: 4 }}>Messages require WhatsApp/SMS credits. Check Dashboard for balance.</div>
                   {totals.membershipWalletUsed > 0 && (
                     <div style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 600, marginTop: 8 }}>
                       Payment done by: <span style={{ color: "#0f172a" }}>Membership ₹{totals.membershipWalletUsed.toFixed(0)}</span>

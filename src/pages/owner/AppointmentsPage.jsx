@@ -724,11 +724,21 @@ export default function AppointmentsPage() {
         primaryStaffUserId: validItems[0]?.staffUserIds?.[0] || form.items[0]?.staffUserIds?.[0] || ""
       };
       if (editMode) {
-        await api.patch(`/owner/appointments/${editingAppointmentId}`, payload);
-        setStatus({ error: "", success: "Appointment updated successfully." });
+        const res = await api.patch(`/owner/appointments/${editingAppointmentId}`, payload);
+        if (res.data?.warnings?.length > 0) {
+          const warningMsg = res.data.warnings.map(w => `${w.channel.toUpperCase()}: ${w.message}`).join("; ");
+          setStatus({ error: "", success: `Appointment updated. Warning: ${warningMsg}` });
+        } else {
+          setStatus({ error: "", success: "Appointment updated successfully." });
+        }
       } else {
-        await api.post("/owner/appointments", payload);
-        setStatus({ error: "", success: "Appointment created." });
+        const res = await api.post("/owner/appointments", payload);
+        if (res.data?.warnings?.length > 0) {
+          const warningMsg = res.data.warnings.map(w => `${w.channel.toUpperCase()}: ${w.message}`).join("; ");
+          setStatus({ error: "", success: `Appointment created. Warning: ${warningMsg}` });
+        } else {
+          setStatus({ error: "", success: "Appointment created." });
+        }
       }
       setIsCreateModalOpen(false);
       setShowConfirmModal(false);

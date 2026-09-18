@@ -162,6 +162,21 @@ export default function OwnerDashboard() {
               </div>
             </div>
 
+            {/* Credit Warnings */}
+            {(data.creditWarnings?.whatsapp || data.creditWarnings?.sms) && (
+              <div style={{ border: "1px solid #fed7aa", borderRadius: 16, overflow: "hidden", marginBottom: 16 }}>
+                <div style={{ background: "#fff7ed", padding: "16px 20px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #fed7aa" }}>
+                  <AlertTriangle size={20} color="#ea580c" />
+                  <div>
+                    <div style={{ color: "#9a3412", fontWeight: 700, fontSize: "1rem" }}>Low Messaging Credits</div>
+                    {data.creditWarnings.whatsapp && <div style={{ color: "#ea580c", fontSize: "0.85rem", fontWeight: 600 }}>{data.creditWarnings.whatsapp}</div>}
+                    {data.creditWarnings.sms && <div style={{ color: "#ea580c", fontSize: "0.85rem", fontWeight: 600 }}>{data.creditWarnings.sms}</div>}
+                    <div style={{ color: "#9a3412", fontSize: "0.78rem", marginTop: 4 }}>Appointment confirmations via WhatsApp/SMS may fail. <span style={{ textDecoration: "underline", cursor: "pointer" }} onClick={() => navigate("/admin/settings")}>Buy credits in Settings</span></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Inventory Alerts */}
             {data.lowStockAlertCount > 0 ? (
               <div style={{ border: "1px solid #fecaca", borderRadius: 16, overflow: "hidden" }}>
