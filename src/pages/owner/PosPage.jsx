@@ -92,6 +92,7 @@ export default function PosPage() {
   const [packageSearch, setPackageSearch] = useState("");
   const [membershipSearch, setMembershipSearch] = useState("");
   const [serviceCategoryFilter, setServiceCategoryFilter] = useState("");
+  const [serviceSubcategoryFilter, setServiceSubcategoryFilter] = useState("");
   const [productCategoryFilter, setProductCategoryFilter] = useState("");
   const [paymentLinkForm, setPaymentLinkForm] = useState({ gatewayName: "RAZORPAY_PLACEHOLDER", expiresAt: "", note: "" });
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -807,6 +808,16 @@ export default function PosPage() {
     return map;
   }, [context.serviceCategories]);
 
+  const selectedServiceCategory = useMemo(() => {
+    if (!serviceCategoryFilter) return null;
+    return (context.serviceCategories || []).find(c => c.id === serviceCategoryFilter || c.name === serviceCategoryFilter) || null;
+  }, [serviceCategoryFilter, context.serviceCategories]);
+
+  const serviceSubcategories = useMemo(() => {
+    if (!selectedServiceCategory?.children) return [];
+    return selectedServiceCategory.children;
+  }, [selectedServiceCategory]);
+
   const serviceTileGroups = useMemo(() => {
     let list = context.services || [];
     if (posGender) {
@@ -829,6 +840,12 @@ export default function PosPage() {
         return false;
       });
     }
+    if (serviceSubcategoryFilter) {
+      list = list.filter(s => {
+        const catId = s.categoryId || s.category?.id || "";
+        return catId === serviceSubcategoryFilter;
+      });
+    }
     const grouped = {};
     list.forEach(s => {
       const cat = s.category?.name || "Other";
@@ -836,7 +853,7 @@ export default function PosPage() {
       grouped[cat].push(s);
     });
     return Object.entries(grouped).map(([title, items]) => ({ title, items }));
-  }, [context.services, posGender, serviceSearch, serviceCategoryFilter, categoryDescendantMap, context.serviceCategories]);
+  }, [context.services, posGender, serviceSearch, serviceCategoryFilter, serviceSubcategoryFilter, categoryDescendantMap, context.serviceCategories]);
 
   const productCategories = useMemo(() => {
     const cats = new Map();
@@ -1813,13 +1830,22 @@ export default function PosPage() {
                </>
             ) : tab === "billing" ? (
                <>
-                 <button className={`pos-cat-btn ${!serviceCategoryFilter ? "active" : ""}`} onClick={() => setServiceCategoryFilter("")}>ALL</button>
-                 {serviceCategories.slice(0, 7).map(c => <button key={c.id} className={`pos-cat-btn ${serviceCategoryFilter === (c.id || c.name) ? "active" : ""}`} onClick={() => setServiceCategoryFilter(c.id || c.name)}>{c.name}</button>)}
+                 <button className={`pos-cat-btn ${!serviceCategoryFilter ? "active" : ""}`} onClick={() => { setServiceCategoryFilter(""); setServiceSubcategoryFilter(""); }}>ALL</button>
+                 {serviceCategories.slice(0, 7).map(c => <button key={c.id} className={`pos-cat-btn ${serviceCategoryFilter === (c.id || c.name) ? "active" : ""}`} onClick={() => { setServiceCategoryFilter(c.id || c.name); setServiceSubcategoryFilter(""); }}>{c.name}</button>)}
                </>
             ) : (
               <div style={{ padding: "8px 12px", color: "#64748b", fontSize: 13 }}>{tab === "packages" ? "Available Packages" : "Available Memberships"}</div>
             )}
           </div>
+
+          {tab === "billing" && serviceSubcategories.length > 0 && (
+            <div style={{ display: "flex", gap: 6, padding: "0 8px 6px", overflowX: "auto" }}>
+              <button className={`pos-cat-btn ${!serviceSubcategoryFilter ? "active" : ""}`} onClick={() => setServiceSubcategoryFilter("")} style={{ fontSize: "0.65rem", padding: "4px 8px" }}>ALL</button>
+              {serviceSubcategories.map(sc => (
+                <button key={sc.id} className={`pos-cat-btn ${serviceSubcategoryFilter === sc.id ? "active" : ""}`} onClick={() => setServiceSubcategoryFilter(sc.id)} style={{ fontSize: "0.65rem", padding: "4px 8px" }}>{sc.name}</button>
+              ))}
+            </div>
+          )}
 
           <div className="pos-item-list-container">
             {tab === "products" ? (
@@ -2126,7 +2152,12 @@ export default function PosPage() {
                             />
                           </div>
                         </td>
-                        <td>{tax.toFixed(0)}</td>
+                        <td>
+                          <input type="number" min="0" max="100" step="0.1" value={item.taxPct || 0} onChange={(e) => {
+                            const newTax = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                            updateItem(index, { taxPct: newTax, taxOverridden: true });
+                          }} style={{ width: 56, padding: '2px 4px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: '0.78rem', textAlign: 'center', background: item.taxOverridden ? '#fffbeb' : '#fff' }} title={item.taxOverridden ? "Tax manually overridden" : "Tax % (auto-filled)"} />
+                        </td>
                         <td>{Math.max(0, total - Number(item.membershipWalletUsed || 0)).toFixed(0)}</td>
                         <td style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                           {item.itemType === "SERVICE" && (
