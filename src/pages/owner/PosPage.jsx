@@ -2076,6 +2076,7 @@ export default function PosPage() {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 8 }}>
                 {customerBenefits.loyalty > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fef3c7", color: "#92400e", fontWeight: 600, border: "1px solid #fde68a" }}>Loyalty: {customerBenefits.loyalty} pts</span>}
                 {customerBenefits.walletBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dcfce7", color: "#166534", fontWeight: 600, border: "1px solid #bbf7d0" }}>Wallet: ₹{customerBenefits.walletBalance}</span>}
+                {customerBenefits.walletBalance <= 0 && form.customerId && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#f1f5f9", color: "#94a3b8", fontWeight: 600, border: "1px solid #e2e8f0" }}>Wallet: ₹0 (Empty)</span>}
                 {customerBenefits.advanceBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dbeafe", color: "#1e40af", fontWeight: 600, border: "1px solid #bfdbfe" }}>Advance: ₹{customerBenefits.advanceBalance}</span>}
                 {customerBenefits.giftCardTotal > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fce7f3", color: "#9d174d", fontWeight: 600, border: "1px solid #fbcfe8" }}>Gift Card: ₹{customerBenefits.giftCardTotal}</span>}
                 {customerBenefits.activeMemberships > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#ede9fe", color: "#5b21b6", fontWeight: 600, border: "1px solid #ddd6fe" }}>Membership: {customerBenefits.membershipPlans.join(", ")}</span>}
@@ -2486,7 +2487,13 @@ export default function PosPage() {
                   if (balanceIdx > -1) enabledModes.splice(balanceIdx, 1);
                   if (!enabledModes.includes("BALANCE")) enabledModes.push("BALANCE");
                   const hasMembershipWallet = form.appliedMembershipId && !!(form.payments || []).find(p => p.mode === "WALLET");
-                  const displayModes = enabledModes.filter(m => !(m === "WALLET" && hasMembershipWallet));
+                  const walletBalance = customerBenefits?.walletBalance || 0;
+                  const hasWalletBalance = walletBalance > 0;
+                  const displayModes = enabledModes.filter(m => {
+                    if (m === "WALLET" && hasMembershipWallet) return false;
+                    if (m === "WALLET" && !hasWalletBalance && !hasMembershipWallet) return false;
+                    return true;
+                  });
                   const allModes = [...new Set([...displayModes, "WALLET", "ADVANCE", "AFFILIATE_CREDIT"])];
 
                   const smartDistribute = (currentPayments, focusMode, enteredAmount) => {
@@ -2524,15 +2531,22 @@ export default function PosPage() {
                     return result;
                   };
 
-                  return displayModes.map(mode => (
+                  return displayModes.map(mode => {
+                    const walletAvail = mode === "WALLET" ? (customerBenefits?.walletBalance || 0) : 0;
+                    return (
                     <div key={mode} className="pos-payment-input">
                       <label>
                         <svg width="16" height="16" style={{ color: mode === "CASH" ? "#64748b" : "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={modeIcons[mode] || modeIcons.CASH} /></svg>
-                        {modeLabels[mode] || mode}
+                        {mode === "WALLET" ? `Wallet (${formatMoney(walletAvail)})` : (modeLabels[mode] || mode)}
                       </label>
-                      <input type="number" placeholder="0.0" value={form.payments.find(p => p.mode === mode)?.amount || ""} onFocus={() => setForm(c => ({ ...c, payments: autoFill(c.payments, mode) }))} onChange={(e) => setForm(c => ({ ...c, payments: smartDistribute(c.payments, mode, Number(e.target.value) || 0) }))} />
+                      <input type="number" placeholder="0.0" max={mode === "WALLET" ? walletAvail : undefined} value={form.payments.find(p => p.mode === mode)?.amount || ""} onFocus={() => setForm(c => ({ ...c, payments: autoFill(c.payments, mode) }))} onChange={(e) => {
+                        let val = Number(e.target.value) || 0;
+                        if (mode === "WALLET" && val > walletAvail) val = walletAvail;
+                        setForm(c => ({ ...c, payments: smartDistribute(c.payments, mode, val) }));
+                      }} />
                     </div>
-                  ));
+                    );
+                  });
                 })()}
                 {form.customerId && (() => {
                   const customer = context.customers.find(c => c.id === form.customerId);
