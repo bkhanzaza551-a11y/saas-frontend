@@ -813,8 +813,10 @@ export default function PosPage() {
       if (existingAdvance && Number(existingAdvance.amount || 0) > 0) return current;
       // Auto-apply advance up to min(advance, total)
       const useAdv = Math.min(adv, total);
-      const newPayments = (current.payments || []).filter(p => p.mode !== "ADVANCE");
+      const newPayments = (current.payments || []).filter(p => p.mode !== "ADVANCE" && p.mode !== "BALANCE");
       newPayments.push({ mode: "ADVANCE", amount: useAdv, note: "Advance auto-applied" });
+      const remaining = Math.max(0, total - useAdv);
+      if (remaining > 0) newPayments.push({ mode: "BALANCE", amount: remaining, note: "" });
       return { ...current, payments: newPayments };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -853,8 +855,10 @@ export default function PosPage() {
       if (existingWallet && Number(existingWallet.amount || 0) > 0) return current;
       const wb = customerBenefits.walletBalance;
       const useW = Math.min(wb, total);
-      const newPayments = (current.payments || []).filter(p => p.mode !== "WALLET");
+      const newPayments = (current.payments || []).filter(p => p.mode !== "WALLET" && p.mode !== "BALANCE");
       newPayments.push({ mode: "WALLET", amount: useW, note: "Wallet auto-applied" });
+      const remaining = Math.max(0, total - useW);
+      if (remaining > 0) newPayments.push({ mode: "BALANCE", amount: remaining, note: "" });
       return { ...current, payments: newPayments };
     });
   }, [form.customerId, customerBenefits?.walletBalance, form.items?.length, context.settings, form.discount, form.appliedMembershipId]);
@@ -2469,26 +2473,7 @@ export default function PosPage() {
                 {form.appliedMembershipId && form.payments.find(p => p.mode === "WALLET") && (
                   <div className="pos-payment-input" style={{ gridColumn: "1 / -1" }}>
                     <label><svg width="16" height="16" style={{ color: "#2563eb" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> Membership</label>
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                      <input type="number" readOnly value={form.payments.find((payment) => payment.mode === "WALLET")?.amount || ""} style={{ background: "#f1f5f9", cursor: "not-allowed", flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 8 }} />
-                      <button type="button" onClick={() => {
-                        setForm(c => {
-                          const newPayments = (c.payments || []).filter(p => p.mode !== "WALLET");
-                          const newItems = (c.items || []).map(item => ({ ...item, membershipWalletUsed: 0 }));
-                          
-                          const paidSoFar = newPayments.filter(p => p.mode !== "BALANCE").reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                          const balanceNeeded = Math.max(0, totals.total - paidSoFar);
-                          const balanceEntry = newPayments.find(p => p.mode === "BALANCE");
-                          if (balanceEntry) {
-                            balanceEntry.amount = balanceNeeded;
-                          } else if (balanceNeeded > 0) {
-                            newPayments.push({ mode: "BALANCE", amount: balanceNeeded, note: "" });
-                          }
-
-                          return { ...c, payments: newPayments, items: newItems, appliedMembershipId: "" };
-                        });
-                      }} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontWeight: 700, padding: "0 8px", fontSize: 13 }}>Remove</button>
-                    </div>
+                    <input type="number" readOnly value={form.payments.find((payment) => payment.mode === "WALLET")?.amount || ""} style={{ background: "#f1f5f9", cursor: "not-allowed", padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 8 }} />
                   </div>
                 )}
                 {(() => {
@@ -2500,7 +2485,7 @@ export default function PosPage() {
                   const balanceIdx = enabledModes.indexOf("BALANCE");
                   if (balanceIdx > -1) enabledModes.splice(balanceIdx, 1);
                   if (!enabledModes.includes("BALANCE")) enabledModes.push("BALANCE");
-                  const hasMembershipWallet = !!(form.payments || []).find(p => p.mode === "WALLET");
+                  const hasMembershipWallet = form.appliedMembershipId && !!(form.payments || []).find(p => p.mode === "WALLET");
                   const displayModes = enabledModes.filter(m => !(m === "WALLET" && hasMembershipWallet));
                   const allModes = [...new Set([...displayModes, "WALLET", "ADVANCE", "AFFILIATE_CREDIT"])];
 

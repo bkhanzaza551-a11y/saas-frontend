@@ -1402,11 +1402,12 @@ export default function SettingsPage() {
             <h3>Payment Modes</h3>
           </div>
           <div className="toggle-options-grid">
-            {["cash", "online"].map((key) => {
+            {["cash", "card", "upi", "bankTransfer", "wallet", "online"].map((key) => {
                 const value = paymentModes[key] ?? true;
+                const labelMap = { cash: "Cash", card: "Card", upi: "UPI", bankTransfer: "Bank Transfer", wallet: "Wallet", online: "Online" };
                 return (
               <div key={key} className="toggle-option-row">
-                <span className="label-text">{key === "bankTransfer" ? "Bank Transfer" : key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                <span className="label-text">{labelMap[key] || key}</span>
                 <label className="toggle-switch-label">
                   <input type="checkbox" checked={value} onChange={() => togglePaymentMode(key)} />
                   <span className="toggle-switch-slider" />
