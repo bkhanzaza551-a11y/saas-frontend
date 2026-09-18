@@ -1291,7 +1291,15 @@ export default function AppointmentsPage() {
           gap: 8px;
           flex-shrink: 0;
         }
-        .sp-footer-checks { display: flex; flex-direction: row; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: center; background: #f8fafc; padding: 14px 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 16px; } @media(max-width: 480px) { .sp-footer-checks { flex-direction: column; align-items: flex-start; gap: 12px; } }
+        
+        /* Toggle Switch */
+        .app-toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .app-toggle-switch input { opacity: 0; width: 0; height: 0; margin: 0; }
+        .app-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 24px; }
+        .app-toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .app-toggle-switch input:checked + .app-toggle-slider { background-color: #3b82f6; }
+        .app-toggle-switch input:checked + .app-toggle-slider:before { transform: translateX(20px); }
+        .sp-footer-checks {  display: flex; flex-direction: row; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: center; background: #f8fafc; padding: 14px 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 16px; } @media(max-width: 480px) { .sp-footer-checks { flex-direction: column; align-items: flex-start; gap: 12px; } }
         .sp-btn-primary {
           width: 100% !important;
           padding: 6px 12px !important;
