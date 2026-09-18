@@ -1892,11 +1892,11 @@ export default function AppointmentsPage() {
                   <div className="sp-footer-checks">
                     <label style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
                       <input type="checkbox" className="styled-checkbox" checked={form.whatsappToGuest !== false} onChange={(event) => setForm({ ...form, whatsappToGuest: event.target.checked })} style={{ margin: 0 }} />
-                      WhatsApp to Guest
+                      WhatsApp to Customer
                     </label>
                     <label style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, fontSize: "0.85rem", fontWeight: 500, color: "#334155", cursor: "pointer" }}>
                       <input type="checkbox" className="styled-checkbox" checked={form.smsToGuest !== false} onChange={(event) => setForm({ ...form, smsToGuest: event.target.checked })} style={{ margin: 0 }} />
-                      SMS to Guest
+                      SMS to Customer
                     </label>
                   </div>
                 )}
