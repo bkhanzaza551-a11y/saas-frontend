@@ -344,7 +344,7 @@ export default function PosPage() {
       setToastMessage({
         type: "success",
         title: "Coupon Applied",
-        message: `${data.coupon.title || data.coupon.code} Ã¢─â€ ${formatMoney(data.totalDiscount)} discount on ${data.eligibleItems.filter(i => i.isEligible).length} eligible item(s).${data.totalPartnerCredits > 0 ? ` Partner earns ${data.totalPartnerCredits.toFixed(1)} credits.` : ""}`,
+        message: `${data.coupon.title || data.coupon.code} - ${formatMoney(data.totalDiscount)} discount on ${data.eligibleItems.filter(i => i.isEligible).length} eligible item(s).${data.totalPartnerCredits > 0 ? ` Partner earns ${data.totalPartnerCredits.toFixed(1)} credits.` : ""}`,
       });
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to validate coupon.";
@@ -805,10 +805,10 @@ export default function PosPage() {
       const discount = Number(current.discount || 0);
       const total = subtotal + itemTax + extraTax - discount;
       if (total <= 0) return current;
-      // Check existing non-advance payments Ã¢─â€ if user has already entered CASH/ONLINE/BALANCE, don't auto-apply
+      // Check existing non-advance payments - if user has already entered CASH/ONLINE/BALANCE, don't auto-apply
       const nonAdvancePayments = (current.payments || []).filter(p => p.mode !== "ADVANCE" && Number(p.amount || 0) > 0);
       if (nonAdvancePayments.length > 0) return current;
-      // Check if user has already set an advance amount Ã¢─â€ if yes, don't override
+      // Check if user has already set an advance amount - if yes, don't override
       const existingAdvance = (current.payments || []).find(p => p.mode === "ADVANCE");
       if (existingAdvance && Number(existingAdvance.amount || 0) > 0) return current;
       // Auto-apply advance up to min(advance, total)
@@ -819,6 +819,45 @@ export default function PosPage() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.customerId, context.customers, form.items?.length, context.settings, form.discount]);
+
+  // Auto-apply wallet: when a customer with wallet balance is selected and no membership is applied,
+  // auto-fill the WALLET payment up to min(walletBalance, total).
+  useEffect(() => {
+    if (!form.customerId) return;
+    if (form.appliedMembershipId) return;
+    if (!customerBenefits || customerBenefits.walletBalance <= 0) return;
+    const itemsCount = (form.items || []).filter(i => i.serviceId || i.productId || i.membershipPlanId || i.packageId || i.giftCardId || i.itemType === "GIFT_CARD").length;
+    if (itemsCount === 0) return;
+    setForm((current) => {
+      if (current.appliedMembershipId) return current;
+      const advancedSettings = context.settings?.advancedSettings && typeof context.settings.advancedSettings === "object" ? context.settings.advancedSettings : {};
+      const isInclusive = advancedSettings?.taxMapping?.inclusiveTax === true;
+      const subtotal = (current.items || []).reduce((sum, item) => {
+        const price = item.unitPrice != null ? Number(item.unitPrice) : Number(getCatalogBasePrice(item) || 0);
+        return sum + Number(item.qty || 0) * price;
+      }, 0);
+      const itemTax = (current.items || []).reduce((sum, item) => {
+        const price = item.unitPrice != null ? Number(item.unitPrice) : Number(getCatalogBasePrice(item) || 0);
+        const taxPct = Number(item.taxPct || 0);
+        const linePreTax = Number(item.qty || 0) * price;
+        if (isInclusive && taxPct > 0) return sum + (linePreTax * taxPct) / (100 + taxPct);
+        return sum + (linePreTax * taxPct) / 100;
+      }, 0);
+      const extraTax = Number(current.tax || 0);
+      const discount = Number(current.discount || 0);
+      const total = subtotal + itemTax + extraTax - discount;
+      if (total <= 0) return current;
+      const nonWalletPayments = (current.payments || []).filter(p => p.mode !== "WALLET" && p.mode !== "BALANCE" && Number(p.amount || 0) > 0);
+      if (nonWalletPayments.length > 0) return current;
+      const existingWallet = (current.payments || []).find(p => p.mode === "WALLET");
+      if (existingWallet && Number(existingWallet.amount || 0) > 0) return current;
+      const wb = customerBenefits.walletBalance;
+      const useW = Math.min(wb, total);
+      const newPayments = (current.payments || []).filter(p => p.mode !== "WALLET");
+      newPayments.push({ mode: "WALLET", amount: useW, note: "Wallet auto-applied" });
+      return { ...current, payments: newPayments };
+    });
+  }, [form.customerId, customerBenefits?.walletBalance, form.items?.length, context.settings, form.discount, form.appliedMembershipId]);
 
   const serviceCategories = useMemo(() => {
     if (!context.serviceCategories) return [];
@@ -2262,7 +2301,7 @@ export default function PosPage() {
                           <span>Subtotal:</span>
                           <span style={{ textDecoration: "line-through" }}>{formatMoney(totals.total.toFixed(0))}</span>
                           <span style={{ background: "#d1fae5", color: "#065f46", fontWeight: 700, fontSize: 11, padding: "2px 8px", borderRadius: 10, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                            <span>Ã¢Ë†â€™</span>Advance: {formatMoney(advanceUsed.toFixed(0))}
+                            <span>-</span>Advance: {formatMoney(advanceUsed.toFixed(0))}
                           </span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -2275,9 +2314,9 @@ export default function PosPage() {
                   }
                   return (
                     <div>
-                      {totals.couponDiscount > 0 && <div style={{ fontSize: 12, color: "#2563eb", marginBottom: 2 }}>Coupon: Ã¢Ë†â€™{formatMoney(totals.couponDiscount.toFixed(0))}</div>}
-                      {totals.gcDiscount > 0 && <div style={{ fontSize: 12, color: "#7c3aed", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>Gift Card: Ã¢Ë†â€™{formatMoney(totals.gcDiscount.toFixed(0))} <button type="button" onClick={removeGiftCard} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11, padding: 0, fontWeight: 700 }}>Remove</button></div>}
-                      {Number(form.discount || 0) > 0 && <div style={{ fontSize: 12, color: "#16a34a", marginBottom: 2 }}>Discount: Ã¢Ë†â€™{formatMoney(Number(form.discount || 0).toFixed(0))}</div>}
+                      {totals.couponDiscount > 0 && <div style={{ fontSize: 12, color: "#2563eb", marginBottom: 2 }}>Coupon: -{formatMoney(totals.couponDiscount.toFixed(0))}</div>}
+                      {totals.gcDiscount > 0 && <div style={{ fontSize: 12, color: "#7c3aed", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>Gift Card: -{formatMoney(totals.gcDiscount.toFixed(0))} <button type="button" onClick={removeGiftCard} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11, padding: 0, fontWeight: 700 }}>Remove</button></div>}
+                      {Number(form.discount || 0) > 0 && <div style={{ fontSize: 12, color: "#16a34a", marginBottom: 2 }}>Discount: -{formatMoney(Number(form.discount || 0).toFixed(0))}</div>}
                       Grand Total <strong>{formatMoney(totals.total.toFixed(0))}</strong>
                     </div>
                   );
@@ -2302,14 +2341,14 @@ export default function PosPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#1e40af" }}>
                     Coupon: {couponValidation.coupon.code}
-                    {couponValidation.coupon.title ? ` Ã¢─â€ ${couponValidation.coupon.title}` : ""}
+                    {couponValidation.coupon.title ? ` - ${couponValidation.coupon.title}` : ""}
                   </span>
                   <button type="button" onClick={removeCoupon} style={{ background: "none", border: "none", color: "#ef4444", fontSize: 12, cursor: "pointer", fontWeight: 600, padding: 0 }}>Remove</button>
                 </div>
                 <div style={{ fontSize: 12, color: "#334155" }}>
                   {couponValidation.coupon.discountType === "PERCENT"
                     ? `${couponValidation.coupon.discountValue}% off`
-                    : `${formatMoney(couponValidation.coupon.discountValue)} off`} Ã¢─â€ Eligible: {couponValidation.eligibleItems.filter(i => i.isEligible).length} item(s)
+                    : `${formatMoney(couponValidation.coupon.discountValue)} off`} - Eligible: {couponValidation.eligibleItems.filter(i => i.isEligible).length} item(s)
                 </div>
                 <div style={{ marginTop: 8, display: "grid", gap: 4 }}>
                   {couponValidation.eligibleItems
@@ -2329,7 +2368,7 @@ export default function PosPage() {
                 </div>
                 {couponValidation.totalPartnerCredits > 0 && (
                   <div style={{ marginTop: 4, fontSize: 11, color: "#7c3aed", fontWeight: 600 }}>
-                    Partner earns {couponValidation.totalPartnerCredits.toFixed(2)} credits Ã¢─â€ {couponValidation.partnerCreditNote}
+                    Partner earns {couponValidation.totalPartnerCredits.toFixed(2)} credits - {couponValidation.partnerCreditNote}
                   </div>
                 )}
               </div>
@@ -2427,7 +2466,7 @@ export default function PosPage() {
                 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>(Click amount field to auto-fill remaining balance)</span>
               </div>
               <div className="pos-payment-grid">
-                {form.payments.find(p => p.mode === "WALLET") && (
+                {form.appliedMembershipId && form.payments.find(p => p.mode === "WALLET") && (
                   <div className="pos-payment-input" style={{ gridColumn: "1 / -1" }}>
                     <label><svg width="16" height="16" style={{ color: "#2563eb" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> Membership</label>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -2461,7 +2500,9 @@ export default function PosPage() {
                   const balanceIdx = enabledModes.indexOf("BALANCE");
                   if (balanceIdx > -1) enabledModes.splice(balanceIdx, 1);
                   if (!enabledModes.includes("BALANCE")) enabledModes.push("BALANCE");
-                  const allModes = [...new Set([...enabledModes, "WALLET", "ADVANCE", "AFFILIATE_CREDIT"])];
+                  const hasMembershipWallet = !!(form.payments || []).find(p => p.mode === "WALLET");
+                  const displayModes = enabledModes.filter(m => !(m === "WALLET" && hasMembershipWallet));
+                  const allModes = [...new Set([...displayModes, "WALLET", "ADVANCE", "AFFILIATE_CREDIT"])];
 
                   const smartDistribute = (currentPayments, focusMode, enteredAmount) => {
                     const fixed = currentPayments.filter(p => !allModes.includes(p.mode) || p.mode === focusMode);
@@ -2471,7 +2512,7 @@ export default function PosPage() {
                     let remaining = maxAllowed - targetAmt;
                     const result = fixed.filter(p => p.mode !== focusMode);
                     if (targetAmt > 0) result.push({ mode: focusMode, amount: targetAmt, note: "" });
-                    for (const m of enabledModes) {
+                    for (const m of displayModes) {
                       if (m === focusMode || m === "BALANCE") continue;
                       const avail = Math.min(Number((currentPayments.find(p => p.mode === m)?.amount) || 0), remaining);
                       if (avail > 0) { result.push({ mode: m, amount: avail, note: "" }); remaining -= avail; }
@@ -2486,7 +2527,7 @@ export default function PosPage() {
                     const maxAllowed = Math.max(0, totals.total - fixedTotal);
                     let remaining = maxAllowed;
                     const result = fixed.filter(p => p.mode !== focusMode);
-                    for (const m of enabledModes) {
+                    for (const m of displayModes) {
                       if (m === focusMode || m === "BALANCE") continue;
                       const avail = Math.min(Number((currentPayments.find(p => p.mode === m)?.amount) || 0), remaining);
                       if (avail > 0) { result.push({ mode: m, amount: avail, note: "" }); remaining -= avail; }
@@ -2498,7 +2539,7 @@ export default function PosPage() {
                     return result;
                   };
 
-                  return enabledModes.map(mode => (
+                  return displayModes.map(mode => (
                     <div key={mode} className="pos-payment-input">
                       <label>
                         <svg width="16" height="16" style={{ color: mode === "CASH" ? "#64748b" : "#10b981" }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={modeIcons[mode] || modeIcons.CASH} /></svg>
@@ -3135,7 +3176,7 @@ export default function PosPage() {
                   
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))", gap:20 }}>
                     <div>
-                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Online (Ã°Å¸â€œÂ±)</label>
+                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Online (📱)</label>
                       <input 
                         type="number" 
                         min="0" 
@@ -3161,7 +3202,7 @@ export default function PosPage() {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Offline / Cash (Ã°Å¸â€™Âµ)</label>
+                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Offline / Cash (💵)</label>
                       <input 
                         type="number" 
                         min="0" 
@@ -3203,22 +3244,22 @@ export default function PosPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
                   {!form.customerId ? (
                     <div style={{ fontSize: "0.85rem", color: "#b91c1c", fontWeight: 600, padding: "10px 16px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span>Ã¢Å¡Â Ã¯Â¸Â</span> Customer selection is required before purchase. Please select a cuest on the main POS screen.
+                      <span>⚠️</span> Customer selection is required before purchase. Please select a cuest on the main POS screen.
                     </div>
                   ) : null}
                   {!form.branchId ? (
                     <div style={{ fontSize: "0.85rem", color: "#b91c1c", fontWeight: 600, padding: "10px 16px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span>Ã¢Å¡Â Ã¯Â¸Â</span> Branch selection is required before purchase. Please select a branch on the main POS screen.
+                      <span>⚠️</span> Branch selection is required before purchase. Please select a branch on the main POS screen.
                     </div>
                   ) : null}
                   {!pkgDraft.staffId ? (
                     <div style={{ fontSize: "0.85rem", color: "#b91c1c", fontWeight: 600, padding: "10px 16px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span>Ã¢Å¡Â Ã¯Â¸Â</span> Staff selection is required before purchase.
+                      <span>⚠️</span> Staff selection is required before purchase.
                     </div>
                   ) : null}
                   {status.error ? (
                     <div style={{ fontSize: "0.85rem", color: "#b91c1c", fontWeight: 600, padding: "10px 16px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span>Ã¢Å¡Â Ã¯Â¸Â</span> {status.error}
+                      <span>⚠️</span> {status.error}
                     </div>
                   ) : null}
                 </div>
@@ -3456,7 +3497,7 @@ export default function PosPage() {
                     <div style={{ flex: 1, minWidth: 120 }}>
                       <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Online</label>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: "1.2rem" }}>Ã°Å¸â€œÂ±</span>
+                        <span style={{ fontSize: "1.2rem" }}>📱</span>
                         <input type="number" min="0" step="0.01" inputMode="decimal" placeholder="0.0" value={memDraft.online} onFocus={() => {
                           const total = Math.max(0, Number(memDraft.price || 0));
                           setMemDraft(d => ({ ...d, online: String(total), offline: "", balance: "0" }));
@@ -3483,22 +3524,22 @@ export default function PosPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
                   {!form.customerId ? (
                     <div style={{ fontSize: "0.82rem", color: "#dc2626", fontWeight: 600 }}>
-                      Ã¢Å¡Â Ã¯Â¸Â Customer selection is required before purchase. Please select a cuest on the main POS screen.
+                      ⚠️ Customer selection is required before purchase. Please select a cuest on the main POS screen.
                     </div>
                   ) : null}
                   {!form.branchId ? (
                     <div style={{ fontSize: "0.82rem", color: "#dc2626", fontWeight: 600 }}>
-                      Ã¢Å¡Â Ã¯Â¸Â Branch selection is required before purchase. Please select a branch on the main POS screen.
+                      ⚠️ Branch selection is required before purchase. Please select a branch on the main POS screen.
                     </div>
                   ) : null}
                   {!memDraft.staffId ? (
                     <div style={{ fontSize: "0.82rem", color: "#dc2626", fontWeight: 600 }}>
-                      Ã¢Å¡Â Ã¯Â¸Â Staff selection is required before purchase.
+                      ⚠️ Staff selection is required before purchase.
                     </div>
                   ) : null}
                   {status.error ? (
                     <div style={{ fontSize: "0.85rem", color: "#dc2626", fontWeight: 600, padding: "8px 12px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8 }}>
-                      Ã¢Å¡Â Ã¯Â¸Â {status.error}
+                      ⚠️ {status.error}
                     </div>
                   ) : null}
                 </div>
@@ -3570,7 +3611,7 @@ export default function PosPage() {
           <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', maxHeight: '80vh', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
               <h2 style={{ margin: 0, fontSize: '1.1rem', color: '#0f172a', fontWeight: 700 }}>Service Time</h2>
-              <button type="button" onClick={() => setShowTimeModal(false)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#64748b' }}>Ã¢Å“•</button>
+              <button type="button" onClick={() => setShowTimeModal(false)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#64748b' }}><X size={16} /></button>
             </div>
             <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto' }}>
               <div>
@@ -3598,7 +3639,7 @@ export default function PosPage() {
           <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 600, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#0f172a' }}>Update Consumable Items</h2>
-              <button type="button" onClick={() => setShowConsumableModal(false)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#64748b' }}>Ã¢Å“•</button>
+              <button type="button" onClick={() => setShowConsumableModal(false)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#64748b' }}><X size={16} /></button>
             </div>
 
             <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', position: 'relative', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -3712,7 +3753,7 @@ export default function PosPage() {
                       onChange={(e) => updateConsumableItem(ciIndex, { unit: e.target.value })}
                       style={{ width: 70, padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, background: ci.productId ? '#f1f5f9' : '#fff', color: ci.productId ? '#64748b' : '#0f172a' }}
                     />
-                    <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>Ã°Å¸—â€˜</button>
+                    <button type="button" onClick={() => removeConsumableItem(ciIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, padding: 4 }}>🗑️</button>
                   </div>
                 ))
               )}
@@ -3736,7 +3777,7 @@ export default function PosPage() {
                   fontSize: 13
                 }}
               >
-                Ã¢Å¾• Add Manual Consumable
+                + Add Manual Consumable
               </button>
               <div style={{ display: 'flex', gap: 12 }}>
                 <button type="button" onClick={() => setShowConsumableModal(false)} style={{ padding: '10px 24px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontWeight: 600, cursor: 'pointer', color: '#475569' }}>Close</button>
@@ -3813,7 +3854,7 @@ export default function PosPage() {
               justifyContent: "center"
             }}
           >
-            Ã¢Å“•
+            <X size={16} />
           </button>
         </div>
       )}
@@ -4072,7 +4113,7 @@ export default function PosPage() {
         </div>
       )}
 
-      {/* Ã¢â€─Ã¢â€─ VARIATION SELECTOR MODAL Ã¢â€─Ã¢â€─ */}
+      {/* -- VARIATION SELECTOR MODAL -- */}
       {variationModal.open && variationModal.product && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setVariationModal({ open: false, product: null })}>
           <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }} onClick={e => e.stopPropagation()}>
@@ -4081,7 +4122,7 @@ export default function PosPage() {
                 <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>{variationModal.product.name}</h2>
                 <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "4px 0 0" }}>Select a variation</p>
               </div>
-              <button onClick={() => setVariationModal({ open: false, product: null })} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#64748b" }}>Ã¢Å“•</button>
+              <button onClick={() => setVariationModal({ open: false, product: null })} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#64748b" }}><X size={16} /></button>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
               {(variationModal.product.variations || []).map((v, idx) => (
