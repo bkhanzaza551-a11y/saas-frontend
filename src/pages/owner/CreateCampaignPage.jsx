@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw, Save } from 'lucide-react';
 import { api } from '../../api/client';
+import CustomSelect from '../../components/CustomSelect';
 import { campaignCategories, predefinedTemplates } from '../../utils/campaignTemplates';
 import PageLoader from '../../components/PageLoader';
 
@@ -307,18 +308,20 @@ export default function CreateCampaignPage() {
               <div style={{ display: 'grid', gap: 24 }}>
                 <label style={{ display: 'block' }}>
                   <span style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Message Category</span>
-                  <select className="form-select" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.95rem' }} value={category} onChange={e => { setCategory(e.target.value); setTemplateId(''); }}>
+                  <CustomSelect value={category} onChange={val => { setCategory(val); setTemplateId(''); }} placeholder="Select Category...">
                     <option value="">Select Category...</option>
                     {campaignCategories.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  </CustomSelect>
                 </label>
                 
                 <label style={{ display: 'block' }}>
                   <span style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Message Template</span>
-                  <select className="form-select" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.95rem' }} value={templateId} onChange={e => setTemplateId(e.target.value)} disabled={!category}>
-                    <option value="">Select Template...</option>
-                    {predefinedTemplates.filter(t => t.category === category).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
+                  <div style={{ opacity: !category ? 0.5 : 1, pointerEvents: !category ? 'none' : 'auto' }}>
+                    <CustomSelect value={templateId} onChange={val => setTemplateId(val)} placeholder="Select Template...">
+                      <option value="">Select Template...</option>
+                      {predefinedTemplates.filter(t => t.category === category).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                    </CustomSelect>
+                  </div>
                 </label>
 
                 {selectedTemplate && (
@@ -527,11 +530,11 @@ export default function CreateCampaignPage() {
                 
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: 8 }}>Gender</label>
-                  <select className="form-select" style={{ width: '100%' }} value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
+                  <CustomSelect value={genderFilter} onChange={val => setGenderFilter(val)} placeholder="All Genders">
                     <option value="">All Genders</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                  </select>
+                  </CustomSelect>
                 </div>
                 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
