@@ -281,7 +281,12 @@ export default function CampaignsPage() {
                 {/* Message Preview */}
                 {reportCampaign.message && (
                   <div style={{ background: '#f8fafc', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 10 }}>Message Sent</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Message Template</div>
+                      <span style={{ fontSize: '0.72rem', background: '#eff6ff', color: '#3b82f6', padding: '2px 8px', borderRadius: 10, fontWeight: 500 }}>
+                        Variables replaced per recipient
+                      </span>
+                    </div>
                     <p style={{ margin: 0, fontSize: '0.9rem', color: '#334155', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{reportCampaign.message}</p>
                   </div>
                 )}
