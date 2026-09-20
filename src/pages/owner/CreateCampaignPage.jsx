@@ -158,6 +158,12 @@ export default function CreateCampaignPage() {
 
   return (
     <div className="page-shell" style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <style>{`
+        .btn-primary-sm { padding: 8px 20px; border-radius: 8px; background: #111827; color: #fff; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-primary-sm:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
+        .btn-secondary-sm { padding: 8px 20px; border-radius: 8px; background: #fff; color: #475569; border: 1px solid #cbd5e1; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-secondary-sm:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+      `}</style>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
         <button 
@@ -234,7 +240,7 @@ export default function CreateCampaignPage() {
           </div>
           
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
-            <button className="primary-button" onClick={handleNext} disabled={!channel}>Next Step</button>
+            <button className="btn-primary-sm" onClick={handleNext} disabled={!channel}>Next Step</button>
           </div>
         </div>
       )}
@@ -303,8 +309,8 @@ export default function CreateCampaignPage() {
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
-                <button className="secondary-button" onClick={handleBack}>Back</button>
-                <button className="primary-button" onClick={handleNext} disabled={!templateId}>Next Step</button>
+                <button className="btn-secondary-sm" onClick={handleBack}>Back</button>
+                <button className="btn-primary-sm" onClick={handleNext} disabled={!templateId}>Next Step</button>
               </div>
             </div>
           </div>
@@ -476,10 +482,10 @@ export default function CreateCampaignPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 16, borderTop: '1px solid #e2e8f0', paddingTop: 24 }}>
-            <button className="secondary-button" onClick={handleBack} disabled={loading}>Back</button>
+            <button className="btn-secondary-sm" onClick={handleBack} disabled={loading}>Back</button>
             <div style={{ flex: 1 }} />
-            <button className="secondary-button" onClick={() => setShowTestModal(true)} disabled={loading}>Send Test Message</button>
-            <button className="primary-button" onClick={() => {
+            <button className="btn-secondary-sm" onClick={() => setShowTestModal(true)} disabled={loading}>Send Test Message</button>
+            <button className="btn-primary-sm" onClick={() => {
               if (!testSent) setShowConfirmModal(true);
               else submitCampaign();
             }} disabled={loading}>
@@ -497,8 +503,8 @@ export default function CreateCampaignPage() {
             <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>Enter a phone number (or email) to receive a preview of this campaign.</p>
             <input type="text" className="form-input" placeholder="e.g. 9876543210" value={testPhoneNumber} onChange={e => setTestPhoneNumber(e.target.value)} style={{ marginBottom: 24 }} />
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button className="secondary-button" onClick={() => setShowTestModal(false)} disabled={loading}>Cancel</button>
-              <button className="primary-button" onClick={submitTest} disabled={loading}>{loading ? 'Sending...' : 'Send Test'}</button>
+              <button className="btn-secondary-sm" onClick={() => setShowTestModal(false)} disabled={loading}>Cancel</button>
+              <button className="btn-primary-sm" onClick={submitTest} disabled={loading}>{loading ? 'Sending...' : 'Send Test'}</button>
             </div>
           </div>
         </div>
@@ -511,8 +517,8 @@ export default function CreateCampaignPage() {
             <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: 16, color: '#b91c1c' }}>Send Without Testing?</h3>
             <p style={{ fontSize: '0.9rem', color: '#475569', marginBottom: 24 }}>You haven't sent a test message to verify the formatting. Are you sure you want to send this campaign to {selectedCustomerIds.size} customers?</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button className="secondary-button" onClick={() => setShowConfirmModal(false)} disabled={loading}>Cancel</button>
-              <button className="primary-button" style={{ background: '#ef4444', borderColor: '#ef4444' }} onClick={() => {
+              <button className="btn-secondary-sm" onClick={() => setShowConfirmModal(false)} disabled={loading}>Cancel</button>
+              <button className="btn-primary-sm" style={{ background: '#ef4444', borderColor: '#ef4444' }} onClick={() => {
                 setShowConfirmModal(false);
                 submitCampaign();
               }} disabled={loading}>
