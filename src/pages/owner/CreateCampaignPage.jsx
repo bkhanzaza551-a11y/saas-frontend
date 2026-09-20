@@ -34,6 +34,11 @@ export default function CreateCampaignPage() {
   // New States for Step 3 UI
   const [currentPage, setCurrentPage] = useState(1);
   const [viewSelectedOnly, setViewSelectedOnly] = useState(false);
+  
+  // Bulk Tagging
+  const [showBulkTagModal, setShowBulkTagModal] = useState(false);
+  const [bulkTags, setBulkTags] = useState("");
+  const [bulkTaggingBusy, setBulkTaggingBusy] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const pageSize = 50;
 
@@ -441,7 +446,7 @@ export default function CreateCampaignPage() {
               <input type="text" placeholder="Search Customers" style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: 20, border: '1px solid #e2e8f0', fontSize: '0.85rem', outline: 'none' }} value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
             </div>
             
-            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem' }}>
+            <button type="button" onClick={handleBulkTagClick} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem' }}>
               <Tag size={16} /> Bulk Tagging
             </button>
           </div>
@@ -539,6 +544,32 @@ export default function CreateCampaignPage() {
       )}
 
       {/* Step 4 */}
+      {/* Bulk Tagging Modal */}
+      {showBulkTagModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#fff', padding: 24, borderRadius: 12, width: 400, maxWidth: '90%' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem' }}>Bulk Tagging</h3>
+            <p style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: '#64748b' }}>
+              Apply tags to {selectedCustomerIds.size} selected customer(s). Separate multiple tags with commas.
+            </p>
+            <input
+              type="text"
+              placeholder="e.g. VIP, Festival Offer, Summer 2026"
+              value={bulkTags}
+              onChange={e => setBulkTags(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #cbd5e1', marginBottom: 20 }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button type="button" onClick={() => setShowBulkTagModal(false)} className="secondary-button" disabled={bulkTaggingBusy}>Cancel</button>
+              <button type="button" onClick={submitBulkTags} className="primary-button" disabled={bulkTaggingBusy}>
+                {bulkTaggingBusy ? "Applying..." : "Apply Tags"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {step === 4 && (
         <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
           <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Review & Confirm</h2>
