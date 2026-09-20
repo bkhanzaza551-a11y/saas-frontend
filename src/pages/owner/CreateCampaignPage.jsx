@@ -591,57 +591,91 @@ export default function CreateCampaignPage() {
       )}
 
       {step === 4 && (
-        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Review & Confirm</h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
-            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8 }}>
-              <h3 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>Channel</h3>
-              <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{channel}</p>
+          <div style={{ background: '#fff', padding: 32, borderRadius: 16, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: 24, fontWeight: 600, color: '#0f172a' }}>Review & Confirm</h2>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
+              <div style={{ background: '#f8fafc', padding: 20, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ background: '#e0e7ff', width: 48, height: 48, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {channel === 'WHATSAPP' ? <MessageSquare size={24} color="#4f46e5" /> : channel === 'EMAIL' ? <Mail size={24} color="#4f46e5" /> : <Smartphone size={24} color="#4f46e5" />}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Channel</h3>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>{channel}</p>
+                </div>
+              </div>
+              <div style={{ background: '#f8fafc', padding: 20, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ background: '#ecfdf5', width: 48, height: 48, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Filter size={24} color="#059669" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Recipients</h3>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>{selectedCustomerIds.size} Customers</p>
+                </div>
+              </div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8 }}>
-              <h3 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>Recipients</h3>
-              <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{selectedCustomerIds.size} Customers</p>
+  
+            <label style={{ display: 'block', marginBottom: 28 }}>
+              <span style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Campaign Name (Internal)</span>
+              <input type="text" className="form-input" style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.95rem' }} placeholder="e.g. Diwali Blast 2026" value={campaignName} onChange={e => setCampaignName(e.target.value)} />
+            </label>
+  
+            <div style={{ marginBottom: 36 }}>
+              <span style={{ display: 'block', marginBottom: 12, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>When to send?</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div 
+                  onClick={() => setScheduleOption('now')}
+                  style={{ border: scheduleOption === 'now' ? '2px solid #3b82f6' : '2px solid #e2e8f0', borderRadius: 12, padding: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: scheduleOption === 'now' ? '#eff6ff' : '#fff', transition: 'all 0.2s' }}
+                >
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: scheduleOption === 'now' ? '6px solid #3b82f6' : '6px solid #cbd5e1', background: '#fff' }} />
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem' }}>Send Immediately</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 2 }}>Campaign starts right away</div>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => setScheduleOption('schedule')}
+                  style={{ border: scheduleOption === 'schedule' ? '2px solid #3b82f6' : '2px solid #e2e8f0', borderRadius: 12, padding: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: scheduleOption === 'schedule' ? '#eff6ff' : '#fff', transition: 'all 0.2s' }}
+                >
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: scheduleOption === 'schedule' ? '6px solid #3b82f6' : '6px solid #cbd5e1', background: '#fff' }} />
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem' }}>Schedule for later</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 2 }}>Pick a specific date & time</div>
+                  </div>
+                </div>
+              </div>
+              
+              {scheduleOption === 'schedule' && (
+                <div style={{ marginTop: 16, padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: 8 }}>Select Date & Time</label>
+                  <input type="datetime-local" style={{ width: '100%', maxWidth: 300, padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.95rem', outline: 'none' }} value={scheduledFor} onChange={e => setScheduledFor(e.target.value)} />
+                </div>
+              )}
             </div>
-          </div>
-
-          <label style={{ display: 'block', marginBottom: 24 }}>
-            <span style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: '0.9rem' }}>Campaign Name (Internal)</span>
-            <input type="text" className="form-input" placeholder="e.g. Diwali Blast 2026" value={campaignName} onChange={e => setCampaignName(e.target.value)} />
-          </label>
-
-          <div style={{ marginBottom: 32 }}>
-            <span style={{ display: 'block', marginBottom: 12, fontWeight: 500, fontSize: '0.9rem' }}>When to send?</span>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="radio" checked={scheduleOption === 'now'} onChange={() => setScheduleOption('now')} /> Send Immediately
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="radio" checked={scheduleOption === 'schedule'} onChange={() => setScheduleOption('schedule')} /> Schedule for later
-              </label>
-            </div>
-            {scheduleOption === 'schedule' && (
-              <input type="datetime-local" className="form-input" style={{ marginTop: 12, maxWidth: 250 }} value={scheduledFor} onChange={e => setScheduledFor(e.target.value)} />
-            )}
-          </div>
-
-          <div style={{ display: 'flex', gap: 16, borderTop: '1px solid #e2e8f0', paddingTop: 24 }}>
-            <button className="btn-secondary-sm" onClick={handleBack} disabled={loading}>Back</button>
-            <div style={{ flex: 1 }} />
-            <button className="btn-secondary-sm" onClick={saveDraft} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Save size={16} />
-                {loading ? 'Saving...' : 'Save as Draft'}
+  
+            <div style={{ display: 'flex', gap: 12, borderTop: '1px solid #e2e8f0', paddingTop: 24, alignItems: 'center' }}>
+              <button onClick={handleBack} disabled={loading} style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: 8, fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <ChevronLeft size={16} /> Back
               </button>
-              <button className="btn-secondary-sm" onClick={() => setShowTestModal(true)} disabled={loading}>Send Test Message</button>
-            <button className="btn-primary-sm" onClick={() => {
-              if (!testSent) setShowConfirmModal(true);
-              else submitCampaign();
-            }} disabled={loading}>
-              {loading ? 'Processing...' : 'Confirm & Send'}
-            </button>
+              
+              <div style={{ flex: 1 }} />
+              
+              <button onClick={saveDraft} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fff', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: 8, fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                <Save size={16} />
+                {loading ? 'Saving...' : 'Save Draft'}
+              </button>
+              
+              <button onClick={() => setShowTestModal(true)} disabled={loading} style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: 8, fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                Test Message
+              </button>
+              
+              <button onClick={() => { if (!testSent) setShowConfirmModal(true); else submitCampaign(); }} disabled={loading} style={{ background: '#111827', border: 'none', padding: '10px 24px', borderRadius: 8, fontWeight: 600, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                {loading ? 'Processing...' : 'Confirm & Send'} <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Test Modal */}
       {showTestModal && (
