@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw } from 'lucide-react';
 import { api } from '../../api/client';
 import { campaignCategories, predefinedTemplates } from '../../utils/campaignTemplates';
 import PageLoader from '../../components/PageLoader';
@@ -25,6 +25,12 @@ export default function CreateCampaignPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
   const [customersLoading, setCustomersLoading] = useState(false);
+
+  // New States for Step 3 UI
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewSelectedOnly, setViewSelectedOnly] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const pageSize = 50;
 
   // Step 4
   const [campaignName, setCampaignName] = useState('');
@@ -143,6 +149,10 @@ export default function CreateCampaignPage() {
     if (genderFilter && c.gender !== genderFilter) return false;
     return true;
   });
+
+  const finalFilteredCustomers = viewSelectedOnly ? filteredCustomers.filter(c => selectedCustomerIds.has(c.id)) : filteredCustomers;
+  const totalPages = Math.ceil(finalFilteredCustomers.length / pageSize) || 1;
+  const paginatedCustomers = finalFilteredCustomers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const STEPS = ['Select Channel', 'Select Message', 'Select Customers', 'Confirm'];
 
@@ -303,58 +313,129 @@ export default function CreateCampaignPage() {
 
       {/* Step 3 */}
       {step === 3 && (
-        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Select Customers</h2>
+        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0', position: 'relative' }}>
           
-          <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input type="text" className="form-input" placeholder="Search by name or phone..." style={{ paddingLeft: 36 }} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+          {/* Top Bar matching image */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 24 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', background: '#f8fafc', padding: '8px 16px', borderRadius: 20, border: '1px solid #e2e8f0', fontWeight: 600, fontSize: '0.85rem' }}>
+              <input type="checkbox" checked={selectedCustomerIds.size === filteredCustomers.length && filteredCustomers.length > 0} onChange={() => toggleAll(filteredCustomers)} style={{ margin: 0 }} />
+              Select All
+            </label>
+            
+            <button 
+              onClick={() => { setViewSelectedOnly(!viewSelectedOnly); setCurrentPage(1); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, border: '1px solid #e2e8f0', background: viewSelectedOnly ? '#f1f5f9' : '#fff', cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem' }}
+            >
+              {viewSelectedOnly ? <EyeOff size={16} /> : <Eye size={16} />}
+              View Selected ({selectedCustomerIds.size})
+            </button>
+            
+            <button 
+              onClick={() => setIsFilterModalOpen(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, border: '1px solid #111827', background: '#111827', color: '#fff', cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem' }}
+            >
+              <Filter size={16} /> Filter
+            </button>
+            
+            <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <input type="text" placeholder="Search Customers" style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: 20, border: '1px solid #e2e8f0', fontSize: '0.85rem', outline: 'none' }} value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
             </div>
-            <select className="form-select" style={{ width: 150 }} value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
-              <option value="">All Genders</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
+            
+            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem' }}>
+              <Tag size={16} /> Bulk Tagging
+            </button>
           </div>
 
-          <div style={{ maxHeight: 400, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
-            <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1 }}>
-                <tr>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
-                    <input type="checkbox" checked={selectedCustomerIds.size === filteredCustomers.length && filteredCustomers.length > 0} onChange={() => toggleAll(filteredCustomers)} />
-                  </th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Name</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Phone</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Gender</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customersLoading ? (
-                  <tr><td colSpan={4} style={{ padding: 24, textAlign: 'center' }}><PageLoader /></td></tr>
-                ) : filteredCustomers.map(c => (
-                  <tr key={c.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '12px 16px' }}><input type="checkbox" checked={selectedCustomerIds.has(c.id)} onChange={() => toggleCustomer(c.id)} /></td>
-                    <td style={{ padding: '12px 16px', fontWeight: 500 }}>{c.name}</td>
-                    <td style={{ padding: '12px 16px' }}>{c.phone}</td>
-                    <td style={{ padding: '12px 16px' }}>{c.gender || '-'}</td>
-                  </tr>
-                ))}
-                {!customersLoading && filteredCustomers.length === 0 && (
-                  <tr><td colSpan={4} style={{ padding: 24, textAlign: 'center', color: '#64748b' }}>No customers found.</td></tr>
-                )}
-              </tbody>
-            </table>
+          {/* Cards List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            {customersLoading ? (
+              <div style={{ padding: 48, textAlign: 'center' }}><PageLoader /></div>
+            ) : paginatedCustomers.length === 0 ? (
+              <div style={{ padding: 48, textAlign: 'center', color: '#64748b', background: '#f8fafc', borderRadius: 12 }}>No customers found.</div>
+            ) : paginatedCustomers.map(c => (
+              <div key={c.id} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: 20, background: selectedCustomerIds.has(c.id) ? '#f8fafc' : '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <input type="checkbox" checked={selectedCustomerIds.has(c.id)} onChange={() => toggleCustomer(c.id)} style={{ width: 18, height: 18, cursor: 'pointer' }} />
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.95rem' }}>{c.name}</div>
+                    <div style={{ color: '#475569', fontSize: '0.85rem' }}>{c.phone}</div>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px 32px', fontSize: '0.75rem', color: '#64748b' }}>
+                  <div><div style={{ marginBottom: 4, fontWeight: 500 }}>Email</div><div style={{ color: '#1e293b', fontSize: '0.8rem' }}>{c.email || '--'}</div></div>
+                  <div><div style={{ marginBottom: 4, fontWeight: 500 }}>Gender</div><div style={{ color: '#1e293b', fontSize: '0.8rem' }}>{c.gender || '--'}</div></div>
+                  <div><div style={{ marginBottom: 4, fontWeight: 500 }}>Joined Date</div><div style={{ color: '#1e293b', fontSize: '0.8rem' }}>{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '--'}</div></div>
+                  <div><div style={{ marginBottom: 4, fontWeight: 500 }}>Total Visits</div><div style={{ color: '#1e293b', fontSize: '0.8rem' }}>{c.totalVisits || 0}</div></div>
+                  <div><div style={{ marginBottom: 4, fontWeight: 500 }}>Wallet Balance</div><div style={{ color: '#1e293b', fontSize: '0.8rem' }}>₹{c.walletBalance || '0.00'}</div></div>
+                  <div><div style={{ marginBottom: 4, fontWeight: 500 }}>Total Sales value</div><div style={{ color: '#1e293b', fontSize: '0.8rem' }}>₹{c.totalRevenue || '0.00'}</div></div>
+                </div>
+              </div>
+            ))}
           </div>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32 }}>
-            <span style={{ fontSize: '0.9rem', color: '#475569' }}>Selected: <strong>{selectedCustomerIds.size}</strong> customers</span>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button className="secondary-button" onClick={handleBack}>Back</button>
-              <button className="primary-button" onClick={handleNext} disabled={selectedCustomerIds.size === 0}>Next Step</button>
+          {/* Bottom Bar matching image */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, borderTop: '1px solid #e2e8f0', paddingTop: 20 }}>
+            <button 
+              onClick={handleBack}
+              style={{ padding: '10px 24px', borderRadius: 24, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              Back
+            </button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: '0.85rem', color: '#64748b' }}>
+              <span>Showing {paginatedCustomers.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}-{Math.min(currentPage * pageSize, finalFilteredCustomers.length)} of {finalFilteredCustomers.length} customers</span>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ padding: '4px 12px', background: '#f1f5f9', borderRadius: 12 }}>{pageSize} per page</span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: 6, border: 'none', background: 'transparent', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}><ChevronLeft size={16} /></button>
+                <div style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111827', color: '#fff', borderRadius: 6, fontSize: '0.85rem' }}>{currentPage}</div>
+                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: 6, border: 'none', background: 'transparent', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}><ChevronRight size={16} /></button>
+              </div>
             </div>
+
+            <button 
+              onClick={handleNext} 
+              disabled={selectedCustomerIds.size === 0}
+              style={{ padding: '10px 24px', borderRadius: 24, border: 'none', background: selectedCustomerIds.size === 0 ? '#94a3b8' : '#111827', color: '#fff', cursor: selectedCustomerIds.size === 0 ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              Save and Next
+            </button>
           </div>
+
+          {/* Filter Modal Overlay */}
+          {isFilterModalOpen && (
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(255,255,255,0.8)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: 60 }}>
+              <div style={{ width: 400, background: '#fff', borderRadius: 16, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', padding: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Filters</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <button onClick={() => { setGenderFilter(''); setSearchQuery(''); setIsFilterModalOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'transparent', border: '1px solid #e2e8f0', borderRadius: 20, padding: '4px 12px', fontSize: '0.75rem', cursor: 'pointer' }}>
+                      <RefreshCcw size={12} /> Reset Filters
+                    </button>
+                    <button onClick={() => setIsFilterModalOpen(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><X size={20} color="#64748b" /></button>
+                  </div>
+                </div>
+                
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: 8 }}>Gender</label>
+                  <select className="form-select" style={{ width: '100%' }} value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
+                  <button onClick={() => setIsFilterModalOpen(false)} style={{ background: '#111827', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 24, fontWeight: 600, cursor: 'pointer' }}>Apply</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
