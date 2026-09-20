@@ -94,7 +94,17 @@ export default function CreateCampaignPage() {
 
   const handleNext = () => {
     if (step === 1 && !channel) return alert('Please select a channel');
-    if (step === 2 && !templateId) return alert('Please select a template');
+    if (step === 2) {
+      if (!templateId) return alert('Please select a template');
+      const selectedTpl = predefinedTemplates.find(t => t.id === templateId);
+      if (selectedTpl?.variables?.length > 0) {
+        for (const v of selectedTpl.variables) {
+          if (!templateVariables[v] || !templateVariables[v].trim()) {
+            return alert(`Please fill the variable: ${v.replace(/_/g, ' ').toUpperCase()}`);
+          }
+        }
+      }
+    }
     if (step === 3 && selectedCustomerIds.size === 0) return alert('Please select at least one customer');
     setStep(prev => prev + 1);
   };
