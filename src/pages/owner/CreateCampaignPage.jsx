@@ -45,7 +45,8 @@ export default function CreateCampaignPage() {
     setCustomersLoading(true);
     try {
       const res = await api.get('/owner/customers');
-      setCustomers(res.data || []);
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setCustomers(data);
     } catch (err) {
       console.error(err);
     } finally {
