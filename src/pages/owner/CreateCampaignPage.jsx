@@ -149,8 +149,20 @@ export default function CreateCampaignPage() {
     <div className="page-shell" style={{ maxWidth: 1000, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-        <button className="secondary-button" onClick={() => step > 1 ? handleBack() : navigate('/admin/campaigns')} style={{ padding: '8px', borderRadius: '50%' }}>
-          <ChevronLeft size={20} />
+        <button 
+          onClick={() => step > 1 ? handleBack() : navigate('/admin/campaigns')} 
+          style={{ 
+            background: 'transparent', 
+            border: 'none', 
+            cursor: 'pointer', 
+            padding: 4, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: '#475569'
+          }}
+        >
+          <ChevronLeft size={24} />
         </button>
         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>Create New Campaign</h1>
       </div>
