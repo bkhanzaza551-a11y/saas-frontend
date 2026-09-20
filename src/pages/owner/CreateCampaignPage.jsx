@@ -185,6 +185,27 @@ export default function CreateCampaignPage() {
     }
   };
 
+  const handleBulkTagClick = () => {
+    if (selectedCustomerIds.size === 0) { alert('Please select customers first'); return; }
+    setShowBulkTagModal(true);
+  };
+
+  const submitBulkTags = async () => {
+    if (!bulkTags.trim()) { alert('Please enter tags'); return; }
+    setBulkTaggingBusy(true);
+    try {
+      const tags = bulkTags.split(',').map(t => t.trim()).filter(Boolean);
+      await api.post('/owner/customers/bulk-tag', { customerIds: Array.from(selectedCustomerIds), tags });
+      alert(`Tags applied to ${selectedCustomerIds.size} customers`);
+      setShowBulkTagModal(false);
+      setBulkTags("");
+    } catch (err) {
+      alert('Failed to apply tags');
+    } finally {
+      setBulkTaggingBusy(false);
+    }
+  };
+
   const filteredCustomers = customers.filter(c => {
     if (searchQuery && !c.name?.toLowerCase().includes(searchQuery.toLowerCase()) && !c.phone?.includes(searchQuery)) return false;
     if (genderFilter && c.gender !== genderFilter) return false;
@@ -224,10 +245,6 @@ export default function CreateCampaignPage() {
           </button>
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{draftId ? 'Edit Draft Campaign' : 'Create New Campaign'}</h1>
         </div>
-        <button onClick={saveDraft} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, color: '#475569', fontWeight: 600, fontSize: '0.85rem', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-          <Save size={16} />
-          {loading ? 'Saving...' : 'Save as Draft'}
-        </button>
       </div>
 
       {/* Stepper */}
@@ -611,7 +628,11 @@ export default function CreateCampaignPage() {
           <div style={{ display: 'flex', gap: 16, borderTop: '1px solid #e2e8f0', paddingTop: 24 }}>
             <button className="btn-secondary-sm" onClick={handleBack} disabled={loading}>Back</button>
             <div style={{ flex: 1 }} />
-            <button className="btn-secondary-sm" onClick={() => setShowTestModal(true)} disabled={loading}>Send Test Message</button>
+            <button className="btn-secondary-sm" onClick={saveDraft} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Save size={16} />
+                {loading ? 'Saving...' : 'Save as Draft'}
+              </button>
+              <button className="btn-secondary-sm" onClick={() => setShowTestModal(true)} disabled={loading}>Send Test Message</button>
             <button className="btn-primary-sm" onClick={() => {
               if (!testSent) setShowConfirmModal(true);
               else submitCampaign();
