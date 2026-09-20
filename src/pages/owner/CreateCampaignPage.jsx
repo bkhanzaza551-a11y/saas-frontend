@@ -1,467 +1,433 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon } from 'lucide-react';
 import { api } from '../../api/client';
 import { campaignCategories, predefinedTemplates } from '../../utils/campaignTemplates';
+import PageLoader from '../../components/PageLoader';
 
-const CreateCampaignPage = () => {
+export default function CreateCampaignPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   
   // Step 1
-  const [channel, setChannel] = useState(''); // WhatsApp, Email, SMS
+  const [channel, setChannel] = useState(''); // WHATSAPP, EMAIL, SMS
   
   // Step 2
   const [category, setCategory] = useState('');
   const [templateId, setTemplateId] = useState('');
   const [templateVariables, setTemplateVariables] = useState({});
-  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
   
   // Step 3
   const [customers, setCustomers] = useState([]);
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
+  const [customersLoading, setCustomersLoading] = useState(false);
 
   // Step 4
   const [campaignName, setCampaignName] = useState('');
-  const [scheduleOption, setScheduleOption] = useState('now');
+  const [scheduleOption, setScheduleOption] = useState('now'); // 'now', 'schedule'
   const [scheduledFor, setScheduledFor] = useState('');
-  const [testSent, setTestSent] = useState(false);
-  const [showTestModal, setShowTestModal] = useState(false);
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
+  const [showTestModal, setShowTestModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [testSent, setTestSent] = useState(false);
 
   useEffect(() => {
-    if (step === 3) {
+    if (step === 3 && customers.length === 0) {
       fetchCustomers();
     }
   }, [step]);
 
   const fetchCustomers = async () => {
+    setCustomersLoading(true);
     try {
       const res = await api.get('/owner/customers');
       setCustomers(res.data || []);
     } catch (err) {
       console.error(err);
+    } finally {
+      setCustomersLoading(false);
     }
   };
 
-  const handleNext = () => setStep(prev => prev + 1);
+  const selectedTemplate = predefinedTemplates.find(t => t.id === templateId);
+
+  const resolveContent = () => {
+    if (!selectedTemplate) return '';
+    let content = selectedTemplate.content;
+    (selectedTemplate.variables || []).forEach(v => {
+      content = content.replace(new RegExp(`\\[\\[${v}\\]\\]`, 'g'), templateVariables[v] || `[${v}]`);
+    });
+    return content;
+  };
+
+  const previewContent = () => {
+    let content = resolveContent();
+    content = content.replace(/\{\{customer_name\}\}/g, 'John Doe');
+    content = content.replace(/\{\{business_name\}\}/g, 'Salon Nest');
+    content = content.replace(/\{\{phone_number\}\}/g, '9876543210');
+    content = content.replace(/\{\{store_link\}\}/g, 'zylu.co/salon');
+    return content;
+  };
+
+  const handleNext = () => {
+    if (step === 1 && !channel) return alert('Please select a channel');
+    if (step === 2 && !templateId) return alert('Please select a template');
+    if (step === 3 && selectedCustomerIds.size === 0) return alert('Please select at least one customer');
+    setStep(prev => prev + 1);
+  };
+
   const handleBack = () => setStep(prev => prev - 1);
 
-  // Template Logic
-  const selectedTemplate = predefinedTemplates?.find(t => t.id === templateId);
-  
-  const extractVariables = (text) => {
-    const regex = /\[\[(.*?)\]\]/g;
-    const matches = [];
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      matches.push(match[1]);
-    }
-    return [...new Set(matches)]; // unique
-  };
-
-  const variables = selectedTemplate ? extractVariables(selectedTemplate.content) : [];
-
-  const handleVariableChange = (variable, value) => {
-    setTemplateVariables(prev => ({
-      ...prev,
-      [variable]: value
-    }));
-  };
-
-  const getResolvedContent = (content, vars) => {
-    if (!content) return '';
-    let result = content;
-    variables.forEach(variable => {
-      const value = vars[variable] || `[[${variable}]]`;
-      result = result.replace(new RegExp(`\\[\\[${variable}\\]\\]`, 'g'), value);
-    });
-    return result;
-  };
-
-  const getPreviewContent = (content, vars) => {
-    if (!content) return '';
-    let result = getResolvedContent(content, vars);
-    // Replace {{...}} with placeholders for preview
-    result = result.replace(/\{\{customerName\}\}/g, 'John Doe');
-    result = result.replace(/\{\{shopName\}\}/g, 'Your Shop');
-    // Add more typical generic placeholders if needed
-    result = result.replace(/\{\{(.*?)\}\}/g, 'Placeholder'); 
-    return result;
-  };
-
-  const resolvedContent = getResolvedContent(selectedTemplate?.content, templateVariables);
-
-  // Customer Selection Logic
-  const filteredCustomers = customers.filter(c => {
-    const matchesSearch = c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          c.phone?.includes(searchQuery);
-    const matchesGender = genderFilter ? c.gender === genderFilter : true;
-    return matchesSearch && matchesGender;
-  });
-
   const toggleCustomer = (id) => {
-    setSelectedCustomers(prev => 
-      prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id]
-    );
+    const next = new Set(selectedCustomerIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedCustomerIds(next);
   };
 
-  const toggleAll = () => {
-    if (selectedCustomers.length === filteredCustomers.length) {
-      setSelectedCustomers([]);
+  const toggleAll = (filtered) => {
+    if (selectedCustomerIds.size === filtered.length) {
+      setSelectedCustomerIds(new Set());
     } else {
-      setSelectedCustomers(filteredCustomers.map(c => c._id));
+      setSelectedCustomerIds(new Set(filtered.map(c => c.id)));
     }
   };
 
-  // Submission Logic
-  const handleTestSend = async () => {
+  const submitTest = async () => {
+    if (!testPhoneNumber) return alert('Enter phone number');
+    setLoading(true);
     try {
       await api.post('/owner/campaigns/test', {
-        phoneNumber: testPhoneNumber,
-        message: resolvedContent,
-        channel
+        channel,
+        testNumber: testPhoneNumber,
+        message: resolveContent(),
+        imageUrl: imageUrl || null
       });
       setTestSent(true);
       setShowTestModal(false);
       alert('Test message sent!');
     } catch (err) {
-      console.error(err);
       alert('Failed to send test message');
+    } finally {
+      setLoading(false);
     }
   };
 
   const submitCampaign = async () => {
+    setLoading(true);
     try {
-      const payload = {
-        name: campaignName || `${category} Campaign - ${new Date().toLocaleDateString()}`,
+      await api.post('/owner/campaigns', {
+        name: campaignName || `${selectedTemplate?.name || 'Campaign'} - ${new Date().toLocaleDateString()}`,
         type: channel,
-        templateId: selectedTemplate?.id,
-        message: resolvedContent, // Keep {{...}} intact
-        scheduledFor: scheduleOption === 'schedule' ? scheduledFor : null,
         audienceFilter: 'SELECTED',
-        audienceMeta: { selectedIds: selectedCustomers },
-        imageUrl: imageUrl ? imageUrl.name : null, // Assuming basic handling, usually needs S3 upload
-      };
-      
-      await api.post('/owner/campaigns', payload);
-      alert('Campaign created successfully!');
-      navigate('/owner/campaigns');
+        audienceMeta: { selectedIds: Array.from(selectedCustomerIds) },
+        message: resolveContent(),
+        templateId,
+        imageUrl: imageUrl || null,
+        scheduledFor: scheduleOption === 'schedule' ? scheduledFor : null
+      });
+      navigate('/admin/campaigns');
     } catch (err) {
-      console.error(err);
       alert('Failed to create campaign');
+      setLoading(false);
     }
   };
 
-  const handleConfirmAndSend = () => {
-    if (!testSent) {
-      setShowConfirmModal(true);
-    } else {
-      submitCampaign();
-    }
-  };
+  const filteredCustomers = customers.filter(c => {
+    if (searchQuery && !c.name?.toLowerCase().includes(searchQuery.toLowerCase()) && !c.phone?.includes(searchQuery)) return false;
+    if (genderFilter && c.gender !== genderFilter) return false;
+    return true;
+  });
+
+  const STEPS = ['Select Channel', 'Select Message', 'Select Customers', 'Confirm'];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center mb-6">
-        <button onClick={() => step > 1 ? handleBack() : navigate('/owner/campaigns')} className="mr-4 p-2 hover:bg-gray-100 rounded-full">
-          <ChevronLeft />
+    <div className="page-shell" style={{ maxWidth: 1000, margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+        <button className="secondary-button" onClick={() => step > 1 ? handleBack() : navigate('/admin/campaigns')} style={{ padding: '8px', borderRadius: '50%' }}>
+          <ChevronLeft size={20} />
         </button>
-        <h1 className="text-2xl font-bold">Create Campaign</h1>
+        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>Create New Campaign</h1>
       </div>
 
-      {/* Stepper Header */}
-      <div className="flex justify-between mb-8 border-b pb-4">
-        {['Select Channel', 'Select Message', 'Select Customers', 'Confirm'].map((label, idx) => (
-          <div key={idx} className={`flex-1 text-center ${step === idx + 1 ? 'text-blue-600 font-bold' : 'text-gray-400'}`}>
-            <div className="text-sm">Step {idx + 1}</div>
-            <div>{label}</div>
-          </div>
+      {/* Stepper */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 32, paddingBottom: 16, borderBottom: '1px solid #e2e8f0' }}>
+        {STEPS.map((label, i) => (
+          <React.Fragment key={i}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ 
+                width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: step > i + 1 ? '#10b981' : step === i + 1 ? '#4f46e5' : '#f1f5f9',
+                color: step >= i + 1 ? '#fff' : '#64748b',
+                fontWeight: 600, fontSize: '0.85rem'
+              }}>
+                {step > i + 1 ? <Check size={16} /> : (i + 1)}
+              </div>
+              <span style={{ fontSize: '0.9rem', fontWeight: step === i + 1 ? 600 : 400, color: step === i + 1 ? '#0f172a' : '#64748b' }}>
+                {label}
+              </span>
+            </div>
+            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 2, background: '#e2e8f0', margin: '0 8px' }} />}
+          </React.Fragment>
         ))}
       </div>
 
-      {/* Step 1: Channel */}
+      {/* Step 1 */}
       {step === 1 && (
-        <div>
-          <h2 className="text-xl mb-4">Select Channel</h2>
-          <div className="flex gap-4">
-            {['WhatsApp', 'Email', 'SMS'].map(c => (
-              <button 
-                key={c}
-                onClick={() => setChannel(c)}
-                className={`p-6 border rounded-lg w-48 text-center ${channel === c ? 'border-blue-600 bg-blue-50' : 'hover:border-gray-400'}`}
+        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: 8 }}>Select Delivery Channel</h2>
+          <p style={{ color: '#64748b', marginBottom: 24 }}>Choose how you want to reach your customers.</p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { id: 'WHATSAPP', title: 'WhatsApp', desc: 'Send rich media messages directly to WhatsApp.', icon: Smartphone },
+              { id: 'SMS', title: 'SMS', desc: 'Send standard text messages to mobile phones.', icon: MessageSquare },
+              { id: 'EMAIL', title: 'Email', desc: 'Send promotional emails (Free).', icon: Mail }
+            ].map(ch => (
+              <div 
+                key={ch.id}
+                onClick={() => setChannel(ch.id)}
+                style={{ 
+                  display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 8, cursor: 'pointer',
+                  border: channel === ch.id ? '2px solid #4f46e5' : '1px solid #e2e8f0',
+                  background: channel === ch.id ? '#eef2ff' : '#fff'
+                }}
               >
-                {c}
-              </button>
+                <div style={{ padding: 12, borderRadius: 8, background: channel === ch.id ? '#4f46e5' : '#f1f5f9', color: channel === ch.id ? '#fff' : '#475569' }}>
+                  <ch.icon size={24} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{ch.title}</h3>
+                  <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>{ch.desc}</p>
+                </div>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', border: channel === ch.id ? '6px solid #4f46e5' : '2px solid #cbd5e1' }} />
+              </div>
             ))}
           </div>
-          <button 
-            disabled={!channel}
-            onClick={handleNext}
-            className="mt-8 px-6 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+          
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
+            <button className="primary-button" onClick={handleNext} disabled={!channel}>Next Step</button>
+          </div>
         </div>
       )}
 
-      {/* Step 2: Message */}
+      {/* Step 2 */}
       {step === 2 && (
-        <div className="flex gap-8">
-          <div className="flex-1">
-            <h2 className="text-xl mb-4">Configure Message</h2>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 400px', background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Select Message</h2>
             
-            <div className="mb-4">
-              <label className="block mb-2">Category</label>
-              <select className="w-full border p-2 rounded" value={category} onChange={e => { setCategory(e.target.value); setTemplateId(''); }}>
-                <option value="">Select Category</option>
-                {campaignCategories?.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+            <label style={{ display: 'block', marginBottom: 16 }}>
+              <span style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: '0.9rem' }}>Message Category</span>
+              <select className="form-select" value={category} onChange={e => { setCategory(e.target.value); setTemplateId(''); }}>
+                <option value="">Select Category...</option>
+                {campaignCategories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-            </div>
-
-            <div className="mb-4">
-              <label className="block mb-2">Template</label>
-              <select className="w-full border p-2 rounded" value={templateId} onChange={e => setTemplateId(e.target.value)}>
-                <option value="">Select Template</option>
-                {predefinedTemplates?.filter(t => t.category === category).map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
+            </label>
+            
+            <label style={{ display: 'block', marginBottom: 24 }}>
+              <span style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: '0.9rem' }}>Message Template</span>
+              <select className="form-select" value={templateId} onChange={e => setTemplateId(e.target.value)} disabled={!category}>
+                <option value="">Select Template...</option>
+                {predefinedTemplates.filter(t => t.category === category).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-            </div>
+            </label>
 
             {selectedTemplate && (
-              <div className="mt-6 border-t pt-4">
-                <h3 className="font-semibold mb-2">Variables</h3>
-                {variables.length > 0 ? (
-                  variables.map(variable => (
-                    <div key={variable} className="mb-3 flex items-center">
-                      <label className="w-32">{variable}:</label>
-                      <input 
-                        type="text" 
-                        className="flex-1 border p-2 rounded"
-                        value={templateVariables[variable] || ''}
-                        onChange={e => handleVariableChange(variable, e.target.value)}
-                        placeholder={`Enter ${variable}`}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">No variables to configure for this template.</p>
+              <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: 16 }}>Edit Variables</h3>
+                {selectedTemplate.variables?.map(v => (
+                  <div key={v} style={{ marginBottom: 12 }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', color: '#475569', marginBottom: 4 }}>{v.replace(/_/g, ' ').toUpperCase()}</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder={`Enter ${v}`} 
+                      value={templateVariables[v] || ''} 
+                      onChange={e => setTemplateVariables(prev => ({ ...prev, [v]: e.target.value }))} 
+                    />
+                  </div>
+                ))}
+                {(!selectedTemplate.variables || selectedTemplate.variables.length === 0) && (
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>No editable variables in this template.</p>
                 )}
 
-                {selectedTemplate.supportsImage && (
-                  <div className="mt-4">
-                    <label className="block mb-2 font-semibold">Image</label>
-                    <input type="file" onChange={e => setImageUrl(e.target.files[0])} className="border p-2 w-full rounded" />
+                {selectedTemplate.supportsImage && channel === 'WHATSAPP' && (
+                  <div style={{ marginTop: 16 }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', color: '#475569', marginBottom: 4 }}>Image URL (Optional)</label>
+                    <input type="text" className="form-input" placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
                   </div>
                 )}
               </div>
             )}
-            
-            <button 
-              disabled={!templateId}
-              onClick={handleNext}
-              className="mt-8 px-6 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            >
-              Next
-            </button>
           </div>
-
-          <div className="flex-1 bg-gray-50 p-6 rounded-lg border">
-            <h3 className="font-semibold mb-4">Live Preview</h3>
-            {selectedTemplate ? (
-              <div className="bg-white p-4 rounded border whitespace-pre-wrap">
-                {getPreviewContent(selectedTemplate.content, templateVariables)}
+          
+          <div style={{ flex: '1 1 300px' }}>
+            <div style={{ position: 'sticky', top: 24, background: '#f0f2f5', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0', height: '100%' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Smartphone size={18} /> Live Preview
+              </h3>
+              <div style={{ background: '#fff', padding: 16, borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                {imageUrl && channel === 'WHATSAPP' && (
+                  <div style={{ width: '100%', height: 120, background: `url(${imageUrl}) center/cover`, borderRadius: 8, marginBottom: 12, backgroundColor: '#e2e8f0' }} />
+                )}
+                {selectedTemplate ? previewContent() : <span style={{ color: '#94a3b8' }}>Select a template to see preview...</span>}
               </div>
-            ) : (
-              <div className="text-gray-400 italic">Select a template to preview</div>
-            )}
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
+                <button className="secondary-button" onClick={handleBack}>Back</button>
+                <button className="primary-button" onClick={handleNext} disabled={!templateId}>Next Step</button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Step 3: Customers */}
+      {/* Step 3 */}
       {step === 3 && (
-        <div>
-          <h2 className="text-xl mb-4">Select Audience</h2>
+        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Select Customers</h2>
           
-          <div className="flex gap-4 mb-4">
-            <input 
-              type="text" 
-              placeholder="Search name or phone..." 
-              className="border p-2 rounded flex-1"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-            <select className="border p-2 rounded" value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <input type="text" className="form-input" placeholder="Search by name or phone..." style={{ paddingLeft: 36 }} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+            </div>
+            <select className="form-select" style={{ width: 150 }} value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
               <option value="">All Genders</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
-              <option value="Other">Other</option>
             </select>
           </div>
 
-          <div className="border rounded overflow-hidden mb-6">
-            <table className="w-full text-left bg-white">
-              <thead className="bg-gray-100">
+          <div style={{ maxHeight: 400, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+            <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1 }}>
                 <tr>
-                  <th className="p-3">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedCustomers.length === filteredCustomers.length && filteredCustomers.length > 0}
-                      onChange={toggleAll}
-                    />
+                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
+                    <input type="checkbox" checked={selectedCustomerIds.size === filteredCustomers.length && filteredCustomers.length > 0} onChange={() => toggleAll(filteredCustomers)} />
                   </th>
-                  <th className="p-3">Name</th>
-                  <th className="p-3">Phone</th>
-                  <th className="p-3">Gender</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Name</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Phone</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Gender</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.map(c => (
-                  <tr key={c._id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedCustomers.includes(c._id)}
-                        onChange={() => toggleCustomer(c._id)}
-                      />
-                    </td>
-                    <td className="p-3">{c.name}</td>
-                    <td className="p-3">{c.phone}</td>
-                    <td className="p-3">{c.gender}</td>
+                {customersLoading ? (
+                  <tr><td colSpan={4} style={{ padding: 24, textAlign: 'center' }}><PageLoader /></td></tr>
+                ) : filteredCustomers.map(c => (
+                  <tr key={c.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '12px 16px' }}><input type="checkbox" checked={selectedCustomerIds.has(c.id)} onChange={() => toggleCustomer(c.id)} /></td>
+                    <td style={{ padding: '12px 16px', fontWeight: 500 }}>{c.name}</td>
+                    <td style={{ padding: '12px 16px' }}>{c.phone}</td>
+                    <td style={{ padding: '12px 16px' }}>{c.gender || '-'}</td>
                   </tr>
                 ))}
-                {filteredCustomers.length === 0 && (
-                  <tr>
-                    <td colSpan="4" className="p-4 text-center text-gray-500">No customers found.</td>
-                  </tr>
+                {!customersLoading && filteredCustomers.length === 0 && (
+                  <tr><td colSpan={4} style={{ padding: 24, textAlign: 'center', color: '#64748b' }}>No customers found.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
           
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-semibold">{selectedCustomers.length} selected</span>
-            <button 
-              disabled={selectedCustomers.length === 0}
-              onClick={handleNext}
-              className="px-6 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            >
-              Next
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32 }}>
+            <span style={{ fontSize: '0.9rem', color: '#475569' }}>Selected: <strong>{selectedCustomerIds.size}</strong> customers</span>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="secondary-button" onClick={handleBack}>Back</button>
+              <button className="primary-button" onClick={handleNext} disabled={selectedCustomerIds.size === 0}>Next Step</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4 */}
+      {step === 4 && (
+        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Review & Confirm</h2>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8 }}>
+              <h3 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>Channel</h3>
+              <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{channel}</p>
+            </div>
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8 }}>
+              <h3 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>Recipients</h3>
+              <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{selectedCustomerIds.size} Customers</p>
+            </div>
+          </div>
+
+          <label style={{ display: 'block', marginBottom: 24 }}>
+            <span style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: '0.9rem' }}>Campaign Name (Internal)</span>
+            <input type="text" className="form-input" placeholder="e.g. Diwali Blast 2026" value={campaignName} onChange={e => setCampaignName(e.target.value)} />
+          </label>
+
+          <div style={{ marginBottom: 32 }}>
+            <span style={{ display: 'block', marginBottom: 12, fontWeight: 500, fontSize: '0.9rem' }}>When to send?</span>
+            <div style={{ display: 'flex', gap: 16 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="radio" checked={scheduleOption === 'now'} onChange={() => setScheduleOption('now')} /> Send Immediately
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="radio" checked={scheduleOption === 'schedule'} onChange={() => setScheduleOption('schedule')} /> Schedule for later
+              </label>
+            </div>
+            {scheduleOption === 'schedule' && (
+              <input type="datetime-local" className="form-input" style={{ marginTop: 12, maxWidth: 250 }} value={scheduledFor} onChange={e => setScheduledFor(e.target.value)} />
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: 16, borderTop: '1px solid #e2e8f0', paddingTop: 24 }}>
+            <button className="secondary-button" onClick={handleBack} disabled={loading}>Back</button>
+            <div style={{ flex: 1 }} />
+            <button className="secondary-button" onClick={() => setShowTestModal(true)} disabled={loading}>Send Test Message</button>
+            <button className="primary-button" onClick={() => {
+              if (!testSent) setShowConfirmModal(true);
+              else submitCampaign();
+            }} disabled={loading}>
+              {loading ? 'Processing...' : 'Confirm & Send'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Step 4: Confirm */}
-      {step === 4 && (
-        <div className="flex gap-8">
-          <div className="flex-1">
-            <h2 className="text-xl mb-4">Summary</h2>
-            <div className="bg-gray-50 p-6 rounded border mb-6 space-y-3">
-              <div><span className="font-semibold">Channel:</span> {channel}</div>
-              <div><span className="font-semibold">Category:</span> {category}</div>
-              <div><span className="font-semibold">Recipients:</span> {selectedCustomers.length} customers</div>
-            </div>
-
-            <div className="mb-4">
-              <label className="block mb-2 font-semibold">Campaign Name (Optional)</label>
-              <input 
-                type="text" 
-                className="w-full border p-2 rounded" 
-                value={campaignName} 
-                onChange={e => setCampaignName(e.target.value)}
-                placeholder={`${category} Campaign`}
-              />
-            </div>
-
-            <div className="mb-6">
-              <label className="block mb-2 font-semibold">Schedule</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                  <input type="radio" checked={scheduleOption === 'now'} onChange={() => setScheduleOption('now')} />
-                  Send Now
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" checked={scheduleOption === 'schedule'} onChange={() => setScheduleOption('schedule')} />
-                  Schedule for later
-                </label>
-              </div>
-              {scheduleOption === 'schedule' && (
-                <input 
-                  type="datetime-local" 
-                  className="mt-2 border p-2 rounded block"
-                  value={scheduledFor}
-                  onChange={e => setScheduledFor(e.target.value)}
-                />
-              )}
-            </div>
-
-            <div className="flex gap-4">
-              <button 
-                onClick={() => setShowTestModal(true)}
-                className="px-6 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
-              >
-                Send Test Message
-              </button>
-              <button 
-                onClick={handleConfirmAndSend}
-                className="px-6 py-2 bg-blue-600 text-white rounded"
-              >
-                Confirm and Send Campaign
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex-1 bg-gray-50 p-6 rounded-lg border">
-            <h3 className="font-semibold mb-4">Final Preview</h3>
-            <div className="bg-white p-4 rounded border whitespace-pre-wrap text-sm">
-              {getPreviewContent(selectedTemplate?.content, templateVariables)}
-            </div>
-            {imageUrl && <p className="mt-2 text-sm text-gray-500 italic">Includes attached image</p>}
-          </div>
-        </div>
-      )}
-
-      {/* Modals */}
+      {/* Test Modal */}
       {showTestModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h3 className="text-lg font-bold mb-4">Send Test Message</h3>
-            <input 
-              type="text" 
-              placeholder="Enter phone number..." 
-              className="w-full border p-2 rounded mb-4"
-              value={testPhoneNumber}
-              onChange={e => setTestPhoneNumber(e.target.value)}
-            />
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setShowTestModal(false)} className="px-4 py-2 border rounded">Cancel</button>
-              <button onClick={handleTestSend} className="px-4 py-2 bg-blue-600 text-white rounded">Send</button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', padding: 24, borderRadius: 12, width: '100%', maxWidth: 400 }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 16 }}>Send Test Message</h3>
+            <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>Enter a phone number (or email) to receive a preview of this campaign.</p>
+            <input type="text" className="form-input" placeholder="e.g. 9876543210" value={testPhoneNumber} onChange={e => setTestPhoneNumber(e.target.value)} style={{ marginBottom: 24 }} />
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button className="secondary-button" onClick={() => setShowTestModal(false)} disabled={loading}>Cancel</button>
+              <button className="primary-button" onClick={submitTest} disabled={loading}>{loading ? 'Sending...' : 'Send Test'}</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Warning Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h3 className="text-lg font-bold mb-4">Send Without Testing?</h3>
-            <p className="mb-6 text-gray-600">You haven't sent a test message to verify how this campaign looks. Are you sure you want to continue?</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setShowConfirmModal(false)} className="px-4 py-2 border rounded">Cancel</button>
-              <button onClick={() => { setShowConfirmModal(false); submitCampaign(); }} className="px-4 py-2 bg-blue-600 text-white rounded">Yes, Send Anyway</button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', padding: 24, borderRadius: 12, width: '100%', maxWidth: 400 }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: 16, color: '#b91c1c' }}>Send Without Testing?</h3>
+            <p style={{ fontSize: '0.9rem', color: '#475569', marginBottom: 24 }}>You haven't sent a test message to verify the formatting. Are you sure you want to send this campaign to {selectedCustomerIds.size} customers?</p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button className="secondary-button" onClick={() => setShowConfirmModal(false)} disabled={loading}>Cancel</button>
+              <button className="primary-button" style={{ background: '#ef4444', borderColor: '#ef4444' }} onClick={() => {
+                setShowConfirmModal(false);
+                submitCampaign();
+              }} disabled={loading}>
+                {loading ? 'Sending...' : 'Yes, Send Anyway'}
+              </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
-};
-
-export default CreateCampaignPage;
+}
