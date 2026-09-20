@@ -379,9 +379,9 @@ export default function CreateCampaignPage() {
                 {/* Header */}
                 <div style={{ background: channel === 'WHATSAPP' ? '#075E54' : '#f8fafc', color: channel === 'WHATSAPP' ? '#fff' : '#0f172a', padding: '40px 16px 12px', display: 'flex', alignItems: 'center', gap: 12, fontWeight: 600, borderBottom: channel === 'WHATSAPP' ? 'none' : '1px solid #e2e8f0' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%', background: channel === 'WHATSAPP' ? '#fff' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: channel === 'WHATSAPP' ? '#075E54' : '#475569' }}>
-                    {channel === 'WHATSAPP' ? 'B' : <MessageSquare size={18} />}
+                    {channel === 'WHATSAPP' ? 'B' : channel === 'EMAIL' ? <Mail size={18} /> : <MessageSquare size={18} />}
                   </div>
-                  <span>{channel === 'WHATSAPP' ? 'WhatsApp Preview' : 'SMS Preview'}</span>
+                  <span>{channel === 'WHATSAPP' ? 'WhatsApp Preview' : channel === 'EMAIL' ? 'Email Preview' : 'SMS Preview'}</span>
                 </div>
 
                 {/* Chat Body */}
@@ -392,7 +392,7 @@ export default function CreateCampaignPage() {
                       Select a template to preview your message here.
                     </div>
                   ) : (
-                    <div style={{ background: channel === 'WHATSAPP' ? '#dcf8c6' : '#e2e8f0', padding: 12, borderRadius: 12, borderTopLeftRadius: 0, boxShadow: '0 1px 2px rgba(0,0,0,0.1)', maxWidth: '92%', marginBottom: 16 }}>
+                    <div style={{ background: channel === 'WHATSAPP' ? '#dcf8c6' : channel === 'EMAIL' ? '#ffffff' : '#e2e8f0', padding: 12, borderRadius: 12, borderTopLeftRadius: channel === 'EMAIL' ? 12 : 0, boxShadow: '0 1px 2px rgba(0,0,0,0.1)', maxWidth: channel === 'EMAIL' ? '100%' : '92%', marginBottom: 16 }}>
                       {imageUrl && channel === 'WHATSAPP' && (
                         <div style={{ width: '100%', height: 140, background: `url(${imageUrl}) center/cover`, borderRadius: 8, marginBottom: 8, backgroundColor: '#cbd5e1' }} />
                       )}
