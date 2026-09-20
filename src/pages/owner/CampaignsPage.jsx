@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
-import { Plus, RefreshCcw, Search, BarChart2 } from "lucide-react";
+import { Plus, RefreshCcw, Search, BarChart2, ChevronDown, HelpCircle } from "lucide-react";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import { formatApiError } from "../../utils/apiError";
@@ -14,6 +14,7 @@ export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt"); // createdAt, status
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -46,10 +47,11 @@ export default function CampaignsPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>Campaigns</h1>
             <button style={{ 
-              background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', 
-              fontSize: "0.75rem", fontWeight: 600, padding: "4px 12px", borderRadius: 16, cursor: 'pointer' 
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', 
+              fontSize: "0.8rem", fontWeight: 500, padding: "4px 12px", borderRadius: 20, cursor: 'pointer' 
             }}>
-              Need Help?
+              <HelpCircle size={14} /> Need Help?
             </button>
           </div>
           <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem" }}>
@@ -64,10 +66,53 @@ export default function CampaignsPage() {
       <div style={{ display: "flex", gap: 16, marginBottom: 24, alignItems: "center", background: '#fff', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0' }}>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Sort By</span>
-          <select className="form-input" style={{ width: 140, padding: "8px 12px", height: 38, margin: 0 }} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="createdAt">Created at</option>
-            <option value="status">Status</option>
-          </select>
+          <div 
+            style={{ position: 'relative' }} 
+            tabIndex={0} 
+            onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setShowSortDropdown(false); }}
+          >
+            <button 
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                width: 140, height: 38, padding: '0 12px', background: '#fff', 
+                border: showSortDropdown ? '1px solid #4f46e5' : '1px solid #cbd5e1', 
+                borderRadius: 8, color: '#334155', fontSize: '0.9rem', cursor: 'pointer',
+                boxShadow: showSortDropdown ? '0 0 0 2px rgba(79, 70, 229, 0.1)' : 'none'
+              }}
+            >
+              {sortBy === 'createdAt' ? 'Created at' : 'Status'}
+              <ChevronDown size={16} color="#64748b" style={{ transform: showSortDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            </button>
+            
+            {showSortDropdown && (
+              <div style={{ 
+                position: 'absolute', top: 44, left: 0, width: '100%', 
+                background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8,
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', zIndex: 10,
+                overflow: 'hidden'
+              }}>
+                {[
+                  { value: 'createdAt', label: 'Created at' },
+                  { value: 'status', label: 'Status' }
+                ].map(opt => (
+                  <div 
+                    key={opt.value}
+                    onClick={() => { setSortBy(opt.value); setShowSortDropdown(false); }}
+                    style={{ 
+                      padding: '10px 12px', fontSize: '0.9rem', cursor: 'pointer',
+                      background: sortBy === opt.value ? '#f8fafc' : '#fff',
+                      color: sortBy === opt.value ? '#0f172a' : '#475569',
+                      fontWeight: sortBy === opt.value ? 500 : 400,
+                      borderBottom: opt.value === 'createdAt' ? '1px solid #f1f5f9' : 'none'
+                    }}
+                  >
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div style={{ width: '1px', height: 24, background: '#e2e8f0', margin: '0 8px' }} />
         <div style={{ flex: 1, position: "relative", maxWidth: 400 }}>
