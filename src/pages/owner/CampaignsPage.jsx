@@ -46,11 +46,14 @@ export default function CampaignsPage() {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>Campaigns</h1>
-            <button style={{ 
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', 
-              fontSize: "0.8rem", fontWeight: 500, padding: "4px 12px", borderRadius: 20, cursor: 'pointer' 
-            }}>
+            <button 
+              onClick={() => navigate('/admin/support-tickets')}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: 6,
+                background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', 
+                fontSize: "0.8rem", fontWeight: 500, padding: "4px 12px", borderRadius: 20, cursor: 'pointer' 
+              }}
+            >
               <HelpCircle size={14} /> Need Help?
             </button>
           </div>
