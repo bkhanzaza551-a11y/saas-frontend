@@ -35,7 +35,7 @@ export const predefinedTemplates = [
     name: "Relaxing Massage Therapy",
     content: "Hi {{customer_name}},\n\nUnwind and de-stress with our premium Massage Therapy sessions! 🧘‍♀️\nFor this week only, get a 60-minute full body massage at just [[price]].\n\nTake a break, you deserve it! 🍃\n\nCall us to reserve your spot: {{phone_number}}\n\nRegards,\n{{business_name}}",
     variables: ["price"],
-    supportsImage: true
+    supportsImage: false
   },
   {
     id: "nail_art_special",
@@ -63,7 +63,7 @@ export const predefinedTemplates = [
     name: "Cashback and Discount Flash Offer",
     content: "Hey {{customer_name}},\n\nEscape the heat and indulge in some self-pampering at {{business_name}}! 🧖‍♀️\n\nGet a fantastic [[cashback_value]] cashback 💸 on all services for bills over [[bill_value_for_cashback]].\nPlus, enjoy a generous [[discount_value]] discount ✂️ on services over [[bill_value_for_discount]]!\nWe have something for everyone! 🎉\n\n📍 Location: {{salon_address}}\n\nHurry, this offer is only available for a limited time! Secure your slots now by calling: 📞 {{phone_number}} or visit 🌐 {{store_link}}\n\nBest Regards,\nTeam at {{business_name}} 💅\n\nReply STOP to unsubscribe from promotional messages",
     variables: ["cashback_value", "bill_value_for_cashback", "discount_value", "bill_value_for_discount"],
-    supportsImage: true
+    supportsImage: false
   },
   {
     id: "weekend_sale",
@@ -71,7 +71,7 @@ export const predefinedTemplates = [
     name: "Weekend Special Sale",
     content: "Hello {{customer_name}},\n\nThe weekend is here and so is our Weekend Special! 🎉\n\nEnjoy a flat [[discount_percent]]% discount on all salon services this Saturday and Sunday. Treat yourself to a fresh new look! 💇‍♀️💅\n\nHurry, limited slots available! \nBook Now: {{store_link}}\n\nSee you soon,\n{{business_name}} 💖",
     variables: ["discount_percent"],
-    supportsImage: true
+    supportsImage: false
   },
   {
     id: "combo_offer",
@@ -107,7 +107,7 @@ export const predefinedTemplates = [
     name: "Store Anniversary Offer",
     content: "Hi {{customer_name}}! 🎉\n\nIt's our Anniversary! 🎊 To celebrate another beautiful year with our amazing clients, we are giving away a special [[offer_detail]] on your next visit.\n\nThank you for your continuous love and support! ❤️\n\nCelebrate with us: {{store_link}}\n\nWith Love,\n{{business_name}} 🎈",
     variables: ["offer_detail"],
-    supportsImage: true
+    supportsImage: false
   },
   {
     id: "womens_day",
@@ -155,7 +155,7 @@ export const predefinedTemplates = [
     name: "We Miss You Offer",
     content: "Hi {{customer_name}}, 🥺\n\nIt's been a while since we last saw you at {{business_name}}! We miss you! 😢\n\nCome back and treat yourself! We've added a special [[discount_amount]] OFF voucher to your profile for your next visit.\n\nClaim it now: {{store_link}}\n\nHope to see you soon! 💖",
     variables: ["discount_amount"],
-    supportsImage: true
+    supportsImage: false
   },
   {
     id: "birthday_month",
