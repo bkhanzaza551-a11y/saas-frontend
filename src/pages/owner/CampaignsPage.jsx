@@ -93,11 +93,10 @@ export default function CampaignsPage() {
           </p>
         </div>
         <button
-          className="btn-primary-sm"
           onClick={() => navigate("/admin/campaigns/create")}
-          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#111827', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
         >
-          <Plus size={15} /> New Campaign
+          <Plus size={14} /> New Campaign
         </button>
       </div>
 
@@ -210,16 +209,15 @@ export default function CampaignsPage() {
                     <td>
                       {c.status === "DRAFT" ? (
                         <button
-                          className="btn-primary-sm"
                           onClick={() => navigate('/admin/campaigns/create', { state: { draft: c } })}
+                          style={{ background: '#111827', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}
                         >
                           Continue Editing
                         </button>
                       ) : (
                         <button
-                          className="btn-secondary-sm"
                           onClick={() => openReport(c)}
-                          style={{ display: 'flex', alignItems: 'center', gap: 5 }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#fff', border: '1px solid #cbd5e1', padding: '6px 12px', borderRadius: 6, fontWeight: 600, fontSize: '0.8rem', color: '#475569', cursor: 'pointer' }}
                         >
                           <BarChart2 size={13} /> View Report
                         </button>
