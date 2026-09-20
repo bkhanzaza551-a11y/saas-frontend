@@ -38,6 +38,7 @@ export default function CreateCampaignPage() {
   const [scheduledFor, setScheduledFor] = useState('');
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
   const [showTestModal, setShowTestModal] = useState(false);
+  const [showTestSuggestions, setShowTestSuggestions] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [testSent, setTestSent] = useState(false);
 
@@ -550,14 +551,56 @@ export default function CreateCampaignPage() {
 
       {/* Test Modal */}
       {showTestModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: 24, borderRadius: 12, width: '100%', maxWidth: 400 }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 16 }}>Send Test Message</h3>
-            <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>Enter a phone number (or email) to receive a preview of this campaign.</p>
-            <input type="text" className="form-input" placeholder="e.g. 9876543210" value={testPhoneNumber} onChange={e => setTestPhoneNumber(e.target.value)} style={{ marginBottom: 24 }} />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowTestSuggestions(false)}>
+          <div style={{ background: '#fff', padding: 32, borderRadius: 20, width: '100%', maxWidth: 450, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: '#0f172a' }}>Send Test Message</h3>
+              <button onClick={() => setShowTestModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex' }}><X size={20} color="#64748b" /></button>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 24, lineHeight: '1.5' }}>Search for a customer by name, or manually enter a {channel === 'EMAIL' ? 'email address' : 'phone number'} to receive a preview.</p>
+            
+            <div style={{ position: 'relative', marginBottom: 32 }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: 8 }}>Recipient</label>
+              <div style={{ position: 'relative' }}>
+                <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <input 
+                  type="text" 
+                  placeholder={channel === 'EMAIL' ? "Search customer or enter email..." : "Search customer or enter number..."}
+                  value={testPhoneNumber} 
+                  onChange={e => { setTestPhoneNumber(e.target.value); setShowTestSuggestions(true); }}
+                  onFocus={() => setShowTestSuggestions(true)}
+                  style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.95rem', outline: 'none' }} 
+                />
+              </div>
+              
+              {showTestSuggestions && testPhoneNumber && customers.some(c => c.name?.toLowerCase().includes(testPhoneNumber.toLowerCase()) || c.phone?.includes(testPhoneNumber) || c.email?.toLowerCase().includes(testPhoneNumber.toLowerCase())) && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', maxHeight: 220, overflowY: 'auto', zIndex: 50 }}>
+                  {customers.filter(c => c.name?.toLowerCase().includes(testPhoneNumber.toLowerCase()) || c.phone?.includes(testPhoneNumber) || c.email?.toLowerCase().includes(testPhoneNumber.toLowerCase())).map(c => (
+                    <div 
+                      key={c.id} 
+                      onClick={() => {
+                        setTestPhoneNumber(channel === 'EMAIL' ? c.email : c.phone);
+                        setShowTestSuggestions(false);
+                      }}
+                      style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>{c.name}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{channel === 'EMAIL' ? c.email : c.phone}</div>
+                      </div>
+                      <div style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: 6, fontSize: '0.75rem', color: '#475569', fontWeight: 600 }}>Select</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button className="btn-secondary-sm" onClick={() => setShowTestModal(false)} disabled={loading}>Cancel</button>
-              <button className="btn-primary-sm" onClick={submitTest} disabled={loading}>{loading ? 'Sending...' : 'Send Test'}</button>
+              <button className="btn-secondary-sm" style={{ padding: '10px 24px', fontSize: '0.9rem' }} onClick={() => setShowTestModal(false)} disabled={loading}>Cancel</button>
+              <button className="btn-primary-sm" style={{ padding: '10px 24px', fontSize: '0.9rem' }} onClick={() => { setShowTestSuggestions(false); submitTest(); }} disabled={loading || !testPhoneNumber}>{loading ? 'Sending...' : 'Send Test'}</button>
             </div>
           </div>
         </div>
