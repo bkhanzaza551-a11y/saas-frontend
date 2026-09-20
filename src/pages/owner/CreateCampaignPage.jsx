@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw, Save } from 'lucide-react';
 import { api } from '../../api/client';
 import { campaignCategories, predefinedTemplates } from '../../utils/campaignTemplates';
 import PageLoader from '../../components/PageLoader';
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const draft = location.state?.draft || null;
+  const draftMeta = draft?.audienceMeta?.draftState || {};
+
+  const [draftId, setDraftId] = useState(draft?.id || null);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   
   // Step 1
-  const [channel, setChannel] = useState(''); // WHATSAPP, EMAIL, SMS
+  const [channel, setChannel] = useState(draft?.type || ''); 
   
   // Step 2
-  const [category, setCategory] = useState('');
-  const [templateId, setTemplateId] = useState('');
-  const [templateVariables, setTemplateVariables] = useState({});
-  const [imageUrl, setImageUrl] = useState('');
+  const [category, setCategory] = useState(draftMeta.category || '');
+  const [templateId, setTemplateId] = useState(draftMeta.templateId || '');
+  const [templateVariables, setTemplateVariables] = useState(draftMeta.templateVariables || {});
+  const [imageUrl, setImageUrl] = useState(draft?.bannerUrl || '');
   
   // Step 3
   const [customers, setCustomers] = useState([]);
-  const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set());
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set(draftMeta.selectedIds || []));
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
   const [customersLoading, setCustomersLoading] = useState(false);
@@ -33,9 +38,9 @@ export default function CreateCampaignPage() {
   const pageSize = 50;
 
   // Step 4
-  const [campaignName, setCampaignName] = useState('');
-  const [scheduleOption, setScheduleOption] = useState('now'); // 'now', 'schedule'
-  const [scheduledFor, setScheduledFor] = useState('');
+  const [campaignName, setCampaignName] = useState(draft?.name && draft.name !== 'Untitled Draft' ? draft.name : '');
+  const [scheduleOption, setScheduleOption] = useState(draft?.scheduledFor ? 'schedule' : 'now'); 
+  const [scheduledFor, setScheduledFor] = useState(draft?.scheduledFor ? new Date(draft.scheduledFor).toISOString().slice(0, 16) : '');
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
   const [showTestModal, setShowTestModal] = useState(false);
   const [showTestSuggestions, setShowTestSuggestions] = useState(false);
@@ -129,18 +134,47 @@ export default function CreateCampaignPage() {
     setLoading(true);
     try {
       await api.post('/owner/campaigns', {
+        id: draftId,
         name: campaignName || `${selectedTemplate?.name || 'Campaign'} - ${new Date().toLocaleDateString()}`,
         type: channel,
         audienceFilter: 'SELECTED',
-        audienceMeta: { selectedIds: Array.from(selectedCustomerIds) },
+        audienceMeta: { 
+          selectedIds: Array.from(selectedCustomerIds),
+          draftState: { category, templateId, templateVariables } 
+        },
         message: resolveContent(),
-        templateId,
         imageUrl: imageUrl || null,
         scheduledFor: scheduleOption === 'schedule' ? scheduledFor : null
       });
       navigate('/admin/campaigns');
     } catch (err) {
       alert('Failed to create campaign');
+      setLoading(false);
+    }
+  };
+
+  const saveDraft = async () => {
+    setLoading(true);
+    try {
+      const res = await api.post('/owner/campaigns', {
+        id: draftId,
+        isDraft: true,
+        name: campaignName || (selectedTemplate?.name ? `${selectedTemplate.name} - Draft` : 'Untitled Draft'),
+        type: channel,
+        audienceFilter: 'SELECTED',
+        audienceMeta: { 
+          selectedIds: Array.from(selectedCustomerIds),
+          draftState: { category, templateId, templateVariables } 
+        },
+        message: resolveContent(),
+        imageUrl: imageUrl || null,
+        scheduledFor: scheduleOption === 'schedule' ? scheduledFor : null
+      });
+      if (res.data?.id) setDraftId(res.data.id);
+      alert('Draft saved successfully!');
+    } catch (err) {
+      alert('Failed to save draft');
+    } finally {
       setLoading(false);
     }
   };
@@ -166,23 +200,28 @@ export default function CreateCampaignPage() {
         .btn-secondary-sm:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
       `}</style>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-        <button 
-          onClick={() => step > 1 ? handleBack() : navigate('/admin/campaigns')} 
-          style={{ 
-            background: 'transparent', 
-            border: 'none', 
-            cursor: 'pointer', 
-            padding: 4, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: '#475569'
-          }}
-        >
-          <ChevronLeft size={24} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button 
+            onClick={() => step > 1 ? handleBack() : navigate('/admin/campaigns')} 
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              cursor: 'pointer', 
+              padding: 4, 
+              display: 'flex', 
+              background: '#f1f5f9', 
+              borderRadius: 8 
+            }}
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{draftId ? 'Edit Draft Campaign' : 'Create New Campaign'}</h1>
+        </div>
+        <button onClick={saveDraft} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, color: '#475569', fontWeight: 600, fontSize: '0.85rem', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+          <Save size={16} />
+          {loading ? 'Saving...' : 'Save as Draft'}
         </button>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>Create New Campaign</h1>
       </div>
 
       {/* Stepper */}

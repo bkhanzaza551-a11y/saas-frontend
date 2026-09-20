@@ -179,7 +179,11 @@ export default function CampaignsPage() {
                   <td>₹{c.revenue || 0}</td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <button className="secondary-button" onClick={() => navigate(`/admin/campaigns/${c.id}/logs`)}>View Report</button>
+                    {c.status === "DRAFT" ? (
+                      <button className="primary-button" style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => navigate('/admin/campaigns/create', { state: { draft: c } })}>Continue Editing</button>
+                    ) : (
+                      <button className="secondary-button" onClick={() => navigate(`/admin/campaigns/${c.id}/logs`)}>View Report</button>
+                    )}
                   </td>
                 </tr>
               ))}
