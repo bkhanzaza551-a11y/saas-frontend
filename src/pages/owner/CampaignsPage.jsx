@@ -40,40 +40,55 @@ export default function CampaignsPage() {
     });
 
   return (
-    <div className="page-shell">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+    <div className="page-shell" style={{ maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>Campaigns</h1>
-            <button className="secondary-button" style={{ fontSize: "0.85rem", padding: "4px 10px", borderRadius: 20 }}>Need Help?</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+            <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>Campaigns</h1>
+            <button style={{ 
+              background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', 
+              fontSize: "0.75rem", fontWeight: 600, padding: "4px 12px", borderRadius: 16, cursor: 'pointer' 
+            }}>
+              Need Help?
+            </button>
           </div>
-          <p style={{ color: "#64748b", margin: "8px 0 0", fontSize: "0.95rem" }}>Create and manage marketing campaigns to attract more customers and promote salon services.</p>
+          <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem" }}>
+            Create and manage marketing campaigns to attract more customers and promote salon services.
+          </p>
         </div>
-        <button className="primary-button" onClick={() => navigate("/admin/campaigns/create")}>
+        <button className="primary-button" onClick={() => navigate("/admin/campaigns/create")} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 8 }}>
           <Plus size={18} /> Create New Campaign
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 16, marginBottom: 24, alignItems: "center", background: '#fff', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0' }}>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Sort By</span>
-          <select className="form-input" style={{ width: 140, padding: "8px 12px" }} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <select className="form-input" style={{ width: 140, padding: "8px 12px", height: 38, margin: 0 }} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="createdAt">Created at</option>
             <option value="status">Status</option>
           </select>
         </div>
-        <div style={{ flex: 1, minWidth: 200, position: "relative" }}>
+        <div style={{ width: '1px', height: 24, background: '#e2e8f0', margin: '0 8px' }} />
+        <div style={{ flex: 1, position: "relative", maxWidth: 400 }}>
           <Search size={18} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
           <input
             type="text"
             className="form-input"
             placeholder="Search campaigns..."
-            style={{ paddingLeft: 38, width: "100%" }}
+            style={{ paddingLeft: 38, width: "100%", height: 38, margin: 0 }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="secondary-button" onClick={load}><RefreshCcw size={16} /> Refresh</button>
+        <div style={{ flex: 1 }} />
+        <button onClick={load} style={{ 
+          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', height: 38, 
+          background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#475569', 
+          fontWeight: 500, cursor: 'pointer' 
+        }}>
+          <RefreshCcw size={16} /> Refresh
+        </button>
       </div>
 
       {loading ? (
