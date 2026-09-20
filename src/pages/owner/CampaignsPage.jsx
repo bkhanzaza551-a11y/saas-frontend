@@ -56,8 +56,8 @@ export default function CampaignsPage() {
             Create and manage marketing campaigns to attract more customers and promote salon services.
           </p>
         </div>
-        <button className="primary-button" onClick={() => navigate("/admin/campaigns/create")} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 8 }}>
-          <Plus size={18} /> Create New Campaign
+        <button className="primary-button" onClick={() => navigate("/admin/campaigns/create")} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 500 }}>
+          <Plus size={16} /> Create New Campaign
         </button>
       </div>
 
