@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
-import { Plus, RefreshCcw, Search, BarChart2, ChevronDown, HelpCircle, X, Users, Send, TrendingUp, Calendar } from "lucide-react";
+import { Plus, RefreshCcw, Search, BarChart2, ChevronDown, HelpCircle, X, Users, Send, Calendar } from "lucide-react";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import { formatApiError } from "../../utils/apiError";
@@ -266,7 +266,6 @@ export default function CampaignsPage() {
                   {[
                     { icon: <Send size={20} color="#4f46e5" />, label: 'Messages Sent', value: reportCampaign.sentCount || reportData?.campaign?.logs?.length || 0, bg: '#eef2ff' },
                     { icon: <Users size={20} color="#059669" />, label: 'Recipients', value: reportData?.campaign?.audienceMeta?.selectedIds?.length || reportCampaign.sentCount || 0, bg: '#ecfdf5' },
-                    { icon: <TrendingUp size={20} color="#d97706" />, label: 'Revenue Generated', value: `₹${reportCampaign.revenue || 0}`, bg: '#fffbeb' },
                     { icon: <Calendar size={20} color="#0ea5e9" />, label: 'Sent On', value: new Date(reportCampaign.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), bg: '#f0f9ff' },
                   ].map((stat, i) => (
                     <div key={i} style={{ background: stat.bg, borderRadius: 12, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
