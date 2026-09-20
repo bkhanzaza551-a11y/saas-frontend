@@ -1546,7 +1546,7 @@ const handleExportClick = async (format) => {
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Name *</label>
-                  <input required type="text" value={formData.name} placeholder="Guest Name" onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
+                  <input required type="text" value={formData.name} placeholder="Customer Name" onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))} style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", transition: "border-color 0.2s", height: 42, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#3b82f6"} onBlur={e => e.target.style.borderColor = "#cbd5e1"} />
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Gender</label>
