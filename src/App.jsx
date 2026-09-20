@@ -104,6 +104,7 @@ const CustomerPortalPage = lazyWithRetry(() => import("./pages/customer/Customer
 
 const OrdersPage = lazyWithRetry(() => import("./pages/owner/OrdersPage.jsx"));
 const CampaignsPage = lazyWithRetry(() => import("./pages/owner/CampaignsPage.jsx"));
+const CreateCampaignPage = lazyWithRetry(() => import("./pages/owner/CreateCampaignPage.jsx"));
 const CampaignTemplatesPage = lazyWithRetry(() => import("./pages/owner/CampaignTemplatesPage.jsx"));
 const MessageTemplatesPage = lazyWithRetry(() => import("./pages/owner/MessageTemplatesPage.jsx"));
 
@@ -727,7 +728,7 @@ export default function App() {
           <Route path="/admin/orders/cancelled" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<OrdersPage />} />} />
           <Route path="/admin/orders/:id" element={<OwnerRoute moduleKey="orders" featureKey="onlineOrders" element={<OrdersPage />} />} />
           <Route path="/admin/campaigns" element={<OwnerRoute moduleKey="campaigns" featureKey="campaigns" element={<CampaignsPage />} />} />
-          <Route path="/admin/campaigns/create" element={<OwnerRoute moduleKey="campaigns" featureKey="campaigns" element={<CampaignsPage />} />} />
+          <Route path="/admin/campaigns/create" element={<OwnerRoute moduleKey="campaigns" featureKey="campaigns" element={<CreateCampaignPage />} />} />
           <Route path="/admin/campaigns/:id" element={<OwnerRoute moduleKey="campaigns" featureKey="campaigns" element={<CampaignsPage />} />} />
           <Route path="/admin/campaigns/:id/edit" element={<OwnerRoute moduleKey="campaigns" featureKey="campaigns" element={<CampaignsPage />} />} />
           <Route path="/admin/campaigns/:id/logs" element={<OwnerRoute moduleKey="campaigns" featureKey="campaigns" element={<CampaignsPage />} />} />
