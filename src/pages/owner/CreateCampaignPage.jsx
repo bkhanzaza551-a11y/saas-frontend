@@ -208,38 +208,42 @@ export default function CreateCampaignPage() {
 
       {/* Step 1 */}
       {step === 1 && (
-        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: 8 }}>Select Delivery Channel</h2>
-          <p style={{ color: '#64748b', marginBottom: 24 }}>Choose how you want to reach your customers.</p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[
-              { id: 'WHATSAPP', title: 'WhatsApp', desc: 'Send rich media messages directly to WhatsApp.', icon: Smartphone },
-              { id: 'SMS', title: 'SMS', desc: 'Send standard text messages to mobile phones.', icon: MessageSquare },
-              { id: 'EMAIL', title: 'Email', desc: 'Send promotional emails (Free).', icon: Mail }
-            ].map(ch => (
-              <div 
-                key={ch.id}
-                onClick={() => setChannel(ch.id)}
-                style={{ 
-                  display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 8, cursor: 'pointer',
-                  border: channel === ch.id ? '2px solid #4f46e5' : '1px solid #e2e8f0',
-                  background: channel === ch.id ? '#eef2ff' : '#fff'
-                }}
-              >
-                <div style={{ padding: 12, borderRadius: 8, background: channel === ch.id ? '#4f46e5' : '#f1f5f9', color: channel === ch.id ? '#fff' : '#475569' }}>
-                  <ch.icon size={24} />
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '32px 32px 48px' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Delivery Channel</h2>
+            <p style={{ color: '#64748b', marginBottom: 32, fontSize: '0.95rem' }}>Choose how you want to reach your customers.</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20 }}>
+              {[
+                { id: 'WHATSAPP', title: 'WhatsApp', desc: 'Send rich media messages directly to WhatsApp.', icon: Smartphone },
+                { id: 'SMS', title: 'SMS', desc: 'Send standard text messages to mobile phones.', icon: MessageSquare },
+                { id: 'EMAIL', title: 'Email', desc: 'Send promotional emails (Free).', icon: Mail }
+              ].map(ch => (
+                <div 
+                  key={ch.id}
+                  onClick={() => setChannel(ch.id)}
+                  style={{ 
+                    display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 12, cursor: 'pointer',
+                    border: channel === ch.id ? '2px solid #0f172a' : '1px solid #e2e8f0',
+                    background: channel === ch.id ? '#f8fafc' : '#fff',
+                    transition: 'all 0.2s',
+                    boxShadow: channel === ch.id ? '0 4px 6px -1px rgba(0,0,0,0.05)' : 'none'
+                  }}
+                >
+                  <div style={{ padding: 12, borderRadius: 10, background: channel === ch.id ? '#0f172a' : '#f1f5f9', color: channel === ch.id ? '#fff' : '#475569' }}>
+                    <ch.icon size={24} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>{ch.title}</h3>
+                    <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>{ch.desc}</p>
+                  </div>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', border: channel === ch.id ? '6px solid #0f172a' : '2px solid #cbd5e1', background: '#fff' }} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{ch.title}</h3>
-                  <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>{ch.desc}</p>
-                </div>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', border: channel === ch.id ? '6px solid #4f46e5' : '2px solid #cbd5e1' }} />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
           
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
+          <div style={{ padding: '20px 32px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: '#f8fafc', borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}>
             <button className="btn-primary-sm" onClick={handleNext} disabled={!channel}>Next Step</button>
           </div>
         </div>
@@ -247,73 +251,122 @@ export default function CreateCampaignPage() {
 
       {/* Step 2 */}
       {step === 2 && (
-        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 400px', background: '#fff', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0' }}>
-            <h2 style={{ fontSize: '1.2rem', marginBottom: 24 }}>Select Message</h2>
-            
-            <label style={{ display: 'block', marginBottom: 16 }}>
-              <span style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: '0.9rem' }}>Message Category</span>
-              <select className="form-select" value={category} onChange={e => { setCategory(e.target.value); setTemplateId(''); }}>
-                <option value="">Select Category...</option>
-                {campaignCategories.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </label>
-            
-            <label style={{ display: 'block', marginBottom: 24 }}>
-              <span style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: '0.9rem' }}>Message Template</span>
-              <select className="form-select" value={templateId} onChange={e => setTemplateId(e.target.value)} disabled={!category}>
-                <option value="">Select Template...</option>
-                {predefinedTemplates.filter(t => t.category === category).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </label>
-
-            {selectedTemplate && (
-              <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: 16 }}>Edit Variables</h3>
-                {selectedTemplate.variables?.map(v => (
-                  <div key={v} style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: '#475569', marginBottom: 4 }}>{v.replace(/_/g, ' ').toUpperCase()}</label>
-                    <input 
-                      type="text" 
-                      className="form-input" 
-                      placeholder={`Enter ${v}`} 
-                      value={templateVariables[v] || ''} 
-                      onChange={e => setTemplateVariables(prev => ({ ...prev, [v]: e.target.value }))} 
-                    />
-                  </div>
-                ))}
-                {(!selectedTemplate.variables || selectedTemplate.variables.length === 0) && (
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>No editable variables in this template.</p>
-                )}
-
-                {selectedTemplate.supportsImage && channel === 'WHATSAPP' && (
-                  <div style={{ marginTop: 16 }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: '#475569', marginBottom: 4 }}>Image URL (Optional)</label>
-                    <input type="text" className="form-input" placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
           
-          <div style={{ flex: '1 1 300px' }}>
-            <div style={{ position: 'sticky', top: 24, background: '#f0f2f5', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0', height: '100%' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Smartphone size={18} /> Live Preview
-              </h3>
-              <div style={{ background: '#fff', padding: 16, borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                {imageUrl && channel === 'WHATSAPP' && (
-                  <div style={{ width: '100%', height: 120, background: `url(${imageUrl}) center/cover`, borderRadius: 8, marginBottom: 12, backgroundColor: '#e2e8f0' }} />
-                )}
-                {selectedTemplate ? previewContent() : <span style={{ color: '#94a3b8' }}>Select a template to see preview...</span>}
-              </div>
+          <div style={{ padding: '32px 32px 48px', display: 'flex', gap: 40, flexWrap: 'wrap' }}>
+            {/* Left Side: Setup */}
+            <div style={{ flex: '1 1 400px' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Message</h2>
+              <p style={{ color: '#64748b', marginBottom: 32, fontSize: '0.95rem' }}>Choose a template and customize the content.</p>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
-                <button className="btn-secondary-sm" onClick={handleBack}>Back</button>
-                <button className="btn-primary-sm" onClick={handleNext} disabled={!templateId}>Next Step</button>
+              <div style={{ display: 'grid', gap: 24 }}>
+                <label style={{ display: 'block' }}>
+                  <span style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Message Category</span>
+                  <select className="form-select" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.95rem' }} value={category} onChange={e => { setCategory(e.target.value); setTemplateId(''); }}>
+                    <option value="">Select Category...</option>
+                    {campaignCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </label>
+                
+                <label style={{ display: 'block' }}>
+                  <span style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Message Template</span>
+                  <select className="form-select" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.95rem' }} value={templateId} onChange={e => setTemplateId(e.target.value)} disabled={!category}>
+                    <option value="">Select Template...</option>
+                    {predefinedTemplates.filter(t => t.category === category).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  </select>
+                </label>
+
+                {selectedTemplate && (
+                  <div style={{ background: '#f8fafc', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0', marginTop: 8 }}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 600, marginBottom: 20, color: '#0f172a' }}>Customize Variables</h3>
+                    {selectedTemplate.variables?.length > 0 ? (
+                      <div style={{ display: 'grid', gap: 16 }}>
+                        {selectedTemplate.variables.map(v => (
+                          <div key={v}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#475569', marginBottom: 6 }}>{v.replace(/_/g, ' ').toUpperCase()}</label>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              placeholder={`Enter ${v.replace(/_/g, ' ')}`} 
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                              value={templateVariables[v] || ''} 
+                              onChange={e => setTemplateVariables(prev => ({ ...prev, [v]: e.target.value }))} 
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: '0.9rem', color: '#64748b', margin: 0, fontStyle: 'italic' }}>No variables needed for this template.</p>
+                    )}
+
+                    {selectedTemplate.supportsImage && channel === 'WHATSAPP' && (
+                      <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e2e8f0' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#475569', marginBottom: 6 }}>Hero Image URL (Optional)</label>
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <ImageIcon size={20} color="#94a3b8" style={{ alignSelf: 'center' }} />
+                          <input type="text" className="form-input" style={{ flex: 1, padding: '10px 14px', borderRadius: 6, border: '1px solid #cbd5e1' }} placeholder="https://example.com/image.jpg" value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
+            
+            {/* Right Side: Phone Mockup Preview */}
+            <div style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ 
+                width: 320, 
+                height: 600, 
+                background: '#f1f5f9', 
+                borderRadius: 40, 
+                border: '12px solid #0f172a', 
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
+              }}>
+                {/* Phone Notch */}
+                <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 24, background: '#0f172a', borderBottomLeftRadius: 16, borderBottomRightRadius: 16, zIndex: 10 }} />
+                
+                {/* Header */}
+                <div style={{ background: channel === 'WHATSAPP' ? '#075E54' : '#f8fafc', color: channel === 'WHATSAPP' ? '#fff' : '#0f172a', padding: '40px 16px 12px', display: 'flex', alignItems: 'center', gap: 12, fontWeight: 600, borderBottom: channel === 'WHATSAPP' ? 'none' : '1px solid #e2e8f0' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: channel === 'WHATSAPP' ? '#fff' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: channel === 'WHATSAPP' ? '#075E54' : '#475569' }}>
+                    {channel === 'WHATSAPP' ? 'B' : <MessageSquare size={18} />}
+                  </div>
+                  <span>{channel === 'WHATSAPP' ? 'WhatsApp Preview' : 'SMS Preview'}</span>
+                </div>
+
+                {/* Chat Body */}
+                <div style={{ padding: 16, height: 'calc(100% - 88px)', overflowY: 'auto', background: channel === 'WHATSAPP' ? '#efeae2' : '#f8fafc', backgroundImage: channel === 'WHATSAPP' ? 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")' : 'none', backgroundSize: 'cover' }}>
+                  
+                  {!selectedTemplate ? (
+                    <div style={{ background: channel === 'WHATSAPP' ? 'rgba(255,255,255,0.9)' : '#fff', padding: '16px', borderRadius: 16, textAlign: 'center', fontSize: '0.85rem', color: '#475569', marginTop: 40, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                      Select a template to preview your message here.
+                    </div>
+                  ) : (
+                    <div style={{ background: channel === 'WHATSAPP' ? '#dcf8c6' : '#e2e8f0', padding: 12, borderRadius: 12, borderTopLeftRadius: 0, boxShadow: '0 1px 2px rgba(0,0,0,0.1)', maxWidth: '92%', marginBottom: 16 }}>
+                      {imageUrl && channel === 'WHATSAPP' && (
+                        <div style={{ width: '100%', height: 140, background: `url(${imageUrl}) center/cover`, borderRadius: 8, marginBottom: 8, backgroundColor: '#cbd5e1' }} />
+                      )}
+                      <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: '1.4', color: '#111827' }}>
+                        {previewContent()}
+                      </div>
+                      <div style={{ textAlign: 'right', fontSize: '0.65rem', color: '#64748b', marginTop: 6 }}>10:42 AM</div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            </div>
+
           </div>
+          
+          {/* Bottom Action Bar */}
+          <div style={{ padding: '20px 32px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}>
+            <button className="btn-secondary-sm" onClick={handleBack}>Back</button>
+            <button className="btn-primary-sm" onClick={handleNext} disabled={!templateId}>Next Step</button>
+          </div>
+
         </div>
       )}
 
