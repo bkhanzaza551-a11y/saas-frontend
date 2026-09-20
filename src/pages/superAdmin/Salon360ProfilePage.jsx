@@ -37,6 +37,7 @@ const statusColor = (s) => {
 };
 
 const FEATURE_LABELS = {
+  campaigns: "Marketing Campaigns",
   pos: "POS & Billing",
   appointments: "Appointments & Scheduling",
   crm: "Customer CRM",
@@ -62,7 +63,7 @@ const renderMetadataValue = (key, val) => {
   if (val == null) return "None";
   if (key === "featureFlags" && typeof val === "object") {
     const enabled = Object.entries(val)
-      .filter(([k, on]) => on === true && !["campaigns", "messageTemplates", "incentives", "digitalCatalog", "customerPortal", "leaves", "payroll", "loyalty", "advancedReports"].includes(k))
+      .filter(([k, on]) => on === true && !["messageTemplates", "incentives", "digitalCatalog", "customerPortal", "leaves", "payroll", "loyalty", "advancedReports"].includes(k))
       .map(([k]) => k === "onlineOrders" ? "Online Booking" : (FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())));
     return enabled.length > 0 ? enabled.join(", ") : "All features disabled";
   }
@@ -611,7 +612,7 @@ export default function Salon360ProfilePage() {
                     <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#475569", marginBottom: 8 }}>Included Plan Features (Automatic Access)</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {Object.entries(subscription.plan.featureFlags)
-                        .filter(([k, v]) => v && !["campaigns", "messageTemplates", "incentives"].includes(k))
+                        .filter(([k, v]) => v && !["messageTemplates", "incentives"].includes(k))
                         .map(([k]) => (
                           <span key={k} style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, border: "1px solid #bbf7d0" }}>
                             ✓ {k === "onlineOrders" ? "Online Booking" : (FEATURE_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()))}
@@ -674,7 +675,7 @@ export default function Salon360ProfilePage() {
           {featureFlags && Object.keys(featureFlags).length > 0 ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
               {Object.entries(featureFlags)
-                .filter(([key]) => !["campaigns", "messageTemplates", "incentives"].includes(key))
+                .filter(([key]) => !["messageTemplates", "incentives"].includes(key))
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([key, enabled]) => {
                 const planIncluded = subscription?.plan?.featureFlags?.[key] === true;

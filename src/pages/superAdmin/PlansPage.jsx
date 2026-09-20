@@ -18,7 +18,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     label: "Marketing & Growth",
-    flags: ["couponsGiftCards", "enquiries"]
+    flags: ["campaigns", "couponsGiftCards", "enquiries"]
   },
   {
     label: "Online Presence",
@@ -44,6 +44,7 @@ const FEATURE_CATEGORIES = [
 
 const ALL_FLAGS = FEATURE_CATEGORIES.flatMap(c => c.flags);
 const FLAG_LABELS = {
+  campaigns: "Marketing Campaigns",
   pos: "POS & Invoices",
   appointments: "Appointments",
   crm: "Customer CRM",

@@ -1047,7 +1047,7 @@ function SubscriptionDetail({ sub, onRenew, onChangePlan, onExtendTrial, onRemin
         </h4>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {Object.entries(planFlags)
-            .filter(([k]) => !["campaigns", "messageTemplates", "incentives"].includes(k))
+            .filter(([k]) => !["messageTemplates", "incentives"].includes(k))
             .map(([k, v]) => {
             const isOverridden = salonFlags && salonFlags[k] !== undefined && salonFlags[k] !== v;
             const finalVal = isOverridden ? salonFlags[k] : v;
