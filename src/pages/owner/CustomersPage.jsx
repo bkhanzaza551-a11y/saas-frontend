@@ -1277,7 +1277,7 @@ const handleExportClick = async (format) => {
           .crm-search { display:flex; align-items:center; background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:5px 12px; width:260px; box-shadow: none; }
           .crm-search input { border:none; outline:none; margin-left:6px; font-size:0.8rem; width:100%; color:#334155; background:transparent; min-height:unset; }
           .crm-actions { display:flex; gap:8px; flex-wrap:wrap; }
-          .crm-btn { display:flex; align-items:center; gap:5px; background:#3b82f6; color:#fff; border:none; padding:7px 12px !important; border-radius:6px; font-size:0.78rem !important; font-weight:600; cursor:pointer; box-shadow: none; min-height:unset !important; height:auto !important; }
+          .crm-btn { display:flex; align-items:center; gap:5px; background:#3b82f6; color:#fff; border:none; padding:5px 10px !important; border-radius:6px; font-size:0.73rem !important; font-weight:600; cursor:pointer; box-shadow: none; min-height:unset !important; height:auto !important; }
           .crm-btn:hover { background:#2563eb; transform:none; filter:none; }
           .crm-btn-light { background:#f8fafc; color:#2563eb; border:1px solid #bfdbfe; box-shadow:none; }
           .crm-btn-light:hover { background:#eff6ff; }
@@ -1317,7 +1317,7 @@ const handleExportClick = async (format) => {
           
           .export-dropdown { position:relative; display:inline-block; }
           .export-menu { position:absolute; top:calc(100% + 4px); right:0; background:#fff; border:1px solid #e2e8f0; border-radius:8px; box-shadow: none; min-width:130px; z-index:50; overflow:hidden; }
-          .export-item { width:100%; text-align:left; padding:8px 12px; border:none; background:none; cursor:pointer; font-size:0.8rem; color:#475569; min-height:unset; }
+          .export-item { width:100%; text-align:left; padding:6px 12px; border:none; background:none; cursor:pointer; font-size:0.76rem; color:#475569; min-height:unset; }
           .export-item:hover { background:#f8fafc; color:#0f172a; }
           .sidebar-modal { position:fixed; top:0; right:0; bottom:0; width:min(92vw,520px); background:#fff; box-shadow: none; z-index:1200; display:flex; flex-direction:column; animation:slideIn 0.28s forwards; }
           @keyframes slideIn { from { transform:translateX(100%); } to { transform:translateX(0); } }
