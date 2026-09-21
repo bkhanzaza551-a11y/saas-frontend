@@ -1663,7 +1663,15 @@ const handleExportClick = async (format) => {
                     }}
                     style={{ cursor: "pointer" }}
                   >
-                    <td><input type="checkbox" className="crm-table-checkbox" checked={selectedIds.includes(row.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(prev => [...prev, row.id]); else setSelectedIds(prev => prev.filter(id => id !== row.id)); }} onClick={(e) => e.stopPropagation()} /></td>
+                    <td onClick={(e) => {
+                      e.stopPropagation();
+                      if (e.target.tagName !== "INPUT") {
+                        if (selectedIds.includes(row.id)) setSelectedIds(prev => prev.filter(id => id !== row.id));
+                        else setSelectedIds(prev => [...prev, row.id]);
+                      }
+                    }}>
+                      <input type="checkbox" className="crm-table-checkbox" checked={selectedIds.includes(row.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(prev => [...prev, row.id]); else setSelectedIds(prev => prev.filter(id => id !== row.id)); }} />
+                    </td>
                     <td style={{ color: "#0f172a", fontWeight: 600 }}>{row.phone || "-"}</td>
                     <td style={{ fontWeight: 600 }}>{row.name || "-"}</td>
                     <td>{row.gender ? `${row.gender.charAt(0).toUpperCase()}${row.gender.slice(1).toLowerCase()}` : "-"}</td>
