@@ -35,6 +35,25 @@ const addMinutesToLocalInput = (value, minutes) => {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 };
 
+const toLocalDatetimeInput = (dateVal) => {
+  if (!dateVal) return "";
+  const date = new Date(dateVal);
+  if (Number.isNaN(date.getTime())) return "";
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+};
+
+const getBookingDisplayId = (appt) => {
+  if (!appt) return "#000000";
+  const match = (appt.notes || "").match(/\[Order:\s*([A-Za-z0-9_-]+)\]/);
+  if (match && match[1]) return `#${match[1]}`;
+  return `#${(appt.id || "").replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}`;
+};
+
 const formatTimeForSelect = (isoString) => {
   if (!isoString) return "";
   const d = new Date(isoString);
@@ -127,6 +146,19 @@ export default function AppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [salonSettings, setSalonSettings] = useState(null);
+  const [onlineSidebarOpen, setOnlineSidebarOpen] = useState(true);
+  const [onlineTabScope, setOnlineTabScope] = useState("today");
+  const [allPendingOnlineAppts, setAllPendingOnlineAppts] = useState([]);
+  const [allPendingLoading, setAllPendingLoading] = useState(false);
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [assigningAppt, setAssigningAppt] = useState(null);
+  const [assignStaffId, setAssignStaffId] = useState("");
+  const [assignStartAt, setAssignStartAt] = useState("");
+  const [assignEndAt, setAssignEndAt] = useState("");
+  const [staffAvailabilityMap, setStaffAvailabilityMap] = useState({});
+  const [staffAvailabilityLoading, setStaffAvailabilityLoading] = useState(false);
+  const [assignBusy, setAssignBusy] = useState(false);
+  const [assignError, setAssignError] = useState("");
 
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [newGuestForm, setNewGuestForm] = useState({ name: "", phone: "", email: "", gender: "FEMALE", dateOfBirth: "", anniversary: "", gst: "", notes: "" });
@@ -540,12 +572,126 @@ export default function AppointmentsPage() {
     }
   };
 
+  const loadAllPendingOnline = async () => {
+    setAllPendingLoading(true);
+    try {
+      const res = await api.get("/owner/appointments", {
+        params: {
+          bookingChannel: "ONLINE",
+          branchId: selectedBranchId || undefined,
+          take: 100
+        }
+      });
+      const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      const unassigned = list.filter(row => {
+        const hasPrimaryStaff = Boolean(row.primaryStaffUserId);
+        const hasItemStaff = (row.items || []).some(item => Array.isArray(item.assignedStaff) && item.assignedStaff.length > 0);
+        return !hasPrimaryStaff && !hasItemStaff && row.status !== "CANCELLED";
+      });
+      setAllPendingOnlineAppts(unassigned);
+    } catch (e) {
+      console.error("Failed to load all pending online appointments", e);
+    } finally {
+      setAllPendingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAllPendingOnline();
+  }, [selectedBranchId]);
+
+  const todayUnassignedOnline = useMemo(() => {
+    return rows.filter((row) => {
+      const isOnline = row.bookingChannel === "ONLINE" || Boolean(row.isOnline);
+      const hasPrimaryStaff = Boolean(row.primaryStaffUserId);
+      const hasItemStaff = (row.items || []).some(
+        (item) => Array.isArray(item.assignedStaff) && item.assignedStaff.length > 0
+      );
+      return isOnline && !hasPrimaryStaff && !hasItemStaff && row.status !== "CANCELLED";
+    });
+  }, [rows]);
+
+  const activeOnlineList = onlineTabScope === "today" ? todayUnassignedOnline : allPendingOnlineAppts;
+
+  const openAssignModal = (appt) => {
+    setAssigningAppt(appt);
+    setAssignStaffId(appt.primaryStaffUserId || "");
+    setAssignStartAt(toLocalDatetimeInput(appt.startAt));
+    setAssignEndAt(toLocalDatetimeInput(appt.endAt));
+    setAssignError("");
+    setAssignModalOpen(true);
+  };
+
+  const handleAssignStartChange = (newStart) => {
+    setAssignStartAt(newStart);
+    if (newStart && assigningAppt) {
+      const service = assigningAppt.items?.[0]?.service;
+      const dur = service?.durationMinutes || 30;
+      setAssignEndAt(addMinutesToLocalInput(newStart, dur));
+    }
+  };
+
+  useEffect(() => {
+    if (!assignModalOpen || !assigningAppt || !assignStartAt || !assignEndAt) return;
+    let active = true;
+    setStaffAvailabilityLoading(true);
+    api.get("/owner/appointments/staff-availability", {
+      params: {
+        startAt: new Date(assignStartAt).toISOString(),
+        endAt: new Date(assignEndAt).toISOString(),
+        branchId: assigningAppt.branchId || selectedBranchId || undefined,
+        excludeAppointmentId: assigningAppt.id
+      }
+    })
+    .then(res => {
+      if (active) {
+        setStaffAvailabilityMap(res.data || {});
+        setStaffAvailabilityLoading(false);
+      }
+    })
+    .catch(err => {
+      if (active) {
+        console.error(err);
+        setStaffAvailabilityLoading(false);
+      }
+    });
+    return () => { active = false; };
+  }, [assignModalOpen, assigningAppt, assignStartAt, assignEndAt, selectedBranchId]);
+
+  const handleAssignStaffSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!assigningAppt || !assignStaffId) {
+      setAssignError("Please select a staff member");
+      return;
+    }
+    setAssignBusy(true);
+    setAssignError("");
+    try {
+      await api.patch(`/owner/appointments/${assigningAppt.id}/assign-staff`, {
+        staffId: assignStaffId,
+        startAt: new Date(assignStartAt).toISOString(),
+        endAt: new Date(assignEndAt).toISOString()
+      });
+      setAssignModalOpen(false);
+      setAssigningAppt(null);
+      setStatus({ error: "", success: "Staff assigned successfully! Appointment is now scheduled on the calendar." });
+      await loadAppointments();
+      await loadAllPendingOnline();
+      setTimeout(() => setStatus({ error: "", success: "" }), 4000);
+    } catch (err) {
+      setAssignError(formatApiError(err, "Failed to assign staff"));
+    } finally {
+      setAssignBusy(false);
+    }
+  };
+
   useEffect(() => {
     loadContext();
   }, [selectedBranchId]);
 
   useEffect(() => {
     loadAppointments();
+    loadAllPendingOnline();
   }, [currentDate, selectedBranchId]);
 
   const handleDayChange = (offset) => {
@@ -1563,7 +1709,8 @@ export default function AppointmentsPage() {
         </div>
       </div>
 
-      <div className="calendar-grid-wrapper">
+      <div className="appointments-main-area" style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
+        <div className="calendar-grid-wrapper" style={{ flex: 1, minWidth: 0, overflow: "auto" }}>
         {loading && <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 100 }}><PageLoader title="Loading schedule..." /></div>}
         <table className="calendar-table" style={{ minWidth: Math.max(900, filteredStaffUsers.length * 120 + 60) + "px" }}>
           <thead>
@@ -1667,6 +1814,199 @@ export default function AppointmentsPage() {
             })()}
           </tbody>
         </table>
+        </div>
+
+        {/* Dedicated Right-Side Online Bookings Sidebar */}
+        <aside
+          className={`online-bookings-sidebar ${onlineSidebarOpen ? "open" : "collapsed"}`}
+          style={{
+            width: onlineSidebarOpen ? 300 : 42,
+            minWidth: onlineSidebarOpen ? 300 : 42,
+            transition: "width 0.22s ease",
+            borderLeft: "1px solid #cbd5e1",
+            background: "#f8fafc",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            zIndex: 10,
+            flexShrink: 0
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              padding: onlineSidebarOpen ? "11px 14px" : "12px 6px",
+              borderBottom: "1px solid #e2e8f0",
+              background: "#ffffff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 6
+            }}
+          >
+            {onlineSidebarOpen ? (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>Online Bookings</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 800,
+                      padding: "2px 7px",
+                      borderRadius: 10,
+                      background: activeOnlineList.length > 0 ? "#eff6ff" : "#f1f5f9",
+                      color: activeOnlineList.length > 0 ? "#2563eb" : "#64748b",
+                      border: `1px solid ${activeOnlineList.length > 0 ? "#bfdbfe" : "#e2e8f0"}`
+                    }}
+                  >
+                    {activeOnlineList.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOnlineSidebarOpen(false)}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", alignItems: "center", borderRadius: 6 }}
+                  title="Collapse panel"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setOnlineSidebarOpen(true)}
+                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#2563eb", padding: "8px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: "100%" }}
+                title="Expand Online Bookings"
+              >
+                <ChevronLeft size={18} />
+                <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#0f172a", letterSpacing: 0.5 }}>
+                  Online ({activeOnlineList.length})
+                </span>
+              </button>
+            )}
+          </div>
+
+          {onlineSidebarOpen && (
+            <>
+              {/* Scope tabs */}
+              <div style={{ display: "flex", padding: "6px 10px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => setOnlineTabScope("today")}
+                  style={{
+                    flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
+                    background: onlineTabScope === "today" ? "#ffffff" : "transparent",
+                    color: onlineTabScope === "today" ? "#2563eb" : "#64748b",
+                    boxShadow: onlineTabScope === "today" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
+                  }}
+                >
+                  Today ({todayUnassignedOnline.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setOnlineTabScope("all"); loadAllPendingOnline(); }}
+                  style={{
+                    flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
+                    background: onlineTabScope === "all" ? "#ffffff" : "transparent",
+                    color: onlineTabScope === "all" ? "#2563eb" : "#64748b",
+                    boxShadow: onlineTabScope === "all" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
+                  }}
+                >
+                  All Pending ({allPendingOnlineAppts.length})
+                </button>
+              </div>
+
+              {/* Cards list */}
+              <div style={{ flex: 1, overflowY: "auto", padding: "10px", display: "flex", flexDirection: "column", gap: 10 }}>
+                {allPendingLoading && onlineTabScope === "all" ? (
+                  <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: 12 }}>Loading online bookings...</div>
+                ) : activeOnlineList.length === 0 ? (
+                  <div style={{ padding: "36px 16px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>🎉</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>All bookings assigned!</div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Only unassigned online bookings appear here.</div>
+                  </div>
+                ) : (
+                  activeOnlineList.map((appt) => {
+                    const bookingId = getBookingDisplayId(appt);
+                    const serviceName = appt.items?.[0]?.service?.name || "Service";
+                    const serviceDuration = appt.items?.[0]?.service?.durationMinutes;
+                    const apptTime = new Date(appt.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                    const apptDate = new Date(appt.startAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+
+                    return (
+                      <div
+                        key={appt.id}
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: 10,
+                          padding: "12px",
+                          boxShadow: "0 2px 6px rgba(15,23,42,0.04)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 6,
+                          borderLeft: "4px solid #3b82f6"
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: "#1e3a8a", background: "#eff6ff", padding: "2px 6px", borderRadius: 4 }}>
+                            {bookingId}
+                          </span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>
+                            {apptTime} <span style={{ color: "#94a3b8", fontWeight: 500 }}>({apptDate})</span>
+                          </span>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+                            {appt.customer?.name || "Guest Customer"}
+                          </div>
+                          {appt.customer?.phone && (
+                            <div style={{ fontSize: 11, color: "#64748b" }}>
+                              {appt.customer.phone}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ fontSize: 12, color: "#334155", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                          <span>✂️</span>
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {serviceName} {serviceDuration ? `(${serviceDuration}m)` : ""}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => openAssignModal(appt)}
+                          style={{
+                            marginTop: 4,
+                            width: "100%",
+                            padding: "7px 12px",
+                            background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                            color: "white",
+                            border: "none",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6,
+                            transition: "all 0.15s ease"
+                          }}
+                        >
+                          <span>👤 Assign Staff</span>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
+          )}
+        </aside>
       </div>
 
       {isCreateModalOpen && (
@@ -2487,6 +2827,196 @@ export default function AppointmentsPage() {
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button type="button" style={{ flex: 1, padding: "10px", background: "#f1f5f9", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600, color: "#475569" }} onClick={() => setShowAddGuestModal(false)}>Cancel</button>
                 <button type="submit" style={{ flex: 1, padding: "10px", background: "#0f172a", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}>Save Guest</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Staff to Appointment Modal (Matches Image 3) */}
+      {assignModalOpen && assigningAppt && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.45)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: 16
+          }}
+          onClick={() => { if (!assignBusy) setAssignModalOpen(false); }}
+        >
+          <div
+            style={{
+              background: "#ffffff",
+              borderRadius: 14,
+              width: "100%",
+              maxWidth: 480,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.18)",
+              overflow: "hidden"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid #e2e8f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: "#f8fafc"
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>
+                Assign Staff to Appointment
+              </h3>
+              <button
+                type="button"
+                onClick={() => setAssignModalOpen(false)}
+                disabled={assignBusy}
+                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", alignItems: "center", borderRadius: 6 }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <form onSubmit={handleAssignStaffSubmit} style={{ padding: "20px" }}>
+              {/* Summary Rows like Image 3 */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18, fontSize: 13, color: "#475569" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                  <span style={{ color: "#64748b" }}>Booking ID</span>
+                  <span style={{ fontWeight: 700, color: "#0f172a" }}>{getBookingDisplayId(assigningAppt)}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                  <span style={{ color: "#64748b" }}>Customer</span>
+                  <span style={{ fontWeight: 700, color: "#0f172a" }}>{assigningAppt.customer?.name || "Customer"}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                  <span style={{ color: "#64748b" }}>Service</span>
+                  <span style={{ fontWeight: 700, color: "#0f172a" }}>{assigningAppt.items?.[0]?.service?.name || "Hair Cut"}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                  <span style={{ color: "#64748b" }}>Date & Time</span>
+                  <span style={{ fontWeight: 700, color: "#0f172a" }}>
+                    {new Date(assigningAppt.startAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                  <span style={{ color: "#64748b" }}>Type</span>
+                  <span style={{ fontWeight: 700, color: "#0f172a" }}>At Store</span>
+                </div>
+              </div>
+
+              {/* Timing Adjustment Row */}
+              <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 18 }}>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 8 }}>
+                  Appointment Timing
+                </label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div>
+                    <span style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>Start Time</span>
+                    <input
+                      type="datetime-local"
+                      value={assignStartAt}
+                      onChange={(e) => handleAssignStartChange(e.target.value)}
+                      required
+                      style={{ width: "100%", height: 38, padding: "0 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, fontWeight: 600, background: "#ffffff", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>End Time</span>
+                    <input
+                      type="datetime-local"
+                      value={assignEndAt}
+                      onChange={(e) => setAssignEndAt(e.target.value)}
+                      required
+                      style={{ width: "100%", height: 38, padding: "0 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 12, fontWeight: 600, background: "#ffffff", boxSizing: "border-box" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Staff Select with Availability Indicator */}
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 6 }}>
+                  Select Staff <span style={{ color: "#ef4444" }}>*</span>
+                </label>
+                <CustomSelect
+                  value={assignStaffId}
+                  onChange={(e) => setAssignStaffId(e.target.value)}
+                  style={{ width: "100%", height: 42, padding: "0 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, fontWeight: 600, background: "#ffffff" }}
+                >
+                  <option value="">— Choose a staff member —</option>
+                  {filteredStaffUsers.map((staff) => {
+                    const avail = staffAvailabilityMap[staff.id];
+                    const isAvailable = avail ? avail.available : true;
+                    const statusText = staffAvailabilityLoading
+                      ? "(Checking...)"
+                      : isAvailable
+                      ? "(Available)"
+                      : `(Busy - In appointment)`;
+
+                    return (
+                      <option key={staff.id} value={staff.id}>
+                        {staff.user?.name || staff.phone} {statusText}
+                      </option>
+                    );
+                  })}
+                </CustomSelect>
+
+                {/* Real-time Time & Conflict Checker */}
+                {assignStaffId && (
+                  <div style={{ marginTop: 10 }}>
+                    {staffAvailabilityLoading ? (
+                      <div style={{ fontSize: 12, color: "#64748b" }}>Checking staff availability...</div>
+                    ) : staffAvailabilityMap[assignStaffId]?.available === false ? (
+                      <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "8px 12px", color: "#991b1b", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                        <AlertCircle size={16} color="#ef4444" />
+                        <span>Warning: {staffAvailabilityMap[assignStaffId].conflictReason || "Staff already has a conflicting appointment at this time!"}</span>
+                      </div>
+                    ) : (
+                      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "8px 12px", color: "#166534", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                        <CheckCircle2 size={16} color="#16a34a" />
+                        <span>Staff is available for this time slot.</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {assignError && (
+                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "8px 12px", color: "#991b1b", fontSize: 12, fontWeight: 600, marginBottom: 16 }}>
+                  {assignError}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
+                <button
+                  type="button"
+                  onClick={() => setAssignModalOpen(false)}
+                  disabled={assignBusy}
+                  style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#ffffff", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={assignBusy || !assignStaffId}
+                  style={{
+                    padding: "8px 20px", borderRadius: 8, border: "none",
+                    background: (!assignStaffId || assignBusy) ? "#94a3b8" : "#0f172a",
+                    color: "#ffffff", fontSize: 13, fontWeight: 700,
+                    cursor: (!assignStaffId || assignBusy) ? "not-allowed" : "pointer"
+                  }}
+                >
+                  {assignBusy ? "Assigning..." : "Assign Staff"}
+                </button>
               </div>
             </form>
           </div>
