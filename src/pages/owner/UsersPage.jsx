@@ -1,5 +1,6 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { X, ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useBranch } from '../../context/BranchContext';
 import PermissionButton from "../../components/PermissionButton";
@@ -66,6 +67,7 @@ const makeEmptyForm = () => ({
 const moduleCatalog = MODULE_GROUPS.flatMap((group) => group.modules);
 
 export default function UsersPage() {
+  const navigate = useNavigate();
   const { selectedBranchId, branches } = useBranch();
   const [rows, setRows] = useState([]);
   const [services, setServices] = useState([]);
@@ -78,6 +80,8 @@ export default function UsersPage() {
   const [tabFilter, setTabFilter] = useState("all");
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [branchForLocationModal, setBranchForLocationModal] = useState(null);
   const [staffOtpStep, setStaffOtpStep] = useState(1);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [enrollmentCaptureBusy, setEnrollmentCaptureBusy] = useState(false);
@@ -295,6 +299,13 @@ export default function UsersPage() {
   };
 
   const startCreate = () => {
+    const targetBranch = branches.find((b) => b.id === selectedBranchId) || branches[0];
+    if (!targetBranch || targetBranch.latitude == null || targetBranch.longitude == null) {
+      setBranchForLocationModal(targetBranch || null);
+      setShowLocationModal(true);
+      return;
+    }
+
     resetForm();
     setStatus((current) => ({ ...current, error: "", success: "" }));
     const defaultStaff = customRoles.find((r) => r.name?.toLowerCase() === "staff") || customRoles[0];
@@ -1128,6 +1139,44 @@ export default function UsersPage() {
           )}
         </div>
       </div>
+
+      {/* Location Required Modal */}
+      {showLocationModal && (
+        <div className="hub-modal-overlay" style={{ zIndex: 99999 }}>
+          <div className="hub-modal-content" style={{ maxWidth: 460, padding: 0, textAlign: "center", borderRadius: 16, overflow: "hidden" }}>
+            <div style={{ background: "#fff5f5", padding: "30px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ width: 64, height: 64, borderRadius: 32, background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                <span style={{ fontSize: 32 }}>📍</span>
+              </div>
+              <h3 style={{ margin: 0, fontSize: 20, color: "#991b1b", fontWeight: 700 }}>Branch Location Required</h3>
+            </div>
+            <div style={{ padding: "24px", background: "white" }}>
+              <p style={{ margin: 0, color: "#475569", fontSize: 15, lineHeight: 1.6 }}>
+                Staff add karne se pehle apni branch (<strong style={{ color: "#0f172a" }}>{branchForLocationModal?.name || "Main Branch"}</strong>) ki location map par set karna zaroori hai, taake staff attendance aur geofencing sahi se kaam kar sake.
+              </p>
+              <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowLocationModal(false)}
+                  style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid #e2e8f0", background: "white", color: "#64748b", fontWeight: 600, cursor: "pointer", fontSize: 14 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLocationModal(false);
+                    navigate(`/admin/branches?editBranchId=${branchForLocationModal?.id || ""}&openLocation=true`);
+                  }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 10, border: "none", background: "#ef4444", color: "white", fontWeight: 600, cursor: "pointer", fontSize: 14 }}
+                >
+                  Set Location Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New Staff Modal */}
       {isCreateModalOpen && (

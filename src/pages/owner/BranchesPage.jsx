@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import MapPicker from "../../components/MapPicker";
@@ -12,6 +13,7 @@ import { Search, Edit3, MapPin, X, Building2, Trash2, Plus, AlertTriangle } from
 const emptyForm = { name: "", phone: "", email: "", address: "", businessHours: "", weeklyOff: "", latitude: "", longitude: "", geofenceRadiusMeters: "200" };
 
 export default function BranchesPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { refetch: refetchBranches } = useBranch();
   const [rows, setRows] = useState([]);
   const [limitInfo, setLimitInfo] = useState(null);
@@ -53,6 +55,29 @@ export default function BranchesPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const editId = searchParams.get("editBranchId");
+    if (editId && rows.length > 0) {
+      const branch = rows.find(b => b.id === editId) || rows[0];
+      if (branch) {
+        setEditingId(branch.id);
+        setForm({
+          name: branch.name || "",
+          phone: branch.phone || "",
+          email: branch.email || "",
+          address: branch.address || "",
+          businessHours: branch.businessHours || "",
+          weeklyOff: branch.weeklyOff || "",
+          latitude: branch.latitude ?? "",
+          longitude: branch.longitude ?? "",
+          geofenceRadiusMeters: branch.geofenceRadiusMeters ?? "200"
+        });
+        setShowModal(true);
+        setSearchParams({}); // Clear params so it doesn't keep reopening if closed
+      }
+    }
+  }, [searchParams, rows, setSearchParams]);
 
   const resetForm = () => {
     setForm(emptyForm);
