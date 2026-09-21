@@ -74,6 +74,7 @@ export default function PosPage() {
   const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
   const canEditTax = isOwner || (Array.isArray(auth?.membership?.permissions?.pos) && auth.membership.permissions.pos.includes("edit"));
   const [tab, setTab] = useState("billing");
+  const [mobileTab, setMobileTab] = useState("catalog");
   const [context, setContext] = useState({ customers: [], branches: [], services: [], staffUsers: [], products: [], memberships: [], packages: [], customerPackages: [], coupons: [], giftCards: [], customerProfile: null, settings: null });
   const [status, setStatus] = useState({ error: "", success: "" });
   const [toastMessage, setToastMessage] = useState(null);
@@ -1897,8 +1898,20 @@ export default function PosPage() {
       </div>
 
       <div className="pos-body">
+        {/* Mobile Tabs Header */}
+        <div className="pos-mobile-tabs">
+          <button type="button" className={`pos-mobile-tab-btn ${mobileTab === "catalog" ? "active" : ""}`} onClick={() => setMobileTab("catalog")}>
+            <div>🛍️ Catalog</div>
+            <span>Services</span>
+          </button>
+          <button type="button" className={`pos-mobile-tab-btn ${mobileTab === "cart" ? "active" : ""}`} onClick={() => setMobileTab("cart")}>
+            <div>🧾 Current Bill</div>
+            <span>{form.items.length} items</span>
+          </button>
+        </div>
+
         {/* LEFT SIDEBAR (1-CLICK CATALOG) */}
-        <div className="pos-sidebar">
+        <div className={`pos-sidebar ${mobileTab === "cart" ? "mobile-hidden" : ""}`}>
           <div className="pos-cat-grid">
             {tab === "products" ? (
                <>
@@ -1998,7 +2011,7 @@ export default function PosPage() {
         </div>
 
         {/* RIGHT MAIN AREA */}
-        <div className="pos-main">
+        <div className={`pos-main ${mobileTab === "catalog" ? "mobile-hidden" : ""}`}>
           <div className="pos-invoice-section">
             <div className="pos-invoice-header">
               <h4>Invoice</h4>
