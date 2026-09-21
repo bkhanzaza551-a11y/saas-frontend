@@ -580,22 +580,6 @@ export default function ProductCategoriesPage() {
                   <button
                     type="button"
                     className="export-item"
-                    onClick={() => handleExportProducts("xlsx")}
-                    style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
-                  >
-                    Export as XLSX
-                  </button>
-                  <button
-                    type="button"
-                    className="export-item"
-                    onClick={() => handleExportProducts("xls")}
-                    style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
-                  >
-                    Export as XLS
-                  </button>
-                  <button
-                    type="button"
-                    className="export-item"
                     onClick={() => handleExportProducts("csv")}
                     style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
                   >
