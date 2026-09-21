@@ -31,7 +31,8 @@ import {
   CheckSquare,
   ShoppingBag,
   Award,
-  Gift
+  Gift,
+  Megaphone
 } from "lucide-react";
 import { api } from "../api/client";
 
@@ -77,6 +78,7 @@ const getItemIcon = (label, path) => {
   if (l.includes("trend") || l.includes("traffic")) return <TrendingUp size={18} />;
   if (l.includes("inventory") || l.includes("product") || l.includes("catalog")) return <Package size={18} />;
   if (l.includes("service")) return <Sparkles size={18} />;
+  if (l.includes("campaign") || l.includes("marketing")) return <Megaphone size={18} />;
   if (l.includes("website") || l.includes("portal") || l.includes("site") || l.includes("editor")) return <Globe size={18} />;
   return <FolderOpen size={18} />;
 };

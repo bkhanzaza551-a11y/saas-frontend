@@ -233,6 +233,7 @@ const Protected = () => {
         can("customers", "view") && enabled("crm") && { label: "Customers", to: "/admin/customers" },
         can("services", "view") && { label: "Services", to: "/admin/services" },
         can("inventory", "view") && enabled("inventory") && { label: "Products & Inventory", to: "/admin/inventory" },
+        (isOwner || can("campaigns", "view") || can("campaigns")) && (enabled("campaigns") || isOwner) && { label: "Campaigns", to: "/admin/campaigns" },
         can("staff", "view") && { label: "Staff", to: "/admin/users" },
         can("expenses", "view") && enabled("expenses") && { label: "Expenses", to: "/admin/expenses/dashboard" },
         can("reports", "view") && enabled("reports") && { label: "Reports & Analytics", to: "/admin/reports" },
@@ -259,8 +260,9 @@ const Protected = () => {
         // (can("invoices", "view") || can("invoices") || can("pos") || isOwner) && { label: "Invoices", to: "/admin/invoices" },
         can("appointments") && { label: "Appointments", to: "/admin/appointments" },
         can("customers") && { label: "CRM", to: "/admin/customers" },
-        can("reports") && enabled("reports") && { label: "Reports", to: "/admin/reports" },
-        can("inventory") && enabled("inventory") && { label: "Inventory", to: "/admin/inventory" }].filter(Boolean)
+        can("reports", "view") && enabled("reports") && { label: "Reports", to: "/admin/reports" },
+        can("inventory", "view") && enabled("inventory") && { label: "Inventory", to: "/admin/inventory" },
+        (isOwner || can("campaigns", "view") || can("campaigns")) && (enabled("campaigns") || isOwner) && { label: "Campaigns", to: "/admin/campaigns" }].filter(Boolean)
     },
     {
       label: "Settings",
