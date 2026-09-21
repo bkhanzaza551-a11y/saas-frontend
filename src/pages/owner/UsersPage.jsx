@@ -346,10 +346,17 @@ export default function UsersPage() {
 
   const applyCustomRole = (roleId) => {
     const role = customRoles.find((item) => item.id === roleId);
+    let resolvedSalonRole = "STAFF";
+    if (role) {
+      const nameLower = (role.name || "").toLowerCase();
+      if (nameLower.includes("owner")) resolvedSalonRole = "SALON_OWNER";
+      else if (nameLower.includes("manager")) resolvedSalonRole = "MANAGER";
+      else resolvedSalonRole = "STAFF";
+    }
     setForm((current) => ({
       ...current,
       customRoleId: roleId,
-      salonRole: roleId ? "STAFF" : current.salonRole,
+      salonRole: resolvedSalonRole,
       roleTitle: role?.name || current.roleTitle,
       permissions: clonePermissions(role?.permissions || DEFAULT_PERMISSIONS)
     }));

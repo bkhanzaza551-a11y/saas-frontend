@@ -385,16 +385,29 @@ export default function StaffRolesPage() {
                   style={{ flex: 1, display: "flex", flexDirection: "column", padding: 0, border: "none", background: "transparent", cursor: "pointer", textAlign: "left" }}
                   onClick={() => startRoleEdit(role)}
                 >
-                  <span className="role-name">{role.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span className="role-name">{role.name}</span>
+                    {role.isSystemPreset && (
+                      <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#e0e7ff", color: "#4338ca", fontWeight: 700, letterSpacing: "0.03em" }}>
+                        DEFAULT
+                      </span>
+                    )}
+                  </div>
                   <span className="role-desc">{role.description || "No description"}</span>
                 </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); deleteRole(role); }}
-                  style={{ padding: "4px 8px", fontSize: 11, fontWeight: 600, color: "#ef4444", background: "transparent", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", flexShrink: 0 }}
-                  title={`Delete ${role.name}`}
-                >
-                  ✕
-                </button>
+                {!role.isSystemPreset ? (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteRole(role); }}
+                    style={{ padding: "4px 8px", fontSize: 11, fontWeight: 600, color: "#ef4444", background: "transparent", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", flexShrink: 0 }}
+                    title={`Delete ${role.name}`}
+                  >
+                    ✕
+                  </button>
+                ) : (
+                  <span title="Default system role (Protected)" style={{ fontSize: 13, color: "#94a3b8", padding: "0 6px", userSelect: "none" }}>
+                    🔒
+                  </span>
+                )}
               </div>
             ))}
             {!customRoles.length && (
