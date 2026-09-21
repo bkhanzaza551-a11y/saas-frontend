@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote } from "lucide-react";
 import { api } from "../../api/client";
@@ -1653,7 +1653,7 @@ export default function AppointmentsPage() {
                                 onMouseLeave={() => setHoveredAppt(null)}
                                 onMouseMove={(event) => handleMouseMove(event, appt)}
                               >
-                                <div style={{ fontWeight: 600 }}>{appt.customer?.name || "Walk-in"}</div>
+                                <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>{appt.isWalkIn ? <span title="Walk-in" style={{ fontSize: 10 }}>🚶</span> : appt.bookingChannel === 'ONLINE' ? <span title="Online" style={{ fontSize: 10 }}>🌐</span> : null}{appt.customer?.name || "Walk-in"}</div>
                                 <div>{serviceName}</div>
                               </div>
                             );
