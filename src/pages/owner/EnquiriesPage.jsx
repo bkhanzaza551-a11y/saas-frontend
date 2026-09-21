@@ -615,10 +615,12 @@ export default function EnquiriesPage() {
                 )}
               </div>
               <button 
-                className="eq-btn eq-btn-primary eq-btn-add" 
+                type="button"
+                className="crm-btn" 
                 onClick={() => setShowModal(true)}
+                style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#2563eb", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2, boxShadow: "0 1px 2px rgba(37,99,235,0.2)" }}
               >
-                <Plus size={16} /> Add Enquiry
+                <Plus size={14} /> Add Enquiry
               </button>
             </div>
           </div>
