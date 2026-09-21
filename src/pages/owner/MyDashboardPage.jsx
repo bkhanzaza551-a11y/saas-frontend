@@ -608,8 +608,8 @@ export default function MyDashboardPage() {
 
       {/* Selfie Flow Modal */}
       {flow.open && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.75)", backdropFilter: "blur(4px)", display: "grid", placeItems: "center", zIndex: 9999, padding: 16 }}>
-          <div style={{ width: "min(100%, 540px)", maxHeight: "92vh", overflowY: "auto", display: "grid", gap: 16, padding: 28, background: "#fff", borderRadius: 20, boxShadow: "0 25px 60px rgba(15,23,42,0.35)", border: "1px solid rgba(226,232,240,0.8)" }}>
+        <div className="selfie-modal-overlay">
+          <div className="selfie-modal-card">
             {renderFlowBody()}
             {flow.error && <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fef2f2", border: "1px solid #fee2e2", color: "#dc2626", fontSize: 13, fontWeight: 600 }}>{flow.error}</div>}
             {flow.error && flow.step !== STEPS.SUBMITTING && flow.step !== STEPS.SUCCESS && (
@@ -874,6 +874,18 @@ export default function MyDashboardPage() {
       
       <style>{`
         @keyframes spinAround { to { transform: rotate(360deg); } }
+        .selfie-modal-overlay {
+          position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); display: grid; place-items: center; z-index: 9999; padding: 16px;
+        }
+        .selfie-modal-card {
+          width: min(100%, 540px); max-height: 92vh; overflow-y: auto; display: grid; gap: 16px; padding: 28px; background: #fff; border-radius: 20px; box-shadow: 0 25px 60px rgba(15,23,42,0.35); border: 1px solid rgba(226,232,240,0.8);
+        }
+        @media (max-width: 600px) {
+          .selfie-modal-overlay { padding: 10px; }
+          .selfie-modal-card { padding: 16px; gap: 12px; border-radius: 16px; }
+          .selfie-modal-card h3 { font-size: 15px !important; }
+          .selfie-modal-card video { min-height: 240px !important; max-height: 320px !important; }
+        }
       `}</style>
     </div>
   );
