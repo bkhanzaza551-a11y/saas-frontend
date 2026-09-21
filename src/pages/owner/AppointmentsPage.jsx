@@ -147,7 +147,7 @@ export default function AppointmentsPage() {
   const [status, setStatus] = useState({ error: "", success: "" });
   const [salonSettings, setSalonSettings] = useState(null);
   const [onlineSidebarOpen, setOnlineSidebarOpen] = useState(true);
-  const [onlineTabScope, setOnlineTabScope] = useState("today");
+  const [onlineTabScope, setOnlineTabScope] = useState("all");
   const [allPendingOnlineAppts, setAllPendingOnlineAppts] = useState([]);
   const [allPendingLoading, setAllPendingLoading] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -575,20 +575,10 @@ export default function AppointmentsPage() {
   const loadAllPendingOnline = async () => {
     setAllPendingLoading(true);
     try {
-      const res = await api.get("/owner/appointments", {
-        params: {
-          bookingChannel: "ONLINE",
-          branchId: selectedBranchId || undefined,
-          take: 100
-        }
+      const res = await api.get("/owner/appointments/pending-online", {
+        params: { branchId: selectedBranchId }
       });
-      const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-      const unassigned = list.filter(row => {
-        const hasPrimaryStaff = Boolean(row.primaryStaffUserId);
-        const hasItemStaff = (row.items || []).some(item => Array.isArray(item.assignedStaff) && item.assignedStaff.length > 0);
-        return !hasPrimaryStaff && !hasItemStaff && row.status !== "CANCELLED";
-      });
-      setAllPendingOnlineAppts(unassigned);
+      setAllPendingOnlineAppts(res.data || []);
     } catch (e) {
       console.error("Failed to load all pending online appointments", e);
     } finally {
@@ -1900,7 +1890,7 @@ export default function AppointmentsPage() {
                     boxShadow: onlineTabScope === "today" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
                   }}
                 >
-                  Today ({todayUnassignedOnline.length})
+                  Selected Date ({todayUnassignedOnline.length})
                 </button>
                 <button
                   type="button"
