@@ -1316,9 +1316,9 @@ const handleExportClick = async (format) => {
           .gender-circle-label input:checked + .gender-circle .gender-circle-inner { background: #3b82f6; }
           
           .export-dropdown { position:relative; display:inline-block; }
-          .export-menu { position:absolute; top:calc(100% + 4px); right:0; background:#fff; border:1px solid #e2e8f0; border-radius:8px; box-shadow: none; min-width:130px; z-index:50; overflow:hidden; }
-          .export-item { width:100%; text-align:left; padding:6px 12px; border:none; background:none; cursor:pointer; font-size:0.76rem; color:#475569; min-height:unset; }
-          .export-item:hover { background:#f8fafc; color:#0f172a; }
+          .export-menu { position:absolute; top:calc(100% + 4px); right:0; background:#fff !important; border:1px solid #e2e8f0 !important; border-radius:8px !important; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1) !important; min-width:145px; z-index:100; overflow:hidden; padding:4px 0 !important; }
+          .export-item { width:100% !important; text-align:left !important; padding:6px 12px !important; border:none !important; background:transparent !important; cursor:pointer !important; font-size:0.75rem !important; color:#334155 !important; min-height:unset !important; height:auto !important; border-radius:0 !important; box-shadow:none !important; display:block !important; font-weight:500 !important; margin:0 !important; line-height:1.3 !important; }
+          .export-item:hover { background:#f1f5f9 !important; color:#0f172a !important; }
           .sidebar-modal { position:fixed; top:0; right:0; bottom:0; width:min(92vw,520px); background:#fff; box-shadow: none; z-index:1200; display:flex; flex-direction:column; animation:slideIn 0.28s forwards; }
           @keyframes slideIn { from { transform:translateX(100%); } to { transform:translateX(0); } }
           .sidebar-modal-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #f1f5f9; }
@@ -1601,11 +1601,39 @@ const handleExportClick = async (format) => {
             <button className="crm-btn" onClick={() => setShowExportMenu((current) => !current)}><Download size={16} /> Export <ChevronDown size={16} /></button>
             {showExportMenu && (
               <div className="export-menu">
-                <button className="export-item" onClick={() => handleExportClick("xlsx")}>Export as XLSX</button>
-                <button className="export-item" onClick={() => handleExportClick("xls")}>Export as XLS</button>
-                <button className="export-item" onClick={() => handleExportClick("csv")}>Export as CSV</button>
-                  <div style={{ height: 1, background: '#e2e8f0', margin: '4px 0' }} />
-                  <button className="export-item" onClick={downloadTestData} style={{ color: '#2563eb', fontWeight: 600 }}>Download Test Data</button>
+                <button
+                  type="button"
+                  className="export-item"
+                  onClick={() => handleExportClick("xlsx")}
+                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
+                >
+                  Export as XLSX
+                </button>
+                <button
+                  type="button"
+                  className="export-item"
+                  onClick={() => handleExportClick("xls")}
+                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
+                >
+                  Export as XLS
+                </button>
+                <button
+                  type="button"
+                  className="export-item"
+                  onClick={() => handleExportClick("csv")}
+                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
+                >
+                  Export as CSV
+                </button>
+                <div style={{ height: 1, background: '#e2e8f0', margin: '4px 0' }} />
+                <button
+                  type="button"
+                  className="export-item"
+                  onClick={downloadTestData}
+                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: '#2563eb', fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
+                >
+                  Download Test Data
+                </button>
               </div>
             )}
           </div>

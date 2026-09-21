@@ -820,7 +820,7 @@ export default function InventoryPage() {
                         type="button"
                         className="export-item"
                         onClick={() => handleExportProducts("xlsx")}
-                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                        style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
                       >
                         Export as XLSX
                       </button>
@@ -828,7 +828,7 @@ export default function InventoryPage() {
                         type="button"
                         className="export-item"
                         onClick={() => handleExportProducts("xls")}
-                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                        style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
                       >
                         Export as XLS
                       </button>
@@ -836,7 +836,7 @@ export default function InventoryPage() {
                         type="button"
                         className="export-item"
                         onClick={() => handleExportProducts("csv")}
-                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                        style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
                       >
                         Export as CSV
                       </button>
@@ -845,7 +845,7 @@ export default function InventoryPage() {
                         type="button"
                         className="export-item"
                         onClick={downloadProductTestData}
-                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#2563eb", fontWeight: 600, minHeight: "unset" }}
+                        style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#2563eb", fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
                       >
                         Download Test Data
                       </button>
