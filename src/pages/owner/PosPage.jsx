@@ -3859,23 +3859,48 @@ export default function PosPage() {
 
       {showDiscountModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowDiscountModal(false)}>
-          <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 420px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 400px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
+            {/* Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <strong style={{ fontSize: 20, color: "#0f172a" }}>Discount:</strong>
-              <button type="button" onClick={() => setShowDiscountModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
+              <strong style={{ fontSize: 18, color: "#0f172a" }}>Discount</strong>
+              <button type="button" onClick={() => setShowDiscountModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={20} /></button>
             </div>
-            <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 13, color: "#64748b", display: "block", marginBottom: 6 }}>Fix</label>
-                <input type="number" min="0" placeholder={formatMoney(0)} value={discountDraft.type === "FIX" ? discountDraft.value : ""} onFocus={() => setDiscountDraft(d => ({ ...d, type: "FIX" }))} onChange={e => setDiscountDraft(d => ({ ...d, value: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: discountDraft.type === "FIX" ? "2px solid var(--accent, #3b82f6)" : "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.95rem", boxSizing: "border-box" }} />
-              </div>
-              <div style={{ display: "flex", alignItems: "center", paddingBottom: 4, fontWeight: 700, color: "#64748b" }}>OR</div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 13, color: "#64748b", display: "block", marginBottom: 6 }}>Percentage</label>
-                <input type="number" min="0" max="100" placeholder="%" value={discountDraft.type === "PERCENT" ? discountDraft.value : ""} onFocus={() => setDiscountDraft(d => ({ ...d, type: "PERCENT" }))} onChange={e => setDiscountDraft(d => ({ ...d, value: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: discountDraft.type === "PERCENT" ? "2px solid var(--accent, #3b82f6)" : "1px solid #cbd5e1", borderRadius: 8, fontSize: "0.95rem", boxSizing: "border-box" }} />
+
+            {/* Input row */}
+            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, display: "flex", alignItems: "center", padding: "4px 4px 4px 16px", gap: 8, marginBottom: 20 }}>
+              {/* Icon */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              {/* Amount input */}
+              <input
+                type="number"
+                min="0"
+                max={discountDraft.type === "PERCENT" ? 100 : undefined}
+                placeholder="Enter Discount"
+                value={discountDraft.value}
+                onChange={e => setDiscountDraft(d => ({ ...d, value: e.target.value }))}
+                style={{ flex: 1, border: "none", background: "transparent", fontSize: "0.95rem", color: "#0f172a", outline: "none", padding: "10px 0" }}
+              />
+              {/* % / ₹ dropdown toggle */}
+              <div style={{ position: "relative" }}>
+                <button
+                  type="button"
+                  onClick={() => setDiscountDraft(d => ({ ...d, _open: !d._open }))}
+                  style={{ display: "flex", alignItems: "center", gap: 4, background: "#e2e8f0", border: "none", borderRadius: 8, padding: "8px 12px", fontWeight: 700, fontSize: "0.9rem", color: "#0f172a", cursor: "pointer", whiteSpace: "nowrap" }}
+                >
+                  {discountDraft.type === "PERCENT" ? "%" : "₹"}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                {discountDraft._open && (
+                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", background: "#fff", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.15)", overflow: "hidden", zIndex: 10, minWidth: 60 }}>
+                    <button type="button" onClick={() => setDiscountDraft(d => ({ ...d, type: "PERCENT", _open: false }))} style={{ display: "block", width: "100%", padding: "10px 16px", border: "none", background: discountDraft.type === "PERCENT" ? "#0f172a" : "#fff", color: discountDraft.type === "PERCENT" ? "#fff" : "#0f172a", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", textAlign: "center" }}>%</button>
+                    <button type="button" onClick={() => setDiscountDraft(d => ({ ...d, type: "FIX", _open: false }))} style={{ display: "block", width: "100%", padding: "10px 16px", border: "none", background: discountDraft.type === "FIX" ? "#0f172a" : "#fff", color: discountDraft.type === "FIX" ? "#fff" : "#0f172a", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", textAlign: "center" }}>₹</button>
+                  </div>
+                )}
               </div>
             </div>
-            <button type="button" onClick={confirmDiscount} style={{ width: "100%", padding: "12px", background: "var(--button-bg-solid, #0f172a)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}>Apply</button>
+
+            {/* Apply button */}
+            <button type="button" onClick={confirmDiscount} style={{ width: "100%", padding: "12px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}>Apply Discount</button>
           </div>
         </div>
       )}
