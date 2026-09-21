@@ -1604,22 +1604,6 @@ const handleExportClick = async (format) => {
                 <button
                   type="button"
                   className="export-item"
-                  onClick={() => handleExportClick("xlsx")}
-                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
-                >
-                  Export as XLSX
-                </button>
-                <button
-                  type="button"
-                  className="export-item"
-                  onClick={() => handleExportClick("xls")}
-                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
-                >
-                  Export as XLS
-                </button>
-                <button
-                  type="button"
-                  className="export-item"
                   onClick={() => handleExportClick("csv")}
                   style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
                 >
