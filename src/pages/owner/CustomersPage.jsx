@@ -105,6 +105,7 @@ export default function CustomersPage() {
   const [mergeSourceRow, setMergeSourceRow] = useState(null);
   const [mergeTargetId, setMergeTargetId] = useState("");
   const [actionBusy, setActionBusy] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerDetail, setCustomerDetail] = useState(null);
   const [customerDetailLoading, setCustomerDetailLoading] = useState(false);
@@ -1632,7 +1633,7 @@ const handleExportClick = async (format) => {
             <table className="crm-table">
               <thead>
                 <tr>
-                  <th style={{ width: 40 }}><input type="checkbox" className="crm-table-checkbox" /></th>
+                  <th style={{ width: 40 }}><input type="checkbox" className="crm-table-checkbox" checked={paginatedRows.length > 0 && selectedIds.length === paginatedRows.length} onChange={(e) => { if (e.target.checked) { setSelectedIds(paginatedRows.map(r => r.id)); } else { setSelectedIds([]); } }} /></th>
                   <th>MOBILE NO.</th>
                   <SortHeader sortKey="name">NAME</SortHeader>
                   <SortHeader sortKey="gender">GENDER</SortHeader>
@@ -1662,7 +1663,7 @@ const handleExportClick = async (format) => {
                     }}
                     style={{ cursor: "pointer" }}
                   >
-                    <td><input type="checkbox" className="crm-table-checkbox" /></td>
+                    <td><input type="checkbox" className="crm-table-checkbox" checked={selectedIds.includes(row.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(prev => [...prev, row.id]); else setSelectedIds(prev => prev.filter(id => id !== row.id)); }} onClick={(e) => e.stopPropagation()} /></td>
                     <td style={{ color: "#0f172a", fontWeight: 600 }}>{row.phone || "-"}</td>
                     <td style={{ fontWeight: 600 }}>{row.name || "-"}</td>
                     <td>{row.gender ? `${row.gender.charAt(0).toUpperCase()}${row.gender.slice(1).toLowerCase()}` : "-"}</td>
