@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X,   Search } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
@@ -2333,12 +2333,12 @@ export default function PosPage() {
               <input placeholder="Add Order Instruction (Optional, Max 500 Characters)" value={form.notes} onChange={(e) => setForm(c => ({ ...c, notes: e.target.value }))} />
             </div>
 
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: "8px 0" }}>
-              <button type="button" onClick={openApplyMembershipModal} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Apply Membership</button>
-              <button type="button" onClick={openDiscountModal} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Apply Discount</button>
-              <button type="button" onClick={loadCustomerPackagesForRedemption} disabled={loadingCustomerPkgs} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: loadingCustomerPkgs ? "not-allowed" : "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap", opacity: loadingCustomerPkgs ? 0.6 : 1 }}>{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
-              <button type="button" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Apply Gift Card</button>
-              <button type="button" onClick={() => setShowTipModal(true)} style={{ padding: "8px 18px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 13, whiteSpace: "nowrap" }}>Add Tip</button>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: "6px 0" }}>
+              <button type="button" onClick={openApplyMembershipModal} style={{ padding: "5px 12px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap" }}>Apply Membership</button>
+              <button type="button" onClick={openDiscountModal} style={{ padding: "5px 12px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap" }}>Apply Discount</button>
+              <button type="button" onClick={loadCustomerPackagesForRedemption} disabled={loadingCustomerPkgs} style={{ padding: "5px 12px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: loadingCustomerPkgs ? "not-allowed" : "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap", opacity: loadingCustomerPkgs ? 0.6 : 1 }}>{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
+              <button type="button" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }} style={{ padding: "5px 12px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap" }}>Apply Gift Card</button>
+              <button type="button" onClick={() => setShowTipModal(true)} style={{ padding: "5px 12px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap" }}>Add Tip</button>
             </div>
 
             {form.couponCode && couponValidation ? (
