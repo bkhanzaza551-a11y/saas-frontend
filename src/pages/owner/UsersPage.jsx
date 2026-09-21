@@ -297,6 +297,10 @@ export default function UsersPage() {
   const startCreate = () => {
     resetForm();
     setStatus((current) => ({ ...current, error: "", success: "" }));
+    const defaultStaff = customRoles.find((r) => r.name?.toLowerCase() === "staff") || customRoles[0];
+    if (defaultStaff) {
+      applyCustomRole(defaultStaff.id);
+    }
     setIsCreateModalOpen(true);
   };
 
@@ -434,6 +438,7 @@ export default function UsersPage() {
       if (form.uanNumber && form.uanNumber.trim() && !/^\d{12}$/.test(form.uanNumber.trim())) return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits" }));
       if (form.accountNumber && form.accountNumber.trim() && !/^\d{9,18}$/.test(form.accountNumber.trim())) return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits" }));
       if (form.ifscCode && form.ifscCode.trim() && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(form.ifscCode.trim())) return setStatus((current) => ({ ...current, error: "Invalid IFSC code format (e.g. HDFC0001234)" }));
+      if (!form.customRoleId) return setStatus((current) => ({ ...current, error: "Please select an access role (Owner, Manager, Staff, etc.)" }));
 
       const payload = {
         salonRole: form.salonRole,
@@ -930,7 +935,7 @@ export default function UsersPage() {
                           )}
                           {customRoles.map((role) => (
                             <option key={role.id} value={role.id}>
-                              {role.name}{role.description ? ` — ${role.description}` : ""}
+                              {role.isSystemPreset ? `⭐ ${role.name} [Default Role]` : role.name}{role.description ? ` — ${role.description}` : ""}
                             </option>
                           ))}
                         </CustomSelect>
@@ -1172,7 +1177,9 @@ export default function UsersPage() {
                         <option value="" disabled>No custom roles yet — create one in Settings → Access Control</option>
                       )}
                       {customRoles.map(role => (
-                        <option key={role.id} value={role.id}>{role.name}{role.description ? ` — ${role.description}` : ""}</option>
+                        <option key={role.id} value={role.id}>
+                          {role.isSystemPreset ? `⭐ ${role.name} [Default Role]` : role.name}{role.description ? ` — ${role.description}` : ""}
+                        </option>
                       ))}
                     </CustomSelect>
                   </div>
