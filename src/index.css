@@ -3688,14 +3688,20 @@ html, body {
     transition: margin-left 240ms ease, width 240ms ease;
   }
 
+  /* Let these buttons show when sidebar is an overlay (<=900px) */
+}
+
+@media (min-width: 901px) {
   .sidebar-mobile-close,
   .sidebar-close-btn-mobile {
     display: none !important;
   }
 }
 
-.sidebar-close-btn-mobile {
-  display: none !important;
+@media (max-width: 900px) {
+  .sidebar-close-btn-mobile {
+    display: inline-flex !important;
+  }
 }
 
 /* Dedicated Mini Rail Mode Styling */
