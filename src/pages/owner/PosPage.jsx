@@ -2201,11 +2201,11 @@ export default function PosPage() {
                         </td>
                         <td>{originalPrice.toFixed(0)}</td>
                         <td>{subTotal.toFixed(0)}</td>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", border: "1px solid #e2e8f0", borderRadius: 8, overflow: "visible", background: "#fff", width: 110 }}>
+                        <td style={{ overflow: "visible", position: "relative" }}>
+                          <div style={{ display: "flex", alignItems: "center", border: "1px solid #e2e8f0", borderRadius: 8, background: "#fff", width: "fit-content" }}>
                             <input
                               className="pos-cart-input"
-                              style={{ width: 52, border: "none", background: "transparent", padding: "4px 6px", fontSize: "0.8rem", outline: "none" }}
+                              style={{ width: 46, border: "none", background: "transparent", padding: "4px 6px", fontSize: "0.8rem", outline: "none" }}
                               type="number"
                               min="0"
                               max={(item.discountType || (item.discountAmt > 0 ? "flat" : "pct")) === "pct" ? 100 : undefined}
@@ -2231,7 +2231,18 @@ export default function PosPage() {
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                               </button>
                               {item._discOpen && (
-                                <div style={{ position: "absolute", right: 0, top: "calc(100% + 2px)", background: "#fff", borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,0.15)", overflow: "hidden", zIndex: 100, minWidth: 54 }}>
+                                <div style={{ position: "fixed", background: "#fff", borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,0.2)", overflow: "hidden", zIndex: 9999, minWidth: 54 }}
+                                  ref={el => {
+                                    if (el) {
+                                      const btn = el.previousSibling;
+                                      if (btn) {
+                                        const rect = btn.getBoundingClientRect();
+                                        el.style.top = (rect.bottom + 4) + "px";
+                                        el.style.left = rect.left + "px";
+                                      }
+                                    }
+                                  }}
+                                >
                                   <button type="button" onClick={() => { updateItem(index, applyItemDiscountPatch(item, { discountType: "pct", discountAmt: 0, _discOpen: false })); }} style={{ display: "block", width: "100%", padding: "8px 14px", border: "none", background: (item.discountType || "pct") === "pct" ? "#0f172a" : "#fff", color: (item.discountType || "pct") === "pct" ? "#fff" : "#0f172a", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", textAlign: "center" }}>%</button>
                                   <button type="button" onClick={() => { updateItem(index, applyItemDiscountPatch(item, { discountType: "flat", discountPct: 0, _discOpen: false })); }} style={{ display: "block", width: "100%", padding: "8px 14px", border: "none", background: item.discountType === "flat" ? "#0f172a" : "#fff", color: item.discountType === "flat" ? "#fff" : "#0f172a", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", textAlign: "center" }}>₹</button>
                                 </div>
