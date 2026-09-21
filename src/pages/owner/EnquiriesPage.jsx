@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import { useBranch } from "../../context/BranchContext";
@@ -12,7 +12,8 @@ import {
 
   Users, UserPlus, Phone, Mail, FileText, Share2, AlertCircle, CheckCircle2, 
   BarChart3, RefreshCw, Filter, CalendarClock, MessageSquare, Briefcase, Plus,
-  Calendar, Edit3, Trash2, CheckSquare, Sparkles, MapPin, X
+  Calendar, Edit3, Trash2, CheckSquare, Sparkles, MapPin, X,
+  Download, Upload, ChevronDown
 } from "lucide-react";
 
 // Mapping between UI Status and DB Status
@@ -83,6 +84,8 @@ export default function EnquiriesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   // Status/Detail modal for actions
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
@@ -257,6 +260,144 @@ export default function EnquiriesPage() {
     }
   };
 
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const close = () => setShowExportMenu(false);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [showExportMenu]);
+
+  const downloadTestData = () => {
+    setShowExportMenu(false);
+    const headers = "NAME (Mandatory),PHONE (Mandatory),EMAIL (Optional),SERVICE_INTERESTED (Optional),PRIORITY (Optional: Low/Medium/High),STATUS (Optional: New/In progress/Following up/Converted/Cancelled),NOTES (Optional),FOLLOW_UP_DATE (Optional: YYYY-MM-DD)\n";
+    const rows = [
+      "Ahmed Khan,9234567890,ahmed@example.com,Haircut,High,New,Interested in premium haircut,2026-10-01",
+      "Sara Malik,9876543210,sara@example.com,Facial,Medium,Following up,Wants weekend appointment,2026-10-05",
+      "Ali Raza,9123456789,,Manicure,Low,In progress,First time customer,",
+      "Fatima Shah,9345678901,fatima@example.com,Hair Color,High,New,Looking for balayage,2026-10-03",
+      "Omar Hussain,9456789012,,Massage,Medium,Converted,Booked appointment,",
+      "Zainab Ali,9567890123,zainab@example.com,Bridal Makeup,High,New,Wedding on Dec 15,2026-10-10",
+      "Hassan Iqbal,9678901234,,Waxing Full Arms,Low,Cancelled,Price was high,",
+      "Maryam Javed,9789012345,maryam@example.com,Hair Spa,Medium,Following up,Called twice no response,2026-10-07",
+      "Bilal Tariq,9890123456,,Eyebrow Threading,Low,New,Walk-in enquiry,",
+      "Nida Hussain,9901234567,nida@example.com,Pedicure,Medium,In progress,Referred by friend,2026-10-02"
+    ].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", "Enquiry_Test_Data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExport = (format = "csv") => {
+    setShowExportMenu(false);
+    const headers = "Date,Customer Name,Mobile,Email,Service Interested,Priority,Status,Notes,Follow Up Date\n";
+    const exportRows = filteredRows && filteredRows.length > 0 ? filteredRows : rows;
+    const csvRows = exportRows.map((e) => [
+      `"${e.createdAt ? new Date(e.createdAt).toLocaleDateString() : ""}"`,
+      `"${(e.name || "").replace(/"/g, '""')}"`,
+      `"${(e.phone || "").replace(/"/g, '""')}"`,
+      `"${(e.email || "").replace(/"/g, '""')}"`,
+      `"${(e.interestedService?.name || "").replace(/"/g, '""')}"`,
+      `"${(e.priority || "").replace(/"/g, '""')}"`,
+      `"${(mapStatusToUi(e.status) || "").replace(/"/g, '""')}"`,
+      `"${(e.notes || "").replace(/"/g, '""')}"`,
+      `"${e.followUpAt ? new Date(e.followUpAt).toLocaleDateString() : ""}"`
+    ].join(",")).join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + csvRows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", `Enquiries_${new Date().toISOString().slice(0, 10)}.${format === "csv" ? "csv" : "csv"}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportClick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setImporting(true);
+      setStatus({ error: "", success: "Importing enquiries..." });
+      try {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length < 2) {
+          setStatus({ error: "CSV file has no data rows.", success: "" });
+          return;
+        }
+        const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/^["']|["']$/g, ""));
+        const nameIdx = headers.findIndex(h => h.includes("name"));
+        const phoneIdx = headers.findIndex(h => h.includes("phone") || h.includes("mobile"));
+        const emailIdx = headers.findIndex(h => h.includes("email"));
+        const svcIdx = headers.findIndex(h => h.includes("service"));
+        const prioIdx = headers.findIndex(h => h.includes("priority"));
+        const statIdx = headers.findIndex(h => h.includes("status"));
+        const notesIdx = headers.findIndex(h => h.includes("note"));
+        const followIdx = headers.findIndex(h => h.includes("follow"));
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const rawCols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
+          const cols = rawCols.map(c => c.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+          const name = nameIdx !== -1 ? cols[nameIdx] : "";
+          const phone = phoneIdx !== -1 ? cols[phoneIdx] : "";
+          if (!name || !phone) {
+            errorCount++;
+            continue;
+          }
+          const email = emailIdx !== -1 ? cols[emailIdx] || null : null;
+          const svcName = svcIdx !== -1 ? cols[svcIdx] : "";
+          const matchedService = svcName ? services.find(s => s.name?.toLowerCase() === svcName.toLowerCase()) : null;
+          const priority = (prioIdx !== -1 ? cols[prioIdx] : "MEDIUM")?.toUpperCase() || "MEDIUM";
+          const uiStat = statIdx !== -1 ? cols[statIdx] : "New";
+          const notes = notesIdx !== -1 ? cols[notesIdx] : null;
+          const followUpAt = followIdx !== -1 && cols[followIdx] ? new Date(cols[followIdx]).toISOString() : null;
+
+          try {
+            const res = await api.post("/owner/enquiries", {
+              name,
+              phone,
+              email: email || undefined,
+              source: "PHONE",
+              interestedServiceId: matchedService?.id || (services[0]?.id || null),
+              interestedBranchId: selectedBranchId || (branches[0]?.id || null),
+              priority: ["LOW", "MEDIUM", "HIGH"].includes(priority) ? priority : "MEDIUM",
+              followUpAt,
+              notes
+            });
+            if (res.data?.id && uiStat && uiStat !== "New") {
+              await api.patch(`/owner/enquiries/${res.data.id}/status`, {
+                status: mapStatusToDb(uiStat),
+                note: `Imported with status: ${uiStat}`
+              }).catch(() => {});
+            }
+            successCount++;
+          } catch {
+            errorCount++;
+          }
+        }
+        setStatus({
+          success: `Import completed: ${successCount} enquiries imported, ${errorCount} errors.`,
+          error: ""
+        });
+        await load();
+      } catch (err) {
+        setStatus({ error: formatApiError(err, "Failed to import enquiries"), success: "" });
+      } finally {
+        setImporting(false);
+      }
+    };
+    input.click();
+  };
+
   return (
     <div className="page-shell" style={{ paddingBottom: 60 }}>
       <style>{`
@@ -428,13 +569,74 @@ export default function EnquiriesPage() {
               </button>
             </div>
 
-            <button 
-              className="eq-btn eq-btn-primary eq-btn-add" 
-              style={{ marginLeft: "auto" }}
-              onClick={() => setShowModal(true)}
-            >
-              <Plus size={16} /> Add Enquiry
-            </button>
+            <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+              <button
+                type="button"
+                className="crm-btn"
+                onClick={handleImportClick}
+                disabled={importing}
+                style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#3b82f6", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+              >
+                <Upload size={14} /> {importing ? "Importing..." : "Import"}
+              </button>
+              <div className="export-dropdown" style={{ position: "relative" }}>
+                <button
+                  type="button"
+                  className="crm-btn"
+                  onClick={(e) => { e.stopPropagation(); setShowExportMenu((v) => !v); }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#3b82f6", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+                >
+                  <Download size={14} /> Export <ChevronDown size={14} />
+                </button>
+                {showExportMenu && (
+                  <div
+                    className="export-menu"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 155, zIndex: 9999, overflow: "hidden" }}
+                  >
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={() => handleExport("xlsx")}
+                      style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                    >
+                      Export as XLSX
+                    </button>
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={() => handleExport("xls")}
+                      style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                    >
+                      Export as XLS
+                    </button>
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={() => handleExport("csv")}
+                      style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                    >
+                      Export as CSV
+                    </button>
+                    <div style={{ height: 1, background: "#e2e8f0", margin: "2px 0" }} />
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={downloadTestData}
+                      style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#2563eb", fontWeight: 600, minHeight: "unset" }}
+                    >
+                      Download Test Data
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button 
+                className="eq-btn eq-btn-primary eq-btn-add" 
+                onClick={() => setShowModal(true)}
+              >
+                <Plus size={16} /> Add Enquiry
+              </button>
+            </div>
           </div>
 
           {/* ── ENQUIRIES TABLE OR EMPTY STATE ── */}

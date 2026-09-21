@@ -48,6 +48,8 @@ export default function InventoryPage() {
   const [selectedPoId, setSelectedPoId] = useState(null);
   const [tempPoItems, setTempPoItems] = useState([]);
   const [commentText, setCommentText] = useState("");
+  const [showProductExportMenu, setShowProductExportMenu] = useState(false);
+  const [importingProduct, setImportingProduct] = useState(false);
 
   const [reconciliationEdits, setReconciliationEdits] = useState({});
   const [reconSearch, setReconSearch] = useState("");
@@ -241,6 +243,137 @@ export default function InventoryPage() {
     items: [createEmptyPoItem()]
   });
   const reconImportRef = useRef(null);
+
+  useEffect(() => {
+    if (!showProductExportMenu) return;
+    const close = () => setShowProductExportMenu(false);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [showProductExportMenu]);
+
+  const downloadProductTestData = () => {
+    setShowProductExportMenu(false);
+    const headers = "NAME (Mandatory),SKU (Optional),CATEGORY (Optional),SALE_PRICE (Optional),COST_PRICE (Optional),UNIT (Optional: pcs/ml/g/kg/L),CURRENT_STOCK (Optional),MIN_STOCK (Optional),PRODUCT_TYPE (Optional: RETAIL/CONSUMABLE),DESCRIPTION (Optional)\n";
+    const rows = [
+      "L'Oreal Shampoo,SKU001,Haircare,450,200,ml,100,20,RETAIL,Professional haircare shampoo 250ml",
+      "Wella Hair Color,SKU002,Haircolor,600,280,pcs,50,10,RETAIL,Permanent hair color sachet",
+      "Keratin Treatment,SKU003,Treatment,2500,1200,ml,30,5,RETAIL,Professional keratin smoothing",
+      "Nail Polish Red,SKU004,Nails,150,60,pcs,80,15,RETAIL,Long-lasting red nail polish",
+      "Face Cleanser,SKU005,Skincare,320,140,ml,60,10,RETAIL,Deep pore cleansing face wash",
+      "Bleach Cream,SKU006,Bleach,180,80,g,40,8,CONSUMABLE,Facial bleach cream 50g",
+      "Massage Oil,SKU007,Massage,400,180,ml,25,5,CONSUMABLE,Relaxing aromatherapy massage oil",
+      "Wax Strips,SKU008,Waxing,200,90,pcs,100,20,CONSUMABLE,Pre-coated wax strips for body",
+      "Hair Serum,SKU009,Haircare,550,250,ml,45,8,RETAIL,Anti-frizz hair repair serum",
+      "Sanitizer,SKU010,Hygiene,120,50,ml,200,30,CONSUMABLE,Antibacterial hand sanitizer 200ml"
+    ].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", "Product_Test_Data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportProducts = (format = "csv") => {
+    setShowProductExportMenu(false);
+    const headers = "Name,SKU,Category,Sale Price,Cost Price,Unit,Current Stock,Min Stock,Product Type,Active,Description\n";
+    const csvRows = products.map((p) => [
+      `"${(p.name || "").replace(/"/g, '""')}"`,
+      `"${(p.sku || "").replace(/"/g, '""')}"`,
+      `"${(p.category?.name || "").replace(/"/g, '""')}"`,
+      p.salePrice || p.sellingPrice || 0,
+      p.costPrice || 0,
+      `"${(p.unit || "pcs").replace(/"/g, '""')}"`,
+      p.currentStock || 0,
+      p.minStock || 0,
+      `"${p.productType || "RETAIL"}"`,
+      p.isActive !== false ? "Yes" : "No",
+      `"${(p.description || "").replace(/"/g, '""')}"`
+    ].join(",")).join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + csvRows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", `Products_${new Date().toISOString().slice(0, 10)}.${format === "csv" ? "csv" : "csv"}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportProductsClick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setImportingProduct(true);
+      setStatus({ error: "", success: "Importing products..." });
+      try {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length < 2) {
+          setStatus({ error: "CSV file has no data rows.", success: "" });
+          return;
+        }
+        const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/^["']|["']$/g, ""));
+        const nameIdx = headers.findIndex(h => h.includes("name"));
+        const skuIdx = headers.findIndex(h => h.includes("sku"));
+        const catIdx = headers.findIndex(h => h.includes("category"));
+        const saleIdx = headers.findIndex(h => h.includes("sale") || h.includes("selling"));
+        const costIdx = headers.findIndex(h => h.includes("cost"));
+        const unitIdx = headers.findIndex(h => h.includes("unit"));
+        const stockIdx = headers.findIndex(h => h.includes("current_stock") || h.includes("stock"));
+        const minIdx = headers.findIndex(h => h.includes("min"));
+        const typeIdx = headers.findIndex(h => h.includes("type"));
+        const descIdx = headers.findIndex(h => h.includes("desc"));
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const rawCols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
+          const cols = rawCols.map(c => c.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+          const name = nameIdx !== -1 ? cols[nameIdx] : "";
+          if (!name) {
+            errorCount++;
+            continue;
+          }
+          const catName = catIdx !== -1 ? cols[catIdx] : "";
+          const matchedCategory = catName ? categories.find(c => c.name?.toLowerCase() === catName.toLowerCase()) : null;
+
+          try {
+            await api.post("/owner/inventory/products", {
+              name,
+              sku: (skuIdx !== -1 && cols[skuIdx]) || undefined,
+              categoryId: matchedCategory?.id || undefined,
+              sellingPrice: saleIdx !== -1 ? Number(cols[saleIdx]) || 0 : 0,
+              costPrice: costIdx !== -1 ? Number(cols[costIdx]) || 0 : 0,
+              unit: (unitIdx !== -1 && cols[unitIdx]) || "pcs",
+              currentStock: stockIdx !== -1 ? Number(cols[stockIdx]) || 0 : 0,
+              minStock: minIdx !== -1 ? Number(cols[minIdx]) || 0 : 0,
+              productType: (typeIdx !== -1 && cols[typeIdx]?.toUpperCase().includes("CONSUM")) ? "CONSUMABLE" : "RETAIL",
+              description: descIdx !== -1 ? cols[descIdx] : "",
+              branchId: selectedBranchId || undefined
+            });
+            successCount++;
+          } catch {
+            errorCount++;
+          }
+        }
+        setStatus({
+          success: `Import completed: ${successCount} products imported, ${errorCount} errors.`,
+          error: ""
+        });
+        await loadAll();
+      } catch (err) {
+        setStatus({ error: formatApiError(err, "Failed to import products"), success: "" });
+      } finally {
+        setImportingProduct(false);
+      }
+    };
+    input.click();
+  };
 
   const loadAll = async () => {
     try {
@@ -653,9 +786,81 @@ export default function InventoryPage() {
         
         {activeTab === "Dashboard" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
-              <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Real-time stock analytics, purchase order tracking, and product performance.</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Real-time stock analytics, purchase order tracking, and product performance.</div>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  type="button"
+                  className="crm-btn"
+                  onClick={handleImportProductsClick}
+                  disabled={importingProduct}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#3b82f6", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+                >
+                  <Upload size={14} /> {importingProduct ? "Importing..." : "Import"}
+                </button>
+                <div className="export-dropdown" style={{ position: "relative" }}>
+                  <button
+                    type="button"
+                    className="crm-btn"
+                    onClick={(e) => { e.stopPropagation(); setShowProductExportMenu((v) => !v); }}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#3b82f6", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+                  >
+                    <Download size={14} /> Export <ChevronDown size={14} />
+                  </button>
+                  {showProductExportMenu && (
+                    <div
+                      className="export-menu"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 155, zIndex: 9999, overflow: "hidden" }}
+                    >
+                      <button
+                        type="button"
+                        className="export-item"
+                        onClick={() => handleExportProducts("xlsx")}
+                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                      >
+                        Export as XLSX
+                      </button>
+                      <button
+                        type="button"
+                        className="export-item"
+                        onClick={() => handleExportProducts("xls")}
+                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                      >
+                        Export as XLS
+                      </button>
+                      <button
+                        type="button"
+                        className="export-item"
+                        onClick={() => handleExportProducts("csv")}
+                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#475569", minHeight: "unset" }}
+                      >
+                        Export as CSV
+                      </button>
+                      <div style={{ height: 1, background: "#e2e8f0", margin: "2px 0" }} />
+                      <button
+                        type="button"
+                        className="export-item"
+                        onClick={downloadProductTestData}
+                        style={{ width: "100%", textAlign: "left", padding: "8px 12px", border: "none", background: "none", cursor: "pointer", fontSize: "0.78rem", color: "#2563eb", fontWeight: 600, minHeight: "unset" }}
+                      >
+                        Download Test Data
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="crm-btn"
+                  onClick={() => setIsProductModalOpen(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#0f172a", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+                >
+                  <Plus size={14} /> Add Product
+                </button>
+              </div>
             </div>
             
             {/* Top KPI Row */}
