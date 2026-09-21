@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { X, Trash2, Edit2, Search, Plus, Package, ClipboardList } from "lucide-react";
+import { X, Trash2, Edit2, Search, Plus, Package, ClipboardList, Upload, Download, ChevronDown } from "lucide-react";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import PermissionButton from "../../components/PermissionButton";
 import { api } from "../../api/client";
@@ -71,6 +71,137 @@ export default function ProductCategoriesPage() {
   const [stockForm, setStockForm] = useState({ currentStock: 0, minStock: 0, onFloor: 0, netWeight: "", unit: "", secondaryUnit: "", productType: "RETAIL" });
   const [stockSaving, setStockSaving] = useState(false);
   const [stockError, setStockError] = useState("");
+  const [showExportMenu, setShowExportMenu] = useState(false);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const close = () => setShowExportMenu(false);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [showExportMenu]);
+
+  const downloadProductTestData = () => {
+    setShowExportMenu(false);
+    const headers = "Product Name (Mandatory),SKU (Optional),Category (Optional),Sale Price (Mandatory),Cost Price (Optional),Current Stock (Optional),Min Stock (Optional),Unit (Optional: pcs/ml/g/kg),Product Type (Optional: RETAIL/CONSUMABLE),Description (Optional)\n";
+    const rows = [
+      "L'Oreal Professional Shampoo,SKU-001,Haircare,650,380,50,10,ml,RETAIL,Keratin smooth shampoo 250ml",
+      "Wella Hair Color Burgundy,SKU-002,Coloring,450,220,30,8,pcs,RETAIL,Permanent rich burgundy shade",
+      "Moroccanoil Treatment Serum,SKU-003,Haircare,1800,1100,20,5,ml,RETAIL,Argan oil infused hair treatment",
+      "OPI Red Nail Lacquer,SKU-004,Nails,550,280,40,10,pcs,RETAIL,High shine long-wear nail polish",
+      "Dermalogica Face Cleanser,SKU-005,Skincare,1200,750,25,5,ml,RETAIL,Special cleansing gel wash",
+      "Salon Professional Bleach Cream,SKU-006,Chemicals,350,180,60,15,g,CONSUMABLE,Facial bleaching cream salon pack",
+      "Lavender Massage Oil,SKU-007,Spa,800,420,15,4,ml,CONSUMABLE,Pure aromatherapy relaxing oil",
+      "Rica White Chocolate Wax,SKU-008,Waxing,950,550,35,10,g,CONSUMABLE,Liposoluble wax for sensitive skin",
+      "Keratin Smooth Hair Mask,SKU-009,Haircare,900,500,28,6,ml,RETAIL,Intensive repairing hair mask",
+      "Sanitizing Alcohol Spray,SKU-010,Hygiene,250,110,80,20,ml,CONSUMABLE,70% alcohol multi-surface spray"
+    ].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", "Product_Test_Data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportProducts = (format = "csv") => {
+    setShowExportMenu(false);
+    const headers = "Name,SKU,Category,Sale Price,Cost Price,Unit,Current Stock,Min Stock,Product Type,Active,Description\n";
+    const csvRows = filteredProducts.map((p) => [
+      `"${(p.name || "").replace(/"/g, '""')}"`,
+      `"${(p.sku || "").replace(/"/g, '""')}"`,
+      `"${(p.category?.name || selectedCategory?.name || "").replace(/"/g, '""')}"`,
+      p.salePrice || p.sellingPrice || 0,
+      p.costPrice || 0,
+      `"${(p.unit || "pcs").replace(/"/g, '""')}"`,
+      p.currentStock || 0,
+      p.minStock || 0,
+      `"${p.productType || "RETAIL"}"`,
+      p.isActive !== false ? "Yes" : "No",
+      `"${(p.description || "").replace(/"/g, '""')}"`
+    ].join(",")).join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + csvRows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", `Products_Export_${new Date().toISOString().slice(0, 10)}.${format === "csv" ? "csv" : format}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportProducts = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setStatus({ error: "", success: "Importing products..." });
+      try {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length < 2) {
+          setStatus({ error: "CSV file has no data rows.", success: "" });
+          return;
+        }
+        const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/^["']|["']$/g, ""));
+        const nameIdx = headers.findIndex(h => h.includes("name"));
+        const skuIdx = headers.findIndex(h => h.includes("sku"));
+        const catIdx = headers.findIndex(h => h.includes("category"));
+        const saleIdx = headers.findIndex(h => h.includes("sale") || h.includes("selling") || h.includes("price"));
+        const costIdx = headers.findIndex(h => h.includes("cost"));
+        const unitIdx = headers.findIndex(h => h.includes("unit"));
+        const stockIdx = headers.findIndex(h => h.includes("current_stock") || h.includes("stock"));
+        const minIdx = headers.findIndex(h => h.includes("min"));
+        const typeIdx = headers.findIndex(h => h.includes("type"));
+        const descIdx = headers.findIndex(h => h.includes("desc"));
+
+        let importedCount = 0;
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(",").map(c => c.trim().replace(/^["']|["']$/g, ""));
+          const name = nameIdx >= 0 ? cols[nameIdx] : cols[0];
+          if (!name) continue;
+          const sku = skuIdx >= 0 ? cols[skuIdx] : "";
+          const catName = catIdx >= 0 ? cols[catIdx] : "";
+          let matchedCatId = selectedCategory?.id || "";
+          if (catName) {
+            const foundCat = categories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+            if (foundCat) matchedCatId = foundCat.id;
+          }
+          if (!matchedCatId && categories[0]) matchedCatId = categories[0].id;
+          const salePrice = saleIdx >= 0 ? Number(cols[saleIdx]) || 0 : 0;
+          const costPrice = costIdx >= 0 ? Number(cols[costIdx]) || 0 : 0;
+          const unit = unitIdx >= 0 && cols[unitIdx] ? cols[unitIdx] : "pcs";
+          const currentStock = stockIdx >= 0 ? Number(cols[stockIdx]) || 0 : 0;
+          const minStock = minIdx >= 0 ? Number(cols[minIdx]) || 0 : 0;
+          const rawType = typeIdx >= 0 && cols[typeIdx] ? cols[typeIdx].toUpperCase() : "RETAIL";
+          const productType = rawType.includes("CONSUM") ? "CONSUMABLE" : "RETAIL";
+          const description = descIdx >= 0 ? cols[descIdx] : "";
+
+          await api.post("/owner/inventory/products", {
+            name,
+            sku,
+            categoryId: matchedCatId || undefined,
+            branchId: selectedBranchId || null,
+            sellingPrice: salePrice,
+            costPrice,
+            unit,
+            currentStock,
+            minStock,
+            productType,
+            description,
+            isActive: true
+          });
+          importedCount++;
+        }
+        setStatus({ error: "", success: `Successfully imported ${importedCount} product(s)!` });
+        await loadData();
+      } catch (err) {
+        setStatus({ error: formatApiError(err, "Failed to import products"), success: "" });
+      }
+    };
+    input.click();
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -400,7 +531,7 @@ export default function ProductCategoriesPage() {
             </div>
           </div>
 
-          <div className="responsive-header-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div className="responsive-header-actions" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ position: "relative" }}>
               <Search size={15} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
               <input
@@ -408,15 +539,87 @@ export default function ProductCategoriesPage() {
                 value={searchQ}
                 onChange={(e) => setSearchQ(e.target.value)}
                 placeholder="Search products, SKU..."
-                style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "7px 12px 7px 32px", fontSize: 13, width: 220, outline: "none" }}
+                style={{ border: "1px solid #cbd5e1", borderRadius: 8, padding: "7px 12px 7px 32px", fontSize: 13, width: 190, outline: "none" }}
               />
             </div>
+
+            <button
+              type="button"
+              onClick={handleImportProducts}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+            >
+              <Upload size={14} /> Import
+            </button>
+
+            <div style={{ position: "relative" }} onClick={e => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => setShowExportMenu(prev => !prev)}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+              >
+                <Download size={14} /> Export <ChevronDown size={14} />
+              </button>
+              {showExportMenu && (
+                <div
+                  className="export-menu"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "100%",
+                    marginTop: 4,
+                    background: "#ffffff",
+                    border: "1px solid #cbd5e1",
+                    borderRadius: 8,
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                    zIndex: 1000,
+                    minWidth: 170,
+                    overflow: "hidden",
+                    padding: "4px 0"
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="export-item"
+                    onClick={() => handleExportProducts("xlsx")}
+                    style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
+                  >
+                    Export as XLSX
+                  </button>
+                  <button
+                    type="button"
+                    className="export-item"
+                    onClick={() => handleExportProducts("xls")}
+                    style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
+                  >
+                    Export as XLS
+                  </button>
+                  <button
+                    type="button"
+                    className="export-item"
+                    onClick={() => handleExportProducts("csv")}
+                    style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
+                  >
+                    Export as CSV
+                  </button>
+                  <div style={{ height: 1, background: "#e2e8f0", margin: "4px 0" }} />
+                  <button
+                    type="button"
+                    className="export-item"
+                    onClick={downloadProductTestData}
+                    style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#2563eb", fontWeight: 700, display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, lineHeight: 1.3 }}
+                  >
+                    Download Test Data
+                  </button>
+                </div>
+              )}
+            </div>
+
             <PermissionButton
               onClick={openNewProduct}
               className="cpn-btn cpn-btn-primary"
               module="inventory"
               action="create"
-              style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}
+              style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
             >
               <Plus size={16} /> Add Product
             </PermissionButton>

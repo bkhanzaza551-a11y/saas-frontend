@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Scissors, Edit2, Trash2, Plus, X } from "lucide-react";
+import { Scissors, Edit2, Trash2, Plus, X, Upload, Download, ChevronDown } from "lucide-react";
 import { api } from "../../api/client";
 import { downloadFromApi } from "../../utils/download";
 import EmptyState from "../../components/EmptyState";
@@ -354,16 +354,66 @@ export default function ServiceCategoriesPage() {
     }
   };
 
-  const handleExport = async () => {
+  const [showExportMenu, setShowExportMenu] = useState(false);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const close = () => setShowExportMenu(false);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [showExportMenu]);
+
+  const downloadTestData = () => {
+    setShowExportMenu(false);
+    const headers = "Service Name (Mandatory),Category (Mandatory),Subcategory (Optional),Price (Mandatory),Duration Mins (Optional),Gender (Optional: UNISEX/FEMALE/MALE),Description (Optional)\n";
+    const rows = [
+      "Hair Cut & Styling,Hair,Haircut,500,45,UNISEX,Professional wash and haircut",
+      "Beard Trim & Shape,Hair,Beard,250,20,MALE,Beard grooming with styling",
+      "Hair Color Highlights,Hair,Coloring,2500,90,FEMALE,Full head highlights",
+      "Keratin Smoothing,Hair,Treatment,4500,120,UNISEX,Deep smoothing keratin treatment",
+      "Classic Pedicure,Hands & Feet,Pedicure,800,45,FEMALE,Exfoliating foot soak and massage",
+      "Classic Manicure,Hands & Feet,Manicure,600,30,UNISEX,Nail shaping cuticle care massage",
+      "Hydra Facial Glow,Skin Care,Facials,3000,60,UNISEX,Deep pore cleansing and hydration",
+      "Gold Radiance Facial,Skin Care,Facials,2200,60,FEMALE,Brightening gold facial",
+      "Full Body Massage,Spa,Massage,2800,60,UNISEX,Aromatherapy relaxing body massage",
+      "Full Arms Waxing,Waxing,Body Waxing,500,20,FEMALE,Honey wax full arms hair removal"
+    ].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", "Service_Test_Data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportClick = async (format = "csv") => {
+    setShowExportMenu(false);
     setStatus({ error: "", success: "" });
     try {
-      setLoading(true);
-      await downloadFromApi("/owner/service-categories/export", { fallbackFilename: `services_export_${new Date().toISOString().slice(0,10)}.csv` });
-      setSuccess("Export downloaded successfully.");
+      const allServices = items || [];
+      const headers = "Name,Category,Subcategory,Price,Duration,Gender,Featured,Online Booking,Description\n";
+      const csvRows = allServices.map(s => [
+        `"${(s.name || "").replace(/"/g, '""')}"`,
+        `"${(selectedCategory?.name || "").replace(/"/g, '""')}"`,
+        `"${(selectedSubcategory?.name || "").replace(/"/g, '""')}"`,
+        s.price || 0,
+        s.durationMin || 30,
+        `"${s.gender || "UNISEX"}"`,
+        s.isFeatured ? "Yes" : "No",
+        s.onlineBookingEnabled ? "Yes" : "No",
+        `"${(s.description || "").replace(/"/g, '""')}"`
+      ].join(",")).join("\n");
+      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + csvRows);
+      const link = document.createElement("a");
+      link.setAttribute("href", csvContent);
+      link.setAttribute("download", `Services_Export_${new Date().toISOString().slice(0, 10)}.${format === "csv" ? "csv" : format}`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setSuccess("Services exported successfully!");
     } catch (err) {
-      setError(formatApiError(err, "Could not export services"));
-    } finally {
-      setLoading(false);
+      setError("Could not export services");
     }
   };
 
@@ -568,10 +618,85 @@ export default function ServiceCategoriesPage() {
             <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {selectedSubcategory ? `${selectedCategory?.name} / ${selectedSubcategory.name}` : "Services"}
             </div>
-            <div style={{ display: "flex", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
-              <button type="button" onClick={handleImportClick} style={{ padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13 }}>Import CSV</button>
-              <button type="button" onClick={handleExport} style={{ padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13 }}>Export CSV</button>
-              <button type="button" onClick={openNewService} style={{ padding: "7px 18px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>+ Add Service</button>
+            <div style={{ display: "flex", gap: 8, flexShrink: 0, flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={handleImportClick}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+              >
+                <Upload size={14} /> Import
+              </button>
+
+              <div style={{ position: "relative" }} onClick={e => e.stopPropagation()}>
+                <button
+                  type="button"
+                  onClick={() => setShowExportMenu(prev => !prev)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+                >
+                  <Download size={14} /> Export <ChevronDown size={14} />
+                </button>
+                {showExportMenu && (
+                  <div
+                    className="export-menu"
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      top: "100%",
+                      marginTop: 4,
+                      background: "#ffffff",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 8,
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                      zIndex: 1000,
+                      minWidth: 170,
+                      overflow: "hidden",
+                      padding: "4px 0"
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={() => handleExportClick("xlsx")}
+                      style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
+                    >
+                      Export as XLSX
+                    </button>
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={() => handleExportClick("xls")}
+                      style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
+                    >
+                      Export as XLS
+                    </button>
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={() => handleExportClick("csv")}
+                      style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
+                    >
+                      Export as CSV
+                    </button>
+                    <div style={{ height: 1, background: "#e2e8f0", margin: "4px 0" }} />
+                    <button
+                      type="button"
+                      className="export-item"
+                      onClick={downloadTestData}
+                      style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#2563eb", fontWeight: 700, display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, lineHeight: 1.3 }}
+                    >
+                      Download Test Data
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={openNewService}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 18px", background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+              >
+                <Plus size={14} /> Add Service
+              </button>
             </div>
           </div>
 
