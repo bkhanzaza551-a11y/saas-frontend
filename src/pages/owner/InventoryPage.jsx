@@ -7,7 +7,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import VendorManagement from "./VendorManagement";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
-import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Tag, Layers, RefreshCw, Users, FileText, Activity, Plus, Trash2, ChevronDown, Save, Upload, Download } from "lucide-react";
+import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Tag, Layers, RefreshCw, Users, FileText, Activity, Plus, Trash2, ChevronDown, Save, Upload, Download, X } from "lucide-react";
 import "./InventoryPage.css";
 
 import CustomSelect from "../../components/CustomSelect";

@@ -531,40 +531,45 @@ button.pos-item-card:hover {
   border-top: 1px solid #e2e8f0;
 }
 .pos-btn-clear {
-  background: #93c5fd;
-  color: white;
-  border: none;
-  padding: 6px 12px !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 6px 16px !important;
   border-radius: 6px !important;
   font-weight: 600;
-  font-size: 0.75rem !important;
+  font-size: 0.85rem !important;
   cursor: pointer;
   min-height: 0 !important;
   height: auto !important;
 }
 .pos-btn-create {
-  background: #60a5fa;
-  color: white;
-  border: none;
-  padding: 6px 12px !important;
+  background: #2563eb !important;
+  color: white !important;
+  border: none !important;
+  padding: 6px 16px !important;
   border-radius: 6px !important;
   font-weight: 600;
-  font-size: 0.75rem !important;
+  font-size: 0.85rem !important;
   cursor: pointer;
   min-height: 0 !important;
   height: auto !important;
 }
 .pos-btn-complete {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 6px 12px !important;
+  background: #2563eb !important;
+  color: white !important;
+  border: none !important;
+  padding: 6px 16px !important;
   border-radius: 6px !important;
   font-weight: 600;
-  font-size: 0.75rem !important;
+  font-size: 0.85rem !important;
   cursor: pointer;
   min-height: 0 !important;
   height: auto !important;
+}
+.pos-btn-create:disabled, .pos-btn-complete:disabled {
+  background: #94a3b8 !important;
+  color: #f1f5f9 !important;
+  cursor: not-allowed !important;
 }
 
 

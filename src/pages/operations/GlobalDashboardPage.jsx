@@ -98,29 +98,7 @@ export default function GlobalDashboardPage() {
             <h1 style={{ margin: "0 0 6px 0", fontSize: "1.35rem", fontWeight: 800, color: "#0f172a", lineHeight: 1.25 }}>Branch Analytics</h1>
             <p style={{ margin: 0, fontSize: "0.88rem", color: "#64748b", lineHeight: 1.4 }}>{isMultiBranch && isAllBranches ? "Cross-branch revenue performance, appointment volume, and growth analytics across all locations." : "Revenue performance, appointment volume, and growth analytics."}</p>
           </div>
-          <button 
-            type="button"
-            className="btn btn-outline" 
-            onClick={fetchData} 
-            disabled={loading} 
-            style={{ 
-              background: "#ffffff", 
-              border: "1.5px solid #e2e8f0", 
-              borderRadius: 10, 
-              padding: "8px 16px", 
-              fontWeight: 600, 
-              fontSize: "0.85rem",
-              color: "#334155",
-              display: "inline-flex", 
-              alignItems: "center", 
-              gap: 6,
-              cursor: loading ? "not-allowed" : "pointer",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
-            }}
-          >
-            <RefreshCw size={14} className={loading ? "spin" : ""} />
-            Refresh Data
-          </button>
+
         </div>
       </div>
 

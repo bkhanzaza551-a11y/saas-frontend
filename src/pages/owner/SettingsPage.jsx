@@ -5423,11 +5423,6 @@ export default function SettingsPage() {
         <div className="settings-layout">
           <aside className="settings-sidebar">
             <input className="settings-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search settings" />
-            <div className="settings-sidebar-shortcuts">
-              <Link to="/admin/dashboard" className="settings-sidebar-shortcut">
-                <strong style={{ display: "flex", alignItems: "center", gap: 4 }}><ChevronLeft size={16} /> Back to Dashboard</strong>
-              </Link>
-            </div>
             <div className="settings-nav-list">
               {filteredSections.map((item) => (
                 <Link key={item.key} to={item.to} className={`settings-nav-item ${activeSection.key === item.key ? "active" : ""}`}>

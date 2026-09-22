@@ -291,9 +291,7 @@ export default function Salon360ProfilePage() {
         <button onClick={() => navigate("/super-admin/salons")} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.9rem", fontWeight: 600 }}>
           <ArrowLeft size={16} /> Back to Salons
         </button>
-        <button onClick={loadData} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: "white", cursor: "pointer", fontSize: "0.85rem" }}>
-          <RefreshCw size={14} /> Refresh
-        </button>
+
       </div>
 
       {status.error && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", padding: "10px 16px", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}

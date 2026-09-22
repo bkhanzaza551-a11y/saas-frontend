@@ -2104,6 +2104,33 @@ export default function AppointmentsPage() {
 
                 <div className="sp-card">
                   <h4 className="sp-card-title">2. Service Details</h4>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Appointment Date</label>
+                    <input 
+                      type="date" 
+                      className="sp-input" 
+                      value={(() => {
+                        const d = new Date(currentDate);
+                        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                        return d.toISOString().split("T")[0];
+                      })()} 
+                      onChange={(e) => {
+                        const newDate = new Date(e.target.value);
+                        if (!isNaN(newDate.getTime())) {
+                          setCurrentDate(newDate);
+                          const updatedItems = form.items.map(item => {
+                            let newStartAt = item.startAt;
+                            let newEndAt = item.endAt;
+                            if (item.startAt) newStartAt = combineDateAndTime(newDate, formatTimeForSelect(item.startAt));
+                            if (item.endAt) newEndAt = combineDateAndTime(newDate, formatTimeForSelect(item.endAt));
+                            return { ...item, startAt: newStartAt, endAt: newEndAt };
+                          });
+                          setForm(c => ({ ...c, items: updatedItems }));
+                        }
+                      }}
+                      style={{ width: "100%", cursor: "pointer" }}
+                    />
+                  </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 14 }}>
                     <button
                       type="button"

@@ -159,13 +159,7 @@ export default function CampaignsPage() {
           />
         </div>
         <div style={{ flex: 1 }} />
-        <button onClick={load} style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', height: 36,
-          background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#475569',
-          fontWeight: 500, cursor: 'pointer', fontSize: '0.85rem'
-        }}>
-          <RefreshCcw size={14} /> Refresh
-        </button>
+
       </div>
 
       {/* Table */}

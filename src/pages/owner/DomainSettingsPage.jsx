@@ -73,46 +73,48 @@ export default function DomainSettingsPage() {
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600" /></div>;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-pink-100 rounded-lg"><Globe className="h-5 w-5 text-pink-600" /></div>
+    <div style={{ maxWidth: 672, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24, padding: "10px 0 40px 0", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ padding: 12, background: "#fdf2f8", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Globe size={28} color="#db2777" />
+        </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Website Subdomain</h2>
-          <p className="text-sm text-gray-500">Get a free subdomain for your salon website</p>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#111827", margin: 0 }}>Website Subdomain</h2>
+          <p style={{ fontSize: "0.9rem", color: "#6b7280", margin: "4px 0 0 0" }}>Get a free subdomain for your salon website</p>
         </div>
       </div>
 
       {message.error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+        <div style={{ padding: 12, background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", fontSize: "0.85rem", borderRadius: 8, fontWeight: 500 }}>
           {message.error}
         </div>
       )}
       {message.success && (
-        <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+        <div style={{ padding: 12, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", fontSize: "0.85rem", borderRadius: 8, fontWeight: 500 }}>
           {message.success}
         </div>
       )}
 
       {/* Current Status */}
       {savedSubdomain && (
-        <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl border border-pink-200 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-pink-800">Your Website</span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-              <CheckCircle className="h-3.5 w-3.5" /> Live
+        <div style={{ background: "linear-gradient(to bottom right, #fdf2f8, #fff1f2)", borderRadius: 16, border: "1px solid #fbcfe8", padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#9d174d" }}>Your Website</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: "#d1fae5", color: "#047857" }}>
+              <CheckCircle size={14} /> Live
             </span>
           </div>
-          <div className="flex items-center gap-3 bg-white rounded-lg p-3 border border-pink-200">
-            <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm font-mono text-pink-700 hover:text-pink-800 truncate flex items-center gap-2">
-              {url} <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+          <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#ffffff", borderRadius: 12, padding: "12px 16px", border: "1px solid #fbcfe8", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+            <a href={url} target="_blank" rel="noopener noreferrer" style={{ flex: 1, fontSize: "0.9rem", fontFamily: "monospace", color: "#be185d", textDecoration: "none", display: "flex", alignItems: "center", gap: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600 }}>
+              {url} <ExternalLink size={14} style={{ flexShrink: 0 }} />
             </a>
-            <button type="button" onClick={() => { navigator.clipboard.writeText(url); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} style={{ background: "transparent", border: "none", color: "#64748b", padding: "8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "6px" }} onMouseEnter={e => e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background="transparent"}>
-              <Copy className="h-4 w-4" />
+            <button type="button" onClick={() => { navigator.clipboard.writeText(url); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} style={{ background: "transparent", border: "none", color: "#64748b", padding: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background="transparent"} title="Copy link">
+              <Copy size={16} />
             </button>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-xs text-pink-600">
-            <span>Also available at:</span>
-            <button type="button" onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} style={{ background: "transparent", border: "none", color: "var(--button-bg, #3b82f6)", cursor: "pointer", fontFamily: "monospace", textDecoration: "underline" }}>
+          <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8, fontSize: "0.8rem", color: "#db2777" }}>
+            <span style={{ fontWeight: 500 }}>Also available at:</span>
+            <button type="button" onClick={() => { navigator.clipboard.writeText(`https://salonnest.in/site/${slug}`); setMessage({ error: "", success: "Copied URL to clipboard!" }); }} style={{ background: "transparent", border: "none", color: "var(--button-bg, #3b82f6)", cursor: "pointer", fontFamily: "monospace", textDecoration: "underline", padding: 0 }}>
               salonnest.in/site/{slug}
             </button>
           </div>
@@ -120,49 +122,51 @@ export default function DomainSettingsPage() {
       )}
 
       {/* Subdomain Input */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">{savedSubdomain ? "Change Subdomain" : "Set Your Subdomain"}</h3>
-        <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-pink-500 focus-within:border-pink-500">
+      <div style={{ background: "#ffffff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+        <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#111827", margin: "0 0 16px 0" }}>{savedSubdomain ? "Change Subdomain" : "Set Your Subdomain"}</h3>
+        <div style={{ display: "flex", alignItems: "center", border: "1px solid #d1d5db", borderRadius: 10, overflow: "hidden", transition: "border-color 0.2s" }}>
           <input
             value={subdomain}
             onChange={(e) => handleSubdomainChange(e.target.value)}
             placeholder="beautyworld"
             maxLength={63}
-            className="flex-1 px-4 py-2.5 text-sm border-0 focus:outline-none focus:ring-0"
+            style={{ flex: 1, padding: "12px 16px", fontSize: "0.95rem", border: "none", outline: "none", background: "transparent", fontWeight: 500, minWidth: 0 }}
           />
-          <span className="px-4 py-2.5 bg-gray-50 border-l border-gray-300 text-sm text-gray-500 font-mono">.salonnest.in</span>
+          <span style={{ padding: "12px 16px", background: "#f9fafb", borderLeft: "1px solid #d1d5db", fontSize: "0.9rem", color: "#6b7280", fontFamily: "monospace", fontWeight: 500, flexShrink: 0 }}>.salonnest.in</span>
         </div>
+        
         {/* Availability indicator */}
-        <div className="mt-2 min-h-[20px]">
-          {checking && <p className="text-xs text-gray-400">Checking availability...</p>}
+        <div style={{ marginTop: 10, minHeight: 20 }}>
+          {checking && <p style={{ fontSize: "0.8rem", color: "#9ca3af", margin: 0 }}>Checking availability...</p>}
           {!checking && avail === true && (
-            <p className="text-xs text-emerald-600 flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5" /> Available!
+            <p style={{ fontSize: "0.85rem", color: "#059669", margin: 0, display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+              <CheckCircle size={14} /> Available!
             </p>
           )}
           {!checking && avail === false && subdomain.length >= 3 && (
-            <p className="text-xs text-red-500 flex items-center gap-1">
-              <XCircle className="h-3.5 w-3.5" /> Not available
+            <p style={{ fontSize: "0.85rem", color: "#dc2626", margin: 0, display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+              <XCircle size={14} /> Not available
             </p>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-1">Lowercase letters, numbers, and hyphens. 3-63 characters.</p>
-        <div className="flex gap-2 mt-4">
-          <button type="button" onClick={handleSave} disabled={saving || !subdomain.trim() || subdomain.length < 3 || avail === false} style={{ padding: "10px 24px", background: "var(--button-bg, #3b82f6)", border: "none", borderRadius: 8, fontWeight: 600, cursor: (saving || !subdomain.trim() || subdomain.length < 3 || avail === false) ? "not-allowed" : "pointer", color: "#fff", fontSize: 14, transition: "background 0.2s", opacity: (saving || !subdomain.trim() || subdomain.length < 3 || avail === false) ? 0.6 : 1 }}>
+        <p style={{ fontSize: "0.8rem", color: "#9ca3af", margin: "8px 0 0 0" }}>Lowercase letters, numbers, and hyphens. 3-63 characters.</p>
+        
+        <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+          <button type="button" onClick={handleSave} disabled={saving || !subdomain.trim() || subdomain.length < 3 || avail === false} style={{ padding: "10px 24px", background: "var(--button-bg, #3b82f6)", border: "none", borderRadius: 8, fontWeight: 600, cursor: (saving || !subdomain.trim() || subdomain.length < 3 || avail === false) ? "not-allowed" : "pointer", color: "#fff", fontSize: "0.9rem", transition: "all 0.2s", opacity: (saving || !subdomain.trim() || subdomain.length < 3 || avail === false) ? 0.6 : 1, boxShadow: "0 2px 4px rgba(59,130,246,0.2)" }}>
             {saving ? "Saving..." : savedSubdomain ? "Update" : "Activate"}
           </button>
           {savedSubdomain && (
-            <button type="button" onClick={handleRemove} style={{ padding: "10px 24px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#dc2626", fontSize: 14, transition: "background 0.2s", display: "flex", alignItems: "center", gap: 6 }} onMouseEnter={e => e.currentTarget.style.background="#fee2e2"} onMouseLeave={e => e.currentTarget.style.background="#fef2f2"}>
-              <Trash2 className="h-4 w-4" /> Remove
+            <button type="button" onClick={handleRemove} style={{ padding: "10px 20px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#dc2626", fontSize: "0.9rem", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 8 }} onMouseEnter={e => e.currentTarget.style.background="#fee2e2"} onMouseLeave={e => e.currentTarget.style.background="#fef2f2"}>
+              <Trash2 size={16} /> Remove
             </button>
           )}
         </div>
       </div>
 
       {/* Info */}
-      <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-        <p className="text-xs text-blue-800 leading-relaxed">
-          <strong>How it works:</strong> Once activated, your salon website will be live at <code className="bg-blue-100 px-1 rounded">https://{subdomain || "yourname"}.salonnest.in</code>. Share this link with your clients to let them browse services and book appointments online. No DNS setup required — it works instantly!
+      <div style={{ background: "#eff6ff", borderRadius: 16, border: "1px solid #bfdbfe", padding: 20 }}>
+        <p style={{ fontSize: "0.85rem", color: "#1e3a8a", margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ fontWeight: 700 }}>How it works:</strong> Once activated, your salon website will be live at <code style={{ background: "#dbeafe", padding: "2px 6px", borderRadius: 4, fontFamily: "monospace", color: "#1d4ed8", fontWeight: 600 }}>https://{subdomain || "yourname"}.salonnest.in</code>. Share this link with your clients to let them browse services and book appointments online. No DNS setup required — it works instantly!
         </p>
       </div>
     </div>

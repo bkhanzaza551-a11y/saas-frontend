@@ -1208,17 +1208,17 @@ export default function UsersPage() {
                   </div>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Phone <span style={{color:"#dc2626"}}>*</span></label>
-                    <IndianPhoneInput required={true} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "10px 14px", height: 42, borderRadius: 8, border: "1px solid #cbd5e1" }} />
+                    <IndianPhoneInput required={true} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} style={{ height: 42, border: "1px solid #cbd5e1" }} inputStyle={{ padding: "0 14px", height: "100%" }} />
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div className="hub-form-group">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: 20, marginBottom: 6 }}>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, display: 'flex', gap: 4, alignItems: 'center' }}>
                         Access Role <span style={{ color: "#dc2626" }}>*</span>
                       </label>
-                      <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, padding: 0 }}>+ Create role</button>
+                      <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>+ Create role</button>
                     </div>
                     <CustomSelect className="hub-input" value={form.customRoleId || ""} onChange={e => applyCustomRole(e.target.value)} style={{ width: "100%", "--select-height": "42px" }}>
                       <option value="">— Select access role —</option>

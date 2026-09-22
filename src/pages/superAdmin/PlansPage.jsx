@@ -748,7 +748,7 @@ function PlanCard({ plan, onEdit, onArchive }) {
           { label: "Storage", val: plan.storageLimit ? `${plan.storageLimit} MB` : "Unlimited" }
         ].map(l => (
           <div key={l.label} style={{ color: "#64748b" }}>
-            <span style={{ fontWeight: 700, color: "#334155" }}>{l.val === 9999 ? "∞" : l.val}</span> {l.label}
+            <span style={{ fontWeight: 700, color: "#334155" }}>{l.val >= 9999 ? "∞" : l.val}</span> {l.label}
           </div>
         ))}
       </div>

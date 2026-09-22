@@ -35,7 +35,7 @@ const CATEGORIES = [
       { title: "Messaging & SMS Credits", description: "Purchase and manage credits for WhatsApp & SMS notifications.", to: "/admin/whatsapp-credits", icon: MessagesSquare, reqFlag: "whatsapp" },
       { title: "Campaigns", description: "Create and manage marketing campaigns to attract more customers and promote salon services.", to: "/admin/campaigns", icon: Megaphone, reqPerm: "campaigns", reqFlag: "campaigns" },
       { title: "Branch Analytics", description: "Global performance analytics across all branches.", to: "/admin/global-dashboard", icon: Activity, reqPerm: "pos", reqFlag: "pos" },
-      { title: "Website Analytics", description: "Track visitors and behavior on your storefront.", to: "/admin/website-analytics", icon: LineChart, reqPerm: "settings", reqFlag: "catalogAnalytics" }
+      // { title: "Website Analytics", description: "Track visitors and behavior on your storefront.", to: "/admin/website-analytics", icon: LineChart, reqPerm: "settings", reqFlag: "catalogAnalytics" }
     ]
   },
   {

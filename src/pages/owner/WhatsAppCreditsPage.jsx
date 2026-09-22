@@ -285,28 +285,6 @@ export default function WhatsAppCreditsPage() {
             Top-up your balance to send automated <strong>WhatsApp notifications, SMS receipts, booking alerts, and marketing campaigns</strong>.
           </p>
         </div>
-
-        <button
-          onClick={fetchData}
-          style={{
-            padding: "9px 16px",
-            background: "#fff",
-            border: "1px solid #e2e8f0",
-            borderRadius: 8,
-            color: "#475569",
-            fontWeight: 600,
-            fontSize: 13,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            transition: "all 0.2s"
-          }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = "#cbd5e1"}
-          onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}
-        >
-          <RefreshCw size={14} /> Refresh Balance
-        </button>
       </div>
 
       {error && (

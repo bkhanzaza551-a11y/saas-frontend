@@ -3,11 +3,10 @@ export const SETTINGS_WORKSPACE_SECTIONS = [
   { key: "shift-management", label: "Shift Management", to: "/admin/settings/shift-management", hint: "Shift templates" },
   { key: "roster-management", label: "Roster Management", to: "/admin/settings/roster-management", hint: "Team roster" },
   { key: "tax-mapping", label: "Tax Mapping", to: "/admin/settings/tax-mapping", hint: "Rates and labels" },
-  { key: "access-control", label: "Access Control", to: "/admin/roles-permissions", hint: "Roles and access" },
   { key: "notification-settings", label: "Notification Settings", to: "/admin/settings/notification-settings", hint: "Alerts" },
   { key: "pnl-categories", label: "PNL Categories", to: "/admin/settings/pnl-categories", hint: "Profit buckets" },
   { key: "pnl-income-taxes", label: "PNL Income Taxes", to: "/admin/settings/pnl-income-taxes", hint: "Tax buckets" },
-  { key: "ui-settings", label: "UI Settings", to: "/admin/settings/ui-settings", hint: "Theme customizer" },
+  // { key: "ui-settings", label: "UI Settings", to: "/admin/settings/ui-settings", hint: "Theme customizer" },
   { key: "domain", label: "Custom Domain", to: "/admin/settings/domain", hint: "Website domain" }
 ];
 
@@ -16,8 +15,7 @@ const legacyPathMap = {
   "/admin/settings/payments": "generic",
   "/admin/settings/booking": "generic",
   "/admin/settings/notifications": "notification-settings",
-  "/admin/settings/whatsapp": "notification-settings",
-  "/admin/settings/advanced": "access-control"
+  "/admin/settings/whatsapp": "notification-settings"
 };
 
 export const getSettingsSection = (pathname) => {
