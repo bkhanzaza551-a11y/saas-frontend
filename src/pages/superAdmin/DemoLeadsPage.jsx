@@ -891,9 +891,6 @@ const toLocalIsoDateTime = (dt) => {
             >
               <Plus size={16} /> Add Lead
             </button>
-            <button onClick={() => load(filters)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#475569" }}>
-              <RotateCcw size={14} /> Refresh
-            </button>
           </div>
         </div>
       </div>
