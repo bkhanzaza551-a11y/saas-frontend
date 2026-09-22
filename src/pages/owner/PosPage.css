@@ -1,12 +1,21 @@
 .pos-layout {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 108px);
+  height: calc(100vh - 64px);
   background: #f1f5f9;
   overflow: hidden;
   margin: -22px;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   font-size: 12px;
+}
+@media (max-width: 900px) {
+  .pos-layout { margin: -16px; }
+}
+@media (max-width: 768px) {
+  .pos-layout {
+    height: auto;
+    min-height: calc(100vh - 70px);
+  }
 }
 
 /* TOP BAR */
