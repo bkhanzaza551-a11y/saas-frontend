@@ -946,7 +946,7 @@ export default function UsersPage() {
                           )}
                           {customRoles.map((role) => (
                             <option key={role.id} value={role.id}>
-                              {role.isSystemPreset ? `⭐ ${role.name} [Default Role]` : role.name}{role.description ? ` — ${role.description}` : ""}
+                              {role.name}
                             </option>
                           ))}
                         </CustomSelect>
@@ -1227,7 +1227,7 @@ export default function UsersPage() {
                       )}
                       {customRoles.map(role => (
                         <option key={role.id} value={role.id}>
-                          {role.isSystemPreset ? `⭐ ${role.name} [Default Role]` : role.name}{role.description ? ` — ${role.description}` : ""}
+                          {role.name}
                         </option>
                       ))}
                     </CustomSelect>

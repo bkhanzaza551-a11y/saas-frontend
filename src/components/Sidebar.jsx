@@ -59,7 +59,7 @@ const getItemIcon = (label, path) => {
   if (l.includes("salon") || l.includes("branch")) return <Building2 size={18} />;
   if (l.includes("sale") || l.includes("pos")) return <CreditCard size={18} />;
   if (l.includes("invoice") || l.includes("bill")) return <FileText size={18} />;
-  if (l.includes("appointment")) return <Calendar size={18} />;
+  if (l.includes("appointment") || l.includes("booking")) return <Calendar size={18} />;
   if (l.includes("schedule") || l.includes("availability")) return <Clock size={18} />;
   if (l.includes("attendance")) return <CheckSquare size={18} />;
   if (l.includes("commission") || l.includes("payroll") || l.includes("expense") || l.includes("account") || l.includes("payment")) return <DollarSign size={18} />;
@@ -67,14 +67,14 @@ const getItemIcon = (label, path) => {
   if (l.includes("order") || l.includes("shopping")) return <ShoppingBag size={18} />;
   if (l.includes("staff requirement")) return <UserCheck size={18} />;
   if (l.includes("product requirement")) return <Package size={18} />;
-  if (l.includes("staff") || l.includes("user") || l.includes("role")) return <UserCheck size={18} />;
+  if (l.includes("staff") || l.includes("user") || l.includes("role") || l.includes("team")) return <UserCheck size={18} />;
   if (l.includes("analytics") || l.includes("global dashboard")) return <Activity size={18} />;
   if (l.includes("report") || l.includes("financial")) return <FileText size={18} />;
   if (l.includes("support") || l.includes("ticket")) return <LifeBuoy size={18} />;
-  if (l.includes("message") || l.includes("enquir") || l.includes("whatsapp") || l.includes("notification")) return <MessageSquare size={18} />;
+  if (l.includes("message") || l.includes("enquir") || l.includes("whatsapp") || l.includes("notification") || l.includes("credit")) return <MessageSquare size={18} />;
   if (l.includes("package") || l.includes("membership")) return <Award size={18} />;
-  if (l.includes("loyalty") || l.includes("coupon") || l.includes("gift")) return <Gift size={18} />;
-  if (l.includes("setting") || l.includes("setup")) return <Settings size={18} />;
+  if (l.includes("loyalty") || l.includes("coupon") || l.includes("gift") || l.includes("referral")) return <Gift size={18} />;
+  if (l.includes("setting") || l.includes("setup") || l.includes("manage")) return <Settings size={18} />;
   if (l.includes("trend") || l.includes("traffic")) return <TrendingUp size={18} />;
   if (l.includes("inventory") || l.includes("product") || l.includes("catalog")) return <Package size={18} />;
   if (l.includes("service")) return <Sparkles size={18} />;

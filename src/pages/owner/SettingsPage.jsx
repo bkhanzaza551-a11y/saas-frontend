@@ -1,4 +1,4 @@
-﻿import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Edit2, Trash2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Plus, CalendarDays, Clock, Save, Users, Coffee, X, MessageSquare, Bell, Mail, Smartphone, AlertCircle, CheckCircle, TrendingUp, TrendingDown, Layers, Folder, ArrowUpRight, ArrowDownRight, Scissors, ShoppingBag, Package, Sparkles } from "lucide-react";
 import { api } from "../../api/client";
@@ -972,16 +972,18 @@ export default function SettingsPage() {
     }
   }));
 
-  const updateAdvancedObject = (key, patch) => setForm((current) => ({
-    ...current,
-    advancedSettings: {
-      ...current.advancedSettings,
-      [key]: {
-        ...current.advancedSettings[key],
-        ...patch
+  const updateAdvancedObject = (key, patch) => setForm((current) => {
+    const isObject = patch !== null && typeof patch === "object" && !Array.isArray(patch);
+    return {
+      ...current,
+      advancedSettings: {
+        ...current.advancedSettings,
+        [key]: isObject 
+          ? { ...(current.advancedSettings[key] || {}), ...patch } 
+          : patch
       }
-    }
-  }));
+    };
+  });
 
   const updateArrayCollection = (key, nextRows) => setForm((current) => ({
     ...current,

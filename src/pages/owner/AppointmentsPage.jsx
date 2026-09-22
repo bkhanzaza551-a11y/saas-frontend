@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Scissors } from "lucide-react";
 import { api } from "../../api/client";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
@@ -1679,6 +1679,15 @@ export default function AppointmentsPage() {
           .cust-detail-content-header { padding:12px 16px !important; }
           .cust-detail-content-body { padding:14px 16px !important; overflow:visible !important; }
           .cust-detail-close-mobile { display:inline-flex !important; }
+          
+          .online-bookings-sidebar {
+            position: absolute !important;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+          }
         }
       `}</style>
 
@@ -1960,7 +1969,7 @@ export default function AppointmentsPage() {
                         </div>
 
                         <div style={{ fontSize: 12, color: "#334155", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                          <span>✂️</span>
+                          <Scissors size={14} style={{ flexShrink: 0 }} />
                           <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {serviceName} {serviceDuration ? `(${serviceDuration}m)` : ""}
                           </span>
@@ -1987,7 +1996,7 @@ export default function AppointmentsPage() {
                             transition: "all 0.15s ease"
                           }}
                         >
-                          <span>👤 Assign Staff</span>
+                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><User size={14} /> Assign Staff</span>
                         </button>
                       </div>
                     );

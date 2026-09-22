@@ -565,7 +565,10 @@ button.pos-item-card:hover {
 @media (max-width: 768px) {
   .pos-topbar { height: auto; flex-direction: column; }
   .pos-topbar-left { width: 100%; min-width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 10px; height: auto; flex-wrap: wrap; }
-  .pos-topbar-right { width: 100%; padding: 10px; flex-wrap: wrap; height: auto; overflow-x: visible; }
+  .pos-topbar-right { width: 100%; padding: 10px; flex-wrap: nowrap; height: auto; overflow-x: auto; justify-content: flex-start; gap: 8px; }
+  .pos-topbar-right::-webkit-scrollbar { display: none; }
+  
+  .pos-payment-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
   
   .pos-body { flex-direction: column; }
   
