@@ -20,7 +20,7 @@ const APPOINTMENT_SLOT_MINUTES = 15;
 const DEFAULT_APPOINTMENT_DURATION_MINUTES = 30;
 
 const emptyItem = { serviceId: "", staffUserIds: [], startAt: "", endAt: "", notes: "" };
-const toApiDateTime = (value) => (value ? new Date(value).toISOString() : "");
+const toApiDateTime = (value) => (value ? new Date(value + "+05:30").toISOString() : "");
 
 const addMinutesToLocalInput = (value, minutes) => {
   if (!value) return "";
@@ -39,11 +39,16 @@ const toLocalDatetimeInput = (dateVal) => {
   if (!dateVal) return "";
   const date = new Date(dateVal);
   if (Number.isNaN(date.getTime())) return "";
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const hh = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
+  
+  // Format the date in Asia/Kolkata timezone and parse it back to get local components
+  const tzDateStr = date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+  const tzDate = new Date(tzDateStr);
+  
+  const yyyy = tzDate.getFullYear();
+  const mm = String(tzDate.getMonth() + 1).padStart(2, "0");
+  const dd = String(tzDate.getDate()).padStart(2, "0");
+  const hh = String(tzDate.getHours()).padStart(2, "0");
+  const min = String(tzDate.getMinutes()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 };
 
@@ -56,10 +61,14 @@ const getBookingDisplayId = (appt) => {
 
 const formatTimeForSelect = (isoString) => {
   if (!isoString) return "";
-  const d = new Date(isoString);
-  if (isNaN(d.getTime())) return "";
-  const h = d.getHours();
-  const m = d.getMinutes();
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  
+  const tzDateStr = date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+  const tzDate = new Date(tzDateStr);
+
+  const h = tzDate.getHours();
+  const m = tzDate.getMinutes();
   const ampm = h >= 12 ? "PM" : "AM";
   const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
   const hourText = String(hour12).padStart(2, "0");
@@ -627,8 +636,8 @@ export default function AppointmentsPage() {
     setStaffAvailabilityLoading(true);
     api.get("/owner/appointments/staff-availability", {
       params: {
-        startAt: new Date(assignStartAt).toISOString(),
-        endAt: new Date(assignEndAt).toISOString(),
+        startAt: new Date(assignStartAt + "+05:30").toISOString(),
+        endAt: new Date(assignEndAt + "+05:30").toISOString(),
         branchId: assigningAppt.branchId || selectedBranchId || undefined,
         excludeAppointmentId: assigningAppt.id
       }
@@ -659,8 +668,8 @@ export default function AppointmentsPage() {
     try {
       await api.patch(`/owner/appointments/${assigningAppt.id}/assign-staff`, {
         staffId: assignStaffId,
-        startAt: new Date(assignStartAt).toISOString(),
-        endAt: new Date(assignEndAt).toISOString()
+        startAt: new Date(assignStartAt + "+05:30").toISOString(),
+        endAt: new Date(assignEndAt + "+05:30").toISOString()
       });
       setAssignModalOpen(false);
       setAssigningAppt(null);
@@ -748,8 +757,18 @@ export default function AppointmentsPage() {
     
     const toLocalInput = (dateStr) => {
       if (!dateStr) return "";
-      const d = new Date(dateStr);
-      return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+      const date = new Date(dateStr);
+      if (Number.isNaN(date.getTime())) return "";
+      
+      const tzDateStr = date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+      const tzDate = new Date(tzDateStr);
+      
+      const yyyy = tzDate.getFullYear();
+      const mm = String(tzDate.getMonth() + 1).padStart(2, "0");
+      const dd = String(tzDate.getDate()).padStart(2, "0");
+      const hh = String(tzDate.getHours()).padStart(2, "0");
+      const min = String(tzDate.getMinutes()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
     };
 
     // Format items from backend to form state
@@ -1930,8 +1949,8 @@ export default function AppointmentsPage() {
                     const bookingId = getBookingDisplayId(appt);
                     const serviceName = appt.items?.[0]?.service?.name || "Service";
                     const serviceDuration = appt.items?.[0]?.service?.durationMinutes;
-                    const apptTime = new Date(appt.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                    const apptDate = new Date(appt.startAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+                    const apptTime = new Date(appt.startAt).toLocaleTimeString([], { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
+                    const apptDate = new Date(appt.startAt).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short" });
 
                     return (
                       <div
@@ -2563,9 +2582,9 @@ export default function AppointmentsPage() {
                                       {appt.branch?.name || "Main"} &bull; {appt.staffUser?.name || "Any Staff"}
                                     </div>
                                     <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 2 }}>
-                                      {new Date(appt.start).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}{" "}
-                                      {new Date(appt.start).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} -{" "}
-                                      {new Date(appt.end).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                                      {new Date(appt.start).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "2-digit" })}{" "}
+                                      {new Date(appt.start).toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" })} -{" "}
+                                      {new Date(appt.end).toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" })}
                                     </div>
                                     {appt.invoice && (
                                       <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 2 }}>
@@ -2917,9 +2936,9 @@ export default function AppointmentsPage() {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
                   <span style={{ color: "#64748b" }}>Date & Time</span>
-                  <span style={{ fontWeight: 700, color: "#0f172a" }}>
-                    {new Date(assigningAppt.startAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  </span>
+                    <span style={{ fontWeight: 700, color: "#0f172a" }}>
+                      {new Date(assigningAppt.startAt).toLocaleString("en-GB", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
                   <span style={{ color: "#64748b" }}>Type</span>

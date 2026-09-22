@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
-import { Building2, MapPin, Phone, Mail, Calendar, CreditCard, Users, Package, Receipt, ShoppingBag, Clock, AlertTriangle, CheckCircle2, Zap } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, Calendar, CreditCard, Users, Package, Receipt, ShoppingBag, Clock, AlertTriangle, CheckCircle2, Zap, Infinity as InfinityIcon } from "lucide-react";
 
 const fmtDate = (d) => {
   if (!d) return "—";
@@ -130,14 +130,17 @@ export default function SalonDetailsPage() {
                 { label: "Customers", used: counts.customers || 0, limit: plan.customerLimit, icon: <Package size={14} /> },
                 { label: "Invoices", used: counts.invoices || 0, limit: plan.invoiceLimit, icon: <Receipt size={14} /> }
               ].map((item) => {
-                const pct = item.limit > 0 ? Math.min(100, (item.used / item.limit) * 100) : 0;
-                const isNearLimit = pct > 80;
+                const isUnlimited = item.limit >= 9999;
+                const pct = item.limit > 0 && !isUnlimited ? Math.min(100, (item.used / item.limit) * 100) : 0;
+                const isNearLimit = !isUnlimited && pct > 80;
                 return (
                   <div key={item.label} className="sd-stat">
                     <div className="sd-stat-label" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{item.icon} {item.label}</div>
-                    <div className="sd-stat-num" style={{ color: isNearLimit ? "#dc2626" : "#0f172a" }}>{item.used} <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8" }}>/ {item.limit}</span></div>
+                    <div className="sd-stat-num" style={{ color: isNearLimit ? "#dc2626" : "#0f172a" }}>
+                      {item.used} <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: 2 }}>/ {isUnlimited ? <InfinityIcon size={14} /> : item.limit}</span>
+                    </div>
                     <div className="sd-progress">
-                      <div className="sd-progress-fill" style={{ width: `${pct}%`, background: pct > 80 ? "#ef4444" : pct > 50 ? "#f59b0b" : "#22c55e" }} />
+                      {!isUnlimited && <div className="sd-progress-fill" style={{ width: `${pct}%`, background: pct > 80 ? "#ef4444" : pct > 50 ? "#f59b0b" : "#22c55e" }} />}
                     </div>
                   </div>
                 );
