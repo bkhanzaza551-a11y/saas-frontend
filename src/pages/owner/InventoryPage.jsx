@@ -1970,7 +1970,7 @@ export default function InventoryPage() {
                   transition: "background 0.2s"
                 }}
               >
-                <X size={16} />
+                <X size={18} color="#475569" strokeWidth={2.5} />
               </button>
             </div>
 
