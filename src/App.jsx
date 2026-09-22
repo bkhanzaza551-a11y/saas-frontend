@@ -237,7 +237,6 @@ const Protected = () => {
         can("staff", "view") && { label: "Staff", to: "/admin/users" },
         can("expenses", "view") && enabled("expenses") && { label: "Expenses", to: "/admin/expenses/dashboard" },
         can("reports", "view") && enabled("reports") && { label: "Reports & Analytics", to: "/admin/reports" },
-        can("orders", "view") && enabled("onlineOrders") && { label: "Online Bookings", to: "/admin/order-dashboard" },
         (isOwner || can("manage", "view") || can("services", "view") || can("staff", "view") || can("inventory", "view")) && { label: "Manage", to: "/admin/manage" }
       ].filter(Boolean)
     },

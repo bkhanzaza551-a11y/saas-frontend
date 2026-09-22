@@ -336,7 +336,7 @@ export default function WebsiteAnalyticsPage() {
             <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>Recent Online Service Bookings</h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>Latest customer appointments booked through salon website</p>
           </div>
-          <Link to="/admin/order-dashboard" style={{ fontSize: 13, color: "#4f46e5", fontWeight: 700, textDecoration: "none" }}>
+          <Link to="/admin/appointments" style={{ fontSize: 13, color: "#4f46e5", fontWeight: 700, textDecoration: "none" }}>
             View All Bookings →
           </Link>
         </div>
