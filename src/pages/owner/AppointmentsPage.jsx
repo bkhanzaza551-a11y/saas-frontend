@@ -2143,7 +2143,23 @@ export default function AppointmentsPage() {
                   </div>
                   {form.items.map((item, idx) => (
                     <div key={idx} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: "1px dashed #e2e8f0" }}>
-                      <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Service {idx + 1}</label>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", margin: 0 }}>Service {idx + 1}</label>
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newItems = [...form.items];
+                              newItems.splice(idx, 1);
+                              setForm(c => ({ ...c, items: newItems }));
+                            }}
+                            style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: "2px", display: "flex", alignItems: "center" }}
+                            title="Remove Service"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                       <div className="sp-input-group">
                         <CustomSelect className="sp-select" value={item.serviceId} onChange={(event) => handleUpdateItem(idx, "serviceId", event.target.value)} required>
                           <option value="">Select Service</option>

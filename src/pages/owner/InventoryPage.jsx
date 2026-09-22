@@ -791,60 +791,7 @@ export default function InventoryPage() {
                 <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
                 <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Real-time stock analytics, purchase order tracking, and product performance.</div>
               </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <button
-                  type="button"
-                  className="crm-btn"
-                  onClick={handleImportProductsClick}
-                  disabled={importingProduct}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#3b82f6", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
-                >
-                  <Upload size={14} /> {importingProduct ? "Importing..." : "Import"}
-                </button>
-                <div className="export-dropdown" style={{ position: "relative" }}>
-                  <button
-                    type="button"
-                    className="crm-btn"
-                    onClick={(e) => { e.stopPropagation(); setShowProductExportMenu((v) => !v); }}
-                    style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#3b82f6", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
-                  >
-                    <Download size={14} /> Export <ChevronDown size={14} />
-                  </button>
-                  {showProductExportMenu && (
-                    <div
-                      className="export-menu"
-                      onClick={(e) => e.stopPropagation()}
-                      style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 155, zIndex: 9999, overflow: "hidden" }}
-                    >
-                      <button
-                        type="button"
-                        className="export-item"
-                        onClick={() => handleExportProducts("csv")}
-                        style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
-                      >
-                        Export as CSV
-                      </button>
-                      <div style={{ height: 1, background: "#e2e8f0", margin: "2px 0" }} />
-                      <button
-                        type="button"
-                        className="export-item"
-                        onClick={downloadProductTestData}
-                        style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#2563eb", fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
-                      >
-                        Download Test Data
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="crm-btn"
-                  onClick={() => setIsProductModalOpen(true)}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#0f172a", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
-                >
-                  <Plus size={14} /> Add Product
-                </button>
-              </div>
+
             </div>
             
             {/* Top KPI Row */}

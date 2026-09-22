@@ -715,7 +715,7 @@ export default function CustomersPage() {
   const handleAddFamilyMember = async () => {
     setFamilyError("");
     if (!selectedCustomer) {
-      setFamilyError("N<X size={16} />customer selected");
+      setFamilyError("No customer selected");
       return;
     }
     if (!selectedFamilyGuest) {
@@ -1179,7 +1179,7 @@ const handleExportClick = async (format) => {
             <CustomSelect value={draftFilters.advanceState} onChange={(event) => setDraftFilters((current) => ({ ...current, advanceState: event.target.value }))}>
               <option value="">All</option>
               <option value="yes">Has Advance</option>
-              <option value="no">N<X size={16} />Advance</option>
+              <option value="no">No Advance</option>
             </CustomSelect>
           </div>
         );
@@ -1190,7 +1190,7 @@ const handleExportClick = async (format) => {
             <CustomSelect value={draftFilters.balanceState} onChange={(event) => setDraftFilters((current) => ({ ...current, balanceState: event.target.value }))}>
               <option value="">All</option>
               <option value="yes">Has Balance</option>
-              <option value="no">N<X size={16} />Balance</option>
+              <option value="no">No Balance</option>
             </CustomSelect>
           </div>
         );
@@ -1239,7 +1239,7 @@ const handleExportClick = async (format) => {
               <option value="">All</option>
               <option value="active">Active Membership</option>
               <option value="any">Has Membership</option>
-              <option value="none">N<X size={16} />Membership</option>
+              <option value="none">No Membership</option>
             </CustomSelect>
           </div>
         );
@@ -1250,7 +1250,7 @@ const handleExportClick = async (format) => {
             <CustomSelect value={draftFilters.loyaltyState} onChange={(event) => setDraftFilters((current) => ({ ...current, loyaltyState: event.target.value }))}>
               <option value="">All</option>
               <option value="yes">Has Loyalty</option>
-              <option value="no">N<X size={16} />Loyalty</option>
+              <option value="no">No Loyalty</option>
             </CustomSelect>
           </div>
         );
@@ -1261,7 +1261,7 @@ const handleExportClick = async (format) => {
             <CustomSelect value={draftFilters.packageState} onChange={(event) => setDraftFilters((current) => ({ ...current, packageState: event.target.value }))}>
               <option value="">All</option>
               <option value="yes">Has Package</option>
-              <option value="no">N<X size={16} />Package</option>
+              <option value="no">No Package</option>
             </CustomSelect>
           </div>
         );
@@ -1713,7 +1713,7 @@ const handleExportClick = async (format) => {
                 {visibleRows.length === 0 && (
                   <tr>
                     <td colSpan="17" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-                      N<X size={16} />customers found for the current search or filters.
+                      No customers found for the current search or filters.
                     </td>
                   </tr>
                 )}
@@ -1883,7 +1883,7 @@ const handleExportClick = async (format) => {
                         <div className="cust-detail-section">
                           <div className="cust-detail-section-title">Invoices ({(customerDetail.invoices || []).length})</div>
                           {(customerDetail.invoices || []).length === 0 ? (
-                            <div className="cust-empty-state">N<X size={16} />orders yet</div>
+                            <div className="cust-empty-state">No orders yet</div>
                           ) : (
                             (customerDetail.invoices || []).map(inv => (
                               <div key={inv.id} className="cust-order-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", marginBottom: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", transition: "box-shadow 0.15s" }}>
@@ -2021,7 +2021,7 @@ const handleExportClick = async (format) => {
                         <div className="cust-detail-section">
                           <div className="cust-detail-section-title">Active Memberships</div>
                           {(customerDetail.memberships || []).length === 0 ? (
-                            <div className="cust-empty-state">N<X size={16} />active memberships</div>
+                            <div className="cust-empty-state">No active memberships</div>
                           ) : (
                             (customerDetail.memberships || []).map(m => {
                               const isActive = m.status === "ACTIVE" && new Date(m.endsAt) > new Date();
@@ -2059,7 +2059,7 @@ const handleExportClick = async (format) => {
                         <div className="cust-detail-section">
                           <div className="cust-detail-section-title">Gift Cards</div>
                           {customerGiftCards.length === 0 ? (
-                            <div className="cust-empty-state">N<X size={16} />gift cards found</div>
+                            <div className="cust-empty-state">No gift cards found</div>
                           ) : (
                             customerGiftCards.map((gc) => (
                               <div key={gc.id} className={`cust-gift-card${gc.status !== "ACTIVE" ? " expired" : ""}`}>
@@ -2067,7 +2067,7 @@ const handleExportClick = async (format) => {
                                   <div>
                                     <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>{gc.code || "Gift Card"}</div>
                                     <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "2px" }}>
-                                      {gc.expiresAt ? `Expires: ${formatCompactDate(gc.expiresAt)}` : "N<X size={16} />expiry"}
+                                      {gc.expiresAt ? `Expires: ${formatCompactDate(gc.expiresAt)}` : "No expiry"}
                                     </div>
                                   </div>
                                   <span className={`cust-mem-status ${gc.status === "ACTIVE" ? "ACTIVE" : "EXPIRED"}`}>{gc.status || "UNKNOWN"}</span>
@@ -2104,7 +2104,7 @@ const handleExportClick = async (format) => {
                           {(() => {
                             const unpaidInvoices = (customerDetail.invoices || []).filter(inv => Number(inv.balanceAmount || 0) > 0);
                             if (unpaidInvoices.length === 0) {
-                              return <div className="cust-empty-state">N<X size={16} />outstanding balances</div>;
+                              return <div className="cust-empty-state">No outstanding balances</div>;
                             }
                             return unpaidInvoices.map(inv => (
                               <div key={inv.id} className="cust-due-card">
@@ -2136,7 +2136,7 @@ const handleExportClick = async (format) => {
                         <div className="cust-detail-section">
                           <div className="cust-detail-section-title">Packages ({(customerDetail.packages || []).length})</div>
                           {(customerDetail.packages || []).length === 0 ? (
-                            <div className="cust-empty-state">N<X size={16} />packages</div>
+                            <div className="cust-empty-state">No packages</div>
                           ) : (
                             (customerDetail.packages || []).map(p => {
                               const isActive = String(p.status) === "ACTIVE" && new Date(p.endsAt) > new Date();
@@ -2276,7 +2276,7 @@ const handleExportClick = async (format) => {
 
                           <div className="cust-detail-section-title">Transaction History</div>
                           {walletTransactions.length === 0 ? (
-                            <div style={{ textAlign: "center", color: "#94a3b8", padding: "30px 10px", fontSize: 13 }}>N<X size={16} />wallet transactions yet.</div>
+                            <div style={{ textAlign: "center", color: "#94a3b8", padding: "30px 10px", fontSize: 13 }}>No wallet transactions yet.</div>
                           ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                               {walletTransactions.map(t => (
@@ -2738,7 +2738,7 @@ const handleExportClick = async (format) => {
                         </div>
                       ))}
                     {giftCards.filter(gc => gc.title && gc.title.toLowerCase().includes(giftCardSearch.toLowerCase())).length === 0 && (
-                      <div style={{ padding: "10px 12px", fontSize: "0.85rem", color: "#94a3b8", textAlign: "center" }}>N<X size={16} />cards found</div>
+                      <div style={{ padding: "10px 12px", fontSize: "0.85rem", color: "#94a3b8", textAlign: "center" }}>No cards found</div>
                     )}
                   </div>
                 )}
@@ -2935,7 +2935,7 @@ const handleExportClick = async (format) => {
                         </div>
                       ))}
                     {packagePlans.filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase())).length === 0 && (
-                      <div style={{ padding: "12px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>N<X size={16} />packages found</div>
+                      <div style={{ padding: "12px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>No packages found</div>
                     )}
                   </div>
                 )}
@@ -3002,7 +3002,7 @@ const handleExportClick = async (format) => {
                     );
                   })}
                   {packagePlans.length === 0 && (
-                    <div style={{ fontSize: "0.82rem", color: "#94a3b8", padding: "8px 0" }}>N<X size={16} />packages configured</div>
+                    <div style={{ fontSize: "0.82rem", color: "#94a3b8", padding: "8px 0" }}>No packages configured</div>
                   )}
                 </div>
               </div>

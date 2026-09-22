@@ -758,7 +758,7 @@ export default function ServiceCategoriesPage() {
               <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
                 {editingServiceId ? <><Edit2 size={20} color="#64748b" /> Edit Service</> : <><Plus size={20} color="#64748b" /> Create Service</>}
               </span>
-              <button type="button" onClick={() => setServiceModalOpen(false)} style={{ background: "#e2e8f0", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#cbd5e1"} onMouseLeave={e => e.currentTarget.style.background = "#e2e8f0"}>×</button>
+              <button type="button" onClick={() => setServiceModalOpen(false)} style={{ background: "#e2e8f0", border: "none", borderRadius: "50%", width: 32, height: 32, padding: 0, cursor: "pointer", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, transition: "background 0.15s" }} onMouseEnter={e => e.currentTarget.style.background = "#cbd5e1"} onMouseLeave={e => e.currentTarget.style.background = "#e2e8f0"}>×</button>
             </div>
 
             {status.error && (
@@ -969,7 +969,7 @@ export default function ServiceCategoriesPage() {
                 {["onlineBookingEnabled", "isFeatured", "isPopular"]
                   .filter(key => key !== "onlineBookingEnabled" || editingServiceId)
                   .map((key) => (
-                    <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: "120px" }}>
+                    <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: "120px" }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>
                         {key === "onlineBookingEnabled" ? "Enable Online Booking" : key === "isFeatured" ? "Featured" : "Popular"}
                       </span>
