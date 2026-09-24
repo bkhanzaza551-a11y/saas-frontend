@@ -2116,11 +2116,11 @@ const toLocalIsoDateTime = (dt) => {
                 {leadModalTab === "followups" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     {/* Header */}
-                    <div style={{ background: "#f0f9ff", borderRadius: 12, padding: "14px 18px", border: "1px solid #bae6fd", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: "#0369a1", display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ background: "#f0f9ff", borderRadius: 12, padding: "14px 18px", border: "1px solid #bae6fd", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: "#0369a1", display: "flex", alignItems: "center", gap: 6, flex: "1 1 auto" }}>
                         <Calendar size={18} color="#0284c7" /> Follow-Ups Manager & Call Reminders
                       </div>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", background: "#e0f2fe", padding: "3px 10px", borderRadius: 100 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", background: "#e0f2fe", padding: "3px 10px", borderRadius: 100, whiteSpace: "nowrap" }}>
                         {pendingFollowUps.length} Pending
                       </span>
                     </div>
@@ -2130,8 +2130,8 @@ const toLocalIsoDateTime = (dt) => {
                       <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
                         <Plus size={15} color="#4f46e5" /> Schedule a New Follow-Up
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr auto", gap: 12, alignItems: "flex-end" }}>
-                        <div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end" }}>
+                        <div style={{ flex: "1 1 200px" }}>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Date & Time *</label>
                           <CustomDateTimeInput
                             disabled={isConverted || addingFollowUp}
@@ -2141,7 +2141,7 @@ const toLocalIsoDateTime = (dt) => {
                             style={{ height: 36, fontSize: 12 }}
                           />
                         </div>
-                        <div>
+                        <div style={{ flex: "1.5 1 200px" }}>
                           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Purpose / Agenda (optional)</label>
                           <input
                             disabled={isConverted || addingFollowUp}
@@ -2157,6 +2157,7 @@ const toLocalIsoDateTime = (dt) => {
                           onClick={() => addFollowUp(row.id)}
                           disabled={isConverted || addingFollowUp || !followUpForm.dueAt}
                           style={{
+                            flex: "1 1 140px",
                             padding: "9px 16px",
                             background: isConverted || !followUpForm.dueAt ? "#94a3b8" : "linear-gradient(135deg, #0284c7, #0369a1)",
                             color: "#fff",
@@ -2167,6 +2168,7 @@ const toLocalIsoDateTime = (dt) => {
                             cursor: isConverted || !followUpForm.dueAt || addingFollowUp ? "not-allowed" : "pointer",
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "center",
                             gap: 6,
                             whiteSpace: "nowrap"
                           }}
