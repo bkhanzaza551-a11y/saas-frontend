@@ -286,7 +286,7 @@ export default function Salon360ProfilePage() {
     || (salon.email || salon.phone ? { name: salon.name, email: salon.email, phone: salon.phone, createdAt: salon.createdAt } : null);
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 1400, margin: "0 auto" }}>
+    <div style={{ padding: "20px 16px", maxWidth: 1400, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
         <button onClick={() => navigate("/super-admin/salons")} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.9rem", fontWeight: 600 }}>
           <ArrowLeft size={16} /> Back to Salons
@@ -297,7 +297,7 @@ export default function Salon360ProfilePage() {
       {status.error && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", padding: "10px 16px", borderRadius: 8, marginBottom: 16 }}>{status.error}</div>}
       {status.success && <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#16a34a", padding: "10px 16px", borderRadius: 8, marginBottom: 16 }}>{status.success}</div>}
 
-      <div style={{ background: "white", borderRadius: 12, padding: 24, border: "1px solid #e2e8f0", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: "white", borderRadius: 12, padding: 24, border: "1px solid #e2e8f0", marginBottom: 24, display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 56, height: 56, borderRadius: 12, background: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800, fontSize: "1.4rem" }}>
             {salon.name?.[0]?.toUpperCase() || "S"}
@@ -519,7 +519,7 @@ export default function Salon360ProfilePage() {
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Branches ({branches?.length || 0})</h3>
           {branches?.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ minWidth: 600, width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                   <th style={{ padding: "10px 12px", textAlign: "left" }}>Name</th>
@@ -540,7 +540,7 @@ export default function Salon360ProfilePage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           ) : (
             <EmptyState message="No branches found." />
           )}
@@ -625,7 +625,7 @@ export default function Salon360ProfilePage() {
               <div style={{ marginTop: 8 }}>
                 <h4 style={{ margin: "0 0 12px", fontSize: "1rem", color: "#0f172a", fontWeight: 700 }}>Plan & Subscription History</h4>
                 {salon.subscriptions?.length > 0 ? (
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <div style={{ overflowX: "auto" }}><table style={{ minWidth: 600, width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                     <thead>
                       <tr style={{ borderBottom: "2px solid #e2e8f0", color: "#64748b", fontWeight: 700, textAlign: "left" }}>
                         <th style={{ padding: "8px 10px" }}>Plan</th>
@@ -650,7 +650,7 @@ export default function Salon360ProfilePage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 ) : (
                   <p style={{ color: "#64748b", fontSize: 13 }}>No past subscription history.</p>
                 )}
@@ -773,7 +773,7 @@ export default function Salon360ProfilePage() {
               </Link>
             </div>
             {allPayments.length > 0 ? (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <div style={{ overflowX: "auto" }}><table style={{ minWidth: 600, width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                     <th style={{ padding: "10px 12px", textAlign: "left" }}>Date</th>
@@ -806,7 +806,7 @@ export default function Salon360ProfilePage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             ) : (
               <EmptyState message="No payments recorded." />
             )}
@@ -818,7 +818,7 @@ export default function Salon360ProfilePage() {
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Product Requests ({productRequests?.length || 0})</h3>
           {productRequests?.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ minWidth: 600, width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                   <th style={{ padding: "10px 12px", textAlign: "left" }}>Product</th>
@@ -843,7 +843,7 @@ export default function Salon360ProfilePage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           ) : (
             <EmptyState message="No product requests found." />
           )}
@@ -854,7 +854,7 @@ export default function Salon360ProfilePage() {
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Staff Requests ({staffRequests?.length || 0})</h3>
           {staffRequests?.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ minWidth: 600, width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                   <th style={{ padding: "10px 12px", textAlign: "left" }}>Title</th>
@@ -881,7 +881,7 @@ export default function Salon360ProfilePage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           ) : (
             <EmptyState message="No staff requests found." />
           )}
@@ -892,7 +892,7 @@ export default function Salon360ProfilePage() {
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Support Tickets ({tickets?.length || 0})</h3>
           {tickets?.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ minWidth: 600, width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #f1f5f9", color: "#64748b", fontWeight: 700 }}>
                   <th style={{ padding: "10px 12px", textAlign: "left" }}>Title</th>
@@ -917,7 +917,7 @@ export default function Salon360ProfilePage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           ) : (
             <EmptyState message="No support tickets." />
           )}
