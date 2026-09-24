@@ -417,7 +417,9 @@ const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
   const isPhoneSkipped = auth.user?.phoneVerificationSkipped || sessionStorage.getItem("salonnest_phone_verify_skipped") === "true";
   const isPhoneVerified = auth.user?.isPhoneVerified === true;
   const isOwner = auth.membership?.salonRole === "SALON_OWNER";
-  if (isOwner && !isPhoneVerified && !isPhoneSkipped) {
+  
+  // Disabled phone verification modal completely as backend support is missing
+  if (false) {
     return (
       <>
         <PhoneVerificationModal />
