@@ -1212,13 +1212,13 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16, alignItems: 'start' }}>
                   <div className="hub-form-group">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, display: 'flex', gap: 4, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                         Access Role <span style={{ color: "#dc2626" }}>*</span>
                       </label>
-                      <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>+ Create role</button>
+                      <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, padding: 0, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+ Create role</button>
                     </div>
                     <CustomSelect className="hub-input" value={form.customRoleId || ""} onChange={e => applyCustomRole(e.target.value)} style={{ width: "100%", "--select-height": "42px" }}>
                       <option value="">— Select access role —</option>
@@ -1233,10 +1233,10 @@ export default function UsersPage() {
                     </CustomSelect>
                   </div>
                   <div className="hub-form-group">
-                    <div style={{ display: 'flex', alignItems: 'center', minHeight: 20, marginBottom: 6 }}>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0 }}>Role Title (Designation)</label>
+                    <div style={{ display: 'flex', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap' }}>Role Title (Designation)</label>
                     </div>
-                    <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ height: 42, boxSizing: 'border-box' }} />
+                    <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 42, boxSizing: 'border-box' }} />
                   </div>
                 </div>
 
