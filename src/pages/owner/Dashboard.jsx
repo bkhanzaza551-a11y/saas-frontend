@@ -208,6 +208,26 @@ export default function OwnerDashboard() {
     }
   ];
 
+  const todayOverview = data.todayOverview || {
+    totalSales: data.todaySales || 0,
+    services: 0,
+    products: 0,
+    expenses: 0
+  };
+  const todayAppts = data.todayAppointmentsBreakdown || {
+    all: data.todayAppointments || 0,
+    upcoming: data.upcomingAppointments || 0,
+    ongoing: 0,
+    completed: data.servicesCompleted || 0,
+    noShow: 0
+  };
+  const todayFinance = data.todayFinance || {
+    card: 0,
+    cash: 0,
+    upi: 0,
+    others: 0
+  };
+
   return (
     <div className="page-shell dashboard-page-shell" style={{ maxWidth: 1440, margin: "0 auto", paddingBottom: 40 }}>
       {/* Header Bar */}
@@ -220,6 +240,82 @@ export default function OwnerDashboard() {
           <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e293b", background: "#fff", padding: "6px 14px", borderRadius: 20, border: "1px solid #cbd5e1", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
             📍 {branchName || "All Branches"}
           </span>
+        </div>
+      </div>
+
+      {/* 3 Modern Segmented KPI Summary Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16, marginBottom: 24 }}>
+        {/* Card 1: Total / For Today */}
+        <div style={{ background: "#ffffff", borderRadius: 16, padding: "18px 20px", border: "1px solid #e2e8f0", boxShadow: "0 2px 8px rgba(15,23,42,0.04)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 14 }}>Total</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayOverview.expenses)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#d97706", marginTop: 4 }}>Expenses</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayOverview.totalSales)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", marginTop: 4 }}>Sales</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayOverview.services)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#16a34a", marginTop: 4 }}>Services</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayOverview.products)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#e11d48", marginTop: 4 }}>Products</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Appointments For Today */}
+        <div style={{ background: "#ffffff", borderRadius: 16, padding: "18px 20px", border: "1px solid #e2e8f0", boxShadow: "0 2px 8px rgba(15,23,42,0.04)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 14 }}>Appointments For Today</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 6 }}>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{todayAppts.all}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0f172a", marginTop: 4 }}>All</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{todayAppts.upcoming}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#2563eb", marginTop: 4 }}>Upcoming</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{todayAppts.ongoing}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f59e0b", marginTop: 4 }}>On Going</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{todayAppts.completed}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10b981", marginTop: 4 }}>Completed</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{todayAppts.noShow}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#ef4444", marginTop: 4 }}>No show</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Finance */}
+        <div style={{ background: "#ffffff", borderRadius: 16, padding: "18px 20px", border: "1px solid #e2e8f0", boxShadow: "0 2px 8px rgba(15,23,42,0.04)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 14 }}>Finance</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayFinance.cash)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f59e0b", marginTop: 4 }}>Cash</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayFinance.card)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#6366f1", marginTop: 4 }}>Card</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayFinance.upi)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0d9488", marginTop: 4 }}>UPI</div>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>{formatMoney(todayFinance.others)}</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#8b5cf6", marginTop: 4 }}>Others</div>
+            </div>
+          </div>
         </div>
       </div>
 
