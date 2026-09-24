@@ -472,7 +472,7 @@ export default function PublicDemoLeadPage() {
 
                   {/* City Dropdown */}
                   <div style={{ position: "relative" }}>
-                    <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Your City (Optional)</label>
+                    <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Your City</label>
                     <div
                       onClick={() => { setCityOpen(o => !o); setCitySearch(""); }}
                       style={{
