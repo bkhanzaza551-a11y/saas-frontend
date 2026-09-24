@@ -843,7 +843,7 @@ export default function AppointmentsPage() {
   const handleFormSubmit = (event) => {
     event.preventDefault();
     setStatus({ error: "", success: "" });
-    const activeItems = form.items.filter((item) => item.serviceId && item.staffUserIds?.length && item.startAt && item.endAt);
+
     if (!form.customerId) {
       setStatus({ error: "Please select a customer.", success: "" });
       return;
@@ -852,23 +852,60 @@ export default function AppointmentsPage() {
       setStatus({ error: "Please select a branch.", success: "" });
       return;
     }
+
+    const itemsWithService = (form.items || []).filter((item) => Boolean(item.serviceId));
+    if (!itemsWithService.length) {
+      setStatus({ error: "Please select at least one service.", success: "" });
+      return;
+    }
+
+    for (let i = 0; i < itemsWithService.length; i++) {
+      const item = itemsWithService[i];
+      const serviceObj = services.find((s) => s.id === item.serviceId);
+      const serviceName = serviceObj?.name ? `"${serviceObj.name}"` : `Service #${i + 1}`;
+
+      const validStaffIds = (item.staffUserIds || []).filter((id) => id && String(id).trim().length > 0);
+      if (!validStaffIds.length) {
+        setStatus({ error: `Please select an expert / staff for ${serviceName}.`, success: "" });
+        return;
+      }
+
+      if (!item.startAt || !item.endAt) {
+        setStatus({ error: `Please select appointment time for ${serviceName}.`, success: "" });
+        return;
+      }
+    }
+
+    const activeItems = form.items.filter((item) => {
+      const validStaff = (item.staffUserIds || []).filter((id) => id && String(id).trim().length > 0);
+      return item.serviceId && validStaff.length > 0 && item.startAt && item.endAt;
+    });
+
     if (!activeItems.length) {
-      setStatus({ error: "Please add at least one valid service item.", success: "" });
+      setStatus({ error: "Please add at least one complete service item.", success: "" });
       return;
     }
     setShowConfirmModal(true);
   };
 
   const handleConfirmSubmit = async () => {
-    const activeItems = form.items.filter((item) => item.serviceId && item.staffUserIds?.length && item.startAt && item.endAt);
+    const activeItems = form.items.filter((item) => {
+      const validStaff = (item.staffUserIds || []).filter((id) => id && String(id).trim().length > 0);
+      return item.serviceId && validStaff.length > 0 && item.startAt && item.endAt;
+    });
     try {
       const payloadItems = activeItems.map((item) => ({
         ...item,
-        staffUserIds: (item.staffUserIds || []).filter((id) => id && id.length >= 8),
+        staffUserIds: (item.staffUserIds || []).filter((id) => id && String(id).trim().length >= 8),
         startAt: toApiDateTime(item.startAt),
         endAt: toApiDateTime(item.endAt)
       }));
       const validItems = payloadItems.filter((item) => item.staffUserIds.length > 0);
+      if (!validItems.length) {
+        setStatus({ error: "Please select an expert / staff for all selected services.", success: "" });
+        setShowConfirmModal(false);
+        return;
+      }
       const sortedStarts = validItems.map((item) => item.startAt).sort();
       const sortedEnds = validItems.map((item) => item.endAt).sort();
       const payload = {
