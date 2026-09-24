@@ -336,7 +336,7 @@ export default function Salon360ProfilePage() {
       </div>
 
       {activeTab === "overview" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 24 }}>
           <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
             <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Salon Information</h3>
             <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "12px 0", fontSize: "0.9rem" }}>
@@ -367,7 +367,7 @@ export default function Salon360ProfilePage() {
           <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 20 }}>
             <div>
               <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Quick Stats</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
                 {[
                   { label: "Services", val: analytics?.services || 0, icon: Scissors, color: "#8b5cf6", bg: "#f5f3ff" },
                   { label: "Staff", val: analytics?.staff || 0, icon: Users, color: "#3b82f6", bg: "#eff6ff" },
@@ -424,7 +424,7 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "owner" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Owner & Verification Profile</h3>
             {owner && canResendInvite && (
               <button
@@ -549,7 +549,7 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "subscriptions" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Current Subscription</h3>
             <Link
               to={`/super-admin/subscriptions?q=${encodeURIComponent(salon.name)}`}
@@ -573,7 +573,7 @@ export default function Salon360ProfilePage() {
           {subscription ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ border: "1px solid #e2e8f0", padding: 20, borderRadius: 12, background: "#fafafa" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                   <div>
                     <h4 style={{ margin: 0, color: "#4f46e5", fontSize: "1.15rem", fontWeight: 800 }}>{subscription.plan?.name || "Custom Plan"}</h4>
                     <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>
@@ -664,14 +664,14 @@ export default function Salon360ProfilePage() {
 
       {activeTab === "features" && (
         <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <div>
               <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Feature Access & Manual Overrides</h3>
               <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#64748b" }}>Plan features are automatically granted. Manual overrides require a special exception reason.</p>
             </div>
           </div>
           {featureFlags && Object.keys(featureFlags).length > 0 ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
               {Object.entries(featureFlags)
                 .filter(([key]) => !["messageTemplates", "incentives"].includes(key))
                 .sort(([a], [b]) => a.localeCompare(b))
@@ -752,7 +752,7 @@ export default function Salon360ProfilePage() {
 
         return (
           <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Payment History ({allPayments.length})</h3>
               <Link
                 to={`/super-admin/finance?q=${encodeURIComponent(salon.name)}`}
@@ -925,7 +925,7 @@ export default function Salon360ProfilePage() {
       )}
 
       {activeTab === "analytics" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 24 }}>
           <div style={{ background: "white", padding: 24, borderRadius: 12, border: "1px solid #e2e8f0" }}>
             <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", color: "#0f172a" }}>Business Metrics</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -1009,7 +1009,7 @@ export default function Salon360ProfilePage() {
           <p style={{ color: "#64748b", fontSize: "0.85rem", marginBottom: 20 }}>
             Download complete salon-specific records formatted as Microsoft Excel (.xlsx) spreadsheets.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
             {[
               { type: "customers", label: "Export Customers", count: analytics?.customers || 0, color: "#4f46e5", desc: "Client contacts, lifetime spending, and loyalty points." },
               { type: "inventory", label: "Export Inventory", count: analytics?.products || 0, color: "#10b981", desc: "Product catalog, stock levels, cost and retail pricing." },
@@ -1018,7 +1018,7 @@ export default function Salon360ProfilePage() {
             ].map(exp => (
               <div key={exp.type} style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 18, background: "#f8fafc", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}>
                 <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                     <span style={{ fontWeight: 800, color: "#0f172a", fontSize: "0.95rem" }}>{exp.label}</span>
                     <span style={{ fontSize: "0.75rem", fontWeight: 700, background: exp.count > 0 ? "#dcfce7" : "#f1f5f9", color: exp.count > 0 ? "#15803d" : "#64748b", padding: "2px 8px", borderRadius: 100 }}>
                       {exp.count} {exp.count === 1 ? "record" : "records"}
@@ -1059,7 +1059,7 @@ export default function Salon360ProfilePage() {
       {isSuspendModalOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 16 }}>
           <div style={{ background: "white", width: "100%", maxWidth: 480, borderRadius: 16, padding: "24px 28px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#dc2626" }}>
                 <AlertCircle size={20} />
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#991b1b" }}>Suspend Salon</h3>
