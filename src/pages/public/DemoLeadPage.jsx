@@ -92,6 +92,10 @@ export default function PublicDemoLeadPage() {
       if (val.length < 2) return "Salon name must be at least 2 characters";
       return "";
     }
+    if (field === "city") {
+      if (!val) return "Your city is required";
+      return "";
+    }
     return "";
   };
 
@@ -121,10 +125,11 @@ export default function PublicDemoLeadPage() {
       name: validateField("name", form.name),
       email: validateField("email", form.email),
       phone: validateField("phone", form.phone),
-      company: validateField("company", form.company)
+      company: validateField("company", form.company),
+      city: validateField("city", form.city)
     };
 
-    setTouched({ name: true, email: true, phone: true, company: true });
+    setTouched({ name: true, email: true, phone: true, company: true, city: true });
     setErrors(newErrors);
 
     const hasErrors = Object.values(newErrors).some(Boolean);
@@ -472,17 +477,26 @@ export default function PublicDemoLeadPage() {
 
                   {/* City Dropdown */}
                   <div style={{ position: "relative" }}>
-                    <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Your City</label>
+                    <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Your City *</label>
                     <div
-                      onClick={() => { setCityOpen(o => !o); setCitySearch(""); }}
+                      onClick={() => {
+                        setCityOpen(o => {
+                          if (o && !form.city) {
+                            setTouched(prev => ({ ...prev, city: true }));
+                            setErrors(prev => ({ ...prev, city: "Your city is required" }));
+                          }
+                          return !o;
+                        });
+                        setCitySearch("");
+                      }}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                         padding: "12px 14px",
                         borderRadius: 10,
-                        border: "1px solid #cbd5e1",
-                        background: "#ffffff",
+                        border: `1px solid ${touched.city && errors.city ? "#ef4444" : "#cbd5e1"}`,
+                        background: touched.city && errors.city ? "#fff5f5" : "#ffffff",
                         fontSize: 14,
                         cursor: "pointer",
                         userSelect: "none",
@@ -495,7 +509,13 @@ export default function PublicDemoLeadPage() {
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         {form.city && (
                           <span
-                            onClick={e => { e.stopPropagation(); setForm(p => ({ ...p, city: "" })); setCityOpen(false); }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setForm(p => ({ ...p, city: "" }));
+                              setCityOpen(false);
+                              setTouched(prev => ({ ...prev, city: true }));
+                              setErrors(prev => ({ ...prev, city: "Your city is required" }));
+                            }}
                             style={{ color: "#94a3b8", cursor: "pointer", display: "flex" }}
                           >
                             <X size={14} />
@@ -504,6 +524,12 @@ export default function PublicDemoLeadPage() {
                         <ChevronDown size={16} color="#94a3b8" style={{ transform: cityOpen ? "rotate(180deg)" : "none", transition: "0.2s" }} />
                       </div>
                     </div>
+
+                    {touched.city && errors.city && (
+                      <div style={{ color: "#ef4444", fontSize: 11.5, marginTop: 4, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                        <AlertCircle size={13} /> {errors.city}
+                      </div>
+                    )}
 
                     {cityOpen && (
                       <div style={{
@@ -538,7 +564,13 @@ export default function PublicDemoLeadPage() {
                             filteredCities.map(c => (
                               <div
                                 key={c}
-                                onClick={() => { setForm(p => ({ ...p, city: c })); setCityOpen(false); setCitySearch(""); }}
+                                onClick={() => {
+                                  setForm(p => ({ ...p, city: c }));
+                                  setCityOpen(false);
+                                  setCitySearch("");
+                                  setTouched(prev => ({ ...prev, city: true }));
+                                  setErrors(prev => ({ ...prev, city: "" }));
+                                }}
                                 style={{
                                   padding: "10px 16px",
                                   fontSize: 13,
