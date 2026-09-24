@@ -208,7 +208,7 @@ export default function DemoCheckoutPage() {
       <div className="public-orb orb-one" />
       <div className="public-orb orb-two" />
       
-      <main className="public-main">
+      <main className="public-main" style={{ maxWidth: 1150, margin: "0 auto", padding: "0 24px", width: "100%", boxSizing: "border-box" }}>
         <div className="demo-topbar">
           <Link to="/" className="brand-mark demo-brand-link">
             <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
@@ -282,8 +282,8 @@ export default function DemoCheckoutPage() {
             </div>
           </section>
         ) : (
-          <section className="demo-hero">
-            <div className="demo-copy">
+          <section className="demo-hero" style={{ alignItems: "flex-start", gap: "60px" }}>
+            <div className="demo-copy" style={{ paddingTop: "20px" }}>
               <div className="eyebrow-pill" style={{ background: "#e0f2fe", color: "#0369a1" }}>Subscription Checkout</div>
               <h1 style={{ background: "linear-gradient(135deg, #0f172a 0%, #0d9488 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Activate your subscription</h1>
               <p className="muted" style={{ fontSize: "1.05rem", lineHeight: "1.6", marginBottom: "24px" }}>
@@ -339,7 +339,7 @@ export default function DemoCheckoutPage() {
               </div>
             </div>
 
-            <div className="demo-form-card" style={{ padding: "32px", borderRadius: "24px" }}>
+            <div className="demo-form-card">
               <form onSubmit={handleCheckoutSubmit} className="demo-form" style={{ display: "grid", gap: "18px" }}>
                 <div className="section-chip" style={{ justifySelf: "start" }}>Secure Gateway Checkout</div>
                 
