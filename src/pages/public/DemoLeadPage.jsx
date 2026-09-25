@@ -111,6 +111,7 @@ export default function PublicDemoLeadPage() {
       finalVal = value.replace(/\D/g, "").slice(0, 10);
     }
     setForm(prev => ({ ...prev, [field]: finalVal }));
+    setState(prev => ({ ...prev, error: "" }));
     if (touched[field]) {
       const err = validateField(field, finalVal);
       setErrors(prev => ({ ...prev, [field]: err }));
