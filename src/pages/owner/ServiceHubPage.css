@@ -305,34 +305,36 @@
   flex-shrink: 0;
 }
 
-.btn-cancel {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  padding: 8px 16px;
-  border-radius: 4px;
+button.btn-cancel {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  min-height: unset !important;
   transition: background 0.15s;
 }
-.btn-cancel:hover {
-  background: #e2e8f0;
+button.btn-cancel:hover {
+  background: #e2e8f0 !important;
 }
 
-.btn-submit {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+button.btn-submit {
+  background: #3b82f6 !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  min-height: unset !important;
   transition: background 0.15s;
 }
-.btn-submit:hover {
-  background: #2563eb;
+button.btn-submit:hover {
+  background: #2563eb !important;
 }
 
 /* Responsive layout for Hub Pages (Users, Services) */
