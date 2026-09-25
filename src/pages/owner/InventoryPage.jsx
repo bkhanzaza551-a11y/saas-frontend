@@ -746,28 +746,26 @@ export default function InventoryPage() {
   };
 
   const tabs = [
-    { name: "Dashboard", icon: <Activity size={18} /> },
-    { name: "Low Stock", icon: <AlertTriangle size={18} /> },
-    { name: "Purchase Order", icon: <ShoppingCart size={18} /> },
-    { name: "Approval", icon: <CheckCircle size={18} /> },
-    { name: "Stock Reconciliation", icon: <RefreshCw size={18} /> },
-    { name: "Vendor Management", icon: <Users size={18} /> }
+    { name: "Dashboard", icon: <Activity size={17} /> },
+    { name: "Low Stock", icon: <AlertTriangle size={17} />, badge: lowStock.length > 0 ? lowStock.length : null, badgeColor: "#ef4444" },
+    { name: "Purchase Order", icon: <ShoppingCart size={17} /> },
+    { name: "Approval", icon: <CheckCircle size={17} />, badge: draftOrders.length > 0 ? draftOrders.length : null, badgeColor: "#f59e0b" },
+    { name: "Stock Reconciliation", icon: <RefreshCw size={17} /> },
+    { name: "Vendor Management", icon: <Users size={17} /> }
   ];
 
   return (
-    <div className="inventory-layout">
-      {/* SIDEBAR */}
-      <div className="inventory-sidebar">
-        <div style={{
-          padding: "14px 12px 10px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)"
-        }} />
-        <div className="sidebar-nav-container" style={{ flexGrow: 1, overflowY: "auto", padding: "10px 10px", display: "flex", flexDirection: "column", gap: "2px" }}>
-          {tabs.map(tab => {
+    <div className="inventory-page-container">
+      {/* Mini Horizontal Sub-Navbar */}
+      <div className="inventory-subnav-bar">
+        <div className="inventory-subnav-scroll">
+          {tabs.map((tab) => {
             const isActive = activeTab === tab.name;
             return (
               <button
                 key={tab.name}
+                type="button"
+                className={`inv-subnav-tab ${isActive ? "active" : ""}`}
                 onClick={() => {
                   setActiveTab(tab.name);
                   if (tab.name === "All Products") navigate("/admin/inventory/products");
@@ -778,35 +776,14 @@ export default function InventoryPage() {
                   if (tab.name === "Stock Reconciliation") navigate("/admin/inventory/reconciliation");
                   if (tab.name === "Vendor Management") navigate("/admin/purchases/vendors");
                 }}
-                style={{
-                  display: "flex", alignItems: "center", gap: "11px", width: "100%",
-                  padding: "10px 12px",
-                  border: "none", borderRadius: "8px",
-                  background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
-                  color: isActive ? "#e2e8f0" : "#7c8494",
-                  fontSize: "0.845rem",
-                  fontWeight: isActive ? "600" : "500",
-                  cursor: "pointer",
-                  transition: "background 140ms ease, color 140ms ease",
-                  textAlign: "left",
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                    e.currentTarget.style.color = "#c8cdd6";
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = "#7c8494";
-                  }
-                }}
               >
-                <span style={{ display: "flex", alignItems: "center", color: isActive ? "#c8cdd6" : "#555e6e", flexShrink: 0 }}>
-                  {tab.icon}
-                </span>
-                {tab.name}
+                <span className="inv-subnav-icon">{tab.icon}</span>
+                <span className="inv-subnav-label">{tab.name}</span>
+                {tab.badge ? (
+                  <span className="inv-subnav-badge" style={{ backgroundColor: tab.badgeColor || "#0f766e" }}>
+                    {tab.badge}
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -814,7 +791,7 @@ export default function InventoryPage() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="inventory-content">
+      <div className="inventory-content-body">
         {loading && <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 100 }}><PageLoader title="Loading..." /></div>}
         
         {activeTab === "All Products" && (
