@@ -308,27 +308,44 @@ export default function ProductsRequirementPage() {
           padding: 16px;
           margin-bottom: 16px;
         }
-        .pr-qty-box {
-          display: flex;
+        .pr-qty-group {
+          display: inline-flex;
           align-items: center;
-          gap: 8px;
-        }
-        .pr-qty-btn {
-          width: 36px;
-          height: 36px;
+          height: 38px;
           border-radius: 8px;
           border: 1px solid #cbd5e1;
-          background: white;
+          overflow: hidden;
+          background: #ffffff;
+        }
+        .pr-qty-group-btn {
+          width: 38px;
+          height: 100%;
+          border: none;
+          background: #f8fafc;
           font-size: 1.1rem;
-          font-weight: 700;
+          font-weight: 600;
+          color: #475569;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #334155;
+          transition: background 0.15s;
         }
-        .pr-qty-btn:hover {
-          background: #f1f5f9;
+        .pr-qty-group-btn:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+        .pr-qty-group-input {
+          width: 64px;
+          height: 100%;
+          border: none;
+          border-left: 1px solid #e2e8f0;
+          border-right: 1px solid #e2e8f0;
+          text-align: center;
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #0f172a;
+          outline: none;
         }
         @media (max-width: 768px) {
           .pr-hero-head {
@@ -606,47 +623,66 @@ export default function ProductsRequirementPage() {
 
       {/* SECTION 2: NEW REQUEST */}
       {activeSection === "new_request" && (
-        <div className="panel-card" style={{ padding: 24, maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <div>
-              <h3 style={{ margin: "0 0 4px", fontSize: "1.2rem", color: "#0f172a" }}>Submit Product Request</h3>
-              <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>
-                {isCustomProduct ? "Enter details for custom salon item not found in catalog." : "Select item and specify how many units your salon needs."}
-              </p>
+        <div className="panel-card" style={{ padding: "28px 24px", maxWidth: 640, margin: "0 auto", borderRadius: 16 }}>
+          {/* Top Header & Segmented Mode Switcher */}
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ margin: "0 0 4px", fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>Submit Product Request</h3>
+            <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "#64748b" }}>
+              {isCustomProduct ? "Enter details for custom salon item not found in catalog." : "Select product from the verified catalog and specify required quantity."}
+            </p>
+
+            <div style={{ display: "inline-flex", background: "#f1f5f9", padding: 3, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCustomProduct(false);
+                  if (!selectedCatalogProduct && catalog.length > 0) {
+                    handleSelectCatalogItem(catalog[0].id);
+                  }
+                }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 7,
+                  border: "none",
+                  fontSize: "0.8rem",
+                  fontWeight: !isCustomProduct ? 700 : 500,
+                  background: !isCustomProduct ? "#ffffff" : "transparent",
+                  color: !isCustomProduct ? "#0f172a" : "#64748b",
+                  boxShadow: !isCustomProduct ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s"
+                }}
+              >
+                📦 Catalog Product
+              </button>
+              <button
+                type="button"
+                onClick={openCustomNewRequest}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 7,
+                  border: "none",
+                  fontSize: "0.8rem",
+                  fontWeight: isCustomProduct ? 700 : 500,
+                  background: isCustomProduct ? "#ffffff" : "transparent",
+                  color: isCustomProduct ? "#0f172a" : "#64748b",
+                  boxShadow: isCustomProduct ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s"
+                }}
+              >
+                ✨ Custom Requirement
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (isCustomProduct) {
-                  if (catalog.length > 0) openNewRequestWithProduct(catalog[0]);
-                  else setIsCustomProduct(false);
-                } else {
-                  openCustomNewRequest();
-                }
-              }}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 8,
-                border: "1px solid #cbd5e1",
-                background: "white",
-                color: "#4f46e5",
-                fontSize: "0.78rem",
-                fontWeight: 700,
-                cursor: "pointer"
-              }}
-            >
-              {isCustomProduct ? "← Select from Catalog" : "+ Custom Item (Not in Catalog)"}
-            </button>
           </div>
 
           <form onSubmit={handleCreateRequest} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            
             {/* Catalog item picker */}
             {!isCustomProduct && (
-              <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#334155" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#334155" }}>
                   Select Catalog Product
-                </span>
+                </label>
                 <CustomSelect
                   value={requestForm.catalogId || ""}
                   onChange={e => handleSelectCatalogItem(e.target.value)}
@@ -655,43 +691,58 @@ export default function ProductsRequirementPage() {
                   <option value="">-- Choose a Product from Catalog --</option>
                   {catalog.filter(c => c.isActive !== false).map(c => (
                     <option key={c.id} value={c.id}>
-                      {c.productName}
+                      {c.productName} ({c.brand || "Standard"})
                     </option>
                   ))}
                   <option value="CUSTOM">+ Other / Custom Product (Not listed above)</option>
                 </CustomSelect>
-              </label>
+              </div>
             )}
 
-            {/* Readonly Product Summary Card for Catalog Items */}
+            {/* Clean Minimalist Product Spec Card */}
             {!isCustomProduct && selectedCatalogProduct && (
-              <div className="pr-locked-badge">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                  <div>
-                    <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1", textTransform: "uppercase" }}>
+              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 18px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <span style={{ display: "inline-block", background: "#eef2ff", color: "#4338ca", padding: "2px 8px", borderRadius: 4, fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
                       {selectedCatalogProduct.brand || "Standard Brand"}
-                    </div>
-                    <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+                    </span>
+                    <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.3 }}>
                       {selectedCatalogProduct.productName}
                     </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600 }}>SuperAdmin Unit Price</div>
-                    <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#059669" }}>
-                      {selectedCatalogProduct.defaultPrice ? `₹${fmt(selectedCatalogProduct.defaultPrice)}` : "Price on Request"}
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>SuperAdmin Price</div>
+                    <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
+                      {selectedCatalogProduct.defaultPrice ? `₹${fmt(selectedCatalogProduct.defaultPrice)}` : "On Request"}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, background: "white", padding: "10px 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.8rem" }}>
-                  <div><span style={{ color: "#64748b" }}>Category:</span> <strong style={{ color: "#334155" }}>{selectedCatalogProduct.category || "General"}</strong></div>
-                  <div><span style={{ color: "#64748b" }}>Pack Size:</span> <strong style={{ color: "#334155" }}>{selectedCatalogProduct.unitPackSize || selectedCatalogProduct.packSize || "Standard"}</strong></div>
-                  <div><span style={{ color: "#64748b" }}>Catalog Stock:</span> <strong style={{ color: selectedCatalogProduct.availableQty > 0 ? "#16a34a" : "#dc2626" }}>{selectedCatalogProduct.availableQty || 0} units</strong></div>
+                <div style={{ borderTop: "1px solid #e2e8f0", marginTop: 12, paddingTop: 12, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, fontSize: "0.78rem" }}>
+                  <div>
+                    <div style={{ color: "#64748b", fontSize: "0.7rem", fontWeight: 600, marginBottom: 2 }}>Category</div>
+                    <div style={{ color: "#1e293b", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={selectedCatalogProduct.category || "General"}>
+                      {selectedCatalogProduct.category || "General"}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: "#64748b", fontSize: "0.7rem", fontWeight: 600, marginBottom: 2 }}>Pack Size</div>
+                    <div style={{ color: "#1e293b", fontWeight: 600 }}>
+                      {selectedCatalogProduct.unitPackSize || selectedCatalogProduct.packSize || "Standard"}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: "#64748b", fontSize: "0.7rem", fontWeight: 600, marginBottom: 2 }}>Catalog Stock</div>
+                    <span style={{ display: "inline-block", background: selectedCatalogProduct.availableQty > 0 ? "#dcfce7" : "#fee2e2", color: selectedCatalogProduct.availableQty > 0 ? "#15803d" : "#b91c1c", padding: "1px 6px", borderRadius: 4, fontWeight: 700, fontSize: "0.72rem" }}>
+                      {selectedCatalogProduct.availableQty || 0} in stock
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* If Custom Product: Show editable inputs */}
+            {/* Custom Product Inputs */}
             {isCustomProduct && (
               <div style={{ background: "#f8fafc", padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#4f46e5", fontSize: "0.85rem", fontWeight: 700 }}>
@@ -707,7 +758,7 @@ export default function ProductsRequirementPage() {
                       placeholder="e.g. L'Oréal, Schwarzkopf, Matrix"
                       value={requestForm.brand}
                       onChange={e => setRequestForm({ ...requestForm, brand: e.target.value })}
-                      style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                      style={{ width: "100%", height: 38, padding: "0 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                     />
                   </label>
 
@@ -719,7 +770,7 @@ export default function ProductsRequirementPage() {
                       placeholder="e.g. Hair Botox Treatment 500ml"
                       value={requestForm.productName}
                       onChange={e => setRequestForm({ ...requestForm, productName: e.target.value })}
-                      style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                      style={{ width: "100%", height: 38, padding: "0 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                     />
                   </label>
                 </div>
@@ -730,7 +781,7 @@ export default function ProductsRequirementPage() {
                     <CustomSelect
                       value={requestForm.category}
                       onChange={e => setRequestForm({ ...requestForm, category: e.target.value })}
-                      style={{ width: "100%" }}
+                      style={{ width: "100%", height: 38 }}
                     >
                       <option value="">Select Salon Category...</option>
                       {SALON_PRODUCT_CATEGORIES.map(cat => (
@@ -746,7 +797,7 @@ export default function ProductsRequirementPage() {
                       placeholder="e.g. 500 ml, 1 L, Pack of 10"
                       value={requestForm.unitPackSize}
                       onChange={e => setRequestForm({ ...requestForm, unitPackSize: e.target.value })}
-                      style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                      style={{ width: "100%", height: 38, padding: "0 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                     />
                   </label>
                 </div>
@@ -758,48 +809,48 @@ export default function ProductsRequirementPage() {
                     placeholder="Enter estimated unit price in INR"
                     value={requestForm.unitPrice}
                     onChange={e => setRequestForm({ ...requestForm, unitPrice: e.target.value })}
-                    style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                    style={{ width: "100%", height: 38, padding: "0 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                   />
                 </label>
               </div>
             )}
 
-            {/* Salon Owner Order Inputs: Quantity + Priority */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, background: "#f1f5f9", padding: 16, borderRadius: 12 }}>
-              <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#0f172a" }}>
-                  Quantity Needed for Your Salon *
-                </span>
-                <div className="pr-qty-box">
+            {/* Quantity + Priority Row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "flex-end" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#334155" }}>
+                  Quantity (Units) *
+                </label>
+                <div className="pr-qty-group">
                   <button
                     type="button"
-                    className="pr-qty-btn"
+                    className="pr-qty-group-btn"
                     onClick={() => setRequestForm(prev => ({ ...prev, quantity: Math.max(1, (Number(prev.quantity) || 1) - 1) }))}
                   >
-                    -
+                    −
                   </button>
                   <input
                     type="number"
                     min="1"
                     required
+                    className="pr-qty-group-input"
                     value={requestForm.quantity}
                     onChange={e => setRequestForm({ ...requestForm, quantity: Math.max(1, parseInt(e.target.value, 10) || 1) })}
-                    style={{ width: "80px", textAlign: "center", padding: 8, borderRadius: 8, border: "1px solid #cbd5e1", fontWeight: 700, fontSize: "1rem" }}
                   />
                   <button
                     type="button"
-                    className="pr-qty-btn"
+                    className="pr-qty-group-btn"
                     onClick={() => setRequestForm(prev => ({ ...prev, quantity: (Number(prev.quantity) || 1) + 1 }))}
                   >
                     +
                   </button>
                 </div>
-              </label>
+              </div>
 
-              <label>
-                <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#0f172a" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#334155" }}>
                   Priority / Urgency
-                </span>
+                </label>
                 <CustomSelect
                   value={requestForm.priority}
                   onChange={e => setRequestForm({ ...requestForm, priority: e.target.value })}
@@ -810,46 +861,48 @@ export default function ProductsRequirementPage() {
                   <option value="HIGH">High (Urgent restocking)</option>
                   <option value="URGENT">Urgent (Immediate requirement)</option>
                 </CustomSelect>
-              </label>
+              </div>
             </div>
 
-            {/* Total Estimated Cost Summary */}
+            {/* Total Cost Summary */}
             {requestForm.unitPrice && Number(requestForm.unitPrice) > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "12px 16px", borderRadius: 10 }}>
-                <span style={{ fontSize: "0.85rem", color: "#166534", fontWeight: 600 }}>
-                  Estimated Total for {requestForm.quantity} unit(s):
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", border: "1px solid #e2e8f0", padding: "12px 16px", borderRadius: 10 }}>
+                <span style={{ fontSize: "0.82rem", color: "#64748b", fontWeight: 600 }}>
+                  Estimated Cost ({requestForm.quantity} {requestForm.quantity === 1 ? "unit" : "units"} × ₹{fmt(requestForm.unitPrice)}):
                 </span>
-                <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "#166534" }}>
+                <span style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
                   ₹{fmt(Number(requestForm.unitPrice) * Number(requestForm.quantity))}
                 </span>
               </div>
             )}
 
-            <label>
-              <span style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 4, color: "#334155" }}>
+            {/* Specific Notes */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#334155" }}>
                 Specific Notes / Instructions for SuperAdmin (Optional)
-              </span>
+              </label>
               <textarea
                 rows={3}
                 placeholder="Specify preferred shade, brand variant, required delivery date, or remarks..."
                 value={requestForm.note}
                 onChange={e => setRequestForm({ ...requestForm, note: e.target.value })}
-                style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box", outline: "none" }}
               />
-            </label>
+            </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
+            {/* Action Buttons */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
               <button
                 type="button"
                 onClick={() => setActiveSection("available")}
-                style={{ padding: "10px 18px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                style={{ padding: "9px 18px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(79, 70, 229, 0.3)" }}
+                style={{ padding: "9px 22px", borderRadius: 8, border: "none", background: "#0f172a", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(15, 23, 42, 0.2)" }}
               >
                 {saving ? "Submitting Request..." : "Submit Product Request"}
               </button>
