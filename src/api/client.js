@@ -12,6 +12,18 @@ let refreshPromise = null;
 
 let sessionBlocked = false;
 
+const getStoredSession = () => {
+  try {
+    const raw = localStorage.getItem("salonnest_auth") || 
+                sessionStorage.getItem("salonnest_auth_session") ||
+                localStorage.getItem("salonnest_auth_session");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
 export const unblockSession = () => {
   sessionBlocked = false;
 };
@@ -31,17 +43,16 @@ api.interceptors.request.use((config) => {
   const url = config.url || "";
   const isAuthEndpoint = url.startsWith("/auth/") || url.includes("/auth/") || url.startsWith("/public/") || url.includes("/public/");
 
-  const session = getSession?.();
+  const session = getSession?.() || getStoredSession();
   const accessToken = session?.accessToken;
   config.headers = config.headers || {};
-  if (accessToken && !config.headers.Authorization && !isAuthEndpoint) {
+  if (accessToken && !isAuthEndpoint) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
     try {
       validatePhoneFields(config.data);
     } catch (phoneErr) {
-      // Phone validation warning — do NOT block the request; backend validates authoritatively
       console.warn("[Phone Validation]", phoneErr.message);
     }
     config.data = normalizePhoneFields(config.data);
@@ -64,11 +75,13 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const session = getSession?.();
+    const session = getSession?.() || getStoredSession();
     const refreshToken = session?.refreshToken;
     if (!refreshToken) {
-      sessionBlocked = true;
-      clearSession?.();
+      if (window.location.pathname !== "/login") {
+        sessionBlocked = true;
+        clearSession?.();
+      }
       return Promise.reject(error);
     }
 
@@ -81,8 +94,9 @@ api.interceptors.response.use(
       const refreshResponse = await refreshPromise;
       refreshPromise = null;
       const nextAccessToken = refreshResponse.data.accessToken;
-      const nextRefreshToken = refreshResponse.data.refreshToken;
+      const nextRefreshToken = refreshResponse.data.refreshToken || refreshToken;
       sessionBlocked = false;
+      setToken(nextAccessToken);
       updateSession?.(nextAccessToken, nextRefreshToken);
       originalRequest.headers = originalRequest.headers || {};
       originalRequest.headers.Authorization = `Bearer ${nextAccessToken}`;
