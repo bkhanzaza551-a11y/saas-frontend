@@ -86,12 +86,13 @@ export default function SuperAdminDashboard() {
   // Health Cards configured dynamically per capability
   const healthCards = useMemo(() => {
     if (isSuperAdmin) {
+      const periodLabel = period === "lifetime" ? "All-time" : period === "today" ? "Today" : period === "month" ? "This month" : "Period";
       return [
-        { label: "Total Salons", value: data?.totalSalons || 0, caption: "All salons", icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" },
-        { label: "Active Salons", value: data?.activeSalons || 0, caption: "Operational", icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons?status=ACTIVE" },
-        { label: "Trial Salons", value: data?.trialSalons || 0, caption: "Recently onboarded", icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons?status=TRIAL" },
-        { label: "Leads", value: data?.activeDemoLeads ?? data?.demoLeadsCount ?? 0, caption: "Active leads", icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" },
-        { label: "Open Support Tickets", value: data?.supportTicketsCount || 0, caption: "Open + In progress", icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets?status=OPEN" },
+        { label: "Total Salons", value: data?.totalSalons || 0, caption: period === "lifetime" ? "All salons" : `${periodLabel} onboarded`, icon: Building2, color: "#4f46e5", bg: "#f5f3ff", path: "/super-admin/salons" },
+        { label: "Active Salons", value: data?.activeSalons || 0, caption: period === "lifetime" ? "Operational" : `${periodLabel} active`, icon: CheckCircle, color: "#10b981", bg: "#ecfdf5", path: "/super-admin/salons?status=ACTIVE" },
+        { label: "Trial Salons", value: data?.trialSalons || 0, caption: period === "lifetime" ? "Recently onboarded" : `${periodLabel} trial`, icon: Clock, color: "#f59e0b", bg: "#fffbeb", path: "/super-admin/salons?status=TRIAL" },
+        { label: "Leads", value: data?.activeDemoLeads ?? data?.demoLeadsCount ?? 0, caption: period === "lifetime" ? "Active leads" : `${periodLabel} leads`, icon: Sparkles, color: "#06b6d4", bg: "#ecfeff", path: "/super-admin/sales-pipeline" },
+        { label: "Open Support Tickets", value: data?.supportTicketsCount || 0, caption: period === "lifetime" ? "Open + In progress" : `${periodLabel} tickets`, icon: LifeBuoy, color: "#ec4899", bg: "#fdf2f8", path: "/super-admin/support-tickets?status=OPEN" },
         { label: "Pending Requests", value: totalPendingRequests, caption: `${data?.pendingProductRequests || 0} products + ${data?.pendingStaffRequests || 0} staff`, icon: AlertCircle, color: "#8b5cf6", bg: "#f5f3ff", path: "/super-admin/product-requests?status=PENDING" }
       ];
     }
@@ -156,7 +157,7 @@ export default function SuperAdminDashboard() {
     }
 
     return list.slice(0, 6);
-  }, [isSuperAdmin, canSeeFinance, canSeeSupport, canSeeSales, canSeeSalons, canSeeRequests, data, totalPendingRequests]);
+  }, [isSuperAdmin, period, canSeeFinance, canSeeSupport, canSeeSales, canSeeSalons, canSeeRequests, data, totalPendingRequests]);
 
   const periodOptions = [
     { value: "lifetime", label: "Lifetime" },
@@ -597,7 +598,7 @@ export default function SuperAdminDashboard() {
                 >
                   <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
                   <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                    <IndianRupee size={16} /> Collected
+                    <IndianRupee size={16} /> Collected {period !== "lifetime" ? `(${period === "today" ? "Today" : period === "month" ? "This Month" : "Period"})` : ""}
                   </span>
                   <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.totalSubscriptionRevenue)}`}>
                     ₹{fmt(data.totalSubscriptionRevenue)}
