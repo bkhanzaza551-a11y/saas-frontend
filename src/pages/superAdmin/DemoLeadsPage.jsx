@@ -425,10 +425,10 @@ const toLocalIsoDateTime = (dt) => {
         setFeedback({ error: "", success: "Live meeting link generated successfully!" });
       }
     } catch (err) {
-      const randCode = Math.random().toString(36).substring(2, 7);
-      const fallbackUrl = `https://meet.jit.si/SalonNest-Demo-${randCode}`;
+      const randStr = (len = 3) => Math.random().toString(36).substring(2, 2 + len);
+      const fallbackUrl = `https://meet.google.com/${randStr(3)}-${randStr(4)}-${randStr(3)}`;
       updateDraft(leadId, "meetingLink", fallbackUrl);
-      setFeedback({ error: "", success: "Live meeting room created!" });
+      setFeedback({ error: "", success: "Google Meet link created!" });
     } finally {
       setBusyId("");
       setActionType("");
@@ -1625,7 +1625,7 @@ const toLocalIsoDateTime = (dt) => {
                               <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> Generating...
                             </>
                           ) : (
-                            "+ Instant Link"
+                            "+ Google Meet"
                           )}
                         </button>
                         <a
