@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw, Save, Zap, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw, Save, Zap, AlertCircle, UploadCloud, Loader2 } from 'lucide-react';
 import { api } from '../../api/client';
 import CustomSelect from '../../components/CustomSelect';
 import { campaignCategories, predefinedTemplates } from '../../utils/campaignTemplates';
@@ -24,6 +24,46 @@ export default function CreateCampaignPage() {
   const [templateId, setTemplateId] = useState(draftMeta.templateId || '');
   const [templateVariables, setTemplateVariables] = useState(draftMeta.templateVariables || {});
   const [imageUrl, setImageUrl] = useState(draft?.bannerUrl || '');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploadingImage(true);
+    setUploadError('');
+
+    // Instant local preview for fast UI feedback in WhatsApp mockup
+    const localUrl = URL.createObjectURL(file);
+    setImageUrl(localUrl);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data?.url) {
+        setImageUrl(res.data.url);
+      }
+    } catch (err) {
+      console.error("Image upload failed:", err);
+      setUploadError("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl('');
+    setUploadError('');
+  };
   
   // Step 3
   const [customers, setCustomers] = useState([]);
@@ -376,11 +416,140 @@ export default function CreateCampaignPage() {
 
                     {selectedTemplate.supportsImage && channel === 'WHATSAPP' && (
                       <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e2e8f0' }}>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#475569', marginBottom: 6 }}>Hero Image URL (Optional)</label>
-                        <div style={{ display: 'flex', gap: 12 }}>
-                          <ImageIcon size={20} color="#94a3b8" style={{ alignSelf: 'center' }} />
-                          <input type="text" className="form-input" style={{ flex: 1, padding: '10px 14px', borderRadius: 6, border: '1px solid #cbd5e1' }} placeholder="https://example.com/image.jpg" value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+                            <ImageIcon size={16} color="#6366f1" />
+                            Hero Image (Optional)
+                          </label>
+                          {imageUrl && (
+                            <button
+                              type="button"
+                              onClick={handleRemoveImage}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#ef4444',
+                                fontSize: '0.78rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                padding: 0
+                              }}
+                            >
+                              <X size={14} /> Remove Image
+                            </button>
+                          )}
                         </div>
+
+                        {imageUrl ? (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 14,
+                            padding: 12,
+                            background: '#f8fafc',
+                            borderRadius: 10,
+                            border: '1px solid #e2e8f0'
+                          }}>
+                            <img
+                              src={imageUrl}
+                              alt="Hero preview"
+                              style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #cbd5e1' }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                {uploadingImage ? (
+                                  <>
+                                    <Loader2 size={14} className="animate-spin" style={{ color: '#6366f1' }} />
+                                    Uploading image...
+                                  </>
+                                ) : (
+                                  'Image attached'
+                                )}
+                              </div>
+                              <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
+                                {uploadingImage ? 'Uploading to server...' : 'Banner image will be sent at top of message'}
+                              </div>
+                            </div>
+                            <label
+                              style={{
+                                padding: '7px 14px',
+                                background: '#fff',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: 6,
+                                fontSize: '0.78rem',
+                                fontWeight: 600,
+                                color: '#334155',
+                                cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                flexShrink: 0
+                              }}
+                            >
+                              <UploadCloud size={14} />
+                              {uploadingImage ? 'Uploading...' : 'Change'}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                disabled={uploadingImage}
+                                onChange={handleImageFileChange}
+                              />
+                            </label>
+                          </div>
+                        ) : (
+                          <label
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '24px 16px',
+                              border: '2px dashed #cbd5e1',
+                              borderRadius: 10,
+                              background: '#f8fafc',
+                              cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s ease',
+                              textAlign: 'center'
+                            }}
+                          >
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              disabled={uploadingImage}
+                              onChange={handleImageFileChange}
+                            />
+                            <div style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: '50%',
+                              background: '#e0e7ff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#6366f1',
+                              marginBottom: 8
+                            }}>
+                              {uploadingImage ? <Loader2 size={22} className="animate-spin" /> : <UploadCloud size={22} />}
+                            </div>
+                            <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1e293b' }}>
+                              {uploadingImage ? 'Uploading...' : 'Click to upload Hero Image'}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>
+                              PNG, JPG, WebP up to 5MB (Shown in WhatsApp preview)
+                            </div>
+                          </label>
+                        )}
+
+                        {uploadError && (
+                          <div style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <AlertCircle size={14} /> {uploadError}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

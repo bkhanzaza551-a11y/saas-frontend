@@ -1,6 +1,6 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { UploadCloud } from "lucide-react";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
 import ModuleTabs from "../../components/ModuleTabs";
@@ -31,6 +31,28 @@ export default function CampaignTemplatesPage() {
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState({ error: "", success: "" });
   const [loading, setLoading] = useState(true);
+  const [uploadingField, setUploadingField] = useState(null);
+
+  const handleFileUpload = async (event, field) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingField(field);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data?.url) {
+        setForm((curr) => ({ ...curr, [field]: res.data.url }));
+        setStatus({ error: "", success: `${field === "logoUrl" ? "Logo" : "Image"} uploaded successfully.` });
+      }
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to upload image"), success: "" });
+    } finally {
+      setUploadingField(null);
+    }
+  };
 
   const isEdit = location.pathname.endsWith("/edit");
   const selectedTemplate = useMemo(
@@ -143,8 +165,22 @@ export default function CampaignTemplatesPage() {
             <input placeholder="Background color" value={form.backgroundColor} onChange={(event) => setForm((current) => ({ ...current, backgroundColor: event.target.value }))} />
             <input placeholder="Text color" value={form.textColor} onChange={(event) => setForm((current) => ({ ...current, textColor: event.target.value }))} />
             <input placeholder="Offer text" value={form.offerText} onChange={(event) => setForm((current) => ({ ...current, offerText: event.target.value }))} />
-            <input placeholder="Logo URL" value={form.logoUrl} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} />
-            <input placeholder="Image URL" value={form.imageUrl} onChange={(event) => setForm((current) => ({ ...current, imageUrl: event.target.value }))} />
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input style={{ flex: 1 }} placeholder="Logo URL" value={form.logoUrl} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} />
+              <label className="secondary-button" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 12px", whiteSpace: "nowrap", fontSize: "0.8rem" }}>
+                <UploadCloud size={15} />
+                {uploadingField === "logoUrl" ? "Uploading..." : "Upload Logo"}
+                <input type="file" accept="image/*" hidden onChange={(e) => handleFileUpload(e, "logoUrl")} />
+              </label>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input style={{ flex: 1 }} placeholder="Image URL" value={form.imageUrl} onChange={(event) => setForm((current) => ({ ...current, imageUrl: event.target.value }))} />
+              <label className="secondary-button" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 12px", whiteSpace: "nowrap", fontSize: "0.8rem" }}>
+                <UploadCloud size={15} />
+                {uploadingField === "imageUrl" ? "Uploading..." : "Upload Banner"}
+                <input type="file" accept="image/*" hidden onChange={(e) => handleFileUpload(e, "imageUrl")} />
+              </label>
+            </div>
             <label className="badge"><input type="checkbox" checked={Boolean(form.isActive)} onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} /> Active template</label>
             
             <div className="summary-box" style={{ gridColumn: "1 / -1", background: form.backgroundColor, color: form.textColor }}>
