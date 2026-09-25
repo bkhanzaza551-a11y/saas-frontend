@@ -313,8 +313,8 @@ export default function StaffRolesPage() {
         .srp-sidebar-header { padding:24px 20px 16px; border-bottom:1px solid #f1f5f9; }
         .srp-sidebar-header h2 { margin:0; font-size:17px; font-weight:700; color:#0f172a; }
         .srp-sidebar-header p { margin:4px 0 0; font-size:12px; color:#94a3b8; }
-        .srp-create-btn { width:100%; margin-top:14px; padding:10px; background:#0f172a; color:white; border:none; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; letter-spacing:0.3px; transition:background .2s; }
-        .srp-create-btn:hover { background:#1e293b; }
+        .srp-create-btn { display: inline-flex; align-items: center; justify-content: center; width: auto; margin-top: 14px; padding: 7px 14px; background: #0f172a; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; letter-spacing: 0.3px; transition: background .2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .srp-create-btn:hover { background: #1e293b; }
         .srp-role-item { display:flex; flex-direction:column; padding:14px 20px; border:none; background:transparent; border-bottom:1px solid #f8fafc; cursor:pointer; text-align:left; width:100%; transition:background .15s; }
         .srp-role-item:hover { background:#f8fafc; }
         .srp-role-item.active { background:#eff6ff; border-left:3px solid #3b82f6; }
