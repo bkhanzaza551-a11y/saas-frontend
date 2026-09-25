@@ -157,6 +157,17 @@ export default function DemoLeadsPage() {
     followUp: searchParams.get("followUp") || ""
   }), [searchParams, isMasterAdmin, currentUserId]);
 
+  // Client-side source filter guarantee
+  const displayRows = useMemo(() => {
+    return rows.filter(r => {
+      if (filters.source) {
+        const s = (r.leadSource || "Website").trim().toLowerCase();
+        if (s !== filters.source.trim().toLowerCase()) return false;
+      }
+      return true;
+    });
+  }, [rows, filters.source]);
+
   const setFilterParam = (key, val) => {
     setSearchParams(prev => {
       if (val) prev.set(key, val); else prev.delete(key);
@@ -274,7 +285,7 @@ export default function DemoLeadsPage() {
             ...(nextFilters.q ? { q: nextFilters.q } : {}),
             ...(nextFilters.status ? { status: nextFilters.status } : {}),
             ...(nextFilters.assigned ? { assignedUserId: nextFilters.assigned } : {}),
-            ...(nextFilters.source ? { leadSource: nextFilters.source } : {}),
+            ...(nextFilters.source ? { leadSource: nextFilters.source, source: nextFilters.source } : {}),
             ...(nextFilters.from ? { createdFrom: nextFilters.from } : {}),
             ...(nextFilters.to ? { createdTo: nextFilters.to } : {}),
             ...(nextFilters.followUp ? { followUp: nextFilters.followUp } : {})
@@ -741,9 +752,9 @@ const toLocalIsoDateTime = (dt) => {
   const pipelineCounts = useMemo(() => {
     const counts = {};
     PIPELINE.forEach(s => { counts[s.value] = 0; });
-    rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+    displayRows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
     return counts;
-  }, [rows]);
+  }, [displayRows]);
 
   const formatLastActivity = (row) => {
     const act = row.lastActivity;
@@ -1115,7 +1126,7 @@ const toLocalIsoDateTime = (dt) => {
       {/* Lead Table */}
       {loading ? (
         <PageLoader title="Loading Leads" />
-      ) : rows.length === 0 ? (
+      ) : displayRows.length === 0 ? (
         <EmptyState title="No leads found" message="Add a lead or wait for new website inquiries." />
       ) : (
         <div className="crm-table-container">
@@ -1134,7 +1145,7 @@ const toLocalIsoDateTime = (dt) => {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {displayRows.map((row) => {
                 const meta = getStatusMeta(row.status);
                 const lastAct = formatLastActivity(row);
                 const isOverdue = row.nextFollowUpAt && new Date(row.nextFollowUpAt) < new Date() && row.status !== "CONVERTED" && row.status !== "CANCELED";
