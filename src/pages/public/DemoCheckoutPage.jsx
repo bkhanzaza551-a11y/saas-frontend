@@ -229,11 +229,6 @@ export default function DemoCheckoutPage() {
             <Link to="/" className="checkout-brand-link" title="Salon Nest Homepage">
               <img src="/logo.jfif" alt="Salon Nest Logo" className="checkout-brand-logo" />
             </Link>
-            <div className="checkout-topbar-divider" />
-            <div className="checkout-secure-badge">
-              <Lock size={12} />
-              <span>Secure 256-Bit SSL Checkout</span>
-            </div>
           </div>
 
           <div className="checkout-topbar-right">
@@ -323,17 +318,17 @@ export default function DemoCheckoutPage() {
           </section>
         ) : (
           <>
-            {/* Unified Page Header: Properly Centered/Aligned Above Both Columns */}
+            {/* Unified Page Header */}
             <div className="checkout-header">
               <div className="checkout-eyebrow">
-                <Sparkles size={13} />
-                <span>Subscription Checkout</span>
+                <ShieldCheck size={12} />
+                <span>Secure Subscription Checkout</span>
               </div>
               <h1 className="checkout-title">
-                <span className="checkout-title-gradient">Activate your subscription</span>
+                <span className="checkout-title-gradient">Complete your subscription</span>
               </h1>
               <p className="checkout-subtitle">
-                Complete your checkout to spin up your active, paid business workspace. All plan limits and permissions will be applied to your custom salon slug.
+                Review your selected plan, confirm billing details, and activate your salon workspace instantly via Razorpay.
               </p>
             </div>
 
