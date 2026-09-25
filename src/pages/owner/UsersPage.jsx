@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   AlertCircle, 
   Loader2,
-  Sparkles 
+  Sparkles,
+  Camera 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
@@ -656,57 +657,69 @@ export default function UsersPage() {
         }
       `}</style>
       {enrollmentCameraOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 99999, padding: 16 }}>
-          <div style={{ width: 'min(100%, 480px)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 99999999, padding: 20 }}>
+          <div style={{ width: 'min(100%, 460px)', display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ color: 'white', fontSize: 18, fontWeight: 700 }}>Biometric Enrollment</div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 2 }}>Position face inside the oval and hold still</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Camera size={20} />
+                </div>
+                <div>
+                  <div style={{ color: 'white', fontSize: 16, fontWeight: 750, letterSpacing: '-0.01em' }}>Biometric Selfie Enrollment</div>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 1 }}>Position face inside the oval and hold steady</div>
+                </div>
               </div>
-              <button type="button" onClick={stopEnrollmentCamera} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              <button type="button" onClick={stopEnrollmentCamera} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }} title="Close Camera">
+                <X size={18} />
+              </button>
             </div>
-            <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', background: '#000', aspectRatio: '4/3' }}>
+            
+            <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', background: '#000', aspectRatio: '4/3', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <video ref={enrollmentVideoRef} autoPlay playsInline muted style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                <div style={{ width: 180, height: 240, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.6)', boxShadow: '0 0 0 9999px rgba(0,0,0,0.4)' }} />
+                <div style={{ width: 190, height: 250, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.7)', boxShadow: '0 0 0 9999px rgba(0,0,0,0.45)' }} />
               </div>
-              <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', padding: '6px 14px', borderRadius: 999, background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: 11, fontWeight: 600, backdropFilter: 'blur(8px)' }}>
-                Front Camera Active
+              <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', padding: '6px 14px', borderRadius: 999, background: 'rgba(0,0,0,0.65)', color: 'white', fontSize: 11.5, fontWeight: 600, backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e' }} />
+                <span>Live Camera Feed</span>
               </div>
             </div>
+            
             <canvas ref={enrollmentCanvasRef} style={{ display: 'none' }} />
+            
             {enrollmentCameraError && (
-              <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)', color: '#fca5a5', fontSize: 12, fontWeight: 500, lineHeight: 1.5 }}>
-                {enrollmentCameraError}
+              <div style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(220,38,38,0.2)', border: '1px solid rgba(220,38,38,0.4)', color: '#fca5a5', fontSize: 12.5, fontWeight: 500, lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
+                <span>{enrollmentCameraError}</span>
               </div>
             )}
+            
             <button
               type="button"
               onClick={() => void captureEnrollmentFrame()}
               disabled={enrollmentCaptureBusy}
               style={{
                 width: '100%', padding: '14px 0', borderRadius: 12, border: 'none',
-                background: enrollmentCaptureBusy ? '#64748b' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                color: 'white', fontSize: 15, fontWeight: 700, cursor: enrollmentCaptureBusy ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                background: enrollmentCaptureBusy ? '#64748b' : 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+                color: 'white', fontSize: 14.5, fontWeight: 700, cursor: enrollmentCaptureBusy ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: enrollmentCaptureBusy ? 'none' : '0 4px 14px rgba(15, 118, 110, 0.35)',
+                transition: 'all 0.15s ease'
               }}
             >
               {enrollmentCaptureBusy ? (
                 <>
-                  <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spinAround 0.8s linear infinite' }} />
-                  Verifying & Uploading...
+                  <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span>Verifying & Uploading...</span>
                 </>
               ) : (
                 <>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="13" r="4" />
-                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                  </svg>
-                  Capture & Verify Face
+                  <Camera size={18} />
+                  <span>Capture & Verify Face</span>
                 </>
               )}
             </button>
-            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, textAlign: 'center' }}>Photo will be validated for a single clear face before saving</div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11.5, textAlign: 'center' }}>Photo will be validated for a single clear face before saving</div>
           </div>
         </div>
       )}
