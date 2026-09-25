@@ -295,10 +295,6 @@ export default function OwnerDashboard() {
               <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#059669", textTransform: "uppercase" }}>Done</div>
               <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{todayAppts.completed}</div>
             </div>
-            <div style={{ flex: 1, background: "#fef2f2", padding: "10px 8px", borderRadius: 10, border: "1px solid #fee2e2", textAlign: "center" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#dc2626", textTransform: "uppercase" }}>No Show</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{todayAppts.noShow}</div>
-            </div>
           </div>
         </div>
 
