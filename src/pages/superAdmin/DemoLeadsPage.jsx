@@ -422,13 +422,13 @@ const toLocalIsoDateTime = (dt) => {
       });
       if (res.data?.meetingUrl) {
         updateDraft(leadId, "meetingLink", res.data.meetingUrl);
-        setFeedback({ error: "", success: "Meeting link generated successfully!" });
+        setFeedback({ error: "", success: "Live meeting link generated successfully!" });
       }
     } catch (err) {
-      const randStr = (len = 3) => Math.random().toString(36).substring(2, 2 + len);
-      const fallbackUrl = `https://meet.google.com/${randStr(3)}-${randStr(4)}-${randStr(3)}`;
+      const randCode = Math.random().toString(36).substring(2, 7);
+      const fallbackUrl = `https://meet.jit.si/SalonNest-Demo-${randCode}`;
       updateDraft(leadId, "meetingLink", fallbackUrl);
-      setFeedback({ error: "", success: "Meeting link created!" });
+      setFeedback({ error: "", success: "Live meeting room created!" });
     } finally {
       setBusyId("");
       setActionType("");
@@ -1599,11 +1599,12 @@ const toLocalIsoDateTime = (dt) => {
                     <div>
                       <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Meeting Link</label>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <input disabled={isConverted} type="text" placeholder="https://meet.google.com/..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
+                        <input disabled={isConverted} type="text" placeholder="Paste Google Meet / Zoom / Video link..." value={draft.meetingLink} onChange={e => updateDraft(row.id, "meetingLink", e.target.value)} style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }} />
                         <button
                           type="button"
                           disabled={isConverted || (isBusy && actionType === "generate-link")}
                           onClick={() => generateMeetLink(row.id)}
+                          title="Generate instant live video meeting link"
                           style={{
                             padding: "8px 14px",
                             background: "#e0e7ff",
@@ -1624,9 +1625,31 @@ const toLocalIsoDateTime = (dt) => {
                               <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> Generating...
                             </>
                           ) : (
-                            "+ Link"
+                            "+ Instant Link"
                           )}
                         </button>
+                        <a
+                          href="https://meet.google.com/new"
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            padding: "8px 12px",
+                            background: "#f0fdf4",
+                            color: "#166534",
+                            border: "1px solid #bbf7d0",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            whiteSpace: "nowrap",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            textDecoration: "none"
+                          }}
+                          title="Open Google Meet to create official Google room"
+                        >
+                          Google Meet ↗
+                        </a>
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
