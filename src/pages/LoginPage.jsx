@@ -199,8 +199,9 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       const payload = {
-        tempToken,
-        otp
+        email: form.email,
+        tempToken: form.email || tempToken,
+        otp: otp.trim()
       };
       const res = await verifyOtp(payload, rememberMe);
       nav(getLoginRedirectPath(res));

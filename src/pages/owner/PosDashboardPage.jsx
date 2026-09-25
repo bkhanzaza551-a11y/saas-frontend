@@ -521,14 +521,17 @@ export default function PosDashboardPage() {
       if (isInclusive && tp > 0) return sum + (line * tp) / (100 + tp);
       return sum + (line * tp) / 100;
     }, 0);
-    const total = Math.max(0, subtotal + tax - toAmount(invoiceDiscountDraft, 0));
+    // If tax is inclusive, subtotal already includes the tax portion.
+    // If tax is exclusive, total is subtotal + tax.
+    // Do not subtract invoiceDiscountDraft again if item.unitPrice has already been discounted by prorating.
+    const total = isInclusive ? Math.max(0, subtotal) : Math.max(0, subtotal + tax);
     return {
       subtotal,
       tax,
       total,
       balance: Math.max(0, total - Number(invoiceDetail?.paidAmount || 0))
     };
-  }, [form.items, invoiceDetail?.paidAmount, invoiceDiscountDraft, posSettings]);
+  }, [form.items, invoiceDetail?.paidAmount, posSettings]);
 
   const paidOnline = useMemo(() => (
     (invoiceDetail?.payments || [])
