@@ -284,15 +284,15 @@ export default function ProductsRequirementPage() {
         .pr-tab-btn {
           white-space: nowrap;
           flex-shrink: 0;
-          padding: 8px 14px;
-          border-radius: 8px;
+          padding: 6px 12px;
+          border-radius: 7px;
           border: none;
-          font-weight: 700;
-          font-size: 0.85rem;
+          font-weight: 600;
+          font-size: 0.78rem;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
           transition: all 0.15s;
         }
         .pr-filters-grid {
@@ -407,7 +407,7 @@ export default function ProductsRequirementPage() {
             color: activeSection === "available" ? "white" : "#475569",
           }}
         >
-          <Package size={16} /> Available Catalog Products <span style={{ background: activeSection === "available" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 7px", borderRadius: 10, fontSize: "0.75rem", fontWeight: 700 }}>{catalog.length}</span>
+          <Package size={14} /> Available Catalog Products <span style={{ background: activeSection === "available" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 6px", borderRadius: 8, fontSize: "0.7rem", fontWeight: 700 }}>{catalog.length}</span>
         </button>
 
         <button
@@ -424,7 +424,7 @@ export default function ProductsRequirementPage() {
             color: activeSection === "new_request" ? "white" : "#475569",
           }}
         >
-          <Plus size={16} /> New Request
+          <Plus size={14} /> New Request
         </button>
 
         <button
@@ -435,7 +435,7 @@ export default function ProductsRequirementPage() {
             color: activeSection === "my_requests" ? "white" : "#475569",
           }}
         >
-          <ListFilter size={16} /> My Salon Requests <span style={{ background: activeSection === "my_requests" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 7px", borderRadius: 10, fontSize: "0.75rem", fontWeight: 700 }}>{requirements.length}</span>
+          <ListFilter size={14} /> My Salon Requests <span style={{ background: activeSection === "my_requests" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 6px", borderRadius: 8, fontSize: "0.7rem", fontWeight: 700 }}>{requirements.length}</span>
         </button>
 
         {selectedDetail && (
@@ -447,7 +447,7 @@ export default function ProductsRequirementPage() {
               color: activeSection === "detail" ? "white" : "#475569",
             }}
           >
-            <FileText size={16} /> Request Detail
+            <FileText size={14} /> Request Detail
           </button>
         )}
       </div>
@@ -653,16 +653,11 @@ export default function ProductsRequirementPage() {
                   style={{ width: "100%" }}
                 >
                   <option value="">-- Choose a Product from Catalog --</option>
-                  {catalog.filter(c => c.isActive !== false).map(c => {
-                    const priceLabel = c.defaultPrice ? `₹${c.defaultPrice}` : "Price on req";
-                    const packLabel = c.unitPackSize || c.packSize || "Std";
-                    const stockLabel = c.availableQty > 0 ? `Stock: ${c.availableQty}` : "Out of stock";
-                    return (
-                      <option key={c.id} value={c.id}>
-                        {c.brand ? `[${c.brand}] ` : ""}{c.productName} — {packLabel} — {priceLabel} ({stockLabel})
-                      </option>
-                    );
-                  })}
+                  {catalog.filter(c => c.isActive !== false).map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.productName}
+                    </option>
+                  ))}
                   <option value="CUSTOM">+ Other / Custom Product (Not listed above)</option>
                 </CustomSelect>
               </label>
