@@ -1,9 +1,23 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { X, ChevronLeft, MapPin } from "lucide-react";
+import { 
+  X, 
+  ChevronLeft, 
+  MapPin, 
+  ShieldCheck, 
+  Smartphone, 
+  KeyRound, 
+  RefreshCw, 
+  ArrowLeft, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2,
+  Sparkles 
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useBranch } from '../../context/BranchContext';
 import PermissionButton from "../../components/PermissionButton";
+import DigitOtpInput from "../../components/DigitOtpInput";
 import "./ServiceHubPage.css";
 
 const getImageUrl = (path) => {
@@ -83,6 +97,9 @@ export default function UsersPage() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [branchForLocationModal, setBranchForLocationModal] = useState(null);
   const [staffOtpStep, setStaffOtpStep] = useState(1);
+  const [resendStaffCountdown, setResendStaffCountdown] = useState(0);
+  const [resendingStaffOtp, setResendingStaffOtp] = useState(false);
+  const [submittingStaff, setSubmittingStaff] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [enrollmentCaptureBusy, setEnrollmentCaptureBusy] = useState(false);
   const [enrollmentCameraOpen, setEnrollmentCameraOpen] = useState(false);
@@ -92,6 +109,28 @@ export default function UsersPage() {
   const enrollmentCanvasRef = useRef(null);
   const enrollmentStreamRef = useRef(null);
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
+
+  useEffect(() => {
+    if (resendStaffCountdown > 0) {
+      const timer = setTimeout(() => setResendStaffCountdown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendStaffCountdown]);
+
+  const handleResendStaffOtp = async () => {
+    if (resendStaffCountdown > 0 || resendingStaffOtp) return;
+    setResendingStaffOtp(true);
+    setStatus((c) => ({ ...c, error: "" }));
+    try {
+      await api.post("/owner/users/send-staff-otp", { phone: form.phone });
+      setStatus((c) => ({ ...c, success: `Fresh 6-digit OTP sent to ${form.phone}` }));
+      setResendStaffCountdown(30);
+    } catch (err) {
+      setStatus((c) => ({ ...c, error: formatApiError(err, "Failed to resend verification code.") }));
+    } finally {
+      setResendingStaffOtp(false);
+    }
+  };
 
   const openEnrollmentCamera = async () => {
     setEnrollmentCameraError("");
@@ -476,15 +515,17 @@ export default function UsersPage() {
         ifscCode: form.ifscCode ? form.ifscCode.trim().toUpperCase() : undefined
       };
       
+      setSubmittingStaff(true);
       if (staffOtpStep === 1) {
         await api.post("/owner/users/send-staff-otp", { phone: form.phone });
-        setStatus((current) => ({ ...current, success: "OTP sent to staff's phone number. Please enter it below." }));
+        setStatus((current) => ({ ...current, success: `Verification code sent to ${form.phone}`, error: "" }));
         setStaffOtpStep(2);
+        setResendStaffCountdown(30);
         return;
       }
 
       if (!form.otpCode || form.otpCode.length < 6) {
-        return setStatus((current) => ({ ...current, error: "Please enter a valid 6-digit OTP." }));
+        return setStatus((current) => ({ ...current, error: "Please enter the complete 6-digit OTP code." }));
       }
 
       await api.post("/owner/users/create-login", {
@@ -505,13 +546,15 @@ export default function UsersPage() {
         accountNumber: form.accountNumber ? form.accountNumber.trim() : undefined,
         ifscCode: form.ifscCode ? form.ifscCode.trim().toUpperCase() : undefined
       });
-      setStatus((current) => ({ ...current, success: "New staff login created." }));
+      setStatus((current) => ({ ...current, success: "Staff account created successfully!" }));
       setIsCreateModalOpen(false);
       setStaffOtpStep(1);
       resetForm();
       await load(selectedBranchId);
     } catch (error) {
       setStatus((current) => ({ ...current, error: formatApiError(error, "Could not save staff user"), success: "" }));
+    } finally {
+      setSubmittingStaff(false);
     }
   };
 
@@ -1184,16 +1227,32 @@ export default function UsersPage() {
 
       {/* New Staff Modal */}
       {isCreateModalOpen && (
-        <div className="hub-modal-overlay" onClick={() => setIsCreateModalOpen(false)}>
-          <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 620 }}>
-            <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              Create New Staff
-              <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", padding: 4, display: "flex" }}><X size={18} /></button>
-            </div>
+        <div className="hub-modal-overlay" onClick={() => setIsCreateModalOpen(false)} style={{ backdropFilter: 'blur(6px)', background: 'rgba(15, 23, 42, 0.65)', zIndex: 99999 }}>
+          <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: staffOtpStep === 2 ? 460 : 640, borderRadius: 20, boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.25)', border: '1px solid rgba(226, 232, 240, 0.8)', overflow: 'hidden' }}>
+            {staffOtpStep === 1 ? (
+              <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "16px 22px", borderBottom: "1px solid #e2e8f0" }}>
+                <div style={{ fontSize: 16, fontWeight: 750, color: "#0f172a", letterSpacing: "-0.01em" }}>Create New Staff Profile</div>
+                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", borderRadius: "50%" }}><X size={18} /></button>
+              </div>
+            ) : (
+              <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "14px 20px", borderBottom: "1px solid #e2e8f0" }}>
+                <button type="button" onClick={() => { setStaffOtpStep(1); setStatus({}); }} style={{ background: "none", border: "none", color: "#64748b", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0 }}>
+                  <ArrowLeft size={16} /> Back to details
+                </button>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>Phone Verification</span>
+                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", borderRadius: "50%" }}><X size={18} /></button>
+              </div>
+            )}
             
             <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', minHeight: 0 }}>
-              {status.error && <div className="form-error-banner" style={{ padding: '10px 14px', background: '#fef2f2', color: '#b91c1c', fontSize: 13, borderBottom: '1px solid #fecaca', flexShrink: 0 }}>{status.error}</div>}
-              <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, ...(staffOtpStep === 2 ? { display: 'none' } : {}) }}>
+              {status.error && staffOtpStep === 1 && (
+                <div className="form-error-banner" style={{ padding: '10px 16px', background: '#fef2f2', color: '#b91c1c', fontSize: 13, borderBottom: '1px solid #fecaca', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <AlertCircle size={15} color="#dc2626" />
+                  <span>{status.error}</span>
+                </div>
+              )}
+              
+              <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, padding: "22px 24px", ...(staffOtpStep === 2 ? { display: 'none' } : {}) }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -1323,8 +1382,6 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-
-
                 <h4 style={{ fontSize: 14, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 8, margin: '16px 0 12px' }}>Employment & HR Details</h4>
                 <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div className="hub-form-group" style={{ marginBottom: 16 }}>
@@ -1401,31 +1458,189 @@ export default function UsersPage() {
               </div>
 
               {staffOtpStep === 2 && (
-                <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', textAlign: 'center' }}>
-                  {status.success && <div style={{ marginBottom: 24, padding: "12px 16px", background: "#ecfdf5", color: "#065f46", border: "1px solid #34d399", borderRadius: 8, fontSize: 14, fontWeight: 500 }}>{status.success}</div>}
-                  <h3 style={{ marginBottom: 8, color: '#0f172a', fontSize: 20 }}>Verify Phone Number</h3>
-                  <p style={{ color: '#64748b', fontSize: 14, marginBottom: 32 }}>Enter the 6-digit OTP sent to <strong style={{ color: '#0f172a' }}>{form.phone}</strong></p>
-                  
-                  <div className="hub-form-group" style={{ width: '100%', maxWidth: 300 }}>
-                    <input 
-                      type="text" 
-                      className="hub-input" 
-                      value={form.otpCode || ''} 
-                      onChange={e => setForm({ ...form, otpCode: e.target.value.replace(/\D/g, '') })} 
-                      placeholder="0 0 0 0 0 0" 
-                      maxLength={6} 
-                      autoFocus
-                      style={{ textAlign: 'center', fontSize: 28, letterSpacing: '12px', padding: '16px', borderRadius: 12, fontWeight: 600, color: '#0f172a' }}
+                <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '36px 28px 28px', textAlign: 'center' }}>
+                  {/* Subtle Top Icon */}
+                  <div style={{
+                    width: 58,
+                    height: 58,
+                    borderRadius: "18px",
+                    background: "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)",
+                    color: "#0f766e",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 16px",
+                    border: "1.5px solid #99f6e4",
+                    boxShadow: "0 6px 16px -2px rgba(15, 118, 110, 0.15)"
+                  }}>
+                    <KeyRound size={26} strokeWidth={2.2} />
+                  </div>
+
+                  <h3 style={{ margin: "0 0 6px", fontSize: 21, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
+                    Verify Phone Number
+                  </h3>
+                  <p style={{ margin: "0 0 20px", fontSize: 13.5, color: "#64748b", lineHeight: "1.55", maxWidth: "340px" }}>
+                    Enter the 6-digit verification code sent to <strong style={{ color: "#0f172a" }}>{form.phone}</strong>
+                  </p>
+
+                  {status.success && (
+                    <div style={{
+                      marginBottom: 18,
+                      padding: "10px 14px",
+                      background: "#ecfdf5",
+                      color: "#065f46",
+                      border: "1px solid #a7f3d0",
+                      borderRadius: 10,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      maxWidth: 360,
+                      width: "100%",
+                      boxSizing: "border-box"
+                    }}>
+                      <CheckCircle2 size={16} color="#059669" style={{ flexShrink: 0 }} />
+                      <span>{status.success}</span>
+                    </div>
+                  )}
+
+                  {status.error && (
+                    <div style={{
+                      marginBottom: 18,
+                      padding: "10px 14px",
+                      background: "#fef2f2",
+                      color: "#b91c1c",
+                      border: "1px solid #fecaca",
+                      borderRadius: 10,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      maxWidth: 360,
+                      width: "100%",
+                      boxSizing: "border-box"
+                    }}>
+                      <AlertCircle size={16} color="#dc2626" style={{ flexShrink: 0 }} />
+                      <span>{status.error}</span>
+                    </div>
+                  )}
+
+                  <div style={{ width: '100%', margin: "8px 0 4px" }}>
+                    <DigitOtpInput
+                      value={form.otpCode || ''}
+                      onChange={(val) => {
+                        setForm({ ...form, otpCode: val });
+                        if (status.error) setStatus((c) => ({ ...c, error: "" }));
+                      }}
+                      length={6}
+                      autoFocus={true}
+                      error={Boolean(status.error)}
+                      brandColor="#0f766e"
                     />
+                  </div>
+
+                  <div style={{ marginTop: 22, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 13, color: "#64748b" }}>
+                    <span>Didn't receive the OTP?</span>
+                    {resendStaffCountdown > 0 ? (
+                      <span style={{ fontWeight: 700, color: "#0f766e" }}>Resend in {resendStaffCountdown}s</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResendStaffOtp}
+                        disabled={resendingStaffOtp}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#0f766e",
+                          fontWeight: 700,
+                          cursor: resendingStaffOtp ? "not-allowed" : "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          padding: 0,
+                          fontSize: 13,
+                          textDecoration: "underline"
+                        }}
+                      >
+                        {resendingStaffOtp ? (
+                          <>
+                            <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} />
+                            <span>Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw size={13} />
+                            <span>Resend OTP</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
 
-              <div className="hub-modal-footer">
-                <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }}>Cancel</button>
-                <button type="submit" className="btn-submit">
-                  {staffOtpStep === 1 ? "Send OTP & Continue" : "Verify & Create Staff"}
-                </button>
+              <div className="hub-modal-footer" style={{ background: "#f8fafc", padding: "16px 24px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: staffOtpStep === 2 ? "space-between" : "flex-end", alignItems: "center", gap: 12 }}>
+                {staffOtpStep === 1 ? (
+                  <>
+                    <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}>
+                      Cancel
+                    </button>
+                    <button type="submit" disabled={submittingStaff} className="btn-submit" style={{ minHeight: 40, height: 40, padding: "8px 22px", borderRadius: 10, fontWeight: 700, fontSize: 13.5, background: "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      {submittingStaff ? (
+                        <>
+                          <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+                          <span>Sending OTP...</span>
+                        </>
+                      ) : (
+                        <span>Send OTP & Continue →</span>
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" className="btn-cancel" onClick={() => { setStaffOtpStep(1); setStatus({}); }} style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}>
+                      ← Edit Details
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submittingStaff || !form.otpCode || form.otpCode.length < 6}
+                      className="btn-submit"
+                      style={{
+                        minHeight: 40,
+                        height: 40,
+                        padding: "8px 24px",
+                        borderRadius: 10,
+                        fontWeight: 700,
+                        fontSize: 13.5,
+                        color: "#ffffff",
+                        background: (!form.otpCode || form.otpCode.length < 6 || submittingStaff)
+                          ? "#94a3b8"
+                          : "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)",
+                        cursor: (!form.otpCode || form.otpCode.length < 6 || submittingStaff) ? "not-allowed" : "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        boxShadow: (form.otpCode && form.otpCode.length === 6 && !submittingStaff)
+                          ? "0 4px 14px rgba(15, 118, 110, 0.3)"
+                          : "none"
+                      }}
+                    >
+                      {submittingStaff ? (
+                        <>
+                          <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+                          <span>Creating Staff...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={16} />
+                          <span>Verify & Create Staff</span>
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
             </form>
           </div>

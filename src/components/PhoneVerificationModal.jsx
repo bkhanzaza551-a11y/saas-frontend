@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
-import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
+import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2 } from "lucide-react";
+import DigitOtpInput from "./DigitOtpInput";
 
 export default function PhoneVerificationModal() {
   const { auth } = useAuth();
@@ -422,42 +423,64 @@ export default function PhoneVerificationModal() {
             </div>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <input
-              type="text"
-              placeholder="000000"
-              maxLength={6}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              style={{
-                width: "100%", padding: "14px", fontSize: "26px", letterSpacing: "8px",
-                textAlign: "center", border: "2px solid #4f46e5", borderRadius: "12px",
-                fontWeight: "bold", outline: "none", boxSizing: "border-box", background: "#f8fafc"
-              }}
-              autoFocus
-            />
+          <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ width: "100%", margin: "4px 0 8px" }}>
+              <DigitOtpInput
+                value={otp}
+                onChange={(val) => {
+                  setOtp(val);
+                  if (error) setError("");
+                }}
+                length={6}
+                autoFocus={true}
+                error={Boolean(error)}
+                brandColor="#0f766e"
+              />
+            </div>
 
             <button
               type="submit"
               disabled={loading || otp.length < 6}
               style={{
-                width: "100%", padding: "13px", fontSize: "15px", fontWeight: 700,
-                color: "#fff", background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)",
-                border: "none", borderRadius: "10px",
-                cursor: loading || otp.length < 6 ? "not-allowed" : "pointer",
-                opacity: loading || otp.length < 6 ? 0.6 : 1,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8
+                width: "100%",
+                padding: "13px 20px",
+                fontSize: "14.5px",
+                fontWeight: 700,
+                color: "#ffffff",
+                background: (loading || otp.length < 6)
+                  ? "#94a3b8"
+                  : "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)",
+                border: "none",
+                borderRadius: "12px",
+                cursor: (loading || otp.length < 6) ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                boxShadow: (otp.length === 6 && !loading) ? "0 4px 14px rgba(15, 118, 110, 0.28)" : "none",
+                transition: "all 0.15s ease"
               }}
             >
-              {loading ? <Loader size={16} style={{ animation: "spin 1s linear infinite" }} /> : <ShieldCheck size={16} />}
+              {loading ? <Loader size={16} style={{ animation: "spin 1s linear infinite" }} /> : <CheckCircle2 size={16} />}
               {loading ? "Verifying..." : "Verify & Continue"}
             </button>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
               <button
                 type="button"
                 onClick={() => { setStep(1); setError(""); setMessage(""); }}
-                style={{ background: "none", border: "none", color: "#64748b", display: "flex", alignItems: "center", gap: 4, cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#64748b",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  padding: 0
+                }}
               >
                 <ArrowLeft size={14} /> Back
               </button>
@@ -465,7 +488,16 @@ export default function PhoneVerificationModal() {
                 type="button"
                 onClick={handleSendOtp}
                 disabled={loading}
-                style={{ background: "none", border: "none", color: "#4f46e5", fontWeight: 700, cursor: "pointer", fontSize: "13px" }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0f766e",
+                  fontWeight: 700,
+                  cursor: loading ? "not-allowed" : "pointer",
+                  fontSize: "13px",
+                  textDecoration: "underline",
+                  padding: 0
+                }}
               >
                 Resend Code
               </button>
