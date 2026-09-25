@@ -41,18 +41,21 @@ export default function BranchesPage() {
 
   const load = useCallback(async () => {
     try {
-      const [branchRes, limitRes] = await Promise.all([
-        api.get("/owner/branches"),
-        api.get("/owner/branches/limit-info")
-      ]);
+      const branchRes = await api.get("/owner/branches");
       setRows(branchRes.data || []);
-      setLimitInfo(limitRes.data);
     } catch (err) {
       console.error("Failed to load branches", err);
+    }
+    try {
+      const limitRes = await api.get("/owner/branches/limit-info");
+      setLimitInfo(limitRes.data);
+    } catch {
+      setLimitInfo({ count: 0, limit: 999, canAdd: true });
     } finally {
       setStatus((current) => ({ ...current, loading: false }));
     }
   }, []);
+
 
   useEffect(() => { load(); }, [load]);
 
