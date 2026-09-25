@@ -228,7 +228,7 @@ export default function ServicesPage() {
         let errorCount = 0;
 
         for (let i = 1; i < lines.length; i++) {
-          const rawCols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
+          const rawCols = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
           const cols = rawCols.map(c => c.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
           const name = nameIdx !== -1 ? cols[nameIdx] : "";
           const price = priceIdx !== -1 ? Number(cols[priceIdx]) : 0;
@@ -322,7 +322,7 @@ export default function ServicesPage() {
                   onClick={downloadTestData}
                   style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#2563eb", fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
                 >
-                  Download Test Data
+                  Download Import Template
                 </button>
               </div>
             )}

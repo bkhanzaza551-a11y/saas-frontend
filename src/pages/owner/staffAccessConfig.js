@@ -1,10 +1,7 @@
 export const ROLE_OPTIONS = [
-  { value: "SALON_OWNER", label: "Salon Owner", hint: "Full business control" },
-  { value: "MANAGER", label: "Manager", hint: "Runs daily operations" },
-  { value: "RECEPTIONIST", label: "Receptionist", hint: "Bookings and billing desk" },
-  { value: "STAFF", label: "Staff Expert", hint: "Service delivery and schedule" },
-  { value: "INVENTORY_MANAGER", label: "Inventory Manager", hint: "Stock and vendors" },
-  { value: "ACCOUNTANT", label: "Accountant", hint: "Payments and finance" }
+  "Owner",
+  "Manager",
+  "Staff"
 ];
 
 export const PERMISSION_ACTIONS = ["view", "create", "edit", "delete", "approve", "pay"];

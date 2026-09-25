@@ -41,18 +41,12 @@ const mapStatusToUi = (dbStatus) => {
 };
 
 // UI Status list for selections
-const STATUS_OPTIONS = [
-  "New",
-  "Following up",
-  "Cancelled",
-  "In progress",
-  "Converted",
-  "Duplicate"
-];
+const STATUS_OPTIONS = ["New", "Follow up", "Dropped", "Converted"];
 
 const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
 
 const emptyForm = {
+  source: "WALK_IN",
   name: "",
   phone: "",
   email: "",
@@ -163,7 +157,11 @@ export default function EnquiriesPage() {
         notes: form.notes || null
       };
 
-      const res = await api.post("/owner/enquiries", payload);
+      let res; if (editingId) {
+        res = await api.patch(`/owner/enquiries/${editingId}`, payload);
+      } else {
+        res = await api.post("/owner/enquiries", payload);
+      }
       const newEnquiryId = res.data?.id;
 
       // If status is not "New", trigger status update API call

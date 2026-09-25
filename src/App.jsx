@@ -230,6 +230,7 @@ const Protected = () => {
         can("dashboard", "view") && { label: "Dashboard", to: "/admin/dashboard" },
         can("pos", "create") && enabled("pos") && { label: "New Sale", to: "/admin/pos", badge: "Quick action" },
         can("appointments", "view") && { label: "Appointments", to: "/admin/appointments" },
+        can("enquiries", "view") && { label: "Enquiries", to: "/admin/enquiries" },
         can("customers", "view") && enabled("crm") && { label: "Customers", to: "/admin/customers" },
         can("services", "view") && { label: "Services", to: "/admin/services" },
         can("inventory", "view") && enabled("inventory") && { label: "Products & Inventory", to: "/admin/inventory" },

@@ -738,6 +738,7 @@ export default function InventoryPage() {
                 key={tab.name}
                 onClick={() => {
                   setActiveTab(tab.name);
+                  if (tab.name === "All Products") navigate("/admin/inventory/products");
                   if (tab.name === "Dashboard") navigate("/admin/inventory");
                   if (tab.name === "Low Stock") navigate("/admin/inventory/low-stock");
                   if (tab.name === "Purchase Order") navigate("/admin/purchases/orders");
@@ -784,6 +785,42 @@ export default function InventoryPage() {
       <div className="inventory-content">
         {loading && <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 100 }}><PageLoader title="Loading..." /></div>}
         
+        {activeTab === "All Products" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>All Products</h2>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Master list of all inventory items and products.</div>
+            </div>
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                <thead>
+                  <tr style={{ background: "#f8fafc", textAlign: "left", color: "#475569" }}>
+                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Name</th>
+                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Category</th>
+                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Stock</th>
+                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map(p => (
+                    <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                      <td style={{ padding: "12px 16px", color: "#0f172a", fontWeight: 500 }}>{p.name}</td>
+                      <td style={{ padding: "12px 16px", color: "#64748b" }}>{p.category}</td>
+                      <td style={{ padding: "12px 16px", color: p.currentStock < p.minThreshold ? "#ef4444" : "#64748b" }}>{p.currentStock || 0}</td>
+                      <td style={{ padding: "12px 16px", color: "#0f172a" }}>₹{p.price || 0}</td>
+                    </tr>
+                  ))}
+                  {products.length === 0 && (
+                    <tr>
+                      <td colSpan={4} style={{ textAlign: "center", padding: 30, color: "#94a3b8" }}>No products found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {activeTab === "Dashboard" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>

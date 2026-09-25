@@ -11,6 +11,7 @@ export default function CampaignsPage() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
   const [loading, setLoading] = useState(true);
+  const [credits, setCredits] = useState({ whatsappCredits: 0, smsCredits: 0 });
   const [campaigns, setCampaigns] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
@@ -23,6 +24,8 @@ export default function CampaignsPage() {
     setLoading(true);
     try {
       const res = await api.get("/owner/campaigns");
+      const creditsRes = await api.get("/owner/credits/balance").catch(() => ({ data: { whatsappCredits: 0, smsCredits: 0 } }));
+      setCredits(creditsRes.data || { whatsappCredits: 0, smsCredits: 0 });
       setCampaigns(res.data || []);
     } catch (err) {
       showAlert("Error", formatApiError(err));
@@ -77,6 +80,10 @@ export default function CampaignsPage() {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>Campaigns</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8fafc', padding: '4px 12px', borderRadius: 20, border: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+              <span>WA Credits: {credits.whatsappCredits || 0}</span>
+              <button onClick={() => navigate('/admin/whatsapp-credits')} style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 12, padding: '2px 8px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 700 }}>Recharge</button>
+            </div>
             <button
               onClick={() => navigate('/admin/support-tickets')}
               style={{

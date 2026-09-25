@@ -330,12 +330,12 @@ export default function SuperAdminProductsRequirementPage() {
         }
         .pr-form-2col {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 12px;
         }
         .pr-form-3col {
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 12px;
         }
         .pr-detail-grid {

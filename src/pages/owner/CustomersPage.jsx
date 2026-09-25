@@ -1617,7 +1617,7 @@ const handleExportClick = async (format) => {
                   onClick={downloadTestData}
                   style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: '#2563eb', fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
                 >
-                  Download Test Data
+                  Download Import Template
                 </button>
               </div>
             )}
