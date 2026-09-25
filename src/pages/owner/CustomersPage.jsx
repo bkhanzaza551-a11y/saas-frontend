@@ -1598,6 +1598,7 @@ const handleExportClick = async (format) => {
           <button className="crm-btn crm-btn-light" onClick={() => setShowFilters(true)}><Filter size={16} /> Filters</button>
           <PermissionButton className="crm-btn" module="customers" action="create" onClick={() => setShowAddGuest(true)}><Plus size={16} /> Add Customer</PermissionButton>
           <button className="crm-btn" onClick={handleImportClick}><Upload size={16} /> Import</button>
+          <button className="crm-btn" onClick={downloadTestData} style={{background: "#e2e8f0", color: "#0f172a", border: "1px solid #cbd5e1"}}><Download size={16} /> Template</button>
           <div className="export-dropdown">
             <button className="crm-btn" onClick={() => setShowExportMenu((current) => !current)}><Download size={16} /> Export <ChevronDown size={16} /></button>
             {showExportMenu && (
@@ -1611,14 +1612,7 @@ const handleExportClick = async (format) => {
                   Export as CSV
                 </button>
                 <div style={{ height: 1, background: '#e2e8f0', margin: '4px 0' }} />
-                <button
-                  type="button"
-                  className="export-item"
-                  onClick={downloadTestData}
-                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: '#2563eb', fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
-                >
-                  Download Import Template
-                </button>
+                
               </div>
             )}
           </div>

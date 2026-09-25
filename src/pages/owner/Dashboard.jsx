@@ -319,57 +319,7 @@ export default function OwnerDashboard() {
         </div>
       </div>
 
-      {/* 10 KPI Cards Grid (5 columns on desktop, 3 on tablet, 2 on mobile) */}
-      <div className="kpi-grid">
-        {kpiStats.map((stat, i) => (
-          <div
-            key={i}
-            onClick={stat.onClick}
-            style={{
-              background: "#fff",
-              padding: "16px 18px",
-              borderRadius: "14px",
-              boxShadow: "0 2px 8px -2px rgba(0, 0, 0, 0.05)",
-              border: `1px solid ${stat.border || "#f1f5f9"}`,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              transition: "all 0.2s ease",
-              cursor: stat.onClick ? "pointer" : "default",
-              minHeight: "116px",
-              position: "relative",
-              overflow: "hidden"
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = "translateY(-3px)";
-              e.currentTarget.style.boxShadow = "0 10px 20px -5px rgba(0, 0, 0, 0.08)";
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 2px 8px -2px rgba(0, 0, 0, 0.05)";
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  {stat.label}
-                </div>
-                <div style={{ fontSize: "1.45rem", fontWeight: 800, color: stat.color === "#ef4444" ? "#dc2626" : "#0f172a", marginTop: 4, letterSpacing: "-0.02em" }}>
-                  {stat.value}
-                </div>
-              </div>
-              <div style={{ background: stat.bg, color: stat.color, padding: "8px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <stat.icon size={18} />
-              </div>
-            </div>
-            {stat.subtitle && (
-              <div style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 600, marginTop: 10, display: "flex", alignItems: "center", gap: 4 }}>
-                {stat.subtitle}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+
 
       {/* Low Stock Urgent Banner (if any) */}
       {data.lowStockAlertCount > 0 && (

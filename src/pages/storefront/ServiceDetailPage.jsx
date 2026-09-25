@@ -76,7 +76,7 @@ export default function ServiceDetailPage() {
     if (!selectedDate || !salon?.slug || !salon?.branches?.length) { setBookedSlots([]); return; }
     setCheckingSlots(true);
     const branchId = selectedBranchId || salon.branches[0]?.id;
-    api.get(`/public/salon/${salon.slug}/booked-slots`, { 
+    api.get(`/public/salons/${salon.slug}/booked-slots`, { 
       params: { 
         branchId, 
         date: selectedDate,

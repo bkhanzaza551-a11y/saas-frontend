@@ -29,7 +29,7 @@ export default function CheckoutPage() {
     setValidatingCoupon(true);
     setCouponMsg("");
     try {
-      const res = await api.post(`/public/salon/${salon.slug}/coupons/validate`, {
+      const res = await api.post(`/public/salons/${salon.slug}/cart/validate`, {
         code: couponCode.trim(),
         subtotal
       });
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
             paymentMode: form.paymentMode,
             couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
           };
-          const res = await api.post(`/public/salon/${salon.slug}/service-bookings`, payload);
+          const res = await api.post(`/public/salons/${salon.slug}/book`, payload);
           results.push(res.data);
         }
       }

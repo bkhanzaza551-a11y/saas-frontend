@@ -1059,7 +1059,7 @@ export default function InventoryPage() {
                             </td>
                             <td style={{ padding: "14px 24px", textAlign: "right" }}>
                               <button 
-                                onClick={() => { setActiveTab("Purchase Order"); navigate("/admin/inventory/purchase-orders"); }} 
+                                onClick={() => { setActiveTab("Purchase Order"); navigate("/admin/purchases/orders"); }} 
                                 className="cpn-btn cpn-btn-secondary" 
                                 style={{ fontSize: 12, padding: "6px 12px" }}
                               >

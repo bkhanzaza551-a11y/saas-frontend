@@ -44,7 +44,7 @@ export default function MyBookingsPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.get(`/public/salon/${salon.slug}/my-bookings`, { params: { phone } });
+      const res = await api.get(`/public/salons/${salon.slug}/my-bookings`, { params: { phone } });
       const data = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
       setBookings(data);
       setSearched(true);
@@ -59,7 +59,7 @@ export default function MyBookingsPage() {
     if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
     setCancellingOrder(orderNumber);
     try {
-      await api.patch(`/public/salon/${salon.slug}/my-bookings/${orderNumber}/cancel`, { phone });
+      await api.patch(`/public/salons/${salon.slug}/my-bookings/${orderNumber}/cancel`, { phone });
       await handleSearch();
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to cancel booking. Please contact front desk.");

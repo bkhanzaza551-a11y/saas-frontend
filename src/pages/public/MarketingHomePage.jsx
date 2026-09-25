@@ -849,7 +849,7 @@ export default function MarketingHomePage() {
   const handleContactSubmit = (e) => {
     e.preventDefault();
     setContactSubmitted(true);
-    api.post("/public/demo-lead", {
+    api.post("/public/demo-leads", {
       name: contactForm.name,
       phone: contactForm.phone,
       email: contactForm.email,

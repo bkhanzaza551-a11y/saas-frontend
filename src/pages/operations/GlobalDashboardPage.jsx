@@ -179,7 +179,7 @@ export default function GlobalDashboardPage() {
 
       {/* Multi-Branch Key Metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 20 }}>
-        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/reports/branch-sales")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
+        <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #6366f1", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/reports")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Combined Revenue</span>
             {renderGrowthBadge(data.revenueGrowth)}

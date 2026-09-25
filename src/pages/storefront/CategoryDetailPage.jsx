@@ -16,7 +16,7 @@ export default function CategoryDetailPage() {
   useEffect(() => {
     if (!slug) return;
     const params = selectedBranchId ? { branchId: selectedBranchId } : {};
-    api.get(`/public/salon/${slug}/storefront-services`, { params })
+    api.get(`/public/salons/${slug}/services`, { params })
       .then(res => setAllServices(res.data?.services || []))
       .catch(() => setAllServices([]))
       .finally(() => setLoading(false));

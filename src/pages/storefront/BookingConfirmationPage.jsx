@@ -26,7 +26,7 @@ export default function BookingConfirmationPage() {
 
   useEffect(() => {
     if (!orderNumber) { setLoading(false); return; }
-    api.get(`/public/salon/${slug}/track-booking`, { params: { bookingNumber: orderNumber, phone: "" } })
+    api.get(`/public/salons/${slug}/track-order`, { params: { bookingNumber: orderNumber, phone: "" } })
       .then(res => { setBooking(res.data.booking || res.data); })
       .catch(() => setError("Could not load booking details."))
       .finally(() => setLoading(false));

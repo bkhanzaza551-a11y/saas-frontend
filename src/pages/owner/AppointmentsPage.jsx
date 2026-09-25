@@ -992,12 +992,14 @@ export default function AppointmentsPage() {
   const handleUpdateItem = (index, field, value) => {
     const nextItems = [...form.items];
     const nextItem = { ...nextItems[index], [field]: value };
-    if (field === "serviceId") {
-      nextItem.staffUserIds = [];
-      if (value) {
-        // Always recalculate endAt from service duration when service changes
-        nextItem.endAt = nextItem.startAt ? addMinutesToLocalInput(nextItem.startAt, getServiceDurationMin(value)) : "";
-      } else {
+    if (field === "serviceId" || field === "startAt") {
+      if (field === "serviceId") nextItem.staffUserIds = [];
+      if (nextItem.serviceId && nextItem.startAt) {
+        nextItem.endAt = addMinutesToLocalInput(nextItem.startAt, getServiceDurationMin(nextItem.serviceId));
+      } else if (!nextItem.serviceId) {
+        nextItem.endAt = "";
+      }
+    } else {
         nextItem.endAt = "";
       }
     }
