@@ -1,5 +1,5 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { X, ChevronLeft } from "lucide-react";
+import { X, ChevronLeft, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useBranch } from '../../context/BranchContext';
@@ -1142,23 +1142,25 @@ export default function UsersPage() {
 
       {/* Location Required Modal */}
       {showLocationModal && (
-        <div className="hub-modal-overlay" style={{ zIndex: 99999 }}>
-          <div className="hub-modal-content" style={{ maxWidth: 460, padding: 0, textAlign: "center", borderRadius: 16, overflow: "hidden" }}>
-            <div style={{ background: "#fff5f5", padding: "30px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{ width: 64, height: 64, borderRadius: 32, background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                <span style={{ fontSize: 32 }}>📍</span>
+        <div className="hub-modal-overlay" style={{ zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)' }}>
+          <div className="hub-modal-content" style={{ maxWidth: 440, width: '100%', padding: 0, textAlign: "center", borderRadius: 20, overflow: "hidden", boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #e2e8f0', animation: 'scaleIn 0.2s ease-out' }}>
+            <div style={{ background: "linear-gradient(to bottom, #fef2f2, #fff)", padding: "40px 24px 20px", display: "flex", flexDirection: "column", alignItems: "center", borderBottom: '1px solid #fee2e2' }}>
+              <div style={{ width: 72, height: 72, borderRadius: 36, background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, boxShadow: '0 0 0 8px #fee2e2' }}>
+                <MapPin size={36} color="#ef4444" strokeWidth={2.5} />
               </div>
-              <h3 style={{ margin: 0, fontSize: 20, color: "#991b1b", fontWeight: 700 }}>Branch Location Required</h3>
+              <h3 style={{ margin: 0, fontSize: 22, color: "#1e293b", fontWeight: 800, letterSpacing: '-0.02em' }}>Branch Location Required</h3>
             </div>
             <div style={{ padding: "24px", background: "white" }}>
-              <p style={{ margin: 0, color: "#475569", fontSize: 15, lineHeight: 1.6 }}>
-                Staff add karne se pehle apni branch (<strong style={{ color: "#0f172a" }}>{branchForLocationModal?.name || "Main Branch"}</strong>) ki location map par set karna zaroori hai, taake staff attendance aur geofencing sahi se kaam kar sake.
+              <p style={{ margin: 0, color: "#475569", fontSize: 15, lineHeight: 1.6, padding: '0 10px' }}>
+                Staff add karne se pehle apni branch (<strong style={{ color: "#0f172a", fontWeight: 700 }}>{branchForLocationModal?.name || "Main Branch"}</strong>) ki location map par set karna zaroori hai, taake staff attendance aur geofencing sahi se kaam kar sake.
               </p>
-              <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+              <div style={{ display: "flex", gap: 14, marginTop: 32 }}>
                 <button
                   type="button"
                   onClick={() => setShowLocationModal(false)}
-                  style={{ flex: 1, padding: "12px", borderRadius: 10, border: "1px solid #e2e8f0", background: "white", color: "#64748b", fontWeight: 600, cursor: "pointer", fontSize: 14 }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "2px solid #e2e8f0", background: "white", color: "#64748b", fontWeight: 700, cursor: "pointer", fontSize: 14, transition: 'all 0.2s' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#475569'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                 >
                   Cancel
                 </button>
@@ -1168,7 +1170,9 @@ export default function UsersPage() {
                     setShowLocationModal(false);
                     navigate(`/admin/branches?editBranchId=${branchForLocationModal?.id || ""}&openLocation=true`);
                   }}
-                  style={{ flex: 1, padding: "12px", borderRadius: 10, border: "none", background: "#ef4444", color: "white", fontWeight: 600, cursor: "pointer", fontSize: 14 }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "white", fontWeight: 700, cursor: "pointer", fontSize: 14, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)', transition: 'all 0.2s' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.25)'; }}
                 >
                   Set Location Now
                 </button>
@@ -1430,4 +1434,5 @@ export default function UsersPage() {
     </div>
   );
 }
+
 
