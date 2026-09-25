@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
@@ -705,8 +705,7 @@ const defaultPlans = [
     id: "starter",
     name: "Starter Studio",
     tagline: "Essential operating power for independent salons & boutique barbers",
-    monthlyPrice: 1499,
-    yearlyPrice: 14390,
+    yearlyPrice: 2999,
     userLimit: 5,
     customerLimit: "5,000",
     invoiceLimit: "1,000",
@@ -726,8 +725,7 @@ const defaultPlans = [
     id: "growth",
     name: "Growth & Multi-Chair",
     tagline: "Full-suite automation for high-volume salons, day spas & aesthetics",
-    monthlyPrice: 2999,
-    yearlyPrice: 28790,
+    yearlyPrice: 19999,
     userLimit: 25,
     customerLimit: "25,000",
     invoiceLimit: "Unlimited",
@@ -748,8 +746,7 @@ const defaultPlans = [
     id: "enterprise",
     name: "Enterprise Chain & Franchise",
     tagline: "Uncompromised multi-branch control for luxury chains & franchises",
-    monthlyPrice: 5999,
-    yearlyPrice: 57590,
+    yearlyPrice: 44999,
     userLimit: 100,
     customerLimit: "Unlimited",
     invoiceLimit: "Unlimited",
@@ -802,8 +799,7 @@ export default function MarketingHomePage() {
             id: p.id || String(idx),
             name: p.name && !p.name.includes("dsak") ? p.name : defaultPlans[idx % defaultPlans.length].name,
             tagline: p.description || defaultPlans[idx % defaultPlans.length].tagline,
-            monthlyPrice: Number(p.monthlyPrice) || defaultPlans[idx % defaultPlans.length].monthlyPrice,
-            yearlyPrice: Number(p.yearlyPrice) || (Number(p.monthlyPrice) * 10) || defaultPlans[idx % defaultPlans.length].yearlyPrice,
+            yearlyPrice: Number(p.yearlyPrice) || defaultPlans[idx % defaultPlans.length]?.yearlyPrice || 2999,
             userLimit: p.userLimit || (idx === 0 ? 5 : idx === 1 ? 25 : 100),
             customerLimit: p.customerLimit || (idx === 0 ? "5,000" : idx === 1 ? "25,000" : "Unlimited"),
             invoiceLimit: p.invoiceLimit || (idx === 0 ? "1,000" : "Unlimited"),
@@ -1779,7 +1775,7 @@ export default function MarketingHomePage() {
             {/* Plans Cards Grid */}
             <div className="marketing-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 28, marginBottom: 70 }}>
               {plans.map((plan, idx) => {
-                const displayPrice = Number(plan.yearlyPrice || (plan.monthlyPrice ? plan.monthlyPrice * 10 : 0));
+                const displayPrice = Number(plan.yearlyPrice || 0);
 
                 return (
                   <div 
