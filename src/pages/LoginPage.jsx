@@ -176,7 +176,7 @@ export default function LoginPage() {
     setResendMsg("");
     setIsSubmitting(true);
     try {
-      const res = await resendOtp({ tempToken });
+      const res = await resendOtp({ email: form.email, tempToken });
       if (res?.tempToken) {
         setTempToken(res.tempToken);
       }
