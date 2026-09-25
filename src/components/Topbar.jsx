@@ -250,20 +250,20 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         }
         .salonnest-branch-dropdown {
           position: absolute;
-          top: calc(100% + 8px);
+          top: calc(100% + 6px);
           left: 0;
-          min-width: 220px;
-          max-height: 320px;
+          min-width: 140px;
+          max-height: 200px;
           overflow-y: auto;
           background: white;
           border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+          border-radius: 8px;
+          box-shadow: 0 4px 14px -4px rgba(0,0,0,0.1), 0 2px 6px -2px rgba(0,0,0,0.07);
           z-index: 120;
-          padding: 6px;
+          padding: 3px;
         }
         .salonnest-branch-dropdown::-webkit-scrollbar {
-          width: 6px;
+          width: 4px;
         }
         .salonnest-branch-dropdown::-webkit-scrollbar-track {
           background: transparent;
@@ -278,15 +278,15 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
         .salonnest-branch-option {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 5px;
           width: 100%;
           border: none !important;
           background: transparent;
           text-align: left;
-          padding: 8px 10px;
-          border-radius: 8px;
+          padding: 5px 7px;
+          border-radius: 5px;
           cursor: pointer;
-          font-size: 0.82rem;
+          font-size: 0.70rem;
           color: #334155;
           font-weight: 500;
           transition: all 0.15s ease;
@@ -306,8 +306,8 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
           font-weight: 600;
         }
         .salonnest-branch-option-check {
-          width: 16px;
-          height: 16px;
+          width: 12px;
+          height: 12px;
           flex-shrink: 0;
         }
         .salonnest-search-dropdown {

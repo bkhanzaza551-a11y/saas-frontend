@@ -50,7 +50,7 @@ export default function BranchesPage() {
       const limitRes = await api.get("/owner/branches/limit-info");
       setLimitInfo(limitRes.data);
     } catch {
-      setLimitInfo({ count: 0, limit: 999, canAdd: true });
+      setLimitInfo({ planName: "Fallback Plan", branchCount: 0, branchLimit: 999, remaining: 999, canAdd: true });
     } finally {
       setStatus((current) => ({ ...current, loading: false }));
     }
