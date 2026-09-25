@@ -4,8 +4,12 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
 import { useAuth } from "../../context/AuthContext";
-import { LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, XCircle, Send, Paperclip, AlertTriangle, HelpCircle, Shield, Sparkles, Download } from "lucide-react";
-
+import { 
+  LifeBuoy, Search, Filter, MessageSquare, Plus, Clock, CheckCircle2, 
+  XCircle, Send, Paperclip, AlertTriangle, HelpCircle, Shield, Sparkles, 
+  Download, ArrowLeft, ChevronDown, ChevronUp, Image as ImageIcon,
+  FileText, ExternalLink, RefreshCw, X, User, Headphones
+} from "lucide-react";
 import CustomSelect from "../../components/CustomSelect";
 
 const handleOpenOrDownloadImage = (url) => {
@@ -42,9 +46,6 @@ const handleOpenOrDownloadImage = (url) => {
   }
 };
 
-const formatAttachmentValue = (value) => String(value || "").trim();
-const isAttachmentLink = (value) => /^(https?:\/\/|data:)/i.test(formatAttachmentValue(value));
-
 const isImageAttachment = (value) => {
   const url = String(value || "").trim();
   return /^data:image\//i.test(url) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(url);
@@ -52,72 +53,88 @@ const isImageAttachment = (value) => {
 
 const getAttachmentMeta = (value) => {
   const url = String(value || "").trim();
-  if (!url) return { label: "Attachment", isImage: false, isDoc: false };
-  if (isImageAttachment(url)) return { label: "View Full Image", isImage: true, isDoc: false };
-  if (/^data:application\/pdf/i.test(url) || /\.pdf$/i.test(url)) return { label: "Open PDF Document", isImage: false, isDoc: false };
-  if (/wordprocessingml|document|\.docx?$/i.test(url)) return { label: "Download Word Document (.docx)", isImage: false, isDoc: true };
-  if (/spreadsheetml|sheet|\.xlsx?$/i.test(url)) return { label: "Download Excel Spreadsheet (.xlsx)", isImage: false, isDoc: true };
-  return { label: "Download Attachment", isImage: false, isDoc: true };
+  if (!url) return { label: "Attachment", isImage: false };
+  if (isImageAttachment(url)) return { label: "View Full Image", isImage: true };
+  if (/^data:application\/pdf/i.test(url) || /\.pdf$/i.test(url)) return { label: "Open PDF Document", isImage: false };
+  if (/wordprocessingml|document|\.docx?$/i.test(url)) return { label: "Download Word Doc", isImage: false };
+  if (/spreadsheetml|sheet|\.xlsx?$/i.test(url)) return { label: "Download Excel Spreadsheet", isImage: false };
+  return { label: "Download Attachment", isImage: false };
+};
+
+const STATUS_CONFIG = {
+  OPEN: { label: "Open", bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
+  IN_PROGRESS: { label: "In Progress", bg: "#fef3c7", color: "#d97706", border: "#fde68a" },
+  WAITING_FOR_SALON: { label: "Waiting for Reply", bg: "#fff7ed", color: "#ea580c", border: "#ffedd5" },
+  RESOLVED: { label: "Resolved", bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
+  CLOSED: { label: "Closed", bg: "#f1f5f9", color: "#64748b", border: "#e2e8f0" }
+};
+
+const PRIORITY_CONFIG = {
+  LOW: { label: "Low", bg: "#f8fafc", color: "#64748b" },
+  MEDIUM: { label: "Medium", bg: "#e0f2fe", color: "#0369a1" },
+  HIGH: { label: "High", bg: "#ffedd5", color: "#c2410c" },
+  URGENT: { label: "Urgent", bg: "#fee2e2", color: "#dc2626" }
 };
 
 export default function SupportTicketsPage() {
   const { auth } = useAuth();
   const [rows, setRows] = useState([]);
-  const [filters, setFilters] = useState({ q: "", status: "", priority: "" });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [form, setForm] = useState({ title: "", category: "General", priority: "MEDIUM", description: "", attachmentUrl: "" });
-  const [replyDrafts, setReplyDrafts] = useState({});
-  const [replyAttachments, setReplyAttachments] = useState({});
+  
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyAttachment, setReplyAttachment] = useState("");
+  
   const [status, setStatus] = useState({ error: "", success: "", loading: true });
   const [submitting, setSubmitting] = useState(false);
-  const [replyingId, setReplyingId] = useState(null);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [sendingReply, setSendingReply] = useState(false);
+  const [showTicketInfo, setShowTicketInfo] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
-  const scrollToBottom = (behavior = "smooth") => {
+  const scrollToBottom = (smooth = true) => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior, block: "end" });
+      messagesEndRef.current.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "end" });
+    }
+  };
+
+  // Load ticket list
+  const loadTickets = async (selectTicketId = null) => {
+    try {
+      const response = await api.get("/owner/support-tickets");
+      const list = response.data || [];
+      setRows(list);
+      setStatus(s => ({ ...s, loading: false }));
+
+      if (selectTicketId) {
+        const found = list.find(t => t.id === selectTicketId);
+        if (found) setSelectedTicket(found);
+      } else if (!selectedTicket && list.length > 0) {
+        // Select first by default on desktop
+        if (window.innerWidth > 900) {
+          setSelectedTicket(list[0]);
+        }
+      } else if (selectedTicket) {
+        const refreshed = list.find(t => t.id === selectedTicket.id);
+        if (refreshed) {
+          setSelectedTicket(refreshed);
+        }
+      }
+    } catch {
+      setStatus(s => ({ ...s, loading: false }));
     }
   };
 
   useEffect(() => {
-    if (selectedTicket) {
-      const timer = setTimeout(() => {
-        scrollToBottom("auto");
-      }, 60);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedTicket?.id, selectedTicket?.messages?.length]);
+    loadTickets();
+  }, []);
 
-  const permissions = auth?.membership?.permissions || {};
-  const canCreateTicket = Array.isArray(permissions.support) && permissions.support.includes("create");
-  const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
-  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
-  const hasCreateAccess = isOwner || isSuperAdmin || canCreateTicket;
-
-  const [reloadKey, setReloadKey] = useState(0);
-  const triggerReload = () => setReloadKey(k => k + 1);
-
-  useEffect(() => {
-    let active = true;
-    api.get("/owner/support-tickets", {
-      params: {
-        ...(filters.q ? { q: filters.q } : {}),
-        ...(filters.status ? { status: filters.status } : {}),
-        ...(filters.priority ? { priority: filters.priority } : {})
-      }
-    }).then((response) => {
-      if (active) {
-        setRows(response.data || []);
-        setStatus((current) => ({ ...current, loading: false }));
-      }
-    }).catch(() => {
-      if (active) setStatus((current) => ({ ...current, loading: false }));
-    });
-    return () => { active = false; };
-  }, [filters, reloadKey]);
-
+  // Poll active ticket messages every 3s
   useEffect(() => {
     if (!selectedTicket?.id) return;
     const interval = setInterval(() => {
@@ -129,7 +146,7 @@ export default function SupportTicketsPage() {
           if (freshMsgCount > prevMsgCount || fresh.status !== selectedTicket.status) {
             setSelectedTicket(fresh);
             if (freshMsgCount > prevMsgCount) {
-              setTimeout(() => scrollToBottom("smooth"), 100);
+              setTimeout(() => scrollToBottom(true), 80);
             }
           }
         }
@@ -138,17 +155,28 @@ export default function SupportTicketsPage() {
     return () => clearInterval(interval);
   }, [selectedTicket?.id, selectedTicket?.messages?.length, selectedTicket?.status]);
 
-  const submit = async (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    if (selectedTicket) {
+      const timer = setTimeout(() => {
+        scrollToBottom(false);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedTicket?.id]);
+
+  // Submit new ticket
+  const handleCreateTicket = async (e) => {
+    e.preventDefault();
     if (!form.title.trim() || !form.description.trim()) return;
-    setStatus({ error: "", success: "", loading: false });
     setSubmitting(true);
+    setStatus({ error: "", success: "", loading: false });
     try {
-      await api.post("/owner/support-tickets", form);
+      const res = await api.post("/owner/support-tickets", form);
       setForm({ title: "", category: "General", priority: "MEDIUM", description: "", attachmentUrl: "" });
-      triggerReload();
+      setShowCreateModal(false);
       setStatus({ error: "", success: "Support ticket raised successfully!" });
-      setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
+      setTimeout(() => setStatus(s => ({ ...s, success: "" })), 3500);
+      await loadTickets(res.data?.id);
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not create support ticket"), success: "" });
     } finally {
@@ -156,264 +184,726 @@ export default function SupportTicketsPage() {
     }
   };
 
-  const sendReply = async (ticketId) => {
-    if (!replyDrafts[ticketId]?.trim() && !replyAttachments[ticketId]) return;
-    setStatus({ error: "", success: "", loading: false });
-    setReplyingId(ticketId);
+  // Send reply message
+  const handleSendReply = async (e) => {
+    if (e) e.preventDefault();
+    if (!selectedTicket?.id) return;
+    if (!replyText.trim() && !replyAttachment) return;
+
+    setSendingReply(true);
     try {
-      const res = await api.post(`/owner/support-tickets/${ticketId}/messages`, {
-        message: replyDrafts[ticketId] || "Sent an attachment.",
-        attachmentUrl: replyAttachments[ticketId] || ""
+      const res = await api.post(`/owner/support-tickets/${selectedTicket.id}/messages`, {
+        message: replyText.trim() || (replyAttachment ? "Sent an attachment." : ""),
+        attachmentUrl: replyAttachment || ""
       });
-      setReplyDrafts((current) => ({ ...current, [ticketId]: "" }));
-      setReplyAttachments((current) => ({ ...current, [ticketId]: "" }));
+      setReplyText("");
+      setReplyAttachment("");
       if (res.data) {
         setSelectedTicket(res.data);
-        setTimeout(() => {
-          scrollToBottom("smooth");
-        }, 80);
+        setTimeout(() => scrollToBottom(true), 60);
       }
-      triggerReload();
-      setStatus({ error: "", success: "Reply sent to support desk." });
-      setTimeout(() => setStatus(s => ({ ...s, success: "" })), 4000);
+      await loadTickets();
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not send reply"), success: "" });
     } finally {
-      setReplyingId(null);
+      setSendingReply(false);
     }
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendReply();
+    }
+  };
+
+  // Filtered tickets
+  const filteredTickets = rows.filter(t => {
+    if (statusFilter !== "ALL" && t.status !== statusFilter) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const titleMatch = (t.title || "").toLowerCase().includes(q);
+      const catMatch = (t.category || "").toLowerCase().includes(q);
+      const idMatch = (t.id || "").toLowerCase().includes(q);
+      if (!titleMatch && !catMatch && !idMatch) return false;
+    }
+    return true;
+  });
 
   const stats = {
     total: rows.length,
-    open: rows.filter(r => r.status === "OPEN").length,
-    pending: rows.filter(r => r.status === "WAITING_FOR_SALON").length,
+    open: rows.filter(r => r.status === "OPEN" || r.status === "IN_PROGRESS" || r.status === "WAITING_FOR_SALON").length,
     resolved: rows.filter(r => r.status === "RESOLVED" || r.status === "CLOSED").length,
   };
 
-  const getStatusBadge = (s) => {
-    switch (s) {
-      case "OPEN": return <span className="badge" style={{ background: "#e0e7ff", color: "#4338ca", fontWeight: 700 }}>Open</span>;
-      case "IN_PROGRESS": return <span className="badge" style={{ background: "#fef3c7", color: "#b45309", fontWeight: 700 }}>In Progress</span>;
-      case "WAITING_FOR_SALON": return <span className="badge" style={{ background: "#fff7ed", color: "#c2410c", fontWeight: 700 }}>Waiting for Salon</span>;
-      case "RESOLVED": return <span className="badge" style={{ background: "#dcfce7", color: "#166534", fontWeight: 700 }}>Resolved</span>;
-      case "CLOSED": return <span className="badge" style={{ background: "#f1f5f9", color: "#64748b", fontWeight: 700 }}>Closed</span>;
-      default: return <span className="badge" style={{ background: "#f1f5f9", color: "#475569" }}>{s}</span>;
-    }
-  };
-
-  const getPriorityBadge = (p) => {
-    switch (p) {
-      case "LOW": return <span className="badge" style={{ background: "#f8fafc", color: "#64748b", border: "1px solid #e2e8f0" }}>Low</span>;
-      case "MEDIUM": return <span className="badge" style={{ background: "#e0f2fe", color: "#0369a1", border: "1px solid #bae6fd" }}>Medium</span>;
-      case "HIGH": return <span className="badge" style={{ background: "#ffedd5", color: "#c2410c", border: "1px solid #fed7aa" }}>High</span>;
-      case "URGENT": return <span className="badge" style={{ background: "#fee2e2", color: "#b91c1c", border: "1px solid #fecaca", fontWeight: 700 }}>🔥 Urgent</span>;
-      default: return <span className="badge">{p}</span>;
-    }
-  };
+  if (status.loading) {
+    return <div className="page-shell"><PageLoader title="Loading Support Desk" /></div>;
+  }
 
   return (
-    <div className="page-shell">
+    <div className="page-shell" style={{ padding: "16px 20px", height: "calc(100vh - 75px)", minHeight: "620px", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
       <style>{`
-        .st-metrics-grid {
+        .support-hub-container {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: 360px 1fr;
           gap: 16px;
-          margin-bottom: 24px;
+          flex: 1;
+          min-height: 0;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+          overflow: hidden;
         }
-        .st-main-grid {
-          display: grid;
-          grid-template-columns: 1fr 1.6fr;
-          gap: 24px;
-          align-items: start;
-        }
-        .st-sticky-panel {
-          padding: 24px;
-          position: sticky;
-          top: 20px;
-        }
-        .st-form-2col {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-        }
-        .st-filter-grid {
-          padding: 14px;
+
+        .support-sidebar {
+          display: flex;
+          flex-direction: column;
           background: #f8fafc;
+          border-right: 1px solid #e2e8f0;
+          min-height: 0;
+          height: 100%;
+        }
+
+        .support-ticket-list {
+          flex: 1;
+          overflow-y: auto;
+          padding: 8px 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .support-ticket-item {
+          padding: 12px 14px;
           border-radius: 10px;
-          margin-bottom: 20px;
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr auto;
-          gap: 10px;
+          border: 1px solid transparent;
+          background: #ffffff;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .support-ticket-item:hover {
+          border-color: #cbd5e1;
+          background: #f1f5f9;
+        }
+        .support-ticket-item.active {
+          background: #eef2ff;
+          border-color: #818cf8;
+          box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+        }
+
+        .support-chat-pane {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          min-height: 0;
+          background: #ffffff;
+          position: relative;
+        }
+
+        .support-chat-header {
+          padding: 14px 20px;
+          border-bottom: 1px solid #f1f5f9;
+          display: flex;
+          justify-content: space-between;
           align-items: center;
+          background: #ffffff;
+          flex-shrink: 0;
+          z-index: 10;
         }
-        @media (max-width: 1024px) {
-          .st-metrics-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 12px !important;
-          }
-          .st-main-grid {
-            grid-template-columns: 1fr !important;
-            gap: 20px !important;
-          }
-          .st-sticky-panel {
-            position: static !important;
-            padding: 18px 16px !important;
-          }
+
+        .support-messages-stream {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          background: #f8fafc;
         }
-        @media (max-width: 640px) {
-          .st-metrics-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-          }
-          .st-filter-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-            padding: 10px !important;
-          }
-          .st-filter-search {
-            grid-column: 1 / -1 !important;
-          }
-          .st-filter-clear {
-            grid-column: 1 / -1 !important;
-            width: 100% !important;
-            justify-content: center !important;
-          }
-          .st-form-2col {
+
+        .support-reply-bar {
+          padding: 12px 20px 16px;
+          background: #ffffff;
+          border-top: 1px solid #e2e8f0;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        .msg-bubble-superadmin {
+          align-self: flex-start;
+          max-width: 75%;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .msg-bubble-superadmin .bubble-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          color: #0f172a;
+          border-radius: 4px 16px 16px 16px;
+          padding: 12px 16px;
+          font-size: 13.5px;
+          line-height: 1.55;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+          word-break: break-word;
+          white-space: pre-wrap;
+        }
+
+        .msg-bubble-owner {
+          align-self: flex-end;
+          max-width: 75%;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .msg-bubble-owner .bubble-card {
+          background: linear-gradient(135deg, #4f46e5, #4338ca);
+          color: #ffffff;
+          border-radius: 16px 4px 16px 16px;
+          padding: 12px 16px;
+          font-size: 13.5px;
+          line-height: 1.55;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+          word-break: break-word;
+          white-space: pre-wrap;
+        }
+
+        @media (max-width: 900px) {
+          .support-hub-container {
             grid-template-columns: 1fr !important;
-            gap: 10px !important;
+          }
+          .support-sidebar.hide-mobile {
+            display: none !important;
+          }
+          .support-chat-pane.hide-mobile {
+            display: none !important;
           }
         }
       `}</style>
-      {/* Hero Banner */}
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-          <div>
-            <h1 style={{ margin: "0 0 6px", display: "flex", alignItems: "center", gap: 10, fontSize: 22, fontWeight: 800, color: "#0f172a" }}>
-              <LifeBuoy size={24} style={{ color: "#6366f1" }} /> Support & Help Desk
-            </h1>
-            <p style={{ margin: 0, color: "#64748b", fontSize: 13, lineHeight: 1.5 }}>
-              Raise support tickets for billing, feature assistance, technical queries, or system issues and track live resolutions.
-            </p>
+
+      {/* Top Notification Alerts */}
+      {status.error && (
+        <div style={{ padding: "10px 16px", background: "#fef2f2", color: "#991b1b", border: "1px solid #fecaca", borderRadius: 8, fontSize: "0.85rem", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.error}</span>
+          <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "#991b1b", cursor: "pointer" }}>✕</button>
+        </div>
+      )}
+      {status.success && (
+        <div style={{ padding: "10px 16px", background: "#ecfdf5", color: "#065f46", border: "1px solid #a7f3d0", borderRadius: 8, fontSize: "0.85rem", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{status.success}</span>
+          <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "#065f46", cursor: "pointer" }}>✕</button>
+        </div>
+      )}
+
+      {/* Main Support Workspace */}
+      <div className="support-hub-container">
+        
+        {/* ── LEFT PANEL: TICKET INBOX ── */}
+        <div className={`support-sidebar ${selectedTicket ? "hide-mobile" : ""}`}>
+          
+          {/* Header */}
+          <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ background: "#eef2ff", color: "#4f46e5", padding: 6, borderRadius: 8 }}>
+                  <LifeBuoy size={18} />
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#0f172a" }}>Support Desk</h2>
+                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>{stats.open} Active · {stats.resolved} Resolved</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "7px 12px",
+                  background: "#4f46e5",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: "0.78rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)"
+                }}
+              >
+                <Plus size={14} /> New Ticket
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div style={{ position: "relative" }}>
+              <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+              <input
+                type="text"
+                placeholder="Search ticket subject..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px 10px 8px 30px",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: 8,
+                  fontSize: "0.8rem",
+                  boxSizing: "border-box",
+                  background: "#ffffff",
+                  outline: "none"
+                }}
+              />
+            </div>
+
+            {/* Quick Status Filter Pills */}
+            <div style={{ display: "flex", gap: 4, marginTop: 10, overflowX: "auto", paddingBottom: 2 }}>
+              {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"].map(st => (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 6,
+                    border: "none",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    background: statusFilter === st ? "#0f172a" : "#e2e8f0",
+                    color: statusFilter === st ? "#ffffff" : "#475569"
+                  }}
+                >
+                  {st === "ALL" ? "All" : STATUS_CONFIG[st]?.label || st}
+                </button>
+              ))}
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
-            <span style={{ 
-              display: "inline-flex", 
-              alignItems: "center", 
-              gap: 6, 
-              padding: "6px 14px", 
-              borderRadius: "8px", 
-              background: "#e0e7ff", 
-              color: "#3730a3", 
-              fontSize: 12, 
-              fontWeight: 700,
-              height: "fit-content",
-              whiteSpace: "nowrap",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)" 
-            }}>
-              Total: {stats.total}
-            </span>
-            <span style={{ 
-              display: "inline-flex", 
-              alignItems: "center", 
-              gap: 6, 
-              padding: "6px 14px", 
-              borderRadius: "8px", 
-              background: "#fee2e2", 
-              color: "#991b1b", 
-              fontSize: 12, 
-              fontWeight: 700,
-              height: "fit-content",
-              whiteSpace: "nowrap",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)" 
-            }}>
-              Active Open: {stats.open}
-            </span>
+
+          {/* Ticket List Stream */}
+          <div className="support-ticket-list">
+            {filteredTickets.length === 0 ? (
+              <div style={{ padding: "40px 16px", textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>
+                <MessageSquare size={32} style={{ color: "#cbd5e1", margin: "0 auto 8px" }} />
+                No tickets matching criteria.
+              </div>
+            ) : (
+              filteredTickets.map(ticket => {
+                const isActive = selectedTicket?.id === ticket.id;
+                const sc = STATUS_CONFIG[ticket.status] || STATUS_CONFIG.OPEN;
+                const pc = PRIORITY_CONFIG[ticket.priority] || PRIORITY_CONFIG.MEDIUM;
+                const dateStr = ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "";
+                const msgCount = ticket.messages?.length || 0;
+
+                return (
+                  <div
+                    key={ticket.id}
+                    onClick={() => setSelectedTicket(ticket)}
+                    className={`support-ticket-item ${isActive ? "active" : ""}`}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#6366f1" }}>
+                        #{ticket.id.slice(0, 8)}
+                      </span>
+                      <span style={{ background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`, padding: "1px 6px", borderRadius: 100, fontSize: "0.68rem", fontWeight: 700 }}>
+                        {sc.label}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {ticket.title}
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem", color: "#64748b" }}>
+                      <span style={{ background: pc.bg, color: pc.color, padding: "1px 5px", borderRadius: 4, fontWeight: 700 }}>
+                        {pc.label}
+                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        {msgCount > 0 && (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 2, color: "#4f46e5", fontWeight: 700 }}>
+                            <MessageSquare size={11} /> {msgCount}
+                          </span>
+                        )}
+                        <span>{dateStr}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
+
+        {/* ── RIGHT PANEL: CHAT STREAM & THREAD ── */}
+        <div className={`support-chat-pane ${!selectedTicket ? "hide-mobile" : ""}`}>
+          {!selectedTicket ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "#64748b", padding: 20 }}>
+              <Headphones size={48} style={{ color: "#c7d2fe", marginBottom: 12 }} />
+              <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", color: "#0f172a" }}>Select a Support Ticket</h3>
+              <p style={{ margin: 0, fontSize: "0.85rem" }}>Click any ticket on the left to start live chat with our support team.</p>
+            </div>
+          ) : (
+            <>
+              {/* Pinned Topbar */}
+              <div className="support-chat-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <button
+                    onClick={() => setSelectedTicket(null)}
+                    style={{ display: "inline-flex", alignItems: "center", padding: "4px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 6, cursor: "pointer", color: "#475569" }}
+                    title="Back to Tickets"
+                  >
+                    <ArrowLeft size={14} />
+                  </button>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#6366f1" }}>#{selectedTicket.id.slice(0, 8)}</span>
+                      <span style={{ background: STATUS_CONFIG[selectedTicket.status]?.bg, color: STATUS_CONFIG[selectedTicket.status]?.color, border: `1px solid ${STATUS_CONFIG[selectedTicket.status]?.border}`, padding: "1px 6px", borderRadius: 100, fontSize: "0.68rem", fontWeight: 700 }}>
+                        {STATUS_CONFIG[selectedTicket.status]?.label || selectedTicket.status}
+                      </span>
+                    </div>
+                    <h3 style={{ margin: "2px 0 0", fontSize: "0.98rem", fontWeight: 800, color: "#0f172a" }}>
+                      {selectedTicket.title}
+                    </h3>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    onClick={() => setShowTicketInfo(v => !v)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      padding: "6px 10px",
+                      background: showTicketInfo ? "#e0e7ff" : "#f8fafc",
+                      color: showTicketInfo ? "#3730a3" : "#475569",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 6,
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Ticket Details {showTicketInfo ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Collapsible Ticket Info Bar */}
+              {showTicketInfo && (
+                <div style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", padding: "12px 20px", fontSize: "0.8rem", color: "#334155" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginBottom: 8 }}>
+                    <div><span style={{ color: "#64748b" }}>Category:</span> <strong>{selectedTicket.category || "General"}</strong></div>
+                    <div><span style={{ color: "#64748b" }}>Priority:</span> <strong>{selectedTicket.priority}</strong></div>
+                    <div><span style={{ color: "#64748b" }}>Created:</span> <strong>{new Date(selectedTicket.createdAt).toLocaleString()}</strong></div>
+                    {selectedTicket.assignedAgentName && <div><span style={{ color: "#64748b" }}>Assigned Agent:</span> <strong>🎧 {selectedTicket.assignedAgentName}</strong></div>}
+                  </div>
+                  <div style={{ background: "#ffffff", padding: "8px 12px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: "0.78rem", lineHeight: 1.4 }}>
+                    <strong>Initial Description:</strong> {selectedTicket.description}
+                  </div>
+                </div>
+              )}
+
+              {/* Scrollable Chat Stream (Never scrolls the page!) */}
+              <div ref={chatContainerRef} className="support-messages-stream">
+                
+                {/* Initial Description Card as first message bubble if no messages */}
+                {(!selectedTicket.messages || selectedTicket.messages.length === 0) && (
+                  <div className="msg-bubble-owner">
+                    <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6, fontSize: "0.72rem", color: "#64748b" }}>
+                      <strong style={{ color: "#4338ca" }}>You (Ticket Created)</strong>
+                      <span>{new Date(selectedTicket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div className="bubble-card">
+                      {selectedTicket.description}
+                      {selectedTicket.attachmentUrl && (
+                        <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.3)" }}>
+                          {isImageAttachment(selectedTicket.attachmentUrl) ? (
+                            <img
+                              src={selectedTicket.attachmentUrl}
+                              alt="Attachment"
+                              onClick={() => setPreviewImageUrl(selectedTicket.attachmentUrl)}
+                              style={{ maxWidth: 200, maxHeight: 150, borderRadius: 6, cursor: "pointer", display: "block" }}
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenOrDownloadImage(selectedTicket.attachmentUrl)}
+                              style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "0.75rem", display: "inline-flex", alignItems: "center", gap: 4 }}
+                            >
+                              <Paperclip size={12} /> View Attachment
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* All Conversation Messages */}
+                {selectedTicket.messages && selectedTicket.messages.map(msg => {
+                  const isOwner = msg.authorType === "SALON" || msg.authorType === "OWNER" || msg.authorType === "SALON_OWNER" || msg.authorType === "STAFF";
+                  const timeStr = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const dateStr = new Date(msg.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+
+                  return (
+                    <div
+                      key={msg.id}
+                      className={isOwner ? "msg-bubble-owner" : "msg-bubble-superadmin"}
+                    >
+                      {/* Author Tag */}
+                      <div style={{ display: "flex", justifyContent: isOwner ? "flex-end" : "flex-start", alignItems: "center", gap: 6, fontSize: "0.72rem", color: "#64748b" }}>
+                        {!isOwner && (
+                          <span style={{ background: "#ede9fe", color: "#6d28d9", padding: "1px 6px", borderRadius: 4, fontWeight: 700, fontSize: "0.68rem" }}>
+                            SuperAdmin Support
+                          </span>
+                        )}
+                        <strong style={{ color: isOwner ? "#4338ca" : "#0f172a" }}>
+                          {isOwner ? "You" : (msg.authorName || "Super Admin")}
+                        </strong>
+                        <span style={{ fontSize: "0.68rem", color: "#94a3b8" }}>{dateStr}, {timeStr}</span>
+                      </div>
+
+                      {/* Bubble Card */}
+                      <div className="bubble-card">
+                        {msg.message}
+
+                        {/* Inline Attachment Preview */}
+                        {msg.attachmentUrl && (
+                          <div style={{ marginTop: 8, paddingTop: 6, borderTop: isOwner ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #cbd5e1" }}>
+                            {isImageAttachment(msg.attachmentUrl) ? (
+                              <div>
+                                <img
+                                  src={msg.attachmentUrl}
+                                  alt="Attachment"
+                                  onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
+                                  style={{
+                                    maxWidth: 220,
+                                    maxHeight: 160,
+                                    borderRadius: 6,
+                                    border: isOwner ? "1px solid rgba(255,255,255,0.4)" : "1px solid #cbd5e1",
+                                    display: "block",
+                                    marginBottom: 4,
+                                    cursor: "pointer",
+                                    objectFit: "contain",
+                                    background: "#000"
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    padding: 0,
+                                    color: isOwner ? "#e0e7ff" : "#2563eb",
+                                    fontSize: "0.72rem",
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    textDecoration: "underline"
+                                  }}
+                                >
+                                  Click to Expand Image →
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenOrDownloadImage(msg.attachmentUrl)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  padding: 0,
+                                  color: isOwner ? "#ffffff" : "#2563eb",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 700,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                  cursor: "pointer"
+                                }}
+                              >
+                                <Paperclip size={12} /> {getAttachmentMeta(msg.attachmentUrl).label} →
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                <div ref={messagesEndRef} style={{ height: 1 }} />
+              </div>
+
+              {/* Pinned Bottom Reply Bar */}
+              {selectedTicket.status !== "CLOSED" ? (
+                <div className="support-reply-bar">
+                  {/* Attachment Preview Chip */}
+                  {replyAttachment && (
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "4px 10px", borderRadius: 6, width: "fit-content", fontSize: "0.75rem", color: "#166534" }}>
+                      <Paperclip size={12} />
+                      <span>Attachment ready</span>
+                      <button
+                        type="button"
+                        onClick={() => setReplyAttachment("")}
+                        style={{ background: "none", border: "none", color: "#dc2626", fontWeight: 800, cursor: "pointer", padding: 0 }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                    {/* Attachment Upload Button */}
+                    <label
+                      title="Attach Screenshot / Document"
+                      style={{
+                        padding: "10px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 8,
+                        background: replyAttachment ? "#f0fdf4" : "#f8fafc",
+                        color: replyAttachment ? "#166534" : "#64748b",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0
+                      }}
+                    >
+                      <Paperclip size={16} />
+                      <input
+                        type="file"
+                        accept="image/*,.pdf,.doc,.docx"
+                        hidden
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setReplyAttachment(reader.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+
+                    {/* Text Input Area */}
+                    <textarea
+                      rows={2}
+                      value={replyText}
+                      placeholder="Type your reply... (Press Enter to send)"
+                      onChange={e => setReplyText(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      style={{
+                        flex: 1,
+                        padding: "10px 12px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 8,
+                        fontSize: "0.85rem",
+                        resize: "none",
+                        outline: "none",
+                        boxSizing: "border-box",
+                        fontFamily: "inherit"
+                      }}
+                    />
+
+                    {/* Send Button */}
+                    <button
+                      type="button"
+                      onClick={handleSendReply}
+                      disabled={sendingReply || (!replyText.trim() && !replyAttachment)}
+                      style={{
+                        padding: "10px 18px",
+                        background: (!replyText.trim() && !replyAttachment) ? "#cbd5e1" : "#4f46e5",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        fontSize: "0.85rem",
+                        cursor: (!replyText.trim() && !replyAttachment) ? "not-allowed" : "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        flexShrink: 0,
+                        height: 42
+                      }}
+                    >
+                      <Send size={14} /> {sendingReply ? "Sending..." : "Send"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: "14px 20px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", textAlign: "center", fontSize: "0.8rem", color: "#64748b" }}>
+                  🔒 This support ticket has been closed. You can raise a new ticket anytime if you need further help.
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
       </div>
 
-      {/* Metrics Row */}
-      <div className="st-metrics-grid">
-        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #6366f1" }}>
-          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Total Tickets Raised</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{stats.total}</div>
-        </div>
-        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #3b82f6" }}>
-          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Open / In Review</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#2563eb", marginTop: 4 }}>{stats.open}</div>
-        </div>
-        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #f97316" }}>
-          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Pending Response</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#ea580c", marginTop: 4 }}>{stats.pending}</div>
-        </div>
-        <div className="panel-card" style={{ padding: 18, borderLeft: "4px solid #22c55e" }}>
-          <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>Resolved Tickets</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>{stats.resolved}</div>
-        </div>
-      </div>
-
-      {/* Main Content Layout */}
-      <div className="st-main-grid" style={{ gridTemplateColumns: hasCreateAccess ? undefined : "1fr" }}>
-
-        {/* Left Column: Create Ticket Form */}
-        {hasCreateAccess && (
-          <div className="panel-card st-sticky-panel">
-            <h3 style={{ margin: "0 0 14px", fontSize: 17, color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-              <Sparkles size={18} style={{ color: "#6366f1" }} /> Raise Support Ticket
-            </h3>
-            <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 20px" }}>Need help? Submit a ticket and our technical support engineering team will respond shortly.</p>
-
-            {status.error && (
-              <div style={{ padding: 12, background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", borderRadius: 8, fontSize: 13, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                <XCircle size={16} /> {status.error}
+      {/* ── MODAL: CREATE SUPPORT TICKET ── */}
+      {showCreateModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div style={{ background: "#ffffff", borderRadius: 16, width: "100%", maxWidth: 540, padding: 24, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid #f1f5f9", paddingBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Sparkles size={20} style={{ color: "#6366f1" }} />
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Raise Support Ticket</h3>
               </div>
-            )}
-            {status.success && (
-              <div style={{ padding: 12, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", borderRadius: 8, fontSize: 13, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                <CheckCircle2 size={16} /> {status.success}
-              </div>
-            )}
+              <button onClick={() => setShowCreateModal(false)} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer" }}><X size={20} /></button>
+            </div>
 
-            <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <form onSubmit={handleCreateTicket} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Subject / Title *</label>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Subject / Issue Title *
+                </label>
                 <input
+                  type="text"
                   required
+                  placeholder="e.g., POS Printer disconnects on invoice print"
                   value={form.title}
-                  placeholder="e.g., Billing discrepancy in invoice #1042"
                   onChange={e => setForm({ ...form, title: e.target.value })}
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                 />
               </div>
 
-              <div className="st-form-2col">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Category</label>
+                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    Category
+                  </label>
                   <CustomSelect
                     value={form.category}
                     onChange={e => setForm({ ...form, category: e.target.value })}
-                    style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
+                    style={{ width: "100%" }}
                   >
                     <option value="General">General</option>
-                    <option value="Login / Account">Login / Account</option>
                     <option value="POS">POS</option>
                     <option value="Appointments">Appointments</option>
                     <option value="Inventory">Inventory</option>
                     <option value="Billing">Billing</option>
-                    <option value="Subscription">Subscription</option>
                     <option value="Product Request">Product Request</option>
-                    <option value="Staff Request">Staff Request</option>
+                    <option value="Staff Management">Staff Management</option>
                     <option value="Technical Issue">Technical Issue</option>
-                    <option value="Feature Request">Feature Request</option>
                   </CustomSelect>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Priority</label>
+                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    Priority
+                  </label>
                   <CustomSelect
                     value={form.priority}
                     onChange={e => setForm({ ...form, priority: e.target.value })}
-                    style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, background: "white", boxSizing: "border-box" }}
+                    style={{ width: "100%" }}
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -424,428 +914,102 @@ export default function SupportTicketsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Description *</label>
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Detailed Description *
+                </label>
                 <textarea
+                  rows={4}
                   required
-                  rows="4"
+                  placeholder="Describe what happened, error message, or what assistance you need..."
                   value={form.description}
-                  placeholder="Describe the issue in detail, steps to reproduce, or relevant context..."
                   onChange={e => setForm({ ...form, description: e.target.value })}
-                  style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 14, resize: "vertical", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.85rem", boxSizing: "border-box" }}
                 />
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Attach File (Optional)</label>
-                <div style={{ position: "relative" }}>
-                  <Paperclip size={16} color="#94a3b8" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-                  <input
-                    type="file"
-                    accept="image/*,.pdf,.doc,.docx"
-                    onChange={e => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => setForm({ ...form, attachmentUrl: reader.result });
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
-                  />
-                </div>
-                {form.attachmentUrl && <span style={{ fontSize: 11, color: "#16a34a", marginTop: 4, display: "block" }}>File attached</span>}
+                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                  Attach Screenshot / File (Optional)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => setForm({ ...form, attachmentUrl: reader.result });
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "0.8rem", boxSizing: "border-box" }}
+                />
               </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                style={{
-                  width: "100%",
-                  padding: 14,
-                  background: "var(--sf-accent, #6366f1)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  opacity: submitting ? 0.7 : 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  marginTop: 6
-                }}
-              >
-                <Plus size={18} /> {submitting ? "Submitting Ticket..." : "Submit Support Ticket"}
-              </button>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #cbd5e1", background: "white", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  style={{ padding: "8px 20px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  {submitting ? "Submitting..." : "Submit Ticket"}
+                </button>
+              </div>
             </form>
-          </div>
-        )}
-
-        {/* Right Column: Ticket Inbox & Thread */}
-        <div className="panel-card" style={{ padding: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid #f1f5f9", paddingBottom: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>Support Queue & Inbox</h3>
-            <span style={{ fontSize: 12, background: "#f1f5f9", color: "#475569", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>
-              {rows.length} Ticket{rows.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-
-          {/* Filter Bar */}
-          <div className="st-filter-grid">
-            <div className="st-filter-search" style={{ position: "relative" }}>
-              <Search size={15} color="#94a3b8" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} />
-              <input
-                value={filters.q}
-                placeholder="Search subject, category..."
-                onChange={e => setFilters({ ...filters, q: e.target.value })}
-                style={{ width: "100%", padding: "8px 10px 8px 32px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, boxSizing: "border-box" }}
-              />
-            </div>
-
-            <CustomSelect
-              value={filters.status}
-              onChange={e => setFilters({ ...filters, status: e.target.value })}
-              style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, background: "white" }}
-            >
-              <option value="">All Statuses</option>
-              <option value="OPEN">Open</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="WAITING_FOR_SALON">Waiting for Salon</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="CLOSED">Closed</option>
-            </CustomSelect>
-
-            <CustomSelect
-              value={filters.priority}
-              onChange={e => setFilters({ ...filters, priority: e.target.value })}
-              style={{ padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, background: "white" }}
-            >
-              <option value="">All Priorities</option>
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-              <option value="URGENT">Urgent</option>
-            </CustomSelect>
-
-            <button
-              type="button"
-              className="st-filter-clear"
-              onClick={() => setFilters({ q: "", status: "", priority: "" })}
-              style={{ padding: "8px 14px", background: "white", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
-            >
-              <Filter size={14} /> Clear
-            </button>
-          </div>
-
-          {status.loading ? (
-            <div style={{ padding: 40 }}><PageLoader compact title="Loading support queue" /></div>
-          ) : selectedTicket ? (
-            <div>
-              <button onClick={() => setSelectedTicket(null)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#475569", cursor: "pointer", marginBottom: 16, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background = "#f1f5f9"}>← Back to Tickets</button>
-
-              <div style={{ background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", borderRadius: 12, padding: "20px 24px", marginBottom: 20, color: "white" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>#{selectedTicket.id?.substring(0, 8) || "—"}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>{selectedTicket.status}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 6 }}>{selectedTicket.priority}</span>
-                </div>
-                <h2 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800 }}>{selectedTicket.title}</h2>
-                <div style={{ fontSize: 12, opacity: 0.85 }}>Created on {selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" }) : ""}</div>
-              </div>
-
-              <div style={{ background: "#f9fafb", padding: 16, borderRadius: 10, border: "1px solid #f3f4f6", color: "#334155", fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", marginBottom: 16 }}>
-                {selectedTicket.description}
-                {selectedTicket.attachmentUrl && (
-                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px dashed #e2e8f0" }}>
-                    {isImageAttachment(selectedTicket.attachmentUrl) ? (
-                      <div>
-                        <img 
-                          src={selectedTicket.attachmentUrl} 
-                          alt="Attachment" 
-                          onClick={() => setPreviewImageUrl(selectedTicket.attachmentUrl)}
-                          style={{ maxWidth: 300, maxHeight: 220, borderRadius: 8, border: "1px solid #cbd5e1", display: "block", marginBottom: 6, cursor: "pointer" }} 
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => setPreviewImageUrl(selectedTicket.attachmentUrl)}
-                          style={{ background: "none", border: "none", padding: 0, color: "#2563eb", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
-                        >
-                          Open Full Image &rarr;
-                        </button>
-                      </div>
-                    ) : (
-                      <button 
-                        type="button"
-                        onClick={() => handleOpenOrDownloadImage(selectedTicket.attachmentUrl)}
-                        style={{ background: "none", border: "none", padding: 0, color: "#2563eb", fontWeight: 600, fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}
-                      >
-                        <Paperclip size={13} /> {getAttachmentMeta(selectedTicket.attachmentUrl).label} &rarr;
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {selectedTicket.assignedAgentName && (
-                <div style={{ fontSize: 12, color: "#475569", marginBottom: 14, background: "#eef2ff", padding: "8px 12px", borderRadius: 8, display: "inline-block" }}>🎧 <strong>Assigned Agent:</strong> {selectedTicket.assignedAgentName}</div>
-              )}
-
-              {selectedTicket.messages && selectedTicket.messages.length > 0 && (
-                <div style={{ marginTop: 16, marginBottom: 16 }}>
-                  <h5 style={{ margin: "0 0 12px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Conversation History ({selectedTicket.messages.length})</h5>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {selectedTicket.messages.map((msg) => {
-                      const isOwnerAuthor = msg.authorType === "SALON" || msg.authorType === "OWNER" || msg.authorType === "SALON_OWNER" || msg.authorType === "STAFF";
-                      const authorLabel = isOwnerAuthor ? "You (Salon Owner)" : (msg.authorType === "SUPER_ADMIN" ? "Super Admin" : "Support Team");
-                      const timeStr = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                      const dateStr = new Date(msg.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
-
-                      return (
-                        <div 
-                          key={msg.id} 
-                          style={{ 
-                            alignSelf: isOwnerAuthor ? "flex-end" : "flex-start", 
-                            maxWidth: "80%", 
-                            display: "flex", 
-                            flexDirection: "column", 
-                            gap: 4 
-                          }}
-                        >
-                          <div style={{ 
-                            display: "flex", 
-                            justifyContent: isOwnerAuthor ? "flex-end" : "flex-start", 
-                            alignItems: "center", 
-                            gap: 8, 
-                            fontSize: 11, 
-                            color: "#64748b", 
-                            padding: "0 4px" 
-                          }}>
-                            <strong style={{ color: isOwnerAuthor ? "#4338ca" : "#0f172a" }}>
-                              {isOwnerAuthor ? "You" : (msg.authorName || "Super Admin")}
-                            </strong>
-                            <span style={{ 
-                              background: isOwnerAuthor ? "#e0e7ff" : "#ede9fe", 
-                              color: isOwnerAuthor ? "#3730a3" : "#6d28d9", 
-                              padding: "1px 6px", 
-                              borderRadius: 4, 
-                              fontSize: 10, 
-                              fontWeight: 700 
-                            }}>
-                              {authorLabel}
-                            </span>
-                            <span style={{ fontSize: 10, color: "#94a3b8" }}>{dateStr}, {timeStr}</span>
-                          </div>
-
-                          <div style={{ 
-                            background: isOwnerAuthor ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "#ffffff", 
-                            color: isOwnerAuthor ? "#ffffff" : "#1e293b", 
-                            border: isOwnerAuthor ? "none" : "1px solid #e2e8f0", 
-                            borderRadius: isOwnerAuthor ? "14px 4px 14px 14px" : "4px 14px 14px 14px", 
-                            padding: "12px 16px", 
-                            boxShadow: isOwnerAuthor ? "0 4px 12px rgba(79, 70, 229, 0.2)" : "0 2px 6px rgba(0,0,0,0.03)",
-                            fontSize: 13,
-                            lineHeight: 1.55,
-                            whiteSpace: "pre-wrap"
-                          }}>
-                            {msg.message}
-                            
-                            {msg.attachmentUrl && (
-                              <div style={{ 
-                                marginTop: 10, 
-                                paddingTop: 8, 
-                                borderTop: isOwnerAuthor ? "1px dashed rgba(255,255,255,0.3)" : "1px dashed #cbd5e1", 
-                                fontSize: 11 
-                              }}>
-                                {isImageAttachment(msg.attachmentUrl) ? (
-                                  <div>
-                                    <img 
-                                      src={msg.attachmentUrl} 
-                                      alt="Attachment" 
-                                      onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
-                                      style={{ maxWidth: 240, maxHeight: 180, borderRadius: 8, border: isOwnerAuthor ? "1px solid rgba(255,255,255,0.4)" : "1px solid #cbd5e1", display: "block", marginBottom: 4, cursor: "pointer" }} 
-                                    />
-                                    <button 
-                                      type="button"
-                                      onClick={() => setPreviewImageUrl(msg.attachmentUrl)}
-                                      style={{ background: "none", border: "none", padding: 0, color: isOwnerAuthor ? "#e0e7ff" : "#2563eb", fontWeight: 600, fontSize: 11, textDecoration: "underline", cursor: "pointer" }}
-                                    >
-                                      View Full Image &rarr;
-                                    </button>
-                                  </div>
-                                ) : isAttachmentLink(msg.attachmentUrl) ? (
-                                  <button 
-                                    type="button"
-                                    onClick={() => handleOpenOrDownloadImage(msg.attachmentUrl)}
-                                    style={{ background: "none", border: "none", padding: 0, color: isOwnerAuthor ? "#ffffff" : "#2563eb", fontWeight: 600, fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer" }}
-                                  >
-                                    <Paperclip size={11} /> {getAttachmentMeta(msg.attachmentUrl).label} &rarr;
-                                  </button>
-                                ) : (
-                                  <span style={{ color: isOwnerAuthor ? "rgba(255,255,255,0.8)" : "#64748b" }}>{formatAttachmentValue(msg.attachmentUrl)}</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div ref={messagesEndRef} style={{ height: 1, width: "100%" }} />
-                  </div>
-                </div>
-              )}
-
-              {selectedTicket.status !== "CLOSED" && (
-                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: 14, marginTop: 16 }}>
-                  <textarea rows="3" value={replyDrafts[selectedTicket.id] || ""} placeholder="Type your reply or additional information..." onChange={e => setReplyDrafts({ ...replyDrafts, [selectedTicket.id]: e.target.value })} style={{ width: "100%", padding: 10, border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, resize: "vertical", boxSizing: "border-box", marginBottom: 10, outline: "none" }} />
-                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <label style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, cursor: "pointer", color: "#64748b", background: "white" }}>
-                      <Paperclip size={14} />
-                      {replyAttachments[selectedTicket.id] ? "File attached" : "Attach File"}
-                      <input type="file" accept="image/*,.pdf,.doc,.docx" hidden onChange={e => {
-                        const file = e.target.files[0];
-                        if (file) { const reader = new FileReader(); reader.onloadend = () => setReplyAttachments({ ...replyAttachments, [selectedTicket.id]: reader.result }); reader.readAsDataURL(file); }
-                      }} />
-                    </label>
-                    <button type="button" onClick={() => sendReply(selectedTicket.id)} disabled={replyingId === selectedTicket.id || (!replyDrafts[selectedTicket.id]?.trim() && !replyAttachments[selectedTicket.id])} style={{ padding: "8px 18px", background: (!replyDrafts[selectedTicket.id]?.trim() && !replyAttachments[selectedTicket.id]) ? "#cbd5e1" : "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: (!replyDrafts[selectedTicket.id]?.trim() && !replyAttachments[selectedTicket.id]) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-                      <Send size={14} /> {replyingId === selectedTicket.id ? "Sending..." : "Send Reply"}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : rows.length === 0 ? (
-            <div style={{ padding: 40, textAlign: "center" }}>
-              <EmptyState icon={<MessageSquare size={48} />} title="No support tickets found" message="You don't have any support tickets matching the current filter criteria." />
-            </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
-              {rows.map((row) => {
-                const createdDate = row.createdAt ? new Date(row.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" }) : "";
-                return (
-                  <div key={row.id} style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden", background: "white", padding: 16, display: "flex", flexDirection: "column", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", background: "#eef2ff", padding: "4px 10px", borderRadius: 6 }}>#{row.id?.substring(0, 8) || "—"}</span>
-                      {getStatusBadge(row.status)}
-                    </div>
-                    <h4 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>{row.title}</h4>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b", marginBottom: 12 }}><Clock size={13} /> {createdDate}</div>
-                    <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>{getPriorityBadge(row.priority)} <span style={{ fontSize: 12, fontWeight: 600, color: "#475569" }}>{row.category || "General"}</span></div>
-                    </div>
-                    <button onClick={() => setSelectedTicket(row)} style={{ marginTop: 16, width: "100%", padding: "10px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#3b82f6", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.borderColor = "#cbd5e1"; }} onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#e2e8f0"; }}>View Details</button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-      </div>
-
-      {/* IMAGE PREVIEW LIGHTBOX MODAL */}
-      {previewImageUrl && (
-        <div 
-          onClick={() => setPreviewImageUrl(null)}
-          style={{
-            position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(15, 23, 42, 0.92)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            zIndex: 99999,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 24
-          }}
-        >
-          <div 
-            onClick={e => e.stopPropagation()}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              maxWidth: 900,
-              marginBottom: 16,
-              color: "white"
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-              <span>📷 Image Attachment Preview</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button
-                type="button"
-                onClick={() => handleOpenOrDownloadImage(previewImageUrl)}
-                style={{
-                  background: "rgba(255,255,255,0.15)",
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  color: "white",
-                  padding: "6px 14px",
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6
-                }}
-              >
-                <Download size={14} /> Download / Open
-              </button>
-              <button
-                type="button"
-                onClick={() => setPreviewImageUrl(null)}
-                style={{
-                  background: "rgba(255,255,255,0.2)",
-                  border: "none",
-                  color: "white",
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  fontSize: 18,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-
-          <div 
-            onClick={e => e.stopPropagation()}
-            style={{
-              maxHeight: "82vh",
-              maxWidth: "92vw",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 12,
-              overflow: "hidden",
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
-              background: "#000"
-            }}
-          >
-            <img 
-              src={previewImageUrl} 
-              alt="Attachment Preview" 
-              style={{
-                maxWidth: "100%",
-                maxHeight: "82vh",
-                objectFit: "contain",
-                display: "block"
-              }} 
-            />
           </div>
         </div>
       )}
-      </div>
+
+      {/* ── IMAGE LIGHTBOX PREVIEW MODAL ── */}
+      {previewImageUrl && (
+        <div
+          onClick={() => setPreviewImageUrl(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.85)",
+            backdropFilter: "blur(6px)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20
+          }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ position: "relative", maxWidth: "90vw", maxHeight: "90vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <img
+              src={previewImageUrl}
+              alt="Full Preview"
+              style={{ maxWidth: "100%", maxHeight: "80vh", borderRadius: 8, boxShadow: "0 20px 50px rgba(0,0,0,0.5)", objectFit: "contain" }}
+            />
+            <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
+              <button
+                onClick={() => handleOpenOrDownloadImage(previewImageUrl)}
+                style={{ padding: "8px 16px", background: "#4f46e5", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <Download size={14} /> Download Image
+              </button>
+              <button
+                onClick={() => setPreviewImageUrl(null)}
+                style={{ padding: "8px 16px", background: "#334155", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
