@@ -1512,7 +1512,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Card" value={gcSearch} onChange={e => setGcSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
+                <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -1583,7 +1583,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"10px 14px", paddingRight:36, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:240, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                   <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}><Search size={18} /></span>
                 </div>
-                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, minHeight:36, padding:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}>&#x2715;</button>
+                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, minHeight:36, padding:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}><X size={20} /></button>
               </div>
             </div>
             
@@ -1742,7 +1742,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}>&#x2715;</button>
+                <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -2026,7 +2026,7 @@ export default function PosDashboardPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 480px)", padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Complimentary Remark</strong>
-              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}>&#x2715;</button>
+              <button type="button" onClick={() => setCompModal({ open: false, index: null, serviceName: "", remark: "" })} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
             <p style={{ color: "#475569", fontSize: 14, marginBottom: 16 }}>Enter remark for <strong>{compModal.serviceName}</strong> as complimentary (Mandatory)</p>
             <input
