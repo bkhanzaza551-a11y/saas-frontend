@@ -1512,7 +1512,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Card" value={gcSearch} onChange={e => setGcSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
+                <button type="button" onClick={() => setShowGcModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
               </div>
             </div>
             
@@ -1583,7 +1583,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Package" value={pkgSearch} onChange={e => setPkgSearch(e.target.value)} style={{ padding:"10px 14px", paddingRight:36, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:240, outline:"none", transition:"border-color 0.2s" }} onFocus={e => e.target.style.borderColor="#3b82f6"} onBlur={e => e.target.style.borderColor="#cbd5e1"} />
                   <span style={{ position:"absolute", right:12, top:10, color:"#94a3b8" }}><Search size={18} /></span>
                 </div>
-                <button onClick={() => setShowPkgModal(false)} style={{ background:"#f1f5f9", border:"none", width:36, height:36, minHeight:36, padding:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.2rem", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"}><X size={20} /></button>
+                <button type="button" onClick={() => setShowPkgModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
               </div>
             </div>
             
@@ -1742,7 +1742,7 @@ export default function PosDashboardPage() {
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMemModal(false)} style={{ background:"none", border:"none", fontSize:"1.4rem", cursor:"pointer", color:"#94a3b8" }}><X size={20} /></button>
+                <button type="button" onClick={() => setShowMemModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
               </div>
             </div>
             
@@ -1826,7 +1826,7 @@ export default function PosDashboardPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 420px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Discount:</strong>
-              <button type="button" onClick={() => setShowDiscountModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={20} /></button>
+              <button type="button" onClick={() => setShowDiscountModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
             </div>
             <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
               <div style={{ flex: 1 }}>
@@ -1850,7 +1850,7 @@ export default function PosDashboardPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 560px)", maxHeight: "85vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Apply Packages</strong>
-              <button type="button" onClick={() => setShowApplyPkgModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={20} /></button>
+              <button type="button" onClick={() => setShowApplyPkgModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
             </div>
             {customerPackages.length === 0 ? (
               <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>No active packages found for this customer.</div>
@@ -1907,7 +1907,7 @@ export default function PosDashboardPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 440px)", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Apply Gift Card</strong>
-              <button type="button" onClick={() => setShowApplyGcModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={20} /></button>
+              <button type="button" onClick={() => setShowApplyGcModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
             </div>
             <div style={{ textAlign: "center", marginBottom: 16, color: "#475569" }}>Enter gift card number</div>
             <input type="text" value={gcRedemptionCode} onChange={e => setGcRedemptionCode(e.target.value)} placeholder="Gift card code" style={{ width: "100%", padding: "12px 14px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: "1rem", boxSizing: "border-box", marginBottom: 16, textAlign: "center", letterSpacing: 2 }} />
@@ -1936,7 +1936,7 @@ export default function PosDashboardPage() {
           <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 560px)", maxHeight: "85vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Tip</strong>
-              <button type="button" onClick={() => setShowTipModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={20} /></button>
+              <button type="button" onClick={() => setShowTipModal(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#e2e8f0", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#0f172a", transition: "0.2s" }}><X size={18} strokeWidth={2.5} color="#0f172a" /></button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {tipEntries.map((entry, idx) => (

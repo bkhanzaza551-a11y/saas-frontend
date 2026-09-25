@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw, Save } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Smartphone, Mail, MessageSquare, Search, Image as ImageIcon, Filter, Eye, EyeOff, Tag, X, RefreshCcw, Save, Zap, AlertCircle } from 'lucide-react';
 import { api } from '../../api/client';
 import CustomSelect from '../../components/CustomSelect';
 import { campaignCategories, predefinedTemplates } from '../../utils/campaignTemplates';
