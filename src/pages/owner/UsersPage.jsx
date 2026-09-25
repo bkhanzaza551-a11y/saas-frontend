@@ -1192,22 +1192,34 @@ export default function UsersPage() {
               <div className="hub-modal-body" style={{ overflowY: 'auto', flex: 1, ...(staffOtpStep === 2 ? { display: 'none' } : {}) }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Full Name <span style={{color:"#dc2626"}}>*</span></label>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <span>Full Name</span>
+                      <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
+                    </label>
                     <input type="text" required className="hub-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g. John Doe" minLength={2} maxLength={200} />
                   </div>
                   <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Email Address <span style={{color:"#dc2626"}}>*</span></label>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <span>Email Address</span>
+                      <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
+                    </label>
                     <input type="email" required className="hub-input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="john@example.com" maxLength={254} />
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Password <span style={{color:"#dc2626"}}>*</span></label>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <span>Password</span>
+                      <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
+                    </label>
                     <input type="password" required className="hub-input" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="Min 8 chars" minLength={8} maxLength={128} />
                   </div>
                   <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Phone <span style={{color:"#dc2626"}}>*</span></label>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <span>Phone</span>
+                      <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
+                    </label>
                     <IndianPhoneInput required={true} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} style={{ height: 42, border: "1px solid #cbd5e1" }} inputStyle={{ padding: "0 14px", height: "100%" }} />
                   </div>
                 </div>
@@ -1215,9 +1227,10 @@ export default function UsersPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16, alignItems: 'start' }}>
                   <div className="hub-form-group">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                        Access Role <span style={{ color: "#dc2626" }}>*</span>
-                      </label>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap', display: 'inline-flex', flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                        <span>Access Role</span>
+                        <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
+                      </div>
                       <button type="button" onClick={openAccessControl} style={{ fontSize: 11, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, padding: 0, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+ Create role</button>
                     </div>
                     <CustomSelect className="hub-input" value={form.customRoleId || ""} onChange={e => applyCustomRole(e.target.value)} style={{ width: "100%", "--select-height": "42px" }}>
@@ -1234,7 +1247,7 @@ export default function UsersPage() {
                   </div>
                   <div className="hub-form-group">
                     <div style={{ display: 'flex', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap' }}>Role Title (Designation)</label>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap', display: 'flex', flexDirection: 'row' }}>Role Title (Designation)</label>
                     </div>
                     <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 42, boxSizing: 'border-box' }} />
                   </div>
