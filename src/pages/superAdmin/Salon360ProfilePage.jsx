@@ -406,14 +406,14 @@ export default function Salon360ProfilePage() {
                   Total Salon Revenue
                 </div>
                 <div style={{ fontSize: "2rem", fontWeight: 800, margin: "6px 0 10px", letterSpacing: "-0.02em" }}>
-                  ₹{Number(analytics?.totalRevenue || 0).toLocaleString("en-IN")}
+                  ₹{Number(analytics?.totalRevenue ?? analytics?.revenue ?? 0).toLocaleString("en-IN")}
                 </div>
                 <div style={{ display: "flex", gap: 20, borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 10, fontSize: "0.8rem", color: "#d1fae5" }}>
                   <div>
                     Invoices Billed: <strong style={{ color: "#fff" }}>{analytics?.invoices || 0}</strong>
                   </div>
                   <div>
-                    Avg Ticket Size: <strong style={{ color: "#fff" }}>₹{analytics?.invoices ? Math.round(Number(analytics?.totalRevenue || 0) / analytics.invoices).toLocaleString("en-IN") : "0"}</strong>
+                    Avg Ticket Size: <strong style={{ color: "#fff" }}>₹{analytics?.invoices ? Math.round(Number(analytics?.totalRevenue ?? analytics?.revenue ?? 0) / analytics.invoices).toLocaleString("en-IN") : "0"}</strong>
                   </div>
                 </div>
               </div>
