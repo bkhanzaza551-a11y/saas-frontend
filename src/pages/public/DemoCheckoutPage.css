@@ -1,0 +1,713 @@
+/* ==========================================================================
+   Professional Demo Checkout Page Styles
+   Clean, trustworthy, enterprise-grade B2B SaaS checkout layout
+   ========================================================================== */
+
+.checkout-page-root {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(15, 118, 110, 0.03) 0px, transparent 50%);
+  color: #0f172a;
+  font-family: inherit;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle Ambient Glow */
+.checkout-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1000px;
+  height: 380px;
+  background: radial-gradient(ellipse at top, rgba(13, 148, 136, 0.08) 0%, rgba(240, 253, 250, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.checkout-container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Top Navigation Bar
+   -------------------------------------------------------------------------- */
+.checkout-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  margin-bottom: 32px;
+}
+
+.checkout-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.checkout-brand-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.checkout-brand-link:hover {
+  opacity: 0.85;
+}
+
+.checkout-brand-logo {
+  height: 38px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  display: block;
+}
+
+.checkout-topbar-divider {
+  width: 1px;
+  height: 22px;
+  background-color: #cbd5e1;
+}
+
+.checkout-secure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  color: #0f766e;
+  border: 1px solid #ccfbf1;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.checkout-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.checkout-help-text {
+  font-size: 13px;
+  color: #64748b;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .checkout-help-text {
+    display: inline;
+  }
+}
+
+.checkout-help-link {
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.checkout-help-link:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Unified Page Header (Proper Alignment Above Columns)
+   -------------------------------------------------------------------------- */
+.checkout-header {
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.checkout-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.checkout-title {
+  font-size: clamp(1.75rem, 2.5vw, 2.3rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 10px 0;
+}
+
+.checkout-title-gradient {
+  background: linear-gradient(135deg, #0f172a 20%, #0f766e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.checkout-subtitle {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #64748b;
+  max-width: 680px;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Balanced 2-Column Grid Layout
+   -------------------------------------------------------------------------- */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Shared Card Styling
+   -------------------------------------------------------------------------- */
+.checkout-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 
+    0 4px 20px -2px rgba(15, 23, 42, 0.05),
+    0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Left Card: Plan Ledger & Limits
+   -------------------------------------------------------------------------- */
+.plan-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.plan-card-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plan-card-pretitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.plan-card-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.plan-badge-annual {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Inclusions List */
+.plan-inclusions-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.plan-inclusions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.plan-inclusion-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  font-size: 13.5px;
+  transition: background 0.15s ease;
+}
+
+.plan-inclusion-row:hover {
+  background: #f1f5f9;
+}
+
+.plan-inclusion-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.plan-inclusion-icon {
+  color: #0f766e;
+  flex-shrink: 0;
+}
+
+.plan-inclusion-value {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 13.5px;
+}
+
+.plan-inclusion-value.highlight {
+  color: #0f766e;
+}
+
+/* Pricing Breakdown */
+.plan-pricing-section {
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.plan-pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #475569;
+}
+
+.plan-pricing-row.discount-row {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.waived-badge {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Grand Total Box */
+.plan-total-banner {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
+  border: 1.5px solid #ccfbf1;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.plan-total-title {
+  font-size: 15px;
+  font-weight: 750;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.plan-total-subtext {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.plan-total-amount-box {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.plan-total-amount {
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f766e;
+  letter-spacing: -0.02em;
+}
+
+.plan-total-period {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Right Card: Payment & Razorpay Gateway
+   -------------------------------------------------------------------------- */
+.payment-card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  color: #0f766e;
+  border: 1px solid #ccfbf1;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.payment-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px 0;
+}
+
+/* Verified Account Details Box */
+.billing-profile-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.billing-profile-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.billing-profile-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.billing-profile-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.billing-profile-icon {
+  color: #94a3b8;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.billing-profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.billing-profile-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.billing-profile-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.billing-profile-hint {
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Security Trust Banner */
+.razorpay-trust-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.razorpay-trust-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 6px;
+}
+
+.razorpay-trust-desc {
+  font-size: 12px;
+  color: #15803d;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+}
+
+.payment-methods-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.payment-method-pill {
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #166534;
+}
+
+/* Error Banner */
+.checkout-error-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* Razorpay Primary Action Button */
+.checkout-pay-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 24px;
+  font-size: 15px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.checkout-pay-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
+  box-shadow: 0 6px 20px rgba(15, 118, 110, 0.45);
+  transform: translateY(-1px);
+}
+
+.checkout-pay-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.3);
+}
+
+.checkout-pay-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Button Spinner */
+.checkout-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: checkoutSpin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes checkoutSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Trust Pillars Underneath Button */
+.checkout-trust-pillars {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.checkout-trust-pillar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .checkout-trust-pillars {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   State Cards: Converted, Success, Error
+   -------------------------------------------------------------------------- */
+.checkout-state-card {
+  max-width: 580px;
+  margin: 60px auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 48px 36px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-state-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.checkout-state-icon-wrap.success {
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
+  color: #10b981;
+}
+
+.checkout-state-icon-wrap.error {
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  color: #ef4444;
+}
+
+.checkout-state-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 10px;
+}
+
+.checkout-state-desc {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+
+.checkout-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.3);
+  transition: all 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.checkout-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.4);
+}
+
+.checkout-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.checkout-btn-secondary:hover {
+  background: #e2e8f0;
+}

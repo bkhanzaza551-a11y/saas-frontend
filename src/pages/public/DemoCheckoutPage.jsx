@@ -1,9 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { 
+  ShieldCheck, 
+  Lock, 
+  CheckCircle2, 
+  Building2, 
+  Users, 
+  User, 
+  Mail, 
+  Receipt, 
+  Sparkles, 
+  ArrowRight, 
+  Zap, 
+  AlertCircle 
+} from "lucide-react";
 import { api } from "../../api/client";
 import PageLoader from "../../components/PageLoader";
 import PublicMobileMenu from "../../components/PublicMobileMenu";
 import { formatApiError } from "../../utils/apiError";
+import "./DemoCheckoutPage.css";
 
 const navItems = [
   { label: "Home", to: "/" },
@@ -204,23 +219,37 @@ export default function DemoCheckoutPage() {
   };
 
   return (
-    <div className="public-site demo-page-shell">
-      <div className="public-orb orb-one" />
-      <div className="public-orb orb-two" />
+    <div className="checkout-page-root">
+      <div className="checkout-ambient-glow" />
       
-      <main className="public-main" style={{ maxWidth: 1150, margin: "0 auto", padding: "0 24px", width: "100%", boxSizing: "border-box" }}>
-        <div className="demo-topbar">
-          <Link to="/" className="brand-mark demo-brand-link">
-            <img src="/logo.jfif" alt="Salon Nest Logo" style={{ maxHeight: "42px", maxWidth: "160px", objectFit: "contain" }} />
-          </Link>
-          <div className="demo-topbar-menu">
+      <div className="checkout-container">
+        {/* Top Navigation */}
+        <header className="checkout-topbar">
+          <div className="checkout-topbar-left">
+            <Link to="/" className="checkout-brand-link" title="Salon Nest Homepage">
+              <img src="/logo.jfif" alt="Salon Nest Logo" className="checkout-brand-logo" />
+            </Link>
+            <div className="checkout-topbar-divider" />
+            <div className="checkout-secure-badge">
+              <Lock size={12} />
+              <span>Secure 256-Bit SSL Checkout</span>
+            </div>
+          </div>
+
+          <div className="checkout-topbar-right">
+            <span className="checkout-help-text">
+              Need assistance?{" "}
+              <a href="mailto:support@salonnest.in" className="checkout-help-link">
+                support@salonnest.in
+              </a>
+            </span>
             <PublicMobileMenu
               brand={{ label: "Salon Nest", sublabel: "Salon ERP Platform", logo: "/logo.jfif", to: "/" }}
               items={navItems}
               cta={{ label: "Request Demo", to: "/book-demo" }}
             />
           </div>
-        </div>
+        </header>
 
         {loading ? (
           <div style={{ padding: "100px 0" }}>
@@ -230,170 +259,305 @@ export default function DemoCheckoutPage() {
             />
           </div>
         ) : converted ? (
-          <section className="demo-hero" style={{ justifyContent: "center", gridTemplateColumns: "1fr", maxWidth: 560, margin: "60px auto" }}>
-            <div style={{ padding: "48px 36px", borderRadius: 24, textAlign: "center", background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.06)", border: "1px solid #e2e8f0" }}>
-              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", border: "2px solid #bbf7d0" }}>
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <h2 style={{ margin: "0 0 8px", fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Account Already Active</h2>
-              <p style={{ margin: "0 0 24px", fontSize: 15, color: "#64748b", lineHeight: 1.6 }}>
-                Your salon workspace has already been set up and is ready to use.
-                {converted.email ? <><br/>Sign in with <strong style={{ color: "#0f172a" }}>{converted.email}</strong> to access your dashboard.</> : " Please sign in to access your dashboard."}
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-                <Link
-                  to={`/login${converted.email ? `?email=${encodeURIComponent(converted.email)}` : ""}`}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "13px 36px", fontSize: 15, fontWeight: 700, color: "#fff",
-                    background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)",
-                    borderRadius: 10, textDecoration: "none",
-                    boxShadow: "0 4px 14px rgba(79, 70, 229, 0.3)",
-                    transition: "transform 0.15s",
-                  }}
-                >
-                  Sign In to Dashboard
-                </Link>
-                <Link to="/" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>
-                  ← Back to Home
-                </Link>
-              </div>
+          <section className="checkout-state-card">
+            <div className="checkout-state-icon-wrap success">
+              <CheckCircle2 size={38} strokeWidth={2.5} />
+            </div>
+            <h2 className="checkout-state-title">Account Already Active</h2>
+            <p className="checkout-state-desc">
+              Your salon workspace has already been set up and is fully active.
+              {converted.email ? (
+                <>
+                  <br />
+                  Sign in with <strong style={{ color: "#0f172a" }}>{converted.email}</strong> to access your dashboard.
+                </>
+              ) : (
+                " Please sign in to access your business dashboard."
+              )}
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+              <Link
+                to={`/login${converted.email ? `?email=${encodeURIComponent(converted.email)}` : ""}`}
+                className="checkout-btn-primary"
+              >
+                Sign In to Dashboard <ArrowRight size={16} />
+              </Link>
+              <Link to="/" className="checkout-btn-secondary">
+                ← Back to Home
+              </Link>
             </div>
           </section>
         ) : error && !info ? (
-          <div style={{ maxWidth: 600, margin: "100px auto", textAlign: "center" }} className="panel-card">
-            <h2 className="error-text" style={{ color: "#c2410c" }}>Checkout Error</h2>
-            <p className="muted">{error}</p>
-            <Link to="/" className="cta-primary" style={{ display: "inline-block", marginTop: 20 }}>Back to Home</Link>
-          </div>
+          <section className="checkout-state-card">
+            <div className="checkout-state-icon-wrap error">
+              <AlertCircle size={38} strokeWidth={2.5} />
+            </div>
+            <h2 className="checkout-state-title" style={{ color: "#b91c1c" }}>Checkout Error</h2>
+            <p className="checkout-state-desc">{error}</p>
+            <Link to="/" className="checkout-btn-primary">
+              Return to Homepage
+            </Link>
+          </section>
         ) : success ? (
-          <section className="demo-hero" style={{ justifyContent: "center", gridTemplateColumns: "1fr", maxWidth: 700, margin: "60px auto" }}>
-            <div className="demo-success-card" style={{ padding: 40, borderRadius: 24, textAlign: "center" }}>
-              <div className="demo-success-badge" style={{ fontSize: 16, padding: "8px 16px" }}>Payment Captured</div>
-              <h1 style={{ fontSize: 32, margin: "20px 0 10px" }}>Subscription Activated Successfully!</h1>
-              <p style={{ fontSize: 16, lineHeight: "1.7", marginBottom: 30 }} className="muted">
-                Thank you for purchasing the <strong>{info?.planName}</strong> subscription plan for <strong>{info?.company || "your salon"}</strong>.
-                Your workspace has been created. Please check your email for the password setup link, or click below to set your password.
-              </p>
-              <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
-                <Link to="/" className="cta-primary">Go to Homepage</Link>
-                <Link to={`/login?email=${encodeURIComponent(info?.leadEmail || "")}`} className="cta-secondary">Go to Login</Link>
-              </div>
+          <section className="checkout-state-card" style={{ maxWidth: 640 }}>
+            <div className="checkout-state-icon-wrap success">
+              <CheckCircle2 size={42} strokeWidth={2.5} />
+            </div>
+            <div className="checkout-eyebrow" style={{ background: "#f0fdf4", color: "#16a34a", borderColor: "#bbf7d0", margin: "0 auto 14px" }}>
+              Payment Captured & Verified
+            </div>
+            <h1 className="checkout-state-title">Subscription Activated Successfully!</h1>
+            <p className="checkout-state-desc">
+              Thank you for purchasing the <strong>{info?.planName}</strong> plan for{" "}
+              <strong>{info?.company || "your salon"}</strong>. Your business workspace has been provisioned. 
+              Please check your inbox at <strong>{info?.leadEmail}</strong> for setup instructions or proceed below.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+              <Link to="/" className="checkout-btn-secondary">
+                Go to Homepage
+              </Link>
+              <Link to={`/login?email=${encodeURIComponent(info?.leadEmail || "")}`} className="checkout-btn-primary">
+                Sign In to Dashboard <ArrowRight size={16} />
+              </Link>
             </div>
           </section>
         ) : (
-          <section className="demo-hero" style={{ alignItems: "flex-start", gap: "60px" }}>
-            <div className="demo-copy" style={{ paddingTop: "20px" }}>
-              <div className="eyebrow-pill" style={{ background: "#e0f2fe", color: "#0369a1" }}>Subscription Checkout</div>
-              <h1 style={{ background: "linear-gradient(135deg, #0f172a 0%, #0d9488 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Activate your subscription</h1>
-              <p className="muted" style={{ fontSize: "1.05rem", lineHeight: "1.6", marginBottom: "24px" }}>
+          <>
+            {/* Unified Page Header: Properly Centered/Aligned Above Both Columns */}
+            <div className="checkout-header">
+              <div className="checkout-eyebrow">
+                <Sparkles size={13} />
+                <span>Subscription Checkout</span>
+              </div>
+              <h1 className="checkout-title">
+                <span className="checkout-title-gradient">Activate your subscription</span>
+              </h1>
+              <p className="checkout-subtitle">
                 Complete your checkout to spin up your active, paid business workspace. All plan limits and permissions will be applied to your custom salon slug.
               </p>
+            </div>
 
-              <div className="ledger-card">
-                <h3 style={{ margin: "0 0 16px", color: "#0f172a", fontSize: "1.1rem", fontWeight: 800 }}>Plan Ledger: {info?.planName}</h3>
+            {/* Balanced 2-Column Checkout Grid */}
+            <div className="checkout-grid">
+              {/* Left Column: Plan Inclusions & Financial Ledger */}
+              <div className="checkout-card plan-summary-card">
+                <div className="plan-card-header">
+                  <div className="plan-card-header-info">
+                    <span className="plan-card-pretitle">Selected Plan</span>
+                    <h2 className="plan-card-title">{info?.planName || "Enterprise"} Plan</h2>
+                  </div>
+                  <div className="plan-badge-annual">
+                    <Zap size={13} />
+                    <span>Annual (1 Year)</span>
+                  </div>
+                </div>
+
+                <div className="plan-inclusions-label">Workspace Limits & Inclusions</div>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <div className="ledger-item">
-                    <span className="muted">Billing Cycle</span>
-                    <strong>Annual (1 Year)</strong>
+                <div className="plan-inclusions-list">
+                  <div className="plan-inclusion-row">
+                    <span className="plan-inclusion-left">
+                      <Building2 size={16} className="plan-inclusion-icon" />
+                      <span>Branches Allowed</span>
+                    </span>
+                    <strong className="plan-inclusion-value highlight">
+                      {info?.limits?.branches >= 9999 ? "Unlimited Locations" : `${info?.limits?.branches || 1} Location${(info?.limits?.branches || 1) > 1 ? "s" : ""}`}
+                    </strong>
                   </div>
-                  <div className="ledger-item">
-                    <span className="muted">Branches Allowed</span>
-                    <strong>{info?.limits?.branches >= 9999 ? "Unlimited" : `${info?.limits?.branches || 1} Location${(info?.limits?.branches || 1) > 1 ? "s" : ""}`}</strong>
+
+                  <div className="plan-inclusion-row">
+                    <span className="plan-inclusion-left">
+                      <Users size={16} className="plan-inclusion-icon" />
+                      <span>Stylist & Admin Accounts</span>
+                    </span>
+                    <strong className="plan-inclusion-value">
+                      {info?.limits?.users ? `${Number(info.limits.users).toLocaleString("en-IN")} Users` : "9,999 Users"}
+                    </strong>
                   </div>
-                  <div className="ledger-item">
-                    <span className="muted">Stylist & Admin Accounts</span>
-                    <strong>{info?.limits?.users || 5} Users</strong>
+
+                  <div className="plan-inclusion-row">
+                    <span className="plan-inclusion-left">
+                      <User size={16} className="plan-inclusion-icon" />
+                      <span>CRM Client Limit</span>
+                    </span>
+                    <strong className="plan-inclusion-value">
+                      {Number(info?.limits?.customers || 500).toLocaleString("en-IN")} Contacts
+                    </strong>
                   </div>
-                  <div className="ledger-item">
-                    <span className="muted">CRM Client Limit</span>
-                    <strong>{Number(info?.limits?.customers || 500).toLocaleString("en-IN")} Contacts</strong>
+
+                  <div className="plan-inclusion-row">
+                    <span className="plan-inclusion-left">
+                      <Receipt size={16} className="plan-inclusion-icon" />
+                      <span>POS Invoices / year</span>
+                    </span>
+                    <strong className="plan-inclusion-value">
+                      {Number(info?.limits?.invoices || 1000).toLocaleString("en-IN")} Receipts
+                    </strong>
                   </div>
-                  <div className="ledger-item">
-                    <span className="muted">POS Invoices / year</span>
-                    <strong>{Number(info?.limits?.invoices || 1000).toLocaleString("en-IN")} Receipts</strong>
+
+                  <div className="plan-inclusion-row">
+                    <span className="plan-inclusion-left">
+                      <Sparkles size={16} className="plan-inclusion-icon" />
+                      <span>Cloud POS & Automatic Backups</span>
+                    </span>
+                    <strong className="plan-inclusion-value highlight">
+                      Included
+                    </strong>
                   </div>
-                  <div className="ledger-item">
-                    <span className="muted">Base Annual Fee</span>
-                    <span style={info?.discountAmount > 0 ? { textDecoration: "line-through", color: "#94a3b8" } : {}}>
+                </div>
+
+                <div className="plan-pricing-section">
+                  <div className="plan-pricing-row">
+                    <span>Base Annual Fee</span>
+                    <span style={info?.discountAmount > 0 ? { textDecoration: "line-through", color: "#94a3b8" } : { fontWeight: 600 }}>
                       INR {Number(info?.originalPrice || info?.price || 0).toLocaleString("en-IN")}
                     </span>
                   </div>
+
                   {info?.discountAmount > 0 && (
-                    <div className="ledger-item" style={{ color: "#16a34a" }}>
-                      <span className="muted">Special Discount</span>
-                      <strong style={{ color: "#16a34a" }}>- INR {Number(info.discountAmount).toLocaleString("en-IN")}</strong>
+                    <div className="plan-pricing-row discount-row">
+                      <span>Special Promotional Discount</span>
+                      <strong>- INR {Number(info.discountAmount).toLocaleString("en-IN")}</strong>
                     </div>
                   )}
-                  <div className="ledger-item" style={{ color: "#16a34a" }}>
-                    <span className="muted">Setup Cost</span>
-                    <span>₹0 (Waived)</span>
+
+                  <div className="plan-pricing-row">
+                    <span>Setup & Onboarding Fee</span>
+                    <span className="waived-badge">₹0 (Waived)</span>
                   </div>
                 </div>
 
-                <div className="ledger-total">
-                  <span style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1e293b" }}>Grand Total Payable:</span>
-                  <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#0f766e" }}>INR {Number(info?.price || 0).toLocaleString("en-IN")} <small style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>/ year</small></span>
+                <div className="plan-total-banner">
+                  <div>
+                    <div className="plan-total-title">Grand Total Payable:</div>
+                    <p className="plan-total-subtext">Billed annually • Instant workspace license</p>
+                  </div>
+                  <div className="plan-total-amount-box">
+                    <span className="plan-total-amount">
+                      INR {Number(info?.price || 0).toLocaleString("en-IN")}
+                    </span>
+                    <span className="plan-total-period">/ year</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="demo-form-card">
-              <form onSubmit={handleCheckoutSubmit} className="demo-form" style={{ display: "grid", gap: "18px" }}>
-                <div className="section-chip" style={{ justifySelf: "start" }}>Secure Gateway Checkout</div>
-                
-                {error && <p className="error-text" style={{ color: "#ef4444", fontSize: "0.85rem", margin: 0 }}>{error}</p>}
-                
-                <div style={{ background: "rgba(244, 244, 245, 0.6)", padding: "20px", borderRadius: "16px", border: "1px solid #e4e4e7", display: "grid", gap: "14px" }}>
-                  <div>
-                    <span className="muted" style={{ fontSize: "0.72rem", display: "block", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.05em", color: "#71717a" }}>Billing Contact</span>
-                    <strong style={{ color: "#18181b", fontSize: "1rem", fontWeight: 750 }}>{info?.leadName}</strong>
+              {/* Right Column: Account & Secure Razorpay Payment */}
+              <div className="checkout-card payment-gateway-card">
+                <form onSubmit={handleCheckoutSubmit}>
+                  <div className="payment-card-chip">
+                    <ShieldCheck size={13} />
+                    <span>Secure Gateway Checkout</span>
                   </div>
-                  <div>
-                    <span className="muted" style={{ fontSize: "0.72rem", display: "block", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.05em", color: "#71717a" }}>Billing Email</span>
-                    <strong style={{ color: "#18181b", fontSize: "0.95rem", fontWeight: 600 }}>{info?.leadEmail}</strong>
-                  </div>
-                  {info?.company && (
-                    <div>
-                      <span className="muted" style={{ fontSize: "0.72rem", display: "block", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.05em", color: "#71717a" }}>Salon Organization</span>
-                      <strong style={{ color: "#18181b", fontSize: "0.95rem", fontWeight: 600 }}>{info?.company}</strong>
+
+                  <h2 className="payment-card-title">Billing Details & Payment</h2>
+
+                  {error && (
+                    <div className="checkout-error-box">
+                      <AlertCircle size={17} style={{ flexShrink: 0, marginTop: 1 }} />
+                      <span>{error}</span>
                     </div>
                   )}
-                </div>
 
-                <div style={{ fontSize: "0.8rem", background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0", padding: "12px 16px", borderRadius: 12, display: "flex", gap: "8px", alignItems: "center" }}>
-                  <span>&#128737;&#65039;</span>
-                  <span>Payments are secured via Razorpay. All cards, UPI, Wallets, and Netbanking are supported.</span>
-                </div>
+                  <div className="billing-profile-box">
+                    <div className="billing-profile-title">Billing & Workspace Profile</div>
+                    
+                    <div className="billing-profile-grid">
+                      <div className="billing-profile-item">
+                        <User size={15} className="billing-profile-icon" />
+                        <div className="billing-profile-meta">
+                          <span className="billing-profile-label">Billing Contact</span>
+                          <span className="billing-profile-val">{info?.leadName || "Authorized Representative"}</span>
+                        </div>
+                      </div>
 
-                {error && error.includes("Payment gateway is not configured") && (
-                  <div style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a", padding: "16px", borderRadius: 12, fontSize: "0.85rem", lineHeight: "1.6" }}>
-                    <strong>Payment system is being set up.</strong><br/>
-                    Please contact our support team at <a href="mailto:support@salonnest.in" style={{ color: "#92400e", fontWeight: 700 }}>support@salonnest.in</a> to complete your subscription manually.
+                      <div className="billing-profile-item">
+                        <Mail size={15} className="billing-profile-icon" />
+                        <div className="billing-profile-meta">
+                          <span className="billing-profile-label">Billing Email</span>
+                          <span className="billing-profile-val">{info?.leadEmail || "Registered Contact Email"}</span>
+                        </div>
+                      </div>
+
+                      {info?.company && (
+                        <div className="billing-profile-item">
+                          <Building2 size={15} className="billing-profile-icon" />
+                          <div className="billing-profile-meta">
+                            <span className="billing-profile-label">Salon Organization</span>
+                            <span className="billing-profile-val">{info?.company}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="billing-profile-hint">
+                      <Lock size={12} />
+                      <span>Workspace credentials & tax receipt will be delivered to this email.</span>
+                    </div>
                   </div>
-                )}
 
-                <button 
-                  type="submit" 
-                  disabled={submitting} 
-                  className={`demo-submit-button ${submitting ? "is-loading" : ""}`}
-                  style={{ background: "linear-gradient(135deg, #0f766e, #0d9488)", color: "white", padding: "14px", borderRadius: "10px", fontWeight: 700, border: "none", cursor: "pointer", fontSize: "0.95rem", transition: "all 0.25s" }}
-                >
-                  {submitting ? (
-                    <span className="button-progress">
-                      <span className="button-spinner" aria-hidden="true" />
-                      Launching Secure Gateway...
-                    </span>
-                  ) : (
-                    `Pay INR ${Number(info?.price || 0).toLocaleString("en-IN")} via Razorpay`
+                  <div className="razorpay-trust-box">
+                    <div className="razorpay-trust-header">
+                      <ShieldCheck size={16} />
+                      <span>Payments are secured via Razorpay</span>
+                    </div>
+                    <p className="razorpay-trust-desc">
+                      Bank-grade 256-bit encrypted transactions. All Indian payment modes supported.
+                    </p>
+                    <div className="payment-methods-pills">
+                      <span className="payment-method-pill">UPI (GPay / PhonePe / Paytm)</span>
+                      <span className="payment-method-pill">Credit & Debit Cards</span>
+                      <span className="payment-method-pill">Netbanking (50+ Banks)</span>
+                      <span className="payment-method-pill">Wallets</span>
+                    </div>
+                  </div>
+
+                  {error && error.includes("Payment gateway is not configured") && (
+                    <div style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a", padding: "14px", borderRadius: 10, fontSize: "0.85rem", lineHeight: "1.5", marginBottom: 16 }}>
+                      <strong>Payment system is being set up.</strong><br/>
+                      Please contact support at <a href="mailto:support@salonnest.in" style={{ color: "#92400e", fontWeight: 700 }}>support@salonnest.in</a> to complete your setup.
+                    </div>
                   )}
-                </button>
-              </form>
+
+                  <button 
+                    type="submit" 
+                    disabled={submitting} 
+                    className="checkout-pay-btn"
+                  >
+                    {submitting ? (
+                      <>
+                        <span className="checkout-spinner" />
+                        <span>Launching Secure Gateway...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={16} />
+                        <span>Pay INR {Number(info?.price || 0).toLocaleString("en-IN")} via Razorpay</span>
+                        <ArrowRight size={16} />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="checkout-trust-pillars">
+                    <div className="checkout-trust-pillar">
+                      <Lock size={12} color="#0f766e" />
+                      <span>256-Bit SSL</span>
+                    </div>
+                    <div className="checkout-trust-pillar">
+                      <Zap size={12} color="#0f766e" />
+                      <span>Instant Setup</span>
+                    </div>
+                    <div className="checkout-trust-pillar">
+                      <Receipt size={12} color="#0f766e" />
+                      <span>GST Tax Invoice</span>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
-          </section>
+          </>
         )}
-      </main>
+      </div>
     </div>
   );
 }
+

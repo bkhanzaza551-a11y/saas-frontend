@@ -19,9 +19,14 @@ export default function OwnerLayout() {
 
     const checkStatus = async () => {
       try {
+        const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN" || location.pathname.startsWith("/super-admin");
+        const hasAuth = !!auth?.accessToken;
+
         const [settingsRes, subRes] = await Promise.all([
           api.get("/public/settings").catch(() => ({ data: { maintenanceMode: false } })),
-          api.get("/owner/subscription").catch(() => ({ data: null }))
+          (hasAuth && !isSuperAdmin)
+            ? api.get("/owner/subscription").catch(() => ({ data: null }))
+            : Promise.resolve({ data: null })
         ]);
 
         if (!active) return;
