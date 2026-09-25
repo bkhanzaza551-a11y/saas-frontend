@@ -849,12 +849,15 @@ export default function MarketingHomePage() {
   const handleContactSubmit = (e) => {
     e.preventDefault();
     setContactSubmitted(true);
+    const cleanDigits = String(contactForm.phone || "").replace(/\D/g, "").slice(-10);
     api.post("/public/demo-leads", {
       name: contactForm.name,
-      phone: contactForm.phone,
+      phone: cleanDigits,
       email: contactForm.email,
+      company: contactForm.salonName || "Salon Inquiry",
       salonName: contactForm.salonName,
       city: contactForm.city,
+      message: contactForm.message || "Contact Us Inquiry",
       notes: contactForm.message || "Contact Us Inquiry"
     }).catch(() => {});
   };

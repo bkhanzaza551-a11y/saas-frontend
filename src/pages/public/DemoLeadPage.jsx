@@ -140,14 +140,13 @@ export default function PublicDemoLeadPage() {
 
     setSubmitting(true);
     try {
-      const cleanDigits = form.phone.replace(/\D/g, "").slice(0, 10);
+      const cleanDigits = form.phone.replace(/\D/g, "").slice(-10);
       const payload = {
-        name: form.name,
-        email: form.email,
-        phone: `+91${cleanDigits}`,
-        company: form.company,
-        city: form.city?.trim() || undefined,
-        notes: form.message || "General Walkthrough"
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: cleanDigits,
+        company: form.company.trim(),
+        message: form.message ? `${form.message}${form.city ? ` (City: ${form.city})` : ""}` : (form.city ? `City: ${form.city}` : "General Walkthrough")
       };
       await api.post("/public/demo-leads", payload);
       setForm(initialForm);
