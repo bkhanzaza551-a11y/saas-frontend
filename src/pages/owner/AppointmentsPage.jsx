@@ -999,9 +999,6 @@ export default function AppointmentsPage() {
       } else if (!nextItem.serviceId) {
         nextItem.endAt = "";
       }
-    } else {
-        nextItem.endAt = "";
-      }
     }
     nextItems[index] = nextItem;
     const nextStarts = nextItems.map((item) => item.startAt).filter(Boolean).sort();
