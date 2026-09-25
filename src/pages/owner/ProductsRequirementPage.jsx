@@ -281,19 +281,23 @@ export default function ProductsRequirementPage() {
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
         }
-        .pr-tab-btn {
-          white-space: nowrap;
-          flex-shrink: 0;
-          padding: 6px 12px;
-          border-radius: 7px;
-          border: none;
-          font-weight: 600;
-          font-size: 0.78rem;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          transition: all 0.15s;
+        button.pr-tab-btn {
+          white-space: nowrap !important;
+          flex-shrink: 0 !important;
+          padding: 4px 10px !important;
+          min-height: 28px !important;
+          height: 28px !important;
+          border-radius: 6px !important;
+          border: 1px solid #cbd5e1 !important;
+          font-weight: 600 !important;
+          font-size: 0.74rem !important;
+          line-height: 1 !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 5px !important;
+          transition: all 0.15s !important;
+          box-shadow: none !important;
         }
         .pr-filters-grid {
           display: grid;
@@ -415,16 +419,22 @@ export default function ProductsRequirementPage() {
       )}
 
       {/* 4 Section Navigation Tabs */}
-      <div className="pr-tabs-nav">
+      <div className="pr-tabs-nav" style={{ gap: 6, marginBottom: 16 }}>
         <button
           onClick={() => setActiveSection("available")}
           className="pr-tab-btn"
           style={{
-            background: activeSection === "available" ? "#4f46e5" : "#f1f5f9",
+            background: activeSection === "available" ? "#4f46e5" : "#f8fafc",
             color: activeSection === "available" ? "white" : "#475569",
+            border: activeSection === "available" ? "1px solid #4f46e5" : "1px solid #cbd5e1",
+            minHeight: 28,
+            height: 28,
+            padding: "3px 10px",
+            fontSize: "0.74rem",
+            borderRadius: 6,
           }}
         >
-          <Package size={14} /> Available Catalog Products <span style={{ background: activeSection === "available" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 6px", borderRadius: 8, fontSize: "0.7rem", fontWeight: 700 }}>{catalog.length}</span>
+          <Package size={13} /> Available Catalog Products <span style={{ background: activeSection === "available" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 5px", borderRadius: 6, fontSize: "0.68rem", fontWeight: 700 }}>{catalog.length}</span>
         </button>
 
         <button
@@ -437,22 +447,34 @@ export default function ProductsRequirementPage() {
           }}
           className="pr-tab-btn"
           style={{
-            background: activeSection === "new_request" ? "#4f46e5" : "#f1f5f9",
+            background: activeSection === "new_request" ? "#4f46e5" : "#f8fafc",
             color: activeSection === "new_request" ? "white" : "#475569",
+            border: activeSection === "new_request" ? "1px solid #4f46e5" : "1px solid #cbd5e1",
+            minHeight: 28,
+            height: 28,
+            padding: "3px 10px",
+            fontSize: "0.74rem",
+            borderRadius: 6,
           }}
         >
-          <Plus size={14} /> New Request
+          <Plus size={13} /> New Request
         </button>
 
         <button
           onClick={() => setActiveSection("my_requests")}
           className="pr-tab-btn"
           style={{
-            background: activeSection === "my_requests" ? "#4f46e5" : "#f1f5f9",
+            background: activeSection === "my_requests" ? "#4f46e5" : "#f8fafc",
             color: activeSection === "my_requests" ? "white" : "#475569",
+            border: activeSection === "my_requests" ? "1px solid #4f46e5" : "1px solid #cbd5e1",
+            minHeight: 28,
+            height: 28,
+            padding: "3px 10px",
+            fontSize: "0.74rem",
+            borderRadius: 6,
           }}
         >
-          <ListFilter size={14} /> My Salon Requests <span style={{ background: activeSection === "my_requests" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 6px", borderRadius: 8, fontSize: "0.7rem", fontWeight: 700 }}>{requirements.length}</span>
+          <ListFilter size={13} /> My Salon Requests <span style={{ background: activeSection === "my_requests" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "1px 5px", borderRadius: 6, fontSize: "0.68rem", fontWeight: 700 }}>{requirements.length}</span>
         </button>
 
         {selectedDetail && (
@@ -460,11 +482,17 @@ export default function ProductsRequirementPage() {
             onClick={() => setActiveSection("detail")}
             className="pr-tab-btn"
             style={{
-              background: activeSection === "detail" ? "#4f46e5" : "#f1f5f9",
+              background: activeSection === "detail" ? "#4f46e5" : "#f8fafc",
               color: activeSection === "detail" ? "white" : "#475569",
+              border: activeSection === "detail" ? "1px solid #4f46e5" : "1px solid #cbd5e1",
+              minHeight: 28,
+              height: 28,
+              padding: "3px 10px",
+              fontSize: "0.74rem",
+              borderRadius: 6,
             }}
           >
-            <FileText size={14} /> Request Detail
+            <FileText size={13} /> Request Detail
           </button>
         )}
       </div>
