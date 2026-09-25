@@ -1433,12 +1433,39 @@ export default function InventoryPage() {
 
         {activeTab === "Dashboard" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Inventory Dashboard</h2>
                 <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Real-time stock analytics, purchase order tracking, and product performance.</div>
               </div>
-
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <button
+                  type="button"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "9px 18px",
+                    borderRadius: 10,
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    background: "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)",
+                    color: "#ffffff",
+                    border: "none",
+                    cursor: "pointer",
+                    boxShadow: "0 2px 10px rgba(15, 118, 110, 0.25)",
+                    transition: "all 0.15s ease",
+                    minHeight: "38px"
+                  }}
+                  onClick={() => {
+                    setProductForm(emptyProduct);
+                    setIsProductModalOpen(true);
+                  }}
+                >
+                  <Plus size={16} />
+                  Add Product
+                </button>
+              </div>
             </div>
             
             {/* Top KPI Row */}
