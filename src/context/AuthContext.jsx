@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const verifyOtp = async (payload, rememberMe = false) => {
+  const verifyOtp = async (payload, rememberMe = true) => {
     const { data } = await api.post("/auth/verify-otp", payload);
     const memberships = data.activeMemberships || (data.membership ? [data.membership] : []);
     const state = { ...data, memberships, salonId: data.membership?.salonId || null, rememberMe };
