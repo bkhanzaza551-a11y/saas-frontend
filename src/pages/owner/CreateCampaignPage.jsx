@@ -93,6 +93,30 @@ export default function CreateCampaignPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [testSent, setTestSent] = useState(false);
 
+  const [credits, setCredits] = useState({ whatsappCredits: 0, smsCredits: 0 });
+  const [creditsLoading, setCreditsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchCredits();
+  }, []);
+
+  const fetchCredits = async () => {
+    setCreditsLoading(true);
+    try {
+      const res = await api.get('/owner/credits/balance');
+      if (res.data) {
+        setCredits({
+          whatsappCredits: Number(res.data.whatsappCredits || 0),
+          smsCredits: Number(res.data.smsCredits || 0)
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load credits balance", err);
+    } finally {
+      setCreditsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (step === 3 && customers.length === 0) {
       fetchCustomers();
@@ -277,23 +301,155 @@ export default function CreateCampaignPage() {
         .btn-secondary-sm:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
       `}</style>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button 
             onClick={() => step > 1 ? handleBack() : navigate('/admin/campaigns')} 
             style={{ 
-              background: 'transparent', 
               border: 'none', 
               cursor: 'pointer', 
-              padding: 4, 
+              padding: 6, 
               display: 'flex', 
+              alignItems: 'center',
+              justifyContent: 'center',
               background: '#f1f5f9', 
               borderRadius: 8 
             }}
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={22} />
           </button>
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>{draftId ? 'Edit Draft Campaign' : 'Create New Campaign'}</h1>
+        </div>
+
+        {/* Dynamic Channel Credits Display */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {channel === 'WHATSAPP' ? (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              borderRadius: 30,
+              padding: '6px 14px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+            }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.84rem', fontWeight: 700, color: '#065f46' }}>
+                <Smartphone size={16} color="#059669" />
+                WhatsApp Credits:
+                <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#047857' }}>
+                  {creditsLoading ? '...' : (credits.whatsappCredits || 0).toLocaleString()}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/admin/whatsapp-credits')}
+                style={{
+                  background: '#059669',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '4px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+              >
+                <Zap size={12} /> Recharge
+              </button>
+            </div>
+          ) : channel === 'SMS' ? (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: 30,
+              padding: '6px 14px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+            }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.84rem', fontWeight: 700, color: '#1e40af' }}>
+                <MessageSquare size={16} color="#2563eb" />
+                SMS Credits:
+                <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#1d4ed8' }}>
+                  {creditsLoading ? '...' : (credits.smsCredits || 0).toLocaleString()}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/admin/whatsapp-credits')}
+                style={{
+                  background: '#2563eb',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '4px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+              >
+                <Zap size={12} /> Recharge
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                background: '#ecfdf5',
+                border: '1px solid #a7f3d0',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: '#065f46'
+              }}>
+                <Smartphone size={13} color="#059669" /> WA: <b>{(credits.whatsappCredits || 0).toLocaleString()}</b>
+              </div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: '#1e40af'
+              }}>
+                <MessageSquare size={13} color="#2563eb" /> SMS: <b>{(credits.smsCredits || 0).toLocaleString()}</b>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/admin/whatsapp-credits')}
+                style={{
+                  background: '#0f172a',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '5px 11px',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 3
+                }}
+              >
+                <Zap size={11} /> Top Up
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -328,9 +484,33 @@ export default function CreateCampaignPage() {
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20 }}>
               {[
-                { id: 'WHATSAPP', title: 'WhatsApp', desc: 'Send rich media messages directly to WhatsApp.', icon: Smartphone },
-                { id: 'SMS', title: 'SMS', desc: 'Send standard text messages to mobile phones.', icon: MessageSquare },
-                { id: 'EMAIL', title: 'Email', desc: 'Send promotional emails (Free).', icon: Mail }
+                { 
+                  id: 'WHATSAPP', 
+                  title: 'WhatsApp', 
+                  desc: 'Send rich media messages directly to WhatsApp.', 
+                  icon: Smartphone,
+                  creditsText: `${(credits.whatsappCredits || 0).toLocaleString()} Credits Available`,
+                  badgeColor: '#059669',
+                  badgeBg: '#ecfdf5'
+                },
+                { 
+                  id: 'SMS', 
+                  title: 'SMS', 
+                  desc: 'Send standard text messages to mobile phones.', 
+                  icon: MessageSquare,
+                  creditsText: `${(credits.smsCredits || 0).toLocaleString()} Credits Available`,
+                  badgeColor: '#2563eb',
+                  badgeBg: '#eff6ff'
+                },
+                { 
+                  id: 'EMAIL', 
+                  title: 'Email', 
+                  desc: 'Send promotional emails (Free).', 
+                  icon: Mail,
+                  creditsText: 'Free & Unlimited',
+                  badgeColor: '#6366f1',
+                  badgeBg: '#eef2ff'
+                }
               ].map(ch => (
                 <div 
                   key={ch.id}
@@ -347,7 +527,12 @@ export default function CreateCampaignPage() {
                     <ch.icon size={24} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>{ch.title}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>{ch.title}</h3>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: ch.badgeColor, background: ch.badgeBg, padding: '2px 8px', borderRadius: 10 }}>
+                        {ch.creditsText}
+                      </span>
+                    </div>
                     <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>{ch.desc}</p>
                   </div>
                   <div style={{ width: 22, height: 22, borderRadius: '50%', border: channel === ch.id ? '6px solid #0f172a' : '2px solid #cbd5e1', background: '#fff' }} />
@@ -369,6 +554,81 @@ export default function CreateCampaignPage() {
           <div style={{ padding: '32px 32px 48px', display: 'flex', gap: 40, flexWrap: 'wrap' }}>
             {/* Left Side: Setup */}
             <div style={{ flex: '1 1 400px' }}>
+              {/* Channel & Live Credits Status Bar */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 18px',
+                background: channel === 'WHATSAPP' ? '#f0fdf4' : channel === 'SMS' ? '#eff6ff' : '#f8fafc',
+                borderRadius: 12,
+                border: channel === 'WHATSAPP' ? '1px solid #bbf7d0' : channel === 'SMS' ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
+                marginBottom: 24,
+                flexWrap: 'wrap',
+                gap: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    background: channel === 'WHATSAPP' ? '#059669' : channel === 'SMS' ? '#2563eb' : '#475569',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    {channel === 'WHATSAPP' ? <Smartphone size={20} /> : channel === 'SMS' ? <MessageSquare size={20} /> : <Mail size={20} />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Active Channel
+                    </div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                      {channel === 'WHATSAPP' ? 'WhatsApp Promotional Message' : channel === 'SMS' ? 'SMS Text Campaign' : 'Email Campaign'}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block' }}>
+                      {channel === 'WHATSAPP' ? 'Available WhatsApp Credits' : channel === 'SMS' ? 'Available SMS Credits' : 'Pricing'}
+                    </span>
+                    <span style={{ fontSize: '1.18rem', fontWeight: 800, color: channel === 'WHATSAPP' ? '#047857' : channel === 'SMS' ? '#1d4ed8' : '#059669' }}>
+                      {channel === 'WHATSAPP' 
+                        ? (credits.whatsappCredits || 0).toLocaleString() 
+                        : channel === 'SMS' 
+                          ? (credits.smsCredits || 0).toLocaleString() 
+                          : 'Unlimited Free'}
+                    </span>
+                  </div>
+                  {channel !== 'EMAIL' && (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/admin/whatsapp-credits')}
+                      style={{
+                        background: channel === 'WHATSAPP' ? '#059669' : '#2563eb',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '7px 14px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.06)'
+                      }}
+                    >
+                      <Zap size={13} /> Recharge Credits
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Message</h2>
               <p style={{ color: '#64748b', marginBottom: 32, fontSize: '0.95rem' }}>Choose a template and customize the content.</p>
               
@@ -650,6 +910,68 @@ export default function CreateCampaignPage() {
             </button>
           </div>
 
+          {/* Audience & Credit Requirements Bar */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+            padding: '12px 18px',
+            background: (channel !== 'EMAIL' && selectedCustomerIds.size > (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits)) ? '#fef2f2' : '#f8fafc',
+            borderRadius: 12,
+            border: (channel !== 'EMAIL' && selectedCustomerIds.size > (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits)) ? '1px solid #fecaca' : '1px solid #e2e8f0',
+            marginBottom: 20
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.86rem', flexWrap: 'wrap' }}>
+              <span style={{ color: '#475569' }}>
+                Selected Recipients: <strong style={{ color: '#0f172a' }}>{selectedCustomerIds.size}</strong>
+              </span>
+              {channel !== 'EMAIL' && (
+                <>
+                  <span style={{ color: '#cbd5e1' }}>•</span>
+                  <span style={{ color: '#475569' }}>
+                    Credits Required: <strong style={{ color: '#0f172a' }}>{selectedCustomerIds.size}</strong>
+                  </span>
+                  <span style={{ color: '#cbd5e1' }}>•</span>
+                  <span style={{ color: '#475569' }}>
+                    Available {channel === 'WHATSAPP' ? 'WhatsApp' : 'SMS'} Balance:{' '}
+                    <strong style={{ color: (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) >= selectedCustomerIds.size ? '#059669' : '#dc2626' }}>
+                      {(channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits).toLocaleString()} Credits
+                    </strong>
+                  </span>
+                </>
+              )}
+            </div>
+
+            {channel !== 'EMAIL' && selectedCustomerIds.size > (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: 700 }}>
+                  ⚠️ Need {selectedCustomerIds.size - (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits)} more credits
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/whatsapp-credits')}
+                  style={{
+                    background: '#dc2626',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '5px 12px',
+                    fontSize: '0.76rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4
+                  }}
+                >
+                  <Zap size={12} /> Recharge Now
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Cards List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
             {customersLoading ? (
@@ -773,26 +1095,100 @@ export default function CreateCampaignPage() {
           <div style={{ background: '#fff', padding: 32, borderRadius: 16, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: 24, fontWeight: 600, color: '#0f172a' }}>Review & Confirm</h2>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
-              <div style={{ background: '#f8fafc', padding: 20, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ background: '#e0e7ff', width: 48, height: 48, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {channel === 'WHATSAPP' ? <MessageSquare size={24} color="#4f46e5" /> : channel === 'EMAIL' ? <Mail size={24} color="#4f46e5" /> : <Smartphone size={24} color="#4f46e5" />}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div style={{ background: '#f8fafc', padding: 18, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ background: '#e0e7ff', width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {channel === 'WHATSAPP' ? <Smartphone size={22} color="#4f46e5" /> : channel === 'EMAIL' ? <Mail size={22} color="#4f46e5" /> : <MessageSquare size={22} color="#4f46e5" />}
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Channel</h3>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>{channel}</p>
+                  <h3 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 2, textTransform: 'uppercase', fontWeight: 600 }}>Channel</h3>
+                  <p style={{ fontSize: '1rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>{channel}</p>
                 </div>
               </div>
-              <div style={{ background: '#f8fafc', padding: 20, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ background: '#ecfdf5', width: 48, height: 48, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Filter size={24} color="#059669" />
+
+              <div style={{ background: '#f8fafc', padding: 18, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ background: '#ecfdf5', width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Filter size={22} color="#059669" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Recipients</h3>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>{selectedCustomerIds.size} Customers</p>
+                  <h3 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 2, textTransform: 'uppercase', fontWeight: 600 }}>Recipients</h3>
+                  <p style={{ fontSize: '1rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>{selectedCustomerIds.size} Customers</p>
+                </div>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: 18, borderRadius: 12, border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ background: '#fef3c7', width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Zap size={22} color="#d97706" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 2, textTransform: 'uppercase', fontWeight: 600 }}>Credits Required</h3>
+                  <p style={{ fontSize: '1rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+                    {channel === 'EMAIL' ? 'Free (0 Credits)' : `${selectedCustomerIds.size} Credits`}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? '#fef2f2' : '#f0fdf4', padding: 18, borderRadius: 12, border: (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? '1px solid #fecaca' : '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ background: (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? '#fee2e2' : '#dcfce7', width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Zap size={22} color={(channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? '#dc2626' : '#16a34a'} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 2, textTransform: 'uppercase', fontWeight: 600 }}>Available Balance</h3>
+                  <p style={{ fontSize: '1rem', fontWeight: 700, color: (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? '#dc2626' : '#16a34a', margin: 0 }}>
+                    {channel === 'EMAIL' ? 'Unlimited' : `${(channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits || 0).toLocaleString()} Credits`}
+                  </p>
                 </div>
               </div>
             </div>
+
+            {/* Low Credits Warning Banner */}
+            {channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size && (
+              <div style={{
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
+                borderRadius: 12,
+                padding: '16px 20px',
+                marginBottom: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 16
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <AlertCircle size={22} color="#dc2626" />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: '#991b1b', fontSize: '0.92rem' }}>
+                      Insufficient {channel === 'WHATSAPP' ? 'WhatsApp' : 'SMS'} Credits
+                    </div>
+                    <div style={{ color: '#b91c1c', fontSize: '0.82rem', marginTop: 2 }}>
+                      You need {selectedCustomerIds.size} credits to dispatch to all selected recipients, but your available balance is {(channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits)}. Please recharge before sending.
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/whatsapp-credits')}
+                  style={{
+                    background: '#dc2626',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 16px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  <Zap size={14} /> Recharge Now
+                </button>
+              </div>
+            )}
   
             <label style={{ display: 'block', marginBottom: 28 }}>
               <span style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>Campaign Name (Internal)</span>
@@ -849,7 +1245,23 @@ export default function CreateCampaignPage() {
                 Test Message
               </button>
               
-              <button onClick={() => { if (!testSent) setShowConfirmModal(true); else submitCampaign(); }} disabled={loading} style={{ background: '#111827', border: 'none', padding: '10px 24px', borderRadius: 8, fontWeight: 600, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button 
+                onClick={() => { if (!testSent) setShowConfirmModal(true); else submitCampaign(); }} 
+                disabled={loading || (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size)} 
+                title={(channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? "Insufficient credits. Please recharge." : ""}
+                style={{ 
+                  background: (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? '#94a3b8' : '#111827', 
+                  border: 'none', 
+                  padding: '10px 24px', 
+                  borderRadius: 8, 
+                  fontWeight: 600, 
+                  color: '#fff', 
+                  cursor: (channel !== 'EMAIL' && (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits) < selectedCustomerIds.size) ? 'not-allowed' : 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 6 
+                }}
+              >
                 {loading ? 'Processing...' : 'Confirm & Send'} <ChevronRight size={16} />
               </button>
             </div>
