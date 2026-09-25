@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -7,7 +7,7 @@ import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
 import VendorManagement from "./VendorManagement";
 import IndianPhoneInput from "../../components/IndianPhoneInput";
-import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Tag, Layers, RefreshCw, Users, FileText, Activity, Plus, Trash2, ChevronDown, Save, Upload, Download, X } from "lucide-react";
+import { Package, Search, ShoppingCart, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Tag, Layers, RefreshCw, Users, FileText, Activity, Plus, Trash2, ChevronDown, Save, Upload, Download, X, LayoutGrid, List, Eye, Edit, SlidersHorizontal, Info } from "lucide-react";
 import "./InventoryPage.css";
 
 import CustomSelect from "../../components/CustomSelect";
@@ -50,6 +50,12 @@ export default function InventoryPage() {
   const [commentText, setCommentText] = useState("");
   const [showProductExportMenu, setShowProductExportMenu] = useState(false);
   const [importingProduct, setImportingProduct] = useState(false);
+  const [productViewMode, setProductViewMode] = useState("table"); // "table" | "grid"
+  const [productSearch, setProductSearch] = useState("");
+  const [productTypeFilter, setProductTypeFilter] = useState("ALL");
+  const [productCatFilter, setProductCatFilter] = useState("ALL");
+  const [productStockFilter, setProductStockFilter] = useState("ALL");
+  const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
 
   const [reconciliationEdits, setReconciliationEdits] = useState({});
   const [reconSearch, setReconSearch] = useState("");
@@ -447,6 +453,32 @@ export default function InventoryPage() {
     return () => { document.body.style.overflow = ''; };
   }, [isProductModalOpen, isCategoryModalOpen, isMovementModalOpen, isVendorModalOpen, isPurchaseOrderModalOpen]);
 
+  const filteredAllProducts = useMemo(() => {
+    return products.filter(p => {
+      const q = (productSearch || "").toLowerCase().trim();
+      const matchesSearch = !q ||
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.sku && p.sku.toLowerCase().includes(q)) ||
+        (p.barcode && p.barcode.toLowerCase().includes(q)) ||
+        (p.category?.name && p.category.name.toLowerCase().includes(q)) ||
+        (typeof p.category === "string" && p.category.toLowerCase().includes(q));
+
+      const matchesType = productTypeFilter === "ALL" || p.productType === productTypeFilter;
+      const catId = p.categoryId || (p.category?.id) || "";
+      const catName = p.category?.name || (typeof p.category === "string" ? p.category : "") || "";
+      const matchesCat = productCatFilter === "ALL" || catId === productCatFilter || catName === productCatFilter;
+
+      const stock = Number(p.currentStock || 0);
+      const minStock = Number(p.minStock || p.minThreshold || 0);
+      let matchesStock = true;
+      if (productStockFilter === "IN_STOCK") matchesStock = stock > minStock;
+      else if (productStockFilter === "LOW_STOCK") matchesStock = stock > 0 && stock <= minStock;
+      else if (productStockFilter === "OUT_OF_STOCK") matchesStock = stock <= 0;
+
+      return matchesSearch && matchesType && matchesCat && matchesStock;
+    });
+  }, [products, productSearch, productTypeFilter, productCatFilter, productStockFilter]);
+
   const totalStock = products.reduce((acc, p) => acc + Number(p.currentStock || 0), 0);
   const activeItems = products.filter(p => p.isActive !== false).length;
   const pendingOrders = orders.filter(o => o.status === "DRAFT").length;
@@ -787,37 +819,615 @@ export default function InventoryPage() {
         
         {activeTab === "All Products" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>All Products</h2>
-              <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Master list of all inventory items and products.</div>
+            {/* Header & Stats */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#0f172a", fontWeight: "700" }}>Products & Inventory Master</h2>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>
+                  Comprehensive catalog with real-time stock levels, pricing, SKU details, and custom layouts.
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <button
+                  type="button"
+                  className="sp-submit-btn"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#2563eb", color: "#fff", border: "none", cursor: "pointer" }}
+                  onClick={() => {
+                    setProductForm(emptyProduct);
+                    setIsProductModalOpen(true);
+                  }}
+                >
+                  <Plus size={16} />
+                  Add New Product
+                </button>
+              </div>
             </div>
-            <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-                <thead>
-                  <tr style={{ background: "#f8fafc", textAlign: "left", color: "#475569" }}>
-                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Name</th>
-                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Category</th>
-                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Stock</th>
-                    <th style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0" }}>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map(p => (
-                    <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      <td style={{ padding: "12px 16px", color: "#0f172a", fontWeight: 500 }}>{p.name}</td>
-                      <td style={{ padding: "12px 16px", color: "#64748b" }}>{p.category}</td>
-                      <td style={{ padding: "12px 16px", color: p.currentStock < p.minThreshold ? "#ef4444" : "#64748b" }}>{p.currentStock || 0}</td>
-                      <td style={{ padding: "12px 16px", color: "#0f172a" }}>₹{p.price || 0}</td>
-                    </tr>
-                  ))}
-                  {products.length === 0 && (
-                    <tr>
-                      <td colSpan={4} style={{ textAlign: "center", padding: 30, color: "#94a3b8" }}>No products found.</td>
-                    </tr>
+
+            {/* Quick KPI Summary */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "12px 16px" }}>
+                <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Products</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: "#0f172a", marginTop: 4 }}>{products.length}</div>
+              </div>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "12px 16px" }}>
+                <div style={{ fontSize: 12, color: "#16a34a", fontWeight: 600 }}>In Stock</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: "#16a34a", marginTop: 4 }}>
+                  {products.filter(p => Number(p.currentStock || 0) > Number(p.minStock || p.minThreshold || 0)).length}
+                </div>
+              </div>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "12px 16px" }}>
+                <div style={{ fontSize: 12, color: "#d97706", fontWeight: 600 }}>Low Stock</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: "#d97706", marginTop: 4 }}>
+                  {products.filter(p => Number(p.currentStock || 0) > 0 && Number(p.currentStock || 0) <= Number(p.minStock || p.minThreshold || 0)).length}
+                </div>
+              </div>
+              <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "12px 16px" }}>
+                <div style={{ fontSize: 12, color: "#dc2626", fontWeight: 600 }}>Out of Stock</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: "#dc2626", marginTop: 4 }}>
+                  {products.filter(p => Number(p.currentStock || 0) <= 0).length}
+                </div>
+              </div>
+            </div>
+
+            {/* Filters, Search & Layout Switcher Bar */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              {/* Left: Search & Filter inputs */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", flex: 1 }}>
+                <div style={{ position: "relative", minWidth: 220, flex: 1, maxWidth: 320 }}>
+                  <Search size={15} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                  <input
+                    type="text"
+                    placeholder="Search by name, SKU, barcode..."
+                    value={productSearch}
+                    onChange={e => setProductSearch(e.target.value)}
+                    style={{ width: "100%", padding: "8px 12px 8px 32px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 8, outline: "none" }}
+                  />
+                  {productSearch && (
+                    <button type="button" onClick={() => setProductSearch("")} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}>
+                      <X size={14} />
+                    </button>
                   )}
-                </tbody>
-              </table>
+                </div>
+
+                {/* Category Filter */}
+                <select
+                  value={productCatFilter}
+                  onChange={e => setProductCatFilter(e.target.value)}
+                  style={{ padding: "8px 12px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", color: "#334155", cursor: "pointer" }}
+                >
+                  <option value="ALL">All Categories</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+
+                {/* Product Type Filter */}
+                <select
+                  value={productTypeFilter}
+                  onChange={e => setProductTypeFilter(e.target.value)}
+                  style={{ padding: "8px 12px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", color: "#334155", cursor: "pointer" }}
+                >
+                  <option value="ALL">All Types</option>
+                  <option value="RETAIL">Retail</option>
+                  <option value="CONSUMABLE">Consumable / In-House</option>
+                </select>
+
+                {/* Stock Status Filter */}
+                <select
+                  value={productStockFilter}
+                  onChange={e => setProductStockFilter(e.target.value)}
+                  style={{ padding: "8px 12px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 8, background: "#fff", color: "#334155", cursor: "pointer" }}
+                >
+                  <option value="ALL">All Stock Status</option>
+                  <option value="IN_STOCK">In Stock</option>
+                  <option value="LOW_STOCK">Low Stock</option>
+                  <option value="OUT_OF_STOCK">Out of Stock</option>
+                </select>
+              </div>
+
+              {/* Right: Layout Switcher Toggle */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f1f5f9", padding: 4, borderRadius: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => setProductViewMode("table")}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: "pointer",
+                    background: productViewMode === "table" ? "#ffffff" : "transparent",
+                    color: productViewMode === "table" ? "#0f172a" : "#64748b",
+                    boxShadow: productViewMode === "table" ? "0 1px 2px rgba(0,0,0,0.06)" : "none"
+                  }}
+                >
+                  <List size={14} />
+                  Table
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProductViewMode("grid")}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: "pointer",
+                    background: productViewMode === "grid" ? "#ffffff" : "transparent",
+                    color: productViewMode === "grid" ? "#0f172a" : "#64748b",
+                    boxShadow: productViewMode === "grid" ? "0 1px 2px rgba(0,0,0,0.06)" : "none"
+                  }}
+                >
+                  <LayoutGrid size={14} />
+                  Grid
+                </button>
+              </div>
             </div>
+
+            {/* Product List Content: TABLE VIEW */}
+            {productViewMode === "table" && (
+              <div style={{ background: "white", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                    <thead>
+                      <tr style={{ background: "#f8fafc", textAlign: "left", color: "#475569", borderBottom: "1px solid #e2e8f0" }}>
+                        <th style={{ padding: "12px 16px" }}>Product</th>
+                        <th style={{ padding: "12px 16px" }}>SKU / Barcode</th>
+                        <th style={{ padding: "12px 16px" }}>Category</th>
+                        <th style={{ padding: "12px 16px" }}>Type</th>
+                        <th style={{ padding: "12px 16px" }}>Cost</th>
+                        <th style={{ padding: "12px 16px" }}>Selling Price</th>
+                        <th style={{ padding: "12px 16px" }}>Stock Level</th>
+                        <th style={{ padding: "12px 16px", textAlign: "right" }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredAllProducts.map(p => {
+                        const stock = Number(p.currentStock || 0);
+                        const minStock = Number(p.minStock || p.minThreshold || 0);
+                        const isLow = stock > 0 && stock <= minStock;
+                        const isOut = stock <= 0;
+                        const catName = p.category?.name || (typeof p.category === "string" ? p.category : "General");
+
+                        return (
+                          <tr key={p.id} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.15s" }}>
+                            <td style={{ padding: "12px 16px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                {p.imageUrl ? (
+                                  <img src={p.imageUrl} alt="" style={{ width: 38, height: 38, borderRadius: 6, objectFit: "cover", border: "1px solid #e2e8f0" }} />
+                                ) : (
+                                  <div style={{ width: 38, height: 38, borderRadius: 6, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
+                                    <Package size={18} />
+                                  </div>
+                                )}
+                                <div>
+                                  <div style={{ fontWeight: 600, color: "#0f172a", fontSize: 13 }}>{p.name}</div>
+                                  <div style={{ fontSize: 11, color: "#64748b" }}>{p.unit || "unit"} {p.secondaryUnit ? `(${p.secondaryUnit})` : ""}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding: "12px 16px", color: "#475569", fontSize: 12 }}>
+                              <div>{p.sku || "—"}</div>
+                              {p.barcode && <div style={{ fontSize: 10, color: "#94a3b8" }}>{p.barcode}</div>}
+                            </td>
+                            <td style={{ padding: "12px 16px" }}>
+                              <span style={{ display: "inline-block", padding: "3px 8px", background: "#f1f5f9", color: "#475569", borderRadius: 6, fontSize: 11, fontWeight: 500 }}>
+                                {catName}
+                              </span>
+                            </td>
+                            <td style={{ padding: "12px 16px" }}>
+                              <span style={{
+                                display: "inline-block",
+                                padding: "3px 8px",
+                                borderRadius: 6,
+                                fontSize: 11,
+                                fontWeight: 600,
+                                background: p.productType === "RETAIL" ? "#eff6ff" : "#fef3c7",
+                                color: p.productType === "RETAIL" ? "#1d4ed8" : "#b45309"
+                              }}>
+                                {p.productType === "RETAIL" ? "Retail" : "Consumable"}
+                              </span>
+                            </td>
+                            <td style={{ padding: "12px 16px", color: "#64748b" }}>
+                              {formatMoney(p.costPrice || 0)}
+                            </td>
+                            <td style={{ padding: "12px 16px", fontWeight: 600, color: "#0f172a" }}>
+                              {formatMoney(p.sellingPrice || p.price || 0)}
+                            </td>
+                            <td style={{ padding: "12px 16px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{
+                                  display: "inline-block",
+                                  padding: "3px 8px",
+                                  borderRadius: 12,
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  background: isOut ? "#fee2e2" : isLow ? "#fef3c7" : "#dcfce7",
+                                  color: isOut ? "#dc2626" : isLow ? "#d97706" : "#16a34a"
+                                }}>
+                                  {isOut ? "Out of Stock" : isLow ? `Low (${stock})` : `${stock} in stock`}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>Min: {minStock}</div>
+                            </td>
+                            <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                              <div style={{ display: "inline-flex", gap: 6 }}>
+                                <button
+                                  type="button"
+                                  title="View Details"
+                                  onClick={() => setSelectedDetailProduct(p)}
+                                  style={{ padding: "6px 8px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, color: "#475569", cursor: "pointer" }}
+                                >
+                                  <Eye size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  title="Edit Product"
+                                  onClick={() => {
+                                    setProductForm({
+                                      ...emptyProduct,
+                                      ...p,
+                                      costPrice: p.costPrice || 0,
+                                      sellingPrice: p.sellingPrice || p.price || 0,
+                                      currentStock: p.currentStock || 0,
+                                      minStock: p.minStock || p.minThreshold || 0,
+                                      categoryId: p.categoryId || (p.category?.id) || ""
+                                    });
+                                    setIsProductModalOpen(true);
+                                  }}
+                                  style={{ padding: "6px 8px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, color: "#2563eb", cursor: "pointer" }}
+                                >
+                                  <Edit size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  title="Adjust Stock"
+                                  onClick={() => {
+                                    setMovementForm({
+                                      ...emptyMovement,
+                                      productId: p.id,
+                                      branchId: p.branchId || selectedBranchId || ""
+                                    });
+                                    setIsMovementModalOpen(true);
+                                  }}
+                                  style={{ padding: "6px 8px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, color: "#16a34a", cursor: "pointer" }}
+                                >
+                                  <RefreshCw size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {filteredAllProducts.length === 0 && (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign: "center", padding: "40px 20px", color: "#94a3b8" }}>
+                            <Package size={32} style={{ margin: "0 auto 8px auto", opacity: 0.5, display: "block" }} />
+                            <div>No products matched your search or filters.</div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Product List Content: GRID VIEW */}
+            {productViewMode === "grid" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+                {filteredAllProducts.map(p => {
+                  const stock = Number(p.currentStock || 0);
+                  const minStock = Number(p.minStock || p.minThreshold || 0);
+                  const isLow = stock > 0 && stock <= minStock;
+                  const isOut = stock <= 0;
+                  const catName = p.category?.name || (typeof p.category === "string" ? p.category : "General");
+
+                  return (
+                    <div
+                      key={p.id}
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 12,
+                        padding: "16px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                        transition: "all 0.15s ease"
+                      }}
+                    >
+                      {/* Card Header with Image & Badges */}
+                      <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                        {p.imageUrl ? (
+                          <img src={p.imageUrl} alt="" style={{ width: 54, height: 54, borderRadius: 8, objectFit: "cover", border: "1px solid #e2e8f0", flexShrink: 0 }} />
+                        ) : (
+                          <div style={{ width: 54, height: 54, borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", flexShrink: 0 }}>
+                            <Package size={24} />
+                          </div>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                            <span style={{
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              fontSize: 10,
+                              fontWeight: 600,
+                              background: p.productType === "RETAIL" ? "#eff6ff" : "#fef3c7",
+                              color: p.productType === "RETAIL" ? "#1d4ed8" : "#b45309"
+                            }}>
+                              {p.productType === "RETAIL" ? "Retail" : "Consumable"}
+                            </span>
+                            <span style={{
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              fontSize: 10,
+                              fontWeight: 600,
+                              background: isOut ? "#fee2e2" : isLow ? "#fef3c7" : "#dcfce7",
+                              color: isOut ? "#dc2626" : isLow ? "#d97706" : "#16a34a"
+                            }}>
+                              {isOut ? "Out of Stock" : isLow ? "Low Stock" : "In Stock"}
+                            </span>
+                          </div>
+                          <div style={{ fontWeight: 600, color: "#0f172a", fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={p.name}>
+                            {p.name}
+                          </div>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>{catName}</div>
+                        </div>
+                      </div>
+
+                      {/* Card Details: SKU, Barcode, Prices */}
+                      <div style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontSize: 10, color: "#64748b", textTransform: "uppercase", fontWeight: 600 }}>Selling Price</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
+                            {formatMoney(p.sellingPrice || p.price || 0)}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 10, color: "#64748b", textTransform: "uppercase", fontWeight: 600 }}>Cost Price</div>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: "#475569" }}>
+                            {formatMoney(p.costPrice || 0)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stock count & Bar */}
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#64748b", marginBottom: 4 }}>
+                          <span>Stock: <strong style={{ color: isOut ? "#dc2626" : "#0f172a" }}>{stock}</strong> {p.unit || "units"}</span>
+                          <span>Min Threshold: {minStock}</span>
+                        </div>
+                        <div style={{ height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${Math.min(100, minStock > 0 ? (stock / (minStock * 2)) * 100 : stock > 0 ? 100 : 0)}%`,
+                              background: isOut ? "#dc2626" : isLow ? "#d97706" : "#16a34a",
+                              borderRadius: 3
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card Actions */}
+                      <div style={{ display: "flex", gap: 8, marginTop: "auto", paddingTop: 8, borderTop: "1px solid #f1f5f9" }}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDetailProduct(p)}
+                          style={{ flex: 1, padding: "7px 10px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#334155", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+                        >
+                          <Eye size={13} />
+                          Details
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProductForm({
+                              ...emptyProduct,
+                              ...p,
+                              costPrice: p.costPrice || 0,
+                              sellingPrice: p.sellingPrice || p.price || 0,
+                              currentStock: p.currentStock || 0,
+                              minStock: p.minStock || p.minThreshold || 0,
+                              categoryId: p.categoryId || (p.category?.id) || ""
+                            });
+                            setIsProductModalOpen(true);
+                          }}
+                          style={{ padding: "7px 10px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#1d4ed8", cursor: "pointer" }}
+                        >
+                          <Edit size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMovementForm({
+                              ...emptyMovement,
+                              productId: p.id,
+                              branchId: p.branchId || selectedBranchId || ""
+                            });
+                            setIsMovementModalOpen(true);
+                          }}
+                          style={{ padding: "7px 10px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#16a34a", cursor: "pointer" }}
+                        >
+                          <RefreshCw size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {filteredAllProducts.length === 0 && (
+                  <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px 20px", background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", color: "#94a3b8" }}>
+                    <Package size={32} style={{ margin: "0 auto 8px auto", opacity: 0.5, display: "block" }} />
+                    <div>No products matched your search or filters.</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* PRODUCT DETAILS MODAL */}
+            {selectedDetailProduct && (
+              <div className="slide-panel-overlay" onClick={() => setSelectedDetailProduct(null)}>
+                <div className="slide-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 540 }}>
+                  <div className="sp-header">
+                    <button className="sp-close" onClick={() => setSelectedDetailProduct(null)}><ArrowLeft size={18} /></button>
+                    <h3>Product Specifications & Details</h3>
+                  </div>
+                  <div className="sp-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Header preview */}
+                    <div style={{ display: "flex", gap: 16, alignItems: "center", background: "#f8fafc", padding: 16, borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                      {selectedDetailProduct.imageUrl ? (
+                        <img src={selectedDetailProduct.imageUrl} alt="" style={{ width: 70, height: 70, borderRadius: 10, objectFit: "cover", border: "1px solid #e2e8f0" }} />
+                      ) : (
+                        <div style={{ width: 70, height: 70, borderRadius: 10, background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>
+                          <Package size={32} />
+                        </div>
+                      )}
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: 16, color: "#0f172a", fontWeight: 700 }}>{selectedDetailProduct.name}</h4>
+                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                          {selectedDetailProduct.category?.name || selectedDetailProduct.category || "Uncategorized"}
+                        </div>
+                        <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                          <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, background: selectedDetailProduct.productType === "RETAIL" ? "#eff6ff" : "#fef3c7", color: selectedDetailProduct.productType === "RETAIL" ? "#1d4ed8" : "#b45309" }}>
+                            {selectedDetailProduct.productType === "RETAIL" ? "Retail Product" : "Consumable / In-House"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stock overview */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Stock & Inventory Metrics
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Current Stock</div>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: Number(selectedDetailProduct.currentStock || 0) <= 0 ? "#dc2626" : "#0f172a" }}>
+                            {selectedDetailProduct.currentStock || 0} {selectedDetailProduct.unit || "units"}
+                          </div>
+                        </div>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Minimum Threshold</div>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: "#475569" }}>
+                            {selectedDetailProduct.minStock || selectedDetailProduct.minThreshold || 0} {selectedDetailProduct.unit || "units"}
+                          </div>
+                        </div>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Primary Unit</div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>
+                            {selectedDetailProduct.unit || "None"}
+                          </div>
+                        </div>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Secondary Unit</div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>
+                            {selectedDetailProduct.secondaryUnit || "None"} {selectedDetailProduct.unitConversion ? `(1:${selectedDetailProduct.unitConversion})` : ""}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Financial Metrics */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Pricing & Profitability
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Selling Price (MRP)</div>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: "#16a34a" }}>
+                            {formatMoney(selectedDetailProduct.sellingPrice || selectedDetailProduct.price || 0)}
+                          </div>
+                        </div>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8 }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Cost Price</div>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: "#475569" }}>
+                            {formatMoney(selectedDetailProduct.costPrice || 0)}
+                          </div>
+                        </div>
+                        <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8, gridColumn: "1 / -1" }}>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>Estimated Gross Margin</div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginTop: 2 }}>
+                            {(() => {
+                              const sp = Number(selectedDetailProduct.sellingPrice || selectedDetailProduct.price || 0);
+                              const cp = Number(selectedDetailProduct.costPrice || 0);
+                              if (sp <= 0) return "N/A";
+                              const profit = sp - cp;
+                              const marginPct = ((profit / sp) * 100).toFixed(1);
+                              return `${formatMoney(profit)} per unit (${marginPct}% margin)`;
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Identifiers & System Info */}
+                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Identifiers & Codes
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "#64748b" }}>SKU:</span>
+                          <span style={{ fontWeight: 600, color: "#0f172a" }}>{selectedDetailProduct.sku || "Not specified"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "#64748b" }}>Barcode:</span>
+                          <span style={{ fontWeight: 600, color: "#0f172a" }}>{selectedDetailProduct.barcode || "Not specified"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "#64748b" }}>Assigned Branch:</span>
+                          <span style={{ fontWeight: 600, color: "#0f172a" }}>{selectedDetailProduct.branch?.name || "All Branches / Central"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                      <button
+                        type="button"
+                        className="sp-submit-btn"
+                        style={{ flex: 1, padding: "10px 16px", borderRadius: 8, background: "#2563eb", color: "#fff", border: "none", fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => {
+                          const p = selectedDetailProduct;
+                          setSelectedDetailProduct(null);
+                          setProductForm({
+                            ...emptyProduct,
+                            ...p,
+                            costPrice: p.costPrice || 0,
+                            sellingPrice: p.sellingPrice || p.price || 0,
+                            currentStock: p.currentStock || 0,
+                            minStock: p.minStock || p.minThreshold || 0,
+                            categoryId: p.categoryId || (p.category?.id) || ""
+                          });
+                          setIsProductModalOpen(true);
+                        }}
+                      >
+                        Edit This Product
+                      </button>
+                      <button
+                        type="button"
+                        style={{ padding: "10px 16px", borderRadius: 8, background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => setSelectedDetailProduct(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
