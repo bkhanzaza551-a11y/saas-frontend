@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -793,7 +793,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
                               <span style={{ background: isActive ? "#ecfdf5" : "#fee2e2", color: isActive ? "#10b981" : "#ef4444", fontSize: "0.7rem", fontWeight: 750, padding: "2px 6px", borderRadius: 100 }}>{sub.status}</span>
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#64748b", marginTop: 4 }}>
-                              <span>Price: <strong style={{ color: "#0f172a" }}>₹{Number(sub.amount != null ? sub.amount : (sub.plan?.yearlyPrice || (sub.plan?.monthlyPrice ? sub.plan.monthlyPrice * 10 : 0))).toLocaleString("en-IN")}</strong>/year</span>
+                              <span>Price: <strong style={{ color: "#0f172a" }}>₹{Number(sub.plan?.yearlyPrice || (sub.amount && Number(sub.amount) > 1000 ? sub.amount : (sub.plan?.monthlyPrice ? sub.plan.monthlyPrice * 12 : 0))).toLocaleString("en-IN")}</strong>/year</span>
                               <span>Ends: {new Date(sub.endsAt).toLocaleDateString()}</span>
                             </div>
                           </div>

@@ -351,7 +351,7 @@ const toLocalIsoDateTime = (dt) => {
 
   const calculatePlanPrice = (planId, hasDiscount, discountType, discountValue) => {
     const selectedPlan = plans.find(p => p.id === planId) || plans[0];
-    const basePrice = Number(selectedPlan?.yearlyPrice || (Number(selectedPlan?.monthlyPrice || 0) * 10) || 0);
+    const basePrice = Number(selectedPlan?.yearlyPrice || (Number(selectedPlan?.monthlyPrice || 0) * 12) || 0);
     let discountAmount = 0;
     if (hasDiscount && Number(discountValue) > 0) {
       if (discountType === "percent") {
@@ -1760,7 +1760,7 @@ const toLocalIsoDateTime = (dt) => {
                               }));
                             }} 
                             options={plans.map(p => {
-                              const priceVal = p.yearlyPrice || (Number(p.monthlyPrice || 0) * 10);
+                              const priceVal = p.yearlyPrice || (Number(p.monthlyPrice || 0) * 12);
                               const priceText = `₹${Number(priceVal).toLocaleString("en-IN")}/year`;
                               const trialText = p.trialDays !== undefined ? `${p.trialDays}d trial` : "14d trial";
                               return {

@@ -125,7 +125,7 @@ export default function PlansPage() {
     setForm({
       name: p.name,
       description: p.description || "",
-      yearlyPrice: p.yearlyPrice !== undefined && p.yearlyPrice !== null ? p.yearlyPrice : (p.monthlyPrice ? p.monthlyPrice * 10 : ""),
+      yearlyPrice: p.yearlyPrice !== undefined && p.yearlyPrice !== null ? p.yearlyPrice : (p.monthlyPrice ? p.monthlyPrice * 12 : ""),
       trialDays: p.trialDays !== undefined && p.trialDays !== null ? p.trialDays : "",
       branchLimit: p.branchLimit !== undefined && p.branchLimit !== null ? p.branchLimit : "",
       userLimit: p.userLimit !== undefined && p.userLimit !== null ? p.userLimit : "",

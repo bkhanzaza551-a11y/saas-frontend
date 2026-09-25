@@ -577,7 +577,7 @@ export default function Salon360ProfilePage() {
                   <div>
                     <h4 style={{ margin: 0, color: "#4f46e5", fontSize: "1.15rem", fontWeight: 800 }}>{subscription.plan?.name || "Custom Plan"}</h4>
                     <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>
-                      Type: {subscription.status === "TRIAL" ? "Free Trial" : "Active Paid Plan"} • Price: <strong style={{ color: "#0f172a" }}>₹{Number(subscription.amount != null ? subscription.amount : (subscription.plan?.monthlyPrice || 0)).toLocaleString()}/{subscription.billingCycle || "mo"}</strong>
+                      Type: {subscription.status === "TRIAL" ? "Free Trial" : "Active Paid Plan"} • Price: <strong style={{ color: "#0f172a" }}>₹{Number(subscription.plan?.yearlyPrice || (subscription.amount && Number(subscription.amount) > 1000 ? subscription.amount : (subscription.plan?.monthlyPrice ? subscription.plan.monthlyPrice * 12 : 0))).toLocaleString("en-IN")}/year</strong>
                     </div>
                   </div>
                   <span style={{ fontWeight: 700, color: subscription.status === "ACTIVE" ? "#10b981" : (subscription.status === "TRIAL" ? "#d97706" : "#ef4444"), background: subscription.status === "ACTIVE" ? "#ecfdf5" : (subscription.status === "TRIAL" ? "#fffbeb" : "#fef2f2"), padding: "5px 12px", borderRadius: 100, fontSize: "0.8rem" }}>
@@ -586,7 +586,7 @@ export default function Salon360ProfilePage() {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 14, fontSize: "0.85rem", background: "white", padding: 16, borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                  <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>PLAN PRICE</span> <span style={{ fontWeight: 700, color: "#0f172a" }}>₹{Number(subscription.amount != null ? subscription.amount : (subscription.plan?.monthlyPrice || 0)).toLocaleString()} / {subscription.billingCycle || "mo"}</span></div>
+                  <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>PLAN PRICE</span> <span style={{ fontWeight: 700, color: "#0f172a" }}>₹{Number(subscription.plan?.yearlyPrice || (subscription.amount && Number(subscription.amount) > 1000 ? subscription.amount : (subscription.plan?.monthlyPrice ? subscription.plan.monthlyPrice * 12 : 0))).toLocaleString("en-IN")} / year</span></div>
                   <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>START DATE</span> <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(subscription.startsAt).toLocaleDateString()}</span></div>
                   <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>EXPIRY DATE</span> <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(subscription.endsAt).toLocaleDateString()}</span></div>
                   <div><span style={{ color: "#64748b", display: "block", fontSize: 11, fontWeight: 700 }}>PAYMENT STATUS</span> <span style={{ fontWeight: 600, color: subscription.status === "ACTIVE" ? "#16a34a" : "#d97706" }}>{subscription.status === "ACTIVE" ? "Paid / Active" : "Trial Active"}</span></div>
@@ -646,7 +646,7 @@ export default function Salon360ProfilePage() {
                           </td>
                           <td style={{ padding: "8px 10px" }}>{new Date(s.startsAt).toLocaleDateString()}</td>
                           <td style={{ padding: "8px 10px" }}>{new Date(s.endsAt).toLocaleDateString()}</td>
-                          <td style={{ padding: "8px 10px", fontWeight: 600 }}>₹{Number(s.amount != null ? s.amount : (s.plan?.monthlyPrice || s.price || 0)).toLocaleString()}</td>
+                          <td style={{ padding: "8px 10px", fontWeight: 600 }}>₹{Number(s.plan?.yearlyPrice || (s.amount && Number(s.amount) > 1000 ? s.amount : (s.plan?.monthlyPrice ? s.plan.monthlyPrice * 12 : 0))).toLocaleString("en-IN")}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -741,11 +741,11 @@ export default function Salon360ProfilePage() {
           (salon.subscriptions || []).filter(s => s.status === "ACTIVE" || s.paymentStatus === "PAID" || s.amount).map(s => ({
             id: `sub-${s.id}`,
             transactionId: `SUB-${s.id.slice(-6).toUpperCase()}`,
-            amount: Number(s.amount != null ? s.amount : (s.plan?.monthlyPrice || 0)),
+            amount: Number(s.plan?.yearlyPrice || (s.amount && Number(s.amount) > 1000 ? s.amount : (s.plan?.monthlyPrice ? s.plan.monthlyPrice * 12 : 0))),
             mode: "ONLINE",
             status: s.paymentStatus === "PAID" || s.status === "ACTIVE" ? "PAID" : "PENDING",
             paymentFor: `Subscription (${s.plan?.name || "Plan"})`,
-            note: `Cycle: ${s.billingCycle || "monthly"} • Started ${new Date(s.startsAt).toLocaleDateString()}`,
+            note: `Cycle: ${s.billingCycle || "yearly"} • Started ${new Date(s.startsAt).toLocaleDateString()}`,
             createdAt: s.startsAt
           }))
         );
