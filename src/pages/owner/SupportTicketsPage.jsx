@@ -241,8 +241,18 @@ export default function SupportTicketsPage() {
   }
 
   return (
-    <div className="page-shell" style={{ padding: "16px 20px", height: "calc(100vh - 75px)", minHeight: "620px", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
+    <div className="page-shell support-page-shell">
       <style>{`
+        .support-page-shell {
+          padding: 14px 18px 18px;
+          height: calc(100vh - 75px);
+          height: calc(100dvh - 75px);
+          display: flex;
+          flex-direction: column;
+          box-sizing: border-box;
+          overflow: hidden;
+        }
+
         .support-hub-container {
           display: grid;
           grid-template-columns: 360px 1fr;
@@ -326,13 +336,101 @@ export default function SupportTicketsPage() {
         }
 
         .support-reply-bar {
-          padding: 12px 20px 16px;
+          padding: 12px 18px 14px;
           background: #ffffff;
           border-top: 1px solid #e2e8f0;
           display: flex;
           flex-direction: column;
           gap: 8px;
           flex-shrink: 0;
+          box-sizing: border-box;
+          position: relative;
+          z-index: 10;
+        }
+
+        .support-reply-controls-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .support-attach-btn {
+          width: 42px;
+          height: 42px;
+          border-radius: 10px;
+          border: 1px solid #cbd5e1;
+          background: #f8fafc;
+          color: #64748b;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.15s ease;
+          box-sizing: border-box;
+        }
+        .support-attach-btn:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+          border-color: #94a3b8;
+        }
+        .support-attach-btn.has-file {
+          background: #ecfdf5;
+          color: #059669;
+          border-color: #a7f3d0;
+        }
+
+        .support-reply-textarea {
+          flex: 1;
+          min-width: 0;
+          height: 42px;
+          min-height: 42px;
+          max-height: 100px;
+          padding: 10px 14px;
+          border: 1px solid #cbd5e1;
+          border-radius: 10px;
+          font-size: 0.88rem;
+          resize: none;
+          outline: none;
+          box-sizing: border-box;
+          font-family: inherit;
+          line-height: 1.4;
+          background: #ffffff;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .support-reply-textarea:focus {
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .support-send-btn {
+          height: 42px;
+          padding: 0 18px;
+          background: #4f46e5;
+          color: #ffffff;
+          border: none;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 0.85rem;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          flex-shrink: 0;
+          transition: all 0.15s ease;
+          box-sizing: border-box;
+        }
+        .support-send-btn:hover:not(:disabled) {
+          background: #4338ca;
+          box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+        }
+        .support-send-btn:disabled {
+          background: #e2e8f0;
+          color: #94a3b8;
+          cursor: not-allowed;
         }
 
         .msg-bubble-superadmin {
@@ -375,13 +473,52 @@ export default function SupportTicketsPage() {
         }
 
         @media (max-width: 900px) {
+          .support-page-shell {
+            padding: 8px 10px 10px !important;
+            height: calc(100vh - 65px) !important;
+            height: calc(100dvh - 65px) !important;
+            min-height: 0 !important;
+          }
           .support-hub-container {
             grid-template-columns: 1fr !important;
+            border-radius: 12px !important;
           }
           .support-sidebar.hide-mobile {
             display: none !important;
           }
           .support-chat-pane.hide-mobile {
+            display: none !important;
+          }
+          .support-messages-stream {
+            padding: 14px 12px !important;
+          }
+          .msg-bubble-superadmin, .msg-bubble-owner {
+            max-width: 88% !important;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .support-reply-bar {
+            padding: 10px 10px max(10px, env(safe-area-inset-bottom)) !important;
+          }
+          .support-attach-btn {
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 8px !important;
+          }
+          .support-reply-textarea {
+            height: 38px !important;
+            min-height: 38px !important;
+            padding: 8px 10px !important;
+            font-size: 0.82rem !important;
+            border-radius: 8px !important;
+          }
+          .support-send-btn {
+            height: 38px !important;
+            padding: 0 12px !important;
+            border-radius: 8px !important;
+          }
+          .support-send-btn-label {
             display: none !important;
           }
         }
@@ -759,24 +896,13 @@ export default function SupportTicketsPage() {
                     </div>
                   )}
 
-                  <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                  <div className="support-reply-controls-row">
                     {/* Attachment Upload Button */}
                     <label
                       title="Attach Screenshot / Document"
-                      style={{
-                        padding: "10px",
-                        border: "1px solid #cbd5e1",
-                        borderRadius: 8,
-                        background: replyAttachment ? "#f0fdf4" : "#f8fafc",
-                        color: replyAttachment ? "#166534" : "#64748b",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0
-                      }}
+                      className={`support-attach-btn ${replyAttachment ? "has-file" : ""}`}
                     >
-                      <Paperclip size={16} />
+                      <Paperclip size={18} />
                       <input
                         type="file"
                         accept="image/*,.pdf,.doc,.docx"
@@ -794,46 +920,27 @@ export default function SupportTicketsPage() {
 
                     {/* Text Input Area */}
                     <textarea
-                      rows={2}
+                      className="support-reply-textarea"
+                      rows={1}
                       value={replyText}
-                      placeholder="Type your reply... (Press Enter to send)"
-                      onChange={e => setReplyText(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      style={{
-                        flex: 1,
-                        padding: "10px 12px",
-                        border: "1px solid #cbd5e1",
-                        borderRadius: 8,
-                        fontSize: "0.85rem",
-                        resize: "none",
-                        outline: "none",
-                        boxSizing: "border-box",
-                        fontFamily: "inherit"
+                      placeholder="Type your reply..."
+                      onChange={e => {
+                        setReplyText(e.target.value);
+                        e.target.style.height = "auto";
+                        e.target.style.height = Math.min(e.target.scrollHeight, 100) + "px";
                       }}
+                      onKeyDown={handleKeyDown}
                     />
 
                     {/* Send Button */}
                     <button
                       type="button"
+                      className="support-send-btn"
                       onClick={handleSendReply}
                       disabled={sendingReply || (!replyText.trim() && !replyAttachment)}
-                      style={{
-                        padding: "10px 18px",
-                        background: (!replyText.trim() && !replyAttachment) ? "#cbd5e1" : "#4f46e5",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 8,
-                        fontWeight: 700,
-                        fontSize: "0.85rem",
-                        cursor: (!replyText.trim() && !replyAttachment) ? "not-allowed" : "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        flexShrink: 0,
-                        height: 42
-                      }}
                     >
-                      <Send size={14} /> {sendingReply ? "Sending..." : "Send"}
+                      <Send size={15} />
+                      <span className="support-send-btn-label">{sendingReply ? "Sending..." : "Send"}</span>
                     </button>
                   </div>
                 </div>
