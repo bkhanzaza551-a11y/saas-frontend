@@ -228,7 +228,7 @@ const Protected = () => {
       hint: "Daily flow",
       items: [
         can("dashboard", "view") && { label: "Dashboard", to: "/admin/dashboard" },
-        can("pos", "create") && enabled("pos") && { label: "New Sale", to: "/admin/pos", badge: "Quick action" },
+        can("pos", "create") && enabled("pos") && { label: "New Sale", to: "/admin/pos" },
         can("appointments", "view") && { label: "Appointments", to: "/admin/appointments" },
         can("enquiries", "view") && { label: "Enquiries", to: "/admin/enquiries" },
         can("customers", "view") && enabled("crm") && { label: "Customers", to: "/admin/customers" },
