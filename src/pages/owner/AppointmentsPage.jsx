@@ -239,6 +239,7 @@ export default function AppointmentsPage() {
   const [assignBusy, setAssignBusy] = useState(false);
   const [assignError, setAssignError] = useState("");
   const [submittingAppointment, setSubmittingAppointment] = useState(false);
+  const [addingGuest, setAddingGuest] = useState(false);
 
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [newGuestForm, setNewGuestForm] = useState({ name: "", phone: "", email: "", gender: "FEMALE", dateOfBirth: "", anniversary: "", gst: "", notes: "" });
@@ -929,6 +930,8 @@ export default function AppointmentsPage() {
 
   const handleAddGuest = async (e) => {
     e.preventDefault();
+    if (addingGuest) return;
+    setAddingGuest(true);
     setStatus({ error: "", success: "" });
     try {
       const res = await api.post("/owner/customers", { ...newGuestForm, branchId: selectedBranchId || undefined });
@@ -944,6 +947,8 @@ export default function AppointmentsPage() {
       setStatus({ error: "", success: "Customer added successfully!" });
     } catch (err) {
       setStatus({ error: err?.response?.data?.message || "Failed to add customer", success: "" });
+    } finally {
+      setAddingGuest(false);
     }
   };
 
@@ -3191,8 +3196,10 @@ export default function AppointmentsPage() {
               <input style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none" }} placeholder="GST Number" value={newGuestForm.gst} onChange={e => setNewGuestForm(c => ({ ...c, gst: e.target.value }))} />
               <textarea style={{ padding: "10px", border: "1px solid #e2e8f0", borderRadius: 6, width: "100%", boxSizing: "border-box", outline: "none", minHeight: 60, resize: "vertical", fontFamily: "inherit" }} placeholder="Notes" value={newGuestForm.notes} onChange={e => setNewGuestForm(c => ({ ...c, notes: e.target.value }))} />
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <button type="button" style={{ flex: 1, padding: "10px", background: "#f1f5f9", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600, color: "#475569" }} onClick={() => setShowAddGuestModal(false)}>Cancel</button>
-                <button type="submit" style={{ flex: 1, padding: "10px", background: "#0f172a", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}>Save Guest</button>
+                <button type="button" disabled={addingGuest} style={{ flex: 1, padding: "10px", background: "#f1f5f9", border: "none", borderRadius: 6, cursor: addingGuest ? "not-allowed" : "pointer", fontWeight: 600, color: "#475569" }} onClick={() => setShowAddGuestModal(false)}>Cancel</button>
+                <button type="submit" disabled={addingGuest} style={{ flex: 1, padding: "10px", background: addingGuest ? "#94a3b8" : "#0f172a", color: "white", border: "none", borderRadius: 6, cursor: addingGuest ? "not-allowed" : "pointer", fontWeight: 600 }}>
+                  {addingGuest ? "Saving..." : "Save Guest"}
+                </button>
               </div>
             </form>
           </div>

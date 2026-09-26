@@ -912,6 +912,7 @@ const handleExportClick = async (format) => {
 
   const handleAddGuest = async (event) => {
     event.preventDefault();
+    if (saving) return;
     setSavingMessage("Creating Customer Profile...");
     setSaving(true);
     try {

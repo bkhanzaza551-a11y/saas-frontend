@@ -298,6 +298,7 @@ export default function ExpensesPage() {
   // Save Expense Record
   const handleSaveExpense = async (e) => {
     e.preventDefault();
+    if (submittingExpense) return;
     setSubmittingExpense(true);
     setModalError("");
     try {
