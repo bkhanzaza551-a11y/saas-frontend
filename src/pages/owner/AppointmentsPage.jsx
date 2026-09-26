@@ -756,13 +756,32 @@ export default function AppointmentsPage() {
       );
       return;
     }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const checkDate = new Date(currentDate);
+    checkDate.setHours(0, 0, 0, 0);
+
+    if (checkDate < todayStart) {
+      alert.showAlert("You cannot create appointments for past dates. Please select today or an upcoming date on the calendar.", "Past Date");
+      return;
+    }
+
+    const startAtStr = combineDateAndTime(currentDate, timeSlot);
+    const startAtDate = new Date(startAtStr);
+    const nowWithBuffer = new Date(Date.now() - 10 * 60 * 1000);
+    if (startAtDate < nowWithBuffer) {
+      alert.showAlert("You cannot book an appointment for a past time slot. Please select a current or upcoming time slot.", "Past Time Slot");
+      return;
+    }
+
     if (!isStaffWorkingAtSlot(staffId, timeSlot)) {
       setStatus({ error: `Warning: Selected time slot (${timeSlot}) is outside this staff member's scheduled roster hours.`, success: "" });
     } else {
       setStatus({ error: "", success: "" });
     }
 
-    const startAtStr = combineDateAndTime(currentDate, timeSlot);
     const endAtStr = addMinutesToLocalInput(startAtStr, DEFAULT_APPOINTMENT_DURATION_MINUTES);
     const staffBranchId = staffUsers.find((staff) => staff.id === staffId)?.branchId || "";
 
@@ -929,6 +948,16 @@ export default function AppointmentsPage() {
         setStatus({ error: "Please select at least one service item.", success: "" });
         setShowConfirmModal(false);
         return;
+      }
+      if (!editMode) {
+        const nowWithBuffer = new Date(Date.now() - 10 * 60 * 1000);
+        for (const item of payloadItems) {
+          if (new Date(item.startAt) < nowWithBuffer) {
+            setStatus({ error: "Cannot create appointments for past dates or past time slots. Please select a valid future date and time.", success: "" });
+            setShowConfirmModal(false);
+            return;
+          }
+        }
       }
       const sortedStarts = payloadItems.map((item) => item.startAt).sort();
       const sortedEnds = payloadItems.map((item) => item.endAt).sort();
@@ -2263,16 +2292,36 @@ export default function AppointmentsPage() {
                       type="date" 
                       className="sp-input" 
                       min={(() => {
+                        if (editMode) return undefined;
                         const d = new Date();
                         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
                       })()}
                       value={(() => {
                         const d = new Date(currentDate);
-                        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-                        return d.toISOString().split("T")[0];
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, "0");
+                        const dd = String(d.getDate()).padStart(2, "0");
+                        const val = `${yyyy}-${mm}-${dd}`;
+                        const todayStr = (() => {
+                          const now = new Date();
+                          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+                        })();
+                        if (!editMode && val < todayStr) return todayStr;
+                        return val;
                       })()} 
                       onChange={(e) => {
-                        const newDate = new Date(e.target.value);
+                        const selectedVal = e.target.value;
+                        if (!selectedVal) return;
+                        const todayStr = (() => {
+                          const now = new Date();
+                          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+                        })();
+                        if (!editMode && selectedVal < todayStr) {
+                          alert.showAlert("Past dates cannot be selected for new appointments. Please choose today or a future date.", "Invalid Date");
+                          return;
+                        }
+                        const [y, m, d] = selectedVal.split("-").map(Number);
+                        const newDate = new Date(y, m - 1, d);
                         if (!isNaN(newDate.getTime())) {
                           setCurrentDate(newDate);
                           const updatedItems = form.items.map(item => {
@@ -2404,9 +2453,24 @@ export default function AppointmentsPage() {
                         <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>From Time</label>
                         <CustomSelect className="sp-select" value={item.startAt ? formatTimeForSelect(item.startAt) : ""} onChange={(event) => handleUpdateItem(idx, "startAt", combineDateAndTime(currentDate, event.target.value))} required>
                           <option value="">Select Time</option>
-                          {TIME_SLOTS.map((slot) => (
-                            <option key={slot} value={slot}>{slot}</option>
-                          ))}
+                          {TIME_SLOTS.map((slot) => {
+                            const isToday = (() => {
+                              const d = new Date(currentDate);
+                              const today = new Date();
+                              return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
+                            })();
+                            let isPastSlot = false;
+                            if (isToday && !editMode) {
+                              const slotDateTime = new Date(combineDateAndTime(new Date(), slot));
+                              const nowWithBuffer = new Date(Date.now() - 10 * 60 * 1000);
+                              if (slotDateTime < nowWithBuffer) isPastSlot = true;
+                            }
+                            return (
+                              <option key={slot} value={slot} disabled={isPastSlot} style={isPastSlot ? { color: "#94a3b8" } : {}}>
+                                {slot} {isPastSlot ? "(Past)" : ""}
+                              </option>
+                            );
+                          })}
                         </CustomSelect>
                       </div>
                     </div>
