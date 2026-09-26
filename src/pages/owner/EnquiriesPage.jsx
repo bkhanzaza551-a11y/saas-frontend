@@ -12,7 +12,7 @@ import {
   Users, UserPlus, Phone, Mail, FileText, AlertCircle, CheckCircle2, 
   BarChart3, RefreshCw, Filter, CalendarClock, MessageSquare, Plus,
   Calendar, Edit3, Trash2, X, Download, Upload, ChevronDown, Search,
-  Clock, ArrowRight
+  Clock, ArrowRight, Sparkles
 } from "lucide-react";
 
 // Mapping between UI Status and DB Status
@@ -76,6 +76,7 @@ const emptyForm = {
   name: "",
   phone: "",
   email: "",
+  gender: "FEMALE",
   source: "Walk in",
   interestedServiceId: "",
   followUpAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10), // default tomorrow
@@ -180,6 +181,7 @@ export default function EnquiriesPage() {
       name: enquiry.name || "",
       phone: enquiry.phone || "",
       email: enquiry.email || "",
+      gender: enquiry.convertedCustomer?.gender || enquiry.gender || "FEMALE",
       source: mapSourceToUi(enquiry.source),
       interestedServiceId: enquiry.interestedServiceId || "",
       followUpAt: enquiry.followUpAt ? new Date(enquiry.followUpAt).toISOString().slice(0, 10) : "",
@@ -212,6 +214,7 @@ export default function EnquiriesPage() {
         name: form.name.trim(),
         phone: form.phone.trim(),
         email: form.email?.trim() || null,
+        gender: form.gender || "FEMALE",
         source: mapSourceToDb(form.source),
         interestedServiceId: form.interestedServiceId || null,
         interestedBranchId: selectedBranchId || (branches.length > 0 ? branches[0].id : null),
@@ -889,21 +892,37 @@ export default function EnquiriesPage() {
                   />
                 </div>
 
-                {/* 3. Follow Up Date * (Mandatory) */}
+                {/* 3. Gender */}
+                <div>
+                  <label className="eq-label">
+                    <span>Gender</span>
+                  </label>
+                  <CustomSelect 
+                    className="eq-input"
+                    value={form.gender || "FEMALE"}
+                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  >
+                    <option value="FEMALE">Female</option>
+                    <option value="MALE">Male</option>
+                    <option value="OTHER">Other / Unisex</option>
+                  </CustomSelect>
+                </div>
+
+                {/* 4. Follow Up Date * (Mandatory) */}
                 <div>
                   <label className="eq-label">
                     <span>Follow Up Date</span> <span style={{ color: "#dc2626" }}>*</span>
                   </label>
                   <input 
                     type="date" 
-                    className="eq-input"
+                    className="eq-input" 
                     required
                     value={form.followUpAt}
                     onChange={(e) => setForm({ ...form, followUpAt: e.target.value })}
                   />
                 </div>
 
-                {/* 4. Lead Source * (Walk in, Online, Referal, Others) */}
+                {/* 5. Lead Source * (Walk in, Online, Referal, Others) */}
                 <div>
                   <label className="eq-label">
                     <span>Lead Source</span> <span style={{ color: "#dc2626" }}>*</span>
@@ -919,7 +938,7 @@ export default function EnquiriesPage() {
                   </CustomSelect>
                 </div>
 
-                {/* 5. Enquiry Status (New, Follow up, Converted, Dropped) */}
+                {/* 6. Enquiry Status (New, Follow up, Converted, Dropped) */}
                 <div>
                   <label className="eq-label">Enquiry Status</label>
                   <CustomSelect 
@@ -933,7 +952,7 @@ export default function EnquiriesPage() {
                   </CustomSelect>
                 </div>
 
-                {/* Service Interested (Optional) */}
+                {/* 7. Service Interested (Optional) */}
                 <div>
                   <label className="eq-label">Service Interested</label>
                   <CustomSelect 
@@ -948,7 +967,7 @@ export default function EnquiriesPage() {
                   </CustomSelect>
                 </div>
 
-                {/* Priority */}
+                {/* 8. Priority */}
                 <div>
                   <label className="eq-label">Priority</label>
                   <CustomSelect 
@@ -962,8 +981,8 @@ export default function EnquiriesPage() {
                   </CustomSelect>
                 </div>
 
-                {/* Email (Optional) */}
-                <div>
+                {/* 9. Email (Optional) */}
+                <div style={{ gridColumn: "span 2" }}>
                   <label className="eq-label">Email Address</label>
                   <input 
                     type="email" 
@@ -974,17 +993,23 @@ export default function EnquiriesPage() {
                   />
                 </div>
 
-                {/* Description / Notes */}
+                {/* 10. Description / Notes */}
                 <div style={{ gridColumn: "span 2" }}>
                   <label className="eq-label">Description / Requirement Notes</label>
                   <textarea 
-                    className="eq-input"
+                    className="eq-input" 
                     rows={2}
                     placeholder="Specific requests, customer inquiries, budget, or preferred timings..."
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
                     style={{ height: 60, padding: 8 }}
                   />
+                </div>
+
+                {/* Auto Customer Sync Note */}
+                <div style={{ gridColumn: "span 2", padding: "10px 14px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, fontSize: 12.5, color: "#166534", display: "flex", alignItems: "center", gap: 8 }}>
+                  <Sparkles size={16} color="#16a34a" style={{ flexShrink: 0 }} />
+                  <span>Customer profile with selected gender is automatically created & synced to Customers list upon saving.</span>
                 </div>
 
               </div>
