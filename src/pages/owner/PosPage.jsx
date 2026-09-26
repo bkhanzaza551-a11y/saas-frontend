@@ -2185,12 +2185,16 @@ export default function PosPage() {
                       <tr key={index}>
                         <td style={{ color: "#334155" }}>
                           <div style={{ fontWeight: 600 }}>{baseObj.name}</div>
+                          {item.itemType === "SERVICE" && baseObj.durationMin && (
+                            <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                              <AlarmClock size={12} style={{ position: "relative", top: 2, marginRight: 4 }} />{baseObj.durationMin} mins
+                            </div>
+                          )}
                           {couponValidation?.eligibleItems?.find(ei => ei.index === index && ei.isEligible) && (
                             <span style={{ display: "inline-block", marginTop: 2, padding: "1px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: "#dcfce7", color: "#166534", whiteSpace: "nowrap" }}>
                               {couponValidation.coupon.code}
                             </span>
                           )}
-
                         </td>
                         <td>
                           {item.itemType === "SERVICE" || item.itemType === "PACKAGE" || item.itemType === "MEMBERSHIP" || item.itemType === "GIFT_CARD" ? (

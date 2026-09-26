@@ -1275,6 +1275,12 @@ export default function PosDashboardPage() {
                         <div key={item.id || `${item.serviceId || item.productId || "item"}-${index}`} className="cart-table-row" style={{ gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr 1fr 1fr 1fr 1.5fr 2fr" }}>
                           <div>
                             <div>{invoiceLabel(item)}</div>
+                            {item.itemType === "SERVICE" && posContext.services?.find(s => s.id === item.serviceId)?.durationMin && (
+                              <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                                <Clock3 size={12} style={{ position: "relative", top: 2, marginRight: 4 }} />
+                                {posContext.services.find(s => s.id === item.serviceId).durationMin} mins
+                              </div>
+                            )}
                             {item.serviceReminder?.date ? (
                               <div style={{ fontSize: 11, color: "#2563eb", marginTop: 4 }}>
                                 Reminder: {new Date(item.serviceReminder.date).toLocaleDateString("en-GB")} {item.serviceReminder.note ? `- ${item.serviceReminder.note}` : ""}
