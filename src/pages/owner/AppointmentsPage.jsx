@@ -174,8 +174,10 @@ export default function AppointmentsPage() {
   const [status, setStatus] = useState({ error: "", success: "" });
   const [salonSettings, setSalonSettings] = useState(null);
   const [onlineSidebarOpen, setOnlineSidebarOpen] = useState(true);
+  const [sidebarTab, setSidebarTab] = useState("online"); // "online" | "unassigned"
   const [onlineTabScope, setOnlineTabScope] = useState("all");
   const [allPendingOnlineAppts, setAllPendingOnlineAppts] = useState([]);
+  const [allPendingUnassignedAppts, setAllPendingUnassignedAppts] = useState([]);
   const [allPendingLoading, setAllPendingLoading] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [assigningAppt, setAssigningAppt] = useState(null);
@@ -613,8 +615,20 @@ export default function AppointmentsPage() {
     }
   };
 
+  const loadAllPendingUnassigned = async () => {
+    try {
+      const res = await api.get("/owner/appointments/pending-unassigned", {
+        params: { branchId: selectedBranchId }
+      });
+      setAllPendingUnassignedAppts(res.data || []);
+    } catch (e) {
+      console.error("Failed to load all pending unassigned appointments", e);
+    }
+  };
+
   useEffect(() => {
     loadAllPendingOnline();
+    loadAllPendingUnassigned();
   }, [selectedBranchId]);
 
   const todayUnassignedOnline = useMemo(() => {
@@ -628,7 +642,20 @@ export default function AppointmentsPage() {
     });
   }, [rows]);
 
+  const todayUnassignedInHouse = useMemo(() => {
+    return rows.filter((row) => {
+      const isOnline = row.bookingChannel === "ONLINE" || Boolean(row.isOnline);
+      const hasPrimaryStaff = Boolean(row.primaryStaffUserId);
+      const hasItemStaff = (row.items || []).some(
+        (item) => Array.isArray(item.assignedStaff) && item.assignedStaff.length > 0
+      );
+      return !isOnline && !hasPrimaryStaff && !hasItemStaff && row.status !== "CANCELLED";
+    });
+  }, [rows]);
+
   const activeOnlineList = onlineTabScope === "today" ? todayUnassignedOnline : allPendingOnlineAppts;
+  const activeUnassignedList = onlineTabScope === "today" ? todayUnassignedInHouse : allPendingUnassignedAppts;
+  const activeSidebarList = sidebarTab === "online" ? activeOnlineList : activeUnassignedList;
 
   const openAssignModal = (appt) => {
     setAssigningAppt(appt);
@@ -694,6 +721,7 @@ export default function AppointmentsPage() {
       setStatus({ error: "", success: "Staff assigned successfully! Appointment is now scheduled on the calendar." });
       await loadAppointments();
       await loadAllPendingOnline();
+      await loadAllPendingUnassigned();
       setTimeout(() => setStatus({ error: "", success: "" }), 4000);
     } catch (err) {
       setAssignError(formatApiError(err, "Failed to assign staff"));
@@ -709,6 +737,7 @@ export default function AppointmentsPage() {
   useEffect(() => {
     loadAppointments();
     loadAllPendingOnline();
+    loadAllPendingUnassigned();
   }, [currentDate, selectedBranchId]);
 
   const handleDayChange = (offset) => {
@@ -872,22 +901,13 @@ export default function AppointmentsPage() {
       const serviceObj = services.find((s) => s.id === item.serviceId);
       const serviceName = serviceObj?.name ? `"${serviceObj.name}"` : `Service #${i + 1}`;
 
-      const validStaffIds = (item.staffUserIds || []).filter((id) => id && String(id).trim().length > 0);
-      if (!validStaffIds.length) {
-        setStatus({ error: `Please select an expert / staff for ${serviceName}.`, success: "" });
-        return;
-      }
-
       if (!item.startAt || !item.endAt) {
         setStatus({ error: `Please select appointment time for ${serviceName}.`, success: "" });
         return;
       }
     }
 
-    const activeItems = form.items.filter((item) => {
-      const validStaff = (item.staffUserIds || []).filter((id) => id && String(id).trim().length > 0);
-      return item.serviceId && validStaff.length > 0 && item.startAt && item.endAt;
-    });
+    const activeItems = form.items.filter((item) => item.serviceId && item.startAt && item.endAt);
 
     if (!activeItems.length) {
       setStatus({ error: "Please add at least one complete service item.", success: "" });
@@ -897,10 +917,7 @@ export default function AppointmentsPage() {
   };
 
   const handleConfirmSubmit = async () => {
-    const activeItems = form.items.filter((item) => {
-      const validStaff = (item.staffUserIds || []).filter((id) => id && String(id).trim().length > 0);
-      return item.serviceId && validStaff.length > 0 && item.startAt && item.endAt;
-    });
+    const activeItems = form.items.filter((item) => item.serviceId && item.startAt && item.endAt);
     try {
       const payloadItems = activeItems.map((item) => ({
         ...item,
@@ -908,20 +925,20 @@ export default function AppointmentsPage() {
         startAt: toApiDateTime(item.startAt),
         endAt: toApiDateTime(item.endAt)
       }));
-      const validItems = payloadItems.filter((item) => item.staffUserIds.length > 0);
-      if (!validItems.length) {
-        setStatus({ error: "Please select an expert / staff for all selected services.", success: "" });
+      if (!payloadItems.length) {
+        setStatus({ error: "Please select at least one service item.", success: "" });
         setShowConfirmModal(false);
         return;
       }
-      const sortedStarts = validItems.map((item) => item.startAt).sort();
-      const sortedEnds = validItems.map((item) => item.endAt).sort();
+      const sortedStarts = payloadItems.map((item) => item.startAt).sort();
+      const sortedEnds = payloadItems.map((item) => item.endAt).sort();
+      const firstStaff = payloadItems.find((item) => item.staffUserIds.length > 0)?.staffUserIds?.[0] || null;
       const payload = {
         ...form,
-        items: validItems,
+        items: payloadItems,
         startAt: sortedStarts[0],
         endAt: sortedEnds[sortedEnds.length - 1],
-        primaryStaffUserId: validItems[0]?.staffUserIds?.[0] || form.items[0]?.staffUserIds?.[0] || ""
+        primaryStaffUserId: firstStaff
       };
       if (editMode) {
         const res = await api.patch(`/owner/appointments/${editingAppointmentId}`, payload);
@@ -943,6 +960,8 @@ export default function AppointmentsPage() {
       setIsCreateModalOpen(false);
       setShowConfirmModal(false);
       await loadAppointments();
+      await loadAllPendingOnline();
+      await loadAllPendingUnassigned();
     } catch (error) {
       setStatus({ error: formatApiError(error, editMode ? "Could not update appointment" : "Could not create appointment"), success: "" });
       setShowConfirmModal(false);
@@ -1877,12 +1896,12 @@ export default function AppointmentsPage() {
         </table>
         </div>
 
-        {/* Dedicated Right-Side Online Bookings Sidebar */}
+        {/* Dedicated Right-Side Online & Unassigned Bookings Sidebar */}
         <aside
           className={`online-bookings-sidebar ${onlineSidebarOpen ? "open" : "collapsed"}`}
           style={{
-            width: onlineSidebarOpen ? 300 : 42,
-            minWidth: onlineSidebarOpen ? 300 : 42,
+            width: onlineSidebarOpen ? 310 : 42,
+            minWidth: onlineSidebarOpen ? 310 : 42,
             transition: "width 0.22s ease",
             borderLeft: "1px solid #cbd5e1",
             background: "#f8fafc",
@@ -1896,32 +1915,89 @@ export default function AppointmentsPage() {
           {/* Header */}
           <div
             style={{
-              padding: onlineSidebarOpen ? "11px 14px" : "12px 6px",
+              padding: onlineSidebarOpen ? "8px 10px" : "12px 6px",
               borderBottom: "1px solid #e2e8f0",
               background: "#ffffff",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 6
+              gap: 4
             }}
           >
             {onlineSidebarOpen ? (
               <>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>Online Bookings</span>
-                  <span
+                {/* Segmented Switcher for Online vs Unassigned */}
+                <div style={{ display: "flex", background: "#f1f5f9", padding: 3, borderRadius: 8, gap: 4, flex: 1 }}>
+                  <button
+                    type="button"
+                    onClick={() => setSidebarTab("online")}
                     style={{
-                      fontSize: 11,
-                      fontWeight: 800,
-                      padding: "2px 7px",
-                      borderRadius: 10,
-                      background: activeOnlineList.length > 0 ? "#eff6ff" : "#f1f5f9",
-                      color: activeOnlineList.length > 0 ? "#2563eb" : "#64748b",
-                      border: `1px solid ${activeOnlineList.length > 0 ? "#bfdbfe" : "#e2e8f0"}`
+                      flex: 1,
+                      padding: "5px 8px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 5,
+                      background: sidebarTab === "online" ? "#ffffff" : "transparent",
+                      color: sidebarTab === "online" ? "#2563eb" : "#64748b",
+                      boxShadow: sidebarTab === "online" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                      transition: "all 0.15s ease"
                     }}
                   >
-                    {activeOnlineList.length}
-                  </span>
+                    <span>Online</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: "1px 5px",
+                        borderRadius: 8,
+                        background: sidebarTab === "online" ? "#eff6ff" : "#e2e8f0",
+                        color: sidebarTab === "online" ? "#2563eb" : "#64748b"
+                      }}
+                    >
+                      {todayUnassignedOnline.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSidebarTab("unassigned")}
+                    style={{
+                      flex: 1,
+                      padding: "5px 8px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 5,
+                      background: sidebarTab === "unassigned" ? "#ffffff" : "transparent",
+                      color: sidebarTab === "unassigned" ? "#d97706" : "#64748b",
+                      boxShadow: sidebarTab === "unassigned" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    <span>Unassigned</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: "1px 5px",
+                        borderRadius: 8,
+                        background: sidebarTab === "unassigned" ? "#fef3c7" : "#e2e8f0",
+                        color: sidebarTab === "unassigned" ? "#d97706" : "#64748b"
+                      }}
+                    >
+                      {todayUnassignedInHouse.length}
+                    </span>
+                  </button>
                 </div>
                 <button
                   type="button"
@@ -1933,17 +2009,31 @@ export default function AppointmentsPage() {
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                onClick={() => setOnlineSidebarOpen(true)}
-                style={{ background: "transparent", border: "none", cursor: "pointer", color: "#2563eb", padding: "8px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: "100%" }}
-                title="Expand Online Bookings"
-              >
-                <ChevronLeft size={18} />
-                <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#0f172a", letterSpacing: 0.5 }}>
-                  Online ({activeOnlineList.length})
-                </span>
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%", alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => { setSidebarTab("online"); setOnlineSidebarOpen(true); }}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#2563eb", padding: "4px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }}
+                  title="Expand Online Bookings"
+                >
+                  <ChevronLeft size={16} />
+                  <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#1e40af", letterSpacing: 0.5 }}>
+                    Online ({todayUnassignedOnline.length})
+                  </span>
+                </button>
+                <div style={{ width: "80%", height: 1, background: "#e2e8f0" }} />
+                <button
+                  type="button"
+                  onClick={() => { setSidebarTab("unassigned"); setOnlineSidebarOpen(true); }}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#d97706", padding: "4px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }}
+                  title="Expand Unassigned Bookings"
+                >
+                  <ChevronLeft size={16} />
+                  <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#b45309", letterSpacing: 0.5 }}>
+                    Unassigned ({todayUnassignedInHouse.length})
+                  </span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -1957,43 +2047,52 @@ export default function AppointmentsPage() {
                   style={{
                     flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
                     background: onlineTabScope === "today" ? "#ffffff" : "transparent",
-                    color: onlineTabScope === "today" ? "#2563eb" : "#64748b",
+                    color: onlineTabScope === "today" ? (sidebarTab === "online" ? "#2563eb" : "#d97706") : "#64748b",
                     boxShadow: onlineTabScope === "today" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
                   }}
                 >
-                  Selected Date ({todayUnassignedOnline.length})
+                  Selected Date ({sidebarTab === "online" ? todayUnassignedOnline.length : todayUnassignedInHouse.length})
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setOnlineTabScope("all"); loadAllPendingOnline(); }}
+                  onClick={() => {
+                    setOnlineTabScope("all");
+                    if (sidebarTab === "online") loadAllPendingOnline();
+                    else loadAllPendingUnassigned();
+                  }}
                   style={{
                     flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
                     background: onlineTabScope === "all" ? "#ffffff" : "transparent",
-                    color: onlineTabScope === "all" ? "#2563eb" : "#64748b",
+                    color: onlineTabScope === "all" ? (sidebarTab === "online" ? "#2563eb" : "#d97706") : "#64748b",
                     boxShadow: onlineTabScope === "all" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
                   }}
                 >
-                  All Pending ({allPendingOnlineAppts.length})
+                  All Pending ({sidebarTab === "online" ? allPendingOnlineAppts.length : allPendingUnassignedAppts.length})
                 </button>
               </div>
 
               {/* Cards list */}
               <div style={{ flex: 1, overflowY: "auto", padding: "10px", display: "flex", flexDirection: "column", gap: 10 }}>
                 {allPendingLoading && onlineTabScope === "all" ? (
-                  <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: 12 }}>Loading online bookings...</div>
-                ) : activeOnlineList.length === 0 ? (
+                  <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: 12 }}>Loading bookings...</div>
+                ) : activeSidebarList.length === 0 ? (
                   <div style={{ padding: "36px 16px", textAlign: "center", color: "#94a3b8" }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>🎉</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>All bookings assigned!</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Only unassigned online bookings appear here.</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>
+                      {sidebarTab === "online" ? "All online bookings assigned!" : "All in-house bookings assigned!"}
+                    </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+                      {sidebarTab === "online" ? "Only unassigned online bookings appear here." : "Appointments created without staff appear here."}
+                    </div>
                   </div>
                 ) : (
-                  activeOnlineList.map((appt) => {
+                  activeSidebarList.map((appt) => {
                     const bookingId = getBookingDisplayId(appt);
                     const serviceName = appt.items?.[0]?.service?.name || "Service";
                     const serviceDuration = appt.items?.[0]?.service?.durationMinutes;
                     const apptTime = new Date(appt.startAt).toLocaleTimeString([], { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
                     const apptDate = new Date(appt.startAt).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short" });
+                    const isOnline = appt.bookingChannel === "ONLINE" || Boolean(appt.isOnline);
 
                     return (
                       <div
@@ -2007,11 +2106,20 @@ export default function AppointmentsPage() {
                           display: "flex",
                           flexDirection: "column",
                           gap: 6,
-                          borderLeft: "4px solid #3b82f6"
+                          borderLeft: isOnline ? "4px solid #3b82f6" : "4px solid #f59e0b"
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: "#1e3a8a", background: "#eff6ff", padding: "2px 6px", borderRadius: 4 }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 800,
+                              color: isOnline ? "#1e3a8a" : "#92400e",
+                              background: isOnline ? "#eff6ff" : "#fef3c7",
+                              padding: "2px 6px",
+                              borderRadius: 4
+                            }}
+                          >
                             {bookingId}
                           </span>
                           <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>
@@ -2044,7 +2152,9 @@ export default function AppointmentsPage() {
                             marginTop: 4,
                             width: "100%",
                             padding: "7px 12px",
-                            background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                            background: isOnline
+                              ? "linear-gradient(135deg, #2563eb, #1d4ed8)"
+                              : "linear-gradient(135deg, #d97706, #b45309)",
                             color: "white",
                             border: "none",
                             borderRadius: 8,
@@ -2152,6 +2262,10 @@ export default function AppointmentsPage() {
                     <input 
                       type="date" 
                       className="sp-input" 
+                      min={(() => {
+                        const d = new Date();
+                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                      })()}
                       value={(() => {
                         const d = new Date(currentDate);
                         d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -2270,10 +2384,10 @@ export default function AppointmentsPage() {
                         </div>
                       )}
 
-                      <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Expert {idx + 1}</label>
+                      <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Expert {idx + 1} (Optional)</label>
                       <div className="sp-input-group">
-                        <CustomSelect className="sp-select" value={item.staffUserIds[0] || ""} onChange={(event) => handleUpdateItem(idx, "staffUserIds", [event.target.value])} required>
-                          <option value="">Select Expert</option>
+                        <CustomSelect className="sp-select" value={item.staffUserIds[0] || ""} onChange={(event) => handleUpdateItem(idx, "staffUserIds", event.target.value ? [event.target.value] : [])}>
+                          <option value="">Select Expert (Optional)</option>
                           {filteredStaffUsers
                             .filter((staff) => {
                               if (!item.serviceId) return true;

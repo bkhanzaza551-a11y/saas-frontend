@@ -12,7 +12,10 @@ import {
   AlertCircle, 
   Loader2,
   Sparkles,
-  Camera 
+  Camera,
+  Mail,
+  Send,
+  Lock
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
@@ -106,6 +109,15 @@ export default function UsersPage() {
   const [enrollmentCameraOpen, setEnrollmentCameraOpen] = useState(false);
   const [enrollmentCameraError, setEnrollmentCameraError] = useState("");
   const [showMobileDetail, setShowMobileDetail] = useState(false);
+
+  // Unverified profile slot setup state
+  const [unverifiedModalOpen, setUnverifiedModalOpen] = useState(false);
+  const [unverifiedTargetSlot, setUnverifiedTargetSlot] = useState(null);
+  const [unverifiedStep, setUnverifiedStep] = useState(1); // 1: phone, 2: OTP, 3: email + name
+  const [unverifiedForm, setUnverifiedForm] = useState({ name: "", phone: "", email: "", otpCode: "" });
+  const [unverifiedSubmitting, setUnverifiedSubmitting] = useState(false);
+  const [unverifiedResendCountdown, setUnverifiedResendCountdown] = useState(0);
+
   const enrollmentVideoRef = useRef(null);
   const enrollmentCanvasRef = useRef(null);
   const enrollmentStreamRef = useRef(null);
@@ -117,6 +129,13 @@ export default function UsersPage() {
       return () => clearTimeout(timer);
     }
   }, [resendStaffCountdown]);
+
+  useEffect(() => {
+    if (unverifiedResendCountdown > 0) {
+      const timer = setTimeout(() => setUnverifiedResendCountdown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [unverifiedResendCountdown]);
 
   const handleResendStaffOtp = async () => {
     if (resendStaffCountdown > 0 || resendingStaffOtp) return;
@@ -130,6 +149,96 @@ export default function UsersPage() {
       setStatus((c) => ({ ...c, error: formatApiError(err, "Failed to resend verification code.") }));
     } finally {
       setResendingStaffOtp(false);
+    }
+  };
+
+  const handleSendSetupEmail = async (userOrId, maybeEmail) => {
+    const userId = typeof userOrId === 'object' ? (userOrId.id || userOrId.user?.id) : userOrId;
+    const email = typeof userOrId === 'object' ? (userOrId.user?.email || "") : (maybeEmail || "");
+    if (!userId) return;
+    setStatus((c) => ({ ...c, error: "", success: "" }));
+    try {
+      const res = await api.post(`/owner/users/${userId}/send-setup-email`);
+      setStatus((c) => ({ ...c, success: res.data?.message || `Password setup link sent${email ? ` to ${email}` : ""}!` }));
+      setTimeout(() => setStatus((c) => ({ ...c, success: "" })), 4000);
+    } catch (err) {
+      setStatus((c) => ({ ...c, error: formatApiError(err, "Failed to send setup link") }));
+    }
+  };
+
+  const openUnverifiedModal = (slot) => {
+    setUnverifiedTargetSlot(slot);
+    setUnverifiedStep(1);
+    setUnverifiedForm({
+      name: slot?.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member",
+      phone: "",
+      email: "",
+      otpCode: ""
+    });
+    setUnverifiedModalOpen(true);
+    setStatus((c) => ({ ...c, error: "", success: "" }));
+  };
+
+  const startUnverifiedSetup = openUnverifiedModal;
+
+  const handleUnverifiedSendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!unverifiedForm.phone || !isValidIndianPhone(unverifiedForm.phone)) {
+      return setStatus((c) => ({ ...c, error: "Please enter a valid 10-digit Indian mobile number." }));
+    }
+    setUnverifiedSubmitting(true);
+    setStatus((c) => ({ ...c, error: "", success: "" }));
+    try {
+      await api.post("/owner/users/send-staff-otp", { phone: unverifiedForm.phone });
+      setStatus((c) => ({ ...c, success: `Verification OTP sent to ${unverifiedForm.phone}` }));
+      setUnverifiedStep(2);
+      setUnverifiedResendCountdown(30);
+    } catch (err) {
+      setStatus((c) => ({ ...c, error: formatApiError(err, "Failed to send verification code") }));
+    } finally {
+      setUnverifiedSubmitting(false);
+    }
+  };
+
+  const handleUnverifiedVerifyOtp = (e) => {
+    if (e) e.preventDefault();
+    if (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) {
+      return setStatus((c) => ({ ...c, error: "Please enter the complete 6-digit OTP code." }));
+    }
+    setStatus((c) => ({ ...c, error: "", success: "Phone verified! Please enter staff email to send password creation link." }));
+    setUnverifiedStep(3);
+  };
+
+  const handleUnverifiedSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!unverifiedForm.name?.trim()) return setStatus((c) => ({ ...c, error: "Name is required" }));
+    if (!unverifiedForm.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(unverifiedForm.email.trim())) {
+      return setStatus((c) => ({ ...c, error: "Please enter a valid email address." }));
+    }
+    setUnverifiedSubmitting(true);
+    setStatus((c) => ({ ...c, error: "", success: "" }));
+    try {
+      const roleCode = unverifiedTargetSlot?.salonRole || "STAFF";
+      const defaultRole = customRoles.find(r => r.name?.toLowerCase() === (roleCode === "MANAGER" ? "manager" : "staff")) || customRoles[0];
+      await api.post("/owner/users/create-login", {
+        name: unverifiedForm.name.trim(),
+        email: unverifiedForm.email.trim(),
+        phone: unverifiedForm.phone.trim(),
+        salonRole: roleCode,
+        roleTitle: roleCode === "MANAGER" ? "Salon Manager" : "Staff Member",
+        otpCode: unverifiedForm.otpCode,
+        branchId: selectedBranchId || branches[0]?.id || undefined,
+        customRoleId: defaultRole?.id || undefined,
+        permissions: ROLE_PRESETS[roleCode] || DEFAULT_PERMISSIONS
+      });
+      setStatus((c) => ({ ...c, success: `Profile activated! Password setup link has been sent to ${unverifiedForm.email}.` }));
+      setUnverifiedModalOpen(false);
+      await load(selectedBranchId);
+      setTimeout(() => setStatus((c) => ({ ...c, success: "" })), 5000);
+    } catch (err) {
+      setStatus((c) => ({ ...c, error: formatApiError(err, "Failed to activate staff profile") }));
+    } finally {
+      setUnverifiedSubmitting(false);
     }
   };
 
@@ -264,8 +373,42 @@ export default function UsersPage() {
       .catch((err) => console.error("[Biometric] Failed to load face models:", err));
   }, []);
 
+  const defaultUnverifiedSlots = useMemo(() => {
+    const hasManager = rows.some((r) => (r.salonRole === "MANAGER" || r.customRole?.name?.toLowerCase().includes("manager")) && !r.isUnverifiedPlaceholder);
+    const hasStaff = rows.some((r) => (r.salonRole === "STAFF" || r.customRole?.name?.toLowerCase().includes("staff")) && !r.isUnverifiedPlaceholder);
+    const slots = [];
+    if (!hasManager) {
+      slots.push({
+        id: "unverified-manager-slot",
+        isUnverifiedPlaceholder: true,
+        salonRole: "MANAGER",
+        roleTitle: "Salon Manager (Setup Pending)",
+        phone: "",
+        user: { name: "Salon Manager", email: "Pending Phone & Email Verification", isActive: false },
+        permissions: DEFAULT_PERMISSIONS,
+        attendanceEnabled: false,
+        isArchived: false
+      });
+    }
+    if (!hasStaff) {
+      slots.push({
+        id: "unverified-staff-slot",
+        isUnverifiedPlaceholder: true,
+        salonRole: "STAFF",
+        roleTitle: "Staff Member (Setup Pending)",
+        phone: "",
+        user: { name: "Staff Member", email: "Pending Phone & Email Verification", isActive: false },
+        permissions: DEFAULT_PERMISSIONS,
+        attendanceEnabled: false,
+        isArchived: false
+      });
+    }
+    return slots;
+  }, [rows]);
+
   const filteredRows = useMemo(() => {
-    return rows.filter((row) => {
+    const combined = [...rows, ...(tabFilter === "archived" ? [] : defaultUnverifiedSlots)];
+    return combined.filter((row) => {
       if (tabFilter === "active" && row.isArchived) return false;
       if (tabFilter === "archived" && !row.isArchived) return false;
       if (!deferredQuery) return true;
@@ -280,7 +423,7 @@ export default function UsersPage() {
       ].filter(Boolean).join(" ").toLowerCase();
       return haystack.includes(deferredQuery);
     });
-  }, [deferredQuery, rows, tabFilter]);
+  }, [deferredQuery, rows, defaultUnverifiedSlots, tabFilter]);
 
   const selectedRow = useMemo(() => {
     if (!filteredRows.length) return null;
@@ -356,8 +499,12 @@ export default function UsersPage() {
   };
 
   const startEdit = (row) => {
+    if (!row) return;
     setEditingId(row.id);
     setSelectedId(row.id);
+    if (row.isUnverifiedPlaceholder) {
+      return;
+    }
     setForm({
       name: row.user?.name || "",
       email: row.user?.email || "",
@@ -482,9 +629,6 @@ export default function UsersPage() {
       if (form.name.trim().length < 2) return setStatus((current) => ({ ...current, error: "Name must be at least 2 characters" }));
       if (!form.email?.trim()) return setStatus((current) => ({ ...current, error: "Email is required" }));
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return setStatus((current) => ({ ...current, error: "Enter a valid email address" }));
-      if (!form.password) return setStatus((current) => ({ ...current, error: "Password is required" }));
-      if (form.password.length < 8) return setStatus((current) => ({ ...current, error: "Password must be at least 8 characters" }));
-      if (form.password.length > 128) return setStatus((current) => ({ ...current, error: "Password must be at most 128 characters" }));
       if (!form.phone || !isValidIndianPhone(form.phone)) return setStatus((current) => ({ ...current, error: "Enter a valid phone number (10-15 digits) - Required for Staff OTP" }));
       if (form.uanNumber && form.uanNumber.trim() && !/^\d{12}$/.test(form.uanNumber.trim())) return setStatus((current) => ({ ...current, error: "UAN must be exactly 12 digits" }));
       if (form.accountNumber && form.accountNumber.trim() && !/^\d{9,18}$/.test(form.accountNumber.trim())) return setStatus((current) => ({ ...current, error: "Account number must be 9-18 digits" }));
@@ -534,7 +678,6 @@ export default function UsersPage() {
         branchId: selectedBranchId || branches[0]?.id || undefined,
         name: form.name.trim(),
         email: form.email.trim(),
-        password: form.password,
         otpCode: form.otpCode,
         joiningDate: form.joiningDate || undefined,
         designation: form.designation || undefined,
@@ -547,7 +690,7 @@ export default function UsersPage() {
         accountNumber: form.accountNumber ? form.accountNumber.trim() : undefined,
         ifscCode: form.ifscCode ? form.ifscCode.trim().toUpperCase() : undefined
       });
-      setStatus((current) => ({ ...current, success: "Staff account created successfully!" }));
+      setStatus((current) => ({ ...current, success: `Staff account created! Password setup link has been sent to ${form.email.trim()}.` }));
       setIsCreateModalOpen(false);
       setStaffOtpStep(1);
       resetForm();
@@ -814,26 +957,43 @@ export default function UsersPage() {
             {filteredRows.map((row) => {
               const moduleCount = countGrantedModules(row.permissions || {});
               const isActive = selectedRow?.id === row.id;
+              const isUnverified = row.isUnverifiedPlaceholder;
               return (
                 <div
                   key={row.id}
                   className={`hub-list-item ${isActive ? 'active' : ''}`}
                   onClick={() => handleDirectorySelect(row.id)}
-                  style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', cursor: 'pointer', background: isActive ? '#f1f5f9' : 'white' }}
+                  style={{ 
+                    padding: '16px 20px', 
+                    borderBottom: '1px solid #e2e8f0', 
+                    cursor: 'pointer', 
+                    background: isActive ? (isUnverified ? '#fffbeb' : '#f1f5f9') : (isUnverified ? '#fffdf7' : 'white'),
+                    borderLeft: isUnverified ? (isActive ? '4px solid #d97706' : '4px solid #fcd34d') : (isActive ? '4px solid #2563eb' : '4px solid transparent')
+                  }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <strong style={{ color: isActive ? '#2563eb' : '#0f172a' }}>{row.user?.name}</strong>
-                    {row.isArchived ? (
+                    <strong style={{ color: isUnverified ? '#92400e' : (isActive ? '#2563eb' : '#0f172a') }}>
+                      {row.user?.name}
+                    </strong>
+                    {isUnverified ? (
+                      <span style={{ fontSize: 10, background: '#fef3c7', color: '#b45309', padding: '2px 7px', borderRadius: 4, fontWeight: 800, border: '1px solid #fde68a' }}>
+                        UNVERIFIED
+                      </span>
+                    ) : row.isArchived ? (
                       <span style={{ fontSize: 10, background: '#fef2f2', color: '#dc2626', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>Archived</span>
                     ) : (
                       <span className={`staff-status-dot ${row.user?.isActive ? "live" : "muted"}`} style={{ width: 8, height: 8, borderRadius: '50%', background: row.user?.isActive ? '#10b981' : '#94a3b8' }} />
                     )}
                   </div>
-                  <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4 }}>
+                  <div style={{ fontSize: 13, color: isUnverified ? '#b45309' : '#64748b', marginBottom: 4 }}>
                     {row.roleTitle || row.customRole?.name || resolveRoleLabel(row.salonRole)}
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>
-                    {row.branch?.name || "All branches"} • {moduleCount} enabled modules • {row.attendanceEnabled ? "Attendance Ready" : "Attendance Off"}
+                  <div style={{ fontSize: 12, color: isUnverified ? '#d97706' : '#94a3b8' }}>
+                    {isUnverified ? (
+                      <span>⚡ Click to verify phone & send setup email</span>
+                    ) : (
+                      <>{row.branch?.name || "All branches"} • {moduleCount} enabled modules • {row.attendanceEnabled ? "Attendance Ready" : "Attendance Off"}</>
+                    )}
                   </div>
                 </div>
               );
@@ -864,14 +1024,16 @@ export default function UsersPage() {
                     {selectedRow.avatarUrl ? (
                       <img src={getImageUrl(selectedRow.avatarUrl)} alt="Avatar" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
                     ) : (
-                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: selectedRow.isUnverifiedPlaceholder ? '#fef3c7' : '#eff6ff', color: selectedRow.isUnverifiedPlaceholder ? '#d97706' : '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, border: selectedRow.isUnverifiedPlaceholder ? '3px solid #fde68a' : '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
                         {(selectedRow.user?.name || "U")[0].toUpperCase()}
                       </div>
                     )}
                     <div>
                       <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 10 }}>
                         {selectedRow.user?.name}
-                        {selectedRow.isArchived ? (
+                        {selectedRow.isUnverifiedPlaceholder ? (
+                          <span style={{ fontSize: 11, background: '#fef3c7', color: '#b45309', padding: '3px 10px', borderRadius: 20, fontWeight: 800, border: '1px solid #fde68a' }}>UNVERIFIED SLOT</span>
+                        ) : selectedRow.isArchived ? (
                           <span style={{ fontSize: 11, background: '#fef2f2', color: '#dc2626', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #fecaca' }}>ARCHIVED</span>
                         ) : selectedRow.user?.isActive ? (
                           <span style={{ fontSize: 11, background: '#ecfdf5', color: '#065f46', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #a7f3d0', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -885,41 +1047,149 @@ export default function UsersPage() {
                     </div>
                   </div>
                   <div className="responsive-profile-header-actions" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    {!selectedRow.isArchived && (
+                    {selectedRow.isUnverifiedPlaceholder ? (
                       <button
                         type="button"
-                        onClick={() => toggleUserStatus(selectedRow)}
-                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
+                        onClick={() => openUnverifiedModal(selectedRow)}
+                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 8px rgba(217, 119, 6, 0.25)' }}
                       >
-                        {selectedRow.user?.isActive ? "Deactivate Login" : "Activate Login"}
-                      </button>
-                    )}
-                    {selectedRow.isArchived ? (
-                      <button 
-                        type="button" 
-                        onClick={() => unarchiveUser(selectedRow)}
-                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#f0fdf4', color: '#16a34a', transition: 'all 0.15s ease' }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#dcfce7'}
-                        onMouseLeave={e => e.currentTarget.style.background = '#f0fdf4'}
-                      >
-                        Unarchive Profile
+                        <Smartphone size={14} /> Verify & Activate Slot
                       </button>
                     ) : (
-                      <button 
-                        type="button" 
-                        onClick={() => archiveUser(selectedRow)}
-                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                        onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
-                      >
-                        Archive Profile
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleSendSetupEmail(selectedRow)}
+                          style={{ padding: '9px 16px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #bfdbfe', background: '#eff6ff', color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'all 0.15s ease' }}
+                          title="Send password creation link to staff email"
+                        >
+                          <Mail size={14} /> Send Password Link
+                        </button>
+                        {!selectedRow.isArchived && (
+                          <button
+                            type="button"
+                            onClick={() => toggleUserStatus(selectedRow)}
+                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
+                          >
+                            {selectedRow.user?.isActive ? "Deactivate Login" : "Activate Login"}
+                          </button>
+                        )}
+                        {selectedRow.isArchived ? (
+                          <button 
+                            type="button" 
+                            onClick={() => unarchiveUser(selectedRow)}
+                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#f0fdf4', color: '#16a34a', transition: 'all 0.15s ease' }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#dcfce7'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#f0fdf4'}
+                          >
+                            Unarchive Profile
+                          </button>
+                        ) : (
+                          <button 
+                            type="button" 
+                            onClick={() => archiveUser(selectedRow)}
+                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
+                          >
+                            Archive Profile
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="responsive-profile-padding" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
+              {selectedRow.isUnverifiedPlaceholder ? (
+                <div className="responsive-profile-padding" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
+                  <div style={{ background: '#ffffff', borderRadius: 20, border: '1.5px solid #fde68a', overflow: 'hidden', boxShadow: '0 10px 30px rgba(217, 119, 6, 0.08)' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', padding: '32px 36px', borderBottom: '1px solid #fde68a' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                        <span style={{ fontSize: 11, background: '#d97706', color: '#ffffff', padding: '3px 10px', borderRadius: 20, fontWeight: 800, letterSpacing: '0.05em' }}>
+                          DEFAULT {selectedRow.salonRole} SLOT
+                        </span>
+                        <span style={{ fontSize: 11, background: '#ffffff', color: '#92400e', border: '1px solid #fcd34d', padding: '3px 10px', borderRadius: 20, fontWeight: 700 }}>
+                          SETUP PENDING
+                        </span>
+                      </div>
+                      <h2 style={{ margin: '0 0 10px', fontSize: 24, fontWeight: 800, color: '#78350f', letterSpacing: '-0.02em' }}>
+                        Activate {selectedRow.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member"} Profile
+                      </h2>
+                      <p style={{ margin: 0, fontSize: 14.5, color: '#92400e', lineHeight: 1.6, maxWidth: 650 }}>
+                        This pre-configured slot is ready for your salon. Verify staff's phone number via SMS OTP, enter their email address, and the system will instantly dispatch a secure password setup link to them.
+                      </p>
+                    </div>
+
+                    <div style={{ padding: '32px 36px', background: '#fafaf9' }}>
+                      <h4 style={{ margin: '0 0 20px', fontSize: 13, fontWeight: 800, color: '#57534e', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        3-Step Activation Process
+                      </h4>
+                      <div className="responsive-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+                        <div style={{ background: 'white', border: '1px solid #e7e5e4', borderRadius: 14, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
+                            1
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 750, color: '#1c1917' }}>Phone & SMS OTP</div>
+                          <div style={{ fontSize: 12.5, color: '#78716c', lineHeight: 1.5 }}>
+                            Enter staff mobile number and verify it using 6-digit SMS OTP code.
+                          </div>
+                        </div>
+
+                        <div style={{ background: 'white', border: '1px solid #e7e5e4', borderRadius: 14, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
+                            2
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 750, color: '#1c1917' }}>Email & Name</div>
+                          <div style={{ fontSize: 12.5, color: '#78716c', lineHeight: 1.5 }}>
+                            Enter the staff member's full name and their official email address.
+                          </div>
+                        </div>
+
+                        <div style={{ background: 'white', border: '1px solid #e7e5e4', borderRadius: 14, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#faf5ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
+                            3
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 750, color: '#1c1917' }}>Password by Email</div>
+                          <div style={{ fontSize: 12.5, color: '#78716c', lineHeight: 1.5 }}>
+                            System sends password creation link. Staff sets password and logs in.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', background: '#ffffff', border: '1.5px dashed #d97706', borderRadius: 16, flexWrap: 'wrap', gap: 14 }}>
+                        <div>
+                          <div style={{ fontSize: 15, fontWeight: 750, color: '#1c1917' }}>Ready to assign this slot?</div>
+                          <div style={{ fontSize: 13, color: '#78716c', marginTop: 2 }}>Takes under 1 minute with SMS verification</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openUnverifiedModal(selectedRow)}
+                          style={{
+                            padding: '12px 24px',
+                            borderRadius: 12,
+                            border: 'none',
+                            background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                            color: 'white',
+                            fontSize: 14,
+                            fontWeight: 750,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            boxShadow: '0 4px 14px rgba(217, 119, 6, 0.35)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <Smartphone size={16} />
+                          <span>Verify Phone & Activate Slot</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="responsive-profile-padding" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
                 <div className="responsive-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
                    <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1187,6 +1457,7 @@ export default function UsersPage() {
                   </form>
                 </div>
               </div>
+              )}
             </>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8' }}>
@@ -1286,21 +1557,11 @@ export default function UsersPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div className="hub-form-group">
                     <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <span>Password</span>
-                      <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
-                    </label>
-                    <input type="password" required className="hub-input" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="Min 8 chars" minLength={8} maxLength={128} />
-                  </div>
-                  <div className="hub-form-group">
-                    <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                       <span>Phone</span>
                       <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
                     </label>
                     <IndianPhoneInput required={true} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} style={{ height: 42, border: "1px solid #cbd5e1" }} inputStyle={{ padding: "0 14px", height: "100%" }} />
                   </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16, alignItems: 'start' }}>
                   <div className="hub-form-group">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap', display: 'inline-flex', flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 }}>
@@ -1321,12 +1582,16 @@ export default function UsersPage() {
                       ))}
                     </CustomSelect>
                   </div>
-                  <div className="hub-form-group">
-                    <div style={{ display: 'flex', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', margin: 0, whiteSpace: 'nowrap', display: 'flex', flexDirection: 'row' }}>Role Title (Designation)</label>
-                    </div>
-                    <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 42, boxSizing: 'border-box' }} />
-                  </div>
+                </div>
+
+                <div style={{ marginBottom: 16, padding: '10px 14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#1e40af' }}>
+                  <Mail size={16} color="#2563eb" style={{ flexShrink: 0 }} />
+                  <span>A secure password setup link will be emailed to the staff member upon SMS OTP verification.</span>
+                </div>
+
+                <div className="hub-form-group" style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Role Title (Designation)</label>
+                  <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 42, boxSizing: 'border-box' }} />
                 </div>
 
                 <div className="hub-form-group" style={{ marginBottom: 16 }}>
@@ -1656,6 +1921,304 @@ export default function UsersPage() {
                 )}
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3-Step Unverified Slot Activation Modal */}
+      {unverifiedModalOpen && (
+        <div className="hub-modal-overlay" onClick={() => setUnverifiedModalOpen(false)} style={{ backdropFilter: 'blur(6px)', background: 'rgba(15, 23, 42, 0.65)', zIndex: 99999 }}>
+          <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 480, borderRadius: 20, boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.25)', border: '1px solid rgba(226, 232, 240, 0.8)', overflow: 'hidden' }}>
+            
+            {/* Modal Header */}
+            <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "16px 22px", borderBottom: "1px solid #e2e8f0" }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {unverifiedStep > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUnverifiedStep(s => s - 1);
+                      setStatus((c) => ({ ...c, error: "" }));
+                    }}
+                    style={{ background: "none", border: "none", color: "#64748b", display: "flex", alignItems: "center", cursor: "pointer", padding: 0 }}
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+                )}
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 750, color: "#0f172a", letterSpacing: "-0.01em" }}>
+                    Activate {unverifiedTargetSlot?.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member"}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 1 }}>
+                    Step {unverifiedStep} of 3 • {unverifiedStep === 1 ? "Mobile Number" : unverifiedStep === 2 ? "SMS Verification" : "Email & Password Setup"}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setUnverifiedModalOpen(false); setStatus((c) => ({ ...c, error: "" })); }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", borderRadius: "50%" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Error / Success Status Bar */}
+            {status.error && (
+              <div style={{ padding: '10px 16px', background: '#fef2f2', color: '#b91c1c', fontSize: 13, borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <AlertCircle size={15} color="#dc2626" style={{ flexShrink: 0 }} />
+                <span>{status.error}</span>
+              </div>
+            )}
+            {status.success && (
+              <div style={{ padding: '10px 16px', background: '#ecfdf5', color: '#065f46', fontSize: 13, borderBottom: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CheckCircle2 size={15} color="#059669" style={{ flexShrink: 0 }} />
+                <span>{status.success}</span>
+              </div>
+            )}
+
+            {/* Step 1: Enter Phone Number */}
+            {unverifiedStep === 1 && (
+              <form onSubmit={handleUnverifiedSendOtp}>
+                <div style={{ padding: '24px 24px 20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, marginBottom: 20 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Smartphone size={20} />
+                    </div>
+                    <div style={{ fontSize: 12.5, color: '#92400e', lineHeight: 1.5 }}>
+                      We'll send a 6-digit SMS OTP to verify the mobile number for this {unverifiedTargetSlot?.salonRole === "MANAGER" ? "manager" : "staff"} slot.
+                    </div>
+                  </div>
+
+                  <div className="hub-form-group" style={{ marginBottom: 8 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'block' }}>
+                      Staff Mobile Number <span style={{ color: '#dc2626' }}>*</span>
+                    </label>
+                    <IndianPhoneInput
+                      required={true}
+                      value={unverifiedForm.phone}
+                      onChange={(phone) => {
+                        setUnverifiedForm({ ...unverifiedForm, phone });
+                        if (status.error) setStatus((c) => ({ ...c, error: "" }));
+                      }}
+                      style={{ height: 44, border: "1.5px solid #cbd5e1", borderRadius: 10 }}
+                      inputStyle={{ padding: "0 14px", height: "100%", fontSize: 14 }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                  <button
+                    type="button"
+                    className="btn-cancel"
+                    onClick={() => setUnverifiedModalOpen(false)}
+                    style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={unverifiedSubmitting || !unverifiedForm.phone}
+                    className="btn-submit"
+                    style={{
+                      minHeight: 40,
+                      height: 40,
+                      padding: "8px 22px",
+                      borderRadius: 10,
+                      fontWeight: 700,
+                      fontSize: 13.5,
+                      background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+                      color: "white",
+                      border: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      cursor: (unverifiedSubmitting || !unverifiedForm.phone) ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {unverifiedSubmitting ? (
+                      <>
+                        <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+                        <span>Sending OTP...</span>
+                      </>
+                    ) : (
+                      <span>Send OTP Code →</span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Step 2: Verify SMS OTP */}
+            {unverifiedStep === 2 && (
+              <form onSubmit={handleUnverifiedVerifyOtp}>
+                <div style={{ padding: '28px 24px 20px', textAlign: 'center' }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                    <KeyRound size={24} />
+                  </div>
+                  <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Enter Verification Code</h3>
+                  <p style={{ margin: '0 0 18px', fontSize: 13, color: '#64748b' }}>
+                    Sent to <strong style={{ color: '#0f172a' }}>{unverifiedForm.phone}</strong>
+                  </p>
+
+                  <div style={{ margin: '14px 0 10px' }}>
+                    <DigitOtpInput
+                      value={unverifiedForm.otpCode || ''}
+                      onChange={(val) => {
+                        setUnverifiedForm({ ...unverifiedForm, otpCode: val });
+                        if (status.error) setStatus((c) => ({ ...c, error: "" }));
+                      }}
+                      length={6}
+                      autoFocus={true}
+                      error={Boolean(status.error)}
+                      brandColor="#d97706"
+                    />
+                  </div>
+
+                  <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12.5, color: '#64748b' }}>
+                    <span>Didn't receive code?</span>
+                    {unverifiedResendCountdown > 0 ? (
+                      <span style={{ fontWeight: 700, color: '#d97706' }}>Resend in {unverifiedResendCountdown}s</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleUnverifiedSendOtp}
+                        disabled={unverifiedSubmitting}
+                        style={{ background: 'none', border: 'none', color: '#d97706', fontWeight: 700, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+                  <button
+                    type="button"
+                    className="btn-cancel"
+                    onClick={() => { setUnverifiedStep(1); setStatus((c) => ({ ...c, error: "" })); }}
+                    style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
+                  >
+                    ← Change Phone
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6}
+                    className="btn-submit"
+                    style={{
+                      minHeight: 40,
+                      height: 40,
+                      padding: "8px 22px",
+                      borderRadius: 10,
+                      fontWeight: 700,
+                      fontSize: 13.5,
+                      background: (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) ? '#94a3b8' : "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+                      color: "white",
+                      border: "none",
+                      cursor: (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    Verify Code →
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Step 3: Enter Staff Name & Email Address */}
+            {unverifiedStep === 3 && (
+              <form onSubmit={handleUnverifiedSubmit}>
+                <div style={{ padding: '24px 24px 20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 10, marginBottom: 18 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#065f46', fontWeight: 600 }}>
+                      <CheckCircle2 size={16} color="#059669" />
+                      <span>Phone Verified: {unverifiedForm.phone}</span>
+                    </div>
+                    <span style={{ fontSize: 11, background: '#10b981', color: 'white', padding: '2px 8px', borderRadius: 12, fontWeight: 800 }}>VERIFIED</span>
+                  </div>
+
+                  <div className="hub-form-group" style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>
+                      Staff Member Name <span style={{ color: '#dc2626' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      className="hub-input"
+                      value={unverifiedForm.name}
+                      onChange={(e) => setUnverifiedForm({ ...unverifiedForm, name: e.target.value })}
+                      placeholder="e.g. Ramesh Kumar"
+                      style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div className="hub-form-group" style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>
+                      Official Email Address <span style={{ color: '#dc2626' }}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      className="hub-input"
+                      value={unverifiedForm.email}
+                      onChange={(e) => setUnverifiedForm({ ...unverifiedForm, email: e.target.value })}
+                      placeholder="e.g. ramesh@salon.com"
+                      style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div style={{ padding: '12px 14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                    <Mail size={18} color="#2563eb" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ fontSize: 12, color: '#1e40af', lineHeight: 1.5 }}>
+                      Upon clicking <strong>Activate & Send Password Link</strong>, the system will send an email invitation with a secure link so the staff member can create their own password and log in.
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+                  <button
+                    type="button"
+                    className="btn-cancel"
+                    onClick={() => { setUnverifiedStep(2); setStatus((c) => ({ ...c, error: "" })); }}
+                    style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={unverifiedSubmitting || !unverifiedForm.email || !unverifiedForm.name}
+                    className="btn-submit"
+                    style={{
+                      minHeight: 40,
+                      height: 40,
+                      padding: "8px 24px",
+                      borderRadius: 10,
+                      fontWeight: 700,
+                      fontSize: 13.5,
+                      background: (unverifiedSubmitting || !unverifiedForm.email || !unverifiedForm.name) ? '#94a3b8' : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+                      color: "white",
+                      border: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      cursor: (unverifiedSubmitting || !unverifiedForm.email || !unverifiedForm.name) ? "not-allowed" : "pointer",
+                      boxShadow: (unverifiedForm.email && unverifiedForm.name && !unverifiedSubmitting) ? "0 4px 14px rgba(37, 99, 235, 0.3)" : "none"
+                    }}
+                  >
+                    {unverifiedSubmitting ? (
+                      <>
+                        <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+                        <span>Activating Profile...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send size={15} />
+                        <span>Activate & Send Link</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
