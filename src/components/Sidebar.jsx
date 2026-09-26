@@ -216,9 +216,9 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
           /* Full Expanded Sidebar Mode */
           <div className="sidebar-expanded-container" style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
             {/* Brand Row with Mobile Close Button */}
-            <div className="sidebar-brand-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px" }}>
+            <div className="sidebar-brand-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 12px 10px" }}>
               <Link to={isSuperAdmin ? "/super-admin/dashboard" : "/admin/dashboard"} onClick={closeWorkspace} className="sidebar-brand-inner" style={{ textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
-                <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "40px", maxWidth: "140px", objectFit: "contain" }} />
+                <img src="/logo.jfif" alt="Salon Logo" style={{ maxHeight: "34px", maxWidth: "120px", objectFit: "contain" }} />
               </Link>
               
               {/* Close Button for Mobile Screens Only */}
