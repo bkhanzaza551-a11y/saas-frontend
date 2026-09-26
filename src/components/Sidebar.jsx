@@ -71,7 +71,7 @@ const getItemIcon = (label, path) => {
   if (l.includes("analytics") || l.includes("global dashboard")) return <Activity size={18} />;
   if (l.includes("report") || l.includes("financial")) return <FileText size={18} />;
   if (l.includes("support") || l.includes("ticket")) return <LifeBuoy size={18} />;
-  if (l.includes("message") || l.includes("enquir") || l.includes("whatsapp") || l.includes("notification") || l.includes("credit")) return <MessageSquare size={18} />;
+  if (l.includes("message") || l.includes("enquir") || l.includes("whatsapp") || l.includes("notification") || l.includes("credit") || l.includes("follow")) return <MessageSquare size={18} />;
   if (l.includes("package") || l.includes("membership")) return <Award size={18} />;
   if (l.includes("loyalty") || l.includes("coupon") || l.includes("gift") || l.includes("referral")) return <Gift size={18} />;
   if (l.includes("setting") || l.includes("setup") || l.includes("manage")) return <Settings size={18} />;
