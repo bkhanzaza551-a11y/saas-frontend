@@ -973,7 +973,7 @@ export default function UsersPage() {
                     padding: '16px 20px', 
                     borderBottom: '1px solid #e2e8f0', 
                     cursor: 'pointer', 
-                    background: isActive ? (isUnverified ? '#fffbeb' : '#f1f5f9') : (isUnverified ? '#fffdf7' : 'white'),
+                    background: isActive ? '#f1f5f9' : 'white',
                     borderLeft: isUnverified ? (isActive ? '4px solid #d97706' : '4px solid #fcd34d') : (isActive ? '4px solid #2563eb' : '4px solid transparent')
                   }}
                 >
@@ -1030,7 +1030,7 @@ export default function UsersPage() {
                     {selectedRow.avatarUrl ? (
                       <img src={getImageUrl(selectedRow.avatarUrl)} alt="Avatar" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
                     ) : (
-                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: selectedRow.isUnverifiedPlaceholder ? '#fef3c7' : '#eff6ff', color: selectedRow.isUnverifiedPlaceholder ? '#d97706' : '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, border: selectedRow.isUnverifiedPlaceholder ? '3px solid #fde68a' : '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
                         {(selectedRow.user?.name || "U")[0].toUpperCase()}
                       </div>
                     )}
@@ -1038,7 +1038,7 @@ export default function UsersPage() {
                       <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 10 }}>
                         {selectedRow.user?.name}
                         {selectedRow.isUnverifiedPlaceholder ? (
-                          <span style={{ fontSize: 11, background: '#fef3c7', color: '#b45309', padding: '3px 10px', borderRadius: 20, fontWeight: 800, border: '1px solid #fde68a' }}>UNVERIFIED SLOT</span>
+                          <span style={{ fontSize: 11, background: '#f1f5f9', color: '#475569', padding: '3px 10px', borderRadius: 20, fontWeight: 800, border: '1px solid #e2e8f0' }}>UNVERIFIED SLOT</span>
                         ) : selectedRow.isArchived ? (
                           <span style={{ fontSize: 11, background: '#fef2f2', color: '#dc2626', padding: '3px 10px', borderRadius: 20, fontWeight: 700, border: '1px solid #fecaca' }}>ARCHIVED</span>
                         ) : selectedRow.user?.isActive ? (
@@ -1057,7 +1057,7 @@ export default function UsersPage() {
                       <button
                         type="button"
                         onClick={() => openUnverifiedModal(selectedRow)}
-                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 8px rgba(217, 119, 6, 0.25)' }}
+                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)' }}
                       >
                         <Smartphone size={14} /> Verify & Activate Slot
                       </button>
@@ -1109,20 +1109,20 @@ export default function UsersPage() {
 
               {selectedRow.isUnverifiedPlaceholder ? (
                 <div className="responsive-profile-padding" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
-                  <div style={{ background: '#ffffff', borderRadius: 20, border: '1.5px solid #fde68a', overflow: 'hidden', boxShadow: '0 10px 30px rgba(217, 119, 6, 0.08)' }}>
-                    <div style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', padding: '32px 36px', borderBottom: '1px solid #fde68a' }}>
+                  <div style={{ background: '#ffffff', borderRadius: 20, border: '1.5px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', padding: '32px 36px', borderBottom: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                        <span style={{ fontSize: 11, background: '#d97706', color: '#ffffff', padding: '3px 10px', borderRadius: 20, fontWeight: 800, letterSpacing: '0.05em' }}>
+                        <span style={{ fontSize: 11, background: '#334155', color: '#ffffff', padding: '3px 10px', borderRadius: 20, fontWeight: 800, letterSpacing: '0.05em' }}>
                           DEFAULT {selectedRow.salonRole} SLOT
                         </span>
-                        <span style={{ fontSize: 11, background: '#ffffff', color: '#92400e', border: '1px solid #fcd34d', padding: '3px 10px', borderRadius: 20, fontWeight: 700 }}>
+                        <span style={{ fontSize: 11, background: '#ffffff', color: '#475569', border: '1px solid #cbd5e1', padding: '3px 10px', borderRadius: 20, fontWeight: 700 }}>
                           SETUP PENDING
                         </span>
                       </div>
-                      <h2 style={{ margin: '0 0 10px', fontSize: 24, fontWeight: 800, color: '#78350f', letterSpacing: '-0.02em' }}>
+                      <h2 style={{ margin: '0 0 10px', fontSize: 24, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
                         Activate {selectedRow.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member"} Profile
                       </h2>
-                      <p style={{ margin: 0, fontSize: 14.5, color: '#92400e', lineHeight: 1.6, maxWidth: 650 }}>
+                      <p style={{ margin: 0, fontSize: 14.5, color: '#475569', lineHeight: 1.6, maxWidth: 650 }}>
                         This pre-configured slot is ready for your salon. Verify staff's phone number via SMS OTP, enter their email address, and the system will instantly dispatch a secure password setup link to them.
                       </p>
                     </div>
@@ -2033,7 +2033,7 @@ export default function UsersPage() {
                       borderRadius: 10,
                       fontWeight: 700,
                       fontSize: 13.5,
-                      background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+                      background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
                       color: "white",
                       border: "none",
                       display: "inline-flex",
