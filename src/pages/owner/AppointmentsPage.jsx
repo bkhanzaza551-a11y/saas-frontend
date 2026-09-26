@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Scissors } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Scissors, Clock } from "lucide-react";
 import { api } from "../../api/client";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
@@ -2378,16 +2378,17 @@ export default function AppointmentsPage() {
                         </CustomSelect>
                       </div>
                       {item.serviceId && (
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f0f9ff", border: "1px solid #bae6fd", padding: "4px 10px", borderRadius: 8, fontSize: 12, color: "#0369a1", fontWeight: 700, marginTop: 4, marginBottom: 8 }}>
-                          <span>⏱️ Duration:</span>
-                          <span style={{ color: "#0284c7" }}>{getServiceDurationMin(item.serviceId)} mins</span>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", padding: "4px 10px", borderRadius: 8, fontSize: 12, color: "#475569", fontWeight: 600, marginTop: 4, marginBottom: 8 }}>
+                          <Clock size={13} color="#64748b" />
+                          <span>Duration:</span>
+                          <span style={{ color: "#0f172a", fontWeight: 700 }}>{getServiceDurationMin(item.serviceId)} mins</span>
                         </div>
                       )}
 
-                      <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Expert {idx + 1} (Optional)</label>
+                      <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Expert {idx + 1}</label>
                       <div className="sp-input-group">
                         <CustomSelect className="sp-select" value={item.staffUserIds[0] || ""} onChange={(event) => handleUpdateItem(idx, "staffUserIds", event.target.value ? [event.target.value] : [])}>
-                          <option value="">Select Expert (Optional)</option>
+                          <option value="">Select Expert</option>
                           {filteredStaffUsers
                             .filter((staff) => {
                               if (!item.serviceId) return true;
