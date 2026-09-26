@@ -70,6 +70,7 @@ export default function CreateCampaignPage() {
   const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set(draftMeta.selectedIds || []));
   const [searchQuery, setSearchQuery] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
+  const [campaignFilter, setCampaignFilter] = useState('');
   const [customersLoading, setCustomersLoading] = useState(false);
 
   // New States for Step 3 UI
@@ -283,6 +284,38 @@ export default function CreateCampaignPage() {
   const filteredCustomers = customers.filter(c => {
     if (searchQuery && !c.name?.toLowerCase().includes(searchQuery.toLowerCase()) && !c.phone?.includes(searchQuery)) return false;
     if (genderFilter && c.gender !== genderFilter) return false;
+    
+    if (campaignFilter) {
+      if (campaignFilter === "BALANCE") {
+        const hasBalance = c.invoices?.some(inv => Number(inv.balanceAmount) > 0);
+        if (!hasBalance) return false;
+      } else if (campaignFilter === "NEVER_VISITED") {
+        if (c.lastVisitAt || (c._count && c._count.invoices > 0)) return false;
+      } else if (campaignFilter === "NOT_VISITED_RECENTLY") {
+        if (!c.lastVisitAt) return false;
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        if (new Date(c.lastVisitAt) > ninetyDaysAgo) return false;
+      } else if (campaignFilter === "UPCOMING_BIRTHDAY") {
+        if (!c.dateOfBirth) return false;
+        const dob = new Date(c.dateOfBirth);
+        const today = new Date();
+        const nextMonth = new Date();
+        nextMonth.setDate(today.getDate() + 30);
+        dob.setFullYear(today.getFullYear());
+        if (dob < today) dob.setFullYear(today.getFullYear() + 1);
+        if (dob > nextMonth) return false;
+      } else if (campaignFilter === "UPCOMING_ANNIVERSARY") {
+        if (!c.anniversary) return false;
+        const ann = new Date(c.anniversary);
+        const today = new Date();
+        const nextMonth = new Date();
+        nextMonth.setDate(today.getDate() + 30);
+        ann.setFullYear(today.getFullYear());
+        if (ann < today) ann.setFullYear(today.getFullYear() + 1);
+        if (ann > nextMonth) return false;
+      }
+    }
     return true;
   });
 
@@ -1034,20 +1067,32 @@ export default function CreateCampaignPage() {
 
           {/* Filter Modal Overlay */}
           {isFilterModalOpen && (
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(255,255,255,0.8)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: 60 }}>
-              <div style={{ width: 400, background: '#fff', borderRadius: 16, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', padding: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Filters</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <button onClick={() => { setGenderFilter(''); setSearchQuery(''); setIsFilterModalOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'transparent', border: '1px solid #e2e8f0', borderRadius: 20, padding: '4px 12px', fontSize: '0.75rem', cursor: 'pointer' }}>
+            <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(255,255,255,0.8)", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: 60 }}>
+              <div style={{ width: 400, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.1)", border: "1px solid #e2e8f0", padding: 24 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                  <h3 style={{ margin: 0, fontSize: "1.2rem" }}>Filters</h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <button onClick={() => { setGenderFilter(""); setCampaignFilter(""); setSearchQuery(""); }} style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "1px solid #e2e8f0", borderRadius: 20, padding: "4px 12px", fontSize: "0.75rem", cursor: "pointer" }}>
                       <RefreshCcw size={12} /> Reset Filters
                     </button>
-                    <button onClick={() => setIsFilterModalOpen(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><X size={20} color="#64748b" /></button>
+                    <button onClick={() => setIsFilterModalOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer" }}><X size={20} color="#64748b" /></button>
                   </div>
                 </div>
                 
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: 8 }}>Gender</label>
+                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "#475569", marginBottom: 8 }}>Customers</label>
+                  <CustomSelect value={campaignFilter} onChange={e => setCampaignFilter(e.target.value)} placeholder="All Customers">
+                    <option value="">All Customers</option>
+                    <option value="BALANCE">Customers with pending balance</option>
+                    <option value="NOT_VISITED_RECENTLY">Not Visited Recently (Last 90 Days)</option>
+                    <option value="NEVER_VISITED">Never Visited</option>
+                    <option value="UPCOMING_BIRTHDAY">Upcoming Birthdays (Next 30 Days)</option>
+                    <option value="UPCOMING_ANNIVERSARY">Upcoming Anniversaries (Next 30 Days)</option>
+                  </CustomSelect>
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "#475569", marginBottom: 8 }}>Gender</label>
                   <CustomSelect value={genderFilter} onChange={e => setGenderFilter(e.target.value)} placeholder="All Genders">
                     <option value="">All Genders</option>
                     <option value="Male">Male</option>
@@ -1055,8 +1100,8 @@ export default function CreateCampaignPage() {
                   </CustomSelect>
                 </div>
                 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
-                  <button onClick={() => setIsFilterModalOpen(false)} style={{ background: '#111827', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 24, fontWeight: 600, cursor: 'pointer' }}>Apply</button>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 32 }}>
+                  <button onClick={() => setIsFilterModalOpen(false)} style={{ background: "#111827", color: "#fff", border: "none", padding: "10px 24px", borderRadius: 24, fontWeight: 600, cursor: "pointer" }}>Apply</button>
                 </div>
               </div>
             </div>
