@@ -7,6 +7,91 @@
   flex-direction: row;
 }
 
+/* 3 Modern Top Segmented KPI Summary Cards */
+.dashboard-top-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard-kpi-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dashboard-kpi-subgrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.dashboard-sub-pill {
+  min-width: 0;
+  padding: 8px 6px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justifyContent: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.dashboard-sub-pill-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-sub-pill-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-top-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1380px) and (min-width: 1201px) {
+  .dashboard-kpi-subgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-top-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-kpi-subgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

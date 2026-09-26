@@ -417,82 +417,82 @@ export default function OwnerDashboard() {
       </div>
 
       {/* 3 Modern Segmented KPI Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16, marginBottom: 24 }}>
+      <div className="dashboard-top-kpi-grid">
         
         {/* Card 1: Total / For Today */}
-        <div style={{ background: "#ffffff", borderRadius: 16, padding: "20px", border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(15,23,42,0.03)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <div className="dashboard-kpi-card">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ padding: 6, borderRadius: 8, background: "#f1f5f9", color: "#475569" }}><TrendingUp size={16} /></div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Today's Overview</div>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <div style={{ flex: 1, background: "#fffbeb", padding: "10px", borderRadius: 10, border: "1px solid #fef3c7" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#d97706", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#f59e0b"}}></div> Expenses</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayOverview.expenses)}</div>
+          <div className="dashboard-kpi-subgrid">
+            <div className="dashboard-sub-pill" style={{ background: "#fffbeb", border: "1px solid #fef3c7" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#d97706" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#f59e0b", flexShrink: 0}}></div> Expenses</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayOverview.expenses)}</div>
             </div>
-            <div style={{ flex: 1, background: "#eff6ff", padding: "10px", borderRadius: 10, border: "1px solid #dbeafe" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#2563eb", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#3b82f6"}}></div> Sales</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayOverview.totalSales)}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#eff6ff", border: "1px solid #dbeafe" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#2563eb" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#3b82f6", flexShrink: 0}}></div> Sales</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayOverview.totalSales)}</div>
             </div>
-            <div style={{ flex: 1, background: "#ecfdf5", padding: "10px", borderRadius: 10, border: "1px solid #d1fae5" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#059669", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#10b981"}}></div> Services</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayOverview.services)}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#ecfdf5", border: "1px solid #d1fae5" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#059669" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#10b981", flexShrink: 0}}></div> Services</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayOverview.services)}</div>
             </div>
-            <div style={{ flex: 1, background: "#fef2f2", padding: "10px", borderRadius: 10, border: "1px solid #fee2e2" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#dc2626", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#ef4444"}}></div> Products</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayOverview.products)}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#fef2f2", border: "1px solid #fee2e2" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#dc2626" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#ef4444", flexShrink: 0}}></div> Products</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayOverview.products)}</div>
             </div>
           </div>
         </div>
 
         {/* Card 2: Appointments For Today */}
-        <div style={{ background: "#ffffff", borderRadius: 16, padding: "20px", border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(15,23,42,0.03)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <div className="dashboard-kpi-card">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ padding: 6, borderRadius: 8, background: "#f1f5f9", color: "#475569" }}><Calendar size={16} /></div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Appointments Today</div>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <div style={{ flex: 1, background: "#f8fafc", padding: "10px 8px", borderRadius: 10, border: "1px solid #f1f5f9", textAlign: "center" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#475569", textTransform: "uppercase" }}>All</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{todayAppts.all}</div>
+          <div className="dashboard-kpi-subgrid">
+            <div className="dashboard-sub-pill" style={{ background: "#f8fafc", border: "1px solid #f1f5f9", textAlign: "center", alignItems: "center" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#475569" }}>All</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.all}</div>
             </div>
-            <div style={{ flex: 1, background: "#eff6ff", padding: "10px 8px", borderRadius: 10, border: "1px solid #dbeafe", textAlign: "center" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#2563eb", textTransform: "uppercase" }}>Upcoming</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{todayAppts.upcoming}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#eff6ff", border: "1px solid #dbeafe", textAlign: "center", alignItems: "center" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#2563eb" }}>Upcoming</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.upcoming}</div>
             </div>
-            <div style={{ flex: 1, background: "#fffbeb", padding: "10px 8px", borderRadius: 10, border: "1px solid #fef3c7", textAlign: "center" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#d97706", textTransform: "uppercase" }}>On Going</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{todayAppts.ongoing}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#fffbeb", border: "1px solid #fef3c7", textAlign: "center", alignItems: "center" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#d97706" }}>On Going</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.ongoing}</div>
             </div>
-            <div style={{ flex: 1, background: "#ecfdf5", padding: "10px 8px", borderRadius: 10, border: "1px solid #d1fae5", textAlign: "center" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#059669", textTransform: "uppercase" }}>Done</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{todayAppts.completed}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#ecfdf5", border: "1px solid #d1fae5", textAlign: "center", alignItems: "center" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#059669" }}>Done</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.completed}</div>
             </div>
           </div>
         </div>
 
         {/* Card 3: Finance */}
-        <div style={{ background: "#ffffff", borderRadius: 16, padding: "20px", border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(15,23,42,0.03)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <div className="dashboard-kpi-card">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ padding: 6, borderRadius: 8, background: "#f1f5f9", color: "#475569" }}><CreditCard size={16} /></div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Finance Breakdown</div>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <div style={{ flex: 1, background: "#fffbeb", padding: "10px", borderRadius: 10, border: "1px solid #fef3c7" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#d97706", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#f59e0b"}}></div> Cash</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayFinance.cash)}</div>
+          <div className="dashboard-kpi-subgrid">
+            <div className="dashboard-sub-pill" style={{ background: "#fffbeb", border: "1px solid #fef3c7" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#d97706" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#f59e0b", flexShrink: 0}}></div> Cash</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayFinance.cash)}</div>
             </div>
-            <div style={{ flex: 1, background: "#eef2ff", padding: "10px", borderRadius: 10, border: "1px solid #e0e7ff" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#6366f1"}}></div> Card</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayFinance.card)}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#eef2ff", border: "1px solid #e0e7ff" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#4f46e5" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#6366f1", flexShrink: 0}}></div> Card</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayFinance.card)}</div>
             </div>
-            <div style={{ flex: 1, background: "#f0fdfa", padding: "10px", borderRadius: 10, border: "1px solid #ccfbf1" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#0d9488", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#14b8a6"}}></div> UPI</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayFinance.upi)}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#f0fdfa", border: "1px solid #ccfbf1" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#0d9488" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#14b8a6", flexShrink: 0}}></div> UPI</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayFinance.upi)}</div>
             </div>
-            <div style={{ flex: 1, background: "#faf5ff", padding: "10px", borderRadius: 10, border: "1px solid #f3e8ff" }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#9333ea", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#a855f7"}}></div> Others</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{formatMoney(todayFinance.others)}</div>
+            <div className="dashboard-sub-pill" style={{ background: "#faf5ff", border: "1px solid #f3e8ff" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#9333ea" }}><div style={{width: 6, height: 6, borderRadius: "50%", background: "#a855f7", flexShrink: 0}}></div> Others</div>
+              <div className="dashboard-sub-pill-val">{formatMoney(todayFinance.others)}</div>
             </div>
           </div>
         </div>
