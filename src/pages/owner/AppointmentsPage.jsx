@@ -20,7 +20,15 @@ const APPOINTMENT_SLOT_MINUTES = 15;
 const DEFAULT_APPOINTMENT_DURATION_MINUTES = 30;
 
 const emptyItem = { serviceId: "", staffUserIds: [], startAt: "", endAt: "", notes: "" };
-const toApiDateTime = (value) => (value ? new Date(value + "+05:30").toISOString() : "");
+const toApiDateTime = (value) => {
+  if (!value) return "";
+  if (typeof value === "string" && (value.endsWith("Z") || value.includes("+") || (value.includes("T") && value.slice(11).includes("-")))) {
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? "" : d.toISOString();
+  }
+  const d = new Date(value + "+05:30");
+  return isNaN(d.getTime()) ? new Date(value).toISOString() : d.toISOString();
+};
 
 const addMinutesToLocalInput = (value, minutes) => {
   if (!value) return "";
@@ -40,16 +48,34 @@ const toLocalDatetimeInput = (dateVal) => {
   const date = new Date(dateVal);
   if (Number.isNaN(date.getTime())) return "";
   
-  // Format the date in Asia/Kolkata timezone and parse it back to get local components
-  const tzDateStr = date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-  const tzDate = new Date(tzDateStr);
-  
-  const yyyy = tzDate.getFullYear();
-  const mm = String(tzDate.getMonth() + 1).padStart(2, "0");
-  const dd = String(tzDate.getDate()).padStart(2, "0");
-  const hh = String(tzDate.getHours()).padStart(2, "0");
-  const min = String(tzDate.getMinutes()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).formatToParts(date);
+
+    let yyyy = "", mm = "", dd = "", hh = "", min = "";
+    for (const p of parts) {
+      if (p.type === "year") yyyy = p.value;
+      if (p.type === "month") mm = p.value;
+      if (p.type === "day") dd = p.value;
+      if (p.type === "hour") hh = p.value === "24" ? "00" : p.value;
+      if (p.type === "minute") min = p.value;
+    }
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  } catch (e) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  }
 };
 
 const getBookingDisplayId = (appt) => {
@@ -59,10 +85,19 @@ const getBookingDisplayId = (appt) => {
   return `#${(appt.id || "").replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}`;
 };
 
-const formatTimeForSelect = (isoString) => {
-  if (!isoString) return "";
-  if (typeof isoString === "string" && isoString.includes("T")) {
-    const timePart = isoString.split("T")[1];
+const formatTimeForSelect = (value) => {
+  if (!value) return "";
+  if (typeof value === "string" && /^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(value.trim())) {
+    const match = value.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      return `${String(parseInt(match[1], 10)).padStart(2, "0")}:${match[2]} ${match[3].toUpperCase()}`;
+    }
+    return value.trim().toUpperCase();
+  }
+
+  // If value is a local datetime string without timezone (e.g. "2026-09-27T10:15")
+  if (typeof value === "string" && value.includes("T") && !value.endsWith("Z") && !value.includes("+") && !value.slice(11).includes("-")) {
+    const timePart = value.split("T")[1];
     if (timePart) {
       const parts = timePart.split(":");
       let h = parseInt(parts[0], 10);
@@ -76,19 +111,34 @@ const formatTimeForSelect = (isoString) => {
       }
     }
   }
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return "";
-  
-  const tzDateStr = date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-  const tzDate = new Date(tzDateStr);
 
-  const h = tzDate.getHours();
-  const m = tzDate.getMinutes();
-  const ampm = h >= 12 ? "PM" : "AM";
-  const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-  const hourText = String(hour12).padStart(2, "0");
-  const minuteText = String(m).padStart(2, "0");
-  return `${hourText}:${minuteText} ${ampm}`;
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "";
+
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour12: true,
+      hour: "2-digit",
+      minute: "2-digit"
+    }).formatToParts(date);
+
+    let hour = "";
+    let minute = "";
+    let dayPeriod = "AM";
+    for (const p of parts) {
+      if (p.type === "hour") hour = p.value;
+      if (p.type === "minute") minute = p.value;
+      if (p.type === "dayPeriod") dayPeriod = p.value.toUpperCase();
+    }
+    return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")} ${dayPeriod}`;
+  } catch (e) {
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const ampm = h >= 12 ? "PM" : "AM";
+    const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return `${String(hour12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
+  }
 };
 
 const combineDateAndTime = (baseDate, timeString) => {
