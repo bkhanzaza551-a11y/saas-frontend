@@ -810,9 +810,8 @@ export default function InventoryPage() {
                   className="sp-submit-btn"
                   style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#2563eb", color: "#fff", border: "none", cursor: "pointer" }}
                   onClick={() => {
-                    setProductForm(emptyProduct);
-                    setIsProductModalOpen(true);
-                  }}
+                      navigate("/admin/product-categories?action=add");
+                    }}
                 >
                   <Plus size={16} />
                   Add New Product
@@ -1435,9 +1434,8 @@ export default function InventoryPage() {
                     minHeight: "38px"
                   }}
                   onClick={() => {
-                    setProductForm(emptyProduct);
-                    setIsProductModalOpen(true);
-                  }}
+                      navigate("/admin/product-categories?action=add");
+                    }}
                 >
                   <Plus size={16} />
                   Add Product
