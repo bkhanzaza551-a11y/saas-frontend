@@ -5,7 +5,7 @@ import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import { useBranch } from '../../context/BranchContext';
 import {
-  TrendingUp, Users, CreditCard, Scissors, Receipt, Calendar,
+  TrendingUp, Users, CreditCard, Scissors, Receipt, Calendar, MessageSquare,
   AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Activity,
   Wallet, UserPlus, AlertCircle, Package, UserCheck, Plus, X, ArrowUpRight, ArrowDownRight, RefreshCw, Layers, CheckCircle2
 } from "lucide-react";
@@ -209,23 +209,30 @@ export default function OwnerDashboard() {
     setInboxDate(`${yyyy}-${mm}-${dd}`);
   };
 
+  const [followUpsCount, setFollowUpsCount] = useState(0);
+
   useEffect(() => {
     let active = true;
     if (!selectedBranchId) {
       setData(null);
+      setFollowUpsCount(0);
       return;
     }
     const params = { branchId: selectedBranchId };
-    api.get("/owner/dashboard", { params }).then((response) => {
+    Promise.all([
+      api.get("/owner/dashboard", { params }),
+      api.get("/owner/enquiries/follow-ups", { params }).catch(() => ({ data: [] }))
+    ]).then(([dashRes, fRes]) => {
       if (!active) return;
-      setData(response.data);
+      setData(dashRes.data);
+      setFollowUpsCount(fRes.data?.length || 0);
     }).catch(() => {
       if (!active) return;
       setData({});
+      setFollowUpsCount(0);
     });
-    return () => {
-      active = false;
-    };
+
+    return () => { active = false; };
   }, [selectedBranchId]);
 
   const branchName = selectedBranchName;
@@ -387,8 +394,32 @@ export default function OwnerDashboard() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
-            type="button"
-            onClick={() => setIsInboxModalOpen(true)}
+              type="button"
+              onClick={() => navigate("/admin/enquiries/follow-ups")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                fontSize: "0.82rem",
+                fontWeight: 700,
+                color: "#1e293b",
+                background: "#ffffff",
+                padding: "6px 14px",
+                borderRadius: 20,
+                border: "1px solid #cbd5e1",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                cursor: "pointer",
+                transition: "all 0.15s ease"
+              }}
+              title="View Follow Ups"
+            >
+              <MessageSquare size={14} style={{ color: "#2563eb" }} />
+              <span>Follow Ups:</span>
+              <span style={{ color: followUpsCount > 0 ? "#dc2626" : "#64748b", fontWeight: 800 }}>{followUpsCount}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsInboxModalOpen(true)}
             style={{
               display: "inline-flex",
               alignItems: "center",

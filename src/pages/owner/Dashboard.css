@@ -46,7 +46,7 @@
 }
 
 .dashboard-sub-pill-label {
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 700;
   text-transform: uppercase;
   display: flex;
@@ -58,7 +58,7 @@
 }
 
 .dashboard-sub-pill-val {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #0f172a;
   margin-top: 3px;
