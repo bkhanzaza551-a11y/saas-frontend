@@ -794,16 +794,7 @@ export default function OwnerDashboard() {
                       />
                     </div>
                     <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                        <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", margin: 0 }}>Category</label>
-                        <button
-                          type="button"
-                          onClick={() => navigate("/admin/expenses/types")}
-                          style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", padding: 0, textDecoration: "underline" }}
-                        >
-                          + Add Type
-                        </button>
-                      </div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Category</label>
                       <select
                         value={quickForm.categoryId}
                         onChange={(e) => {
@@ -819,7 +810,7 @@ export default function OwnerDashboard() {
                         {inboxCategories.map((c) => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
-                        <option value="__ADD_TYPE__">➕ + Add New Type</option>
+                        <option value="__ADD_TYPE__">+ Add New Type</option>
                       </select>
                     </div>
                   </div>
