@@ -2214,7 +2214,7 @@ export default function AppointmentsPage() {
                                 onMouseDown={() => handleAddServiceFromSearch(s)}
                               >
                                 <div style={{ fontWeight: 600, color: "#1e293b", marginBottom: 2 }}>{s.name}</div>
-                                <div style={{ color: "#64748b", fontSize: 12 }}>{s.category?.name || "Uncategorized"} - {formatMoney(s.price)}</div>
+                                <div style={{ color: "#64748b", fontSize: 12 }}>{s.category?.name || "Uncategorized"} • {formatMoney(s.price)} • ⏱️ {s.durationMin || 30} mins</div>
                               </div>
                             ))
                           )}
@@ -2248,13 +2248,19 @@ export default function AppointmentsPage() {
                             <optgroup key={group.title} label={`${group.title} ${serviceGenderFilter !== "ALL" ? `(${serviceGenderFilter === "MALE" ? "M" : "F"})` : ""}`}>
                               {group.items.map((service) => (
                                 <option key={service.id} value={service.id}>
-                                  {service.name} ({formatMoney(service.price)}{Number(service.taxRate || 0) > 0 ? ` +${service.taxRate}% tax` : ""})
+                                  {service.name} ({formatMoney(service.price)} • ⏱️ {service.durationMin || 30} mins{Number(service.taxRate || 0) > 0 ? ` +${service.taxRate}% tax` : ""})
                                 </option>
                               ))}
                             </optgroup>
                           ))}
                         </CustomSelect>
                       </div>
+                      {item.serviceId && (
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f5f9", padding: "3px 8px", borderRadius: 6, fontSize: 11, color: "#475569", fontWeight: 600, marginTop: 4, marginBottom: 8 }}>
+                          <span>⏱️ Duration:</span>
+                          <span style={{ color: "#0284c7" }}>{getServiceDurationMin(item.serviceId)} mins</span>
+                        </div>
+                      )}
 
                       <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>Expert {idx + 1}</label>
                       <div className="sp-input-group">
@@ -2285,11 +2291,14 @@ export default function AppointmentsPage() {
                           </CustomSelect>
                         </div>
                         <div>
-                            <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>To Time (Auto)</label>
-                            <div style={{ padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 13, border: "1px solid #e2e8f0", color: "#64748b" }}>
-                              {item.endAt ? formatTimeForSelect(item.endAt) : "Select service & start time"}
-                            </div>
+                          <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                            <span>To Time (Auto)</span>
+                            {item.serviceId && <span style={{ color: "#0284c7", fontWeight: 600, fontSize: 11 }}>+{getServiceDurationMin(item.serviceId)}m</span>}
+                          </label>
+                          <div style={{ padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 13, border: "1px solid #e2e8f0", color: item.endAt ? "#0f172a" : "#64748b", fontWeight: item.endAt ? 600 : 400 }}>
+                            {item.endAt ? formatTimeForSelect(item.endAt) : "Select service & start time"}
                           </div>
+                        </div>
                       </div>
                     </div>
                   ))}
