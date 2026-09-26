@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Scissors, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, X, ArrowLeft, CheckCircle2, Calendar, XCircle, PlusCircle, Trash2, User, Edit3, FileText, CreditCard, Gift, Wallet, AlertCircle, Package, Users, UserCog, Tag, Phone, StickyNote, Scissors, Clock, Sparkles } from "lucide-react";
 import { api } from "../../api/client";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { useBranch } from '../../context/BranchContext';
@@ -2160,7 +2160,9 @@ export default function AppointmentsPage() {
                   <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: 12 }}>Loading bookings...</div>
                 ) : activeSidebarList.length === 0 ? (
                   <div style={{ padding: "36px 16px", textAlign: "center", color: "#94a3b8" }}>
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>✨</div>
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#f1f5f9", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                      <Sparkles size={20} color="#64748b" />
+                    </div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
                       {sidebarTab === "online" ? "All online bookings assigned!" : "All in-house bookings assigned!"}
                     </div>
