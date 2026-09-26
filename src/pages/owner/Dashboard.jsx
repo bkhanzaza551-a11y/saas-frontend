@@ -686,7 +686,7 @@ export default function OwnerDashboard() {
                 <div>
                   <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>Inbox (Petty Cash Register)</h3>
                   <p style={{ margin: "2px 0 0", fontSize: "0.78rem", color: "#64748b" }}>
-                    Daily Cash Inflows (+) & Expenses Outflow (-) • <strong>{branchName || "All Branches"}</strong>
+                    Daily Cash Inflows & Expenses Outflow • <strong>{branchName || "All Branches"}</strong>
                   </p>
                 </div>
               </div>
@@ -765,7 +765,7 @@ export default function OwnerDashboard() {
               {showQuickExpense && (
                 <form onSubmit={handleAddQuickExpense} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px", marginBottom: 18 }}>
                   <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#0f172a", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Wallet size={16} /> Record Petty Cash Outflow (-)
+                    <Wallet size={16} /> Record Petty Cash Outflow
                   </div>
                   {quickError && <div style={{ background: "#fee2e2", color: "#dc2626", padding: "6px 10px", borderRadius: 6, fontSize: "0.8rem", marginBottom: 10 }}>{quickError}</div>}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 10 }}>
