@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
@@ -7,7 +7,7 @@ import { useBranch } from '../../context/BranchContext';
 import {
   TrendingUp, Users, CreditCard, Scissors, Receipt, Calendar,
   AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Activity,
-  Wallet, UserPlus, AlertCircle, Package, UserCheck
+  Wallet, UserPlus, AlertCircle, Package, UserCheck, Plus, X, ArrowUpRight, ArrowDownRight, RefreshCw, Layers, CheckCircle2
 } from "lucide-react";
 import "./Dashboard.css";
 
@@ -62,6 +62,152 @@ export default function OwnerDashboard() {
 
   const [stockPage, setStockPage] = useState(1);
   const stockPerPage = 5;
+
+  // Inbox (Petty Cash Register) states
+  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
+  const [inboxDate, setInboxDate] = useState(() => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  });
+  const [inboxLoading, setInboxLoading] = useState(false);
+  const [inboxTransactions, setInboxTransactions] = useState([]);
+  const [inboxSummary, setInboxSummary] = useState({ totalIn: 0, totalOut: 0, netBalance: 0, countIn: 0, countOut: 0 });
+  const [inboxCategories, setInboxCategories] = useState([]);
+  const [showQuickExpense, setShowQuickExpense] = useState(false);
+  const [quickForm, setQuickForm] = useState({ title: "", amount: "", categoryId: "", notes: "" });
+  const [quickSubmitting, setQuickSubmitting] = useState(false);
+  const [quickError, setQuickError] = useState("");
+  const [quickSuccess, setQuickSuccess] = useState("");
+
+  const fetchInboxData = useCallback(async (targetDate = inboxDate) => {
+    setInboxLoading(true);
+    setQuickError("");
+    try {
+      const branchParams = selectedBranchId ? { branchId: selectedBranchId } : {};
+      const [expRes, payRes, catRes] = await Promise.all([
+        api.get("/owner/expenses", { params: branchParams }).catch(() => ({ data: [] })),
+        api.get("/owner/payments", { params: branchParams }).catch(() => ({ data: [] })),
+        api.get("/owner/expense-categories", { params: branchParams }).catch(() => ({ data: [] }))
+      ]);
+
+      const expenses = Array.isArray(expRes.data) ? expRes.data : (expRes.data?.data || []);
+      const payments = Array.isArray(payRes.data) ? payRes.data : (payRes.data?.data || []);
+      const categories = Array.isArray(catRes.data) ? catRes.data : (catRes.data?.data || []);
+      setInboxCategories(categories);
+
+      // Filter for target date
+      // Cash Inflows: payments with mode === 'CASH' on targetDate
+      const dateInflows = payments.filter((p) => {
+        if (!p.createdAt) return false;
+        const pDate = new Date(p.createdAt).toISOString().slice(0, 10);
+        const mode = String(p.mode || "").toUpperCase();
+        return pDate === targetDate && (mode === "CASH" || mode === "");
+      }).map((p) => ({
+        id: `pay-${p.id}`,
+        type: "INFLOW",
+        title: `Cash Sale - ${p.invoice?.invoiceNumber || "Invoice"}`,
+        subtitle: p.invoice?.customer?.name ? `Customer: ${p.invoice.customer.name}` : (p.notes || "Cash Collection"),
+        amount: Number(p.amount || 0),
+        time: p.createdAt ? new Date(p.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+        timestamp: new Date(p.createdAt).getTime(),
+        raw: p
+      }));
+
+      // Cash Outflows: expenses with paymentMode === 'CASH' on targetDate
+      const dateOutflows = expenses.filter((e) => {
+        if (!e.expenseDate) return false;
+        const eDate = new Date(e.expenseDate).toISOString().slice(0, 10);
+        const mode = String(e.paymentMode || "").toUpperCase();
+        return eDate === targetDate && (mode === "CASH" || !mode || mode === "NULL");
+      }).map((e) => ({
+        id: `exp-${e.id}`,
+        type: "OUTFLOW",
+        title: e.title || "Cash Expense",
+        subtitle: e.category?.name ? `Category: ${e.category.name}` : (e.notes || "Petty Cash Expense"),
+        amount: Number(e.amount || 0),
+        time: e.expenseDate ? new Date(e.expenseDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+        timestamp: new Date(e.expenseDate).getTime(),
+        raw: e
+      }));
+
+      const totalIn = dateInflows.reduce((sum, item) => sum + item.amount, 0);
+      const totalOut = dateOutflows.reduce((sum, item) => sum + item.amount, 0);
+      const netBalance = totalIn - totalOut;
+
+      const combined = [...dateInflows, ...dateOutflows].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      setInboxTransactions(combined);
+      setInboxSummary({
+        totalIn,
+        totalOut,
+        netBalance,
+        countIn: dateInflows.length,
+        countOut: dateOutflows.length
+      });
+    } catch (err) {
+      console.error("Failed to load inbox data", err);
+    } finally {
+      setInboxLoading(false);
+    }
+  }, [inboxDate, selectedBranchId]);
+
+  useEffect(() => {
+    if (isInboxModalOpen) {
+      fetchInboxData(inboxDate);
+    }
+  }, [isInboxModalOpen, inboxDate, fetchInboxData]);
+
+  const handleAddQuickExpense = async (e) => {
+    e.preventDefault();
+    if (!quickForm.title.trim() || !quickForm.amount || Number(quickForm.amount) <= 0) {
+      setQuickError("Please provide a valid expense title and amount.");
+      return;
+    }
+    setQuickSubmitting(true);
+    setQuickError("");
+    setQuickSuccess("");
+    try {
+      await api.post("/owner/expenses", {
+        title: quickForm.title.trim(),
+        amount: Number(quickForm.amount),
+        categoryId: quickForm.categoryId || (inboxCategories[0]?.id || null),
+        branchId: selectedBranchId || null,
+        expenseDate: new Date(inboxDate + "T12:00:00").toISOString(),
+        paymentMode: "CASH",
+        status: "APPROVED",
+        notes: quickForm.notes.trim() || "Recorded from Inbox Petty Cash"
+      });
+
+      setQuickForm({ title: "", amount: "", categoryId: "", notes: "" });
+      setShowQuickExpense(false);
+      setQuickSuccess("Petty cash expense recorded successfully!");
+      setTimeout(() => setQuickSuccess(""), 4000);
+      await fetchInboxData(inboxDate);
+
+      // Refresh main dashboard
+      if (selectedBranchId) {
+        api.get("/owner/dashboard", { params: { branchId: selectedBranchId } }).then((res) => {
+          setData(res.data);
+        }).catch(() => {});
+      }
+    } catch (err) {
+      setQuickError(err.response?.data?.message || "Failed to record cash expense.");
+    } finally {
+      setQuickSubmitting(false);
+    }
+  };
+
+  const shiftInboxDate = (days) => {
+    const current = new Date(inboxDate + "T00:00:00");
+    current.setDate(current.getDate() + days);
+    const yyyy = current.getFullYear();
+    const mm = String(current.getMonth() + 1).padStart(2, "0");
+    const dd = String(current.getDate()).padStart(2, "0");
+    setInboxDate(`${yyyy}-${mm}-${dd}`);
+  };
 
   useEffect(() => {
     let active = true;
@@ -240,12 +386,13 @@ export default function OwnerDashboard() {
           <p style={{ margin: "4px 0 0 0", fontSize: "0.82rem", color: "#64748b" }}>Real-time salon operations, sales, and branch performance metrics</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div
-            onClick={() => navigate("/admin/expenses")}
+          <button
+            type="button"
+            onClick={() => setIsInboxModalOpen(true)}
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 6,
+              gap: 7,
               fontSize: "0.82rem",
               fontWeight: 700,
               color: "#1e293b",
@@ -253,15 +400,16 @@ export default function OwnerDashboard() {
               padding: "6px 14px",
               borderRadius: 20,
               border: "1px solid #cbd5e1",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              cursor: "pointer"
+              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+              cursor: "pointer",
+              transition: "all 0.15s ease"
             }}
-            title="Inbox (Petty Cash) - Click to manage expenses and cash"
+            title="Open Inbox (Petty Cash Register & Day Breakdown)"
           >
             <Wallet size={14} style={{ color: "#d97706" }} />
             <span>Inbox:</span>
             <span style={{ color: "#059669", fontWeight: 800 }}>{formatMoney(pettyCashBalance)}</span>
-          </div>
+          </button>
           <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e293b", background: "#fff", padding: "6px 14px", borderRadius: 20, border: "1px solid #cbd5e1", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
             📍 {branchName || "All Branches"}
           </span>
@@ -492,6 +640,288 @@ export default function OwnerDashboard() {
           )}
         />
       </div>
+
+      {/* Inbox (Petty Cash Register) Modal */}
+      {isInboxModalOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(15, 23, 42, 0.5)", backdropFilter: "blur(4px)", padding: 16 }}>
+          <div style={{ background: "#ffffff", borderRadius: 20, width: "100%", maxWidth: 760, maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", overflow: "hidden", border: "1px solid #e2e8f0" }}>
+            
+            {/* Header */}
+            <div style={{ padding: "18px 24px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Wallet size={20} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>Inbox (Petty Cash Register)</h3>
+                  <p style={{ margin: "2px 0 0", fontSize: "0.78rem", color: "#64748b" }}>
+                    Daily Cash Inflows (+) & Expenses Outflow (-) • <strong>{branchName || "All Branches"}</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsInboxModalOpen(false)}
+                style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, padding: 6, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
+              
+              {/* Date Filter Toolbar */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 18, background: "#f8fafc", padding: "10px 14px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => shiftInboxDate(-1)}
+                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, padding: "5px 8px", cursor: "pointer", fontSize: "0.8rem", fontWeight: 700 }}
+                    title="Previous Day"
+                  >
+                    ◀ Prev
+                  </button>
+                  <input
+                    type="date"
+                    value={inboxDate}
+                    onChange={(e) => setInboxDate(e.target.value)}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: 6, padding: "5px 10px", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", background: "#fff" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => shiftInboxDate(1)}
+                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, padding: "5px 8px", cursor: "pointer", fontSize: "0.8rem", fontWeight: 700 }}
+                    title="Next Day"
+                  >
+                    Next ▶
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      const yyyy = d.getFullYear();
+                      const mm = String(d.getMonth() + 1).padStart(2, "0");
+                      const dd = String(d.getDate()).padStart(2, "0");
+                      setInboxDate(`${yyyy}-${mm}-${dd}`);
+                    }}
+                    style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontSize: "0.78rem", fontWeight: 700 }}
+                  >
+                    Today
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowQuickExpense(prev => !prev)}
+                    style={{ background: showQuickExpense ? "#e2e8f0" : "#0f172a", color: showQuickExpense ? "#0f172a" : "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    <Plus size={14} />
+                    {showQuickExpense ? "Close Form" : "Add Cash Expense"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsInboxModalOpen(false); navigate("/admin/expenses"); }}
+                    style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: 8, padding: "6px 12px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+                  >
+                    Manage All
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Expense Form (Collapsible) */}
+              {showQuickExpense && (
+                <form onSubmit={handleAddQuickExpense} style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "16px", marginBottom: 18 }}>
+                  <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#92400e", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Wallet size={16} /> Record Petty Cash Outflow (-)
+                  </div>
+                  {quickError && <div style={{ background: "#fee2e2", color: "#dc2626", padding: "6px 10px", borderRadius: 6, fontSize: "0.8rem", marginBottom: 10 }}>{quickError}</div>}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Expense Title *</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Tea/Coffee, Salon Cleaning, Supplies"
+                        value={quickForm.title}
+                        onChange={(e) => setQuickForm({ ...quickForm, title: e.target.value })}
+                        required
+                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Cash Amount (₹) *</label>
+                      <input
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={quickForm.amount}
+                        onChange={(e) => setQuickForm({ ...quickForm, amount: e.target.value })}
+                        required
+                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff", fontWeight: 700 }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Category</label>
+                      <select
+                        value={quickForm.categoryId}
+                        onChange={(e) => setQuickForm({ ...quickForm, categoryId: e.target.value })}
+                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff" }}
+                      >
+                        <option value="">Select Category</option>
+                        {inboxCategories.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickExpense(false)}
+                      style={{ background: "transparent", border: "none", color: "#64748b", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", padding: "6px 12px" }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={quickSubmitting}
+                      style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "6px 16px", fontSize: "0.82rem", fontWeight: 800, cursor: "pointer" }}
+                    >
+                      {quickSubmitting ? "Saving..." : "Save Petty Cash Entry"}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {quickSuccess && (
+                <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#065f46", padding: "8px 12px", borderRadius: 8, fontSize: "0.82rem", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
+                  <CheckCircle2 size={16} /> {quickSuccess}
+                </div>
+              )}
+
+              {/* 3 Summary KPI Cards: Plus, Minus, Equal */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
+                {/* Cash In (+) */}
+                <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, padding: "14px" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "#059669", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>➕ Cash Inflow (Sales)</span>
+                    <span style={{ fontSize: "0.68rem", background: "#d1fae5", padding: "2px 6px", borderRadius: 10 }}>{inboxSummary.countIn} sales</span>
+                  </div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#065f46", marginTop: 6 }}>
+                    + {formatMoney(inboxSummary.totalIn)}
+                  </div>
+                </div>
+
+                {/* Cash Out (-) */}
+                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "14px" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "#dc2626", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>➖ Cash Outflow (Expenses)</span>
+                    <span style={{ fontSize: "0.68rem", background: "#fee2e2", padding: "2px 6px", borderRadius: 10 }}>{inboxSummary.countOut} payouts</span>
+                  </div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#991b1b", marginTop: 6 }}>
+                    - {formatMoney(inboxSummary.totalOut)}
+                  </div>
+                </div>
+
+                {/* Net In-Box Balance (=) */}
+                <div style={{ background: inboxSummary.netBalance >= 0 ? "#eff6ff" : "#fff1f2", border: `1px solid ${inboxSummary.netBalance >= 0 ? "#bfdbfe" : "#fecdd3"}`, borderRadius: 12, padding: "14px" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 800, color: inboxSummary.netBalance >= 0 ? "#2563eb" : "#e11d48", textTransform: "uppercase" }}>
+                    🟰 Net In-Box Cash Balance
+                  </div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 900, color: inboxSummary.netBalance >= 0 ? "#1e40af" : "#9f1239", marginTop: 6 }}>
+                    {formatMoney(inboxSummary.netBalance)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Transactions Ledger */}
+              <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden" }}>
+                <div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontWeight: 800, fontSize: "0.85rem", color: "#334155", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Cash Ledger Breakdown ({inboxDate})</span>
+                  <button
+                    type="button"
+                    onClick={() => fetchInboxData(inboxDate)}
+                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: "0.78rem" }}
+                  >
+                    <RefreshCw size={12} className={inboxLoading ? "animate-spin" : ""} /> Refresh
+                  </button>
+                </div>
+
+                <div style={{ maxHeight: 260, overflowY: "auto" }}>
+                  {inboxLoading ? (
+                    <div style={{ padding: "30px", textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>
+                      Loading cash ledger entries...
+                    </div>
+                  ) : inboxTransactions.length === 0 ? (
+                    <div style={{ padding: "30px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
+                      No cash sales or expenses recorded on {inboxDate}.
+                    </div>
+                  ) : (
+                    inboxTransactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "12px 16px",
+                          borderBottom: "1px solid #f1f5f9",
+                          background: tx.type === "INFLOW" ? "#f0fdf4" : "#fffafb"
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: "50%",
+                            background: tx.type === "INFLOW" ? "#dcfce7" : "#fee2e2",
+                            color: tx.type === "INFLOW" ? "#16a34a" : "#dc2626",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 800
+                          }}>
+                            {tx.type === "INFLOW" ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#0f172a" }}>{tx.title}</div>
+                            <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{tx.subtitle} • {tx.time || "Today"}</div>
+                          </div>
+                        </div>
+                        <div style={{
+                          fontWeight: 800,
+                          fontSize: "0.95rem",
+                          color: tx.type === "INFLOW" ? "#16a34a" : "#dc2626"
+                        }}>
+                          {tx.type === "INFLOW" ? "+" : "-"} {formatMoney(tx.amount)}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ padding: "14px 24px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                Auto-calculated in real time from POS bills and cash expenses
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsInboxModalOpen(false)}
+                style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "7px 18px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
