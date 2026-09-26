@@ -841,6 +841,7 @@ export default function AppointmentsPage() {
 
     setEditMode(false);
     setEditingAppointmentId(null);
+    setGuestSearchInput("");
     setForm({
       customerId: "",
       branchId: staffBranchId || defaultBranchId,
