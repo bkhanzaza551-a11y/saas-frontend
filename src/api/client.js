@@ -39,9 +39,43 @@ export const setAuthSessionHandlers = ({ getCurrentSession, onRefreshSuccess, on
   clearSession = onAuthFailure;
 };
 
+const inFlightMutations = new Map();
+
 api.interceptors.request.use((config) => {
+  const method = (config.method || "get").toLowerCase();
   const url = config.url || "";
   const isAuthEndpoint = url.startsWith("/auth/") || url.includes("/auth/") || url.startsWith("/public/") || url.includes("/public/");
+
+  // Deduplicate in-flight mutating requests (POST, PATCH, PUT, DELETE)
+  if (["post", "patch", "put", "delete"].includes(method) && !isAuthEndpoint && !config._skipDebounce) {
+    let bodyKey = "";
+    try {
+      if (config.data && !(config.data instanceof FormData)) {
+        bodyKey = JSON.stringify(config.data);
+      }
+    } catch {}
+    const requestKey = `${method}:${url}:${bodyKey}`;
+
+    const existing = inFlightMutations.get(requestKey);
+    if (existing) {
+      config.adapter = () => existing.promise;
+      return config;
+    }
+
+    let resolvePromise, rejectPromise;
+    const promise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+      rejectPromise = reject;
+    });
+
+    inFlightMutations.set(requestKey, {
+      promise,
+      resolve: resolvePromise,
+      reject: rejectPromise
+    });
+
+    config._mutationKey = requestKey;
+  }
 
   const session = getSession?.() || getStoredSession();
   const accessToken = session?.accessToken;
@@ -61,8 +95,25 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config?._mutationKey) {
+      const entry = inFlightMutations.get(response.config._mutationKey);
+      if (entry) {
+        entry.resolve(response);
+        setTimeout(() => inFlightMutations.delete(response.config._mutationKey), 800);
+      }
+    }
+    return response;
+  },
   async (error) => {
+    if (error.config?._mutationKey) {
+      const entry = inFlightMutations.get(error.config._mutationKey);
+      if (entry) {
+        entry.reject(error);
+        setTimeout(() => inFlightMutations.delete(error.config._mutationKey), 800);
+      }
+    }
+
     if (error?.__sessionBlocked) {
       return Promise.reject(error);
     }
