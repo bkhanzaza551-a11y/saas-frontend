@@ -364,13 +364,13 @@ export default function CreateCampaignPage() {
               background: '#ecfdf5',
               border: '1px solid #a7f3d0',
               borderRadius: 30,
-              padding: '6px 14px',
+              padding: '4px 10px',
               boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
             }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.84rem', fontWeight: 700, color: '#065f46' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', fontWeight: 700, color: '#065f46' }}>
                 <Smartphone size={16} color="#059669" />
                 WhatsApp Credits:
-                <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#047857' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#047857' }}>
                   {creditsLoading ? '...' : (credits.whatsappCredits || 0).toLocaleString()}
                 </span>
               </span>
@@ -402,13 +402,13 @@ export default function CreateCampaignPage() {
               background: '#eff6ff',
               border: '1px solid #bfdbfe',
               borderRadius: 30,
-              padding: '6px 14px',
+              padding: '4px 10px',
               boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
             }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.84rem', fontWeight: 700, color: '#1e40af' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', fontWeight: 700, color: '#1e40af' }}>
                 <MessageSquare size={16} color="#2563eb" />
                 SMS Credits:
-                <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#1d4ed8' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1d4ed8' }}>
                   {creditsLoading ? '...' : (credits.smsCredits || 0).toLocaleString()}
                 </span>
               </span>
@@ -512,7 +512,7 @@ export default function CreateCampaignPage() {
       {step === 1 && (
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '32px 32px 48px' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Delivery Channel</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Delivery Channel</h2>
             <p style={{ color: '#64748b', marginBottom: 32, fontSize: '0.95rem' }}>Choose how you want to reach your customers.</p>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20 }}>
@@ -584,7 +584,7 @@ export default function CreateCampaignPage() {
       {step === 2 && (
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
           
-          <div style={{ padding: '32px 32px 48px', display: 'flex', gap: 40, flexWrap: 'wrap' }}>
+          <div style={{ padding: '24px 24px 32px', display: 'flex', gap: 24, flexWrap: 'wrap' }}>
             {/* Left Side: Setup */}
             <div style={{ flex: '1 1 400px' }}>
               {/* Channel & Live Credits Status Bar */}
@@ -592,7 +592,7 @@ export default function CreateCampaignPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 18px',
+                padding: '8px 14px',
                 background: channel === 'WHATSAPP' ? '#f0fdf4' : channel === 'SMS' ? '#eff6ff' : '#f8fafc',
                 borderRadius: 12,
                 border: channel === 'WHATSAPP' ? '1px solid #bbf7d0' : channel === 'SMS' ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
@@ -602,8 +602,8 @@ export default function CreateCampaignPage() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
-                    width: 38,
-                    height: 38,
+                    width: 32,
+                    height: 32,
                     borderRadius: 10,
                     background: channel === 'WHATSAPP' ? '#059669' : channel === 'SMS' ? '#2563eb' : '#475569',
                     color: '#fff',
@@ -612,13 +612,13 @@ export default function CreateCampaignPage() {
                     justifyContent: 'center',
                     flexShrink: 0
                   }}>
-                    {channel === 'WHATSAPP' ? <Smartphone size={20} /> : channel === 'SMS' ? <MessageSquare size={20} /> : <Mail size={20} />}
+                    {channel === 'WHATSAPP' ? <Smartphone size={16} /> : channel === 'SMS' ? <MessageSquare size={16} /> : <Mail size={16} />}
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Active Channel
                     </div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>
                       {channel === 'WHATSAPP' ? 'WhatsApp Promotional Message' : channel === 'SMS' ? 'SMS Text Campaign' : 'Email Campaign'}
                     </div>
                   </div>
@@ -626,10 +626,10 @@ export default function CreateCampaignPage() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, display: 'block' }}>
                       {channel === 'WHATSAPP' ? 'Available WhatsApp Credits' : channel === 'SMS' ? 'Available SMS Credits' : 'Pricing'}
                     </span>
-                    <span style={{ fontSize: '1.18rem', fontWeight: 800, color: channel === 'WHATSAPP' ? '#047857' : channel === 'SMS' ? '#1d4ed8' : '#059669' }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 800, color: channel === 'WHATSAPP' ? '#047857' : channel === 'SMS' ? '#1d4ed8' : '#059669' }}>
                       {channel === 'WHATSAPP' 
                         ? (credits.whatsappCredits || 0).toLocaleString() 
                         : channel === 'SMS' 
@@ -646,8 +646,8 @@ export default function CreateCampaignPage() {
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
-                        padding: '7px 14px',
-                        fontSize: '0.78rem',
+                        padding: '5px 12px',
+                        fontSize: '0.72rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         display: 'flex',
@@ -662,7 +662,7 @@ export default function CreateCampaignPage() {
                 </div>
               </div>
 
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Message</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Select Message</h2>
               <p style={{ color: '#64748b', marginBottom: 32, fontSize: '0.95rem' }}>Choose a template and customize the content.</p>
               
               <div style={{ display: 'grid', gap: 24 }}>
@@ -853,7 +853,7 @@ export default function CreateCampaignPage() {
             {/* Right Side: Phone Mockup Preview */}
             <div style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}>
               <div style={{ 
-                width: 320, 
+                width: 280, 
                 height: 600, 
                 background: '#f1f5f9', 
                 borderRadius: 40, 
@@ -950,7 +950,7 @@ export default function CreateCampaignPage() {
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: 12,
-            padding: '12px 18px',
+            padding: '8px 14px',
             background: (channel !== 'EMAIL' && selectedCustomerIds.size > (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits)) ? '#fef2f2' : '#f8fafc',
             borderRadius: 12,
             border: (channel !== 'EMAIL' && selectedCustomerIds.size > (channel === 'WHATSAPP' ? credits.whatsappCredits : credits.smsCredits)) ? '1px solid #fecaca' : '1px solid #e2e8f0',
@@ -1192,7 +1192,7 @@ export default function CreateCampaignPage() {
                 background: '#fef2f2',
                 border: '1px solid #fecaca',
                 borderRadius: 12,
-                padding: '16px 20px',
+                padding: '12px 16px',
                 marginBottom: 24,
                 display: 'flex',
                 alignItems: 'center',
