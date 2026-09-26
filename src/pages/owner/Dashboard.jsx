@@ -227,6 +227,9 @@ export default function OwnerDashboard() {
     upi: 0,
     others: 0
   };
+  const pettyCashBalance = data.pettyCash !== undefined
+    ? Number(data.pettyCash || 0)
+    : Math.max(0, Number(todayFinance.cash || 0) - Number(todayOverview.expenses || 0));
 
   return (
     <div className="page-shell dashboard-page-shell" style={{ maxWidth: 1440, margin: "0 auto", paddingBottom: 40 }}>
@@ -237,6 +240,28 @@ export default function OwnerDashboard() {
           <p style={{ margin: "4px 0 0 0", fontSize: "0.82rem", color: "#64748b" }}>Real-time salon operations, sales, and branch performance metrics</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div
+            onClick={() => navigate("/admin/expenses")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: "0.82rem",
+              fontWeight: 700,
+              color: "#1e293b",
+              background: "#ffffff",
+              padding: "6px 14px",
+              borderRadius: 20,
+              border: "1px solid #cbd5e1",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              cursor: "pointer"
+            }}
+            title="Inbox (Petty Cash) - Click to manage expenses and cash"
+          >
+            <Wallet size={14} style={{ color: "#d97706" }} />
+            <span>Inbox:</span>
+            <span style={{ color: "#059669", fontWeight: 800 }}>{formatMoney(pettyCashBalance)}</span>
+          </div>
           <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e293b", background: "#fff", padding: "6px 14px", borderRadius: 20, border: "1px solid #cbd5e1", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
             📍 {branchName || "All Branches"}
           </span>
