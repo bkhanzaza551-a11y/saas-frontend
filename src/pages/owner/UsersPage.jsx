@@ -879,11 +879,11 @@ export default function UsersPage() {
       <div className="hub-container" style={{ flex: 1, minHeight: 0, display: 'flex' }}>
         {/* Left Sidebar: Directory */}
         <div className={`hub-sidebar ${showMobileDetail ? "users-hide-mobile" : ""}`} style={{ width: 340, display: 'flex', flexDirection: 'column', background: 'white', borderRight: '1px solid #e2e8f0', paddingTop: 0 }}>
-          <div className="hub-sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
-            <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a', fontWeight: 600 }}>Team Directory</h3>
+          <div className="hub-sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+            <h3 style={{ margin: 0, fontSize: 16, color: '#0f172a', fontWeight: 600 }}>Team Directory</h3>
           </div>
           
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
             <PermissionButton
               className="btn-submit"
               style={{ width: '100%', marginBottom: 12, padding: '10px', fontSize: 14 }}
@@ -1028,9 +1028,9 @@ export default function UsersPage() {
                 <div className="responsive-profile-header" style={{ padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     {selectedRow.avatarUrl ? (
-                      <img src={getImageUrl(selectedRow.avatarUrl)} alt="Avatar" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
+                      <img src={getImageUrl(selectedRow.avatarUrl)} alt="Avatar" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', border: '2px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
                     ) : (
-                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, border: '3px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
+                      <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 750, border: '2px solid #e0e7ff', boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
                         {(selectedRow.user?.name || "U")[0].toUpperCase()}
                       </div>
                     )}
@@ -1057,7 +1057,7 @@ export default function UsersPage() {
                       <button
                         type="button"
                         onClick={() => openUnverifiedModal(selectedRow)}
-                        style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)' }}
+                        style={{ padding: '7px 14px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)' }}
                       >
                         <Smartphone size={14} /> Verify & Activate Slot
                       </button>
@@ -1075,7 +1075,7 @@ export default function UsersPage() {
                           <button
                             type="button"
                             onClick={() => toggleUserStatus(selectedRow)}
-                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
+                            style={{ padding: '7px 14px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', border: selectedRow.user?.isActive ? '1px solid #fecaca' : '1px solid #bbf7d0', background: selectedRow.user?.isActive ? '#fef2f2' : '#f0fdf4', color: selectedRow.user?.isActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s ease' }}
                           >
                             {selectedRow.user?.isActive ? "Deactivate Login" : "Activate Login"}
                           </button>
@@ -1084,7 +1084,7 @@ export default function UsersPage() {
                           <button 
                             type="button" 
                             onClick={() => unarchiveUser(selectedRow)}
-                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#eff6ff', color: '#2563eb', transition: 'all 0.15s ease' }}
+                            style={{ padding: '7px 14px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#eff6ff', color: '#2563eb', transition: 'all 0.15s ease' }}
                             onMouseEnter={e => e.currentTarget.style.background = '#dcfce7'}
                             onMouseLeave={e => e.currentTarget.style.background = '#f0fdf4'}
                           >
@@ -1094,7 +1094,7 @@ export default function UsersPage() {
                           <button 
                             type="button" 
                             onClick={() => archiveUser(selectedRow)}
-                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
+                            style={{ padding: '7px 14px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', transition: 'all 0.15s ease' }}
                             onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                             onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
                           >
@@ -1110,7 +1110,7 @@ export default function UsersPage() {
               {selectedRow.isUnverifiedPlaceholder ? (
                 <div className="responsive-profile-padding" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
                   <div style={{ background: '#ffffff', borderRadius: 20, border: '1.5px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}>
-                    <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', padding: '32px 36px', borderBottom: '1px solid #e2e8f0' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', padding: '24px 32px', borderBottom: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                         <span style={{ fontSize: 11, background: '#334155', color: '#ffffff', padding: '3px 10px', borderRadius: 20, fontWeight: 800, letterSpacing: '0.05em' }}>
                           DEFAULT {selectedRow.salonRole} SLOT
@@ -1119,7 +1119,7 @@ export default function UsersPage() {
                           SETUP PENDING
                         </span>
                       </div>
-                      <h2 style={{ margin: '0 0 10px', fontSize: 24, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+                      <h2 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
                         Activate {selectedRow.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member"} Profile
                       </h2>
                       <p style={{ margin: 0, fontSize: 14.5, color: '#475569', lineHeight: 1.6, maxWidth: 650 }}>
@@ -1127,7 +1127,7 @@ export default function UsersPage() {
                       </p>
                     </div>
 
-                    <div style={{ padding: '32px 36px', background: '#fafaf9' }}>
+                    <div style={{ padding: '24px 32px', background: '#fafaf9' }}>
                       <h4 style={{ margin: '0 0 20px', fontSize: 13, fontWeight: 800, color: '#57534e', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                         3-Step Activation Process
                       </h4>
@@ -1197,38 +1197,38 @@ export default function UsersPage() {
               ) : (
                 <div className="responsive-profile-padding" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
                 <div className="responsive-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
-                   <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                   <div style={{ background: 'white', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                       <div style={{ background: '#f0fdf4', padding: 6, borderRadius: 8, color: '#16a34a' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                       <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>Current Role</div>
+                       <div style={{ background: '#f0fdf4', padding: 5, borderRadius: 8, color: '#16a34a' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                       <div style={{ fontSize: 11, textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>Current Role</div>
                      </div>
-                     <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>{selectedRow.roleTitle || selectedRow.customRole?.name || resolveRoleLabel(selectedRow.salonRole)}</div>
-                     <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{selectedRow.phone || "No phone added"}</div>
+                     <div style={{ fontSize: 15.5, fontWeight: 750, color: '#0f172a' }}>{selectedRow.roleTitle || selectedRow.customRole?.name || resolveRoleLabel(selectedRow.salonRole)}</div>
+                     <div style={{ fontSize: 13, color: '#64748b', marginTop: 3 }}>{selectedRow.phone || "No phone added"}</div>
                    </div>
-                   <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                   <div style={{ background: 'white', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                       <div style={{ background: '#eff6ff', padding: 6, borderRadius: 8, color: '#2563eb' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
-                       <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>Page Access</div>
+                       <div style={{ background: '#eff6ff', padding: 5, borderRadius: 8, color: '#2563eb' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                       <div style={{ fontSize: 11, textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>Page Access</div>
                      </div>
-                     <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>{countGrantedModules(selectedRow.permissions || {})} Modules</div>
-                     <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{countGrantedActions(selectedRow.permissions || {})} switches enabled</div>
+                     <div style={{ fontSize: 15.5, fontWeight: 750, color: '#0f172a' }}>{countGrantedModules(selectedRow.permissions || {})} Modules</div>
+                     <div style={{ fontSize: 13, color: '#64748b', marginTop: 3 }}>{countGrantedActions(selectedRow.permissions || {})} switches enabled</div>
                    </div>
-                   <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                   <div style={{ background: 'white', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                       <div style={{ background: '#fef2f2', padding: 6, borderRadius: 8, color: '#dc2626' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
-                       <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>Services</div>
+                       <div style={{ background: '#fef2f2', padding: 5, borderRadius: 8, color: '#dc2626' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                       <div style={{ fontSize: 11, textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>Services</div>
                      </div>
-                     <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>{selectedRow.serviceAssignments?.length || 0} Assigned</div>
-                     <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{selectedRow.showInCatalog ? "Visible in catalog" : "Hidden from catalog"}</div>
+                     <div style={{ fontSize: 15.5, fontWeight: 750, color: '#0f172a' }}>{selectedRow.serviceAssignments?.length || 0} Assigned</div>
+                     <div style={{ fontSize: 13, color: '#64748b', marginTop: 3 }}>{selectedRow.showInCatalog ? "Visible in catalog" : "Hidden from catalog"}</div>
                    </div>
                    {/* Joining Date Card */}
                    {selectedRow.joiningDate && (
-                     <div style={{ background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', gridColumn: '1 / -1' }}>
+                     <div style={{ background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', gridColumn: '1 / -1' }}>
                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                         <div style={{ background: '#e0e7ff', padding: 6, borderRadius: 8, color: '#2563eb' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
-                         <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#334155', fontWeight: 700, letterSpacing: '0.05em' }}>Joining Date</div>
+                         <div style={{ background: '#e0e7ff', padding: 5, borderRadius: 8, color: '#2563eb' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                         <div style={{ fontSize: 11, textTransform: 'uppercase', color: '#334155', fontWeight: 700, letterSpacing: '0.05em' }}>Joining Date</div>
                        </div>
-                       <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>
+                       <div style={{ fontSize: 15.5, fontWeight: 750, color: '#0f172a' }}>
                          {new Date(selectedRow.joiningDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                        </div>
                        <div style={{ fontSize: 13, color: '#475569', marginTop: 4 }}>
@@ -1239,7 +1239,7 @@ export default function UsersPage() {
                 </div>
 
                 <div style={{ background: 'white', borderRadius: 14, border: '1px solid #e2e8f0', padding: 28, boxShadow: '0 4px 16px rgba(15,23,42,0.03)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid #f1f5f9', paddingBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: '1px solid #f1f5f9', paddingBottom: 16 }}>
                     <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Edit Access & Settings</h3>
                     {status.success && <span style={{ color: '#10b981', fontSize: 13, fontWeight: 700, background: '#ecfdf5', padding: '4px 12px', borderRadius: 20, border: '1px solid #a7f3d0' }}>✓ {status.success}</span>}
                     {status.error && <span style={{ color: '#ef4444', fontSize: 13, fontWeight: 700, background: '#fef2f2', padding: '4px 12px', borderRadius: 20, border: '1px solid #fecaca' }}>⚠️ {status.error}</span>}
@@ -1251,7 +1251,7 @@ export default function UsersPage() {
                       <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', borderBottom: '1px solid #e2e8f0', paddingBottom: 10, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity & Scope</h4>
                       
                       {/* PRIMARY: Custom role from Access Control */}
-                      <div style={{ background: '#f0f7ff', border: '1px solid #bae6fd', borderRadius: 14, padding: 18, marginBottom: 24, boxShadow: '0 2px 8px rgba(37,99,235,0.04)' }}>
+                      <div style={{ background: '#f0f7ff', border: '1px solid #bae6fd', borderRadius: 14, padding: 18, marginBottom: 16, boxShadow: '0 2px 8px rgba(37,99,235,0.04)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
                           <div>
                             <div style={{ fontSize: 13, fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1268,7 +1268,7 @@ export default function UsersPage() {
                         </div>
                         <CustomSelect
                           className="hub-input"
-                          style={{ width: '100%', background: '#ffffff', fontSize: 13, fontWeight: 600, height: 42, borderRadius: 10, border: '1px solid #93c5fd' }}
+                          style={{ width: '100%', background: '#ffffff', fontSize: 13, fontWeight: 600, height: 38, borderRadius: 10, border: '1px solid #93c5fd' }}
                           value={form.customRoleId || ""}
                           onChange={(event) => applyCustomRole(event.target.value)}
                         >
@@ -1298,26 +1298,26 @@ export default function UsersPage() {
                       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>System role (fallback)</label>
-                          <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={{ width: '100%', height: 42, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: form.customRoleId ? '#f1f5f9' : '#f8fafc' }}>
+                          <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={{ width: '100%', height: 38, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: form.customRoleId ? '#f1f5f9' : '#f8fafc' }}>
                             {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
                           </CustomSelect>
                           <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 4 }}>Auto-set when access role picked</div>
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Role title (Visible designation)</label>
-                          <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Phone Number</label>
-                          <IndianPhoneInput required={false} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "0 14px", height: 42, borderRadius: 10, border: "1px solid #cbd5e1", background: "#f8fafc", fontSize: 13, fontWeight: 600 }} />
+                          <IndianPhoneInput required={false} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "0 14px", height: 38, borderRadius: 10, border: "1px solid #cbd5e1", background: "#f8fafc", fontSize: 13, fontWeight: 600 }} />
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Profile Avatar</label>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 42 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 38 }}>
                             {form.avatarUrl ? (
-                              <img src={getImageUrl(form.avatarUrl)} alt="Avatar" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid #cbd5e1' }} />
+                              <img src={getImageUrl(form.avatarUrl)} alt="Avatar" style={{ width: 40, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1px solid #cbd5e1' }} />
                             ) : (
-                              <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                              <div style={{ width: 40, height: 36, borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                               </div>
                             )}
@@ -1393,34 +1393,34 @@ export default function UsersPage() {
                       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Date of Joining</label>
-                          <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
 
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Department</label>
-                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="e.g. Hair, Therapy, Admin" style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
 
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Working Hours</label>
-                          <div style={{ display: "flex", gap: 8, alignItems: "center", height: 42 }}>
+                          <div style={{ display: "flex", gap: 8, alignItems: "center", height: 38 }}>
                             <input type="time" className="hub-input" value={form.workingHoursStart || ""} onChange={e => {
                               const start = e.target.value;
                               const end = form.workingHoursEnd || "";
                               setForm({ ...form, workingHoursStart: start, workingHours: start && end ? `${start} - ${end}` : start || "" });
-                            }} style={{ flex: 1, height: 42, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
+                            }} style={{ flex: 1, height: 38, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
                             <span style={{ color: "#64748b", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>to</span>
                             <input type="time" className="hub-input" value={form.workingHoursEnd || ""} onChange={e => {
                               const end = e.target.value;
                               const start = form.workingHoursStart || "";
                               setForm({ ...form, workingHoursEnd: end, workingHours: start && end ? `${start} - ${end}` : "" });
-                            }} style={{ flex: 1, height: 42, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
+                            }} style={{ flex: 1, height: 38, padding: '0 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }} />
                           </div>
                         </div>
 
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Reporting To</label>
-                          <CustomSelect className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })} style={{ width: "100%", height: 42, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }}>
+                          <CustomSelect className="hub-input" value={form.reportingToId} onChange={(event) => setForm({ ...form, reportingToId: event.target.value })} style={{ width: "100%", height: 38, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc' }}>
                             <option value="">None / Self</option>
                             {rows.map((r) => r.id !== selectedRow?.id && <option key={r.id} value={r.id}>{r.user?.name || r.phone}</option>)}
                           </CustomSelect>
@@ -1428,7 +1428,7 @@ export default function UsersPage() {
 
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>UAN Number</label>
-                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" maxLength={12} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.uanNumber} onChange={(event) => setForm({ ...form, uanNumber: event.target.value })} placeholder="12-digit UAN" maxLength={12} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>
@@ -1439,19 +1439,19 @@ export default function UsersPage() {
                       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Bank Name</label>
-                          <input type="text" className="hub-input" value={form.bankName} onChange={(event) => setForm({ ...form, bankName: event.target.value })} placeholder="e.g. HDFC Bank" maxLength={200} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.bankName} onChange={(event) => setForm({ ...form, bankName: event.target.value })} placeholder="e.g. HDFC Bank" maxLength={200} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Branch Name</label>
-                          <input type="text" className="hub-input" value={form.bankBranch} onChange={(event) => setForm({ ...form, bankBranch: event.target.value })} placeholder="Branch Area" maxLength={200} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.bankBranch} onChange={(event) => setForm({ ...form, bankBranch: event.target.value })} placeholder="Branch Area" maxLength={200} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>Account Number</label>
-                          <input type="text" className="hub-input" value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} placeholder="Account No." maxLength={18} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} placeholder="Account No." maxLength={18} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>IFSC / Routing Code</label>
-                          <input type="text" className="hub-input" value={form.ifscCode} onChange={(event) => setForm({ ...form, ifscCode: event.target.value.toUpperCase() })} placeholder="IFSC Code" maxLength={11} style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', textTransform: 'uppercase', boxSizing: 'border-box' }} />
+                          <input type="text" className="hub-input" value={form.ifscCode} onChange={(event) => setForm({ ...form, ifscCode: event.target.value.toUpperCase() })} placeholder="IFSC Code" maxLength={11} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', textTransform: 'uppercase', boxSizing: 'border-box' }} />
                         </div>
                       </div>
                     </div>
@@ -1566,7 +1566,7 @@ export default function UsersPage() {
                       <span>Phone</span>
                       <span style={{ color: "#dc2626", fontWeight: 700 }}>*</span>
                     </label>
-                    <IndianPhoneInput required={true} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} style={{ height: 42, border: "1px solid #cbd5e1" }} inputStyle={{ padding: "0 14px", height: "100%" }} />
+                    <IndianPhoneInput required={true} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} style={{ height: 38, border: "1px solid #cbd5e1" }} inputStyle={{ padding: "0 14px", height: "100%" }} />
                   </div>
                   <div className="hub-form-group">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 20, minHeight: 20, marginBottom: 6 }}>
@@ -1597,12 +1597,12 @@ export default function UsersPage() {
 
                 <div className="hub-form-group" style={{ marginBottom: 16 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Role Title (Designation)</label>
-                  <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 42, boxSizing: 'border-box' }} />
+                  <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 38, boxSizing: 'border-box' }} />
                 </div>
 
                 <div className="hub-form-group" style={{ marginBottom: 16 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Branch Assignment</label>
-                  <div style={{ padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, color: "#334155", background: "#f8fafc", height: 42, display: 'flex', alignItems: 'center' }}>
+                  <div style={{ padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, color: "#334155", background: "#f8fafc", height: 38, display: 'flex', alignItems: 'center' }}>
                     {selectedBranchId ? (branches.find(b => b.id === selectedBranchId)?.name || "Selected Branch") : "All Branches"}
                   </div>
                   <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>Auto-assigned from topbar branch selector</div>
@@ -1868,10 +1868,10 @@ export default function UsersPage() {
               <div className="hub-modal-footer" style={{ background: "#f8fafc", padding: "16px 24px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: staffOtpStep === 2 ? "space-between" : "flex-end", alignItems: "center", gap: 12 }}>
                 {staffOtpStep === 1 ? (
                   <>
-                    <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}>
+                    <button type="button" className="btn-cancel" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ minHeight: 36, height: 36, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}>
                       Cancel
                     </button>
-                    <button type="submit" disabled={submittingStaff} className="btn-submit" style={{ minHeight: 40, height: 40, padding: "8px 22px", borderRadius: 10, fontWeight: 700, fontSize: 13.5, background: "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    <button type="submit" disabled={submittingStaff} className="btn-submit" style={{ minHeight: 36, height: 36, padding: "8px 22px", borderRadius: 10, fontWeight: 700, fontSize: 13.5, background: "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)", display: "inline-flex", alignItems: "center", gap: 8 }}>
                       {submittingStaff ? (
                         <>
                           <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
@@ -1884,7 +1884,7 @@ export default function UsersPage() {
                   </>
                 ) : (
                   <>
-                    <button type="button" className="btn-cancel" onClick={() => { setStaffOtpStep(1); setStatus({}); }} style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}>
+                    <button type="button" className="btn-cancel" onClick={() => { setStaffOtpStep(1); setStatus({}); }} style={{ minHeight: 36, height: 36, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}>
                       ← Edit Details
                     </button>
                     <button
@@ -1892,8 +1892,8 @@ export default function UsersPage() {
                       disabled={submittingStaff || !form.otpCode || form.otpCode.length < 6}
                       className="btn-submit"
                       style={{
-                        minHeight: 40,
-                        height: 40,
+                        minHeight: 36,
+                        height: 36,
                         padding: "8px 24px",
                         borderRadius: 10,
                         fontWeight: 700,
@@ -2007,7 +2007,7 @@ export default function UsersPage() {
                         setUnverifiedForm({ ...unverifiedForm, phone });
                         if (status.error) setStatus((c) => ({ ...c, error: "" }));
                       }}
-                      style={{ height: 44, border: "1.5px solid #cbd5e1", borderRadius: 10 }}
+                      style={{ height: 38, border: "1.5px solid #cbd5e1", borderRadius: 10 }}
                       inputStyle={{ padding: "0 14px", height: "100%", fontSize: 14 }}
                     />
                   </div>
@@ -2018,7 +2018,7 @@ export default function UsersPage() {
                     type="button"
                     className="btn-cancel"
                     onClick={() => setUnverifiedModalOpen(false)}
-                    style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
+                    style={{ minHeight: 36, height: 36, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
                   >
                     Cancel
                   </button>
@@ -2027,8 +2027,8 @@ export default function UsersPage() {
                     disabled={unverifiedSubmitting || !unverifiedForm.phone}
                     className="btn-submit"
                     style={{
-                      minHeight: 40,
-                      height: 40,
+                      minHeight: 36,
+                      height: 36,
                       padding: "8px 22px",
                       borderRadius: 10,
                       fontWeight: 700,
@@ -2103,7 +2103,7 @@ export default function UsersPage() {
                     type="button"
                     className="btn-cancel"
                     onClick={() => { setUnverifiedStep(1); setStatus((c) => ({ ...c, error: "" })); }}
-                    style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
+                    style={{ minHeight: 36, height: 36, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
                   >
                     ← Change Phone
                   </button>
@@ -2112,8 +2112,8 @@ export default function UsersPage() {
                     disabled={!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6}
                     className="btn-submit"
                     style={{
-                      minHeight: 40,
-                      height: 40,
+                      minHeight: 36,
+                      height: 36,
                       padding: "8px 22px",
                       borderRadius: 10,
                       fontWeight: 700,
@@ -2153,7 +2153,7 @@ export default function UsersPage() {
                       value={unverifiedForm.name}
                       onChange={(e) => setUnverifiedForm({ ...unverifiedForm, name: e.target.value })}
                       placeholder="e.g. Ramesh Kumar"
-                      style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
                     />
                   </div>
 
@@ -2168,7 +2168,7 @@ export default function UsersPage() {
                       value={unverifiedForm.email}
                       onChange={(e) => setUnverifiedForm({ ...unverifiedForm, email: e.target.value })}
                       placeholder="e.g. ramesh@salon.com"
-                      style={{ width: '100%', height: 42, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
                     />
                   </div>
 
@@ -2185,7 +2185,7 @@ export default function UsersPage() {
                     type="button"
                     className="btn-cancel"
                     onClick={() => { setUnverifiedStep(2); setStatus((c) => ({ ...c, error: "" })); }}
-                    style={{ minHeight: 40, height: 40, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
+                    style={{ minHeight: 36, height: 36, padding: "8px 18px", borderRadius: 10, fontWeight: 600, fontSize: 13.5 }}
                   >
                     ← Back
                   </button>
@@ -2194,8 +2194,8 @@ export default function UsersPage() {
                     disabled={unverifiedSubmitting || !unverifiedForm.email || !unverifiedForm.name}
                     className="btn-submit"
                     style={{
-                      minHeight: 40,
-                      height: 40,
+                      minHeight: 36,
+                      height: 36,
                       padding: "8px 24px",
                       borderRadius: 10,
                       fontWeight: 700,
