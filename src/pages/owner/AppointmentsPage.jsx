@@ -3259,31 +3259,51 @@ export default function AppointmentsPage() {
 
             {/* Content */}
             <form onSubmit={handleAssignStaffSubmit} style={{ padding: "20px" }}>
-              {/* Summary Rows like Image 3 */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18, fontSize: 13, color: "#475569" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
-                  <span style={{ color: "#64748b" }}>Booking ID</span>
-                  <span style={{ fontWeight: 700, color: "#0f172a" }}>{getBookingDisplayId(assigningAppt)}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
-                  <span style={{ color: "#64748b" }}>Customer</span>
-                  <span style={{ fontWeight: 700, color: "#0f172a" }}>{assigningAppt.customer?.name || "Customer"}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
-                  <span style={{ color: "#64748b" }}>Service</span>
-                  <span style={{ fontWeight: 700, color: "#0f172a" }}>{assigningAppt.items?.[0]?.service?.name || "Hair Cut"}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
-                  <span style={{ color: "#64748b" }}>Date & Time</span>
-                    <span style={{ fontWeight: 700, color: "#0f172a" }}>
-                      {new Date(assigningAppt.startAt).toLocaleString("en-GB", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
-                  <span style={{ color: "#64748b" }}>Type</span>
-                  <span style={{ fontWeight: 700, color: "#0f172a" }}>At Store</span>
-                </div>
-              </div>
+              {/* Summary Rows */}
+              {(() => {
+                const assigningService = assigningAppt.items?.[0]?.service || services.find(s => s.id === assigningAppt.items?.[0]?.serviceId);
+                const assigningServiceName = assigningService?.name || assigningAppt.items?.[0]?.service?.name || "Service";
+                const assigningDuration = assigningService?.durationMin || assigningService?.durationMinutes || assigningAppt.items?.[0]?.service?.durationMinutes || (() => {
+                  const start = new Date(assigningAppt.startAt).getTime();
+                  const end = new Date(assigningAppt.endAt).getTime();
+                  const diff = (end - start) / 60000;
+                  return isNaN(diff) || diff <= 0 ? 30 : Math.round(diff);
+                })();
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18, fontSize: 13, color: "#475569" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                      <span style={{ color: "#64748b" }}>Booking ID</span>
+                      <span style={{ fontWeight: 700, color: "#0f172a" }}>{getBookingDisplayId(assigningAppt)}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                      <span style={{ color: "#64748b" }}>Customer</span>
+                      <span style={{ fontWeight: 700, color: "#0f172a" }}>{assigningAppt.customer?.name || "Customer"}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                      <span style={{ color: "#64748b" }}>Service</span>
+                      <span style={{ fontWeight: 700, color: "#0f172a" }}>{assigningServiceName}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                      <span style={{ color: "#64748b" }}>Duration</span>
+                      <span style={{ fontWeight: 700, color: "#0f172a", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        <Clock size={13} color="#64748b" />
+                        <span>{assigningDuration} mins</span>
+                      </span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                      <span style={{ color: "#64748b" }}>Date & Time</span>
+                      <span style={{ fontWeight: 700, color: "#0f172a" }}>
+                        {new Date(assigningAppt.startAt).toLocaleString("en-GB", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", alignItems: "center" }}>
+                      <span style={{ color: "#64748b" }}>Type</span>
+                      <span style={{ fontWeight: 700, color: "#0f172a" }}>At Store</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Timing Adjustment Row */}
               <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 18 }}>
