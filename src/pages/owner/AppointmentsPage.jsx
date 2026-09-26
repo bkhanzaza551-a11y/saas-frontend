@@ -61,6 +61,21 @@ const getBookingDisplayId = (appt) => {
 
 const formatTimeForSelect = (isoString) => {
   if (!isoString) return "";
+  if (typeof isoString === "string" && isoString.includes("T")) {
+    const timePart = isoString.split("T")[1];
+    if (timePart) {
+      const parts = timePart.split(":");
+      let h = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      if (!isNaN(h) && !isNaN(m)) {
+        const ampm = h >= 12 ? "PM" : "AM";
+        const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+        const hourText = String(hour12).padStart(2, "0");
+        const minuteText = String(m).padStart(2, "0");
+        return `${hourText}:${minuteText} ${ampm}`;
+      }
+    }
+  }
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return "";
   
@@ -80,16 +95,19 @@ const combineDateAndTime = (baseDate, timeString) => {
   if (!timeString) return "";
   const match = timeString.match(/(\d+):(\d+)\s*(AM|PM)/i);
   if (!match) return "";
-  let hours = parseInt(match[1]);
-  const minutes = parseInt(match[2]);
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
   const ampm = match[3].toUpperCase();
   if (ampm === "PM" && hours < 12) hours += 12;
   if (ampm === "AM" && hours === 12) hours = 0;
   
-  const d = new Date(baseDate);
-  d.setHours(hours, minutes, 0, 0);
-  
-  return d.toISOString();
+  const b = new Date(baseDate);
+  const yyyy = b.getFullYear();
+  const mm = String(b.getMonth() + 1).padStart(2, "0");
+  const dd = String(b.getDate()).padStart(2, "0");
+  const hh = String(hours).padStart(2, "0");
+  const min = String(minutes).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 };
 
 const getLocalDateKey = (value) => {
@@ -715,18 +733,8 @@ export default function AppointmentsPage() {
       setStatus({ error: "", success: "" });
     }
 
-    const [time, modifier] = timeSlot.split(" ");
-    let [hours, minutes] = time.split(":");
-    hours = Number.parseInt(hours, 10);
-    if (hours === 12 && modifier === "AM") hours = 0;
-    if (hours < 12 && modifier === "PM") hours += 12;
-
-    const startDate = new Date(currentDate);
-    startDate.setHours(hours, Number.parseInt(minutes, 10), 0, 0);
-    const endDate = new Date(startDate.getTime() + DEFAULT_APPOINTMENT_DURATION_MINUTES * 60000);
-
-    const startAtStr = new Date(startDate.getTime() - (startDate.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-    const endAtStr = new Date(endDate.getTime() - (endDate.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+    const startAtStr = combineDateAndTime(currentDate, timeSlot);
+    const endAtStr = addMinutesToLocalInput(startAtStr, DEFAULT_APPOINTMENT_DURATION_MINUTES);
     const staffBranchId = staffUsers.find((staff) => staff.id === staffId)?.branchId || "";
 
     const defaultBranchId = branches.find(b => b.name.toLowerCase().includes("main"))?.id || branches[0]?.id || "";
@@ -2277,28 +2285,14 @@ export default function AppointmentsPage() {
                       </div>
 
                       <div className="add-link" style={{ margin: "12px 0", cursor: "pointer" }} onClick={() => { const nextItems = [...form.items]; const nextItem = { ...nextItems[idx], staffUserIds: [...(nextItems[idx].staffUserIds || []), ""] }; nextItems[idx] = nextItem; setForm((current) => ({ ...current, items: nextItems })); }}>Add more staff +</div>
-                      <div className="sp-time-grid">
-                        <div>
-                          <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>From Time</label>
-                          <CustomSelect className="sp-input" value={item.startAt ? formatTimeForSelect(item.startAt) : ""} onChange={(event) => handleUpdateItem(idx, "startAt", combineDateAndTime(currentDate, event.target.value))} required>
-                            <option value="">Select Time</option>
-                            {TIME_SLOTS.filter(slot => {
-                              if (!item.endAt) return true;
-                              const endIdx = TIME_SLOT_INDEX.get(formatTimeForSelect(item.endAt)) ?? TIME_SLOTS.length;
-                              const slotIdx = TIME_SLOT_INDEX.get(slot) ?? 0;
-                              return slotIdx < endIdx;
-                            }).map(slot => <option key={slot} value={slot}>{slot}</option>)}
-                          </CustomSelect>
-                        </div>
-                        <div>
-                          <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                            <span>To Time (Auto)</span>
-                            {item.serviceId && <span style={{ color: "#0284c7", fontWeight: 600, fontSize: 11 }}>+{getServiceDurationMin(item.serviceId)}m</span>}
-                          </label>
-                          <div style={{ padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 13, border: "1px solid #e2e8f0", color: item.endAt ? "#0f172a" : "#64748b", fontWeight: item.endAt ? 600 : 400 }}>
-                            {item.endAt ? formatTimeForSelect(item.endAt) : "Select service & start time"}
-                          </div>
-                        </div>
+                      <div className="sp-input-group" style={{ marginTop: 8 }}>
+                        <label style={{ fontSize: "0.8rem", color: "#94a3b8", display: "block", marginBottom: 4 }}>From Time</label>
+                        <CustomSelect className="sp-select" value={item.startAt ? formatTimeForSelect(item.startAt) : ""} onChange={(event) => handleUpdateItem(idx, "startAt", combineDateAndTime(currentDate, event.target.value))} required>
+                          <option value="">Select Time</option>
+                          {TIME_SLOTS.map((slot) => (
+                            <option key={slot} value={slot}>{slot}</option>
+                          ))}
+                        </CustomSelect>
                       </div>
                     </div>
                   ))}
