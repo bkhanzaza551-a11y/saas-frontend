@@ -2006,13 +2006,13 @@ export default function AppointmentsPage() {
             {onlineSidebarOpen ? (
               <>
                 {/* Segmented Switcher for Online vs Unassigned */}
-                <div style={{ display: "flex", background: "#f1f5f9", padding: 3, borderRadius: 8, gap: 4, flex: 1 }}>
+                <div style={{ display: "flex", background: "#f1f5f9", padding: 3, borderRadius: 8, gap: 4, flex: 1, border: "1px solid #e2e8f0" }}>
                   <button
                     type="button"
                     onClick={() => setSidebarTab("online")}
                     style={{
                       flex: 1,
-                      padding: "5px 8px",
+                      padding: "6px 8px",
                       fontSize: 12,
                       fontWeight: 700,
                       borderRadius: 6,
@@ -2021,10 +2021,10 @@ export default function AppointmentsPage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: 5,
-                      background: sidebarTab === "online" ? "#ffffff" : "transparent",
-                      color: sidebarTab === "online" ? "#2563eb" : "#64748b",
-                      boxShadow: sidebarTab === "online" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                      gap: 6,
+                      background: sidebarTab === "online" ? "#0f172a" : "transparent",
+                      color: sidebarTab === "online" ? "#ffffff" : "#64748b",
+                      boxShadow: sidebarTab === "online" ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
                       transition: "all 0.15s ease"
                     }}
                   >
@@ -2033,10 +2033,10 @@ export default function AppointmentsPage() {
                       style={{
                         fontSize: 10,
                         fontWeight: 800,
-                        padding: "1px 5px",
-                        borderRadius: 8,
-                        background: sidebarTab === "online" ? "#eff6ff" : "#e2e8f0",
-                        color: sidebarTab === "online" ? "#2563eb" : "#64748b"
+                        padding: "1px 6px",
+                        borderRadius: 999,
+                        background: sidebarTab === "online" ? "rgba(255,255,255,0.2)" : "#e2e8f0",
+                        color: sidebarTab === "online" ? "#ffffff" : "#475569"
                       }}
                     >
                       {todayUnassignedOnline.length}
@@ -2047,7 +2047,7 @@ export default function AppointmentsPage() {
                     onClick={() => setSidebarTab("unassigned")}
                     style={{
                       flex: 1,
-                      padding: "5px 8px",
+                      padding: "6px 8px",
                       fontSize: 12,
                       fontWeight: 700,
                       borderRadius: 6,
@@ -2056,10 +2056,10 @@ export default function AppointmentsPage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: 5,
-                      background: sidebarTab === "unassigned" ? "#ffffff" : "transparent",
-                      color: sidebarTab === "unassigned" ? "#d97706" : "#64748b",
-                      boxShadow: sidebarTab === "unassigned" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                      gap: 6,
+                      background: sidebarTab === "unassigned" ? "#0f172a" : "transparent",
+                      color: sidebarTab === "unassigned" ? "#ffffff" : "#64748b",
+                      boxShadow: sidebarTab === "unassigned" ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
                       transition: "all 0.15s ease"
                     }}
                   >
@@ -2068,10 +2068,10 @@ export default function AppointmentsPage() {
                       style={{
                         fontSize: 10,
                         fontWeight: 800,
-                        padding: "1px 5px",
-                        borderRadius: 8,
-                        background: sidebarTab === "unassigned" ? "#fef3c7" : "#e2e8f0",
-                        color: sidebarTab === "unassigned" ? "#d97706" : "#64748b"
+                        padding: "1px 6px",
+                        borderRadius: 999,
+                        background: sidebarTab === "unassigned" ? "rgba(255,255,255,0.2)" : "#e2e8f0",
+                        color: sidebarTab === "unassigned" ? "#ffffff" : "#475569"
                       }}
                     >
                       {todayUnassignedInHouse.length}
@@ -2092,11 +2092,11 @@ export default function AppointmentsPage() {
                 <button
                   type="button"
                   onClick={() => { setSidebarTab("online"); setOnlineSidebarOpen(true); }}
-                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#2563eb", padding: "4px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#0f172a", padding: "4px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }}
                   title="Expand Online Bookings"
                 >
                   <ChevronLeft size={16} />
-                  <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#1e40af", letterSpacing: 0.5 }}>
+                  <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#0f172a", letterSpacing: 0.5 }}>
                     Online ({todayUnassignedOnline.length})
                   </span>
                 </button>
@@ -2104,11 +2104,11 @@ export default function AppointmentsPage() {
                 <button
                   type="button"
                   onClick={() => { setSidebarTab("unassigned"); setOnlineSidebarOpen(true); }}
-                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#d97706", padding: "4px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "#0f172a", padding: "4px 2px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }}
                   title="Expand Unassigned Bookings"
                 >
                   <ChevronLeft size={16} />
-                  <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#b45309", letterSpacing: 0.5 }}>
+                  <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 11, fontWeight: 700, color: "#0f172a", letterSpacing: 0.5 }}>
                     Unassigned ({todayUnassignedInHouse.length})
                   </span>
                 </button>
@@ -2119,15 +2119,17 @@ export default function AppointmentsPage() {
           {onlineSidebarOpen && (
             <>
               {/* Scope tabs */}
-              <div style={{ display: "flex", padding: "6px 10px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", gap: 6 }}>
+              <div style={{ display: "flex", padding: "6px 10px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", gap: 6 }}>
                 <button
                   type="button"
                   onClick={() => setOnlineTabScope("today")}
                   style={{
-                    flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
+                    flex: 1, padding: "6px 0", fontSize: 11, fontWeight: 700, borderRadius: 6,
+                    border: onlineTabScope === "today" ? "1px solid #cbd5e1" : "1px solid transparent",
+                    cursor: "pointer",
                     background: onlineTabScope === "today" ? "#ffffff" : "transparent",
-                    color: onlineTabScope === "today" ? (sidebarTab === "online" ? "#2563eb" : "#d97706") : "#64748b",
-                    boxShadow: onlineTabScope === "today" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
+                    color: onlineTabScope === "today" ? "#0f172a" : "#64748b",
+                    boxShadow: onlineTabScope === "today" ? "0 1px 2px rgba(0,0,0,0.05)" : "none"
                   }}
                 >
                   Selected Date ({sidebarTab === "online" ? todayUnassignedOnline.length : todayUnassignedInHouse.length})
@@ -2140,10 +2142,12 @@ export default function AppointmentsPage() {
                     else loadAllPendingUnassigned();
                   }}
                   style={{
-                    flex: 1, padding: "5px 0", fontSize: 11, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
+                    flex: 1, padding: "6px 0", fontSize: 11, fontWeight: 700, borderRadius: 6,
+                    border: onlineTabScope === "all" ? "1px solid #cbd5e1" : "1px solid transparent",
+                    cursor: "pointer",
                     background: onlineTabScope === "all" ? "#ffffff" : "transparent",
-                    color: onlineTabScope === "all" ? (sidebarTab === "online" ? "#2563eb" : "#d97706") : "#64748b",
-                    boxShadow: onlineTabScope === "all" ? "0 1px 3px rgba(0,0,0,0.08)" : "none"
+                    color: onlineTabScope === "all" ? "#0f172a" : "#64748b",
+                    boxShadow: onlineTabScope === "all" ? "0 1px 2px rgba(0,0,0,0.05)" : "none"
                   }}
                 >
                   All Pending ({sidebarTab === "online" ? allPendingOnlineAppts.length : allPendingUnassignedAppts.length})
@@ -2151,13 +2155,13 @@ export default function AppointmentsPage() {
               </div>
 
               {/* Cards list */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "10px", display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "12px", display: "flex", flexDirection: "column", gap: 10 }}>
                 {allPendingLoading && onlineTabScope === "all" ? (
                   <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: 12 }}>Loading bookings...</div>
                 ) : activeSidebarList.length === 0 ? (
                   <div style={{ padding: "36px 16px", textAlign: "center", color: "#94a3b8" }}>
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>🎉</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>✨</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
                       {sidebarTab === "online" ? "All online bookings assigned!" : "All in-house bookings assigned!"}
                     </div>
                     <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
@@ -2171,7 +2175,6 @@ export default function AppointmentsPage() {
                     const serviceDuration = appt.items?.[0]?.service?.durationMinutes;
                     const apptTime = new Date(appt.startAt).toLocaleTimeString([], { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
                     const apptDate = new Date(appt.startAt).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short" });
-                    const isOnline = appt.bookingChannel === "ONLINE" || Boolean(appt.isOnline);
 
                     return (
                       <div
@@ -2180,74 +2183,98 @@ export default function AppointmentsPage() {
                           background: "#ffffff",
                           border: "1px solid #e2e8f0",
                           borderRadius: 10,
-                          padding: "12px",
-                          boxShadow: "0 2px 6px rgba(15,23,42,0.04)",
+                          padding: "12px 14px",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                           display: "flex",
                           flexDirection: "column",
-                          gap: 6,
-                          borderLeft: isOnline ? "4px solid #3b82f6" : "4px solid #f59e0b"
+                          gap: 8
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <span
                             style={{
                               fontSize: 11,
-                              fontWeight: 800,
-                              color: isOnline ? "#1e3a8a" : "#92400e",
-                              background: isOnline ? "#eff6ff" : "#fef3c7",
-                              padding: "2px 6px",
-                              borderRadius: 4
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              background: "#f1f5f9",
+                              border: "1px solid #e2e8f0",
+                              padding: "2px 7px",
+                              borderRadius: 6,
+                              letterSpacing: "0.3px"
                             }}
                           >
                             {bookingId}
                           </span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>
-                            {apptTime} <span style={{ color: "#94a3b8", fontWeight: 500 }}>({apptDate})</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }}>
+                            {apptTime} <span style={{ color: "#64748b", fontWeight: 500, fontSize: 11 }}>({apptDate})</span>
                           </span>
                         </div>
 
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-                            {appt.customer?.name || "Guest Customer"}
+                            {appt.customer?.name || "Walk-in Guest"}
                           </div>
                           {appt.customer?.phone && (
-                            <div style={{ fontSize: 11, color: "#64748b" }}>
-                              {appt.customer.phone}
+                            <div style={{ fontSize: 11, color: "#64748b", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                              <Phone size={11} color="#94a3b8" />
+                              <span>{appt.customer.phone}</span>
                             </div>
                           )}
                         </div>
 
-                        <div style={{ fontSize: 12, color: "#334155", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                          <Scissors size={14} style={{ flexShrink: 0 }} />
-                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {serviceName} {serviceDuration ? `(${serviceDuration}m)` : ""}
-                          </span>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#334155",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            fontWeight: 600,
+                            background: "#f8fafc",
+                            padding: "6px 10px",
+                            borderRadius: 6,
+                            border: "1px solid #f1f5f9"
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, overflow: "hidden" }}>
+                            <Scissors size={13} style={{ flexShrink: 0, color: "#64748b" }} />
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {serviceName}
+                            </span>
+                          </div>
+                          {serviceDuration && (
+                            <span style={{ fontSize: 11, color: "#64748b", fontWeight: 500, flexShrink: 0 }}>
+                              {serviceDuration}m
+                            </span>
+                          )}
                         </div>
 
                         <button
                           type="button"
                           onClick={() => openAssignModal(appt)}
                           style={{
-                            marginTop: 4,
+                            marginTop: 2,
                             width: "100%",
-                            padding: "7px 12px",
-                            background: isOnline
-                              ? "linear-gradient(135deg, #2563eb, #1d4ed8)"
-                              : "linear-gradient(135deg, #d97706, #b45309)",
-                            color: "white",
+                            padding: "8px 12px",
+                            background: "#0f172a",
+                            color: "#ffffff",
                             border: "none",
                             borderRadius: 8,
                             fontSize: 12,
-                            fontWeight: 700,
+                            fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             gap: 6,
-                            transition: "all 0.15s ease"
+                            transition: "all 0.15s ease",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.06)"
                           }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "#1e293b"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = "#0f172a"; }}
                         >
-                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><User size={14} /> Assign Staff</span>
+                          <User size={13} />
+                          <span>Assign Staff</span>
                         </button>
                       </div>
                     );
