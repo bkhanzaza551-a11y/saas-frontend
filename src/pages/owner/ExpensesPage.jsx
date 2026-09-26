@@ -1553,25 +1553,59 @@ export default function ExpensesPage() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Type / Category</label>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <label className="form-label" style={{ margin: 0 }}>Type / Category</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddModal(false);
+                          navigate("/admin/expenses/types");
+                        }}
+                        style={{
+                          fontSize: 11.5,
+                          color: "#2563eb",
+                          background: "#eff6ff",
+                          border: "1px solid #bfdbfe",
+                          borderRadius: 6,
+                          padding: "2px 8px",
+                          cursor: "pointer",
+                          fontWeight: 700,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          transition: "all 0.15s ease"
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "#dbeafe"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "#eff6ff"; }}
+                        title="Create or manage expense types"
+                      >
+                        + Add Type
+                      </button>
+                    </div>
                     <CustomSelect 
-                      
                       style={{ width: "100%" }}
                       value={form.categoryId}
-                      onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                      onChange={(e) => {
+                        if (e.target.value === "__ADD_TYPE__") {
+                          setShowAddModal(false);
+                          navigate("/admin/expenses/types");
+                          return;
+                        }
+                        setForm({ ...form, categoryId: e.target.value });
+                      }}
                       required
                     >
                       <option value="">Select Category</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
+                      <option value="__ADD_TYPE__">➕ + Add New Type</option>
                     </CustomSelect>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Payment Mode</label>
+                    <label className="form-label" style={{ marginBottom: 6, display: "block" }}>Payment Mode</label>
                     <CustomSelect 
-                      
                       style={{ width: "100%" }}
                       value={form.paymentMode}
                       onChange={(e) => setForm({ ...form, paymentMode: e.target.value })}

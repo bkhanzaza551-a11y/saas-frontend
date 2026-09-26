@@ -763,16 +763,32 @@ export default function OwnerDashboard() {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Category</label>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                        <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", margin: 0 }}>Category</label>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/admin/expenses/types")}
+                          style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", padding: 0, textDecoration: "underline" }}
+                        >
+                          + Add Type
+                        </button>
+                      </div>
                       <select
                         value={quickForm.categoryId}
-                        onChange={(e) => setQuickForm({ ...quickForm, categoryId: e.target.value })}
+                        onChange={(e) => {
+                          if (e.target.value === "__ADD_TYPE__") {
+                            navigate("/admin/expenses/types");
+                            return;
+                          }
+                          setQuickForm({ ...quickForm, categoryId: e.target.value });
+                        }}
                         style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff" }}
                       >
                         <option value="">Select Category</option>
                         {inboxCategories.map((c) => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
+                        <option value="__ADD_TYPE__">➕ + Add New Type</option>
                       </select>
                     </div>
                   </div>
