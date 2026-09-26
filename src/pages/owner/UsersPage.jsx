@@ -978,7 +978,7 @@ export default function UsersPage() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <strong style={{ color: isUnverified ? '#92400e' : (isActive ? '#2563eb' : '#0f172a') }}>
+                    <strong style={{ color: isUnverified ? '#0f172a' : (isActive ? '#2563eb' : '#0f172a') }}>
                       {row.user?.name}
                     </strong>
                     {isUnverified ? (
@@ -991,12 +991,12 @@ export default function UsersPage() {
                       <span className={`staff-status-dot ${row.user?.isActive ? "live" : "muted"}`} style={{ width: 8, height: 8, borderRadius: '50%', background: row.user?.isActive ? '#10b981' : '#94a3b8' }} />
                     )}
                   </div>
-                  <div style={{ fontSize: 13, color: isUnverified ? '#b45309' : '#64748b', marginBottom: 4 }}>
+                  <div style={{ fontSize: 13, color: isUnverified ? '#475569' : '#64748b', marginBottom: 4 }}>
                     {row.roleTitle || row.customRole?.name || resolveRoleLabel(row.salonRole)}
                   </div>
                   <div style={{ fontSize: 12, color: isUnverified ? '#2563eb' : '#94a3b8' }}>
                     {isUnverified ? (
-                      <span>⚡ Click to verify phone & send setup email</span>
+                      <span>Click to verify phone & send setup email</span>
                     ) : (
                       <>{row.branch?.name || "All branches"} • {moduleCount} enabled modules • {row.attendanceEnabled ? "Attendance Ready" : "Attendance Off"}</>
                     )}
@@ -1084,7 +1084,7 @@ export default function UsersPage() {
                           <button 
                             type="button" 
                             onClick={() => unarchiveUser(selectedRow)}
-                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#f0fdf4', color: '#16a34a', transition: 'all 0.15s ease' }}
+                            style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid #86efac', background: '#eff6ff', color: '#2563eb', transition: 'all 0.15s ease' }}
                             onMouseEnter={e => e.currentTarget.style.background = '#dcfce7'}
                             onMouseLeave={e => e.currentTarget.style.background = '#f0fdf4'}
                           >
@@ -1143,7 +1143,7 @@ export default function UsersPage() {
                         </div>
 
                         <div style={{ background: 'white', border: '1px solid #e7e5e4', borderRadius: 14, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
                             2
                           </div>
                           <div style={{ fontSize: 14, fontWeight: 750, color: '#1c1917' }}>Email & Name</div>
@@ -1153,7 +1153,7 @@ export default function UsersPage() {
                         </div>
 
                         <div style={{ background: 'white', border: '1px solid #e7e5e4', borderRadius: 14, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#faf5ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15 }}>
                             3
                           </div>
                           <div style={{ fontSize: 14, fontWeight: 750, color: '#1c1917' }}>Password by Email</div>
@@ -1175,7 +1175,7 @@ export default function UsersPage() {
                             padding: '12px 24px',
                             borderRadius: 12,
                             border: 'none',
-                            background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                             color: 'white',
                             fontSize: 14,
                             fontWeight: 750,
@@ -1223,15 +1223,15 @@ export default function UsersPage() {
                    </div>
                    {/* Joining Date Card */}
                    {selectedRow.joiningDate && (
-                     <div style={{ background: 'linear-gradient(135deg, #fef9c3, #fef3c7)', padding: 20, borderRadius: 12, border: '1px solid #fde68a', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', gridColumn: '1 / -1' }}>
+                     <div style={{ background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', gridColumn: '1 / -1' }}>
                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                          <div style={{ background: '#e0e7ff', padding: 6, borderRadius: 8, color: '#2563eb' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
                          <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#334155', fontWeight: 700, letterSpacing: '0.05em' }}>Joining Date</div>
                        </div>
-                       <div style={{ fontSize: 18, fontWeight: 700, color: '#78350f' }}>
+                       <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>
                          {new Date(selectedRow.joiningDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                        </div>
-                       <div style={{ fontSize: 13, color: '#92400e', marginTop: 4 }}>
+                       <div style={{ fontSize: 13, color: '#475569', marginTop: 4 }}>
                          {Math.floor((new Date() - new Date(selectedRow.joiningDate)) / (1000 * 60 * 60 * 24 * 30))} months with the team
                        </div>
                      </div>
@@ -1991,7 +1991,7 @@ export default function UsersPage() {
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e0e7ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <Smartphone size={20} />
                     </div>
-                    <div style={{ fontSize: 12.5, color: '#92400e', lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 12.5, color: '#475569', lineHeight: 1.5 }}>
                       We'll send a 6-digit SMS OTP to verify the mobile number for this {unverifiedTargetSlot?.salonRole === "MANAGER" ? "manager" : "staff"} slot.
                     </div>
                   </div>
@@ -2118,7 +2118,7 @@ export default function UsersPage() {
                       borderRadius: 10,
                       fontWeight: 700,
                       fontSize: 13.5,
-                      background: (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) ? '#94a3b8' : "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+                      background: (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) ? '#94a3b8' : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
                       color: "white",
                       border: "none",
                       cursor: (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) ? "not-allowed" : "pointer"
