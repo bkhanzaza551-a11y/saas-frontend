@@ -974,7 +974,7 @@ export default function UsersPage() {
                     borderBottom: '1px solid #e2e8f0', 
                     cursor: 'pointer', 
                     background: isActive ? '#f1f5f9' : 'white',
-                    borderLeft: isUnverified ? (isActive ? '4px solid #d97706' : '4px solid #fcd34d') : (isActive ? '4px solid #2563eb' : '4px solid transparent')
+                    borderLeft: isUnverified ? (isActive ? '4px solid #2563eb' : '4px solid #bfdbfe') : (isActive ? '4px solid #2563eb' : '4px solid transparent')
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
@@ -982,7 +982,7 @@ export default function UsersPage() {
                       {row.user?.name}
                     </strong>
                     {isUnverified ? (
-                      <span style={{ fontSize: 10, background: '#fef3c7', color: '#b45309', padding: '2px 7px', borderRadius: 4, fontWeight: 800, border: '1px solid #fde68a' }}>
+                      <span style={{ fontSize: 10, background: '#f1f5f9', color: '#475569', padding: '2px 7px', borderRadius: 4, fontWeight: 800, border: '1px solid #e2e8f0' }}>
                         UNVERIFIED
                       </span>
                     ) : row.isArchived ? (
@@ -994,7 +994,7 @@ export default function UsersPage() {
                   <div style={{ fontSize: 13, color: isUnverified ? '#b45309' : '#64748b', marginBottom: 4 }}>
                     {row.roleTitle || row.customRole?.name || resolveRoleLabel(row.salonRole)}
                   </div>
-                  <div style={{ fontSize: 12, color: isUnverified ? '#d97706' : '#94a3b8' }}>
+                  <div style={{ fontSize: 12, color: isUnverified ? '#2563eb' : '#94a3b8' }}>
                     {isUnverified ? (
                       <span>⚡ Click to verify phone & send setup email</span>
                     ) : (
@@ -1163,7 +1163,7 @@ export default function UsersPage() {
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', background: '#ffffff', border: '1.5px dashed #d97706', borderRadius: 16, flexWrap: 'wrap', gap: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', background: '#ffffff', border: '1.5px dashed #2563eb', borderRadius: 16, flexWrap: 'wrap', gap: 14 }}>
                         <div>
                           <div style={{ fontSize: 15, fontWeight: 750, color: '#1c1917' }}>Ready to assign this slot?</div>
                           <div style={{ fontSize: 13, color: '#78716c', marginTop: 2 }}>Takes under 1 minute with SMS verification</div>
@@ -1225,8 +1225,8 @@ export default function UsersPage() {
                    {selectedRow.joiningDate && (
                      <div style={{ background: 'linear-gradient(135deg, #fef9c3, #fef3c7)', padding: 20, borderRadius: 12, border: '1px solid #fde68a', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', gridColumn: '1 / -1' }}>
                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                         <div style={{ background: '#fef3c7', padding: 6, borderRadius: 8, color: '#d97706' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
-                         <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#92400e', fontWeight: 700, letterSpacing: '0.05em' }}>Joining Date</div>
+                         <div style={{ background: '#e0e7ff', padding: 6, borderRadius: 8, color: '#2563eb' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                         <div style={{ fontSize: 12, textTransform: 'uppercase', color: '#334155', fontWeight: 700, letterSpacing: '0.05em' }}>Joining Date</div>
                        </div>
                        <div style={{ fontSize: 18, fontWeight: 700, color: '#78350f' }}>
                          {new Date(selectedRow.joiningDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -1289,7 +1289,7 @@ export default function UsersPage() {
                           return (
                             <div style={{ marginTop: 10, fontSize: 12, color: '#1e40af', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 12 }}>
                               <span>✓ Permissions loaded: <strong>{grantedModules}</strong> module{grantedModules === 1 ? "" : "s"}</span>
-                              {sel.isSystemPreset && <span style={{ background: '#fef3c7', color: '#92400e', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, border: '1px solid #fde68a' }}>PRESET</span>}
+                              {sel.isSystemPreset && <span style={{ background: '#f1f5f9', color: '#475569', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, border: '1px solid #e2e8f0' }}>PRESET</span>}
                             </div>
                           );
                         })()}
@@ -1987,8 +1987,8 @@ export default function UsersPage() {
             {unverifiedStep === 1 && (
               <form onSubmit={handleUnverifiedSendOtp}>
                 <div style={{ padding: '24px 24px 20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, marginBottom: 20 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, marginBottom: 20 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e0e7ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <Smartphone size={20} />
                     </div>
                     <div style={{ fontSize: 12.5, color: '#92400e', lineHeight: 1.5 }}>
@@ -2059,7 +2059,7 @@ export default function UsersPage() {
             {unverifiedStep === 2 && (
               <form onSubmit={handleUnverifiedVerifyOtp}>
                 <div style={{ padding: '28px 24px 20px', textAlign: 'center' }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 16, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: '#e0e7ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                     <KeyRound size={24} />
                   </div>
                   <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Enter Verification Code</h3>
@@ -2077,20 +2077,20 @@ export default function UsersPage() {
                       length={6}
                       autoFocus={true}
                       error={Boolean(status.error)}
-                      brandColor="#d97706"
+                      brandColor="#2563eb"
                     />
                   </div>
 
                   <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12.5, color: '#64748b' }}>
                     <span>Didn't receive code?</span>
                     {unverifiedResendCountdown > 0 ? (
-                      <span style={{ fontWeight: 700, color: '#d97706' }}>Resend in {unverifiedResendCountdown}s</span>
+                      <span style={{ fontWeight: 700, color: '#2563eb' }}>Resend in {unverifiedResendCountdown}s</span>
                     ) : (
                       <button
                         type="button"
                         onClick={handleUnverifiedSendOtp}
                         disabled={unverifiedSubmitting}
-                        style={{ background: 'none', border: 'none', color: '#d97706', fontWeight: 700, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                        style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 700, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
                       >
                         Resend OTP
                       </button>
