@@ -238,6 +238,7 @@ export default function AppointmentsPage() {
   const [staffAvailabilityLoading, setStaffAvailabilityLoading] = useState(false);
   const [assignBusy, setAssignBusy] = useState(false);
   const [assignError, setAssignError] = useState("");
+  const [submittingAppointment, setSubmittingAppointment] = useState(false);
 
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [newGuestForm, setNewGuestForm] = useState({ name: "", phone: "", email: "", gender: "FEMALE", dateOfBirth: "", anniversary: "", gst: "", notes: "" });
@@ -986,7 +987,9 @@ export default function AppointmentsPage() {
   };
 
   const handleConfirmSubmit = async () => {
+    if (submittingAppointment) return;
     const activeItems = form.items.filter((item) => item.serviceId && item.startAt && item.endAt);
+    setSubmittingAppointment(true);
     try {
       const payloadItems = activeItems.map((item) => ({
         ...item,
@@ -997,6 +1000,7 @@ export default function AppointmentsPage() {
       if (!payloadItems.length) {
         setStatus({ error: "Please select at least one service item.", success: "" });
         setShowConfirmModal(false);
+        setSubmittingAppointment(false);
         return;
       }
       if (!editMode) {
@@ -1005,6 +1009,7 @@ export default function AppointmentsPage() {
           if (new Date(item.startAt) < nowWithBuffer) {
             setStatus({ error: "Cannot create appointments for past dates or past time slots. Please select a valid future date and time.", success: "" });
             setShowConfirmModal(false);
+            setSubmittingAppointment(false);
             return;
           }
         }
@@ -1044,6 +1049,8 @@ export default function AppointmentsPage() {
     } catch (error) {
       setStatus({ error: formatApiError(error, editMode ? "Could not update appointment" : "Could not create appointment"), success: "" });
       setShowConfirmModal(false);
+    } finally {
+      setSubmittingAppointment(false);
     }
   };
   const handleCheckIn = async (event) => {
@@ -2629,12 +2636,14 @@ export default function AppointmentsPage() {
       {showConfirmModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1201, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "white", borderRadius: 12, padding: 24, width: "100%", maxWidth: 450, boxShadow: "none", position: "relative" }}>
-            <button type="button" onClick={() => setShowConfirmModal(false)} style={{ position: "absolute", top: 12, right: 12, background: "#f1f5f9", border: "none", borderRadius: "50%", cursor: "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#475569" }}><X size={16} /></button>
+            <button type="button" disabled={submittingAppointment} onClick={() => setShowConfirmModal(false)} style={{ position: "absolute", top: 12, right: 12, background: "#f1f5f9", border: "none", borderRadius: "50%", cursor: submittingAppointment ? "not-allowed" : "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#475569" }}><X size={16} /></button>
             <h3 style={{ color: "var(--accent, #3b82f6)", marginTop: 0, marginBottom: 16, fontSize: "1.1rem", fontWeight: 600 }}>{editMode ? "Confirm Update" : "Create & Confirm Appointment"}</h3>
             <p style={{ color: "#475569", fontSize: "0.95rem", marginBottom: 24 }}>{editMode ? "Are you sure you want to update these services?" : "Are you sure, you want to create & confirm an appointment?"}</p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-              <button type="button" onClick={() => setShowConfirmModal(false)} style={{ padding: "8px 20px", border: "1px solid var(--accent, #3b82f6)", background: "#f1f5f9", color: "var(--accent, #3b82f6)", borderRadius: 6, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }} onMouseOver={(e) => e.target.style.background = "#e2e8f0"} onMouseOut={(e) => e.target.style.background = "#f1f5f9"}>NO</button>
-              <button type="button" onClick={handleConfirmSubmit} style={{ padding: "8px 20px", border: "none", background: "var(--button-bg-solid, #3b82f6)", color: "white", borderRadius: 6, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }} onMouseOver={(e) => e.target.style.background = "#2563eb"} onMouseOut={(e) => e.target.style.background = "#3b82f6"}>YES</button>
+              <button type="button" disabled={submittingAppointment} onClick={() => setShowConfirmModal(false)} style={{ padding: "8px 20px", border: "1px solid var(--accent, #3b82f6)", background: "#f1f5f9", color: "var(--accent, #3b82f6)", borderRadius: 6, fontWeight: 600, cursor: submittingAppointment ? "not-allowed" : "pointer", opacity: submittingAppointment ? 0.5 : 1, transition: "all 0.2s" }} onMouseOver={(e) => !submittingAppointment && (e.target.style.background = "#e2e8f0")} onMouseOut={(e) => !submittingAppointment && (e.target.style.background = "#f1f5f9")}>NO</button>
+              <button type="button" disabled={submittingAppointment} onClick={handleConfirmSubmit} style={{ padding: "8px 20px", border: "none", background: submittingAppointment ? "#94a3b8" : "var(--button-bg-solid, #3b82f6)", color: "white", borderRadius: 6, fontWeight: 600, cursor: submittingAppointment ? "not-allowed" : "pointer", transition: "all 0.2s" }} onMouseOver={(e) => !submittingAppointment && (e.target.style.background = "#2563eb")} onMouseOut={(e) => !submittingAppointment && (e.target.style.background = "#3b82f6")}>
+                {submittingAppointment ? "Creating..." : "YES"}
+              </button>
             </div>
           </div>
         </div>
