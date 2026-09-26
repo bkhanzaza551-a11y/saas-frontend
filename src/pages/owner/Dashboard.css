@@ -29,7 +29,7 @@
 
 .dashboard-kpi-subgrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
   gap: 8px;
   width: 100%;
 }
@@ -73,12 +73,7 @@
   }
 }
 
-@media (max-width: 1380px) and (min-width: 1201px) {
-  .dashboard-kpi-subgrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-}
+
 
 @media (max-width: 768px) {
   .dashboard-top-kpi-grid {
@@ -86,11 +81,7 @@
   }
 }
 
-@media (max-width: 480px) {
-  .dashboard-kpi-subgrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+
 
 .kpi-grid {
   display: grid;
