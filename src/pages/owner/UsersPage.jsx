@@ -1522,7 +1522,7 @@ export default function UsersPage() {
             {staffOtpStep === 1 ? (
               <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "16px 22px", borderBottom: "1px solid #e2e8f0" }}>
                 <div style={{ fontSize: 16, fontWeight: 750, color: "#0f172a", letterSpacing: "-0.01em" }}>Create New Staff Profile</div>
-                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", borderRadius: "50%" }}><X size={18} /></button>
+                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}><X size={18} /></button>
               </div>
             ) : (
               <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "14px 20px", borderBottom: "1px solid #e2e8f0" }}>
@@ -1530,7 +1530,7 @@ export default function UsersPage() {
                   <ArrowLeft size={16} /> Back to details
                 </button>
                 <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>Phone Verification</span>
-                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", borderRadius: "50%" }}><X size={18} /></button>
+                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}><X size={18} /></button>
               </div>
             )}
             
@@ -1963,7 +1963,7 @@ export default function UsersPage() {
               <button
                 type="button"
                 onClick={() => { setUnverifiedModalOpen(false); setStatus((c) => ({ ...c, error: "" })); }}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", borderRadius: "50%" }}
+                style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}
               >
                 <X size={18} />
               </button>
