@@ -2256,7 +2256,7 @@ export default function AppointmentsPage() {
                             <optgroup key={group.title} label={`${group.title} ${serviceGenderFilter !== "ALL" ? `(${serviceGenderFilter === "MALE" ? "M" : "F"})` : ""}`}>
                               {group.items.map((service) => (
                                 <option key={service.id} value={service.id}>
-                                  {service.name} ({formatMoney(service.price)} • ⏱️ {service.durationMin || 30} mins{Number(service.taxRate || 0) > 0 ? ` +${service.taxRate}% tax` : ""})
+                                  {service.name} ({formatMoney(service.price)}{Number(service.taxRate || 0) > 0 ? ` +${service.taxRate}% tax` : ""})
                                 </option>
                               ))}
                             </optgroup>
@@ -2264,7 +2264,7 @@ export default function AppointmentsPage() {
                         </CustomSelect>
                       </div>
                       {item.serviceId && (
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f5f9", padding: "3px 8px", borderRadius: 6, fontSize: 11, color: "#475569", fontWeight: 600, marginTop: 4, marginBottom: 8 }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f0f9ff", border: "1px solid #bae6fd", padding: "4px 10px", borderRadius: 8, fontSize: 12, color: "#0369a1", fontWeight: 700, marginTop: 4, marginBottom: 8 }}>
                           <span>⏱️ Duration:</span>
                           <span style={{ color: "#0284c7" }}>{getServiceDurationMin(item.serviceId)} mins</span>
                         </div>
