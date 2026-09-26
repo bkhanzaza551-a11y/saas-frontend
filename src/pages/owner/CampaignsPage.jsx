@@ -66,6 +66,38 @@ export default function CampaignsPage() {
       return 0;
     });
 
+  const getCampaignSentCount = (c) => {
+    if (!c) return 0;
+    if (typeof c.sentCount === 'number' && c.sentCount > 0) return c.sentCount;
+    
+    if (Array.isArray(c.logs)) {
+      for (const log of c.logs) {
+        if (typeof log?.details === 'string') {
+          const match = log.details.match(/sent\s*(\d+)/i);
+          if (match) return parseInt(match[1], 10);
+        }
+      }
+    }
+
+    if (Array.isArray(c.whatsappLogs) && c.whatsappLogs.length > 0) {
+      const validLogs = c.whatsappLogs.filter((w) => w.status === 'SENT' || w.status === 'DELIVERED' || w.status === 'READ' || !w.status);
+      return validLogs.length || c.whatsappLogs.length;
+    }
+
+    if (c.status === 'SENT') {
+      const audMeta = c.audienceMeta || {};
+      if (Array.isArray(audMeta.selectedIds) && audMeta.selectedIds.length > 0) {
+        return audMeta.selectedIds.length;
+      }
+      if (typeof audMeta.audienceCount === 'number' && audMeta.audienceCount > 0) {
+        return audMeta.audienceCount;
+      }
+      return 1;
+    }
+
+    return 0;
+  };
+
   const statusColor = (s) => {
     if (s === "SENT") return { bg: "#dcfce7", color: "#166534" };
     if (s === "SCHEDULED") return { bg: "#fef9c3", color: "#854d0e" };
@@ -193,6 +225,7 @@ export default function CampaignsPage() {
             <tbody>
               {filtered.map((c) => {
                 const sc = statusColor(c.status);
+                const sentCount = getCampaignSentCount(c);
                 return (
                   <tr key={c.id}>
                     <td style={{ fontWeight: 600, color: "#0f172a" }}>{c.name}</td>
@@ -206,7 +239,7 @@ export default function CampaignsPage() {
                         {c.status}
                       </span>
                     </td>
-                    <td>{c.sentCount || 0}</td>
+                    <td style={{ fontWeight: 600, color: "#0f172a" }}>{sentCount}</td>
                     <td>₹{c.revenue || 0}</td>
                     <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                     <td>
@@ -265,8 +298,8 @@ export default function CampaignsPage() {
                 {/* Stats Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
                   {[
-                    { icon: <Send size={20} color="#4f46e5" />, label: 'Messages Sent', value: reportCampaign.sentCount || reportData?.campaign?.logs?.length || 0, bg: '#eef2ff' },
-                    { icon: <Users size={20} color="#059669" />, label: 'Recipients', value: reportData?.campaign?.audienceMeta?.selectedIds?.length || reportCampaign.sentCount || 0, bg: '#ecfdf5' },
+                    { icon: <Send size={20} color="#4f46e5" />, label: 'Messages Sent', value: reportData?.sentCount || getCampaignSentCount(reportCampaign) || getCampaignSentCount(reportData?.campaign) || 0, bg: '#eef2ff' },
+                    { icon: <Users size={20} color="#059669" />, label: 'Recipients', value: reportData?.campaign?.audienceMeta?.selectedIds?.length || reportCampaign?.audienceMeta?.selectedIds?.length || getCampaignSentCount(reportCampaign) || getCampaignSentCount(reportData?.campaign) || 1, bg: '#ecfdf5' },
                     { icon: <Calendar size={20} color="#0ea5e9" />, label: 'Sent On', value: new Date(reportCampaign.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), bg: '#f0f9ff' },
                   ].map((stat, i) => (
                     <div key={i} style={{ background: stat.bg, borderRadius: 12, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
