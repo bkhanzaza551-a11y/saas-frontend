@@ -170,7 +170,7 @@ export default function UsersPage() {
     setUnverifiedTargetSlot(slot);
     setUnverifiedStep(1);
     setUnverifiedForm({
-      name: slot?.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member",
+      name: "",
       phone: "",
       email: "",
       otpCode: ""
@@ -1956,7 +1956,7 @@ export default function UsersPage() {
                     Activate {unverifiedTargetSlot?.salonRole === "MANAGER" ? "Salon Manager" : "Staff Member"}
                   </div>
                   <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 1 }}>
-                    Step {unverifiedStep} of 3 • {unverifiedStep === 1 ? "Mobile Number" : unverifiedStep === 2 ? "SMS Verification" : "Email & Password Setup"}
+                    Step {unverifiedStep} of 3 • {unverifiedStep === 1 ? "Mobile Number" : unverifiedStep === 2 ? "SMS Verification" : "Name & Official Email"}
                   </div>
                 </div>
               </div>
@@ -2130,7 +2130,7 @@ export default function UsersPage() {
               </form>
             )}
 
-            {/* Step 3: Enter Staff Name & Email Address */}
+            {/* Step 3: Enter Staff/Manager Name & Email Address */}
             {unverifiedStep === 3 && (
               <form onSubmit={handleUnverifiedSubmit}>
                 <div style={{ padding: '24px 24px 20px' }}>
@@ -2144,15 +2144,16 @@ export default function UsersPage() {
 
                   <div className="hub-form-group" style={{ marginBottom: 16 }}>
                     <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block' }}>
-                      Staff Member Name <span style={{ color: '#dc2626' }}>*</span>
+                      {unverifiedTargetSlot?.salonRole === "MANAGER" ? "Manager Name / Username" : "Staff Member Name / Username"} <span style={{ color: '#dc2626' }}>*</span>
                     </label>
                     <input
                       type="text"
                       required
+                      autoFocus
                       className="hub-input"
                       value={unverifiedForm.name}
                       onChange={(e) => setUnverifiedForm({ ...unverifiedForm, name: e.target.value })}
-                      placeholder="e.g. Ramesh Kumar"
+                      placeholder={unverifiedTargetSlot?.salonRole === "MANAGER" ? "Enter manager name (e.g. Rahul Sharma)" : "Enter staff member name (e.g. Ramesh Kumar)"}
                       style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
                     />
                   </div>
@@ -2167,7 +2168,7 @@ export default function UsersPage() {
                       className="hub-input"
                       value={unverifiedForm.email}
                       onChange={(e) => setUnverifiedForm({ ...unverifiedForm, email: e.target.value })}
-                      placeholder="e.g. ramesh@salon.com"
+                      placeholder={unverifiedTargetSlot?.salonRole === "MANAGER" ? "e.g. manager@salon.com" : "e.g. staff@salon.com"}
                       style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, boxSizing: 'border-box' }}
                     />
                   </div>
@@ -2175,7 +2176,7 @@ export default function UsersPage() {
                   <div style={{ padding: '12px 14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                     <Mail size={18} color="#2563eb" style={{ flexShrink: 0, marginTop: 2 }} />
                     <div style={{ fontSize: 12, color: '#1e40af', lineHeight: 1.5 }}>
-                      Upon clicking <strong>Activate & Send Password Link</strong>, the system will send an email invitation with a secure link so the staff member can create their own password and log in.
+                      Upon clicking <strong>Activate & Send Password Link</strong>, the profile for <strong>{unverifiedForm.name.trim() || (unverifiedTargetSlot?.salonRole === "MANAGER" ? "Manager" : "Staff Member")}</strong> will be saved and an invitation link will be sent to <strong>{unverifiedForm.email || "their official email"}</strong> to set up their password.
                     </div>
                   </div>
                 </div>
