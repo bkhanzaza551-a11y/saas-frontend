@@ -1067,7 +1067,7 @@ export default function CreateCampaignPage() {
 
           {/* Filter Modal Overlay */}
           {isFilterModalOpen && (
-            <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(255,255,255,0.8)", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: 60 }}>
+            <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.5)", backdropFilter: "blur(4px)", zIndex: 99999, display: "flex", justifyContent: "center", alignItems: "center" }}>
               <div style={{ width: 400, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.1)", border: "1px solid #e2e8f0", padding: 24 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                   <h3 style={{ margin: 0, fontSize: "1.2rem" }}>Filters</h3>
