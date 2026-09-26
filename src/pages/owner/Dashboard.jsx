@@ -763,14 +763,14 @@ export default function OwnerDashboard() {
 
               {/* Quick Expense Form (Collapsible) */}
               {showQuickExpense && (
-                <form onSubmit={handleAddQuickExpense} style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "16px", marginBottom: 18 }}>
-                  <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#92400e", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                <form onSubmit={handleAddQuickExpense} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px", marginBottom: 18 }}>
+                  <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#0f172a", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
                     <Wallet size={16} /> Record Petty Cash Outflow (-)
                   </div>
                   {quickError && <div style={{ background: "#fee2e2", color: "#dc2626", padding: "6px 10px", borderRadius: 6, fontSize: "0.8rem", marginBottom: 10 }}>{quickError}</div>}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 10 }}>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Expense Title *</label>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: 3 }}>Expense Title *</label>
                       <input
                         type="text"
                         placeholder="e.g. Tea/Coffee, Salon Cleaning, Supplies"
@@ -781,7 +781,7 @@ export default function OwnerDashboard() {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Cash Amount (₹) *</label>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: 3 }}>Cash Amount (₹) *</label>
                       <input
                         type="number"
                         min="1"
@@ -794,7 +794,7 @@ export default function OwnerDashboard() {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#78350f", display: "block", marginBottom: 3 }}>Category</label>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: 3 }}>Category</label>
                       <select
                         value={quickForm.categoryId}
                         onChange={(e) => {
@@ -825,7 +825,7 @@ export default function OwnerDashboard() {
                     <button
                       type="submit"
                       disabled={quickSubmitting}
-                      style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "6px 16px", fontSize: "0.82rem", fontWeight: 800, cursor: "pointer" }}
+                      style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 6, padding: "6px 16px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
                     >
                       {quickSubmitting ? "Saving..." : "Save Petty Cash Entry"}
                     </button>
