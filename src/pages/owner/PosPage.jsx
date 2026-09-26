@@ -1751,7 +1751,10 @@ export default function PosPage() {
   };
 
   const handlePrintReceipt = async () => {
-    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    const w = 400; const h = 600;
+      const left = (window.screen.width / 2) - (w / 2);
+      const top = (window.screen.height / 2) - (h / 2);
+      const printWindow = window.open('', '_blank', `width=${w},height=${h},left=${left},top=${top}`);
     if (!printWindow) {
       setToastMessage({ type: "error", title: "Popup Blocked", message: "Please allow popups to print the receipt." });
       return;
