@@ -736,7 +736,13 @@ export default function UsersPage() {
     startTransition(() => {
       setSelectedId(rowId);
       const row = filteredRows.find((r) => r.id === rowId);
-      if (row) startEdit(row);
+      if (row) {
+        if (row.isUnverifiedPlaceholder) {
+          openUnverifiedModal(row);
+        } else {
+          startEdit(row);
+        }
+      }
       setShowMobileDetail(true);
     });
   };
