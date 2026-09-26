@@ -888,11 +888,12 @@ export default function OwnerDashboard() {
                 </div>
 
                 <div style={{ maxHeight: 260, overflowY: "auto" }}>
-                  {inboxLoading ? (
-                    <div style={{ padding: "30px", textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>
-                      Loading cash ledger entries...
-                    </div>
-                  ) : inboxTransactions.length === 0 ? (
+                                      {inboxLoading ? (
+                      <div style={{ padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, color: "#64748b" }}>
+                        <RefreshCw size={28} className="animate-spin" color="#cbd5e1" />
+                        <div style={{ fontSize: "0.85rem" }}>Loading cash ledger...</div>
+                      </div>
+                    ) : inboxTransactions.length === 0 ? (
                     <div style={{ padding: "30px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
                       No cash sales or expenses recorded on {inboxDate}.
                     </div>
