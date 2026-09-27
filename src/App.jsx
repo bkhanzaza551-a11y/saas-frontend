@@ -320,7 +320,8 @@ const Protected = () => {
         { label: "Finance", to: "/super-admin/finance" },
         { label: "Credits", to: "/super-admin/credits" },
         { label: "Team & Roles", to: "/super-admin/staff" },
-        { label: "Platform", to: "/super-admin/settings" }
+        { label: "Platform", to: "/super-admin/settings" },
+        { label: "Audit Logs", to: "/super-admin/audit-logs" }
       ]
     }
   ];
