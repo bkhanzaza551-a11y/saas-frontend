@@ -24,14 +24,7 @@ import PermissionButton from "../../components/PermissionButton";
 import DigitOtpInput from "../../components/DigitOtpInput";
 import "./ServiceHubPage.css";
 
-const getImageUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
-  if (path.startsWith('data:')) return path;
-  const base = api.defaults.baseURL || "http://localhost:5050/api/v1";
-  const root = base.replace(/\/api\/v1\/?$/, '');
-  return `${root}${path.startsWith('/') ? '' : '/'}${path}`;
-};
+
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
