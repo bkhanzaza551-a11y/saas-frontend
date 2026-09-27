@@ -8,6 +8,8 @@ import { api } from "./api/client";
 import PageLoader from "./components/PageLoader.jsx";
 import { SETTINGS_WORKSPACE_SECTIONS } from "./pages/owner/settingsWorkspaceConfig.js";
 import DomainResolver from "./components/DomainResolver.jsx";
+import OwnerLayout from "./components/OwnerLayout.jsx";
+import PhoneVerificationModal from "./components/PhoneVerificationModal";
 const lazyWithRetry = (componentImport) =>
   lazy(async () => {
     const lastReload = Number(window.sessionStorage.getItem("chunk_reload_timestamp") || 0);
@@ -129,7 +131,6 @@ const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffReq
 
 const WhatsAppCreditsPage = lazyWithRetry(() => import("./pages/owner/WhatsAppCreditsPage.jsx"));
 const ManageCreditsPage = lazyWithRetry(() => import("./pages/superAdmin/ManageCreditsPage.jsx"));
-import OwnerLayout from "./components/OwnerLayout.jsx";
 
 const RouteFallback = () => {
   const isStorefront = window.location.pathname.startsWith("/site/");
@@ -407,7 +408,6 @@ const AccessNotice = ({ title, message }) => (
   </div>
 );
 
-import PhoneVerificationModal from "./components/PhoneVerificationModal";
 
 const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
   const { auth } = useAuth();

@@ -52,6 +52,15 @@ import {
   ROLE_PRESETS
 } from "./staffAccessConfig";
 
+const getImageUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('data:')) return path;
+  const base = api.defaults.baseURL || "http://localhost:5050/api/v1";
+  const root = base.replace(/\/api\/v1\/?$/, '');
+  return `${root}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
 const makeEmptyForm = () => ({
   name: "",
   email: "",
