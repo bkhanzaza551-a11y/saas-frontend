@@ -13,7 +13,8 @@ import {
   BarChart3, RefreshCw, Filter, CalendarClock, MessageSquare, Plus,
   Calendar, Edit3, Trash2, X, Download, Upload, ChevronDown, Search,
   Clock, ArrowRight, Sparkles, ArrowLeft, Send, Check, MessageCircle,
-  UserCheck, History, Tag, Building2, ChevronRight, CornerDownRight
+  UserCheck, History, Tag, Building2, ChevronRight, CornerDownRight,
+  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle
 } from "lucide-react";
 
 // Mapping between UI Status and DB Status
@@ -624,18 +625,60 @@ export default function EnquiriesPage() {
 
         /* Follow-Up Timeline Styles */
         .timeline-container { position: relative; padding-left: 28px; margin-top: 16px; }
-        .timeline-container::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 9px; width: 2px; background: #e2e8f0; }
-        .timeline-item { position: relative; margin-bottom: 22px; }
+        .timeline-container::before { content: ''; position: absolute; top: 12px; bottom: 12px; left: 9px; width: 2px; background: #e2e8f0; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
         .timeline-item:last-child { margin-bottom: 0; }
-        .timeline-dot { position: absolute; left: -28px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #4f46e5; border: 3px solid #ffffff; box-shadow: 0 0 0 2px #c7d2fe; display: flex; align-items: center; justify-content: center; }
+        .timeline-dot { position: absolute; left: -28px; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: #0f172a; border: 3px solid #ffffff; box-shadow: 0 0 0 2px #cbd5e1; display: flex; align-items: center; justify-content: center; }
         .timeline-dot.status-change { background: #10b981; box-shadow: 0 0 0 2px #a7f3d0; }
-        .timeline-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; transition: all 0.15s ease; }
-        .timeline-card:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .timeline-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .timeline-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-        .detail-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-        .detail-meta-box { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 14px 16px; }
-        .detail-meta-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .detail-meta-value { font-size: 14px; font-weight: 700; color: #0f172a; }
+        .quick-chip-btn {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #475569;
+          font-size: 11.5px;
+          font-weight: 600;
+          padding: 4px 10px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .quick-chip-btn:hover {
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+          color: #0f172a;
+        }
+
+        .spec-item {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          padding: 12px 14px;
+          background: #f8fafc;
+          border: 1px solid #f1f5f9;
+          border-radius: 10px;
+          gap: 12px;
+        }
+        .spec-label {
+          font-size: 12px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .spec-value {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0f172a;
+          text-align: right;
+        }
 
         @media (max-width: 768px) {
           .filter-bar {
@@ -659,23 +702,30 @@ export default function EnquiriesPage() {
       {/* Detail Page Breadcrumbs & Header if in Detail Mode */}
       {mode === "detail" ? (
         <div className="anim-fade" style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
-            <button 
-              type="button" 
-              onClick={() => navigate("/admin/enquiries")}
-              className="eq-btn eq-btn-secondary"
-              style={{ padding: "0 12px", height: 36, fontSize: "0.8rem", fontWeight: 700 }}
-            >
-              <ArrowLeft size={15} /> Back to All Enquiries
-            </button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button 
+                type="button" 
+                onClick={() => navigate("/admin/enquiries")}
+                className="eq-btn eq-btn-secondary"
+                style={{ padding: "0 14px", height: 38, fontSize: "13px", fontWeight: 700, borderRadius: 8 }}
+              >
+                <ArrowLeft size={16} /> All Enquiries
+              </button>
+              <span style={{ color: "#cbd5e1", fontSize: "18px" }}>/</span>
+              <span style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a" }}>
+                {detailData?.name || "Enquiry Profile"}
+              </span>
+            </div>
+            
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button
                 type="button"
                 onClick={() => handleOpenEdit(detailData)}
                 className="eq-btn eq-btn-secondary"
-                style={{ height: 36, fontSize: "0.8rem", fontWeight: 700 }}
+                style={{ height: 38, fontSize: "13px", fontWeight: 700, borderRadius: 8 }}
               >
-                <Edit3 size={14} /> Edit Details
+                <Edit3 size={14} /> Edit Enquiry
               </button>
               {detailData && !detailData.convertedCustomerId && (
                 <button
@@ -683,9 +733,9 @@ export default function EnquiriesPage() {
                   onClick={handleConvertToCustomer}
                   disabled={convertingCustomer}
                   className="eq-btn"
-                  style={{ background: "#10b981", color: "white", height: 36, fontSize: "0.8rem", fontWeight: 700 }}
+                  style={{ background: "#059669", color: "white", height: 38, fontSize: "13px", fontWeight: 700, borderRadius: 8, padding: "0 16px", boxShadow: "0 1px 3px rgba(5, 150, 105, 0.2)" }}
                 >
-                  <UserCheck size={14} /> {convertingCustomer ? "Converting..." : "Convert to Client"}
+                  <UserCheck size={15} /> {convertingCustomer ? "Converting..." : "Convert to Client"}
                 </button>
               )}
             </div>
@@ -716,92 +766,118 @@ export default function EnquiriesPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20 }}>
               
               {/* Top Hero Banner */}
-              <div className="eq-card" style={{ padding: "24px 28px", borderLeft: "5px solid #4f46e5" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-                  <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                    <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", fontWeight: 800, flexShrink: 0, boxShadow: "0 4px 12px rgba(79, 70, 229, 0.25)" }}>
+              <div className="eq-card" style={{ padding: "24px 28px", border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
+                  
+                  {/* Left Customer Info */}
+                  <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
+                    <div style={{ width: 62, height: 62, borderRadius: "50%", background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", fontWeight: 800, flexShrink: 0, boxShadow: "0 4px 12px rgba(15, 23, 42, 0.15)" }}>
                       {(detailData.name || "E").charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                        <h1 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#0f172a" }}>{detailData.name}</h1>
-                        <span className="status-pill" style={{ background: getStatusColor(detailData.status).bg, color: getStatusColor(detailData.status).text }}>
+                        <h1 style={{ margin: 0, fontSize: "1.55rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
+                          {detailData.name}
+                        </h1>
+                        <span className="status-pill" style={{ background: getStatusColor(detailData.status).bg, color: getStatusColor(detailData.status).text, fontWeight: 800, padding: "3px 10px", fontSize: "11px" }}>
                           {mapStatusToUi(detailData.status)}
                         </span>
-                        <span style={{ padding: "2px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, background: getPriorityColor(detailData.priority).bg, color: getPriorityColor(detailData.priority).text }}>
+                        <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: "11px", fontWeight: 800, background: getPriorityColor(detailData.priority).bg, color: getPriorityColor(detailData.priority).text, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                           {detailData.priority} Priority
                         </span>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginTop: 6, fontSize: "0.85rem", color: "#64748b" }}>
-                        <a href={`tel:${detailData.phone}`} style={{ textDecoration: "none", color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-                          <Phone size={14} color="#4f46e5" /> {detailData.phone}
+                      
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 8, fontSize: "13px", color: "#64748b" }}>
+                        <a 
+                          href={`tel:${detailData.phone}`} 
+                          style={{ textDecoration: "none", color: "#0f172a", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f5f9", padding: "3px 10px", borderRadius: 6 }}
+                        >
+                          <Phone size={13} color="#0f172a" /> {detailData.phone}
                         </a>
                         <a 
                           href={`https://wa.me/${detailData.phone?.replace(/[^0-9]/g, "")}`} 
                           target="_blank" 
                           rel="noreferrer"
-                          style={{ textDecoration: "none", color: "#16a34a", fontWeight: 700, display: "flex", alignItems: "center", gap: 4, background: "#f0fdf4", padding: "2px 8px", borderRadius: 6, border: "1px solid #bbf7d0" }}
+                          style={{ textDecoration: "none", color: "#166534", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5, background: "#f0fdf4", padding: "3px 10px", borderRadius: 6, border: "1px solid #bbf7d0" }}
                         >
-                          <MessageCircle size={13} /> WhatsApp
+                          <MessageCircle size={14} color="#16a34a" /> WhatsApp
                         </a>
                         {detailData.email && (
-                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <Mail size={14} /> {detailData.email}
-                          </span>
+                          <a 
+                            href={`mailto:${detailData.email}`}
+                            style={{ textDecoration: "none", color: "#475569", display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600 }}
+                          >
+                            <Mail size={14} color="#64748b" /> {detailData.email}
+                          </a>
                         )}
-                        <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#64748b" }}>
-                          <Clock size={14} /> Logged on: {new Date(detailData.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#64748b", fontWeight: 500 }}>
+                          <Clock size={14} /> Logged: {new Date(detailData.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                    <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Scheduled Follow-Up</div>
+                  {/* Right Follow-up Schedule Badge */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, background: "#f8fafc", padding: "12px 18px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                      Scheduled Follow-Up
+                    </div>
                     <div>{formatFollowUpBadge(detailData.followUpAt)}</div>
                   </div>
+
                 </div>
               </div>
 
               {/* Main 2-Column Split: Details & Follow-Ups */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: 20 }}>
                 
-                {/* Left Column: Enquiry Information */}
+                {/* Left Column: Enquiry Information & Client Status */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   
-                  {/* Lead Meta Box */}
+                  {/* Lead Specifications Card */}
                   <div className="eq-card">
-                    <h3 style={{ margin: "0 0 16px 0", fontSize: "1rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                      <FileText size={18} color="#4f46e5" /> Enquiry Specifications
+                    <h3 style={{ margin: "0 0 16px 0", fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                      <FileText size={17} color="#0f172a" /> Enquiry Specifications
                     </h3>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      <div className="detail-meta-box">
-                        <div className="detail-meta-label">Interested Service</div>
-                        <div className="detail-meta-value" style={{ color: "#4f46e5" }}>
-                          {detailData.interestedService?.name || "General Service Enquiry"}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      
+                      <div className="spec-item">
+                        <div className="spec-label">
+                          <Scissors size={14} color="#0f172a" /> Interested Service
+                        </div>
+                        <div className="spec-value" style={{ color: "#0f172a" }}>
+                          <span style={{ background: "#f1f5f9", padding: "3px 10px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+                            {detailData.interestedService?.name || "General Service Enquiry"}
+                          </span>
                         </div>
                       </div>
 
-                      <div className="detail-meta-box">
-                        <div className="detail-meta-label">Lead Source</div>
-                        <div className="detail-meta-value">
+                      <div className="spec-item">
+                        <div className="spec-label">
+                          <Tag size={14} color="#0f172a" /> Lead Source
+                        </div>
+                        <div className="spec-value">
                           {mapSourceToUi(detailData.source)}
                         </div>
                       </div>
 
-                      <div className="detail-meta-box">
-                        <div className="detail-meta-label">Salon Branch</div>
-                        <div className="detail-meta-value">
+                      <div className="spec-item">
+                        <div className="spec-label">
+                          <Building2 size={14} color="#0f172a" /> Salon Branch
+                        </div>
+                        <div className="spec-value">
                           {detailData.interestedBranch?.name || "All Branches / Main"}
                         </div>
                       </div>
 
                       {detailData.notes && (
-                        <div className="detail-meta-box" style={{ background: "#f8fafc", borderLeft: "3px solid #6366f1" }}>
-                          <div className="detail-meta-label">Initial Customer Note / Requirement</div>
-                          <div style={{ fontSize: "0.9rem", color: "#334155", lineHeight: 1.5, marginTop: 4 }}>
-                            {detailData.notes}
+                        <div style={{ marginTop: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderLeft: "4px solid #0f172a", borderRadius: 10, padding: "14px 16px" }}>
+                          <div style={{ fontSize: "11px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>
+                            Initial Customer Note / Requirement
+                          </div>
+                          <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: 1.5, fontWeight: 500 }}>
+                            "{detailData.notes}"
                           </div>
                         </div>
                       )}
@@ -809,19 +885,33 @@ export default function EnquiriesPage() {
                   </div>
 
                   {/* Customer Conversion Status Card */}
-                  <div className="eq-card" style={{ background: detailData.convertedCustomerId ? "#f0fdf4" : "#f8fafc", borderColor: detailData.convertedCustomerId ? "#bbf7d0" : "#e2e8f0" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 10, background: detailData.convertedCustomerId ? "#10b981" : "#e2e8f0", color: detailData.convertedCustomerId ? "white" : "#64748b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <UserCheck size={20} />
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: "0.95rem", color: detailData.convertedCustomerId ? "#166534" : "#1e293b" }}>
-                          {detailData.convertedCustomerId ? "Official Salon Client" : "Prospect / Lead"}
+                  <div className="eq-card" style={{ background: detailData.convertedCustomerId ? "#f0fdf4" : "#ffffff", borderColor: detailData.convertedCustomerId ? "#bbf7d0" : "#e2e8f0" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 10, background: detailData.convertedCustomerId ? "#10b981" : "#f1f5f9", color: detailData.convertedCustomerId ? "white" : "#64748b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <UserCheck size={22} />
                         </div>
-                        <div style={{ fontSize: "0.78rem", color: detailData.convertedCustomerId ? "#15803d" : "#64748b", marginTop: 2 }}>
-                          {detailData.convertedCustomerId ? "Synced in customer database" : "Can be converted into a recurring customer"}
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: "15px", color: detailData.convertedCustomerId ? "#166534" : "#0f172a" }}>
+                            {detailData.convertedCustomerId ? "Official Salon Client" : "Prospect / Lead"}
+                          </div>
+                          <div style={{ fontSize: "12px", color: detailData.convertedCustomerId ? "#15803d" : "#64748b", marginTop: 2 }}>
+                            {detailData.convertedCustomerId ? "Synced in customer database" : "Not yet converted into a recurring customer"}
+                          </div>
                         </div>
                       </div>
+
+                      {!detailData.convertedCustomerId && (
+                        <button
+                          type="button"
+                          onClick={handleConvertToCustomer}
+                          disabled={convertingCustomer}
+                          className="eq-btn"
+                          style={{ background: "#0f172a", color: "white", height: 36, fontSize: "12px", fontWeight: 700, borderRadius: 8, padding: "0 14px", flexShrink: 0 }}
+                        >
+                          <UserCheck size={14} /> {convertingCustomer ? "Converting..." : "Convert Now"}
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -831,13 +921,40 @@ export default function EnquiriesPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   
                   {/* Follow-Up Recorder Box */}
-                  <div className="eq-card" style={{ borderTop: "4px solid #4f46e5" }}>
-                    <h3 style={{ margin: "0 0 14px 0", fontSize: "1rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                      <Plus size={18} color="#4f46e5" /> Log New Follow-Up
-                    </h3>
+                  <div className="eq-card">
+                    <div style={{ marginBottom: 14 }}>
+                      <h3 style={{ margin: "0 0 4px 0", fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                        <Plus size={17} color="#0f172a" /> Log New Follow-Up
+                      </h3>
+                      <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                        Record customer response, discussions, and update next reminder schedule.
+                      </p>
+                    </div>
 
                     <form onSubmit={handleAddFollowUpDetail}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        
+                        {/* Quick Note Suggestions */}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", alignSelf: "center", marginRight: 2 }}>Quick:</span>
+                          {[
+                            "Spoke with client - very interested",
+                            "Price quote shared - awaiting response",
+                            "Call not answered / busy",
+                            "Requested callback next week",
+                            "Appointment booked / visiting salon"
+                          ].map(text => (
+                            <button
+                              key={text}
+                              type="button"
+                              className="quick-chip-btn"
+                              onClick={() => setDetailFollowUpNote(prev => prev ? `${prev} | ${text}` : text)}
+                            >
+                              + {text}
+                            </button>
+                          ))}
+                        </div>
+
                         <div>
                           <label className="eq-label">Follow-up Conversation Notes / Remarks *</label>
                           <textarea
@@ -847,7 +964,7 @@ export default function EnquiriesPage() {
                             placeholder="Detail customer's response, preferences, price quote offered, objections discussed..."
                             value={detailFollowUpNote}
                             onChange={(e) => setDetailFollowUpNote(e.target.value)}
-                            style={{ height: 75, padding: 10, lineHeight: 1.4 }}
+                            style={{ height: 80, padding: "10px 12px", lineHeight: 1.45, borderRadius: 8 }}
                           />
                         </div>
 
@@ -880,8 +997,8 @@ export default function EnquiriesPage() {
                           <button
                             type="submit"
                             disabled={savingFollowUp || !detailFollowUpNote.trim()}
-                            className="eq-btn eq-btn-primary"
-                            style={{ height: 38, padding: "0 18px", fontWeight: 700 }}
+                            className="eq-btn"
+                            style={{ background: "#0f172a", color: "#ffffff", height: 38, padding: "0 20px", fontWeight: 700, borderRadius: 8, boxShadow: "0 1px 3px rgba(15, 23, 42, 0.2)" }}
                           >
                             <Send size={14} /> {savingFollowUp ? "Recording..." : "Record Follow-Up"}
                           </button>
@@ -893,19 +1010,19 @@ export default function EnquiriesPage() {
                   {/* Previous Follow-Ups Timeline */}
                   <div className="eq-card">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                      <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                        <History size={18} color="#f59e0b" /> Previous Follow-Ups & Timeline
+                      <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                        <History size={17} color="#0f172a" /> Follow-Up History & Timeline
                       </h3>
-                      <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 100 }}>
+                      <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", background: "#f1f5f9", padding: "3px 10px", borderRadius: 100, border: "1px solid #e2e8f0" }}>
                         {detailData.followUps?.length || 0} Records
                       </span>
                     </div>
 
                     {!detailData.followUps || detailData.followUps.length === 0 ? (
-                      <div style={{ padding: "30px 20px", textAlign: "center", background: "#f8fafc", borderRadius: 12, border: "1px dashed #cbd5e1" }}>
+                      <div style={{ padding: "34px 20px", textAlign: "center", background: "#f8fafc", borderRadius: 12, border: "1px dashed #cbd5e1" }}>
                         <MessageSquare size={32} color="#94a3b8" style={{ margin: "0 auto 8px" }} />
-                        <div style={{ fontWeight: 700, color: "#475569", fontSize: "0.9rem" }}>No Previous Follow-Ups</div>
-                        <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: 2 }}>Record the first conversation note above to start tracking client interactions.</div>
+                        <div style={{ fontWeight: 700, color: "#475569", fontSize: "14px" }}>No Follow-Ups Recorded Yet</div>
+                        <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: 3 }}>Record the first conversation note above to begin client interaction tracking.</div>
                       </div>
                     ) : (
                       <div className="timeline-container">
@@ -913,29 +1030,29 @@ export default function EnquiriesPage() {
                           <div key={item.id || idx} className="timeline-item">
                             <div className={`timeline-dot ${item.status ? "status-change" : ""}`} />
                             <div className="timeline-card">
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 6, marginBottom: 6 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                  <span style={{ fontWeight: 800, fontSize: "0.85rem", color: "#0f172a" }}>
+                                  <span style={{ fontWeight: 800, fontSize: "13px", color: "#0f172a" }}>
                                     {item.actorMembership?.user?.name || "Staff Member"}
                                   </span>
                                   {item.status && (
-                                    <span className="status-pill" style={{ background: getStatusColor(item.status).bg, color: getStatusColor(item.status).text, fontSize: "0.68rem" }}>
+                                    <span className="status-pill" style={{ background: getStatusColor(item.status).bg, color: getStatusColor(item.status).text, fontSize: "10px", padding: "2px 8px" }}>
                                       {mapStatusToUi(item.status)}
                                     </span>
                                   )}
                                 </div>
-                                <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600 }}>
+                                <span style={{ fontSize: "11.5px", color: "#94a3b8", fontWeight: 600 }}>
                                   {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                                 </span>
                               </div>
 
-                              <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.5 }}>
+                              <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: 1.5, fontWeight: 500 }}>
                                 {item.note}
                               </div>
 
                               {item.dueAt && (
-                                <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.75rem", fontWeight: 700, color: "#4338ca", background: "#e0e7ff", padding: "2px 8px", borderRadius: 6 }}>
-                                  <CalendarClock size={12} /> Reminder Set For: {new Date(item.dueAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                                <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 5, fontSize: "11.5px", fontWeight: 700, color: "#0f172a", background: "#f1f5f9", padding: "3px 9px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+                                  <CalendarClock size={13} color="#64748b" /> Reminder: {new Date(item.dueAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                                 </div>
                               )}
                             </div>
