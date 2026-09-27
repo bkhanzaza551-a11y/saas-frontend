@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import { api } from "../../api/client";
 import { useBranch } from "../../context/BranchContext";
 import EmptyState from "../../components/EmptyState";
@@ -12,7 +12,8 @@ import {
   Users, UserPlus, Phone, Mail, FileText, AlertCircle, CheckCircle2, 
   BarChart3, RefreshCw, Filter, CalendarClock, MessageSquare, Plus,
   Calendar, Edit3, Trash2, X, Download, Upload, ChevronDown, Search,
-  Clock, ArrowRight, Sparkles
+  Clock, ArrowRight, Sparkles, ArrowLeft, Send, Check, MessageCircle,
+  UserCheck, History, Tag, Building2, ChevronRight, CornerDownRight
 } from "lucide-react";
 
 // Mapping between UI Status and DB Status
@@ -69,7 +70,6 @@ const mapSourceToDb = (uiSource) => {
 
 // UI Status list: strictly New, Follow up, Converted, Dropped
 const STATUS_OPTIONS = ["New", "Follow up", "Converted", "Dropped"];
-
 const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
 
 const emptyForm = {
@@ -87,6 +87,10 @@ const emptyForm = {
 
 export default function EnquiriesPage() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const params = useParams();
+  const detailId = params.id; // from /admin/enquiries/:id
+
   const { selectedBranchId } = useBranch();
   const [rows, setRows] = useState([]);
   const [followUps, setFollowUps] = useState([]);
@@ -117,18 +121,29 @@ export default function EnquiriesPage() {
   const [actionNotes, setActionNotes] = useState("");
   const [newStatus, setNewStatus] = useState("");
 
-  const mode = location.pathname.includes("/follow-ups")
-    ? "followUps"
-    : location.pathname.includes("/reports")
-      ? "reports"
-      : "enquiries";
+  // Detail Page State
+  const [detailData, setDetailData] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailFollowUpNote, setDetailFollowUpNote] = useState("");
+  const [detailFollowUpStatus, setDetailFollowUpStatus] = useState("Follow up");
+  const [detailFollowUpDate, setDetailFollowUpDate] = useState("");
+  const [savingFollowUp, setSavingFollowUp] = useState(false);
+  const [convertingCustomer, setConvertingCustomer] = useState(false);
+
+  const mode = detailId
+    ? "detail"
+    : location.pathname.includes("/follow-ups")
+      ? "followUps"
+      : location.pathname.includes("/reports")
+        ? "reports"
+        : "enquiries";
 
   // Load dropdown options (Services & Branches)
   const loadOptions = useCallback(async () => {
     try {
-      const params = selectedBranchId ? { branchId: selectedBranchId } : {};
+      const p = selectedBranchId ? { branchId: selectedBranchId } : {};
       const [servicesRes, branchesRes] = await Promise.all([
-        api.get("/owner/services", { params }).catch(() => ({ data: [] })),
+        api.get("/owner/services", { params: p }).catch(() => ({ data: [] })),
         api.get("/owner/branches").catch(() => ({ data: [] }))
       ]);
       setServices(servicesRes.data || []);
@@ -141,12 +156,12 @@ export default function EnquiriesPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const params = {};
-      if (selectedBranchId) params.branchId = selectedBranchId;
+      const p = {};
+      if (selectedBranchId) p.branchId = selectedBranchId;
       const [listResponse, reportResponse, followUpResponse] = await Promise.all([
-        api.get("/owner/enquiries", { params }),
-        api.get("/owner/enquiries/reports", { params }),
-        api.get("/owner/enquiries/follow-ups", { params }).catch(() => ({ data: [] }))
+        api.get("/owner/enquiries", { params: p }),
+        api.get("/owner/enquiries/reports", { params: p }),
+        api.get("/owner/enquiries/follow-ups", { params: p }).catch(() => ({ data: [] }))
       ]);
       
       setRows(listResponse.data || []);
@@ -159,10 +174,34 @@ export default function EnquiriesPage() {
     }
   }, [selectedBranchId]);
 
+  // Load Single Enquiry Detail
+  const loadDetail = useCallback(async (id) => {
+    if (!id) return;
+    try {
+      setDetailLoading(true);
+      const res = await api.get(`/owner/enquiries/${id}`);
+      setDetailData(res.data);
+      setDetailFollowUpStatus(mapStatusToUi(res.data.status));
+      setDetailFollowUpDate(
+        res.data.followUpAt 
+          ? new Date(res.data.followUpAt).toISOString().slice(0, 10) 
+          : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      );
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Could not load enquiry details"), success: "" });
+    } finally {
+      setDetailLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void loadOptions();
-    void load();
-  }, [load, loadOptions, selectedBranchId]);
+    if (detailId) {
+      void loadDetail(detailId);
+    } else {
+      void load();
+    }
+  }, [load, loadOptions, loadDetail, detailId, selectedBranchId]);
 
   // Open modal for Create
   const handleOpenAdd = () => {
@@ -248,7 +287,11 @@ export default function EnquiriesPage() {
       setShowModal(false);
       setEditingId(null);
       setTimeout(() => setStatus({ error: "", success: "" }), 3500);
-      await load();
+      if (detailId) {
+        await loadDetail(detailId);
+      } else {
+        await load();
+      }
     } catch (error) {
       setStatus({ error: formatApiError(error, "Could not save enquiry"), success: "" });
     } finally {
@@ -270,16 +313,60 @@ export default function EnquiriesPage() {
       setSelectedEnquiry(null);
       setStatus({ error: "", success: "Enquiry status updated successfully." });
       setTimeout(() => setStatus({ error: "", success: "" }), 3000);
-      await load();
+      if (detailId) {
+        await loadDetail(detailId);
+      } else {
+        await load();
+      }
     } catch (error) {
       setStatus({ error: formatApiError(error, "Failed to update status"), success: "" });
+    }
+  };
+
+  // Record Follow-Up inside Detail Page
+  const handleAddFollowUpDetail = async (e) => {
+    e.preventDefault();
+    if (!detailData || !detailFollowUpNote.trim()) {
+      setStatus({ error: "Please enter a follow-up conversation note.", success: "" });
+      return;
+    }
+    try {
+      setSavingFollowUp(true);
+      await api.post(`/owner/enquiries/${detailData.id}/follow-up`, {
+        note: detailFollowUpNote.trim(),
+        status: mapStatusToDb(detailFollowUpStatus),
+        dueAt: detailFollowUpDate ? new Date(detailFollowUpDate).toISOString() : null
+      });
+      setDetailFollowUpNote("");
+      setStatus({ error: "", success: "Follow-up note and reminder saved successfully!" });
+      setTimeout(() => setStatus({ error: "", success: "" }), 3500);
+      await loadDetail(detailData.id);
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to record follow-up"), success: "" });
+    } finally {
+      setSavingFollowUp(false);
+    }
+  };
+
+  // Convert Enquiry to Customer
+  const handleConvertToCustomer = async () => {
+    if (!detailData) return;
+    try {
+      setConvertingCustomer(true);
+      await api.post(`/owner/enquiries/${detailData.id}/convert-to-customer`);
+      setStatus({ error: "", success: `"${detailData.name}" has been converted to an official client!` });
+      setTimeout(() => setStatus({ error: "", success: "" }), 3500);
+      await loadDetail(detailData.id);
+    } catch (err) {
+      setStatus({ error: formatApiError(err, "Failed to convert to customer"), success: "" });
+    } finally {
+      setConvertingCustomer(false);
     }
   };
 
   // Filter local rows based on Search (Name or Mobile No) and Dates
   const filteredRows = useMemo(() => {
     return rows.filter(row => {
-      // Search by Name or Mobile No
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const nameMatch = (row.name || "").toLowerCase().includes(q);
@@ -295,7 +382,6 @@ export default function EnquiriesPage() {
         return false;
       }
 
-      // Date from/to search
       const createdAt = new Date(row.createdAt);
       if (filterFromDate) {
         const from = new Date(filterFromDate);
@@ -448,51 +534,43 @@ export default function EnquiriesPage() {
         for (let i = 1; i < lines.length; i++) {
           const rawCols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
           const cols = rawCols.map(c => c.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
-          const name = nameIdx !== -1 ? cols[nameIdx] : "";
-          const phone = phoneIdx !== -1 ? cols[phoneIdx] : "";
-          if (!name || !phone) {
+          const nameVal = nameIdx >= 0 ? cols[nameIdx] : "";
+          const phoneVal = phoneIdx >= 0 ? cols[phoneIdx] : "";
+          if (!nameVal || !phoneVal) {
             errorCount++;
             continue;
           }
-          const email = emailIdx !== -1 ? cols[emailIdx] || null : null;
-          const rawSource = sourceIdx !== -1 ? cols[sourceIdx] : "Walk in";
-          const svcName = svcIdx !== -1 ? cols[svcIdx] : "";
-          const matchedService = svcName ? services.find(s => s.name?.toLowerCase() === svcName.toLowerCase()) : null;
-          const priority = (prioIdx !== -1 ? cols[prioIdx] : "MEDIUM")?.toUpperCase() || "MEDIUM";
-          const uiStat = statIdx !== -1 ? cols[statIdx] : "New";
-          const followUpAt = followIdx !== -1 && cols[followIdx] ? new Date(cols[followIdx]).toISOString() : new Date().toISOString();
-          const notes = notesIdx !== -1 ? cols[notesIdx] : null;
+          const emailVal = emailIdx >= 0 ? cols[emailIdx] : "";
+          const srcVal = sourceIdx >= 0 ? cols[sourceIdx] : "Walk in";
+          const svcVal = svcIdx >= 0 ? cols[svcIdx] : "";
+          const prioVal = prioIdx >= 0 ? cols[prioIdx] : "Medium";
+          const statVal = statIdx >= 0 ? cols[statIdx] : "New";
+          const followVal = followIdx >= 0 && cols[followIdx] ? cols[followIdx] : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+          const notesVal = notesIdx >= 0 ? cols[notesIdx] : "";
+
+          const matchedSvc = services.find(s => s.name?.toLowerCase() === svcVal?.toLowerCase());
 
           try {
-            const res = await api.post("/owner/enquiries", {
-              name,
-              phone,
-              email: email || undefined,
-              source: mapSourceToDb(rawSource),
-              interestedServiceId: matchedService?.id || (services[0]?.id || null),
-              interestedBranchId: selectedBranchId || (branches[0]?.id || null),
-              priority: ["LOW", "MEDIUM", "HIGH"].includes(priority) ? priority : "MEDIUM",
-              followUpAt,
-              notes
+            await api.post("/owner/enquiries", {
+              name: nameVal,
+              phone: phoneVal,
+              email: emailVal || null,
+              source: mapSourceToDb(srcVal),
+              interestedServiceId: matchedSvc?.id || null,
+              interestedBranchId: selectedBranchId || (branches.length > 0 ? branches[0].id : null),
+              priority: (prioVal || "MEDIUM").toUpperCase(),
+              followUpAt: new Date(followVal).toISOString(),
+              notes: notesVal || null
             });
-            if (res.data?.id && uiStat && uiStat !== "New") {
-              await api.patch(`/owner/enquiries/${res.data.id}/status`, {
-                status: mapStatusToDb(uiStat),
-                note: `Imported status: ${uiStat}`
-              }).catch(() => {});
-            }
             successCount++;
           } catch {
             errorCount++;
           }
         }
-        setStatus({
-          success: `Import completed: ${successCount} enquiries imported and customers synced (${errorCount} errors).`,
-          error: ""
-        });
+        setStatus({ error: "", success: `Import complete! ${successCount} enquiry/enquiries imported successfully${errorCount > 0 ? `, ${errorCount} failed.` : "."}` });
         await load();
       } catch (err) {
-        setStatus({ error: formatApiError(err, "Failed to import enquiries"), success: "" });
+        setStatus({ error: formatApiError(err, "Failed to parse CSV"), success: "" });
       } finally {
         setImporting(false);
       }
@@ -504,14 +582,14 @@ export default function EnquiriesPage() {
     <div className="page-shell" style={{ paddingBottom: 60 }}>
       <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
+          from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes modalFadeIn {
-          from { opacity: 0; transform: scale(0.95); }
+          from { opacity: 0; transform: scale(0.96); }
           to { opacity: 1; transform: scale(1); }
         }
-        .anim-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .anim-fade { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
         .delay-1 { animation-delay: 0.1s; }
         
         .eq-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
@@ -527,23 +605,37 @@ export default function EnquiriesPage() {
         .eq-btn-secondary { background: #ffffff; border: 1px solid #e2e8f0; color: #475569; }
         .eq-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a; }
 
-        .status-pill { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-pill { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
 
         .enquiries-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .enquiries-table th { background: #f8fafc; padding: 14px 18px; font-weight: 700; font-size: 12px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #e2e8f0; text-align: left; letter-spacing: 0.5px; }
         .enquiries-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; color: #334155; vertical-align: middle; }
+        .enquiry-row:hover { background: #f8fafc; cursor: pointer; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1200; backdrop-filter: blur(4px); }
         .modal-content { background: white; border-radius: 16px; width: 95%; max-width: 680px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
         
         .filter-bar { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
-        .filter-group { display: flex; align-items: center; gap: 8px; }
-        .filter-group label { font-size: 12px; font-weight: 600; color: #64748b; white-space: nowrap; }
         
         .eq-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
         .eq-reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
         .empty-records-container { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 50px 20px; text-align: center; color: #64748b; font-weight: 600; font-size: 16px; background: #fafafa; }
+
+        /* Follow-Up Timeline Styles */
+        .timeline-container { position: relative; padding-left: 28px; margin-top: 16px; }
+        .timeline-container::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 9px; width: 2px; background: #e2e8f0; }
+        .timeline-item { position: relative; margin-bottom: 22px; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-dot { position: absolute; left: -28px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #4f46e5; border: 3px solid #ffffff; box-shadow: 0 0 0 2px #c7d2fe; display: flex; align-items: center; justify-content: center; }
+        .timeline-dot.status-change { background: #10b981; box-shadow: 0 0 0 2px #a7f3d0; }
+        .timeline-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; transition: all 0.15s ease; }
+        .timeline-card:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+        .detail-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .detail-meta-box { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 14px 16px; }
+        .detail-meta-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .detail-meta-value { font-size: 14px; font-weight: 700; color: #0f172a; }
 
         @media (max-width: 768px) {
           .filter-bar {
@@ -564,18 +656,307 @@ export default function EnquiriesPage() {
         }
       `}</style>
 
-      <ModuleTabs
-        title="Enquiries"
-        items={[
-          { label: "Enquiries", to: "/admin/enquiries" },
-          { label: "Follow-Ups", to: "/admin/enquiries/follow-ups" },
-          { label: "Reports", to: "/admin/enquiries/reports" }
-        ]}
-      />
+      {/* Detail Page Breadcrumbs & Header if in Detail Mode */}
+      {mode === "detail" ? (
+        <div className="anim-fade" style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+            <button 
+              type="button" 
+              onClick={() => navigate("/admin/enquiries")}
+              className="eq-btn eq-btn-secondary"
+              style={{ padding: "0 12px", height: 36, fontSize: "0.8rem", fontWeight: 700 }}
+            >
+              <ArrowLeft size={15} /> Back to All Enquiries
+            </button>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={() => handleOpenEdit(detailData)}
+                className="eq-btn eq-btn-secondary"
+                style={{ height: 36, fontSize: "0.8rem", fontWeight: 700 }}
+              >
+                <Edit3 size={14} /> Edit Details
+              </button>
+              {detailData && !detailData.convertedCustomerId && (
+                <button
+                  type="button"
+                  onClick={handleConvertToCustomer}
+                  disabled={convertingCustomer}
+                  className="eq-btn"
+                  style={{ background: "#10b981", color: "white", height: 36, fontSize: "0.8rem", fontWeight: 700 }}
+                >
+                  <UserCheck size={14} /> {convertingCustomer ? "Converting..." : "Convert to Client"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <ModuleTabs
+          title="Enquiries"
+          items={[
+            { label: "Enquiries", to: "/admin/enquiries" },
+            { label: "Follow-Ups", to: "/admin/enquiries/follow-ups" },
+            { label: "Reports", to: "/admin/enquiries/reports" }
+          ]}
+        />
+      )}
 
       {status.error && <div className="anim-fade" style={{ background: "#fee2e2", color: "#991b1b", padding: "12px 18px", borderRadius: 10, marginBottom: 16, fontWeight: 500, display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem" }}><AlertCircle size={18} /> {status.error}</div>}
       {status.success && <div className="anim-fade" style={{ background: "#dcfce7", color: "#166534", padding: "12px 18px", borderRadius: 10, marginBottom: 16, fontWeight: 500, display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem" }}><CheckCircle2 size={18} /> {status.success}</div>}
 
+      {/* ──────────────────────────────────────────────────────────
+          1. ENQUIRY DETAIL PAGE VIEW (/admin/enquiries/:id)
+      ────────────────────────────────────────────────────────── */}
+      {mode === "detail" && (
+        <div className="anim-fade">
+          {detailLoading || !detailData ? (
+            <PageLoader title="Loading Enquiry Details" message="Fetching customer follow-up history and details..." />
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20 }}>
+              
+              {/* Top Hero Banner */}
+              <div className="eq-card" style={{ padding: "24px 28px", borderLeft: "5px solid #4f46e5" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+                  <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                    <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #4f46e5, #3b82f6)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", fontWeight: 800, flexShrink: 0, boxShadow: "0 4px 12px rgba(79, 70, 229, 0.25)" }}>
+                      {(detailData.name || "E").charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                        <h1 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#0f172a" }}>{detailData.name}</h1>
+                        <span className="status-pill" style={{ background: getStatusColor(detailData.status).bg, color: getStatusColor(detailData.status).text }}>
+                          {mapStatusToUi(detailData.status)}
+                        </span>
+                        <span style={{ padding: "2px 8px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, background: getPriorityColor(detailData.priority).bg, color: getPriorityColor(detailData.priority).text }}>
+                          {detailData.priority} Priority
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginTop: 6, fontSize: "0.85rem", color: "#64748b" }}>
+                        <a href={`tel:${detailData.phone}`} style={{ textDecoration: "none", color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                          <Phone size={14} color="#4f46e5" /> {detailData.phone}
+                        </a>
+                        <a 
+                          href={`https://wa.me/${detailData.phone?.replace(/[^0-9]/g, "")}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          style={{ textDecoration: "none", color: "#16a34a", fontWeight: 700, display: "flex", alignItems: "center", gap: 4, background: "#f0fdf4", padding: "2px 8px", borderRadius: 6, border: "1px solid #bbf7d0" }}
+                        >
+                          <MessageCircle size={13} /> WhatsApp
+                        </a>
+                        {detailData.email && (
+                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <Mail size={14} /> {detailData.email}
+                          </span>
+                        )}
+                        <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#64748b" }}>
+                          <Clock size={14} /> Logged on: {new Date(detailData.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                    <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Scheduled Follow-Up</div>
+                    <div>{formatFollowUpBadge(detailData.followUpAt)}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main 2-Column Split: Details & Follow-Ups */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: 20 }}>
+                
+                {/* Left Column: Enquiry Information */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  
+                  {/* Lead Meta Box */}
+                  <div className="eq-card">
+                    <h3 style={{ margin: "0 0 16px 0", fontSize: "1rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                      <FileText size={18} color="#4f46e5" /> Enquiry Specifications
+                    </h3>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      <div className="detail-meta-box">
+                        <div className="detail-meta-label">Interested Service</div>
+                        <div className="detail-meta-value" style={{ color: "#4f46e5" }}>
+                          {detailData.interestedService?.name || "General Service Enquiry"}
+                        </div>
+                      </div>
+
+                      <div className="detail-meta-box">
+                        <div className="detail-meta-label">Lead Source</div>
+                        <div className="detail-meta-value">
+                          {mapSourceToUi(detailData.source)}
+                        </div>
+                      </div>
+
+                      <div className="detail-meta-box">
+                        <div className="detail-meta-label">Salon Branch</div>
+                        <div className="detail-meta-value">
+                          {detailData.interestedBranch?.name || "All Branches / Main"}
+                        </div>
+                      </div>
+
+                      {detailData.notes && (
+                        <div className="detail-meta-box" style={{ background: "#f8fafc", borderLeft: "3px solid #6366f1" }}>
+                          <div className="detail-meta-label">Initial Customer Note / Requirement</div>
+                          <div style={{ fontSize: "0.9rem", color: "#334155", lineHeight: 1.5, marginTop: 4 }}>
+                            {detailData.notes}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Customer Conversion Status Card */}
+                  <div className="eq-card" style={{ background: detailData.convertedCustomerId ? "#f0fdf4" : "#f8fafc", borderColor: detailData.convertedCustomerId ? "#bbf7d0" : "#e2e8f0" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: detailData.convertedCustomerId ? "#10b981" : "#e2e8f0", color: detailData.convertedCustomerId ? "white" : "#64748b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <UserCheck size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: "0.95rem", color: detailData.convertedCustomerId ? "#166534" : "#1e293b" }}>
+                          {detailData.convertedCustomerId ? "Official Salon Client" : "Prospect / Lead"}
+                        </div>
+                        <div style={{ fontSize: "0.78rem", color: detailData.convertedCustomerId ? "#15803d" : "#64748b", marginTop: 2 }}>
+                          {detailData.convertedCustomerId ? "Synced in customer database" : "Can be converted into a recurring customer"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right Column: Follow-Ups History & Logger */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  
+                  {/* Follow-Up Recorder Box */}
+                  <div className="eq-card" style={{ borderTop: "4px solid #4f46e5" }}>
+                    <h3 style={{ margin: "0 0 14px 0", fontSize: "1rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                      <Plus size={18} color="#4f46e5" /> Log New Follow-Up
+                    </h3>
+
+                    <form onSubmit={handleAddFollowUpDetail}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <div>
+                          <label className="eq-label">Follow-up Conversation Notes / Remarks *</label>
+                          <textarea
+                            className="eq-input"
+                            required
+                            rows={3}
+                            placeholder="Detail customer's response, preferences, price quote offered, objections discussed..."
+                            value={detailFollowUpNote}
+                            onChange={(e) => setDetailFollowUpNote(e.target.value)}
+                            style={{ height: 75, padding: 10, lineHeight: 1.4 }}
+                          />
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          <div>
+                            <label className="eq-label">Update Status</label>
+                            <CustomSelect
+                              className="eq-input"
+                              value={detailFollowUpStatus}
+                              onChange={(e) => setDetailFollowUpStatus(e.target.value)}
+                            >
+                              {STATUS_OPTIONS.map(s => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </CustomSelect>
+                          </div>
+
+                          <div>
+                            <label className="eq-label">Next Reminder Date</label>
+                            <input
+                              type="date"
+                              className="eq-input"
+                              value={detailFollowUpDate}
+                              onChange={(e) => setDetailFollowUpDate(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+                          <button
+                            type="submit"
+                            disabled={savingFollowUp || !detailFollowUpNote.trim()}
+                            className="eq-btn eq-btn-primary"
+                            style={{ height: 38, padding: "0 18px", fontWeight: 700 }}
+                          >
+                            <Send size={14} /> {savingFollowUp ? "Recording..." : "Record Follow-Up"}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Previous Follow-Ups Timeline */}
+                  <div className="eq-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                        <History size={18} color="#f59e0b" /> Previous Follow-Ups & Timeline
+                      </h3>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 100 }}>
+                        {detailData.followUps?.length || 0} Records
+                      </span>
+                    </div>
+
+                    {!detailData.followUps || detailData.followUps.length === 0 ? (
+                      <div style={{ padding: "30px 20px", textAlign: "center", background: "#f8fafc", borderRadius: 12, border: "1px dashed #cbd5e1" }}>
+                        <MessageSquare size={32} color="#94a3b8" style={{ margin: "0 auto 8px" }} />
+                        <div style={{ fontWeight: 700, color: "#475569", fontSize: "0.9rem" }}>No Previous Follow-Ups</div>
+                        <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: 2 }}>Record the first conversation note above to start tracking client interactions.</div>
+                      </div>
+                    ) : (
+                      <div className="timeline-container">
+                        {detailData.followUps.map((item, idx) => (
+                          <div key={item.id || idx} className="timeline-item">
+                            <div className={`timeline-dot ${item.status ? "status-change" : ""}`} />
+                            <div className="timeline-card">
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 6, marginBottom: 6 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                  <span style={{ fontWeight: 800, fontSize: "0.85rem", color: "#0f172a" }}>
+                                    {item.actorMembership?.user?.name || "Staff Member"}
+                                  </span>
+                                  {item.status && (
+                                    <span className="status-pill" style={{ background: getStatusColor(item.status).bg, color: getStatusColor(item.status).text, fontSize: "0.68rem" }}>
+                                      {mapStatusToUi(item.status)}
+                                    </span>
+                                  )}
+                                </div>
+                                <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600 }}>
+                                  {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                                </span>
+                              </div>
+
+                              <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.5 }}>
+                                {item.note}
+                              </div>
+
+                              {item.dueAt && (
+                                <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.75rem", fontWeight: 700, color: "#4338ca", background: "#e0e7ff", padding: "2px 8px", borderRadius: 6 }}>
+                                  <CalendarClock size={12} /> Reminder Set For: {new Date(item.dueAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────
+          2. MAIN ENQUIRIES TABLE VIEW
+      ────────────────────────────────────────────────────────── */}
       {mode === "enquiries" && (
         <div className="anim-fade">
           {/* ── SEARCH & FILTER BAR ── */}
@@ -734,13 +1115,24 @@ export default function EnquiriesPage() {
                   </thead>
                   <tbody>
                     {filteredRows.map((row) => (
-                      <tr key={row.id}>
+                      <tr 
+                        key={row.id} 
+                        className="enquiry-row"
+                        onClick={() => navigate(`/admin/enquiries/${row.id}`)}
+                      >
                         <td style={{ color: "#64748b", fontSize: "0.8rem" }}>
                           {new Date(row.createdAt).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' })}
                         </td>
                         <td>
-                          <strong style={{ color: "#0f172a" }}>{row.name}</strong>
-                          {row.notes && <div style={{ fontSize: "11.5px", color: "#64748b", marginTop: 2 }}>{row.notes}</div>}
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <strong style={{ color: "#0f172a" }}>{row.name}</strong>
+                            {row.followUps && row.followUps.length > 0 && (
+                              <span style={{ fontSize: "0.7rem", color: "#4f46e5", background: "#eef2ff", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>
+                                💬 {row.followUps.length}
+                              </span>
+                            )}
+                          </div>
+                          {row.notes && <div style={{ fontSize: "11.5px", color: "#64748b", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{row.notes}</div>}
                         </td>
                         <td style={{ fontWeight: 600, color: "#0f172a" }}>{row.phone}</td>
                         <td>
@@ -772,8 +1164,17 @@ export default function EnquiriesPage() {
                             {mapStatusToUi(row.status)}
                           </span>
                         </td>
-                        <td style={{ textAlign: "right" }}>
+                        <td style={{ textAlign: "right" }} onClick={(e) => e.stopPropagation()}>
                           <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            {/* View Detail Button */}
+                            <button
+                              className="eq-btn eq-btn-primary"
+                              style={{ padding: "4px 10px", height: "30px", fontSize: "0.75rem", fontWeight: 700 }}
+                              onClick={() => navigate(`/admin/enquiries/${row.id}`)}
+                              title="View Full Follow-Up Details"
+                            >
+                              Details →
+                            </button>
                             {/* Edit Button */}
                             <button 
                               className="eq-btn eq-btn-secondary" 
@@ -781,7 +1182,7 @@ export default function EnquiriesPage() {
                               onClick={() => handleOpenEdit(row)}
                               title="Edit Enquiry Details"
                             >
-                              <Edit3 size={13} /> Edit
+                              <Edit3 size={13} />
                             </button>
                             {/* Status Change Button */}
                             <button 
@@ -793,7 +1194,7 @@ export default function EnquiriesPage() {
                                 setActionNotes("");
                                 setShowActionModal(true);
                               }}
-                              title="Update Status"
+                              title="Quick Status Update"
                             >
                               Status
                             </button>
@@ -809,7 +1210,9 @@ export default function EnquiriesPage() {
         </div>
       )}
 
-      {/* ── REPORTS MODE ── */}
+      {/* ──────────────────────────────────────────────────────────
+          3. REPORTS VIEW
+      ────────────────────────────────────────────────────────── */}
       {mode === "reports" && report && (
         <div className="anim-fade delay-1 eq-reports-grid">
           <div className="eq-card" style={{ background: "linear-gradient(135deg, #1e293b, #0f172a)", color: "white", border: "none" }}>
@@ -825,22 +1228,52 @@ export default function EnquiriesPage() {
         </div>
       )}
 
-      {/* ── FOLLOW-UPS MODE ── */}
+      {/* ──────────────────────────────────────────────────────────
+          4. FOLLOW-UPS TAB VIEW
+      ────────────────────────────────────────────────────────── */}
       {mode === "followUps" && (
         <div className="eq-card anim-fade delay-1" style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ padding: 20, borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-            <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}><CalendarClock size={18} color="#f59e0b" /> Scheduled Follow-Ups</h3>
+          <div style={{ padding: 20, borderBottom: "1px solid #e2e8f0", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3 style={{ margin: 0, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+              <CalendarClock size={18} color="#f59e0b" /> Scheduled Follow-Ups & Timeline
+            </h3>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>{followUps.length} follow-ups scheduled</span>
           </div>
           <div>
             {loading ? <PageLoader compact title="Loading Follow-ups..." /> : followUps.map((row) => (
-              <div key={row.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #f1f5f9" }}>
+              <div 
+                key={row.id} 
+                onClick={() => row.enquiry?.id && navigate(`/admin/enquiries/${row.enquiry.id}`)}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #f1f5f9", cursor: "pointer", transition: "background 0.15s" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#ffffff"}
+              >
                 <div>
-                  <strong style={{ fontSize: 14, color: "#0f172a", display: "block", marginBottom: 2 }}>{row.enquiry?.name || "Enquiry Follow-Up"}</strong>
-                  <div style={{ fontSize: 12.5, color: "#64748b", display: "flex", alignItems: "center", gap: 6 }}><Phone size={12} /> {row.enquiry?.phone || "No phone"}</div>
-                  <div style={{ fontSize: 12.5, color: "#94a3b8", marginTop: 2 }}>{row.note || "Follow-up recorded"}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <strong style={{ fontSize: 14, color: "#0f172a" }}>{row.enquiry?.name || "Enquiry Follow-Up"}</strong>
+                    {row.actorMembership?.user?.name && (
+                      <span style={{ fontSize: "0.7rem", color: "#64748b", background: "#f1f5f9", padding: "1px 6px", borderRadius: 4 }}>
+                        By {row.actorMembership.user.name}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "#64748b", display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+                    <Phone size={12} /> {row.enquiry?.phone || "No phone"}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "#334155", marginTop: 4, fontWeight: 500 }}>
+                    {row.note || "Follow-up recorded"}
+                  </div>
                 </div>
-                <div>
-                  {formatFollowUpBadge(row.dueAt || row.createdAt)}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div>
+                    {formatFollowUpBadge(row.dueAt || row.createdAt)}
+                  </div>
+                  <button
+                    className="eq-btn eq-btn-secondary"
+                    style={{ padding: "4px 10px", height: "30px", fontSize: "0.75rem", fontWeight: 700 }}
+                  >
+                    View Details →
+                  </button>
                 </div>
               </div>
             ))}
@@ -942,7 +1375,7 @@ export default function EnquiriesPage() {
                 <div>
                   <label className="eq-label">Enquiry Status</label>
                   <CustomSelect 
-                    className="eq-input"
+                    className="eq-input" 
                     value={form.status}
                     onChange={(e) => setForm({ ...form, status: e.target.value })}
                   >
@@ -956,7 +1389,7 @@ export default function EnquiriesPage() {
                 <div>
                   <label className="eq-label">Service Interested</label>
                   <CustomSelect 
-                    className="eq-input"
+                    className="eq-input" 
                     value={form.interestedServiceId}
                     onChange={(e) => setForm({ ...form, interestedServiceId: e.target.value })}
                   >
@@ -971,7 +1404,7 @@ export default function EnquiriesPage() {
                 <div>
                   <label className="eq-label">Priority</label>
                   <CustomSelect 
-                    className="eq-input"
+                    className="eq-input" 
                     value={form.priority}
                     onChange={(e) => setForm({ ...form, priority: e.target.value })}
                   >
