@@ -113,6 +113,16 @@ export default function CreateCampaignPage() {
     fetchCredits();
   }, []);
 
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    const ch = sp.get('channel');
+    const st = sp.get('step');
+    if (ch) {
+      setChannel(ch.toUpperCase());
+      setStep(st ? (parseInt(st, 10) || 2) : 2);
+    }
+  }, [location.search]);
+
   const fetchCredits = async () => {
     setCreditsLoading(true);
     try {
