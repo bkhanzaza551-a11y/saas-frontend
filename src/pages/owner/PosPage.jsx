@@ -211,7 +211,12 @@ export default function PosPage() {
   });
 
   const addRunningService = (serviceData) => {
-    const next = [...runningServices, serviceData];
+    const enriched = {
+      ...serviceData,
+      id: serviceData.id || ("run_" + Date.now()),
+      startedAt: serviceData.startedAt || new Date().toISOString()
+    };
+    const next = [...runningServices.filter(rs => !(serviceData.form?.customerId && rs.form?.customerId === serviceData.form?.customerId)), enriched];
     setRunningServices(next);
     localStorage.setItem("salonnest_pos_running", JSON.stringify(next));
   };
@@ -235,7 +240,12 @@ export default function PosPage() {
     if (!activeInv) return;
     
     // Check local running services first
-    const runningIdx = runningServices.findIndex(rs => rs.form?.customerId === activeInv.customerId || (rs.form?.appointmentId && rs.form?.appointmentId === activeInv.appointmentId));
+    const runningIdx = runningServices.findIndex(rs => 
+      (activeInv.id && rs.id === activeInv.id) ||
+      (activeInv.customerId && rs.form?.customerId === activeInv.customerId) ||
+      (activeInv.appointmentId && rs.form?.appointmentId === activeInv.appointmentId) ||
+      (activeInv.customerName && rs.customerName && rs.customerName.toLowerCase() === activeInv.customerName.toLowerCase())
+    );
     if (runningIdx !== -1) {
       loadRunningService(runningIdx);
       setActiveServiceInvoice(null);
@@ -947,17 +957,60 @@ export default function PosPage() {
   }, [selectedBranchId]);
 
   useEffect(() => {
-    if (!form.customerId) { setActiveServiceInvoice(null); return; }
+    // 1. Check local running services first
+    if (form.customerId || (guestSearchInput && guestSearchInput.trim())) {
+      const searchLower = (guestSearchInput || "").toLowerCase().trim();
+      const localRunning = runningServices.find(rs => {
+        if (form.customerId && rs.form?.customerId === form.customerId) return true;
+        if (searchLower && rs.customerName && rs.customerName.toLowerCase() === searchLower) return true;
+        if (searchLower && rs.guestSearchInput && rs.guestSearchInput.toLowerCase() === searchLower) return true;
+        if (form.appointmentId && rs.form?.appointmentId && rs.form?.appointmentId === form.appointmentId) return true;
+        return false;
+      });
+
+      if (localRunning) {
+        const calcTotal = (localRunning.form?.items || []).reduce((sum, it) => {
+          const p = Number(it.unitPrice ?? it.originalUnitPrice ?? 0);
+          const q = Number(it.qty || 1);
+          return sum + (p * q);
+        }, 0);
+
+        setActiveServiceInvoice({
+          id: localRunning.id || "local-running",
+          invoiceNumber: localRunning.invoiceNumber || localRunning.form?.invoiceNumber || "IN PROGRESS",
+          customerId: localRunning.form?.customerId || form.customerId,
+          customerName: localRunning.customerName,
+          appointmentId: localRunning.form?.appointmentId,
+          startedAt: localRunning.startedAt || new Date().toISOString(),
+          total: calcTotal || 0,
+          items: localRunning.form?.items || [],
+          isLocalRunning: true
+        });
+        return;
+      }
+    }
+
+    if (!form.customerId) { 
+      setActiveServiceInvoice(null); 
+      return; 
+    }
+
     let cancelled = false;
     (async () => {
       try {
         const res = await api.get(`/owner/invoices/active-by-customer/${form.customerId}`);
         const invoices = Array.isArray(res.data) ? res.data : [];
-        if (!cancelled && invoices.length > 0) { setActiveServiceInvoice(invoices[0]); }
-      } catch { if (!cancelled) { setActiveServiceInvoice(null); } }
+        if (!cancelled && invoices.length > 0) { 
+          setActiveServiceInvoice(invoices[0]); 
+        } else if (!cancelled) {
+          setActiveServiceInvoice(null);
+        }
+      } catch { 
+        if (!cancelled) { setActiveServiceInvoice(null); } 
+      }
     })();
     return () => { cancelled = true; };
-  }, [form.customerId]);
+  }, [form.customerId, guestSearchInput, runningServices, form.appointmentId]);
 
   // Auto-apply advance: when a customer with advance is selected and items exist,
   // auto-fill the ADVANCE payment up to min(advance, total). Only fills if the user
@@ -1842,13 +1895,17 @@ export default function PosPage() {
     
     if (mode === "start") {
       const customer = context.customers?.find(c => c.id === form.customerId);
+      const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
       addRunningService({
-        customerName: customer ? customer.name : "",
-        guestSearchInput,
-        form,
-        tipEntries
+        id: "run_" + Date.now(),
+        customerName: customer ? customer.name : (guestSearchInput || "Customer"),
+        guestSearchInput: guestSearchInput || (customer ? customer.name : ""),
+        invoiceNumber,
+        form: { ...form, invoiceNumber },
+        tipEntries,
+        startedAt: new Date().toISOString()
       });
-      setToastMessage({ type: "success", title: "Service Started", message: "Moved to running services." });
+      setToastMessage({ type: "success", title: "Service Started", message: "Service started and moved to in-progress." });
       setGuestSearchInput("");
       setCouponValidation(null);
       setCouponCodeInput("");
