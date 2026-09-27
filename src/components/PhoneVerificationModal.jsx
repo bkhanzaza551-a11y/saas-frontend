@@ -115,16 +115,24 @@ export default function PhoneVerificationModal() {
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
       // Update session in storage & state
-      const stored = JSON.parse(localStorage.getItem("salonnest_auth") || "{}");
-      if (stored?.user) {
-        stored.user.isPhoneVerified = true;
-        stored.user.phone = fullPhone;
-      }
-      if (stored?.membership) {
-        stored.membership.phone = fullPhone;
-        if (stored.membership.salon) stored.membership.salon.phone = fullPhone;
-      }
-      localStorage.setItem("salonnest_auth", JSON.stringify(stored));
+      const updateStorage = (key) => {
+          let raw = localStorage.getItem(key);
+          if (!raw) {
+             raw = sessionStorage.getItem(key);
+             if (!raw) return;
+             const st = JSON.parse(raw);
+             if (st?.user) { st.user.isPhoneVerified = true; st.user.phone = fullPhone; }
+             if (st?.membership) { st.membership.phone = fullPhone; if (st.membership.salon) st.membership.salon.phone = fullPhone; }
+             sessionStorage.setItem(key, JSON.stringify(st));
+             return;
+          }
+          const st = JSON.parse(raw);
+          if (st?.user) { st.user.isPhoneVerified = true; st.user.phone = fullPhone; }
+          if (st?.membership) { st.membership.phone = fullPhone; if (st.membership.salon) st.membership.salon.phone = fullPhone; }
+          localStorage.setItem(key, JSON.stringify(st));
+        };
+        updateStorage("salonnest_auth");
+        updateStorage("salonnest_auth_session");
       window.location.reload();
     } catch (err) {
       setError(err.response?.data?.message || "Invalid OTP. Please check the code and retry.");
@@ -143,12 +151,22 @@ export default function PhoneVerificationModal() {
         { headers: { Authorization: `Bearer ${auth.accessToken}` } }
       );
       sessionStorage.setItem("salonnest_phone_verify_skipped", "true");
-      const stored = JSON.parse(localStorage.getItem("salonnest_auth") || "{}");
-      if (stored?.user) {
-        stored.user.isPhoneVerified = false;
-        stored.user.phoneVerificationSkipped = true;
-        localStorage.setItem("salonnest_auth", JSON.stringify(stored));
-      }
+      const updateStorageSkip = (key) => {
+          let raw = localStorage.getItem(key);
+          if (!raw) {
+             raw = sessionStorage.getItem(key);
+             if (!raw) return;
+             const st = JSON.parse(raw);
+             if (st?.user) { st.user.isPhoneVerified = false; st.user.phoneVerificationSkipped = true; }
+             sessionStorage.setItem(key, JSON.stringify(st));
+             return;
+          }
+          const st = JSON.parse(raw);
+          if (st?.user) { st.user.isPhoneVerified = false; st.user.phoneVerificationSkipped = true; }
+          localStorage.setItem(key, JSON.stringify(st));
+        };
+        updateStorageSkip("salonnest_auth");
+        updateStorageSkip("salonnest_auth_session");
       window.location.reload();
     } catch (err) {
       setError(err.response?.data?.message || "Mobile verification is mandatory on this platform.");
