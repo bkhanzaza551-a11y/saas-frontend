@@ -48,7 +48,134 @@ export default function PhoneVerificationModal() {
 
     fetchInfo();
 
-    return (
+    return () => {
+      document.body.style.overflow = "auto";
+      isMounted = false;
+    };
+  }, [auth?.accessToken]);
+
+  const handleCustomPhoneChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.startsWith("91") && digits.length > 10) {
+      digits = digits.slice(2);
+    } else if (digits.startsWith("0") && digits.length > 10) {
+      digits = digits.slice(1);
+    }
+    setCustomPhoneDigits(digits.slice(0, 10));
+    if (error) setError("");
+  };
+
+  const handleSendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!isPhoneValid) {
+      setError("Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.");
+      return;
+    }
+    setError("");
+    setMessage("");
+    setLoading(true);
+    try {
+      const fullPhone = `+91${activeDigits}`;
+      const res = await api.post(
+        "/owner/verify-phone/send",
+        { phone: fullPhone },
+        { headers: { Authorization: `Bearer ${auth.accessToken}` } }
+      );
+      let successMsg = res.data.message || "OTP code sent successfully!";
+      if (res.data.channel) {
+        const channelLabel = res.data.channel === "whatsapp" ? "WhatsApp" : "SMS";
+        successMsg = `OTP sent via ${channelLabel}!`;
+      }
+      if (res.data.otpCode) {
+        successMsg += ` (Code: ${res.data.otpCode})`;
+      }
+      setMessage(successMsg);
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send verification code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    if (!otp || otp.trim().length < 6) {
+      setError("Please enter the complete 6-digit OTP code.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const fullPhone = `+91${activeDigits}`;
+      await api.post(
+        "/owner/verify-phone/verify",
+        { otpCode: otp.trim(), phone: fullPhone },
+        { headers: { Authorization: `Bearer ${auth.accessToken}` } }
+      );
+      // Update session in storage & state
+      const updateStorage = (key) => {
+          let raw = localStorage.getItem(key);
+          if (!raw) {
+             raw = sessionStorage.getItem(key);
+             if (!raw) return;
+             const st = JSON.parse(raw);
+             if (st?.user) { st.user.isPhoneVerified = true; st.user.phone = fullPhone; }
+             if (st?.membership) { st.membership.phone = fullPhone; if (st.membership.salon) st.membership.salon.phone = fullPhone; }
+             sessionStorage.setItem(key, JSON.stringify(st));
+             return;
+          }
+          const st = JSON.parse(raw);
+          if (st?.user) { st.user.isPhoneVerified = true; st.user.phone = fullPhone; }
+          if (st?.membership) { st.membership.phone = fullPhone; if (st.membership.salon) st.membership.salon.phone = fullPhone; }
+          localStorage.setItem(key, JSON.stringify(st));
+        };
+        updateStorage("salonnest_auth");
+        updateStorage("salonnest_auth_session");
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid OTP. Please check the code and retry.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await api.post(
+        "/owner/verify-phone/skip",
+        {},
+        { headers: { Authorization: `Bearer ${auth.accessToken}` } }
+      );
+      sessionStorage.setItem("salonnest_phone_verify_skipped", "true");
+      const updateStorageSkip = (key) => {
+          let raw = localStorage.getItem(key);
+          if (!raw) {
+             raw = sessionStorage.getItem(key);
+             if (!raw) return;
+             const st = JSON.parse(raw);
+             if (st?.user) { st.user.isPhoneVerified = false; st.user.phoneVerificationSkipped = true; }
+             sessionStorage.setItem(key, JSON.stringify(st));
+             return;
+          }
+          const st = JSON.parse(raw);
+          if (st?.user) { st.user.isPhoneVerified = false; st.user.phoneVerificationSkipped = true; }
+          localStorage.setItem(key, JSON.stringify(st));
+        };
+        updateStorageSkip("salonnest_auth");
+        updateStorageSkip("salonnest_auth_session");
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.message || "Mobile verification is mandatory on this platform.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: "rgba(15, 23, 42, 0.85)",
