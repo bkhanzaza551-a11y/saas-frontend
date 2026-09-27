@@ -1081,11 +1081,9 @@ export default function AppointmentsPage() {
       return;
     }
     
-    const appt = rows.find(r => r.id === editingAppointmentId);
-    if (appt) {
-      setCheckoutAppointment(appt);
-      setIsCreateModalOpen(false);
-    }
+    const targetId = editingAppointmentId;
+    setIsCreateModalOpen(false);
+    navigate(`/admin/pos?appointmentId=${targetId}&mode=booking`);
   };
 
   const handleCancelAppointment = async () => {
@@ -2655,17 +2653,7 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      {checkoutAppointment && (
-        <AppointmentCheckoutModal 
-          appointment={checkoutAppointment}
-          onClose={() => setCheckoutAppointment(null)}
-          onComplete={async (invoiceId) => {
-            setCheckoutAppointment(null);
-            await loadAppointments();
-            // navigate(`/admin/pos-dashboard/${invoiceId}?from=/admin/appointments`);
-          }}
-        />
-      )}
+
 
       {contextMenu && (
         <>

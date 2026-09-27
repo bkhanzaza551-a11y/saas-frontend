@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X,   Search } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
@@ -69,6 +69,16 @@ export default function PosPage() {
   const { auth } = useAuth();
   const alert = useAlert();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const appointmentIdParam = searchParams.get("appointmentId");
+  const modeParam = searchParams.get("mode");
+  const [posMode, setPosMode] = useState(() => (modeParam === "booking" || appointmentIdParam) ? "booking" : "sales");
+  const [loadedAppointment, setLoadedAppointment] = useState(null);
+  const [loadingAppointment, setLoadingAppointment] = useState(false);
+  const [showAppointmentPickerModal, setShowAppointmentPickerModal] = useState(false);
+  const [availableAppointments, setAvailableAppointments] = useState([]);
+  const [loadingAppointmentsList, setLoadingAppointmentsList] = useState(false);
+  const [appointmentFilterText, setAppointmentFilterText] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdInvoice, setCreatedInvoice] = useState(null);
   const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
@@ -176,6 +186,7 @@ export default function PosPage() {
   const [form, setForm] = useState({
     customerId: "",
     branchId: "",
+    appointmentId: appointmentIdParam || null,
     appliedMembershipId: "",
     discount: 0,
     tax: 0,
@@ -232,6 +243,121 @@ export default function PosPage() {
     }));
     setLoading(false);
   }, []);
+
+  const loadAppointmentIntoPos = useCallback((appt) => {
+    if (!appt) return;
+    setLoadedAppointment(appt);
+    setPosMode("booking");
+
+    const custId = appt.customerId || appt.customer?.id || "";
+    const custName = appt.customer?.name || appt.guestName || "";
+    if (custName) {
+      setGuestSearchInput(custName);
+    }
+
+    const loadedItems = (appt.items || []).map((as) => {
+      const staffId = as.assignedStaff?.[0]?.userSalonId || as.assignedStaff?.[0]?.staffUserId || appt.primaryStaffUserId || "";
+      const unitPrice = Number(as.price ?? as.service?.price ?? 0);
+      return {
+        itemType: "SERVICE",
+        serviceId: as.serviceId || as.service?.id || "",
+        staffUserId: staffId,
+        staffUserSalonId: staffId,
+        qty: 1,
+        unitPrice: unitPrice,
+        originalUnitPrice: unitPrice,
+        discountPct: 0,
+        discountAmt: 0,
+        taxPct: Number(as.service?.taxRate || as.service?.taxPct || 0),
+        consumableItems: (as.service?.consumables || []).map(c => ({
+          productId: c.productId,
+          name: c.product?.name || "Consumable",
+          qty: c.quantity || 1,
+          unit: c.product?.secondaryUnit || c.product?.unit || "ml"
+        })),
+        complimentaryRemark: ""
+      };
+    });
+
+    setForm((current) => ({
+      ...current,
+      appointmentId: appt.id,
+      customerId: custId || current.customerId,
+      branchId: appt.branchId || current.branchId,
+      notes: appt.notes || current.notes || "",
+      items: loadedItems.length > 0 ? loadedItems : (current.items?.length > 0 ? current.items : [emptyServiceItem])
+    }));
+  }, []);
+
+  const handleSwitchToSales = () => {
+    setPosMode("sales");
+    setLoadedAppointment(null);
+    setSearchParams({});
+    setForm(c => ({
+      ...c,
+      appointmentId: null
+    }));
+  };
+
+  const fetchAvailableAppointments = useCallback(async () => {
+    setLoadingAppointmentsList(true);
+    try {
+      const res = await api.get(`/owner/appointments?branchId=${form.branchId || ""}&take=50`);
+      const list = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      const activeList = list.filter(a => a.status !== "CANCELLED" && a.status !== "COMPLETED");
+      setAvailableAppointments(activeList);
+    } catch (err) {
+      console.error("Error fetching appointments:", err);
+    } finally {
+      setLoadingAppointmentsList(false);
+    }
+  }, [form.branchId]);
+
+  const handleSwitchToBooking = () => {
+    setPosMode("booking");
+    if (!loadedAppointment) {
+      setShowAppointmentPickerModal(true);
+      fetchAvailableAppointments();
+    }
+  };
+
+  const handleSelectAppointmentFromModal = (appt) => {
+    loadAppointmentIntoPos(appt);
+    setShowAppointmentPickerModal(false);
+    setSearchParams({ appointmentId: appt.id, mode: "booking" });
+    setToastMessage({
+      type: "success",
+      title: "Appointment Loaded",
+      message: `Loaded appointment for ${appt.customer?.name || appt.guestName || "Guest"}`
+    });
+  };
+
+  useEffect(() => {
+    if (!appointmentIdParam) {
+      if (modeParam === "booking") {
+        setPosMode("booking");
+      }
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoadingAppointment(true);
+      try {
+        const res = await api.get(`/owner/appointments/${appointmentIdParam}`);
+        if (!cancelled && res.data) {
+          loadAppointmentIntoPos(res.data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to load appointment details:", err);
+          setStatus({ error: formatApiError(err, "Could not load appointment details"), success: "" });
+        }
+      } finally {
+        if (!cancelled) setLoadingAppointment(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [appointmentIdParam, loadAppointmentIntoPos, modeParam]);
 
   const [manualConsumableDraft, setManualConsumableDraft] = useState({ name: "", qty: 1, unit: "ml" });
 
@@ -1597,6 +1723,7 @@ export default function PosPage() {
 
     return {
       ...form,
+      appointmentId: posMode === "booking" ? (form.appointmentId || loadedAppointment?.id || appointmentIdParam || null) : null,
       mode,
       discount: Number(form.discount || 0),
       tax: Number(form.tax || 0),
@@ -1614,7 +1741,7 @@ export default function PosPage() {
       affiliateCreditRedemptions,
       payments: finalPayments
     };
-  }, [affiliateServiceCreditValue, form]);
+  }, [affiliateServiceCreditValue, form, posMode, loadedAppointment, appointmentIdParam, consumableOverrides]);
 
   const updateItem = (index, patch) => {
     const nextItems = [...form.items];
@@ -1669,6 +1796,7 @@ export default function PosPage() {
       setForm(current => ({
         customerId: "",
         branchId: current.branchId,
+        appointmentId: null,
         appliedMembershipId: "",
         discount: 0,
         tax: 0,
@@ -1685,6 +1813,10 @@ export default function PosPage() {
       setTipEntries([]);
       setPaymentManuallyEdited({ online: false, cash: false });
       setGiftCardDiscount(0);
+      if (posMode === "booking") {
+        setLoadedAppointment(null);
+        setSearchParams({});
+      }
       return;
     }
 
@@ -1721,12 +1853,18 @@ export default function PosPage() {
         setShowSuccessModal(true);
       }
 
+      if (posMode === "booking") {
+        setLoadedAppointment(null);
+        setSearchParams({});
+      }
+
       setGuestSearchInput("");
       setCouponValidation(null);
       setCouponCodeInput("");
       setForm(current => ({
         customerId: "",
         branchId: current.branchId,
+        appointmentId: null,
         appliedMembershipId: "",
         discount: 0,
         tax: 0,
@@ -2023,12 +2161,165 @@ export default function PosPage() {
         <div className={`pos-main ${mobileTab === "catalog" ? "mobile-hidden" : ""}`}>
           <div className="pos-invoice-section">
             <div className="pos-invoice-header">
-              <h4>Invoice</h4>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <h4 style={{ margin: 0 }}>Invoice</h4>
+                {/* 2-BUTTON SWITCHER: SALES & BOOKING */}
+                <div style={{ display: "inline-flex", background: "#f1f5f9", padding: "3px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <button
+                    type="button"
+                    onClick={handleSwitchToSales}
+                    style={{
+                      padding: "4px 14px",
+                      borderRadius: "6px",
+                      border: "none",
+                      fontWeight: 700,
+                      fontSize: "12px",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      background: posMode === "sales" ? "#4f46e5" : "transparent",
+                      color: posMode === "sales" ? "#ffffff" : "#64748b",
+                      boxShadow: posMode === "sales" ? "0 1px 2px rgba(79, 70, 229, 0.25)" : "none",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    🛍️ Sales
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSwitchToBooking}
+                    style={{
+                      padding: "4px 14px",
+                      borderRadius: "6px",
+                      border: "none",
+                      fontWeight: 700,
+                      fontSize: "12px",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      background: posMode === "booking" ? "#4f46e5" : "transparent",
+                      color: posMode === "booking" ? "#ffffff" : "#64748b",
+                      boxShadow: posMode === "booking" ? "0 1px 2px rgba(79, 70, 229, 0.25)" : "none",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    📅 Booking
+                  </button>
+                </div>
+              </div>
               <div className="pos-invoice-date">
                 {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               </div>
             </div>
+
+            {/* If in booking mode, display booking indicator banner */}
+            {posMode === "booking" && (
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                background: loadedAppointment ? "#eff6ff" : "#fffbeb",
+                borderRadius: "8px",
+                border: `1px solid ${loadedAppointment ? "#bfdbfe" : "#fde68a"}`,
+                marginBottom: "12px",
+                fontSize: "12px"
+              }}>
+                {loadingAppointment ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#2563eb" }}>
+                    <RefreshCw size={14} className="animate-spin" /> Loading appointment details...
+                  </div>
+                ) : loadedAppointment ? (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#1e40af" }}>
+                      <Calendar size={15} color="#2563eb" />
+                      <div>
+                        <strong>Appointment #{loadedAppointment.appointmentNumber || (loadedAppointment.id ? loadedAppointment.id.slice(0, 8) : "")}</strong>
+                        {loadedAppointment.customer?.name && <span style={{ marginLeft: 6 }}>({loadedAppointment.customer.name})</span>}
+                        {loadedAppointment.status && (
+                          <span style={{
+                            marginLeft: 6,
+                            padding: "1px 6px",
+                            borderRadius: 4,
+                            fontSize: 10,
+                            fontWeight: 700,
+                            background: loadedAppointment.status === "IN_PROGRESS" ? "#fef3c7" : "#dcfce7",
+                            color: loadedAppointment.status === "IN_PROGRESS" ? "#92400e" : "#166534"
+                          }}>
+                            {loadedAppointment.status}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAppointmentPickerModal(true);
+                          fetchAvailableAppointments();
+                        }}
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #93c5fd",
+                          color: "#1d4ed8",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          cursor: "pointer"
+                        }}
+                      >
+                        Switch Appt
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSwitchToSales}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#64748b",
+                          padding: "3px 6px",
+                          cursor: "pointer",
+                          fontSize: "11px"
+                        }}
+                        title="Clear appointment & switch to sales"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#92400e" }}>
+                      <AlertCircle size={15} color="#d97706" />
+                      <span>No appointment selected for this booking invoice.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAppointmentPickerModal(true);
+                        fetchAvailableAppointments();
+                      }}
+                      style={{
+                        background: "#f59e0b",
+                        border: "none",
+                        color: "#ffffff",
+                        padding: "3px 10px",
+                        borderRadius: "6px",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Select Appointment
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="pos-guest-row">
               <div className="pos-search-guest">
@@ -4228,6 +4519,145 @@ export default function PosPage() {
                 updateItem(compModal.index, { isGift: true, discountPct: 100, discountAmt: 0, complimentaryRemark: compModal.remark.trim() });
                 setCompModal({ open: false, index: null, serviceName: "", remark: "" });
               }} style={{ padding: "10px 24px", background: compModal.remark.trim() ? "#2563eb" : "#cbd5e1", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: compModal.remark.trim() ? "pointer" : "not-allowed" }}>Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Appointment Picker Modal for Booking Mode */}
+      {showAppointmentPickerModal && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#ffffff", borderRadius: 16, width: "100%", maxWidth: 640, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}>
+            <div style={{ padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", color: "#4f46e5" }}>
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>Select Booking to Bill</h3>
+                  <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "2px 0 0" }}>Choose an active appointment to autofill into POS</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAppointmentPickerModal(false)}
+                style={{ background: "#f8fafc", border: "none", cursor: "pointer", padding: 6, borderRadius: "50%", color: "#64748b" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: "12px 20px", borderBottom: "1px solid #f1f5f9", background: "#f8fafc" }}>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="text"
+                  placeholder="Search by customer name, phone, or service..."
+                  value={appointmentFilterText}
+                  onChange={(e) => setAppointmentFilterText(e.target.value)}
+                  style={{ width: "100%", padding: "9px 12px 9px 34px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: "13px", boxSizing: "border-box", outline: "none", background: "#ffffff" }}
+                />
+                <Search size={15} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+              </div>
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+              {loadingAppointmentsList ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 200, color: "#64748b", gap: 10 }}>
+                  <RefreshCw size={22} className="animate-spin" color="#4f46e5" />
+                  <span style={{ fontSize: "13px" }}>Loading active appointments...</span>
+                </div>
+              ) : availableAppointments.filter(a => {
+                if (!appointmentFilterText.trim()) return true;
+                const q = appointmentFilterText.toLowerCase();
+                const custName = (a.customer?.name || a.guestName || "").toLowerCase();
+                const custPhone = (a.customer?.phone || "").toLowerCase();
+                const services = (a.items || []).map(i => i.service?.name || "").join(" ").toLowerCase();
+                return custName.includes(q) || custPhone.includes(q) || services.includes(q);
+              }).length === 0 ? (
+                <div style={{ padding: "40px 16px", textAlign: "center", color: "#64748b" }}>
+                  <EmptyState title="No active appointments found" message="No pending or in-progress appointments found for this branch." />
+                </div>
+              ) : (
+                availableAppointments
+                  .filter(a => {
+                    if (!appointmentFilterText.trim()) return true;
+                    const q = appointmentFilterText.toLowerCase();
+                    const custName = (a.customer?.name || a.guestName || "").toLowerCase();
+                    const custPhone = (a.customer?.phone || "").toLowerCase();
+                    const services = (a.items || []).map(i => i.service?.name || "").join(" ").toLowerCase();
+                    return custName.includes(q) || custPhone.includes(q) || services.includes(q);
+                  })
+                  .map(appt => {
+                    const servicesText = (appt.items || []).map(i => i.service?.name).filter(Boolean).join(", ") || "Services";
+                    const staffName = appt.primaryStaff?.user?.name || appt.items?.[0]?.assignedStaff?.[0]?.userSalon?.user?.name || "Unassigned";
+                    const totalEst = (appt.items || []).reduce((sum, i) => sum + Number(i.price || i.service?.price || 0), 0);
+                    const apptTime = appt.startAt ? new Date(appt.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+                    const apptDate = appt.startAt ? new Date(appt.startAt).toLocaleDateString("en-GB", { day: '2-digit', month: 'short' }) : "";
+                    return (
+                      <div
+                        key={appt.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "14px",
+                          borderRadius: 10,
+                          border: "1px solid #e2e8f0",
+                          background: "#ffffff",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                          gap: 12
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                            <span style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>
+                              {appt.customer?.name || appt.guestName || "Guest"}
+                            </span>
+                            {appt.customer?.phone && (
+                              <span style={{ fontSize: "12px", color: "#64748b" }}>• {appt.customer.phone}</span>
+                            )}
+                            <span style={{
+                              padding: "1px 7px",
+                              borderRadius: 4,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              background: appt.status === "IN_PROGRESS" ? "#fef3c7" : "#dcfce7",
+                              color: appt.status === "IN_PROGRESS" ? "#92400e" : "#166534"
+                            }}>
+                              {appt.status}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#475569", display: "flex", gap: 14, flexWrap: "wrap", marginTop: 4 }}>
+                            <span><strong>Services:</strong> {servicesText}</span>
+                            <span><strong>Staff:</strong> {staffName}</span>
+                            <span><strong>Est:</strong> {formatMoney(totalEst)}</span>
+                          </div>
+                          <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: 4 }}>
+                            🕒 {apptDate} at {apptTime}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectAppointmentFromModal(appt)}
+                          style={{
+                            padding: "8px 18px",
+                            borderRadius: 8,
+                            background: "#4f46e5",
+                            color: "#ffffff",
+                            border: "none",
+                            fontWeight: 700,
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                            boxShadow: "0 2px 4px rgba(79, 70, 229, 0.25)"
+                          }}
+                        >
+                          Load & Bill
+                        </button>
+                      </div>
+                    );
+                  })
+              )}
             </div>
           </div>
         </div>
