@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
@@ -2223,12 +2223,12 @@ export default function PosPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <h4 style={{ margin: 0 }}>Invoice</h4>
                 {/* 2-BUTTON SWITCHER: SALES & BOOKING */}
-                <div style={{ display: "inline-flex", background: "#f1f5f9", padding: "3px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "inline-flex", background: "#f1f5f9", padding: "3px", borderRadius: "8px", border: "1px solid #e2e8f0", gap: "2px" }}>
                   <button
                     type="button"
                     onClick={handleSwitchToSales}
                     style={{
-                      padding: "4px 14px",
+                      padding: "5px 14px",
                       borderRadius: "6px",
                       border: "none",
                       fontWeight: 700,
@@ -2236,20 +2236,21 @@ export default function PosPage() {
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "4px",
-                      background: posMode === "sales" ? "#4f46e5" : "transparent",
-                      color: posMode === "sales" ? "#ffffff" : "#64748b",
-                      boxShadow: posMode === "sales" ? "0 1px 2px rgba(79, 70, 229, 0.25)" : "none",
+                      gap: "6px",
+                      background: posMode === "sales" ? "#0f172a" : "transparent",
+                      color: posMode === "sales" ? "#ffffff" : "#475569",
+                      boxShadow: posMode === "sales" ? "0 1px 3px rgba(15, 23, 42, 0.25)" : "none",
                       transition: "all 0.15s ease"
                     }}
                   >
-                    🛍️ Sales
+                    <ShoppingBag size={14} color={posMode === "sales" ? "#ffffff" : "#64748b"} />
+                    Sales
                   </button>
                   <button
                     type="button"
                     onClick={handleSwitchToBooking}
                     style={{
-                      padding: "4px 14px",
+                      padding: "5px 14px",
                       borderRadius: "6px",
                       border: "none",
                       fontWeight: 700,
@@ -2257,14 +2258,15 @@ export default function PosPage() {
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "4px",
-                      background: posMode === "booking" ? "#4f46e5" : "transparent",
-                      color: posMode === "booking" ? "#ffffff" : "#64748b",
-                      boxShadow: posMode === "booking" ? "0 1px 2px rgba(79, 70, 229, 0.25)" : "none",
+                      gap: "6px",
+                      background: posMode === "booking" ? "#0f172a" : "transparent",
+                      color: posMode === "booking" ? "#ffffff" : "#475569",
+                      boxShadow: posMode === "booking" ? "0 1px 3px rgba(15, 23, 42, 0.25)" : "none",
                       transition: "all 0.15s ease"
                     }}
                   >
-                    📅 Booking
+                    <Calendar size={14} color={posMode === "booking" ? "#ffffff" : "#64748b"} />
+                    Booking
                   </button>
                 </div>
               </div>
