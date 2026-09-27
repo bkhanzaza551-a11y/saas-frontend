@@ -224,11 +224,70 @@ export default function PosPage() {
 
   const loadRunningService = (idx) => {
     const data = runningServices[idx];
+    if (!data) return;
     setForm(data.form);
     if (data.tipEntries) setTipEntries(data.tipEntries);
     if (data.guestSearchInput) setGuestSearchInput(data.guestSearchInput);
     removeRunningService(idx);
   };
+
+  const loadActiveInvoiceIntoPos = useCallback((activeInv) => {
+    if (!activeInv) return;
+    
+    // Check local running services first
+    const runningIdx = runningServices.findIndex(rs => rs.form?.customerId === activeInv.customerId || (rs.form?.appointmentId && rs.form?.appointmentId === activeInv.appointmentId));
+    if (runningIdx !== -1) {
+      loadRunningService(runningIdx);
+      setActiveServiceInvoice(null);
+      setToastMessage({ type: "success", title: "Booking Loaded", message: "In-progress service loaded into POS." });
+      return;
+    }
+
+    const cust = context.customers?.find(c => c.id === activeInv.customerId);
+    if (cust) {
+      setGuestSearchInput(cust.name);
+    }
+
+    const loadedItems = (activeInv.items || []).map(item => ({
+      itemType: item.itemType || "SERVICE",
+      serviceId: item.serviceId || "",
+      productId: item.productId || "",
+      membershipPlanId: item.membershipPlanId || "",
+      packageId: item.packageId || "",
+      giftCardId: item.giftCardId || "",
+      staffUserId: item.staffUserId || item.staffUserSalonId || "",
+      staffUserSalonId: item.staffUserId || item.staffUserSalonId || "",
+      qty: Number(item.qty || 1),
+      unitPrice: Number(item.unitPrice || 0),
+      originalUnitPrice: Number(item.originalUnitPrice || item.unitPrice || 0),
+      discountPct: Number(item.discountPct || 0),
+      discountAmt: Number(item.discountAmt || 0),
+      taxPct: Number(item.taxPct || 0),
+      consumableItems: item.consumableItems || [],
+      complimentaryRemark: item.complimentaryRemark || ""
+    }));
+
+    setForm(current => ({
+      ...current,
+      customerId: activeInv.customerId || current.customerId,
+      branchId: activeInv.branchId || current.branchId,
+      appointmentId: activeInv.appointmentId || current.appointmentId || null,
+      discount: Number(activeInv.discount || 0),
+      tax: Number(activeInv.tax || 0),
+      notes: activeInv.notes || current.notes || "",
+      items: loadedItems.length > 0 ? loadedItems : (current.items?.length > 0 ? current.items : [emptyServiceItem]),
+      payments: (activeInv.payments && activeInv.payments.length > 0) 
+        ? activeInv.payments.map(p => ({ mode: p.mode, amount: Number(p.amount), note: p.note || "" }))
+        : [emptyPayment]
+    }));
+
+    setActiveServiceInvoice(null);
+    setToastMessage({
+      type: "success",
+      title: "Booking Loaded",
+      message: `Loaded in-progress service ${activeInv.invoiceNumber || ""} into POS.`
+    });
+  }, [context.customers, runningServices]);
 
   const applyContext = useCallback((contextResponse, closingResponse, catRes, customerId, branchId) => {
     const branches = contextResponse?.data?.branches || [];
@@ -2727,43 +2786,7 @@ export default function PosPage() {
               </div>
             )}
 
-            {(() => {
-              if (!form.customerId) return null;
-              const customerRunningServices = runningServices
-                .map((rs, idx) => ({ ...rs, idx }))
-                .filter(rs => rs.form.customerId === form.customerId);
-              
-              if (customerRunningServices.length === 0) return null;
 
-              return (
-                <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "12px 16px", marginBottom: 20 }}>
-                  <h4 style={{ margin: "0 0 10px 0", fontSize: 13, color: "#1e3a8a", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Running Services ({customerRunningServices.length})
-                  </h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {customerRunningServices.map((rs) => (
-                      <div key={rs.idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", border: "1px solid #dbeafe", borderRadius: 8, padding: "10px 14px", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 13, color: "#1e293b", marginBottom: 2 }}>
-                            {rs.customerName || "Customer"}
-                          </div>
-                          <div style={{ fontSize: 12, color: "#64748b" }}>
-                            {rs.form.items.filter(i => i.itemType === "SERVICE").map(i => {
-                              const s = context.services?.find(s => s.id === i.serviceId);
-                              return s ? s.name : "Service";
-                            }).join(", ") || "No services"}
-                          </div>
-                        </div>
-                        <button type="button" onClick={() => loadRunningService(rs.idx)} style={{ background: "#f8fafc", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 4, padding: "4px 8px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
-                          View incomplete booking
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
 
             <div className="pos-payment-details">
               {form.customerId && (() => {
@@ -2996,15 +3019,29 @@ export default function PosPage() {
       )}
 
       {activeServiceInvoice && (
-        <div style={{ position: "fixed", top: 80, right: 24, zIndex: 1299, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 10, padding:"8px 12px", maxWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+        <div style={{ position: "fixed", top: 80, right: 24, zIndex: 1299, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 10, padding: "10px 14px", maxWidth: 320, boxShadow: "0 6px 16px -2px rgba(37, 99, 235, 0.15)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontWeight: 700, color: "#1d4ed8", fontSize: 13 }}>{activeServiceInvoice.invoiceNumber}</span>
             <span style={{ fontSize: 10, padding: "2px 6px", background: "#dbeafe", color: "#1d4ed8", borderRadius: 4, fontWeight: 700 }}>IN PROGRESS</span>
           </div>
-          <div style={{ fontSize: 12, color: "#475569", marginBottom: 4 }}>Started: {activeServiceInvoice.startedAt ? new Date(activeServiceInvoice.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "N/A"} | {formatMoney(activeServiceInvoice.total)}</div>
-          <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-            <button type="button" style={{ flex: 1, padding: "6px 10px", background: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600, fontSize: 12 }} onClick={() => navigate(`/admin/pos-dashboard/${activeServiceInvoice.id}`)}>View</button>
-            <button type="button" style={{ padding: "6px 10px", background: "transparent", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 12 }} onClick={() => setActiveServiceInvoice(null)}>Dismiss</button>
+          <div style={{ fontSize: 12, color: "#475569", marginBottom: 4 }}>
+            Started: {activeServiceInvoice.startedAt ? new Date(activeServiceInvoice.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "N/A"} | {formatMoney(activeServiceInvoice.total)}
+          </div>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button
+              type="button"
+              style={{ flex: 1, padding: "6px 12px", background: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 12 }}
+              onClick={() => loadActiveInvoiceIntoPos(activeServiceInvoice)}
+            >
+              View Booking
+            </button>
+            <button
+              type="button"
+              style={{ padding: "6px 10px", background: "transparent", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 12 }}
+              onClick={() => setActiveServiceInvoice(null)}
+            >
+              Dismiss
+            </button>
           </div>
         </div>
       )}
