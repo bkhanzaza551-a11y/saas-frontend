@@ -9,15 +9,27 @@ import PageLoader from '../../components/PageLoader';
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialChannelParam = searchParams.get('channel');
+  const initialStepParam = searchParams.get('step');
+
   const draft = location.state?.draft || null;
   const draftMeta = draft?.audienceMeta?.draftState || {};
 
   const [draftId, setDraftId] = useState(draft?.id || null);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(() => {
+    if (initialStepParam) return parseInt(initialStepParam, 10) || 1;
+    if (initialChannelParam) return 2;
+    return 1;
+  });
   const [loading, setLoading] = useState(false);
   
   // Step 1
-  const [channel, setChannel] = useState(draft?.type || ''); 
+  const [channel, setChannel] = useState(() => {
+    if (draft?.type) return draft.type;
+    if (initialChannelParam) return initialChannelParam.toUpperCase();
+    return '';
+  }); 
   
   // Step 2
   const [category, setCategory] = useState(draftMeta.category || '');

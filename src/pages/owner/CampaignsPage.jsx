@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
-import { Plus, RefreshCcw, Search, BarChart2, ChevronDown, HelpCircle, X, Users, Send, Calendar } from "lucide-react";
+import { Plus, RefreshCcw, Search, BarChart2, ChevronDown, HelpCircle, X, Users, Send, Calendar, Smartphone, MessageSquare, Mail, ChevronRight } from "lucide-react";
 import PageLoader from "../../components/PageLoader";
 import EmptyState from "../../components/EmptyState";
 import { formatApiError } from "../../utils/apiError";
@@ -139,6 +139,171 @@ export default function CampaignsPage() {
         >
           <Plus size={14} /> New Campaign
         </button>
+      </div>
+
+      {/* 3 Quick Campaign Channel Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 28 }}>
+        {/* WhatsApp Card */}
+        <div
+          onClick={() => navigate('/admin/campaigns/create?channel=WHATSAPP&step=2')}
+          style={{
+            background: '#ffffff',
+            borderRadius: 14,
+            border: '1px solid #e2e8f0',
+            padding: '20px 22px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            transition: 'all 0.2s ease',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            position: 'relative'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = '#22c55e';
+            e.currentTarget.style.boxShadow = '0 8px 20px -4px rgba(34, 197, 94, 0.18)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: 12,
+            background: '#f0fdf4',
+            color: '#16a34a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Smartphone size={24} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>WhatsApp</h3>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: 10, border: '1px solid #d1fae5' }}>
+                {(credits.whatsappCredits || 0).toLocaleString()} Credits Available
+              </span>
+            </div>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.82rem', lineHeight: '1.4' }}>
+              Send rich media messages directly to WhatsApp.
+            </p>
+          </div>
+          <ChevronRight size={18} color="#94a3b8" />
+        </div>
+
+        {/* SMS Card */}
+        <div
+          onClick={() => navigate('/admin/campaigns/create?channel=SMS&step=2')}
+          style={{
+            background: '#ffffff',
+            borderRadius: 14,
+            border: '1px solid #e2e8f0',
+            padding: '20px 22px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            transition: 'all 0.2s ease',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            position: 'relative'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = '#3b82f6';
+            e.currentTarget.style.boxShadow = '0 8px 20px -4px rgba(59, 130, 246, 0.18)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: 12,
+            background: '#eff6ff',
+            color: '#2563eb',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <MessageSquare size={24} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>SMS</h3>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '2px 8px', borderRadius: 10, border: '1px solid #dbeafe' }}>
+                {(credits.smsCredits || 0).toLocaleString()} Credits Available
+              </span>
+            </div>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.82rem', lineHeight: '1.4' }}>
+              Send standard text messages to mobile phones.
+            </p>
+          </div>
+          <ChevronRight size={18} color="#94a3b8" />
+        </div>
+
+        {/* Email / Gmail Card */}
+        <div
+          onClick={() => navigate('/admin/campaigns/create?channel=EMAIL&step=2')}
+          style={{
+            background: '#ffffff',
+            borderRadius: 14,
+            border: '1px solid #e2e8f0',
+            padding: '20px 22px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            transition: 'all 0.2s ease',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            position: 'relative'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = '#6366f1';
+            e.currentTarget.style.boxShadow = '0 8px 20px -4px rgba(99, 102, 241, 0.18)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: 12,
+            background: '#eef2ff',
+            color: '#6366f1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Mail size={24} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>Email</h3>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6366f1', background: '#eef2ff', padding: '2px 8px', borderRadius: 10, border: '1px solid #e0e7ff' }}>
+                Free & Unlimited
+              </span>
+            </div>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.82rem', lineHeight: '1.4' }}>
+              Send promotional emails (Free).
+            </p>
+          </div>
+          <ChevronRight size={18} color="#94a3b8" />
+        </div>
       </div>
 
       {/* Filters */}
