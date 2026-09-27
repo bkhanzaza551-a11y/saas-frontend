@@ -112,12 +112,14 @@ export default function DigitOtpInput({
             onChange={(e) => handleChange(e, i)}
             onKeyDown={(e) => handleKeyDown(e, i)}
             style={{
-              width: "48px",
-              height: "54px",
-              minHeight: "54px",
+              flex: 1,
+              maxWidth: "54px",
+              height: "56px",
+              minWidth: 0,
+              padding: 0,
               textAlign: "center",
-              fontSize: "22px",
-              fontWeight: "800",
+              fontSize: "24px",
+              fontWeight: "700",
               color: "#0f172a",
               backgroundColor: isFilled ? "#f0fdfa" : "#f8fafc",
               border: error
