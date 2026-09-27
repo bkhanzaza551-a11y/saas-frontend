@@ -27,6 +27,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   const can = (key, action = "view") => Array.isArray(permissions[key]) && permissions[key].includes(action);
   const enabled = (key) => featureFlags[key] !== false;
   const canPos = can("pos") && enabled("pos");
+  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
   const canNotifications = isSuperAdmin || can("notifications");
   
   const MAIN_TABS = [
@@ -36,7 +37,6 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   ];
   const showBackButton = location.pathname.startsWith("/admin/") && !MAIN_TABS.includes(location.pathname);
 
-  const isSuperAdmin = auth?.user?.systemRole === "SUPER_ADMIN";
   const canGlobalSearch = can("customers") || can("appointments") || can("services") || isSuperAdmin;
   const canSettings = can("settings", "edit");
   const canProfile = isSuperAdmin || can("myProfile");
