@@ -45,6 +45,7 @@ const removeAuth = () => {
   try { localStorage.removeItem(STORAGE_KEY_PERSIST); } catch {}
   try { sessionStorage.removeItem(STORAGE_KEY_SESSION); } catch {}
   try { localStorage.removeItem("salonnest_branch"); } catch {}
+  try { sessionStorage.removeItem("salonnest_phone_verify_skipped"); } catch {}
 };
 
 export const AuthProvider = ({ children }) => {
