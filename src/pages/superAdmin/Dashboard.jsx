@@ -574,47 +574,87 @@ export default function SuperAdminDashboard() {
         {/* SECTION: FINANCE & BILLING */}
         {canSeeFinance && (
           <div className="two-col" style={{ marginBottom: 20 }}>
-            <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue</h3>
-                <Link to="/super-admin/finance" style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>View Finance →</Link>
+            <div className="panel-card dashboard-section" style={{ padding: 24, background: "white", borderRadius: 16, display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Revenue Overview</h3>
+                  <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "#64748b" }}>Live SaaS cashflow & collections</p>
+                </div>
+                <Link to="/super-admin/finance" style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none", background: "#eef2ff", padding: "4px 10px", borderRadius: 6 }}>View Finance →</Link>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+
+              {/* 3 Proportional, Compact Revenue Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 18 }}>
                 <div 
                   onClick={() => navigate("/super-admin/finance?paymentFor=Subscription")}
-                  style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)", position: "relative", overflow: "hidden", cursor: "pointer" }}
+                  style={{ background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", borderRadius: 12, padding: "14px 16px", color: "white", boxShadow: "0 4px 12px rgba(79, 70, 229, 0.2)", position: "relative", overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 88 }}
                 >
-                  <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                    <TrendingUp size={16} /> MRR
+                  <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.9)", fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                    <TrendingUp size={14} /> MRR
                   </span>
-                  <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.monthlySubscriptionRevenue)}`}>
+                  <div style={{ fontSize: "1.35rem", fontWeight: 800, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.monthlySubscriptionRevenue)}`}>
                     ₹{fmt(data.monthlySubscriptionRevenue)}
                   </div>
                 </div>
+
                 <div 
                   onClick={() => navigate("/super-admin/finance?status=COMPLETED")}
-                  style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)", position: "relative", overflow: "hidden", cursor: "pointer" }}
+                  style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", borderRadius: 12, padding: "14px 16px", color: "white", boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)", position: "relative", overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 88 }}
                 >
-                  <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                    <IndianRupee size={16} /> Collected {period !== "lifetime" ? `(${period === "today" ? "Today" : period === "month" ? "This Month" : "Period"})` : ""}
+                  <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.9)", fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                    <IndianRupee size={14} /> Collected
                   </span>
-                  <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.totalSubscriptionRevenue)}`}>
+                  <div style={{ fontSize: "1.35rem", fontWeight: 800, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.totalSubscriptionRevenue)}`}>
                     ₹{fmt(data.totalSubscriptionRevenue)}
                   </div>
                 </div>
+
                 <div 
                   onClick={() => navigate("/super-admin/finance?status=PENDING")}
-                  style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 16, padding: "20px 16px", color: "white", boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)", position: "relative", overflow: "hidden", cursor: "pointer" }}
+                  style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", borderRadius: 12, padding: "14px 16px", color: "white", boxShadow: "0 4px 12px rgba(245, 158, 11, 0.2)", position: "relative", overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 88 }}
                 >
-                  <div style={{ position: "absolute", bottom: -20, right: -10, width: 80, height: 80, background: "rgba(255,255,255,0.15)", borderRadius: "50%" }}></div>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.9)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                    <Clock size={16} /> Pending
+                  <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.9)", fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                    <Clock size={14} /> Pending
                   </span>
-                  <div style={{ fontSize: "1.75rem", fontWeight: 800, marginTop: 12, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.pendingSubscriptionRevenue)}`}>
+                  <div style={{ fontSize: "1.35rem", fontWeight: 800, letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={`₹${fmt(data.pendingSubscriptionRevenue)}`}>
                     ₹{fmt(data.pendingSubscriptionRevenue)}
                   </div>
+                </div>
+              </div>
+
+              {/* Recent Billing / Collections Feed matching height of Subscriptions */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.04em" }}>Recent Collections</span>
+                  <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{payments.length} transactions</span>
+                </div>
+
+                <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: "250px", overflowY: "auto", paddingRight: 4 }}>
+                  {payments.length ? payments.slice(0, 5).map((payment) => (
+                    <div 
+                      key={payment.id} 
+                      onClick={() => navigate(payment.salonId ? `/super-admin/finance?salonId=${payment.salonId}` : "/super-admin/finance")}
+                      style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "#f8fafc", borderRadius: 10, border: "1px solid #f1f5f9", cursor: "pointer", transition: "background 0.15s" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
+                      onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0, background: (payment.mode || "Pay").toUpperCase() === "CASH" ? "#fef3c7" : "#dbeafe", color: (payment.mode || "Pay").toUpperCase() === "CASH" ? "#d97706" : "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.7rem" }}>
+                          {(payment.mode || "Pay").substring(0, 3).toUpperCase()}
+                        </div>
+                        <div style={{ minWidth: 0, overflow: "hidden" }}>
+                          <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{payment.salonName || "SaaS Subscription"}</div>
+                          <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{payment.createdAt ? new Date(payment.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) : "Recent"}</div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#10b981", flexShrink: 0 }}>+ ₹{fmt(payment.amount)}</div>
+                    </div>
+                  )) : (
+                    <div style={{ padding: "20px 16px", textAlign: "center", background: "#f8fafc", borderRadius: 10, border: "1px dashed #e2e8f0" }}>
+                      <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#64748b" }}>No Recent Collections</div>
+                      <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 2 }}>Payments recorded in Finance will appear here.</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -831,64 +871,37 @@ export default function SuperAdminDashboard() {
           </div>
         )}
 
-        {/* SECTION: PAYMENTS & ACTIVITY LEDGER */}
-        {(canSeeFinance || canSeeActivity) && (
-          <div className="two-col" style={{ marginBottom: 20 }}>
-            {canSeeFinance && (
-              <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Payments</h3>
-                  <Link to="/super-admin/finance" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>View All →</Link>
-                </div>
-                <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
-                  {payments.length ? payments.map((payment) => (
-                    <div key={payment.id} onClick={() => navigate(payment.salonId ? `/super-admin/finance?salonId=${payment.salonId}` : "/super-admin/finance")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9", cursor: "pointer" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#fef3c7" : "#dbeafe", color: (payment.mode || "Payment").toUpperCase() === "CASH" ? "#d97706" : "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase" }}>
-                          {(payment.mode || "Pay").substring(0, 3)}
-                        </div>
-                        <div style={{ minWidth: 0, overflow: "hidden" }}>
-                          <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem" }}>{payment.mode || "Payment Method"}</div>
-                          <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>{payment.salonName || "Successful Transaction"}</div>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: "0.95rem", fontWeight: 850, color: "#059669", whiteSpace: "nowrap", flexShrink: 0 }}>+ ₹{fmt(payment.amount)}</div>
-                    </div>
-                  )) : <EmptyState title="No recent payments" message="Payment entries appear here." />}
-                </div>
+        {/* SECTION: ACTIVITY LEDGER */}
+        {canSeeActivity && (
+          <div style={{ marginBottom: 20 }}>
+            <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent System Activity</h3>
+                <Link to="/super-admin/audit-logs" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>Audit Log →</Link>
               </div>
-            )}
-
-            {canSeeActivity && (
-              <div className="panel-card dashboard-section" style={{ padding: 28, background: "white", borderRadius: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>Recent Activity</h3>
-                  <Link to="/super-admin/audit-logs" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4f46e5", textDecoration: "none" }}>Audit Log →</Link>
-                </div>
-                <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "500px", overflowY: "auto", paddingRight: 8 }}>
-                  {data.recentActivity?.length ? data.recentActivity.map((log) => (
-                    <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "14px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flex: 1, minWidth: 0 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <Activity size={18} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem", textTransform: "capitalize" }}>
-                            {log.action ? log.action.toLowerCase().replace(/_/g, ' ') : "Activity"}
-                          </div>
-                          <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.4 }}>
-                            {log.summary || log.module}
-                          </div>
-                        </div>
+              <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "360px", overflowY: "auto", paddingRight: 8 }}>
+                {data.recentActivity?.length ? data.recentActivity.map((log) => (
+                  <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "14px 16px", background: "#f8fafc", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flex: 1, minWidth: 0 }}>
+                      <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <Activity size={18} />
                       </div>
-                      <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8", flexShrink: 0, marginLeft: 12, marginTop: 4 }}>
-                        {new Date(log.createdAt).toLocaleDateString()}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 750, color: "#0f172a", fontSize: "0.95rem", textTransform: "capitalize" }}>
+                          {log.action ? log.action.toLowerCase().replace(/_/g, ' ') : "Activity"}
+                        </div>
+                        <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.4 }}>
+                          {log.summary || log.module}
+                        </div>
                       </div>
                     </div>
-                  )) : <EmptyState title="No activity" message="System events appear here." />}
-                </div>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8", flexShrink: 0, marginLeft: 12, marginTop: 4 }}>
+                      {new Date(log.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                )) : <EmptyState title="No activity" message="System events appear here." />}
               </div>
-            )}
+            </div>
           </div>
         )}
 
