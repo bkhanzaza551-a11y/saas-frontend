@@ -27,7 +27,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   const can = (key, action = "view") => Array.isArray(permissions[key]) && permissions[key].includes(action);
   const enabled = (key) => featureFlags[key] !== false;
   const canPos = can("pos") && enabled("pos");
-  const canNotifications = can("notifications");
+  const canNotifications = isSuperAdmin || can("notifications");
   
   const MAIN_TABS = [
     "/admin/dashboard", "/admin/pos", "/admin/appointments", "/admin/customers",
@@ -52,8 +52,9 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
     }
 
     const fetchNotifications = () => {
-      if (canNotifications && !isSuperAdmin) {
-        api.get("/owner/notifications", { params: { limit: 5 } }).then((res) => {
+      if (canNotifications) {
+        const endpoint = isSuperAdmin ? "/super-admin/notifications" : "/owner/notifications";
+        api.get(endpoint, { params: { limit: 5 } }).then((res) => {
           if (active && res.data) {
             setNotifications(res.data);
           }
@@ -126,7 +127,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
   const handleMarkAllRead = async (e) => {
     e.stopPropagation();
     try {
-      await api.patch("/owner/notifications/read-all");
+      await api.patch(isSuperAdmin ? "/super-admin/notifications/read-all" : "/owner/notifications/read-all");
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
     } catch (error) {
       console.error(error);
@@ -137,7 +138,7 @@ export default function Topbar({ auth, sidebarExpanded, onToggleSidebar, onLogou
     e.stopPropagation();
     if (!notif.isRead) {
       try {
-        await api.patch(`/owner/notifications/${notif.id}/read`);
+        await api.patch(isSuperAdmin ? `/super-admin/notifications/${notif.id}/read` : `/owner/notifications/${notif.id}/read`);
         setNotifications(notifications.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
       } catch {}
     }
