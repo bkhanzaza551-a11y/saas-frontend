@@ -1,54 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { api } from "../api/client";
-import { useAuth } from "../context/AuthContext";
-import { ShieldCheck, Phone, KeyRound, Loader, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2 } from "lucide-react";
-import DigitOtpInput from "./DigitOtpInput";
+﻿const fs = require('fs');
+const file = 'src/components/PhoneVerificationModal.jsx';
+let content = fs.readFileSync(file, 'utf8');
 
-export default function PhoneVerificationModal() {
-  const { auth } = useAuth();
-  const [step, setStep] = useState(1); // 1 = Confirm/Change Phone -> Send OTP, 2 = Verify OTP
+const regex = /return \([\s\S]*?\);\n\}/;
 
-  const rawPhone = auth?.membership?.phone || auth?.salon?.phone || auth?.user?.phone || "";
-  const initialDigits = rawPhone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
-  const [registeredDigits, setRegisteredDigits] = useState(initialDigits);
-  const [isChangingNumber, setIsChangingNumber] = useState(false);
-  const [customPhoneDigits, setCustomPhoneDigits] = useState("");
-  const [loadingPhone, setLoadingPhone] = useState(!initialDigits);
-
-  const [loading, setLoading] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-
-  const activeDigits = isChangingNumber ? customPhoneDigits : (registeredDigits || customPhoneDigits);
-  const isPhoneValid = /^[6-9]\d{9}$/.test(activeDigits);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    let isMounted = true;
-
-    // Fetch freshest phone info from server
-    const fetchInfo = async () => {
-      try {
-        const res = await api.get("/owner/verify-phone/info", {
-          headers: { Authorization: `Bearer ${auth?.accessToken}` }
-        });
-        if (isMounted && res.data?.phone) {
-          const digits = res.data.phone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
-          if (digits) {
-            setRegisteredDigits(digits);
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load phone info:", e);
-      } finally {
-        if (isMounted) setLoadingPhone(false);
-      }
-    };
-
-    fetchInfo();
-
-    return (
+const newRender = `return (
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: "rgba(15, 23, 42, 0.85)",
@@ -85,7 +41,7 @@ export default function PhoneVerificationModal() {
             ? isChangingNumber
               ? "Enter your new mobile number. Once verified, it will update your salon and profile."
               : "A 6-digit verification code will be sent to your registered mobile number."
-            : `We sent a 6-digit verification code to +91 ${activeDigits.slice(0, 5)} ${activeDigits.slice(5)}. Enter it below to continue.`}
+            : \`We sent a 6-digit verification code to +91 \${activeDigits.slice(0, 5)} \${activeDigits.slice(5)}. Enter it below to continue.\`}
         </p>
 
         {error && (
@@ -334,7 +290,10 @@ export default function PhoneVerificationModal() {
           </form>
         )}
       </div>
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{\`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\`}</style>
     </div>
   );
-}
+}`;
+
+content = content.replace(regex, newRender);
+fs.writeFileSync(file, content, 'utf8');
