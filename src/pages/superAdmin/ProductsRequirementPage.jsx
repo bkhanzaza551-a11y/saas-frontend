@@ -241,7 +241,7 @@ export default function SuperAdminProductsRequirementPage() {
       setStatus({ error: "", success: `Request marked as ${newStatus}` });
       await load();
       if (selectedReq && selectedReq.id === id) {
-        setSelectedReq({ ...selectedReq, status: newStatus, remark: remark !== undefined ? remark : selectedReq.remark });
+        setSelectedReq({ ...selectedReq, status: newStatus, remark: remark !== undefined ? remark : selectedReq.notes });
       }
     } catch (err) {
       setStatus({ error: formatApiError(err, "Failed to update status"), success: "" });
@@ -910,7 +910,7 @@ export default function SuperAdminProductsRequirementPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const rem = window.prompt("Update admin internal remarks:", selectedReq.remark || "");
+                  const rem = window.prompt("Update admin internal remarks:", selectedReq.notes || "");
                   if (rem !== null) updateStatus(selectedReq.id, selectedReq.status, rem);
                 }}
                 style={{ background: "none", border: "none", color: "#4f46e5", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
@@ -919,7 +919,7 @@ export default function SuperAdminProductsRequirementPage() {
               </button>
             </div>
             <div style={{ background: "#f0fdf4", padding: 12, borderRadius: 8, fontSize: "0.85rem", color: "#166534", borderLeft: "3px solid #10b981" }}>
-              {selectedReq.remark || "No internal admin remarks recorded yet."}
+              {selectedReq.notes || "No internal admin remarks recorded yet."}
             </div>
           </div>
 
