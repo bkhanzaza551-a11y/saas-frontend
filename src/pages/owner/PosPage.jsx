@@ -3021,25 +3021,25 @@ export default function PosPage() {
       )}
 
       {activeServiceInvoice && (
-        <div style={{ position: "fixed", top: 80, right: 24, zIndex: 1299, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 10, padding: "10px 14px", maxWidth: 320, boxShadow: "0 6px 16px -2px rgba(37, 99, 235, 0.15)" }}>
+        <div style={{ position: "fixed", top: 80, right: 24, zIndex: 1299, background: "#fefce8", border: "1px solid #fde047", borderRadius: 10, padding: "10px 14px", maxWidth: 320, boxShadow: "0 6px 16px -2px rgba(202, 138, 4, 0.2)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontWeight: 700, color: "#1d4ed8", fontSize: 13 }}>{activeServiceInvoice.invoiceNumber}</span>
-            <span style={{ fontSize: 10, padding: "2px 6px", background: "#dbeafe", color: "#1d4ed8", borderRadius: 4, fontWeight: 700 }}>IN PROGRESS</span>
+            <span style={{ fontWeight: 700, color: "#854d0e", fontSize: 13 }}>{activeServiceInvoice.invoiceNumber}</span>
+            <span style={{ fontSize: 10, padding: "2px 6px", background: "#fef08a", color: "#854d0e", borderRadius: 4, fontWeight: 700, border: "1px solid #fde047" }}>IN PROGRESS</span>
           </div>
-          <div style={{ fontSize: 12, color: "#475569", marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: "#713f12", marginBottom: 4 }}>
             Started: {activeServiceInvoice.startedAt ? new Date(activeServiceInvoice.startedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "N/A"} | {formatMoney(activeServiceInvoice.total)}
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button
               type="button"
-              style={{ flex: 1, padding: "6px 12px", background: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 12 }}
+              style={{ flex: 1, padding: "6px 12px", background: "#eab308", color: "#0f172a", border: "1px solid #ca8a04", borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 12, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
               onClick={() => loadActiveInvoiceIntoPos(activeServiceInvoice)}
             >
               View Booking
             </button>
             <button
               type="button"
-              style={{ padding: "6px 10px", background: "transparent", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 12 }}
+              style={{ padding: "6px 10px", background: "transparent", border: "none", cursor: "pointer", color: "#854d0e", fontSize: 12, fontWeight: 600 }}
               onClick={() => setActiveServiceInvoice(null)}
             >
               Dismiss
