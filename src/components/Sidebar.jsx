@@ -37,20 +37,18 @@ import {
 import { api } from "../api/client";
 
 const GROUP_ICONS = {
-  "My Workspace":     <User size={17} />,
-  "Operations":       <Zap size={17} />,
-  "Setup":            <Settings size={17} />,
-  "Expenses":         <DollarSign size={17} />,
-  "Enquiries":        <MessageSquare size={17} />,
-  "System":           <Wrench size={17} />,
-  "Workspace":        <Home size={17} />,
-  "Settings":         <Settings size={17} />,
-  "Manage":           <FolderOpen size={17} />,
-  "Website":          <Globe size={17} />,
-  "Platform Command": <Home size={17} />,
+  "My Workspace": User,
+  "Operations": Zap,
+  "Setup": Settings,
+  "Expenses": DollarSign,
+  "Enquiries": MessageSquare,
+  "System": Wrench,
+  "Workspace": Home,
+  "Settings": Settings,
+  "Manage": FolderOpen,
+  "Website": Globe,
+  "Platform Command": Home,
 };
-
-const DEFAULT_ICON = <LayoutDashboard size={17} />;
 
 const getItemIcon = (label, path) => {
   const l = (label || "").toLowerCase();
@@ -253,7 +251,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
               {groups.map((group) => {
                 const active = isGroupActive(group, location.pathname);
                 const expanded = openGroups[group.label] ?? active;
-                const groupIcon = GROUP_ICONS[group.label] || DEFAULT_ICON;
+                const GroupIcon = GROUP_ICONS[group.label] || LayoutDashboard;
 
                 const showHeader = !group.hideHeader && group.label !== "Navigation" && groups.length > 1;
 
@@ -267,7 +265,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
                           style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
                         >
                           <span className="sidebar-group-label">
-                            <span className="sidebar-group-icon">{groupIcon}</span>
+                            <span className="sidebar-group-icon"><GroupIcon size={17} /></span>
                             <span className="sidebar-group-text">
                               <strong>{group.label}</strong>
                             </span>
@@ -279,7 +277,7 @@ export default function Sidebar({ groups, auth, onLogout, sidebarExpanded = true
                           style={{ cursor: "default" }}
                         >
                           <span className="sidebar-group-label">
-                            <span className="sidebar-group-icon">{groupIcon}</span>
+                            <span className="sidebar-group-icon"><GroupIcon size={17} /></span>
                             <span className="sidebar-group-text">
                               <strong>{group.label}</strong>
                             </span>
