@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
@@ -549,10 +549,11 @@ function GuestCollectionChart({ rows }) {
 }
 
 const CHART_PALETTE = ["#2563eb", "#10b981", "#f97316", "#a855f7", "#ec4899", "#06b6d4", "#facc15", "#ef4444", "#14b8a6", "#8b5cf6", "#22c55e", "#3b82f6", "#eab308", "#fb7185"];
+const EMPTY_FILTERS = Object.freeze([]);
 
 function useReportOptions(activeReport) {
   const [options, setOptions] = useState({});
-  const filterConfig = REPORT_FILTERS[activeReport] || [];
+  const filterConfig = REPORT_FILTERS[activeReport] || EMPTY_FILTERS;
 
   useEffect(() => {
     const endpoints = [...new Set(filterConfig.filter((f) => f.endpoint).map((f) => f.endpoint))];
@@ -574,7 +575,7 @@ function useReportOptions(activeReport) {
       setOptions(map);
     });
     return () => { cancelled = true; };
-  }, [activeReport, filterConfig]);
+  }, [activeReport]);
 
   return { options, filterConfig };
 }
@@ -1569,7 +1570,7 @@ export default function ReportsHubPage() {
     setVisibleColumns(null);
     setShowChart(false);
     setColumnPickerOpen(false);
-  }, [activeReport, filterConfig]);
+  }, [activeReport]);
 
   useEffect(() => {
     const endpoint = activeReport === "sales_summary" ? "/reports/sales-summary-dashboard" : REPORT_ENDPOINTS[activeReport];

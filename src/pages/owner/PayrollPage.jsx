@@ -922,9 +922,9 @@ export default function PayrollPage() {
               {!loading && !attendance.length && <EmptyState title="No attendance records yet" message="Attendance check-ins and check-outs will appear here once recorded." />}
               {attendanceMeta.totalPages > 1 && (
                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, padding: "12px 0", borderTop: "1px solid #e2e8f0", marginTop: 8 }}>
-                  <button type="button" className="secondary-button" disabled={attendanceMeta.page <= 1} onClick={() => setAttendancePage((p) => p - 1)}><ChevronLeft size={12} /> Previous</button>
+                  <button type="button" className="secondary-button" disabled={attendanceMeta.page <= 1} onClick={() => setAttendanceMeta((prev) => ({ ...prev, page: Math.max(1, prev.page - 1) }))}><ChevronLeft size={12} /> Previous</button>
                   <span style={{ fontSize: 13, color: "#64748b" }}>Page {attendanceMeta.page} of {attendanceMeta.totalPages} ({attendanceMeta.total} records)</span>
-                  <button type="button" className="secondary-button" disabled={attendanceMeta.page >= attendanceMeta.totalPages} onClick={() => setAttendancePage((p) => p + 1)}>Next <ChevronRight size={12} /></button>
+                  <button type="button" className="secondary-button" disabled={attendanceMeta.page >= attendanceMeta.totalPages} onClick={() => setAttendanceMeta((prev) => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}>Next <ChevronRight size={12} /></button>
                 </div>
               )}
             </div>
@@ -941,7 +941,7 @@ export default function PayrollPage() {
                 <div className="item-meta"><strong><User size={12} /> Staff:</strong> {selectedAttendance.userSalon?.user?.name || "-"}</div>
                 <div className="item-meta"><strong>Branch:</strong> {selectedAttendance.branch?.name || "-"}</div>
                 <div className="item-meta"><strong><CalendarDays size={12} /> Date:</strong> {new Date(selectedAttendance.attendanceDate || selectedAttendance.checkInAt).toLocaleDateString()}</div>
-                <div className="item-meta"><strong><CheckCircle2 size={12} /> Status:</strong> <span style={{ padding: "2px 8px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: (statusColors[selectedAttendance.status] || statusColors.ABSENT).bg, color: (statusColors[selectedAttendance.status] || statusColors.ABSENT).color }}>{selectedAttendance.status}</span></div>
+                <div className="item-meta"><strong><CheckCircle2 size={12} /> Status:</strong> <span style={{ padding: "2px 8px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: (statusTheme[selectedAttendance.status] || statusTheme.ABSENT).bg, color: (statusTheme[selectedAttendance.status] || statusTheme.ABSENT).color }}>{selectedAttendance.status}</span></div>
                 <div className="item-meta"><strong><LogIn size={12} /> Check-In:</strong> {selectedAttendance.checkInAt ? new Date(selectedAttendance.checkInAt).toLocaleString() : "-"}</div>
                 <div className="item-meta"><strong><LogOut size={12} /> Check-Out:</strong> {selectedAttendance.checkOutAt ? new Date(selectedAttendance.checkOutAt).toLocaleString() : "-"}</div>
                 <div className="item-meta"><strong><Clock size={12} /> Worked Hours:</strong> {selectedAttendance.workedMinutes != null ? `${Math.floor(selectedAttendance.workedMinutes / 60)}h ${selectedAttendance.workedMinutes % 60}m` : "-"}</div>
