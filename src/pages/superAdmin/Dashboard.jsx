@@ -474,7 +474,7 @@ export default function SuperAdminDashboard() {
                   <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#be123c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Urgent Tickets ({urgentTicketsList.length})</div>
                   {urgentTicketsList.slice(0, 2).map((t) => (
                     <div key={t.id} onClick={() => navigate("/super-admin/support-tickets?priority=URGENT")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px dashed #fecdd3", cursor: "pointer" }}>
-                      <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.salon?.name || t.title || "Global"}</span>
+                      <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.salonName || t.title || t.subject || "Global"}</span>
                       <span style={{ fontSize: "0.65rem", color: "#fff", background: "#e11d48", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>URGENT</span>
                     </div>
                   ))}
@@ -675,7 +675,7 @@ export default function SuperAdminDashboard() {
                   <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#b45309", textTransform: "uppercase" }}>Trial</div>
                 </div>
                 <div onClick={() => navigate("/super-admin/subscriptions?status=EXPIRING_SOON")} style={{ background: "#fff7ed", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fed7aa" }}>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#9a3412" }}>{subStatus.expiringSoon ?? 0}</div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#9a3412" }}>{subStatus.expiring ?? subStatus.expiringSoon ?? 0}</div>
                   <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#c2410c", textTransform: "uppercase" }}>Expiring Soon</div>
                 </div>
                 <div onClick={() => navigate("/super-admin/subscriptions?status=EXPIRED")} style={{ background: "#fef2f2", borderRadius: 12, padding: "14px", textAlign: "center", cursor: "pointer", border: "1px solid #fecaca" }}>

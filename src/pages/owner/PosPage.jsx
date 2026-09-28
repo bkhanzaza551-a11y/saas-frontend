@@ -341,7 +341,7 @@ export default function PosPage() {
         consumableItems: (as.service?.consumables || []).map(c => ({
           productId: c.productId,
           name: c.product?.name || "Consumable",
-          qty: c.quantity || 1,
+          qty: c.reqdQty || c.quantity || 1,
           unit: c.product?.secondaryUnit || c.product?.unit || "ml"
         })),
         complimentaryRemark: ""
@@ -1835,7 +1835,7 @@ export default function PosPage() {
 
     return {
       ...form,
-      appointmentId: posMode === "booking" ? (form.appointmentId || loadedAppointment?.id || appointmentIdParam || null) : null,
+      appointmentId: posMode === "booking" ? (form.appointmentId || loadedAppointment?.id || appointmentIdParam || undefined) : undefined,
       mode,
       discount: Number(form.discount || 0),
       tax: Number(form.tax || 0),

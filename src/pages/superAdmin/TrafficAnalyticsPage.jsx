@@ -129,9 +129,9 @@ export default function TrafficAnalyticsPage() {
             {/* Top Pages */}
             <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 24 }}>
               <h3 style={{ margin: "0 0 16px", fontSize: "1rem", fontWeight: 700 }}>Top Salons by Traffic</h3>
-              {data.topPages.length ? (
+              {(data?.topPages || []).length ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {data.topPages.map((item, i) => (
+                  {(data?.topPages || []).map((item, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f8fafc", borderRadius: 8 }}>
                       <div>
                         <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#0f172a" }}>{item.salon.name}</div>
@@ -151,9 +151,9 @@ export default function TrafficAnalyticsPage() {
             {/* Top Paths */}
             <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 24 }}>
               <h3 style={{ margin: "0 0 16px", fontSize: "1rem", fontWeight: 700 }}>Most Visited Pages</h3>
-              {data.topPaths.length ? (
+              {(data?.topPaths || []).length ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {data.topPaths.map((item, i) => (
+                  {(data?.topPaths || []).map((item, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f8fafc", borderRadius: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <Globe size={14} color="#94a3b8" />
@@ -171,9 +171,9 @@ export default function TrafficAnalyticsPage() {
             {/* Top Referrers */}
             <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 24 }}>
               <h3 style={{ margin: "0 0 16px", fontSize: "1rem", fontWeight: 700 }}>Top Referrers</h3>
-              {data.topReferrers.length ? (
+              {(data?.topReferrers || []).length ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {data.topReferrers.map((item, i) => (
+                  {(data?.topReferrers || []).map((item, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f8fafc", borderRadius: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <ArrowUpRight size={14} color="#94a3b8" />

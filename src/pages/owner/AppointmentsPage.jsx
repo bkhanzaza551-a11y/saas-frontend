@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useAlert } from "../../context/AlertContext";
 import { formatApiError } from "../../utils/apiError";
 import PageLoader from "../../components/PageLoader";
-import AppointmentCheckoutModal from "./AppointmentCheckoutModal";
+// Checkout modal removed in favor of POS Complete & Bill flow
 import IndianPhoneInput from "../../components/IndianPhoneInput";
 import PermissionButton from "../../components/PermissionButton";
 
@@ -899,7 +899,7 @@ export default function AppointmentsPage() {
       formattedItems.push({ ...emptyItem });
     }
 
-    setGuestSearchInput(appt.customer?.name || "");
+    setGuestSearchInput(appt.customer?.name || appt.guestName || "");
     setForm({
       customerId: appt.customerId || "",
       branchId: appt.branchId || branches[0]?.id || "",

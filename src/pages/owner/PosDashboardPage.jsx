@@ -1025,7 +1025,7 @@ export default function PosDashboardPage() {
             const apptStatus = row.appointment?.status || null;
             const isAppt = row.isScheduledAppt;
             return (
-              <div key={row.id} className="pos-dash-card" onClick={() => isAppt ? setCheckoutAppt(row.originalAppt) : openInvoice(row.id)}>
+              <div key={row.id} className="pos-dash-card" onClick={() => isAppt ? navigate(`/admin/pos?appointmentId=${row.originalAppt?.id || row.id}&mode=booking`) : openInvoice(row.id)}>
                 <div className="pos-dash-card-actions">
                   {(row.status === "PAID" || row.status === "PARTIAL") ? (
                     <button

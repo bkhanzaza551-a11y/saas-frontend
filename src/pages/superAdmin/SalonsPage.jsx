@@ -167,7 +167,7 @@ const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
     setStatus({ error: "", success: "" });
     setSaving(true);
     try {
-      const payload = { ...form };
+      const payload = { ...form, slug: form.slug || form.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "salon" };
       if (form.email) payload.email = form.email.trim();
       if (editingId) {
         await api.patch(`/super-admin/salons/${editingId}`, payload);

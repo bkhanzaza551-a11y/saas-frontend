@@ -63,7 +63,7 @@ const emptyCatalog = {
   defaultPrice: "",
   availableQty: "0",
   isActive: true,
-  notes: ""
+  note: ""
 };
 
 export default function SuperAdminProductsRequirementPage() {

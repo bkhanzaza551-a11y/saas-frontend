@@ -676,7 +676,7 @@ const toLocalIsoDateTime = (dt) => {
       const response = await api.post(`/super-admin/demo-leads/${leadId}/approve`, {
         ...draft,
         isTrial: Boolean(draft.isTrial),
-        trialDays: draft.isTrial ? (Number(draft.trialDays) || 14) : 0,
+        trialDays: draft.isTrial ? (Number(draft.trialDays) || 14) : undefined,
         discountType: draft.hasDiscount ? draft.discountType : null,
         discountValue: draft.hasDiscount ? Number(draft.discountValue) : 0,
         finalPrice: grandTotal
@@ -911,7 +911,7 @@ const toLocalIsoDateTime = (dt) => {
         {PIPELINE.map(stage => (
           <div
             key={stage.value}
-            onClick={() => setFilters({ ...filters, status: filters.status === stage.value ? "" : stage.value })}
+            onClick={() => setFilterParam("status", filters.status === stage.value ? "" : stage.value)}
             style={{
               padding: "14px 16px",
               background: filters.status === stage.value ? stage.bg : "#fff",
