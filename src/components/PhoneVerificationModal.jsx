@@ -11,7 +11,7 @@ export default function PhoneVerificationModal() {
   const rawPhone = auth?.membership?.phone || auth?.salon?.phone || auth?.user?.phone || "";
   const initialDigits = rawPhone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
   const [registeredDigits, setRegisteredDigits] = useState(initialDigits);
-  const [isChangingNumber, setIsChangingNumber] = useState(false);
+  const [isChangingNumber, setIsChangingNumber] = useState(!initialDigits);
   const [customPhoneDigits, setCustomPhoneDigits] = useState("");
   const [loadingPhone, setLoadingPhone] = useState(!initialDigits);
 
@@ -20,7 +20,7 @@ export default function PhoneVerificationModal() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const activeDigits = isChangingNumber ? customPhoneDigits : (registeredDigits || customPhoneDigits);
+  const activeDigits = (isChangingNumber || !registeredDigits) ? customPhoneDigits : (registeredDigits || customPhoneDigits);
   const isPhoneValid = /^[6-9]\d{9}$/.test(activeDigits);
 
   useEffect(() => {

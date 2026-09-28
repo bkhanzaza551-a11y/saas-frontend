@@ -202,13 +202,25 @@ export default function UsersPage() {
     }
   };
 
-  const handleUnverifiedVerifyOtp = (e) => {
+  const handleUnverifiedVerifyOtp = async (e) => {
     if (e) e.preventDefault();
     if (!unverifiedForm.otpCode || unverifiedForm.otpCode.length < 6) {
       return setStatus((c) => ({ ...c, error: "Please enter the complete 6-digit OTP code." }));
     }
-    setStatus((c) => ({ ...c, error: "", success: "Phone verified! Please enter staff email to send password creation link." }));
-    setUnverifiedStep(3);
+    setUnverifiedSubmitting(true);
+    setStatus((c) => ({ ...c, error: "", success: "" }));
+    try {
+      await api.post("/owner/users/verify-staff-otp", {
+        phone: unverifiedForm.phone,
+        otpCode: unverifiedForm.otpCode
+      });
+      setStatus((c) => ({ ...c, error: "", success: "Phone verified! Please enter staff name and official email." }));
+      setUnverifiedStep(3);
+    } catch (err) {
+      setStatus((c) => ({ ...c, error: formatApiError(err, "Invalid OTP code. Please check and retry.") }));
+    } finally {
+      setUnverifiedSubmitting(false);
+    }
   };
 
   const handleUnverifiedSubmit = async (e) => {
@@ -1274,7 +1286,7 @@ export default function UsersPage() {
                           value={form.customRoleId || ""}
                           onChange={(event) => applyCustomRole(event.target.value)}
                         >
-                          <option value="">— No saved access role (use system role below) —</option>
+                          <option value="">— Select an access role —</option>
                           {customRoles.length === 0 && (
                             <option value="" disabled>No custom roles yet — create one in Access Control</option>
                           )}
@@ -1298,17 +1310,7 @@ export default function UsersPage() {
                       </div>
                       
                       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
-                        <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>System role (fallback)</label>
-                          <CustomSelect className="hub-input" value={form.salonRole} onChange={(event) => applyRolePreset(event.target.value)} disabled={Boolean(form.customRoleId)} style={{ width: '100%', height: 38, padding: '0 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: form.customRoleId ? '#f1f5f9' : '#f8fafc' }}>
-                            {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
-                          </CustomSelect>
-                          <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 4 }}>Auto-set when access role picked</div>
-                        </div>
-                        <div className="hub-form-group">
-                          <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Role title (Visible designation)</label>
-                          <input type="text" className="hub-input" value={form.roleTitle} onChange={(event) => setForm({ ...form, roleTitle: event.target.value })} placeholder="e.g. Senior Stylist, Floor Manager" style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
-                        </div>
+                        
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Phone Number</label>
                           <IndianPhoneInput required={false} value={form.phone} onChange={(phone) => setForm({ ...form, phone })} className="hub-input" inputStyle={{ padding: "0 14px", height: 38, borderRadius: 10, border: "1px solid #cbd5e1", background: "#f8fafc", fontSize: 13, fontWeight: 600 }} />
@@ -1597,10 +1599,7 @@ export default function UsersPage() {
                   <span>A secure password setup link will be emailed to the staff member upon SMS OTP verification.</span>
                 </div>
 
-                <div className="hub-form-group" style={{ marginBottom: 16 }}>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Role Title (Designation)</label>
-                  <input type="text" className="hub-input" value={form.roleTitle} onChange={e => setForm({ ...form, roleTitle: e.target.value })} placeholder="e.g. Senior Stylist" style={{ width: "100%", height: 38, boxSizing: 'border-box' }} />
-                </div>
+                
 
                 <div className="hub-form-group" style={{ marginBottom: 16 }}>
                   <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Branch Assignment</label>
