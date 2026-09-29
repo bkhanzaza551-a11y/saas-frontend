@@ -198,7 +198,7 @@ export default function GlobalDashboardPage() {
         </div>
 
         <div className="panel-card" style={{ padding: 20, borderLeft: "4px solid #10b981", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/customers")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
-          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Guests Served</div>
+          <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>Total Customers</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#047857", marginTop: 6 }}>{data.totalCustomers}</div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{isMultiBranch && isAllBranches ? "Multi-branch customer registry" : "Customer registry"}</div>
         </div>
@@ -212,34 +212,49 @@ export default function GlobalDashboardPage() {
 
       
       {/* Attendance Summary */}
-      {data.attendanceSummary && (
-        <div className="panel-card" style={{ padding: 24, marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a" }}>Attendance Summary</h3>
-            <span className="badge" style={{ background: "#f8fafc", color: "#475569", fontWeight: 700 }}>
-              {data.attendanceSummary.percentage}% Attendance Rate
-            </span>
+      {(data.attendance || data.attendanceSummary) && (() => {
+        const att = data.attendance || data.attendanceSummary || {};
+        const present = att.present ?? att.PRESENT ?? 0;
+        const absent = att.absent ?? att.ABSENT ?? 0;
+        const late = att.late ?? att.LATE ?? 0;
+        const onLeave = att.onLeave ?? att.LEAVE ?? 0;
+        const percentage = att.attendancePercentage ?? att.percentage ?? 0;
+        return (
+          <div className="panel-card" style={{ padding: 20, marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#0f172a" }}>Branch Attendance Summary</h3>
+                <p style={{ margin: "2px 0 0", fontSize: "0.8rem", color: "#64748b" }}>Real-time staff presence and compliance across salon branches.</p>
+              </div>
+              <span className="badge" style={{ background: "#ecfeff", color: "#0891b2", border: "1px solid #a5f3fc", fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>
+                {percentage}% Attendance
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12 }}>
+              <div style={{ padding: "14px 16px", background: "#f0fdf4", borderRadius: 10, border: "1px solid #bbf7d0", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <div style={{ fontSize: 12, color: "#166534", fontWeight: 700, textTransform: "uppercase" }}>Present</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#15803d", marginTop: 4 }}>{present}</div>
+              </div>
+              <div style={{ padding: "14px 16px", background: "#fef2f2", borderRadius: 10, border: "1px solid #fecaca", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <div style={{ fontSize: 12, color: "#991b1b", fontWeight: 700, textTransform: "uppercase" }}>Absent</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#b91c1c", marginTop: 4 }}>{absent}</div>
+              </div>
+              <div style={{ padding: "14px 16px", background: "#fffbeb", borderRadius: 10, border: "1px solid #fde68a", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <div style={{ fontSize: 12, color: "#92400e", fontWeight: 700, textTransform: "uppercase" }}>Late</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#b45309", marginTop: 4 }}>{late}</div>
+              </div>
+              <div style={{ padding: "14px 16px", background: "#eff6ff", borderRadius: 10, border: "1px solid #bfdbfe", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <div style={{ fontSize: 12, color: "#1e40af", fontWeight: 700, textTransform: "uppercase" }}>On Leave</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#1d4ed8", marginTop: 4 }}>{onLeave}</div>
+              </div>
+              <div style={{ padding: "14px 16px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <div style={{ fontSize: 12, color: "#475569", fontWeight: 700, textTransform: "uppercase" }}>Attendance %</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{percentage}%</div>
+              </div>
+            </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 16 }}>
-            <div style={{ padding: 16, background: "#f0fdf4", borderRadius: 10, border: "1px solid #bbf7d0", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
-              <div style={{ fontSize: 13, color: "#166534", fontWeight: 700 }}>Present</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#15803d", marginTop: 4 }}>{data.attendanceSummary.PRESENT}</div>
-            </div>
-            <div style={{ padding: 16, background: "#fef2f2", borderRadius: 10, border: "1px solid #fecaca", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
-              <div style={{ fontSize: 13, color: "#991b1b", fontWeight: 700 }}>Absent</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#b91c1c", marginTop: 4 }}>{data.attendanceSummary.ABSENT}</div>
-            </div>
-            <div style={{ padding: 16, background: "#fffbeb", borderRadius: 10, border: "1px solid #fde68a", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
-              <div style={{ fontSize: 13, color: "#92400e", fontWeight: 700 }}>Late</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#b45309", marginTop: 4 }}>{data.attendanceSummary.LATE}</div>
-            </div>
-            <div style={{ padding: 16, background: "#eff6ff", borderRadius: 10, border: "1px solid #bfdbfe", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }} onClick={() => navigate("/admin/attendance")} onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform="none"}>
-              <div style={{ fontSize: 13, color: "#1e40af", fontWeight: 700 }}>On Leave</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#1d4ed8", marginTop: 4 }}>{data.attendanceSummary.LEAVE}</div>
-            </div>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Branch Performance Comparison Table */}
 
