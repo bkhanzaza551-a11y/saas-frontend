@@ -613,8 +613,8 @@ export default function EnquiriesPage() {
         .enquiries-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; color: #334155; vertical-align: middle; }
         .enquiry-row:hover { background: #f8fafc; cursor: pointer; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1200; backdrop-filter: blur(4px); }
-        .modal-content { background: white; border-radius: 16px; width: 95%; max-width: 680px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(4px); padding: 16px; overflow-y: auto; box-sizing: border-box; }
+        .modal-content { background: white; border-radius: 18px; width: 100%; max-width: 680px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; overflow: hidden; box-sizing: border-box; }
         
         .filter-bar { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
         
@@ -1401,171 +1401,181 @@ export default function EnquiriesPage() {
 
       {/* ── ADD / EDIT ENQUIRY MODAL ── */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
-              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#1e293b" }}>
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: "1px solid #f1f5f9", flexShrink: 0, background: "#ffffff" }}>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "750", color: "#0f172a" }}>
                 {editingId ? "Edit Enquiry" : "Add Enquiry"}
               </h2>
-              <button onClick={() => setShowModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}><X size={20} /></button>
+              <button 
+                type="button"
+                onClick={() => setShowModal(false)} 
+                style={{ background: "#f1f5f9", border: "none", cursor: "pointer", color: "#64748b", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#f1f5f9"}
+              >
+                <X size={18} />
+              </button>
             </div>
             
-            <form onSubmit={save}>
-              <div className="eq-form-grid">
-                
-                {/* 1. Name * (Mandatory) */}
-                <div>
-                  <label className="eq-label">
-                    <span>Name</span> <span style={{ color: "#dc2626" }}>*</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    className="eq-input" 
-                    required
-                    placeholder="Enter Customer Name"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                </div>
+            <form onSubmit={save} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
+              <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
+                <div className="eq-form-grid" style={{ marginBottom: 0 }}>
+                  
+                  {/* 1. Name * (Mandatory) */}
+                  <div>
+                    <label className="eq-label">
+                      <span>Name</span> <span style={{ color: "#dc2626" }}>*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      className="eq-input" 
+                      required
+                      placeholder="Enter Customer Name"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    />
+                  </div>
 
-                {/* 2. Mobile No * (Mandatory) */}
-                <div>
-                  <label className="eq-label">
-                    <span>Mobile No.</span> <span style={{ color: "#dc2626" }}>*</span>
-                  </label>
-                  <IndianPhoneInput
-                    value={form.phone}
-                    onChange={(val) => setForm({ ...form, phone: val })}
-                    className="eq-input"
-                    required
-                    inputStyle={{ padding: "0 12px", height: "100%", width: "100%" }}
-                  />
-                </div>
+                  {/* 2. Mobile No * (Mandatory) */}
+                  <div>
+                    <label className="eq-label">
+                      <span>Mobile No.</span> <span style={{ color: "#dc2626" }}>*</span>
+                    </label>
+                    <IndianPhoneInput
+                      value={form.phone}
+                      onChange={(val) => setForm({ ...form, phone: val })}
+                      className="eq-input"
+                      required
+                      inputStyle={{ padding: "0 12px", height: "100%", width: "100%" }}
+                    />
+                  </div>
 
-                {/* 3. Gender */}
-                <div>
-                  <label className="eq-label">
-                    <span>Gender</span>
-                  </label>
-                  <CustomSelect 
-                    className="eq-input"
-                    value={form.gender || "FEMALE"}
-                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                  >
-                    <option value="FEMALE">Female</option>
-                    <option value="MALE">Male</option>
-                    <option value="OTHER">Other / Unisex</option>
-                  </CustomSelect>
-                </div>
+                  {/* 3. Gender */}
+                  <div>
+                    <label className="eq-label">
+                      <span>Gender</span>
+                    </label>
+                    <CustomSelect 
+                      className="eq-input"
+                      value={form.gender || "FEMALE"}
+                      onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                    >
+                      <option value="FEMALE">Female</option>
+                      <option value="MALE">Male</option>
+                      <option value="OTHER">Other / Unisex</option>
+                    </CustomSelect>
+                  </div>
 
-                {/* 4. Follow Up Date * (Mandatory) */}
-                <div>
-                  <label className="eq-label">
-                    <span>Follow Up Date</span> <span style={{ color: "#dc2626" }}>*</span>
-                  </label>
-                  <input 
-                    type="date" 
-                    className="eq-input" 
-                    required
-                    value={form.followUpAt}
-                    onChange={(e) => setForm({ ...form, followUpAt: e.target.value })}
-                  />
-                </div>
+                  {/* 4. Follow Up Date * (Mandatory) */}
+                  <div>
+                    <label className="eq-label">
+                      <span>Follow Up Date</span> <span style={{ color: "#dc2626" }}>*</span>
+                    </label>
+                    <input 
+                      type="date" 
+                      className="eq-input" 
+                      required
+                      value={form.followUpAt}
+                      onChange={(e) => setForm({ ...form, followUpAt: e.target.value })}
+                    />
+                  </div>
 
-                {/* 5. Lead Source * (Walk in, Online, Referal, Others) */}
-                <div>
-                  <label className="eq-label">
-                    <span>Lead Source</span> <span style={{ color: "#dc2626" }}>*</span>
-                  </label>
-                  <CustomSelect 
-                    className="eq-input"
-                    value={form.source}
-                    onChange={(e) => setForm({ ...form, source: e.target.value })}
-                  >
-                    {LEAD_SOURCES.map(s => (
-                      <option key={s.value} value={s.label}>{s.label}</option>
-                    ))}
-                  </CustomSelect>
-                </div>
+                  {/* 5. Lead Source * (Walk in, Online, Referal, Others) */}
+                  <div>
+                    <label className="eq-label">
+                      <span>Lead Source</span> <span style={{ color: "#dc2626" }}>*</span>
+                    </label>
+                    <CustomSelect 
+                      className="eq-input" 
+                      value={form.source}
+                      onChange={(e) => setForm({ ...form, source: e.target.value })}
+                    >
+                      {LEAD_SOURCES.map(s => (
+                        <option key={s.value} value={s.label}>{s.label}</option>
+                      ))}
+                    </CustomSelect>
+                  </div>
 
-                {/* 6. Enquiry Status (New, Follow up, Converted, Dropped) */}
-                <div>
-                  <label className="eq-label">Enquiry Status</label>
-                  <CustomSelect 
-                    className="eq-input" 
-                    value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  >
-                    {STATUS_OPTIONS.map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </CustomSelect>
-                </div>
+                  {/* 6. Enquiry Status (New, Follow up, Converted, Dropped) */}
+                  <div>
+                    <label className="eq-label">Enquiry Status</label>
+                    <CustomSelect 
+                      className="eq-input" 
+                      value={form.status}
+                      onChange={(e) => setForm({ ...form, status: e.target.value })}
+                    >
+                      {STATUS_OPTIONS.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </CustomSelect>
+                  </div>
 
-                {/* 7. Service Interested (Optional) */}
-                <div>
-                  <label className="eq-label">Service Interested</label>
-                  <CustomSelect 
-                    className="eq-input" 
-                    value={form.interestedServiceId}
-                    onChange={(e) => setForm({ ...form, interestedServiceId: e.target.value })}
-                  >
-                    <option value="">Select Service (Optional)</option>
-                    {services.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </CustomSelect>
-                </div>
+                  {/* 7. Service Interested (Optional) */}
+                  <div>
+                    <label className="eq-label">Service Interested</label>
+                    <CustomSelect 
+                      className="eq-input" 
+                      value={form.interestedServiceId}
+                      onChange={(e) => setForm({ ...form, interestedServiceId: e.target.value })}
+                    >
+                      <option value="">Select Service (Optional)</option>
+                      {services.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </CustomSelect>
+                  </div>
 
-                {/* 8. Priority */}
-                <div>
-                  <label className="eq-label">Priority</label>
-                  <CustomSelect 
-                    className="eq-input" 
-                    value={form.priority}
-                    onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                  >
-                    {PRIORITY_OPTIONS.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </CustomSelect>
-                </div>
+                  {/* 8. Priority */}
+                  <div>
+                    <label className="eq-label">Priority</label>
+                    <CustomSelect 
+                      className="eq-input" 
+                      value={form.priority}
+                      onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                    >
+                      {PRIORITY_OPTIONS.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </CustomSelect>
+                  </div>
 
-                {/* 9. Email (Optional) */}
-                <div style={{ gridColumn: "span 2" }}>
-                  <label className="eq-label">Email Address</label>
-                  <input 
-                    type="email" 
-                    className="eq-input" 
-                    placeholder="Optional email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  />
-                </div>
+                  {/* 9. Email (Optional) */}
+                  <div style={{ gridColumn: "span 2" }}>
+                    <label className="eq-label">Email Address</label>
+                    <input 
+                      type="email" 
+                      className="eq-input" 
+                      placeholder="Optional email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    />
+                  </div>
 
-                {/* 10. Description / Notes */}
-                <div style={{ gridColumn: "span 2" }}>
-                  <label className="eq-label">Description / Requirement Notes</label>
-                  <textarea 
-                    className="eq-input" 
-                    rows={2}
-                    placeholder="Specific requests, customer inquiries, budget, or preferred timings..."
-                    value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    style={{ height: 60, padding: 8 }}
-                  />
-                </div>
+                  {/* 10. Description / Notes */}
+                  <div style={{ gridColumn: "span 2" }}>
+                    <label className="eq-label">Description / Requirement Notes</label>
+                    <textarea 
+                      className="eq-input" 
+                      rows={2}
+                      placeholder="Specific requests, customer inquiries, budget, or preferred timings..."
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      style={{ height: 60, padding: 8 }}
+                    />
+                  </div>
 
-                {/* Auto Customer Sync Note */}
-                <div style={{ gridColumn: "span 2", padding: "10px 14px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, fontSize: 12.5, color: "#166534", display: "flex", alignItems: "center", gap: 8 }}>
-                  <Sparkles size={16} color="#16a34a" style={{ flexShrink: 0 }} />
-                  <span>Customer profile with selected gender is automatically created & synced to Customers list upon saving.</span>
-                </div>
+                  {/* Auto Customer Sync Note */}
+                  <div style={{ gridColumn: "span 2", padding: "10px 14px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, fontSize: 12.5, color: "#166534", display: "flex", alignItems: "center", gap: 8 }}>
+                    <Sparkles size={16} color="#16a34a" style={{ flexShrink: 0 }} />
+                    <span>Customer profile with selected gender is automatically created & synced to Customers list upon saving.</span>
+                  </div>
 
+                </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid #f1f5f9", paddingTop: "14px" }}>
-                <button type="button" className="eq-btn eq-btn-secondary" onClick={() => setShowModal(false)}>Close</button>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid #e2e8f0", padding: "14px 24px", background: "#f8fafc", flexShrink: 0 }}>
+                <button type="button" className="eq-btn eq-btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="eq-btn eq-btn-primary" disabled={isSubmitting}>
                   {isSubmitting ? "Saving..." : (editingId ? "Save Changes" : "Create Enquiry")}
                 </button>
