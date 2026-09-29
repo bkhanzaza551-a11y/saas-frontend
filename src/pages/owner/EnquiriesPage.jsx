@@ -767,22 +767,164 @@ export default function EnquiriesPage() {
           {detailLoading || !detailData ? (
             <PageLoader title="Loading Enquiry Details" message="Fetching customer follow-up history and details..." />
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
               
-              {/* Top Hero Banner */}
-              <div className="eq-card" style={{ padding: "24px 28px", border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
+              {/* 1. Follow-Up Recorder Box */}
+              <div className="eq-card">
+                <div style={{ marginBottom: 14 }}>
+                  <h3 style={{ margin: "0 0 4px 0", fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                    <Plus size={17} color="#0f172a" /> Log New Follow-Up
+                  </h3>
+                  <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                    Record customer response, discussions, and update next reminder schedule.
+                  </p>
+                </div>
+
+                <form onSubmit={handleAddFollowUpDetail}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    
+                    {/* Quick Note Suggestions */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", alignSelf: "center", marginRight: 2 }}>Quick:</span>
+                      {[
+                        "Spoke with client - very interested",
+                        "Price quote shared - awaiting response",
+                        "Call not answered / busy",
+                        "Requested callback next week",
+                        "Appointment booked / visiting salon"
+                      ].map(text => (
+                        <button
+                          key={text}
+                          type="button"
+                          className="quick-chip-btn"
+                          onClick={() => setDetailFollowUpNote(prev => prev ? `${prev} | ${text}` : text)}
+                        >
+                          + {text}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div>
+                      <label className="eq-label">Follow-up Conversation Notes / Remarks *</label>
+                      <textarea
+                        className="eq-input"
+                        required
+                        rows={3}
+                        placeholder="Detail customer's response, preferences, price quote offered, objections discussed..."
+                        value={detailFollowUpNote}
+                        onChange={(e) => setDetailFollowUpNote(e.target.value)}
+                        style={{ height: 80, padding: "10px 12px", lineHeight: 1.45, borderRadius: 8 }}
+                      />
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div>
+                        <label className="eq-label">Update Status</label>
+                        <CustomSelect
+                          className="eq-input"
+                          value={detailFollowUpStatus}
+                          onChange={(e) => setDetailFollowUpStatus(e.target.value)}
+                        >
+                          {STATUS_OPTIONS.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </CustomSelect>
+                      </div>
+
+                      <div>
+                        <label className="eq-label">Next Reminder Date</label>
+                        <input
+                          type="date"
+                          className="eq-input"
+                          value={detailFollowUpDate}
+                          onChange={(e) => setDetailFollowUpDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+                      <button
+                        type="submit"
+                        disabled={savingFollowUp || !detailFollowUpNote.trim()}
+                        className="eq-btn"
+                        style={{ background: "#0f172a", color: "#ffffff", height: 38, padding: "0 20px", fontWeight: 700, borderRadius: 8, boxShadow: "0 1px 3px rgba(15, 23, 42, 0.2)" }}
+                      >
+                        <Send size={14} /> {savingFollowUp ? "Recording..." : "Record Follow-Up"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              {/* 2. Previous Follow-Ups Timeline */}
+              <div className="eq-card">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                    <History size={17} color="#0f172a" /> Follow-Up History & Timeline
+                  </h3>
+                  <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", background: "#f1f5f9", padding: "3px 10px", borderRadius: 100, border: "1px solid #e2e8f0" }}>
+                    {detailData.followUps?.length || 0} Records
+                  </span>
+                </div>
+
+                {!detailData.followUps || detailData.followUps.length === 0 ? (
+                  <div style={{ padding: "34px 20px", textAlign: "center", background: "#f8fafc", borderRadius: 12, border: "1px dashed #cbd5e1" }}>
+                    <MessageSquare size={32} color="#94a3b8" style={{ margin: "0 auto 8px" }} />
+                    <div style={{ fontWeight: 700, color: "#475569", fontSize: "14px" }}>No Follow-Ups Recorded Yet</div>
+                    <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: 3 }}>Record the first conversation note above to begin client interaction tracking.</div>
+                  </div>
+                ) : (
+                  <div className="timeline-container">
+                    {detailData.followUps.map((item, idx) => (
+                      <div key={item.id || idx} className="timeline-item">
+                        <div className={`timeline-dot ${item.status ? "status-change" : ""}`} />
+                        <div className="timeline-card">
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ fontWeight: 800, fontSize: "13px", color: "#0f172a" }}>
+                                {item.actorMembership?.user?.name || "Staff Member"}
+                              </span>
+                              {item.status && (
+                                <span className="status-pill" style={{ background: getStatusColor(item.status).bg, color: getStatusColor(item.status).text, fontSize: "10px", padding: "2px 8px" }}>
+                                  {mapStatusToUi(item.status)}
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: "11.5px", color: "#94a3b8", fontWeight: 600 }}>
+                              {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: 1.5, fontWeight: 500 }}>
+                            {item.note}
+                          </div>
+
+                          {item.dueAt && (
+                            <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 5, fontSize: "11.5px", fontWeight: 700, color: "#0f172a", background: "#f1f5f9", padding: "3px 9px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+                              <CalendarClock size={13} color="#64748b" /> Reminder: {new Date(item.dueAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Enquiry Details & Specifications Card (Placed below) */}
+              <div className="eq-card" style={{ padding: "22px 24px", border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, borderBottom: "1px solid #f1f5f9", paddingBottom: 16, marginBottom: 16 }}>
                   
-                  {/* Left Customer Info */}
-                  <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
-                    <div style={{ width: 62, height: 62, borderRadius: "50%", background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", fontWeight: 800, flexShrink: 0, boxShadow: "0 4px 12px rgba(15, 23, 42, 0.15)" }}>
+                  {/* Left: Avatar + Name + Status + Contacts */}
+                  <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 800, flexShrink: 0 }}>
                       {(detailData.name || "E").charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                        <h1 style={{ margin: 0, fontSize: "1.55rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 800, color: "#0f172a" }}>
                           {detailData.name}
-                        </h1>
+                        </h2>
                         <span className="status-pill" style={{ background: getStatusColor(detailData.status).bg, color: getStatusColor(detailData.status).text, fontWeight: 800, padding: "3px 10px", fontSize: "11px" }}>
                           {mapStatusToUi(detailData.status)}
                         </span>
@@ -791,283 +933,96 @@ export default function EnquiriesPage() {
                         </span>
                       </div>
                       
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 8, fontSize: "13px", color: "#64748b" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 6, fontSize: "12.5px", color: "#64748b" }}>
                         <a 
                           href={`tel:${detailData.phone}`} 
-                          style={{ textDecoration: "none", color: "#0f172a", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f5f9", padding: "3px 10px", borderRadius: 6 }}
+                          style={{ textDecoration: "none", color: "#0f172a", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "#f1f5f9", padding: "2px 8px", borderRadius: 6 }}
                         >
-                          <Phone size={13} color="#0f172a" /> {detailData.phone}
+                          <Phone size={12} color="#0f172a" /> {detailData.phone}
                         </a>
                         <a 
                           href={`https://wa.me/${detailData.phone?.replace(/[^0-9]/g, "")}`} 
                           target="_blank" 
                           rel="noreferrer"
-                          style={{ textDecoration: "none", color: "#166534", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5, background: "#f0fdf4", padding: "3px 10px", borderRadius: 6, border: "1px solid #bbf7d0" }}
+                          style={{ textDecoration: "none", color: "#166534", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "#f0fdf4", padding: "2px 8px", borderRadius: 6, border: "1px solid #bbf7d0" }}
                         >
-                          <MessageCircle size={14} color="#16a34a" /> WhatsApp
+                          <MessageCircle size={13} color="#16a34a" /> WhatsApp
                         </a>
                         {detailData.email && (
                           <a 
                             href={`mailto:${detailData.email}`}
-                            style={{ textDecoration: "none", color: "#475569", display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600 }}
+                            style={{ textDecoration: "none", color: "#475569", display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 600 }}
                           >
-                            <Mail size={14} color="#64748b" /> {detailData.email}
+                            <Mail size={13} color="#64748b" /> {detailData.email}
                           </a>
                         )}
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#64748b", fontWeight: 500 }}>
-                          <Clock size={14} /> Logged: {new Date(detailData.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#64748b", fontWeight: 500 }}>
+                          <Clock size={13} /> Logged: {new Date(detailData.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Follow-up Schedule Badge */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, background: "#f8fafc", padding: "12px 18px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: "11px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {/* Right: Scheduled Follow-Up Badge */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, background: "#f8fafc", padding: "8px 14px", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                       Scheduled Follow-Up
                     </div>
                     <div>{formatFollowUpBadge(detailData.followUpAt)}</div>
                   </div>
-
-                </div>
-              </div>
-
-              {/* Main 2-Column Split: Details & Follow-Ups */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: 20 }}>
-                
-                {/* Left Column: Enquiry Information & Client Status */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                  
-                  {/* Lead Specifications Card */}
-                  <div className="eq-card">
-                    <h3 style={{ margin: "0 0 16px 0", fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                      <FileText size={17} color="#0f172a" /> Enquiry Specifications
-                    </h3>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      
-                      <div className="spec-item">
-                        <div className="spec-label">
-                          <Scissors size={14} color="#0f172a" /> Interested Service
-                        </div>
-                        <div className="spec-value" style={{ color: "#0f172a" }}>
-                          <span style={{ background: "#f1f5f9", padding: "3px 10px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-                            {detailData.interestedService?.name || "General Service Enquiry"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="spec-item">
-                        <div className="spec-label">
-                          <Tag size={14} color="#0f172a" /> Lead Source
-                        </div>
-                        <div className="spec-value">
-                          {mapSourceToUi(detailData.source)}
-                        </div>
-                      </div>
-
-                      <div className="spec-item">
-                        <div className="spec-label">
-                          <Building2 size={14} color="#0f172a" /> Salon Branch
-                        </div>
-                        <div className="spec-value">
-                          {detailData.interestedBranch?.name || "All Branches / Main"}
-                        </div>
-                      </div>
-
-                      {detailData.notes && (
-                        <div style={{ marginTop: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderLeft: "4px solid #0f172a", borderRadius: 10, padding: "14px 16px" }}>
-                          <div style={{ fontSize: "11px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>
-                            Initial Customer Note / Requirement
-                          </div>
-                          <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: 1.5, fontWeight: 500 }}>
-                            "{detailData.notes}"
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Customer Conversion Status Card */}
-                  <div className="eq-card" style={{ background: detailData.convertedCustomerId ? "#f0fdf4" : "#ffffff", borderColor: detailData.convertedCustomerId ? "#bbf7d0" : "#e2e8f0" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 10, background: detailData.convertedCustomerId ? "#10b981" : "#f1f5f9", color: detailData.convertedCustomerId ? "white" : "#64748b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <UserCheck size={22} />
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: "15px", color: detailData.convertedCustomerId ? "#166534" : "#0f172a" }}>
-                            {detailData.convertedCustomerId ? "Official Salon Client" : "Prospect / Lead"}
-                          </div>
-                          <div style={{ fontSize: "12px", color: detailData.convertedCustomerId ? "#15803d" : "#64748b", marginTop: 2 }}>
-                            {detailData.convertedCustomerId ? "Synced in customer database" : "Not yet converted into a recurring customer"}
-                          </div>
-                        </div>
-                      </div>
-
-                      {!detailData.convertedCustomerId && (
-                        <button
-                          type="button"
-                          onClick={handleConvertToCustomer}
-                          disabled={convertingCustomer}
-                          className="eq-btn"
-                          style={{ background: "#0f172a", color: "white", height: 36, fontSize: "12px", fontWeight: 700, borderRadius: 8, padding: "0 14px", flexShrink: 0 }}
-                        >
-                          <UserCheck size={14} /> {convertingCustomer ? "Converting..." : "Convert Now"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
                 </div>
 
-                {/* Right Column: Follow-Ups History & Logger */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                  
-                  {/* Follow-Up Recorder Box */}
-                  <div className="eq-card">
-                    <div style={{ marginBottom: 14 }}>
-                      <h3 style={{ margin: "0 0 4px 0", fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                        <Plus size={17} color="#0f172a" /> Log New Follow-Up
-                      </h3>
-                      <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-                        Record customer response, discussions, and update next reminder schedule.
-                      </p>
+                {/* Specifications Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+                  <div className="spec-item">
+                    <div className="spec-label">
+                      <Scissors size={13} color="#0f172a" /> Interested Service
                     </div>
-
-                    <form onSubmit={handleAddFollowUpDetail}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        
-                        {/* Quick Note Suggestions */}
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", alignSelf: "center", marginRight: 2 }}>Quick:</span>
-                          {[
-                            "Spoke with client - very interested",
-                            "Price quote shared - awaiting response",
-                            "Call not answered / busy",
-                            "Requested callback next week",
-                            "Appointment booked / visiting salon"
-                          ].map(text => (
-                            <button
-                              key={text}
-                              type="button"
-                              className="quick-chip-btn"
-                              onClick={() => setDetailFollowUpNote(prev => prev ? `${prev} | ${text}` : text)}
-                            >
-                              + {text}
-                            </button>
-                          ))}
-                        </div>
-
-                        <div>
-                          <label className="eq-label">Follow-up Conversation Notes / Remarks *</label>
-                          <textarea
-                            className="eq-input"
-                            required
-                            rows={3}
-                            placeholder="Detail customer's response, preferences, price quote offered, objections discussed..."
-                            value={detailFollowUpNote}
-                            onChange={(e) => setDetailFollowUpNote(e.target.value)}
-                            style={{ height: 80, padding: "10px 12px", lineHeight: 1.45, borderRadius: 8 }}
-                          />
-                        </div>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                          <div>
-                            <label className="eq-label">Update Status</label>
-                            <CustomSelect
-                              className="eq-input"
-                              value={detailFollowUpStatus}
-                              onChange={(e) => setDetailFollowUpStatus(e.target.value)}
-                            >
-                              {STATUS_OPTIONS.map(s => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </CustomSelect>
-                          </div>
-
-                          <div>
-                            <label className="eq-label">Next Reminder Date</label>
-                            <input
-                              type="date"
-                              className="eq-input"
-                              value={detailFollowUpDate}
-                              onChange={(e) => setDetailFollowUpDate(e.target.value)}
-                            />
-                          </div>
-                        </div>
-
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
-                          <button
-                            type="submit"
-                            disabled={savingFollowUp || !detailFollowUpNote.trim()}
-                            className="eq-btn"
-                            style={{ background: "#0f172a", color: "#ffffff", height: 38, padding: "0 20px", fontWeight: 700, borderRadius: 8, boxShadow: "0 1px 3px rgba(15, 23, 42, 0.2)" }}
-                          >
-                            <Send size={14} /> {savingFollowUp ? "Recording..." : "Record Follow-Up"}
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-
-                  {/* Previous Follow-Ups Timeline */}
-                  <div className="eq-card">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                      <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
-                        <History size={17} color="#0f172a" /> Follow-Up History & Timeline
-                      </h3>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", background: "#f1f5f9", padding: "3px 10px", borderRadius: 100, border: "1px solid #e2e8f0" }}>
-                        {detailData.followUps?.length || 0} Records
+                    <div className="spec-value" style={{ color: "#0f172a" }}>
+                      <span style={{ background: "#f1f5f9", padding: "3px 8px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+                        {detailData.interestedService?.name || "General Service Enquiry"}
                       </span>
                     </div>
-
-                    {!detailData.followUps || detailData.followUps.length === 0 ? (
-                      <div style={{ padding: "34px 20px", textAlign: "center", background: "#f8fafc", borderRadius: 12, border: "1px dashed #cbd5e1" }}>
-                        <MessageSquare size={32} color="#94a3b8" style={{ margin: "0 auto 8px" }} />
-                        <div style={{ fontWeight: 700, color: "#475569", fontSize: "14px" }}>No Follow-Ups Recorded Yet</div>
-                        <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: 3 }}>Record the first conversation note above to begin client interaction tracking.</div>
-                      </div>
-                    ) : (
-                      <div className="timeline-container">
-                        {detailData.followUps.map((item, idx) => (
-                          <div key={item.id || idx} className="timeline-item">
-                            <div className={`timeline-dot ${item.status ? "status-change" : ""}`} />
-                            <div className="timeline-card">
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                  <span style={{ fontWeight: 800, fontSize: "13px", color: "#0f172a" }}>
-                                    {item.actorMembership?.user?.name || "Staff Member"}
-                                  </span>
-                                  {item.status && (
-                                    <span className="status-pill" style={{ background: getStatusColor(item.status).bg, color: getStatusColor(item.status).text, fontSize: "10px", padding: "2px 8px" }}>
-                                      {mapStatusToUi(item.status)}
-                                    </span>
-                                  )}
-                                </div>
-                                <span style={{ fontSize: "11.5px", color: "#94a3b8", fontWeight: 600 }}>
-                                  {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                                </span>
-                              </div>
-
-                              <div style={{ fontSize: "13.5px", color: "#334155", lineHeight: 1.5, fontWeight: 500 }}>
-                                {item.note}
-                              </div>
-
-                              {item.dueAt && (
-                                <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 5, fontSize: "11.5px", fontWeight: 700, color: "#0f172a", background: "#f1f5f9", padding: "3px 9px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-                                  <CalendarClock size={13} color="#64748b" /> Reminder: {new Date(item.dueAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
+                  <div className="spec-item">
+                    <div className="spec-label">
+                      <Tag size={13} color="#0f172a" /> Lead Source
+                    </div>
+                    <div className="spec-value">
+                      {mapSourceToUi(detailData.source)}
+                    </div>
+                  </div>
+
+                  <div className="spec-item">
+                    <div className="spec-label">
+                      <Building2 size={13} color="#0f172a" /> Salon Branch
+                    </div>
+                    <div className="spec-value">
+                      {detailData.interestedBranch?.name || "All Branches / Main"}
+                    </div>
+                  </div>
+
+                  <div className="spec-item" style={{ background: detailData.convertedCustomerId ? "#f0fdf4" : "#f8fafc", borderColor: detailData.convertedCustomerId ? "#bbf7d0" : "#f1f5f9" }}>
+                    <div className="spec-label">
+                      <UserCheck size={13} color={detailData.convertedCustomerId ? "#16a34a" : "#64748b"} /> Client Status
+                    </div>
+                    <div className="spec-value" style={{ color: detailData.convertedCustomerId ? "#166534" : "#64748b", fontWeight: 700 }}>
+                      {detailData.convertedCustomerId ? "Official Salon Client" : "Prospect / Lead"}
+                    </div>
+                  </div>
                 </div>
 
+                {detailData.notes && (
+                  <div style={{ marginTop: 12, background: "#f8fafc", border: "1px solid #e2e8f0", borderLeft: "4px solid #0f172a", borderRadius: 8, padding: "10px 14px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                      Initial Customer Note / Requirement
+                    </div>
+                    <div style={{ fontSize: "13px", color: "#334155", lineHeight: 1.45, fontWeight: 500 }}>
+                      "{detailData.notes}"
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>
