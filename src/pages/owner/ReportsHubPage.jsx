@@ -13,30 +13,43 @@ import {
 } from "recharts";
 
 const ALL_REPORTS = [
-  { key: "salon_analytics", label: "Salon Analytics", group: "Overview" },
-  { key: "financial_reports", label: "Financial Reports", group: "Overview" },
-  { key: "pnl_report", label: "P&L Report", group: "Overview" },
-  { key: "sales_summary", label: "Sales Summary", group: "Revenue" },
-  { key: "service_sales", label: "Service Revenue", group: "Revenue" },
-  { key: "product_sales", label: "Product Revenue", group: "Revenue" },
-  { key: "day_wise", label: "Day Wise Report", group: "Revenue" },
-  { key: "cancelled_invoices", label: "Cancelled Orders", group: "Revenue" },
-  { key: "staff_performance", label: "Stylist Revenue", group: "Staff" },
-  { key: "staff_attendance", label: "Staff Attendance", group: "Staff" },
+  // 1. Sales & Revenue
+  { key: "salon_analytics", label: "Salon Analytics", group: "Sales & Revenue" },
+  { key: "sales_summary", label: "Sales Summary", group: "Sales & Revenue" },
+  { key: "service_sales", label: "Service Revenue", group: "Sales & Revenue" },
+  { key: "product_sales", label: "Product Revenue", group: "Sales & Revenue" },
+  { key: "day_wise", label: "Day Wise Report", group: "Sales & Revenue" },
+  { key: "cancelled_invoices", label: "Cancelled Orders", group: "Sales & Revenue" },
+
+  // 2. Staff & Incentives
+  { key: "staff_performance", label: "Stylist Revenue", group: "Staff & Incentives" },
+
+  // 3. Customers
   { key: "customers", label: "Customer Collection", group: "Customers" },
   { key: "feedback", label: "Feedback", group: "Customers" },
-  { key: "appointments", label: "Appointment Report", group: "Customers" },
-  { key: "memberships", label: "Memberships Sold", group: "Memberships & Packages" },
-  { key: "membership_redemption", label: "Membership Redemption", group: "Memberships & Packages" },
-  { key: "packages", label: "Packages Sold", group: "Memberships & Packages" },
-  { key: "package_redemption", label: "Package Redemption", group: "Memberships & Packages" },
-  { key: "gift_card_sold", label: "Gift Card Sold", group: "Gift Cards & Advances" },
-  { key: "gift_card_redemption", label: "Gift Card Redemption", group: "Gift Cards & Advances" },
-  { key: "advance_received", label: "Advance Received", group: "Gift Cards & Advances" },
-  { key: "coupon_redemption", label: "Coupon Redemption", group: "Gift Cards & Advances" },
-  { key: "gst_returns", label: "GST Returns", group: "Tax" },
+
+  // 4. Memberships & Promotions
+  { key: "memberships", label: "Memberships Sold", group: "Memberships & Promotions" },
+  { key: "membership_redemption", label: "Membership Redemption", group: "Memberships & Promotions" },
+  { key: "packages", label: "Packages Sold", group: "Memberships & Promotions" },
+  { key: "package_redemption", label: "Package Redemption", group: "Memberships & Promotions" },
+  { key: "gift_card_sold", label: "Gift Card Sold", group: "Memberships & Promotions" },
+  { key: "gift_card_redemption", label: "Gift Card Redemption", group: "Memberships & Promotions" },
+  { key: "advance_received", label: "Advance Received", group: "Memberships & Promotions" },
+  { key: "coupon_redemption", label: "Coupon Redemption", group: "Memberships & Promotions" },
+
+  // 5. Finance & Tax
+  { key: "financial_reports", label: "Financial Reports", group: "Finance & Tax" },
+  { key: "pnl_report", label: "P&L Report", group: "Finance & Tax" },
+  { key: "gst_returns", label: "GST Returns", group: "Finance & Tax" },
+
+  // 6. Inventory
   { key: "daily_stock", label: "Daily Stock", group: "Inventory" },
   { key: "stock_transaction", label: "Stock Transaction", group: "Inventory" },
+
+  // 7. Appointments & Attendance
+  { key: "appointments", label: "Appointment Report", group: "Appointments & Attendance" },
+  { key: "staff_attendance", label: "Staff Attendance", group: "Appointments & Attendance" }
 ];
 
 const COLUMNS = {
@@ -1548,6 +1561,7 @@ export default function ReportsHubPage() {
   const isOwner = auth?.membership?.salonRole === "SALON_OWNER";
   const canSelectBranch = isSuperAdmin || isOwner;
   const effectiveBranchId = selectedBranchId;
+  const [activeGroup, setActiveGroup] = useState("Sales & Revenue");
   const [activeReport, setActiveReport] = useState("sales_summary");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ start: "", end: "" });
@@ -1560,6 +1574,14 @@ export default function ReportsHubPage() {
   const [showChart, setShowChart] = useState(false);
   const [columnPickerOpen, setColumnPickerOpen] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState(null);
+
+  
+  useEffect(() => {
+    const reportsInGroup = ALL_REPORTS.filter(r => r.group === activeGroup);
+    if (reportsInGroup.length > 0 && !reportsInGroup.some(r => r.key === activeReport)) {
+      setActiveReport(reportsInGroup[0].key);
+    }
+  }, [activeGroup, activeReport]);
 
   const { options: filterOptions, filterConfig } = useReportOptions(activeReport);
   const currentReport = ALL_REPORTS.find((report) => report.key === activeReport);
@@ -1781,7 +1803,31 @@ export default function ReportsHubPage() {
         </div>
       </div>
 
-      <div id="printable-report" className="rpt-main">
+      
+        <div id="printable-report" className="rpt-main">
+          <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 14px", display: "flex", gap: "4px", overflowX: "auto", scrollbarWidth: "none" }} className="no-print">
+            {ALL_REPORTS.filter(r => r.group === activeGroup && (!search || r.label.toLowerCase().includes(search.toLowerCase()))).map(report => (
+              <button
+                key={report.key}
+                onClick={() => setActiveReport(report.key)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  borderBottom: activeReport === report.key ? "3px solid #0f766e" : "3px solid transparent",
+                  padding: "12px 16px",
+                  fontSize: "0.85rem",
+                  fontWeight: activeReport === report.key ? 700 : 500,
+                  color: activeReport === report.key ? "#0f766e" : "#64748b",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.2s"
+                }}
+              >
+                {report.label}
+              </button>
+            ))}
+          </div>
+
         {activeReport !== "salon_analytics" && activeReport !== "financial_reports" && (
         <div className="rpt-topbar" style={{ justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
