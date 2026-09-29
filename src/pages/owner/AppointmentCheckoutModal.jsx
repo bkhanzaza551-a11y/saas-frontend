@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X, Search, Briefcase, Plus, Filter, Trash2, Calendar, ShoppingBag, CreditCard, TicketPercent, CheckCircle, Tag, CheckSquare, Settings2, Clock3, FlaskConical } from "lucide-react";
 import { api } from "../../api/client";
@@ -410,10 +410,10 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
       return;
     }
 
-    // Payment amount validation — at least one of Online or Offline must be > 0
+    // Payment amount validation � at least one of Online or Offline must be > 0
     const totalPaid = Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0);
     if (totalPaid <= 0) {
-      setStatus({ error: "⚠️ï¸ Please enter a payment amount first. Enter an amount in either Online or Offline.", success: "" });
+      setStatus({ error: "??️ Please enter a payment amount first. Enter an amount in either Online or Offline.", success: "" });
       return;
     }
 
@@ -690,7 +690,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
             <div style={{ background: "white", borderRadius: "8px", border: "1px solid #e2e8f0", padding: "12px", display: "flex", flexDirection: "column", flex: 1, overflowY: "hidden" }}>
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px", marginBottom: "8px" }}>
                 <strong style={{ fontSize: "0.85rem" }}>Checkout Bill</strong>
-                <span style={{ color: "#475569", fontWeight: 600, fontSize: "0.75rem" }}>{new Date(appointment.startAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-")} 📅</span>
+                <span style={{ color: "#475569", fontWeight: 600, fontSize: "0.75rem" }}>{new Date(appointment.startAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-")} ??</span>
               </div>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", rowGap: "4px", fontSize: "0.7rem", marginBottom: "8px" }}>
@@ -745,7 +745,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                                   const unit = c.product?.secondaryUnit || c.product?.unit || 'pcs';
                                   return (
                                     <div key={i} style={{ fontSize: "0.65rem", color: "#334155", display: "flex", alignItems: "center", gap: "4px", background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", width: "fit-content" }}>
-                                      <span style={{ color: "#2563eb", fontWeight: 600 }}>🧪 {c.product?.name}:</span>
+                                      <span style={{ color: "#2563eb", fontWeight: 600 }}>?? {c.product?.name}:</span>
                                       <input
                                         type="number"
                                         min="0"
@@ -876,27 +876,27 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <div style={{ background: bgColor, borderRadius: "8px", border: `1px solid ${borderColor}`, padding: "10px", transition: "all 0.2s" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
                       <h4 style={{ margin: 0, color: "#334155", fontSize: "0.75rem", textTransform: "uppercase" }}>Payment Details</h4>
-                      {noPay && <span style={{ fontSize: "0.7rem", color: "#ef4444", fontWeight: 700 }}>⚠️ï¸ Amount is required!</span>}
+                      {noPay && <span style={{ fontSize: "0.7rem", color: "#ef4444", fontWeight: 700 }}>??️ Amount is required!</span>}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
                       <div>
                         <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, marginBottom: "4px" }}>Online</div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "white", padding: "0 8px", borderRadius: "6px", border: noPay ? "1px solid #fca5a5" : "1px solid #cbd5e1", height: "32px" }}>
-                          <div style={{ color: "#10b981", fontSize: "0.8rem" }}>📱</div>
+                          <div style={{ color: "#10b981", fontSize: "0.8rem" }}>??</div>
                           <input type="number" min="0" step="0.01" inputMode="decimal" value={paymentDraft.online} onFocus={() => { setPaymentDraft((prev) => ({ ...prev, online: String(Math.max(0, total - toAmount(prev.offline, 0))) })); setStatus({ error: "", success: "" }); }} onChange={(e) => { setPaymentDraft((prev) => ({ ...prev, online: clampMoneyInput(e.target.value, Math.max(0, total - toAmount(prev.offline, 0))) })); setStatus({ error: "", success: "" }); }} max={Math.max(0, total - Number(paymentDraft.offline || 0))} placeholder="0.0" style={{ border: "none", outline: "none", width: "100%", height: "100%", padding: 0, margin: 0, background: "transparent", fontWeight: 600, fontSize: "0.8rem" }} />
                         </div>
                       </div>
                       <div>
                         <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, marginBottom: "4px" }}>Offline</div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "white", padding: "0 8px", borderRadius: "6px", border: noPay ? "1px solid #fca5a5" : "1px solid #cbd5e1", height: "32px" }}>
-                          <div style={{ color: "#10b981", fontSize: "0.8rem" }}>💵</div>
+                          <div style={{ color: "#10b981", fontSize: "0.8rem" }}>??</div>
                           <input type="number" min="0" step="0.01" inputMode="decimal" value={paymentDraft.offline} onFocus={() => { setPaymentDraft((prev) => ({ ...prev, offline: String(Math.max(0, total - toAmount(prev.online, 0))) })); setStatus({ error: "", success: "" }); }} onChange={(e) => { setPaymentDraft((prev) => ({ ...prev, offline: clampMoneyInput(e.target.value, Math.max(0, total - toAmount(prev.online, 0))) })); setStatus({ error: "", success: "" }); }} max={Math.max(0, total - Number(paymentDraft.online || 0))} placeholder="0.0" style={{ border: "none", outline: "none", width: "100%", height: "100%", padding: 0, margin: 0, background: "transparent", fontWeight: 600, fontSize: "0.8rem" }} />
                         </div>
                       </div>
                       <div>
                         <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, marginBottom: "4px" }}>Balance</div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f1f5f9", padding: "0 8px", borderRadius: "6px", border: "1px solid #cbd5e1", height: "32px" }}>
-                          <div style={{ color: "#10b981", fontSize: "0.8rem" }}>💳</div>
+                          <div style={{ color: "#10b981", fontSize: "0.8rem" }}>??</div>
                           <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.8rem" }}>{balance.toFixed(2)}</div>
                         </div>
                       </div>
@@ -941,7 +941,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <input type="text" placeholder="Search For Card" value={gcSearch} onChange={(e) => setGcSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
                   <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
+                <button onClick={() => setShowGcModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
               </div>
             </div>
 
@@ -1001,14 +1001,14 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>Balance</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "120px", background: "white" }}>
-                      <span>💰</span>
+                      <span>??</span>
                       <input type="text" readOnly value={Math.max(0, toAmount(gcDraft.price, 0) - (toAmount(gcDraft.online, 0) + toAmount(gcDraft.offline, 0))).toFixed(2)} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.8rem", borderBottom: "1px solid #e2e8f0", color: "var(--accent, #3b82f6)", fontWeight: 600 }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>Online</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "120px", background: "white" }}>
-                      <span>💻</span>
+                      <span>??</span>
                       <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, toAmount(gcDraft.price, 0) - toAmount(gcDraft.offline, 0))} value={gcDraft.online} onFocus={() => { setGcDraft((prev) => ({ ...prev, online: String(Math.max(0, toAmount(prev.price, 0) - toAmount(prev.offline, 0))) })); }} onChange={(e) => setGcDraft((prev) => ({ ...prev, online: clampMoneyInput(e.target.value, Math.max(0, toAmount(prev.price, 0) - toAmount(prev.offline, 0))) }))} placeholder="0.0" style={{ border: "none", outline: "none", width: "100%", fontSize: "0.8rem", borderBottom: "1px solid #e2e8f0", color: "#10b981" }} />
                     </div>
                   </div>
@@ -1042,7 +1042,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <input type="text" placeholder="Search For Membership" value={membershipSearch} onChange={(e) => setMembershipSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
                   <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMembershipModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
+                <button onClick={() => setShowMembershipModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
               </div>
             </div>
 
@@ -1121,14 +1121,14 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>Balance</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "120px", background: "white" }}>
-                      <span>💰</span>
+                      <span>??</span>
                       <input type="text" readOnly value={Math.max(0, toAmount(membershipDraft.price, 0) - (toAmount(membershipDraft.online, 0) + toAmount(membershipDraft.offline, 0))).toFixed(2)} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.8rem", borderBottom: "1px solid #e2e8f0", color: "var(--accent, #3b82f6)", fontWeight: 600 }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>Online</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "120px", background: "white" }}>
-                      <span>💻</span>
+                      <span>??</span>
                       <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, toAmount(membershipDraft.price, 0) - toAmount(membershipDraft.offline, 0))} value={membershipDraft.online} onFocus={() => { setMembershipDraft((prev) => ({ ...prev, online: String(Math.max(0, toAmount(prev.price, 0) - toAmount(prev.offline, 0))) })); }} onChange={(e) => setMembershipDraft((prev) => ({ ...prev, online: clampMoneyInput(e.target.value, Math.max(0, toAmount(prev.price, 0) - toAmount(prev.offline, 0))) }))} placeholder="0.0" style={{ border: "none", outline: "none", width: "100%", fontSize: "0.8rem", borderBottom: "1px solid #e2e8f0", color: "#10b981" }} />
                     </div>
                   </div>
@@ -1167,7 +1167,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <input type="text" placeholder="Search For Package" value={packageSearch} onChange={(e) => setPackageSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
                   <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowPackageModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
+                <button onClick={() => setShowPackageModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
               </div>
             </div>
 
@@ -1268,7 +1268,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                             }}
                             style={{ width: "60px", padding: "4px 8px", borderRadius: "6px", border: "1px solid #cbd5e1", outline: "none", textAlign: "center" }}
                           />
-                          <button onClick={() => setPackageDraft({...packageDraft, customServices: packageDraft.customServices.filter(x => x.id !== s.id)})} style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}>
+                          <button onClick={() => setPackageDraft({...packageDraft, customServices: packageDraft.customServices.filter(x => x.id !== s.id)})} style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}>
                             X
                           </button>
                         </div>
@@ -1330,14 +1330,14 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>Balance</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "120px", background: "white" }}>
-                      <span>💰</span>
+                      <span>??</span>
                       <input type="text" readOnly value={Math.max(0, toAmount(packageDraft.price, 0) - (toAmount(packageDraft.online, 0) + toAmount(packageDraft.offline, 0))).toFixed(2)} style={{ border: "none", outline: "none", width: "100%", fontSize: "0.8rem", borderBottom: "1px solid #e2e8f0", color: "var(--accent, #3b82f6)", fontWeight: 600 }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <span style={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600 }}>Online</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px", border: "1px solid #cbd5e1", borderRadius: "6px", width: "120px", background: "white" }}>
-                      <span>💻</span>
+                      <span>??</span>
                       <input type="number" min="0" step="0.01" inputMode="decimal" max={Math.max(0, toAmount(packageDraft.price, 0) - toAmount(packageDraft.offline, 0))} value={packageDraft.online} onFocus={() => { setPackageDraft((prev) => ({ ...prev, online: String(Math.max(0, toAmount(prev.price, 0) - toAmount(prev.offline, 0))) })); }} onChange={(e) => setPackageDraft((prev) => ({ ...prev, online: clampMoneyInput(e.target.value, Math.max(0, toAmount(prev.price, 0) - toAmount(prev.offline, 0))) }))} placeholder="0.0" style={{ border: "none", outline: "none", width: "100%", fontSize: "0.8rem", borderBottom: "1px solid #e2e8f0", color: "#10b981" }} />
                     </div>
                   </div>
