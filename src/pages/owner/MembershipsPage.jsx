@@ -619,14 +619,14 @@ export default function MembershipsPage() {
         </div>}
       {showMembershipModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => setShowMembershipModal(false)} />
+          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(2px)" }} onClick={() => { setShowMembershipModal(false); setEditableMembershipId(""); }} />
           <div style={{ position: "relative", width: 800, maxWidth: "90vw", maxHeight: "90vh", background: "#fff", borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "20px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
               <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
                 {membershipEditMode ? <Edit2 size={20} color="#3b82f6" /> : <Plus size={20} color="#3b82f6" />}
                 {membershipEditMode ? "Edit Membership Plan" : "Create Membership Plan"}
               </h2>
-              <button type="button" onClick={() => setShowMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px", margin: 0 }}>
+              <button type="button" onClick={() => { setShowMembershipModal(false); setEditableMembershipId(""); }} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px", margin: 0 }}>
                 <X size={20} />
               </button>
             </div>
@@ -662,6 +662,7 @@ export default function MembershipsPage() {
                     await api.post("/owner/memberships", payload);
                   }
                   setMembershipForm(emptyMembership);
+                  setEditableMembershipId("");
                   await loadAll();
                   setStatus({ error: "", success: membershipEditMode ? "Membership updated." : "Membership created." });
                   setShowMembershipModal(false);
@@ -897,7 +898,7 @@ export default function MembershipsPage() {
                   </div>
                   
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); }} style={{ padding: "9px 18px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13.5 }}>
+                    <button type="button" onClick={() => { setMembershipForm(emptyMembership); setShowMembershipModal(false); setEditableMembershipId(""); }} style={{ padding: "9px 18px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", color: "#475569", fontSize: 13.5 }}>
                       Cancel
                     </button>
                     <button type="submit" style={{ padding: "9px 22px", background: "#3b82f6", color: "white", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13.5, display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 8px rgba(59,130,246,0.25)" }}>
@@ -1011,7 +1012,7 @@ export default function MembershipsPage() {
               <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
                 {packageEditMode ? <><Edit2 size={20} color="#64748b" /> Edit Package</> : <><Package size={20} color="#64748b" /> Create Package</>}
               </span>
-              <button type="button" onClick={() => setShowPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+              <button type="button" onClick={() => { setShowPackageModal(false); setEditablePackageId(""); }} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
             </div>
             <div className="modal-body">
             <form onSubmit={async (event) => {
@@ -1045,6 +1046,7 @@ export default function MembershipsPage() {
                 setPackageForm(emptyPackage);
                 setServiceSearch("");
                 setProductSearch("");
+                setEditablePackageId("");
                 await loadAll();
                 setStatus({ error: "", success: packageEditMode ? "Package updated." : "Package created." });
                 setShowPackageModal(false);
@@ -1244,7 +1246,7 @@ export default function MembershipsPage() {
 
               {/* Actions */}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "10px" }}>
-                <button type="button" onClick={() => { setPackageForm(emptyPackage); setServiceSearch(""); setProductSearch(""); setShowPackageModal(false); }} style={{ padding: "8px 24px", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#f1f5f9", color: "#475569", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+                <button type="button" onClick={() => { setPackageForm(emptyPackage); setServiceSearch(""); setProductSearch(""); setShowPackageModal(false); setEditablePackageId(""); }} style={{ padding: "8px 24px", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#f1f5f9", color: "#475569", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
                 <button type="submit" style={{ padding: "8px 32px", borderRadius: "6px", border: "none", background: "var(--button-bg-solid, #3b82f6)", color: "white", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s" }}>Save</button>
               </div>
 
