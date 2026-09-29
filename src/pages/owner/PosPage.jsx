@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag, Package, User, Layers, Info } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
@@ -2545,7 +2545,7 @@ export default function PosPage() {
                     </div>
                     <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
                       <div><strong style={{color:"#0f172a"}}>Adv :</strong> {standaloneAdvance > 0 ? <span style={{color: "#10b981", fontWeight: 700}}>{formatMoney(Number(standaloneAdvance.toFixed(0)))}</span> : "NA"}</div>
-                      <div><strong style={{color:"#0f172a"}}>Package :</strong> {activePackage ? <span style={{color:"#2563eb", cursor:"pointer"}} onClick={() => void openPackageDetails(activePackage)}>{activePackage?.package?.name || "NA"}</span> : cartPackage ? <span style={{color:"#10b981", fontWeight:"600"}}>{cartPackage.name} (In Cart)</span> : "NA"} {activePackage && <span title="Package Details" onClick={() => void openPackageDetails(activePackage)} style={{display:"inline-flex", alignItems:"center", justifyContent:"center", width:18, height:18, borderRadius:"50%", background:"#e2e8f0", color:"#475569", fontSize:11, fontWeight:700, cursor:"pointer", marginLeft:4, verticalAlign:"middle"}}>&#9432;</span>}</div>
+                      <div><strong style={{color:"#0f172a"}}>Package :</strong> {activePackage ? <span style={{color:"#2563eb", cursor:"pointer"}} onClick={() => void openPackageDetails(activePackage)}>{activePackage?.package?.name || "NA"}</span> : cartPackage ? <span style={{color:"#10b981", fontWeight:"600"}}>{cartPackage.name} (In Cart)</span> : "NA"} {activePackage && <span title="Package Details" onClick={() => void openPackageDetails(activePackage)} style={{display:"inline-flex", alignItems:"center", justifyContent:"center", cursor:"pointer", marginLeft:6, verticalAlign:"middle"}}><Info size={16} color="#64748b" /></span>}</div>
                     </div>
                     <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
                       <div><strong style={{color:"#0f172a"}}>Membership :</strong> {activeMembership?.membershipPlan?.name || "NA"}</div>
@@ -3695,17 +3695,42 @@ export default function PosPage() {
         <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex:9500, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowPkgDetailModal(null)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,500px)", maxHeight:"80vh", overflowY:"auto", boxShadow:"0 25px 50px -12px rgba(0,0,0,0.25)" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
-              <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a", textAlign:"center", flex:1 }}>Package Details</div>
+              <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a", display:"flex", alignItems:"center", gap: 8 }}>
+                <Package size={22} color="#3b82f6" />
+                Package Details
+              </div>
               <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
             </div>
             <div style={{ padding:"20px 24px" }}>
-              <div style={{ fontSize:"1rem", fontWeight:600, color:"#0f172a", marginBottom:16 }}>Customer Name: {context.customers.find(c => c.id === form.customerId)?.name || "N/A"}</div>
-              <div style={{ border:"1px solid #e2e8f0", borderRadius:8, padding:16, background:"#f8fafc" }}>
-                <div style={{ marginBottom:8 }}><strong>Active Package:</strong> {showPkgDetailModal?.package?.name || "N/A"}</div>
-                <div style={{ marginBottom:8 }}><strong>Package Type:</strong> Base</div>
-                <div style={{ marginBottom:8 }}><strong>Purchase Date:</strong> {showPkgDetailModal?.startsAt ? new Date(showPkgDetailModal.startsAt).toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}).replace(/ /g, "-") : "N/A"}</div>
-                <div style={{ marginBottom:16 }}><strong>Expiry Date:</strong> {showPkgDetailModal?.endsAt ? new Date(showPkgDetailModal.endsAt).toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}).replace(/ /g, "-") : "N/A"}</div>
-                <div style={{ fontWeight:600, marginBottom:8 }}>services:</div>
+              <div style={{ fontSize:"1.05rem", fontWeight:700, color:"#0f172a", marginBottom:20, display: "flex", alignItems: "center", gap: 6 }}>
+                <User size={18} color="#64748b" />
+                Customer: <span style={{ color: "#3b82f6" }}>{context.customers.find(c => c.id === form.customerId)?.name || "N/A"}</span>
+              </div>
+              <div style={{ border:"1px solid #e2e8f0", borderRadius:12, padding:20, background:"#f8fafc" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>Active Package</div>
+                    <div style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>{showPkgDetailModal?.package?.name || "N/A"}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>Package Type</div>
+                    <div style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 700 }}>Base</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>Purchase Date</div>
+                    <div style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 600 }}>{showPkgDetailModal?.startsAt ? new Date(showPkgDetailModal.startsAt).toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}).replace(/ /g, "-") : "N/A"}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>Expiry Date</div>
+                    <div style={{ fontSize: "0.95rem", color: "#0f172a", fontWeight: 600 }}>{showPkgDetailModal?.endsAt ? new Date(showPkgDetailModal.endsAt).toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}).replace(/ /g, "-") : "N/A"}</div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: "1px solid #e2e8f0", margin: "0 -20px 0 -20px" }}></div>
+
+                <div style={{ fontWeight:700, marginTop:16, marginBottom:12, color: "#334155", display: "flex", alignItems: "center", gap: 6 }}>
+                  <Layers size={16} color="#64748b" /> Included Services
+                </div>
                 <table style={{ width:"100%", borderCollapse:"collapse", fontSize:"0.9rem" }}>
                   <thead>
                     <tr style={{ borderBottom:"1px solid #e2e8f0" }}>
