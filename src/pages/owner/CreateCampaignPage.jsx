@@ -348,7 +348,7 @@ export default function CreateCampaignPage() {
   const STEPS = ['Select Channel', 'Select Message', 'Select Customers', 'Confirm'];
 
   return (
-    <div className="page-shell" style={{ maxWidth: 1000, margin: '0 auto' }}>
+    <div className="page-shell" style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}>
       <style>{`
         .btn-primary-sm { padding: 8px 20px; border-radius: 8px; background: #111827; color: #fff; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-primary-sm:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }

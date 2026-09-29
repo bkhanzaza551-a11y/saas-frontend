@@ -125,7 +125,7 @@ export default function CampaignTemplatesPage() {
   };
 
   return (
-    <div className="page-shell">
+    <div className="page-shell" style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}>
       <ModuleTabs
         title="Campaign Templates"
         description="Manage reusable banner and campaign template blocks for catalog and campaign workflows."

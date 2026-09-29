@@ -106,7 +106,7 @@ export default function CampaignsPage() {
   };
 
   return (
-    <div className="page-shell" style={{ maxWidth: 1200, margin: '0 auto' }}>
+    <div className="page-shell" style={{ padding: "24px" }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
         <div>
