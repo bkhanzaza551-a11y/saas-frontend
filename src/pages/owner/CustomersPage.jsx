@@ -100,7 +100,7 @@ export default function CustomersPage() {
   const [activeFilterSection, setActiveFilterSection] = useState("gender");
   const [draftFilters, setDraftFilters] = useState(EMPTY_ADVANCED_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState(EMPTY_ADVANCED_FILTERS);
-  const [showAddGuest, setShowAddGuest] = useState(false);
+  const [showAddCustomer, setShowAddGuest] = useState(false);
   const [activeMenuRowId, setActiveMenuRowId] = useState("");
   const [mergeSourceRow, setMergeSourceRow] = useState(null);
   const [mergeTargetId, setMergeTargetId] = useState("");
@@ -910,7 +910,7 @@ const handleExportClick = async (format) => {
     input.click();
   };
 
-  const handleAddGuest = async (event) => {
+  const handleAddCustomer = async (event) => {
     event.preventDefault();
     if (saving) return;
     setSavingMessage("Creating Customer Profile...");
@@ -931,7 +931,7 @@ const handleExportClick = async (format) => {
       setToastMessage({ type: "success", title: "Customer Created", message: "New customer profile created successfully!" });
       await load();
     } catch (error) {
-      setToastMessage({ type: "error", title: "Create Failed", message: formatApiError(error, "Failed to add guest") });
+      setToastMessage({ type: "error", title: "Create Failed", message: formatApiError(error, "Failed to add customer") });
     } finally {
       setSaving(false);
     }
@@ -1533,14 +1533,14 @@ const handleExportClick = async (format) => {
         </div>
       )}
 
-      {showAddGuest && (
+      {showAddCustomer && (
         <div className="modal-overlay" onClick={() => setShowAddGuest(false)}>
           <div className="sidebar-modal" onClick={(event) => event.stopPropagation()}>
             <div className="sidebar-modal-header" style={{ borderBottom: "none" }}>
               <h3 style={{ fontSize: "1.2rem", fontWeight: "700" }}>Add Customer</h3>
               <button className="modal-close" onClick={() => setShowAddGuest(false)} style={{ background: "transparent", color: "#ef4444", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", justifyContent: "center" }}><X size={20} /></button>
             </div>
-            <form onSubmit={handleAddGuest} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+            <form onSubmit={handleAddCustomer} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
               <div className="sidebar-modal-body" style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "20px 24px", overflowY: "auto" }}>
                 <div>
                   <label style={{ display: "block", fontSize: 13, color: "#475569", fontWeight: 600, marginBottom: 6 }}>Mobile Number *</label>
@@ -1631,19 +1631,11 @@ const handleExportClick = async (format) => {
                   <th style={{ width: 40 }}><input type="checkbox" className="crm-table-checkbox" checked={paginatedRows.length > 0 && selectedIds.length === paginatedRows.length} onChange={(e) => { if (e.target.checked) { setSelectedIds(paginatedRows.map(r => r.id)); } else { setSelectedIds([]); } }} /></th>
                   <th>MOBILE NO.</th>
                   <SortHeader sortKey="name">NAME</SortHeader>
-                  <SortHeader sortKey="gender">GENDER</SortHeader>
-                  <SortHeader sortKey="lastVisitAt">LAST VISITED</SortHeader>
-                  <SortHeader sortKey="totalOrders">TOTAL<br />ORDERS</SortHeader>
-                  <SortHeader sortKey="totalSpend">TOTAL<br />PURCHASE AMOUNT</SortHeader>
-                  <SortHeader sortKey="averageSpend">AVERAGE<br />PURCHASE AMOUNT</SortHeader>
-                  <SortHeader sortKey="onlineVisits">ONLINE<br />VISITS</SortHeader>
-                  <SortHeader sortKey="loyalty">LOYALTY</SortHeader>
-                  <SortHeader sortKey="referralCode">REFERRAL<br />CODE</SortHeader>
-                  <SortHeader sortKey="advanceAmount">ADVANCE</SortHeader>
-                  <SortHeader sortKey="balanceAmount">BALANCE</SortHeader>
-                  <SortHeader sortKey="membershipCount">MEMBERSHIP<br />COUNT</SortHeader>
-                  <SortHeader sortKey="packageCount">PACKAGE<br />COUNT</SortHeader>
-                  <SortHeader sortKey="dateOfBirth">BIRTH<br />DATE</SortHeader>
+                  <SortHeader sortKey="lastVisitAt">LAST VISIT</SortHeader>
+                  <SortHeader sortKey="totalOrders">TOTAL VISITS</SortHeader>
+                  <SortHeader sortKey="totalSpend">LIFETIME SPEND</SortHeader>
+                  <SortHeader sortKey="balanceAmount">DUE BALANCE</SortHeader>
+                  <SortHeader sortKey="loyalty">LOYALTY POINTS</SortHeader>
                   <th style={{ width: 40 }}></th>
                 </tr>
               </thead>
@@ -1669,19 +1661,17 @@ const handleExportClick = async (format) => {
                     </td>
                     <td style={{ color: "#0f172a", fontWeight: 600 }}>{row.phone || "-"}</td>
                     <td style={{ fontWeight: 600 }}>{row.name || "-"}</td>
-                    <td>{row.gender ? `${row.gender.charAt(0).toUpperCase()}${row.gender.slice(1).toLowerCase()}` : "-"}</td>
                     <td>{formatCompactDate(row.lastVisitAt)}</td>
                     <td><span className="crm-count-badge">{Number(row.totalOrders || 0)}</span></td>
                     <td>{Number(row.totalSpend || 0) ? formatMoney(row.totalSpend) : "-"}</td>
-                    <td>{Number(row.averageSpend || 0) ? formatMoney(row.averageSpend) : "-"}</td>
-                    <td>{Number(row.onlineVisits || 0) || "-"}</td>
-                    <td>{Number(row.loyaltyPoints ?? row.loyalty ?? 0)}</td>
-                    <td>{row.referralCode || "-"}</td>
-                    <td>{Number(row.advanceAmount || 0) ? formatMoney(row.advanceAmount) : "-"}</td>
-                    <td>{Number(row.balanceAmount || 0) ? formatMoney(row.balanceAmount) : "-"}</td>
-                    <td>{Number(row.membershipCount || 0) || "-"}</td>
-                    <td>{Number(row.packageCount || 0) || "-"}</td>
-                    <td>{formatCompactDate(row.dateOfBirth, false)}</td>
+                    <td style={{ fontWeight: 600, color: Number(row.balanceAmount || 0) > 0 ? "#dc2626" : "#64748b" }}>
+                      {Number(row.balanceAmount || 0) > 0 ? formatMoney(row.balanceAmount) : "-"}
+                    </td>
+                    <td>
+                      <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "2px 8px", borderRadius: 12, fontWeight: 700, fontSize: "0.75rem", border: "1px solid #bbf7d0" }}>
+                        {Number(row.loyaltyPoints ?? row.loyalty ?? 0)} pts
+                      </span>
+                    </td>
                     <td className="crm-row-action" onClick={(e) => e.stopPropagation()}>
                       <button className="crm-row-action-trigger" onClick={(e) => { e.stopPropagation(); setActiveMenuRowId((current) => current === row.id ? "" : row.id); }}>
                         <MoreHorizontal size={18} />
@@ -1707,7 +1697,7 @@ const handleExportClick = async (format) => {
                 ))}
                 {visibleRows.length === 0 && (
                   <tr>
-                    <td colSpan="17" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                    <td colSpan="9" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
                       No customers found for the current search or filters.
                     </td>
                   </tr>
@@ -1804,15 +1794,15 @@ const handleExportClick = async (format) => {
                 </div>
                 <nav className="cust-detail-sidebar-nav">
                   {[
-                    { key: "profile", icon: User, label: "Profile Info" },
+                    { key: "profile", icon: User, label: "Overview" },
                     { key: "orders", icon: FileText, label: "Invoices" },
-                    { key: "membership", icon: CreditCard, label: "Membership" },
-                    { key: "giftcard", icon: Gift, label: "Gift Card" },
-                    { key: "wallet", icon: Wallet, label: "Wallet" },
-                    { key: "duebalance", icon: AlertCircle, label: "Due Balances" },
+                    { key: "membership", icon: CreditCard, label: "Memberships" },
                     { key: "packages", icon: Package, label: "Packages" },
-                    { key: "updateprofile", icon: UserCog, label: "Update Profile" },
+                    { key: "giftcard", icon: Gift, label: "Gift Cards" },
+                    { key: "wallet", icon: Wallet, label: "Wallet Balance" },
+                    { key: "duebalance", icon: AlertCircle, label: "Due Balance" },
                     { key: "notes", icon: StickyNote, label: "Notes" },
+                    { key: "updateprofile", icon: UserCog, label: "Update Profile" },
                   ].map(({ key, icon: Icon, label }) => (
                     <button key={key} className={`cust-detail-nav-btn${detailTab === key ? " active" : ""}`} onClick={() => setDetailTab(key)}>
                       <Icon size={16} />
@@ -1827,16 +1817,16 @@ const handleExportClick = async (format) => {
                 <div className="cust-detail-content-header">
                   <span>
                     {[
-                      { key: "profile", label: "Profile Info" },
+                      { key: "profile", label: "Overview" },
                       { key: "orders", label: "Invoices" },
                       { key: "appointments", label: "Appointments" },
-                      { key: "membership", label: "Membership" },
-                      { key: "giftcard", label: "Gift Card" },
-                      { key: "wallet", label: "Wallet" },
-                      { key: "duebalance", label: "Due Balances" },
+                      { key: "membership", label: "Memberships" },
                       { key: "packages", label: "Packages" },
-                      { key: "updateprofile", label: "Update Profile" },
+                      { key: "giftcard", label: "Gift Cards" },
+                      { key: "wallet", label: "Wallet Balance" },
+                      { key: "duebalance", label: "Due Balance" },
                       { key: "notes", label: "Notes" },
+                      { key: "updateprofile", label: "Update Profile" },
                     ].find(t => t.key === detailTab)?.label || "Details"}
                   </span>
                   <button className="cust-detail-close" onClick={closeCustomerDetail}>
