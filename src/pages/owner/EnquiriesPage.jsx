@@ -750,8 +750,7 @@ export default function EnquiriesPage() {
           title="Enquiries"
           items={[
             { label: "Enquiries", to: "/admin/enquiries" },
-            { label: "Follow-Ups", to: "/admin/enquiries/follow-ups" },
-            { label: "Reports", to: "/admin/enquiries/reports" }
+            { label: "Follow-Ups", to: "/admin/enquiries/follow-ups" }
           ]}
         />
       )}
