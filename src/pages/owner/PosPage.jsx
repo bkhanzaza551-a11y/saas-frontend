@@ -3299,7 +3299,7 @@ export default function PosPage() {
                   <input placeholder="Search For Card" value={gcSearch} onChange={e => setGcSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
+                <button onClick={() => setShowGcModal(false)} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"} style={{ background:"#f1f5f9", border:"none", width:32, height:32, flexShrink:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
               </div>
             </div>
             
@@ -3745,7 +3745,7 @@ export default function PosPage() {
                 <Package size={22} color="#3b82f6" />
                 Package Details
               </div>
-              <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
+              <button onClick={() => setShowPkgDetailModal(null)} style={{ background:"#f1f5f9", border:"none", width:32, height:32, flexShrink:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
             </div>
             <div style={{ padding:"20px 24px" }}>
               <div style={{ fontSize:"1.05rem", fontWeight:700, color:"#0f172a", marginBottom:20, display: "flex", alignItems: "center", gap: 6 }}>
@@ -3845,7 +3845,7 @@ export default function PosPage() {
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
                   <span style={{ position:"absolute", right:10, top:8, color:"#94a3b8" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMemModal(false)} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"} style={{ background:"#f1f5f9", border:"none", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
+                <button onClick={() => setShowMemModal(false)} onMouseEnter={e => e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e => e.currentTarget.style.background="#f1f5f9"} style={{ background:"#f1f5f9", border:"none", width:32, height:32, flexShrink:0, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"background 0.2s" }}><X size={20} /></button>
               </div>
             </div>
             
