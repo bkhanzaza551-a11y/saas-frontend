@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag, Package, User, Layers, Info } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag, Package, User, Layers, Info, Award } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
@@ -2501,7 +2501,7 @@ export default function PosPage() {
                       onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
                     />
                     {showCustomerDropdown && guestSearchInput && (
-                      <div className="pos-customer-dropdown" style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", marginTop: "4px", maxHeight: "300px", overflowY: "auto", zIndex: 50, boxShadow: "none" }}>
+                      <div className="pos-customer-dropdown" style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", marginTop: "4px", maxHeight: "300px", overflowY: "auto", zIndex: 50, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
                         {context.customers.filter(c => c.name.toLowerCase().includes(guestSearchInput.toLowerCase()) || c.phone.includes(guestSearchInput)).map(c => (
                           <div key={c.id} style={{ padding: "10px 12px", borderBottom: "1px solid #f1f5f9", cursor: "pointer" }} onMouseDown={(e) => {
                             e.preventDefault(); // Prevents input from losing focus immediately
@@ -2825,12 +2825,12 @@ export default function PosPage() {
               <input placeholder="Add Order Instruction (Optional, Max 500 Characters)" value={form.notes} onChange={(e) => setForm(c => ({ ...c, notes: e.target.value }))} />
             </div>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: "6px 0" }}>
-              <button type="button" onClick={openApplyMembershipModal} style={{ padding: "4px 10px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap", minHeight: "unset", lineHeight: 1.2 }}>Apply Membership</button>
-              <button type="button" onClick={openDiscountModal} style={{ padding: "4px 10px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap", minHeight: "unset", lineHeight: 1.2 }}>Apply Discount</button>
-              <button type="button" onClick={loadCustomerPackagesForRedemption} disabled={loadingCustomerPkgs} style={{ padding: "4px 10px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: loadingCustomerPkgs ? "not-allowed" : "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap", opacity: loadingCustomerPkgs ? 0.6 : 1, minHeight: "unset", lineHeight: 1.2 }}>{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
-              <button type="button" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }} style={{ padding: "4px 10px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap", minHeight: "unset", lineHeight: 1.2 }}>Apply Gift Card</button>
-              <button type="button" onClick={() => setShowTipModal(true)} style={{ padding: "4px 10px", background: "#fff", border: "1px solid var(--accent, #3b82f6)", borderRadius: 20, cursor: "pointer", fontWeight: 600, color: "var(--accent, #3b82f6)", fontSize: 12, whiteSpace: "nowrap", minHeight: "unset", lineHeight: 1.2 }}>Add Tip</button>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: "10px 14px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
+              <button type="button" onClick={openApplyMembershipModal} className="pos-pill-action-btn">Apply Membership</button>
+              <button type="button" onClick={openDiscountModal} className="pos-pill-action-btn">Apply Discount</button>
+              <button type="button" onClick={loadCustomerPackagesForRedemption} disabled={loadingCustomerPkgs} className="pos-pill-action-btn">{loadingCustomerPkgs ? "Loading..." : "Apply Package"}</button>
+              <button type="button" onClick={() => { setGcRedemptionCode(""); setGcRedemptionResult(null); setShowGcRedemptionModal(true); }} className="pos-pill-action-btn">Apply Gift Card</button>
+              <button type="button" onClick={() => setShowTipModal(true)} className="pos-pill-action-btn">Add Tip</button>
             </div>
 
             {form.couponCode && couponValidation ? (
@@ -3839,7 +3839,7 @@ export default function PosPage() {
         <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.55)", zIndex: 11000, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setShowMemModal(false)}>
           <div style={{ background:"#fff", borderRadius:16, width:"min(95vw,900px)", maxHeight:"90vh", overflowY:"auto", boxShadow: "none", display:"flex", flexDirection:"column" }} onClick={e => e.stopPropagation()}>
             <div style={{ padding:"18px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #f1f5f9" }}>
-              <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a" }}>Add membership</div>
+              <div style={{ fontWeight:700, fontSize:"1.2rem", color:"#0f172a", display:"flex", alignItems:"center", gap: 8 }}><Award size={22} color="#3b82f6" /> Add Membership</div>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ position:"relative" }}>
                   <input placeholder="Search For Membership" value={memSearch} onChange={e => setMemSearch(e.target.value)} style={{ padding:"8px 12px", paddingRight:32, border:"1px solid #cbd5e1", borderRadius:8, fontSize:"0.9rem", width:220 }} />
