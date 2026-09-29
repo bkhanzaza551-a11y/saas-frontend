@@ -475,7 +475,7 @@ export default function ServiceHubPage() {
           <form className="hub-modal-content" onSubmit={handleCategorySubmit} onClick={(e) => e.stopPropagation()}>
             <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               New Category
-              <button type="button" onClick={() => setIsCategoryModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", padding: 4, display: "flex" }}><X size={18} /></button>
+              <button type="button" onClick={() => setIsCategoryModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", width: 30, height: 30, display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "50%", padding: 0 }}><X size={18} /></button>
             </div>
             <div className="hub-modal-body">
               <div className="hub-form-group">
@@ -505,7 +505,7 @@ export default function ServiceHubPage() {
           <form className="hub-modal-content" onSubmit={handleServiceSubmit} onClick={(e) => e.stopPropagation()}>
             <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span>{editingId ? 'Edit Service' : 'New Service'}</span>
-              <button type="button" onClick={() => setIsServiceModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", padding: 4, display: "flex" }}><X size={18} /></button>
+              <button type="button" onClick={() => setIsServiceModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#60a5fa", width: 30, height: 30, display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "50%", padding: 0 }}><X size={18} /></button>
             </div>
             <div className="hub-modal-body">
               {/* Name + Active toggle */}

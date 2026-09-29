@@ -1594,10 +1594,7 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: 16, padding: '10px 14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#1e40af' }}>
-                  <Mail size={16} color="#2563eb" style={{ flexShrink: 0 }} />
-                  <span>A secure password setup link will be emailed to the staff member upon SMS OTP verification.</span>
-                </div>
+                
 
                 
 

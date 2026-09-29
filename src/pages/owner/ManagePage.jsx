@@ -15,7 +15,7 @@ const CATEGORIES = [
     items: [
       { title: "Products", description: "Keep track of your products and stock.", to: "/admin/product-categories", icon: Boxes, reqPerm: "inventory", reqFlag: "inventory" },
       { title: "Product Requirements", description: "Submit requests for stock, electronics, or software.", to: "/admin/product-requirements", icon: Boxes, reqPerm: "inventory" },
-      { title: "POS Dashboard", description: "Point of sale metrics and terminal management.", to: "/admin/pos-dashboard", icon: Monitor, reqPerm: "pos", reqFlag: "pos" },
+      // { title: "POS Dashboard", description: "Point of sale metrics and terminal management.", to: "/admin/pos-dashboard", icon: Monitor, reqPerm: "pos", reqFlag: "pos" },
     ]
   },
   {

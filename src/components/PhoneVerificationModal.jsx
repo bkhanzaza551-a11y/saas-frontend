@@ -11,7 +11,7 @@ export default function PhoneVerificationModal() {
   const rawPhone = auth?.membership?.phone || auth?.salon?.phone || auth?.user?.phone || "";
   const initialDigits = rawPhone.replace(/\D/g, "").replace(/^91/, "").slice(-10);
   const [registeredDigits, setRegisteredDigits] = useState(initialDigits);
-  const [isChangingNumber, setIsChangingNumber] = useState(!initialDigits);
+  const [isChangingNumber, setIsChangingNumber] = useState(!initialDigits || initialDigits.length !== 10);
   const [customPhoneDigits, setCustomPhoneDigits] = useState("");
   const [loadingPhone, setLoadingPhone] = useState(!initialDigits);
 
@@ -241,7 +241,7 @@ export default function PhoneVerificationModal() {
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {!isChangingNumber ? (
+            {(registeredDigits && registeredDigits.length === 10 && !isChangingNumber) ? (
               <div style={{ textAlign: "center", marginBottom: 8 }}>
                 <div style={{
                   display: "inline-flex", alignItems: "center", gap: 12,

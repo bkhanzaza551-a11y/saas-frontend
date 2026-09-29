@@ -726,7 +726,7 @@ export default function ProductCategoriesPage() {
           <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 480, borderRadius: 16 }}>
             <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px", borderBottom: "1px solid #e2e8f0" }}>
               <span style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>New Category</span>
-              <button type="button" onClick={() => setShowCategoryModal(false)} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", color: "#64748b", padding: 6, borderRadius: "50%", display: "flex" }} onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}><X size={16} /></button>
+              <button type="button" onClick={() => setShowCategoryModal(false)} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", color: "#64748b", width: 30, height: 30, borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", padding: 0 }} onMouseEnter={e=>e.currentTarget.style.background="#e2e8f0"} onMouseLeave={e=>e.currentTarget.style.background="#f1f5f9"}><X size={16} /></button>
             </div>
             <form onSubmit={handleSaveCategory} style={{ padding: "24px" }}>
               <div className="hub-form-group" style={{ marginBottom: 24 }}>
@@ -751,7 +751,7 @@ export default function ProductCategoriesPage() {
                 {editingProduct ? <Edit2 size={18} color="#3b82f6" /> : <Plus size={18} color="#3b82f6" />}
                 {selectedCategory ? <span style={{ color: "#64748b" }}>{selectedCategory.name} / </span> : ""}{editingProduct ? "Edit Item" : "New Item"}
               </span>
-              <button type="button" onClick={() => setShowProductModal(false)} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", padding: 6, borderRadius: "50%", display: "flex" }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
+              <button type="button" onClick={() => setShowProductModal(false)} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", width: 30, height: 30, borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", padding: 0 }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
             </div>
             <form onSubmit={handleSaveProduct} style={{ display: "flex", flexDirection: "column", overflow: "hidden", flex: 1 }}>
               <div className="hub-modal-body" style={{ overflowY: "auto", flex: 1, padding: "24px 28px" }}>
@@ -1045,7 +1045,7 @@ export default function ProductCategoriesPage() {
           <div className="hub-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 580, borderRadius: 16, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 28px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
               <span style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Update Stock Details</span>
-              <button type="button" onClick={() => { setStockModal({ open: false, product: null }); }} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", padding: 6, borderRadius: "50%", display: "flex" }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
+              <button type="button" onClick={() => { setStockModal({ open: false, product: null }); }} style={{ background: "#e2e8f0", border: "none", cursor: "pointer", color: "#475569", width: 30, height: 30, borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", padding: 0 }} onMouseEnter={e=>e.currentTarget.style.background="#cbd5e1"} onMouseLeave={e=>e.currentTarget.style.background="#e2e8f0"}><X size={16} /></button>
             </div>
             <form onSubmit={handleSaveStock} style={{ padding: "24px 28px" }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 20 }}>{stockModal.product.name}</div>

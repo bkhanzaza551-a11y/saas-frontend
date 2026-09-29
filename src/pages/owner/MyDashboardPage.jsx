@@ -86,7 +86,13 @@ export default function MyDashboardPage() {
   }, [data.profile?.attendanceEnrollmentPhotoUrl]);
 
   useEffect(() => {
-    if (!loading && !loadError && data.profile && !data.todayAttendance && !autoOpenedRef.current) {
+    const roleName = (data.profile?.salonRole || "").toUpperCase();
+    const customName = (data.profile?.customRole?.name || "").toLowerCase();
+    const titleName = (data.profile?.roleTitle || "").toLowerCase();
+    const isManagerOrOwner = roleName === "MANAGER" || roleName === "SALON_OWNER" || customName.includes("manager") || customName.includes("owner") || titleName.includes("manager") || titleName.includes("owner");
+    const isRequired = Boolean(data.profile?.attendanceEnabled) && !isManagerOrOwner;
+
+    if (!loading && !loadError && isRequired && !data.todayAttendance && !autoOpenedRef.current) {
       const hasGeo = !!navigator.geolocation;
       const hasCamera = !!navigator.mediaDevices;
       if (hasGeo && hasCamera) {
@@ -662,6 +668,13 @@ export default function MyDashboardPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           
           {/* Attendance Section */}
+          {(() => {
+            const roleName = (data.profile?.salonRole || "").toUpperCase();
+            const customName = (data.profile?.customRole?.name || "").toLowerCase();
+            const titleName = (data.profile?.roleTitle || "").toLowerCase();
+            const isManagerOrOwner = roleName === "MANAGER" || roleName === "SALON_OWNER" || customName.includes("manager") || customName.includes("owner") || titleName.includes("manager") || titleName.includes("owner");
+            if (isManagerOrOwner || !data.profile?.attendanceEnabled) return null;
+            return (
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.04)", border: "1px solid rgba(226,232,240,0.8)", position: "relative" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: isCheckedIn ? "linear-gradient(90deg, #10b981, #34d399)" : "linear-gradient(90deg, #0ea5e9, #38bdf8)", borderTopLeftRadius: 16, borderTopRightRadius: 16 }} />
             
