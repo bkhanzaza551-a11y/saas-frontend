@@ -1116,6 +1116,15 @@ export default function EnquiriesPage() {
               >
                 <Upload size={14} /> {importing ? "Importing..." : "Import"}
               </button>
+
+              <button
+                type="button"
+                className="eq-btn eq-btn-secondary"
+                onClick={downloadTestData}
+                style={{ height: 38, fontSize: "0.8rem", padding: "0 12px" }}
+              >
+                <Download size={14} /> Download Sample Data
+              </button>
               
               <div style={{ position: "relative" }}>
                 <button
@@ -1137,14 +1146,6 @@ export default function EnquiriesPage() {
                       style={{ width: "100%", textAlign: "left", padding: "8px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.8rem", color: "#334155", fontWeight: 500, display: "block" }}
                     >
                       Export Enquiries (CSV)
-                    </button>
-                    <div style={{ height: 1, background: "#e2e8f0" }} />
-                    <button
-                      type="button"
-                      onClick={downloadTestData}
-                      style={{ width: "100%", textAlign: "left", padding: "8px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.8rem", color: "#4f46e5", fontWeight: 700, display: "block" }}
-                    >
-                      Download Template CSV
                     </button>
                   </div>
                 )}

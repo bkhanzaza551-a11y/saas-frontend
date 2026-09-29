@@ -292,6 +292,14 @@ export default function ServicesPage() {
           >
             <Upload size={14} /> {importing ? "Importing..." : "Import"}
           </button>
+          <button
+            type="button"
+            className="crm-btn"
+            onClick={downloadTestData}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", padding: "6px 12px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+          >
+            <Download size={14} /> Download Sample Data
+          </button>
           <div className="export-dropdown" style={{ position: "relative" }}>
             <button
               type="button"
@@ -314,15 +322,6 @@ export default function ServicesPage() {
                   style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, display: "block", lineHeight: 1.3 }}
                 >
                   Export as CSV
-                </button>
-                <div style={{ height: 1, background: "#e2e8f0", margin: "2px 0" }} />
-                <button
-                  type="button"
-                  className="export-item"
-                  onClick={downloadTestData}
-                  style={{ width: "100%", textAlign: "left", padding: "6px 12px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#2563eb", fontWeight: 600, minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, display: "block", lineHeight: 1.3 }}
-                >
-                  Download Import Template
                 </button>
               </div>
             )}

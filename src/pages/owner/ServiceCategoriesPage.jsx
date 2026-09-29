@@ -627,6 +627,14 @@ export default function ServiceCategoriesPage() {
                 <Upload size={14} /> Import
               </button>
 
+              <button
+                type="button"
+                onClick={downloadTestData}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 13, minHeight: "unset", height: "auto", lineHeight: 1.2 }}
+              >
+                <Download size={14} /> Download Sample Data
+              </button>
+
               <div style={{ position: "relative" }} onClick={e => e.stopPropagation()}>
                 <button
                   type="button"
@@ -660,15 +668,6 @@ export default function ServiceCategoriesPage() {
                       style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#334155", display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, fontWeight: 500, lineHeight: 1.3 }}
                     >
                       Export as CSV
-                    </button>
-                    <div style={{ height: 1, background: "#e2e8f0", margin: "4px 0" }} />
-                    <button
-                      type="button"
-                      className="export-item"
-                      onClick={downloadTestData}
-                      style={{ width: "100%", textAlign: "left", padding: "6px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.78rem", color: "#2563eb", fontWeight: 700, display: "block", minHeight: "unset", height: "auto", borderRadius: 0, boxShadow: "none", margin: 0, lineHeight: 1.3 }}
-                    >
-                      Download Test Data
                     </button>
                   </div>
                 )}

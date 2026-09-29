@@ -1599,7 +1599,7 @@ const handleExportClick = async (format) => {
           <button className="crm-btn crm-btn-light" onClick={() => setShowFilters(true)}><Filter size={16} /> Filters</button>
           <PermissionButton className="crm-btn" module="customers" action="create" onClick={() => setShowAddGuest(true)}><Plus size={16} /> Add Customer</PermissionButton>
           <button className="crm-btn" onClick={handleImportClick}><Upload size={16} /> Import</button>
-          <button className="crm-btn" onClick={downloadTestData} style={{background: "#e2e8f0", color: "#0f172a", border: "1px solid #cbd5e1"}}><Download size={16} /> Template</button>
+          <button className="crm-btn" onClick={downloadTestData} style={{background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1"}}><Download size={16} /> Download Sample Data</button>
           <div className="export-dropdown">
             <button className="crm-btn" onClick={() => setShowExportMenu((current) => !current)}><Download size={16} /> Export <ChevronDown size={16} /></button>
             {showExportMenu && (
