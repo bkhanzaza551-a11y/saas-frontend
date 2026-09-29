@@ -376,10 +376,10 @@ export default function MembershipsPage() {
           title="Customer Timeline"
           description="Complete CRM view with service history, billing, memberships, packages, and event trail."
           items={[
-            { label: "Customer List", to: "/admin/customers", hint: "Back" },
-            { label: "History View", to: `/admin/customers/${customerId}/history`, hint: "Profile" },
-            { label: "Memberships", to: `/admin/customers/${customerId}/memberships`, hint: "Loyalty" },
-            { label: "Packages", to: `/admin/customers/${customerId}/packages`, hint: "Prepaid" }
+            { label: "Customer List", to: "/admin/customers" },
+            { label: "History View", to: `/admin/customers/${customerId}/history` },
+            { label: "Memberships", to: `/admin/customers/${customerId}/memberships` },
+            { label: "Packages", to: `/admin/customers/${customerId}/packages` }
           ]}
           actions={<Link to="/admin/customers" className="module-tab">Back to Customers</Link>}
         />
@@ -388,8 +388,8 @@ export default function MembershipsPage() {
           title="Memberships & Packages"
           description="Control recurring loyalty products, prepaid sessions, and service access in one revenue workspace."
           items={[
-            { label: "Membership Plans", to: "/admin/memberships", hint: "Recurring" },
-            { label: "Packages", to: "/admin/packages", hint: "Prepaid" }
+            { label: "Membership Plans", to: "/admin/memberships" },
+            { label: "Packages", to: "/admin/packages" }
           ]}
           actions={
             <div style={{ display: "flex", gap: "10px" }}>
