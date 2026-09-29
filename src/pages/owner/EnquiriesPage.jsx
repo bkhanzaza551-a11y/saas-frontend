@@ -580,7 +580,7 @@ export default function EnquiriesPage() {
   };
 
   return (
-    <div className="page-shell" style={{ paddingBottom: 60 }}>
+    <div className="page-shell" style={{ padding: "12px 20px 60px", minHeight: "100%", width: "100%", boxSizing: "border-box" }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(8px); }
@@ -593,6 +593,10 @@ export default function EnquiriesPage() {
         .anim-fade { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
         .delay-1 { animation-delay: 0.1s; }
         
+        .page-shell .module-tabs-shell { margin-bottom: 12px; }
+        .page-shell .module-tabs-shell .item-head { margin-bottom: 8px; }
+        .page-shell .module-tabs-shell h2 { font-size: 1.35rem; font-weight: 800; margin-bottom: 2px; }
+
         .eq-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
         
         .eq-input { width: 100%; height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; color: #0f172a; outline: none; transition: all 0.15s ease; background: #fff; box-sizing: border-box; }
@@ -616,7 +620,7 @@ export default function EnquiriesPage() {
         .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(4px); padding: 16px; overflow-y: auto; box-sizing: border-box; }
         .modal-content { background: white; border-radius: 18px; width: 100%; max-width: 680px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; overflow: hidden; box-sizing: border-box; }
         
-        .filter-bar { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
+        .filter-bar { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 14px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04); }
         
         .eq-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
         .eq-reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }

@@ -9,8 +9,8 @@
   flex-grow: 1;
   min-height: 0;
   overflow-y: auto;
-  background: #f1f5f9;
-  padding: 24px 32px 48px;
+  background: transparent;
+  padding: 24px;
   box-sizing: border-box;
   font-family: inherit;
   position: relative;

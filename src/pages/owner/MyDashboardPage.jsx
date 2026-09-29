@@ -796,6 +796,8 @@ export default function MyDashboardPage() {
             {attendanceStatus.error && <p style={{ margin: "16px 0 0", color: "#dc2626", fontSize: 13, fontWeight: 600, background: "#fef2f2", padding: "8px 12px", borderRadius: 8, border: "1px solid #fecaca" }}>{attendanceStatus.error}</p>}
             {attendanceStatus.success && <p style={{ margin: "16px 0 0", color: "#059669", fontSize: 13, fontWeight: 600, background: "#ecfdf5", padding: "8px 12px", borderRadius: 8, border: "1px solid #bbf7d0" }}>{attendanceStatus.success}</p>}
           </div>
+            );
+          })()}
 
           {/* Today's Appointments Section */}
           <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.04)", border: "1px solid rgba(226,232,240,0.8)" }}>
