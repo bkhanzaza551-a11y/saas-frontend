@@ -410,7 +410,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
       return;
     }
 
-    // Payment amount validation — at least one of Online or Offline must be > 0
+    // Payment amount validation ï¿½ at least one of Online or Offline must be > 0
     const totalPaid = Number(paymentDraft.online || 0) + Number(paymentDraft.offline || 0);
     if (totalPaid <= 0) {
       setStatus({ error: "??ï¸ Please enter a payment amount first. Enter an amount in either Online or Offline.", success: "" });

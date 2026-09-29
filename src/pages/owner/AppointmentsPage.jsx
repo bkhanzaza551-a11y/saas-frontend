@@ -2556,7 +2556,7 @@ export default function AppointmentsPage() {
                               if (slotDateTime < nowWithBuffer) isPastSlot = true;
                             }
                             return (
-                              <option key={slot} value={slot} disabled={isPastSlot} style={isPastSlot ? { color: "#94a3b8" } : {}}>
+                              <option key={slot} value={slot} style={isPastSlot ? { color: "#94a3b8" } : {}}>
                                 {slot} {isPastSlot ? "(Past)" : ""}
                               </option>
                             );

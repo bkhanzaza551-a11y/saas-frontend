@@ -743,6 +743,21 @@ export default function PosPage() {
   };
 
   // === Apply Membership ===
+  const removeMembership = () => {
+    setForm(c => {
+      const nextItems = (c.items || []).map(item => ({ ...item, membershipWalletUsed: 0 }));
+      const newPayments = (c.payments || []).filter(p => p.mode !== "WALLET");
+      return {
+        ...c,
+        appliedMembershipId: "",
+        items: nextItems,
+        payments: newPayments.length > 0 ? newPayments : [emptyPayment]
+      };
+    });
+    setSelectedMembershipForApply(null);
+    setToastMessage({ type: "success", title: "Membership Removed", message: "Membership has been removed from this bill." });
+  };
+
   const openApplyMembershipModal = () => {
     if (!form.customerId) {
       setToastMessage({ type: "error", title: "Select Customer", message: "Please select a customer first to apply membership." });
@@ -766,22 +781,29 @@ export default function PosPage() {
     setSelectedMembershipForApply(membership);
     setShowApplyMembershipModal(false);
     
-    // Prepare items draft
+    const remainingWallet = Number(membership.remainingWalletValue || 0);
+    let runningBalance = remainingWallet;
+
+    // Prepare items draft with auto-capped deduction up to remaining wallet value
     const eligibleDrafts = form.items.map((item, idx) => {
       let isEligible = false;
       let eligibleAmount = 0;
+      let defaultDeduction = 0;
       if (item.itemType === "SERVICE" && item.serviceId) {
         if (!membership.membershipPlan?.serviceSpecificOnly || membership.membershipPlan?.services?.some(s => s.serviceId === item.serviceId)) {
           isEligible = true;
-          eligibleAmount = Number(item.unitPrice || 0) * Number(item.qty || 1);
+          eligibleAmount = Number(item.unitPrice != null ? item.unitPrice : (context.services.find(s => s.id === item.serviceId)?.price || 0)) * Number(item.qty || 1);
+          defaultDeduction = Math.min(eligibleAmount, runningBalance);
+          runningBalance = Math.max(0, runningBalance - defaultDeduction);
         }
       }
       return {
         ...item,
         cartIndex: idx,
         isEligible,
-        walletDeduction: isEligible ? eligibleAmount : 0,
-        apply: isEligible
+        itemAmount: eligibleAmount,
+        walletDeduction: isEligible ? defaultDeduction : 0,
+        apply: isEligible && defaultDeduction > 0
       };
     });
     setMembershipItemsDraft(eligibleDrafts);
@@ -789,35 +811,49 @@ export default function PosPage() {
   };
 
   const confirmMembershipItemsApply = () => {
+    const maxWallet = Number(selectedMembershipForApply?.remainingWalletValue || 0);
     let totalDeduction = 0;
     const newItems = [...form.items];
     
     membershipItemsDraft.forEach(draft => {
       if (draft.apply && draft.isEligible) {
-        const amount = Number(draft.walletDeduction || 0);
-        newItems[draft.cartIndex].membershipWalletUsed = amount;
+        const itemMax = Number(draft.itemAmount || Number(draft.unitPrice || 0) * Number(draft.qty || 1));
+        let amount = Math.max(0, Number(draft.walletDeduction || 0));
+        amount = Math.min(amount, itemMax);
+        if (totalDeduction + amount > maxWallet) {
+          amount = Math.max(0, maxWallet - totalDeduction);
+        }
+        newItems[draft.cartIndex] = {
+          ...newItems[draft.cartIndex],
+          membershipWalletUsed: amount
+        };
         totalDeduction += amount;
       } else {
-        newItems[draft.cartIndex].membershipWalletUsed = 0;
+        newItems[draft.cartIndex] = {
+          ...newItems[draft.cartIndex],
+          membershipWalletUsed: 0
+        };
       }
     });
 
-    if (totalDeduction > Number(selectedMembershipForApply?.remainingWalletValue || 0)) {
-       setToastMessage({ type: "error", title: "Insufficient Balance", message: "Deduction exceeds remaining wallet balance." });
-       return;
-    }
-
     setForm(c => {
-//       const preservedPaid = (c.payments || []).filter(p => !["WALLET", "BALANCE"].includes(p.mode)).reduce((sum, p) => sum + Number(p.amount || 0), 0);
       let newPayments = (c.payments || []).filter(p => p.mode !== "WALLET" && p.mode !== "BALANCE");
       if (totalDeduction > 0) {
         newPayments.push({ mode: "WALLET", amount: totalDeduction, note: `Membership applied` });
       }
       
-      const paidSoFar = newPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-      const balanceNeeded = Math.max(0, totals.total - paidSoFar);
-      if (balanceNeeded > 0) {
-        newPayments.push({ mode: "BALANCE", amount: balanceNeeded, note: "" });
+      const subtotal = newItems.reduce((sum, item) => {
+        const price = item.unitPrice != null ? Number(item.unitPrice) : Number(context.services.find(s => s.id === item.serviceId)?.price || 0);
+        return sum + Number(item.qty || 0) * price;
+      }, 0);
+      const discount = Number(c.discount || 0);
+      const couponDiscount = Number(couponValidation?.totalDiscount || 0);
+      const gcDiscount = Number(giftCardDiscount || 0);
+      const billTotal = Math.max(0, subtotal - discount - couponDiscount - gcDiscount);
+      const remainingDue = Math.max(0, billTotal - totalDeduction);
+
+      if (remainingDue > 0) {
+        newPayments.push({ mode: "BALANCE", amount: remainingDue, note: "" });
       }
 
       return {
@@ -829,7 +865,11 @@ export default function PosPage() {
     });
     
     setShowMembershipItemsModal(false);
-    setToastMessage({ type: "success", title: "Membership Applied", message: `Membership wallet applied successfully.` });
+    if (totalDeduction > 0) {
+      setToastMessage({ type: "success", title: "Membership Applied", message: `${formatMoney(totalDeduction)} deducted from membership wallet.` });
+    } else {
+      setToastMessage({ type: "info", title: "No Deduction", message: "No amount was deducted from membership." });
+    }
   };
 
   // === Add Tip ===
@@ -1769,9 +1809,9 @@ export default function PosPage() {
     const gcDiscount = Number(giftCardDiscount || 0);
     const membershipWalletUsed = (form.items || []).reduce((sum, item) => sum + Number(item.membershipWalletUsed || 0), 0);
     const total = isInclusive
-      ? subtotal - discount - couponDiscount - gcDiscount - membershipWalletUsed
-      : subtotal + itemTax - discount - couponDiscount - gcDiscount - membershipWalletUsed;
-    const paid = form.payments.filter(p => p.mode !== "BALANCE" && p.mode !== "WALLET").reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+      ? Math.max(0, subtotal - discount - couponDiscount - gcDiscount)
+      : Math.max(0, subtotal + itemTax - discount - couponDiscount - gcDiscount);
+    const paid = form.payments.filter(p => p.mode !== "BALANCE").reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
     return { subtotal, itemTax, total, paid, due: Math.max(0, total - paid), couponDiscount, gcDiscount, membershipWalletUsed };
   }, [form, getCatalogBasePrice, context.settings, couponValidation, giftCardDiscount]);
 
@@ -2767,8 +2807,14 @@ export default function PosPage() {
                     <div>
                       {totals.couponDiscount > 0 && <div style={{ fontSize: 12, color: "#2563eb", marginBottom: 2 }}>Coupon: -{formatMoney(totals.couponDiscount.toFixed(0))}</div>}
                       {totals.gcDiscount > 0 && <div style={{ fontSize: 12, color: "#7c3aed", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>Gift Card: -{formatMoney(totals.gcDiscount.toFixed(0))} <button type="button" onClick={removeGiftCard} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11, padding: 0, fontWeight: 700 }}>Remove</button></div>}
+                      {totals.membershipWalletUsed > 0 && <div style={{ fontSize: 12, color: "#2563eb", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>Membership: -{formatMoney(totals.membershipWalletUsed.toFixed(0))} <button type="button" onClick={removeMembership} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11, padding: 0, fontWeight: 700 }}>Remove</button></div>}
                       {Number(form.discount || 0) > 0 && <div style={{ fontSize: 12, color: "#16a34a", marginBottom: 2 }}>Discount: -{formatMoney(Number(form.discount || 0).toFixed(0))}</div>}
-                      Grand Total <strong>{formatMoney(totals.total.toFixed(0))}</strong>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a" }}>Grand Total <strong>{formatMoney(totals.total.toFixed(0))}</strong></div>
+                      {totals.membershipWalletUsed > 0 && (
+                        <div style={{ fontSize: 13, color: "#0f172a", marginTop: 4, fontWeight: 600 }}>
+                          Remaining Due: <strong style={{ color: totals.due > 0 ? "#dc2626" : "#16a34a" }}>{formatMoney(totals.due.toFixed(0))}</strong>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
@@ -4520,53 +4566,91 @@ export default function PosPage() {
 
       {/* Select Items For Membership Modal */}
       {showMembershipItemsModal && selectedMembershipForApply && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 650px)", maxHeight: "90vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowMembershipItemsModal(false)}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "min(95vw, 650px)", maxHeight: "90vh", overflowY: "auto", padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <strong style={{ fontSize: 20, color: "#0f172a" }}>Select Items For Membership</strong>
+              <button type="button" onClick={() => setShowMembershipItemsModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 20 }}><X size={20} /></button>
             </div>
-            <div style={{ marginBottom: 20, padding:"8px 12px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, color: "#166534", fontWeight: 600 }}>
-              Available Balance: {formatMoney(Number(selectedMembershipForApply.remainingWalletValue || 0))}
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-              {membershipItemsDraft.map((draft, idx) => (
-                <div key={idx} style={{ padding: "14px", border: draft.isEligible ? "1px solid #cbd5e1" : "1px solid #f1f5f9", borderRadius: 10, background: draft.isEligible ? "#fff" : "#f8fafc", opacity: draft.isEligible ? 1 : 0.6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: draft.apply ? 12 : 0 }}>
-                    <div>
-                      <div style={{ fontWeight: 600, color: "#0f172a" }}>{draft.serviceName || "Item"}</div>
-                      <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Amount: {formatMoney(Number(draft.unitPrice || 0) * Number(draft.qty || 1))}</div>
-                      {!draft.isEligible && <div style={{ fontSize: "0.8rem", color: "#ef4444", marginTop: 4 }}>Not eligible for this membership</div>}
+            {(() => {
+              const totalWallet = Number(selectedMembershipForApply.remainingWalletValue || 0);
+              const currentTotalDeduction = membershipItemsDraft.filter(d => d.apply && d.isEligible).reduce((sum, d) => sum + Number(d.walletDeduction || 0), 0);
+              const remainingWalletAfterApply = Math.max(0, totalWallet - currentTotalDeduction);
+              return (
+                <div style={{ marginBottom: 20, padding: "12px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                  <div>
+                    <div style={{ color: "#166534", fontWeight: 700, fontSize: "1rem" }}>
+                      Available Wallet Balance: {formatMoney(totalWallet)}
                     </div>
-                    {draft.isEligible && (
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          setMembershipItemsDraft(prev => prev.map((p, i) => i === idx ? { ...p, apply: !p.apply } : p));
-                        }} 
-                        style={{ padding: "6px 16px", background: draft.apply ? "#ef4444" : "#16a34a", color: "#fff", border: "none", borderRadius: 20, fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
-                      >
-                        {draft.apply ? "Remove" : "Apply"}
-                      </button>
-                    )}
+                    <div style={{ color: "#15803d", fontSize: "0.85rem", marginTop: 2 }}>
+                      Total to Deduct: <strong>{formatMoney(currentTotalDeduction)}</strong> | Remaining in Wallet: <strong>{formatMoney(remainingWalletAfterApply)}</strong>
+                    </div>
                   </div>
-                  {draft.apply && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px", background: "#f8fafc", borderRadius: 8, marginTop: 10 }}>
-                      <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Amount to Deduct:</label>
-                      <input 
-                        type="number" 
-                        min="0" 
-                        value={draft.walletDeduction} 
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setMembershipItemsDraft(prev => prev.map((p, i) => i === idx ? { ...p, walletDeduction: val } : p));
-                        }} 
-                        style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, width: "100px" }}
-                      />
-                    </div>
+                  {currentTotalDeduction > totalWallet && (
+                    <span style={{ background: "#fef2f2", color: "#dc2626", padding: "4px 10px", borderRadius: 6, fontSize: "0.8rem", fontWeight: 700, border: "1px solid #fecaca" }}>
+                      Exceeds Balance!
+                    </span>
                   )}
                 </div>
-              ))}
+              );
+            })()}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              {membershipItemsDraft.map((draft, idx) => {
+                const itemTotal = Number(draft.unitPrice || 0) * Number(draft.qty || 1);
+                const walletBal = Number(selectedMembershipForApply.remainingWalletValue || 0);
+                return (
+                  <div key={idx} style={{ padding: "14px", border: draft.isEligible ? (draft.apply ? "2px solid #3b82f6" : "1px solid #cbd5e1") : "1px solid #f1f5f9", borderRadius: 10, background: draft.isEligible ? (draft.apply ? "#f8fafc" : "#fff") : "#f8fafc", opacity: draft.isEligible ? 1 : 0.6 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: draft.apply ? 12 : 0 }}>
+                      <div>
+                        <div style={{ fontWeight: 600, color: "#0f172a" }}>{draft.serviceName || (context.services.find(s => s.id === draft.serviceId)?.name) || "Item"}</div>
+                        <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Amount: {formatMoney(itemTotal)}</div>
+                        {!draft.isEligible && <div style={{ fontSize: "0.8rem", color: "#ef4444", marginTop: 4 }}>Not eligible for this membership</div>}
+                      </div>
+                      {draft.isEligible && (
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setMembershipItemsDraft(prev => prev.map((p, i) => {
+                              if (i !== idx) return p;
+                              const willApply = !p.apply;
+                              const otherDeduction = prev.filter((item, otherIdx) => otherIdx !== idx && item.apply && item.isEligible).reduce((sum, item) => sum + Number(item.walletDeduction || 0), 0);
+                              const availableForThis = Math.max(0, walletBal - otherDeduction);
+                              const defaultAmt = willApply ? Math.min(itemTotal, availableForThis) : 0;
+                              return { ...p, apply: willApply, walletDeduction: defaultAmt };
+                            }));
+                          }} 
+                          style={{ padding: "6px 16px", background: draft.apply ? "#ef4444" : "#16a34a", color: "#fff", border: "none", borderRadius: 20, fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}
+                        >
+                          {draft.apply ? "Remove" : "Apply"}
+                        </button>
+                      )}
+                    </div>
+                    {draft.apply && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "10px 14px", background: "#eff6ff", borderRadius: 8, marginTop: 10, border: "1px solid #bfdbfe" }}>
+                        <div>
+                          <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "#1e40af" }}>Amount to Deduct from Wallet:</label>
+                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Max for this item: {formatMoney(itemTotal)}</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontWeight: 700, color: "#1e40af" }}>₹</span>
+                          <input 
+                            type="number" 
+                            min="0" 
+                            max={itemTotal}
+                            value={draft.walletDeduction} 
+                            onChange={(e) => {
+                              const val = Math.max(0, Math.min(itemTotal, Number(e.target.value) || 0));
+                              setMembershipItemsDraft(prev => prev.map((p, i) => i === idx ? { ...p, walletDeduction: val } : p));
+                            }} 
+                            style={{ padding: "6px 10px", border: "1px solid #93c5fd", borderRadius: 6, width: "110px", fontWeight: 700, fontSize: "0.95rem", color: "#0f172a", textAlign: "right" }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
