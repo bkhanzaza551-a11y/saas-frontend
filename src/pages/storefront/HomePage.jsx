@@ -13,7 +13,8 @@ export default function HomePage() {
     if (!salon?.slug) return;
     setLoading(true);
     api.get(`/public/salon/${salon.slug}/storefront-services`, { params: { branchId: selectedBranchId } })
-      .then(res => setServices(res.data?.services || []))
+      .then(res => const list = Array.isArray(res.data) ? res.data : (res.data?.services || []);
+        setServices(list);)
       .catch(() => setServices([]))
       .finally(() => setLoading(false));
   }, [salon?.slug, selectedBranchId]);

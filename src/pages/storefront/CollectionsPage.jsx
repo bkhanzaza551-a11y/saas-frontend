@@ -18,7 +18,8 @@ export default function CollectionsPage() {
     api
       .get(`/public/salon/${salon.slug}/storefront-services`, { params: { branchId: selectedBranchId } })
       .then(res => {
-        setAllServices(res.data?.services || []);
+        const list = Array.isArray(res.data) ? res.data : (res.data?.services || []);
+        setAllServices(list);
         setLoading(false);
       })
       .catch(() => setLoading(false));

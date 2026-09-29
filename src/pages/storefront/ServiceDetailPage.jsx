@@ -57,7 +57,7 @@ export default function ServiceDetailPage() {
     const params = selectedBranchId ? { branchId: selectedBranchId } : {};
     api.get(`/public/salon/${salon.slug}/storefront-services`, { params })
       .then(res => {
-        const services = res.data?.services || [];
+        const services = Array.isArray(res.data) ? res.data : (res.data?.services || []);
         setAllServices(services);
         const found = services.find(s => String(s.id) === String(id));
         setService(found || null);
