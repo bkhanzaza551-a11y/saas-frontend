@@ -129,15 +129,11 @@ export default function CustomersPage() {
   const [giftCards, setGiftCards] = useState([]);
   const [customerGiftCards, setCustomerGiftCards] = useState([]);
   const [customerAdvances, setCustomerAdvances] = useState([]);
-  const [customerAffiliateWallet, setCustomerAffiliateWallet] = useState(null);
   const [customerWallet, setCustomerWallet] = useState(null);
   const [walletTransactions, setWalletTransactions] = useState([]);
   const [walletDepositAmount, setWalletDepositAmount] = useState("");
   const [walletDeductAmount, setWalletDeductAmount] = useState("");
   const [walletNote, setWalletNote] = useState("");
-  const [showMakePartnerModal, setShowMakePartnerModal] = useState(false);
-  const [partnerForm, setPartnerForm] = useState({ discountValue: 10, partnerCreditValue: 5, title: "" });
-  const [partnerLoading, setPartnerLoading] = useState(false);
   const [updateForm, setUpdateForm] = useState({ name: "", phone: "", email: "", gender: "", dateOfBirth: "", anniversary: "" });
   const [nowTime] = useState(getNow);
   const assignMembershipBalanceVal = Number(membershipForm.price || 0) - (Number(membershipForm.online || 0) + Number(membershipForm.offline || 0) + Number(membershipForm.advance || 0));
@@ -152,15 +148,6 @@ export default function CustomersPage() {
   const [packageForm, setPackageForm] = useState({ validityDays: "", price: "", staffId: "", purchaseDate: new Date().toISOString().slice(0, 10), online: "", offline: "", balance: "", remark: "" });
   const [packageSearch, setPackageSearch] = useState("");
   const [showPackageDropdown, setShowPackageDropdown] = useState(false);
-  const [showFamilyModal, setShowFamilyModal] = useState(false);
-  const [familyForm, setFamilyForm] = useState({ name: "", phone: "", relation: "" });
-  const [familyError, setFamilyError] = useState("");
-  const [familySearchQuery, setFamilySearchQuery] = useState("");
-  const [familySearchResults, setFamilySearchResults] = useState([]);
-  const [familySearchLoading, setFamilySearchLoading] = useState(false);
-  const [selectedFamilyGuest, setSelectedFamilyGuest] = useState(null);
-  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
-  const [followUpForm, setFollowUpForm] = useState({ date: "", time: "", message: "", type: "email", staffUserId: "" });
   const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
@@ -475,42 +462,7 @@ export default function CustomersPage() {
     }
   };
 
-  const handleMakeAffiliatePartner = async () => {
-    if (!selectedCustomer) return;
-    setPartnerLoading(true);
-    try {
-      await api.post("/owner/referrals/partners/onboard", {
-        branchId: selectedCustomer.branchId || null,
-        partnerCustomerId: selectedCustomer.id,
-        name: selectedCustomer.name,
-        phone: selectedCustomer.phone,
-        discountType: "PERCENT",
-        discountValue: Number(partnerForm.discountValue) || 10,
-        partnerCreditType: "PERCENT",
-        partnerCreditValue: Number(partnerForm.partnerCreditValue) || 5,
-        title: partnerForm.title.trim() || `${selectedCustomer.name} Affiliate Code`,
-        notes: "Onboarded from customer profile"
-      });
-      setShowMakePartnerModal(false);
-      setDetailTab("affiliate");
-      api.get(`/owner/referrals/wallets/${selectedCustomer.id}`)
-        .then(res => setCustomerAffiliateWallet(res.data || null))
-        .catch(() => {});
-      setToastMessage({ 
-        type: "success", 
-        title: "Partner Onboarded", 
-        message: `${selectedCustomer.name} is now an active Affiliate Partner!` 
-      });
-    } catch (err) {
-      setToastMessage({ 
-        type: "error", 
-        title: "Onboarding Failed", 
-        message: err.response?.data?.message || "Could not onboard partner" 
-      });
-    } finally {
-      setPartnerLoading(false);
-    }
-  };
+  ;
 
   useEffect(() => {
     if (!selectedCustomer) return;
@@ -533,12 +485,7 @@ export default function CustomersPage() {
       fetchPackagePlans();
       fetchStaffUsers();
     }
-    if (detailTab === "affiliate") {
-      setCustomerAffiliateWallet(null);
-      api.get(`/owner/referrals/wallets/${selectedCustomer.id}`)
-        .then(res => setCustomerAffiliateWallet(res.data || null))
-        .catch(() => setCustomerAffiliateWallet(null));
-    }
+    
     if (detailTab === "wallet") {
       setCustomerWallet(null);
       setWalletTransactions([]);
@@ -682,147 +629,17 @@ export default function CustomersPage() {
     }
   };
 
-  const handleFamilySearch = async (queryVal) => {
-    setFamilySearchQuery(queryVal);
-    if (!queryVal.trim()) {
-      setFamilySearchResults([]);
-      return;
-    }
-    setFamilySearchLoading(true);
-    try {
-      const response = await api.get("/owner/customers", { params: { q: queryVal } });
-      const allCustomers = Array.isArray(response.data) ? response.data : (response.data?.data || []);
-      const filtered = allCustomers.filter(c => c.id !== selectedCustomer?.id);
-      setFamilySearchResults(filtered);
-    } catch (e) {
-      console.error("Failed to search guests", e);
-    } finally {
-      setFamilySearchLoading(false);
-    }
-  };
+  ;
 
-  const handleSelectFamilyGuest = (guest) => {
-    setSelectedFamilyGuest(guest);
-    setFamilyForm(prev => ({
-      ...prev,
-      name: guest.name || "",
-      phone: guest.phone || "",
-    }));
-    setFamilySearchResults([]);
-    setFamilySearchQuery("");
-  };
+  ;
 
-  const handleAddFamilyMember = async () => {
-    setFamilyError("");
-    if (!selectedCustomer) {
-      setFamilyError("No customer selected");
-      return;
-    }
-    if (!selectedFamilyGuest) {
-      setFamilyError("Please search and select a customer");
-      return;
-    }
-    if (!familyForm.relation || !familyForm.relation.trim()) {
-      setFamilyError("Relation is required");
-      return;
-    }
+  ;
 
-    setSavingMessage("Linking Family Member...");
-    setSaving(true);
-    try {
-      const existingNotes = selectedFamilyGuest.notes || "";
-      const familyTag = `familyMemberOf:${selectedCustomer.id} relation:${familyForm.relation.trim().toLowerCase()}`;
-      
-      let updatedNotes = existingNotes;
-      if (!existingNotes.includes(`familyMemberOf:${selectedCustomer.id}`)) {
-        updatedNotes = existingNotes ? `${existingNotes} ${familyTag}` : familyTag;
-      } else {
-        const regex = new RegExp(`familyMemberOf:${selectedCustomer.id}\\s+relation:\\S+`, 'g');
-        if (regex.test(existingNotes)) {
-          updatedNotes = existingNotes.replace(regex, familyTag);
-        } else {
-          updatedNotes = `${existingNotes} ${familyTag}`;
-        }
-      }
+  ;
 
-      await api.patch(`/owner/customers/${selectedFamilyGuest.id}`, {
-        notes: updatedNotes
-      });
+  ;
 
-      setShowFamilyModal(false);
-      setSelectedFamilyGuest(null);
-      setFamilySearchQuery("");
-      setFamilySearchResults([]);
-      setFamilyForm({ name: "", phone: "", relation: "" });
-      familyError && setFamilyError("");
-      
-      const res = await api.get(`/owner/customers/${selectedCustomer.id}`);
-      setCustomerDetail(res.data);
-    } catch (e) {
-      setFamilyError(formatApiError(e, "Failed to add family member"));
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRemoveFamilyMember = async (fm) => {
-    if (!selectedCustomer) return;
-    if (!window.confirm(`Are you sure you want to unlink ${fm.name} from family members?`)) return;
-    setSavingMessage("Unlinking Family Member...");
-    setSaving(true);
-    try {
-      const existingNotes = fm.notes || "";
-      const regex = new RegExp(`familyMemberOf:${selectedCustomer.id}\\s+relation:\\S+`, 'g');
-      const updatedNotes = existingNotes.replace(regex, "").trim();
-
-      await api.patch(`/owner/customers/${fm.id}`, {
-        notes: updatedNotes
-      });
-
-      const res = await api.get(`/owner/customers/${selectedCustomer.id}`);
-      setCustomerDetail(res.data);
-      setToastMessage({ type: "success", title: "Member Removed", message: "Family member unlinked successfully." });
-    } catch (e) {
-      setToastMessage({ type: "error", title: "Action Failed", message: formatApiError(e, "Failed to remove family member") });
-      console.error(e);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleAddFollowUp = async () => {
-    if (!followUpForm.date || !followUpForm.message || !followUpForm.staffUserId || !selectedCustomer) return;
-    setSavingMessage("Adding Follow Up...");
-    setSaving(true);
-    try {
-      await api.post("/owner/follow-ups", {
-        customerId: selectedCustomer.id,
-        staffUserId: followUpForm.staffUserId,
-        date: followUpForm.date,
-        time: followUpForm.time || undefined,
-        message: followUpForm.message,
-        type: followUpForm.type,
-      });
-      setShowFollowUpModal(false);
-      setFollowUpForm({ date: "", time: "", message: "", type: "email", staffUserId: "" });
-      const res = await api.get(`/owner/customers/${selectedCustomer.id}`);
-      setCustomerDetail(res.data);
-      setToastMessage({ type: "success", title: "Follow Up Scheduled", message: "Follow-up task scheduled successfully!" });
-    } catch (e) {
-      setToastMessage({ type: "error", title: "Schedule Failed", message: formatApiError(e, "Failed to add follow-up") });
-      console.error(e);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const openFollowUpModal = async () => {
-    if (staffUsers.length === 0) {
-      await fetchStaffUsers();
-    }
-    setFollowUpForm({ date: "", time: "", message: "", type: "email", staffUserId: "" });
-    setShowFollowUpModal(true);
-  };
+  ;
 
   
   

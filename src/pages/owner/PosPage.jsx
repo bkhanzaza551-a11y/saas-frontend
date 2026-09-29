@@ -2488,9 +2488,16 @@ export default function PosPage() {
                       placeholder="Search By Name Or No." 
                       value={guestSearchInput} 
                       onChange={(e) => {
-                        setGuestSearchInput(e.target.value);
+                        let val = e.target.value;
+                        const isNumericOnly = /^[0-9]+$/.test(val);
+                        if (isNumericOnly && val.length > 10) {
+                          val = val.slice(0, 10);
+                        } else if (!isNumericOnly && val.length > 30) {
+                          val = val.slice(0, 30);
+                        }
+                        setGuestSearchInput(val);
                         setShowCustomerDropdown(true);
-                        const match = context.customers.find(c => c.name === e.target.value || c.phone === e.target.value);
+                        const match = context.customers.find(c => c.name === val || c.phone === val);
                         if (match) {
                           setForm(current => ({ ...current, customerId: match.id }));
                         } else {
