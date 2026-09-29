@@ -1784,20 +1784,15 @@ export default function ReportsHubPage() {
               if (!groups[g]) groups[g] = [];
               groups[g].push(report);
             });
-            return Object.entries(groups).map(([groupName, reports]) => (
-              <div key={groupName}>
-                <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", padding: "8px 12px 4px", marginTop: 4 }}>{groupName}</div>
-                {reports.map((report) => (
-                  <button
-                    key={report.key}
-                    type="button"
-                    className={`rpt-nav-item ${activeReport === report.key ? "active" : ""}`}
-                    onClick={() => { setActiveReport(report.key); setSearch(""); }}
-                  >
-                    {report.label}
-                  </button>
-                ))}
-              </div>
+            return Object.keys(groups).map((groupName) => (
+              <button
+                key={groupName}
+                type="button"
+                className={`rpt-nav-item ${activeGroup === groupName ? "active" : ""}`}
+                onClick={() => { setActiveGroup(groupName); setSearch(""); }}
+              >
+                {groupName}
+              </button>
             ));
           })()}
         </div>
