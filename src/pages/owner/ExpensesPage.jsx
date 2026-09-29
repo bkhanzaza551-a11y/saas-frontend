@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useBranch } from "../../context/BranchContext";
 import { useSalonSettings } from "../../context/SalonSettingsContext";
 import { formatApiError } from "../../utils/apiError";
-import CustomSelect from "../../components/CustomSelect";
+
 import {
 
   Receipt, Wallet, Search, Filter, FolderKanban, PlusCircle, 
@@ -427,14 +427,66 @@ export default function ExpensesPage() {
   };
 
   return (
-    <div className="expenses-page-container">
+    <div className="page-shell expenses-page-shell">
       <style>{`
-        .expenses-page-container {
+        .expenses-page-shell {
           display: flex;
-          min-height: calc(100vh - 120px);
-          background-color: #f8fafc;
+          background-color: transparent;
+          display: flex;
+          flex-direction: column;
           font-family: 'Poppins', system-ui, -apple-system, sans-serif;
           color: #1e293b;
+        }
+
+        
+        .expenses-subnav-bar {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          padding: 6px;
+          margin-bottom: 24px;
+          box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+          display: flex;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 30;
+        }
+        .expenses-subnav-scroll {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          overflow-x: auto;
+          width: 100%;
+          scrollbar-width: none;
+        }
+        .expenses-subnav-scroll::-webkit-scrollbar { display: none; }
+        .exp-subnav-tab {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 14px;
+          border-radius: 8px;
+          font-size: 13.5px;
+          font-weight: 600;
+          color: #64748b;
+          background: transparent;
+          border: 1px solid transparent;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+          min-height: 34px;
+        }
+        .exp-subnav-tab:hover:not(.active) {
+          background: #f8fafc;
+          color: #0f172a;
+        }
+        .exp-subnav-tab.active {
+          background: #f0fdfa;
+          color: #0f766e;
+          border-color: #99f6e4;
+          font-weight: 750;
+          box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12);
         }
 
         /* Local Sidebar Navigation */
@@ -938,32 +990,29 @@ export default function ExpensesPage() {
       `}</style>
 
       {/* ── LOCAL SIDEBAR ── */}
-      <div className="expenses-local-sidebar">
-        <div className="expenses-sidebar-header">Expenses</div>
-        
-        <button 
-          className={`expenses-sidebar-btn ${mode === "dashboard" ? "active" : ""}`}
-          onClick={() => navigate("/admin/expenses/dashboard")}
-        >
-          <LayoutDashboard size={16} />
-          Dashboard
-        </button>
+      <div className="expenses-subnav-bar">
+        <div className="expenses-subnav-scroll">
+          <button 
+            className={"exp-subnav-tab " + (mode === "dashboard" ? "active" : "")}
+            onClick={() => navigate("/admin/expenses/dashboard")}
+          >
+            <LayoutDashboard size={16} /> Dashboard
+          </button>
 
-        <button 
-          className={`expenses-sidebar-btn ${mode === "types" ? "active" : ""}`}
-          onClick={() => navigate("/admin/expenses/types")}
-        >
-          <FolderKanban size={16} />
-          Types
-        </button>
+          <button 
+            className={"exp-subnav-tab " + (mode === "types" ? "active" : "")}
+            onClick={() => navigate("/admin/expenses/types")}
+          >
+            <FolderKanban size={16} /> Types
+          </button>
 
-        <button 
-          className={`expenses-sidebar-btn ${mode === "accounts" ? "active" : ""}`}
-          onClick={() => navigate("/admin/expenses/accounts")}
-        >
-          <Wallet size={16} />
-          Accounts
-        </button>
+          <button 
+            className={"exp-subnav-tab " + (mode === "accounts" ? "active" : "")}
+            onClick={() => navigate("/admin/expenses/accounts")}
+          >
+            <Wallet size={16} /> Accounts
+          </button>
+        </div>
       </div>
 
       {/* ── MAIN WORKSPACE ── */}
@@ -1017,39 +1066,35 @@ export default function ExpensesPage() {
                   <div className="expenses-filters-grid" style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
                     {/* Paymode */}
                     <div className="expenses-filter-field" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
-                        <Wallet size={14} color="#2563eb" /> Paymode:
-                      </span>
-                      <CustomSelect 
+                      
+                      <select className="filter-select" 
                         value={filters.paymentMode}
                         onChange={(e) => setFilters({ ...filters, paymentMode: e.target.value })}
-                        style={{ width: 110, height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1" }}
+                        style={{ height: 36, padding: "0 12px", fontSize: 13, fontWeight: 600, borderRadius: 8, background: "#fff", border: "1px solid #cbd5e1" }}
                       >
-                        <option value="">All</option>
+                        <option value="">All Paymodes</option>
                         <option value="CASH">CASH</option>
                         <option value="CARD">CARD</option>
                         <option value="UPI">UPI</option>
                         <option value="BANK_TRANSFER">BANK TRANSFER</option>
                         <option value="WALLET">WALLET</option>
                         <option value="ONLINE">ONLINE</option>
-                      </CustomSelect>
+                      </select>
                     </div>
 
                     {/* Expense Type */}
                     <div className="expenses-filter-field" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
-                        <FolderKanban size={14} color="#2563eb" /> Expense Type:
-                      </span>
-                      <CustomSelect 
+                      
+                      <select className="filter-select" 
                         value={filters.categoryId}
                         onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
-                        style={{ width: 140, height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1" }}
+                        style={{ height: 36, padding: "0 12px", fontSize: 13, fontWeight: 600, borderRadius: 8, background: "#fff", border: "1px solid #cbd5e1" }}
                       >
                         <option value="">All Categories</option>
                         {categories.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
-                      </CustomSelect>
+                      </select>
                     </div>
 
                     {/* From */}
@@ -1062,7 +1107,7 @@ export default function ExpensesPage() {
                         value={filters.startDate}
                         onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                         max={filters.endDate || undefined}
-                        style={{ height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none", boxSizing: "border-box" }}
+                        style={{ height: 36, padding: "0 12px", fontSize: 13, fontWeight: 600, borderRadius: 8, background: "#fff", border: "1px solid #cbd5e1", outline: "none", boxSizing: "border-box" }}
                       />
                     </div>
 
@@ -1076,7 +1121,7 @@ export default function ExpensesPage() {
                         value={filters.endDate}
                         onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                         min={filters.startDate || undefined}
-                        style={{ height: 36, padding: "0 8px", fontSize: 12, fontWeight: 600, borderRadius: 8, background: "#f8fafc", border: "1px solid #cbd5e1", outline: "none", boxSizing: "border-box" }}
+                        style={{ height: 36, padding: "0 12px", fontSize: 13, fontWeight: 600, borderRadius: 8, background: "#fff", border: "1px solid #cbd5e1", outline: "none", boxSizing: "border-box" }}
                       />
                     </div>
                   </div>
@@ -1301,7 +1346,7 @@ export default function ExpensesPage() {
 
                       <div className="form-group">
                         <label className="form-label">Expense / PNL Category</label>
-                        <CustomSelect 
+                        <select className="filter-select" 
                           style={{ width: "100%" }}
                           value={categoryForm.pnlCategory}
                           onChange={(e) => setCategoryForm({ ...categoryForm, pnlCategory: e.target.value })}
@@ -1310,7 +1355,7 @@ export default function ExpensesPage() {
                           <option value="Operating Expenses">Operating Expenses</option>
                           <option value="Administrative Expenses">Administrative Expenses</option>
                           <option value="Other Indirect Expenses">Other Indirect Expenses</option>
-                        </CustomSelect>
+                        </select>
                       </div>
 
                       <div className="form-group">
@@ -1555,7 +1600,7 @@ export default function ExpensesPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label" style={{ marginBottom: 6, display: "block" }}>Type / Category</label>
-                    <CustomSelect 
+                    <select className="filter-select" 
                       style={{ width: "100%" }}
                       value={form.categoryId}
                       onChange={(e) => {
@@ -1573,12 +1618,12 @@ export default function ExpensesPage() {
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
                       <option value="__ADD_TYPE__">+ Add New Type</option>
-                    </CustomSelect>
+                    </select>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label" style={{ marginBottom: 6, display: "block" }}>Payment Mode</label>
-                    <CustomSelect 
+                    <select className="filter-select" 
                       style={{ width: "100%" }}
                       value={form.paymentMode}
                       onChange={(e) => setForm({ ...form, paymentMode: e.target.value })}
@@ -1589,7 +1634,7 @@ export default function ExpensesPage() {
                       <option value="BANK_TRANSFER">BANK TRANSFER</option>
                       <option value="WALLET">WALLET</option>
                       <option value="ONLINE">ONLINE</option>
-                    </CustomSelect>
+                    </select>
                   </div>
                 </div>
 
@@ -1664,7 +1709,7 @@ export default function ExpensesPage() {
 
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label">Account</label>
-                    <CustomSelect 
+                    <select className="filter-select" 
                       
                       style={{ width: "100%" }}
                       value={balanceForm.accountMode}
@@ -1674,7 +1719,7 @@ export default function ExpensesPage() {
                       {Object.entries(accountBalances).map(([mode, data]) => (
                         <option key={mode} value={mode}>{mode} ({currencyMeta.symbol} {data.balance.toLocaleString()})</option>
                       ))}
-                    </CustomSelect>
+                    </select>
                   </div>
                 </div>
 
@@ -1694,7 +1739,7 @@ export default function ExpensesPage() {
 
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label">Paymode</label>
-                    <CustomSelect 
+                    <select className="filter-select" 
                       
                       style={{ width: "100%" }}
                       value={balanceForm.paymentMode}
@@ -1707,7 +1752,7 @@ export default function ExpensesPage() {
                       <option value="BANK_TRANSFER">BANK TRANSFER</option>
                       <option value="WALLET">WALLET</option>
                       <option value="ONLINE">ONLINE</option>
-                    </CustomSelect>
+                    </select>
                   </div>
                 </div>
 
