@@ -14,7 +14,7 @@ import {
   Calendar, Edit3, Trash2, X, Download, Upload, ChevronDown, Search,
   Clock, ArrowRight, Sparkles, ArrowLeft, Send, Check, MessageCircle,
   UserCheck, History, Tag, Building2, ChevronRight, CornerDownRight,
-  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle
+  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle, LayoutGrid
 } from "lucide-react";
 
 // Mapping between UI Status and DB Status
@@ -1598,3 +1598,4 @@ export default function EnquiriesPage() {
     </div>
   );
 }
+
