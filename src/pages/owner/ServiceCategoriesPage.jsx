@@ -172,7 +172,11 @@ export default function ServiceCategoriesPage() {
 
   const resetServiceForm = (categoryId = selectedSubId || "") => {
     setEditingServiceId("");
-    setServiceForm({ ...initialServiceForm, categoryId, branchId: selectedBranchId || "" });
+    setServiceForm({
+      ...initialServiceForm,
+      categoryId,
+      branchId: selectedBranchId || (branches[0]?.id || "")
+    });
   };
 
   const openNewService = () => {
@@ -190,7 +194,7 @@ export default function ServiceCategoriesPage() {
     setEditingServiceId(service.id);
     setServiceForm({
       name: service.name || "",
-      branchId: service.branchId || "",
+      branchId: service.branchId || selectedBranchId || (branches[0]?.id || ""),
       categoryId: service.categoryId || selectedSubId || "",
       gender: service.gender || "UNISEX",
       price: Number(service.price || 0),
@@ -218,7 +222,7 @@ export default function ServiceCategoriesPage() {
         await api.patch(`/owner/service-categories/${editingCatId}`, { name: catInput.trim() });
         setSuccess("Category updated.");
       } else {
-        await api.post("/owner/service-categories", { name: catInput.trim(), branchId: selectedBranchId || null });
+        await api.post("/owner/service-categories", { name: catInput.trim(), branchId: selectedBranchId || (branches[0]?.id || null) });
         setSuccess("Category added.");
       }
       setCatInput("");
@@ -263,7 +267,7 @@ export default function ServiceCategoriesPage() {
         await api.patch(`/owner/service-categories/${editingSubId}`, { name: subInput.trim() });
         setSuccess("Subcategory updated.");
       } else {
-        await api.post("/owner/service-categories", { name: subInput.trim(), parentId: selectedCategory.id, branchId: selectedBranchId || null });
+        await api.post("/owner/service-categories", { name: subInput.trim(), parentId: selectedCategory.id, branchId: selectedBranchId || (branches[0]?.id || null) });
         setSuccess("Subcategory added.");
       }
       setSubInput("");
@@ -306,9 +310,10 @@ export default function ServiceCategoriesPage() {
       setError("Service image is required to save.");
       return;
     }
+    const effectiveBranchId = serviceForm.branchId || selectedBranchId || (branches[0]?.id || undefined);
     const payload = {
       name: serviceForm.name.trim(),
-      branchId: serviceForm.branchId || undefined,
+      branchId: effectiveBranchId,
       categoryId: serviceForm.categoryId,
       gender: serviceForm.gender || "UNISEX",
       price: Number(serviceForm.price || 0),
@@ -775,12 +780,27 @@ export default function ServiceCategoriesPage() {
                 </div>
               </div>
 
-              {/* Subcategory + Gender */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={labelStyle}>Subcategory</label>
-                  <input value={selectedSubcategory ? `${selectedCategory?.name} / ${selectedSubcategory.name}` : ""} disabled style={{ ...inputStyle, background: "#f8fafc", color: "#64748b" }} />
-                </div>
+              {/* Branch & Gender */}
+              <div style={{ display: "grid", gridTemplateColumns: branches.length > 1 ? "1fr 1fr" : "1fr 1fr", gap: 16 }}>
+                {branches.length > 1 ? (
+                  <div>
+                    <label style={labelStyle}>Branch *</label>
+                    <CustomSelect
+                      value={serviceForm.branchId || selectedBranchId || (branches[0]?.id || "")}
+                      onChange={e => setServiceForm(c => ({ ...c, branchId: e.target.value }))}
+                      style={inputStyle}
+                    >
+                      {branches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </CustomSelect>
+                  </div>
+                ) : (
+                  <div>
+                    <label style={labelStyle}>Subcategory</label>
+                    <input value={selectedSubcategory ? `${selectedCategory?.name} / ${selectedSubcategory.name}` : ""} disabled style={{ ...inputStyle, background: "#f8fafc", color: "#64748b" }} />
+                  </div>
+                )}
                 <div>
                   <label style={labelStyle}>Gender</label>
                   <CustomSelect value={serviceForm.gender} onChange={e => setServiceForm(c => ({ ...c, gender: e.target.value }))} style={inputStyle}>
@@ -790,6 +810,13 @@ export default function ServiceCategoriesPage() {
                   </CustomSelect>
                 </div>
               </div>
+
+              {branches.length > 1 && (
+                <div>
+                  <label style={labelStyle}>Subcategory</label>
+                  <input value={selectedSubcategory ? `${selectedCategory?.name} / ${selectedSubcategory.name}` : ""} disabled style={{ ...inputStyle, background: "#f8fafc", color: "#64748b" }} />
+                </div>
+              )}
 
               {/* Price + Duration */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
