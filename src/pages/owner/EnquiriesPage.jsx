@@ -14,7 +14,7 @@ import {
   Calendar, Edit3, Trash2, X, Download, Upload, ChevronDown, Search,
   Clock, ArrowRight, Sparkles, ArrowLeft, Send, Check, MessageCircle,
   UserCheck, History, Tag, Building2, ChevronRight, CornerDownRight,
-  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle, LayoutGrid, MapPin, AlertCircle, AlignLeft, CheckCircle2, Mail, Phone, Zap
+  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle, LayoutGrid, MapPin, AlignLeft, Zap
 } from "lucide-react";
 
 // MapPin, AlertCircle, AlignLeft, CheckCircle2, Mail, Phone, Zapg between UI Status and DB Status
