@@ -123,7 +123,6 @@ export const ROLE_PRESETS = {
     myDashboard: ["view"],
     myAppointments: ["view"],
     mySchedule: ["view"],
-    myAttendance: ["view", "create", "edit"],
     myProfile: ["view", "edit"]
   }),
   RECEPTIONIST: makePermissions({

@@ -200,7 +200,10 @@ const Protected = () => {
   const perms = auth.membership?.permissions || {};
   const flags = auth.membership?.featureFlags || {};
   const salonRole = auth.membership?.salonRole || "";
+  const customRoleName = (auth.membership?.customRole?.name || "").toUpperCase();
+  const roleTitle = (auth.membership?.roleTitle || "").toUpperCase();
   const isOwner = salonRole === "SALON_OWNER";
+  const isManager = salonRole === "SALON_MANAGER" || salonRole === "MANAGER" || customRoleName.includes("MANAGER") || roleTitle.includes("MANAGER");
   const can = (key, action = "view") => {
     if (isOwner) return true;
     if (!key) return false;
@@ -216,7 +219,7 @@ const Protected = () => {
 
   const myWorkspaceItems = [
     (isOwner || can("myDashboard", "view") || can("my_dashboard", "view")) && { label: "My Dashboard", to: "/admin/my-dashboard" },
-    (isOwner || can("myAttendance", "view") || can("my_attendance", "view")) && { label: "My Attendance", to: "/admin/my-attendance" },
+    (!isManager && (isOwner || can("myAttendance", "view") || can("my_attendance", "view"))) && { label: "My Attendance", to: "/admin/my-attendance" },
     (isOwner || can("myAppointments", "view") || can("my_appointments", "view")) && { label: "My Appointments", to: "/admin/my-appointments" },
     (isOwner || can("mySchedule", "view") || can("my_schedule", "view")) && { label: "My Schedule", to: "/admin/my-schedule" },
     (isOwner || can("myProfile", "view") || can("my_profile", "view")) && { label: "My Profile", to: "/admin/my-profile" }
@@ -461,6 +464,13 @@ const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
 
 const StaffWorkspaceRoute = ({ moduleKey, action = "view", featureKey, element }) => {
   const { auth } = useAuth();
+  const salonRole = auth?.membership?.salonRole || "";
+  const customRoleName = (auth?.membership?.customRole?.name || "").toUpperCase();
+  const roleTitle = (auth?.membership?.roleTitle || "").toUpperCase();
+  const isManager = salonRole === "SALON_MANAGER" || salonRole === "MANAGER" || customRoleName.includes("MANAGER") || roleTitle.includes("MANAGER");
+  if (moduleKey === "myAttendance" && isManager) {
+    return <Navigate to="/admin/my-dashboard" replace />;
+  }
 
   if (!auth) return <Navigate to="/login" replace />;
 
