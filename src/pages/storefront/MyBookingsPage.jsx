@@ -335,7 +335,7 @@ export default function MyBookingsPage() {
                               border: isCompleted ? "1px solid #a7f3d0" : (isConfirmed ? "1px solid #bfdbfe" : (isCancelled ? "1px solid #fecdd3" : "1px solid #a7f3d0"))
                             }}
                           >
-                            ● {statusLabel}
+                             ● {statusLabel}
                           </span>
                         </div>
 
