@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { Tag, Users, Wallet, Plus, Clock, TrendingUp, Search, Trash2, ArrowUpRight } from "lucide-react";
 import { api } from "../../api/client";
 import { useBranch } from "../../context/BranchContext";
+import ModuleTabs from "../../components/ModuleTabs";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import { formatApiError } from "../../utils/apiError";
@@ -310,15 +312,96 @@ export default function ReferralProgramPage() {
           }
         }
       `}</style>
-      <div style={{ marginBottom: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#0f172a" }}>Referral Program</h1>
-        <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 13 }}>Manage referral coupons, partners, and wallets in one place.</p>
+      <ModuleTabs
+        title="Coupons & Gift Cards"
+        description="Promotions, vouchers, gift card balances and referral partner management."
+        items={[
+          { label: "Coupons", to: "/admin/coupons" },
+          { label: "Gift Cards", to: "/admin/gift-cards" },
+          { label: "Referral Program", to: "/admin/referral-coupons" },
+          { label: "Reports", to: "/admin/coupons/reports" }
+        ]}
+        actions={
+          <div style={{ display: "flex", gap: 10 }}>
+            {activeTab === "coupons" && !showCouponForm && (
+              <button 
+                type="button"
+                onClick={handleCreateCoupon}
+                className="primary-button"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Plus size={16} /> Create Coupon
+              </button>
+            )}
+            {activeTab === "partners" && (
+              <button 
+                type="button"
+                onClick={() => { setOnboardForm({ name: "", phone: "", discountValue: 10, partnerCreditValue: 5, title: "" }); setShowOnboardModal(true); }}
+                className="primary-button"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Plus size={16} /> Onboard Partner
+              </button>
+            )}
+          </div>
+        }
+      />
+
+      {/* Top 4 Summary Metrics */}
+      <div className="cpn-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 20 }}>
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Tag size={18} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Referral Coupons</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {coupons.filter(c => !c.isArchived).length} <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>/ {coupons.length}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Users size={18} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Active Partners</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {wallets.length}
+            </div>
+          </div>
+        </div>
+
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Wallet size={18} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Total Partner Credits</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              ₹{wallets.reduce((acc, w) => acc + (Number(w.balance) || 0), 0).toFixed(0)}
+            </div>
+          </div>
+        </div>
+
+        <div className="cpn-stat-card" style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="cpn-stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: "#f3e8ff", color: "#9333ea", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Clock size={18} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div className="cpn-stat-title" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Pending Payouts</div>
+            <div className="cpn-stat-val" style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+              {payouts.filter(p => p.status === "PENDING").length}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="ref-main-tabs" style={{ display: "flex", gap: 4, background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 18, width: "fit-content", maxWidth: "100%" }}>
-        <button onClick={() => { setActiveTab("coupons"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("coupons")}>Coupons</button>
-        <button onClick={() => { setActiveTab("partners"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("partners")}>Partners</button>
-        <button onClick={() => { setActiveTab("wallets"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("wallets")}>Wallets</button>
+        <button onClick={() => { setActiveTab("coupons"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("coupons")}>Coupons ({coupons.length})</button>
+        <button onClick={() => { setActiveTab("partners"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("partners")}>Partners ({wallets.length})</button>
+        <button onClick={() => { setActiveTab("wallets"); setSelectedWallet(null); setWalletDetail(null); }} style={tabBtnStyle("wallets")}>Wallets & Payouts ({payouts.filter(p => p.status === 'PENDING').length ? `${payouts.filter(p => p.status === 'PENDING').length} Pending` : wallets.length})</button>
       </div>
 
       {status.error && <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fee2e2", color: "#b91c1c", fontSize: 13, marginBottom: 12 }}>{status.error}</div>}
