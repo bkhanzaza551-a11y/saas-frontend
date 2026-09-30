@@ -32,13 +32,13 @@ export default function GlobalDashboardPage() {
       let queryEnd = "";
 
       if (period === "Today") {
-        const today = new Date().toISOString().split("T")[0];
+        const today = new Date().toLocaleDateString('en-CA');
         queryStart = today;
         queryEnd = today;
       } else if (period === "Month") {
         const date = new Date();
-        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split("T")[0];
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split("T")[0];
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString('en-CA');
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toLocaleDateString('en-CA');
         queryStart = firstDay;
         queryEnd = lastDay;
       } else if (period === "Custom") {

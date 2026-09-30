@@ -45,7 +45,7 @@ export default function ServiceDetailPage() {
   const [allServices, setAllServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStaff, setSelectedStaff] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toLocaleDateString('en-CA'));
   const [selectedTime, setSelectedTime] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
   const [checkingSlots, setCheckingSlots] = useState(false);
@@ -115,11 +115,11 @@ export default function ServiceDetailPage() {
     s => String(s.id) !== String(service.id) && s.category?.id === service.category?.id
   ).slice(0, 3);
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString('en-CA');
 
   const isSlotBooked = (time) => {
     if (!bookedSlots.length || !time || !selectedDate) return false;
-    const userStartMs = new Date(`${selectedDate}T${time}:00Z`).getTime();
+    const userStartMs = new Date(`${selectedDate}T${time}:00`).getTime();
     const userEndMs = userStartMs + (service.durationMin || 30) * 60000;
     return bookedSlots.some(slot => {
       if (selectedStaff?.id && slot.staffId && String(slot.staffId) !== String(selectedStaff.id)) {
@@ -442,3 +442,4 @@ export default function ServiceDetailPage() {
     </div>
   );
 }
+

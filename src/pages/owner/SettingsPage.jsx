@@ -2026,7 +2026,7 @@ export default function SettingsPage() {
     const handleDateNav = (offset) => {
       const current = roster.selectedDate ? new Date(roster.selectedDate) : new Date();
       current.setDate(current.getDate() + offset);
-      updateAdvancedObject("rosterManagement", { selectedDate: current.toISOString().split("T")[0] });
+      updateAdvancedObject("rosterManagement", { selectedDate: current.toLocaleDateString('en-CA') });
     };
     const handleSaveRoster = async () => {
       try {
@@ -2138,7 +2138,7 @@ export default function SettingsPage() {
                   
                   <button
                     type="button"
-                    onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toISOString().split("T")[0] })}
+                    onClick={() => updateAdvancedObject("rosterManagement", { selectedDate: new Date().toLocaleDateString('en-CA') })}
                     disabled={!rosterModuleEnabled}
                     style={{ 
                       height: "100%", 
@@ -2295,7 +2295,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => {
-              updateAdvancedObject("rosterManagement", { rows: [], selectedDate: new Date().toISOString().split("T")[0], useShiftId: "", applyFor: 1 });
+              updateAdvancedObject("rosterManagement", { rows: [], selectedDate: new Date().toLocaleDateString('en-CA'), useShiftId: "", applyFor: 1 });
             }}
             style={{ padding: "10px 24px", background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14 }}
           >

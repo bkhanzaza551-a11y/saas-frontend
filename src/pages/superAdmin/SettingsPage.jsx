@@ -1332,7 +1332,7 @@ export default function SuperAdminSettingsPage() {
                           const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(form, null, 2));
                           const downloadAnchor = document.createElement("a");
                           downloadAnchor.setAttribute("href", dataStr);
-                          downloadAnchor.setAttribute("download", `salonnest_platform_backup_${new Date().toISOString().split("T")[0]}.json`);
+                          downloadAnchor.setAttribute("download", `salonnest_platform_backup_${new Date().toLocaleDateString('en-CA')}.json`);
                           document.body.appendChild(downloadAnchor);
                           downloadAnchor.click();
                           downloadAnchor.remove();

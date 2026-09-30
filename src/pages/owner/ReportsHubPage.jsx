@@ -1655,7 +1655,7 @@ export default function ReportsHubPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${currentReport?.label || "Report"}_${new Date().toISOString().split("T")[0]}.csv`;
+    link.download = `${currentReport?.label || "Report"}_${new Date().toLocaleDateString('en-CA')}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1680,7 +1680,7 @@ export default function ReportsHubPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${currentReport?.label || "Report"}_${new Date().toISOString().split("T")[0]}.xls`;
+    link.download = `${currentReport?.label || "Report"}_${new Date().toLocaleDateString('en-CA')}.xls`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

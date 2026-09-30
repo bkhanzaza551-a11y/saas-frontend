@@ -24,8 +24,8 @@ export default function SuperAdminDashboard() {
   const handlePeriodChange = (val) => {
     setPeriod(val);
     if (val === "custom" && (!dateFrom || !dateTo)) {
-      const todayStr = new Date().toISOString().split("T")[0];
-      const pastStr = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      const pastStr = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
       setDateFrom(pastStr);
       setDateTo(todayStr);
     }

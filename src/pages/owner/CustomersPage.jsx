@@ -548,7 +548,7 @@ export default function CustomersPage() {
         code: payloadCode,
         title: giftCardForm.title || "Gift Card",
         originalAmount: amountVal,
-        expiresAt: expiresAt.toISOString().split("T")[0],
+        expiresAt: expiresAt.toLocaleDateString('en-CA'),
         branchId: selectedBranchId || null,
       });
       setShowGiftCardModal(false);
