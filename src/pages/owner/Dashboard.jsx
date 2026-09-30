@@ -674,58 +674,58 @@ export default function OwnerDashboard() {
 
       {/* Inbox (Petty Cash Register) Modal */}
       {isInboxModalOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(15, 23, 42, 0.5)", backdropFilter: "blur(4px)", padding: 16 }}>
-          <div style={{ background: "#ffffff", borderRadius: 20, width: "100%", maxWidth: 760, maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", overflow: "hidden", border: "1px solid #e2e8f0" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(15, 23, 42, 0.45)", backdropFilter: "blur(4px)", padding: 16 }}>
+          <div style={{ background: "#ffffff", borderRadius: 16, width: "100%", maxWidth: 720, maxHeight: "88vh", display: "flex", flexDirection: "column", boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.05)", overflow: "hidden", border: "1px solid #e2e8f0" }}>
             
             {/* Header */}
-            <div style={{ padding: "18px 24px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "#f1f5f9", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Wallet size={20} />
+                <div style={{ width: 34, height: 34, borderRadius: 8, background: "#e2e8f0", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Wallet size={17} />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>Inbox (Petty Cash Register)</h3>
-                  <p style={{ margin: "2px 0 0", fontSize: "0.78rem", color: "#64748b" }}>
-                    Daily Cash Inflows & Expenses Outflow • <strong>{branchName || "All Branches"}</strong>
+                  <h3 style={{ margin: 0, fontSize: "1.02rem", fontWeight: 700, color: "#0f172a" }}>Petty Cash Register (Inbox)</h3>
+                  <p style={{ margin: "1px 0 0", fontSize: "0.75rem", color: "#64748b" }}>
+                    Daily Cash Inflows & Expenses • <strong>{branchName || "All Branches"}</strong>
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsInboxModalOpen(false)}
-                style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, padding: 6, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 6, width: 28, height: 28, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
               >
-                <X size={18} />
+                <X size={15} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
+            <div style={{ padding: "16px 20px", overflowY: "auto", flex: 1 }}>
               
               {/* Date Filter Toolbar */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 18, background: "#f8fafc", padding: "10px 14px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 14, background: "#f8fafc", padding: "8px 12px", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                   <button
                     type="button"
                     onClick={() => shiftInboxDate(-1)}
-                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, padding: "5px 8px", cursor: "pointer", fontSize: "0.8rem", fontWeight: 700 }}
+                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#475569" }}
                     title="Previous Day"
                   >
-                    ◀ Prev
+                    <ChevronLeft size={15} />
                   </button>
                   <input
                     type="date"
                     value={inboxDate}
                     onChange={(e) => setInboxDate(e.target.value)}
-                    style={{ border: "1px solid #cbd5e1", borderRadius: 6, padding: "5px 10px", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", background: "#fff" }}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: 6, height: 30, padding: "0 8px", fontSize: "0.8rem", fontWeight: 600, color: "#0f172a", background: "#fff", outline: "none" }}
                   />
                   <button
                     type="button"
                     onClick={() => shiftInboxDate(1)}
-                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, padding: "5px 8px", cursor: "pointer", fontSize: "0.8rem", fontWeight: 700 }}
+                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#475569" }}
                     title="Next Day"
                   >
-                    Next ▶
+                    <ChevronRight size={15} />
                   </button>
                   <button
                     type="button"
@@ -736,25 +736,25 @@ export default function OwnerDashboard() {
                       const dd = String(d.getDate()).padStart(2, "0");
                       setInboxDate(`${yyyy}-${mm}-${dd}`);
                     }}
-                    style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontSize: "0.78rem", fontWeight: 700 }}
+                    style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 6, height: 30, padding: "0 10px", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, display: "flex", alignItems: "center" }}
                   >
                     Today
                   </button>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <button
                     type="button"
                     onClick={() => setShowQuickExpense(prev => !prev)}
-                    style={{ background: showQuickExpense ? "#e2e8f0" : "#0f172a", color: showQuickExpense ? "#0f172a" : "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                    style={{ background: showQuickExpense ? "#e2e8f0" : "#0f172a", color: showQuickExpense ? "#0f172a" : "#fff", border: "none", borderRadius: 6, height: 30, padding: "0 11px", fontSize: "0.76rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
                   >
-                    <Plus size={14} />
+                    <Plus size={13} />
                     {showQuickExpense ? "Close Form" : "Add Cash Expense"}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setIsInboxModalOpen(false); navigate("/admin/expenses"); }}
-                    style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: 8, padding: "6px 12px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+                    style={{ background: "#fff", border: "1px solid #cbd5e1", color: "#475569", borderRadius: 6, height: 30, padding: "0 10px", fontSize: "0.76rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center" }}
                   >
                     Manage All
                   </button>
@@ -763,25 +763,25 @@ export default function OwnerDashboard() {
 
               {/* Quick Expense Form (Collapsible) */}
               {showQuickExpense && (
-                <form onSubmit={handleAddQuickExpense} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px", marginBottom: 18 }}>
-                  <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#0f172a", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Wallet size={16} /> Record Petty Cash Outflow
+                <form onSubmit={handleAddQuickExpense} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#0f172a", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Wallet size={14} /> Record Petty Cash Outflow
                   </div>
-                  {quickError && <div style={{ background: "#fee2e2", color: "#dc2626", padding: "6px 10px", borderRadius: 6, fontSize: "0.8rem", marginBottom: 10 }}>{quickError}</div>}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 10 }}>
+                  {quickError && <div style={{ background: "#fee2e2", color: "#dc2626", padding: "5px 8px", borderRadius: 6, fontSize: "0.75rem", marginBottom: 8 }}>{quickError}</div>}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 8, marginBottom: 8 }}>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: 3 }}>Expense Title *</label>
+                      <label style={{ fontSize: "0.72rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 2 }}>Expense Title *</label>
                       <input
                         type="text"
-                        placeholder="e.g. Tea/Coffee, Salon Cleaning, Supplies"
+                        placeholder="e.g. Tea/Coffee, Supplies"
                         value={quickForm.title}
                         onChange={(e) => setQuickForm({ ...quickForm, title: e.target.value })}
                         required
-                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff" }}
+                        style={{ width: "100%", height: 30, padding: "0 8px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.8rem", background: "#fff", outline: "none" }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: 3 }}>Cash Amount (₹) *</label>
+                      <label style={{ fontSize: "0.72rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 2 }}>Cash Amount (₹) *</label>
                       <input
                         type="number"
                         min="1"
@@ -790,11 +790,11 @@ export default function OwnerDashboard() {
                         value={quickForm.amount}
                         onChange={(e) => setQuickForm({ ...quickForm, amount: e.target.value })}
                         required
-                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff", fontWeight: 700 }}
+                        style={{ width: "100%", height: 30, padding: "0 8px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.8rem", background: "#fff", fontWeight: 600, outline: "none" }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: 3 }}>Category</label>
+                      <label style={{ fontSize: "0.72rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 2 }}>Category</label>
                       <select
                         value={quickForm.categoryId}
                         onChange={(e) => {
@@ -804,7 +804,7 @@ export default function OwnerDashboard() {
                           }
                           setQuickForm({ ...quickForm, categoryId: e.target.value });
                         }}
-                        style={{ width: "100%", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.85rem", background: "#fff" }}
+                        style={{ width: "100%", height: 30, padding: "0 6px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: "0.8rem", background: "#fff", outline: "none" }}
                       >
                         <option value="">Select Category</option>
                         {inboxCategories.map((c) => (
@@ -814,87 +814,95 @@ export default function OwnerDashboard() {
                       </select>
                     </div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 8 }}>
                     <button
                       type="button"
                       onClick={() => setShowQuickExpense(false)}
-                      style={{ background: "transparent", border: "none", color: "#64748b", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", padding: "6px 12px" }}
+                      style={{ background: "transparent", border: "none", color: "#64748b", fontSize: "0.76rem", fontWeight: 600, cursor: "pointer", padding: "4px 8px" }}
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={quickSubmitting}
-                      style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 6, padding: "6px 16px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+                      style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 6, height: 28, padding: "0 12px", fontSize: "0.76rem", fontWeight: 600, cursor: "pointer" }}
                     >
-                      {quickSubmitting ? "Saving..." : "Save Petty Cash Entry"}
+                      {quickSubmitting ? "Saving..." : "Save Entry"}
                     </button>
                   </div>
                 </form>
               )}
 
               {quickSuccess && (
-                <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#065f46", padding: "8px 12px", borderRadius: 8, fontSize: "0.82rem", marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                  <CheckCircle2 size={16} /> {quickSuccess}
+                <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#065f46", padding: "6px 10px", borderRadius: 6, fontSize: "0.76rem", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                  <CheckCircle2 size={14} /> {quickSuccess}
                 </div>
               )}
 
               {/* 3 Summary KPI Cards: Plus, Minus, Equal */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, marginBottom: 14 }}>
                 {/* Cash In (+) */}
-                <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: "#10b981", fontSize: "16px", lineHeight: 1 }}>+</span> Cash Inflow</span>
-                    <span style={{ fontSize: "0.7rem", background: "#f1f5f9", color: "#475569", padding: "3px 8px", borderRadius: 12 }}>{inboxSummary.countIn} sales</span>
+                <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ color: "#16a34a", fontWeight: 800 }}>+</span> Cash Inflow
+                    </span>
+                    <span style={{ fontSize: "0.68rem", background: "#f1f5f9", color: "#475569", padding: "1px 6px", borderRadius: 10, fontWeight: 500 }}>
+                      {inboxSummary.countIn}
+                    </span>
                   </div>
-                  <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", marginTop: 6 }}>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", marginTop: 4 }}>
                     {formatMoney(inboxSummary.totalIn)}
                   </div>
                 </div>
 
                 {/* Cash Out (-) */}
-                <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: "#ef4444", fontSize: "16px", lineHeight: 1 }}>-</span> Cash Outflow</span>
-                    <span style={{ fontSize: "0.7rem", background: "#f1f5f9", color: "#475569", padding: "3px 8px", borderRadius: 12 }}>{inboxSummary.countOut} payouts</span>
+                <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ color: "#dc2626", fontWeight: 800 }}>-</span> Cash Outflow
+                    </span>
+                    <span style={{ fontSize: "0.68rem", background: "#f1f5f9", color: "#475569", padding: "1px 6px", borderRadius: 10, fontWeight: 500 }}>
+                      {inboxSummary.countOut}
+                    </span>
                   </div>
-                  <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", marginTop: 6 }}>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", marginTop: 4 }}>
                     {formatMoney(inboxSummary.totalOut)}
                   </div>
                 </div>
 
                 {/* Net In-Box Balance (=) */}
-                <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
-                    Net Cash Balance
+                <div style={{ background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: "#475569", textTransform: "uppercase" }}>
+                    Net Balance
                   </div>
-                  <div style={{ fontSize: "1.25rem", fontWeight: 900, color: "#0f172a", marginTop: 6 }}>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 800, color: Number(inboxSummary.netBalance || 0) < 0 ? "#dc2626" : "#0f172a", marginTop: 4 }}>
                     {formatMoney(inboxSummary.netBalance)}
                   </div>
                 </div>
               </div>
 
               {/* Transactions Ledger */}
-              <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, overflow: "hidden" }}>
-                <div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontWeight: 800, fontSize: "0.85rem", color: "#334155", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ padding: "8px 12px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontWeight: 600, fontSize: "0.78rem", color: "#475569", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span>Cash Ledger Breakdown ({inboxDate})</span>
                   <button
                     type="button"
                     onClick={() => fetchInboxData(inboxDate)}
-                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: "0.78rem" }}
+                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: "0.72rem", padding: "2px 6px" }}
                   >
-                    <RefreshCw size={12} className={inboxLoading ? "animate-spin" : ""} /> Refresh
+                    <RefreshCw size={11} className={inboxLoading ? "animate-spin" : ""} /> Refresh
                   </button>
                 </div>
 
-                <div style={{ maxHeight: 260, overflowY: "auto" }}>
-                                      {inboxLoading ? (
-                      <div style={{ padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, color: "#64748b" }}>
-                        <RefreshCw size={28} className="animate-spin" color="#cbd5e1" />
-                        <div style={{ fontSize: "0.85rem" }}>Loading cash ledger...</div>
-                      </div>
-                    ) : inboxTransactions.length === 0 ? (
-                    <div style={{ padding: "30px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
+                <div style={{ maxHeight: 220, overflowY: "auto" }}>
+                  {inboxLoading ? (
+                    <div style={{ padding: "30px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, color: "#64748b" }}>
+                      <RefreshCw size={22} className="animate-spin" color="#cbd5e1" />
+                      <div style={{ fontSize: "0.78rem" }}>Loading cash ledger...</div>
+                    </div>
+                  ) : inboxTransactions.length === 0 ? (
+                    <div style={{ padding: "24px", textAlign: "center", color: "#94a3b8", fontSize: "0.78rem" }}>
                       No cash sales or expenses recorded on {inboxDate}.
                     </div>
                   ) : (
@@ -905,33 +913,32 @@ export default function OwnerDashboard() {
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          padding: "12px 16px",
+                          padding: "8px 12px",
                           borderBottom: "1px solid #f1f5f9",
-                          background: tx.type === "INFLOW" ? "#f0fdf4" : "#fffafb"
+                          background: tx.type === "INFLOW" ? "#fcfdfc" : "#fffdfd"
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <div style={{
-                            width: 30,
-                            height: 30,
+                            width: 24,
+                            height: 24,
                             borderRadius: "50%",
                             background: tx.type === "INFLOW" ? "#dcfce7" : "#fee2e2",
                             color: tx.type === "INFLOW" ? "#16a34a" : "#dc2626",
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            fontWeight: 800
+                            justifyContent: "center"
                           }}>
-                            {tx.type === "INFLOW" ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                            {tx.type === "INFLOW" ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#0f172a" }}>{tx.title}</div>
-                            <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{tx.subtitle} • {tx.time || "Today"}</div>
+                            <div style={{ fontWeight: 600, fontSize: "0.8rem", color: "#0f172a" }}>{tx.title}</div>
+                            <div style={{ fontSize: "0.7rem", color: "#64748b" }}>{tx.subtitle} • {tx.time || "Today"}</div>
                           </div>
                         </div>
                         <div style={{
-                          fontWeight: 800,
-                          fontSize: "0.95rem",
+                          fontWeight: 700,
+                          fontSize: "0.85rem",
                           color: tx.type === "INFLOW" ? "#16a34a" : "#dc2626"
                         }}>
                           {tx.type === "INFLOW" ? "+" : "-"} {formatMoney(tx.amount)}
@@ -945,14 +952,14 @@ export default function OwnerDashboard() {
             </div>
 
             {/* Modal Footer */}
-            <div style={{ padding: "14px 24px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+            <div style={{ padding: "10px 20px", borderTop: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.72rem", color: "#64748b" }}>
                 Auto-calculated in real time from POS bills and cash expenses
               </span>
               <button
                 type="button"
                 onClick={() => setIsInboxModalOpen(false)}
-                style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 8, padding: "7px 18px", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+                style={{ background: "#0f172a", color: "#fff", border: "none", borderRadius: 6, height: 28, padding: "0 14px", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}
               >
                 Close
               </button>
