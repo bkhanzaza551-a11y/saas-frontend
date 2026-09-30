@@ -210,6 +210,48 @@ export default function PosPage() {
     }
   });
 
+  const [dismissedInvoiceIds, setDismissedInvoiceIds] = useState(() => new Set());
+
+  const clearRunningServiceForCustomer = useCallback((customerId, customerName, appointmentId, invoiceId) => {
+    setRunningServices((prev) => {
+      const next = prev.filter(rs => {
+        if (invoiceId && (rs.id === invoiceId || rs.invoiceNumber === invoiceId)) return false;
+        if (customerId && rs.form?.customerId === customerId) return false;
+        if (appointmentId && rs.form?.appointmentId === appointmentId) return false;
+        const cName = customerName ? String(customerName).toLowerCase().trim() : "";
+        if (cName) {
+          if (rs.customerName && rs.customerName.toLowerCase().trim() === cName) return false;
+          if (rs.guestSearchInput && rs.guestSearchInput.toLowerCase().trim() === cName) return false;
+        }
+        return true;
+      });
+      try {
+        localStorage.setItem("salonnest_pos_running", JSON.stringify(next));
+      } catch (e) {
+        console.error("Failed to update localStorage running services:", e);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleDismissActiveInvoice = useCallback((activeInv) => {
+    if (activeInv) {
+      setDismissedInvoiceIds(prev => {
+        const updated = new Set(prev);
+        if (activeInv.id) updated.add(activeInv.id);
+        if (activeInv.invoiceNumber) updated.add(activeInv.invoiceNumber);
+        return updated;
+      });
+      clearRunningServiceForCustomer(
+        activeInv.customerId,
+        activeInv.customerName,
+        activeInv.appointmentId,
+        activeInv.id || activeInv.invoiceNumber
+      );
+    }
+    setActiveServiceInvoice(null);
+  }, [clearRunningServiceForCustomer]);
+
   const addRunningService = (serviceData) => {
     const enriched = {
       ...serviceData,
@@ -291,13 +333,19 @@ export default function PosPage() {
         : [emptyPayment]
     }));
 
+    clearRunningServiceForCustomer(
+      activeInv.customerId,
+      activeInv.customerName,
+      activeInv.appointmentId,
+      activeInv.id || activeInv.invoiceNumber
+    );
     setActiveServiceInvoice(null);
     setToastMessage({
       type: "success",
       title: "Booking Loaded",
       message: `Loaded in-progress service ${activeInv.invoiceNumber || ""} into POS.`
     });
-  }, [context.customers, runningServices]);
+  }, [context.customers, runningServices, clearRunningServiceForCustomer]);
 
   const applyContext = useCallback((contextResponse, closingResponse, catRes, customerId, branchId) => {
     const branches = contextResponse?.data?.branches || [];
@@ -1001,6 +1049,7 @@ export default function PosPage() {
     if (form.customerId || (guestSearchInput && guestSearchInput.trim())) {
       const searchLower = (guestSearchInput || "").toLowerCase().trim();
       const localRunning = runningServices.find(rs => {
+        if (dismissedInvoiceIds.has(rs.id) || dismissedInvoiceIds.has(rs.invoiceNumber)) return false;
         if (form.customerId && rs.form?.customerId === form.customerId) return true;
         if (searchLower && rs.customerName && rs.customerName.toLowerCase() === searchLower) return true;
         if (searchLower && rs.guestSearchInput && rs.guestSearchInput.toLowerCase() === searchLower) return true;
@@ -1040,8 +1089,9 @@ export default function PosPage() {
       try {
         const res = await api.get(`/owner/invoices/active-by-customer/${form.customerId}`);
         const invoices = Array.isArray(res.data) ? res.data : [];
-        if (!cancelled && invoices.length > 0) { 
-          setActiveServiceInvoice(invoices[0]); 
+        const validInvoices = invoices.filter(inv => !dismissedInvoiceIds.has(inv.id) && !dismissedInvoiceIds.has(inv.invoiceNumber));
+        if (!cancelled && validInvoices.length > 0) { 
+          setActiveServiceInvoice(validInvoices[0]); 
         } else if (!cancelled) {
           setActiveServiceInvoice(null);
         }
@@ -1050,7 +1100,7 @@ export default function PosPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [form.customerId, guestSearchInput, runningServices, form.appointmentId]);
+  }, [form.customerId, guestSearchInput, runningServices, form.appointmentId, dismissedInvoiceIds]);
 
   // Auto-apply advance: when a customer with advance is selected and items exist,
   // auto-fill the ADVANCE payment up to min(advance, total). Only fills if the user
@@ -2002,6 +2052,25 @@ export default function PosPage() {
       setTipEntries([]);
       if (tipErrors.length > 0) {
         setToastMessage({ type: "error", title: "Tip Failed", message: `Tip could not be saved for: ${tipErrors.join(", ")}. Invoice was created successfully.` });
+      }
+
+      // Clean up running services immediately on complete
+      if (mode === "complete") {
+        clearRunningServiceForCustomer(
+          form.customerId,
+          guestSearchInput,
+          form.appointmentId,
+          activeServiceInvoice?.id || activeServiceInvoice?.invoiceNumber
+        );
+        if (activeServiceInvoice) {
+          setDismissedInvoiceIds(prev => {
+            const updated = new Set(prev);
+            if (activeServiceInvoice.id) updated.add(activeServiceInvoice.id);
+            if (activeServiceInvoice.invoiceNumber) updated.add(activeServiceInvoice.invoiceNumber);
+            return updated;
+          });
+        }
+        setActiveServiceInvoice(null);
       }
 
       if (mode === "complete" || mode === "start") {
@@ -3150,7 +3219,7 @@ export default function PosPage() {
             <button
               type="button"
               style={{ padding: "6px 10px", background: "transparent", border: "none", cursor: "pointer", color: "#854d0e", fontSize: 12, fontWeight: 600 }}
-              onClick={() => setActiveServiceInvoice(null)}
+              onClick={() => handleDismissActiveInvoice(activeServiceInvoice)}
             >
               Dismiss
             </button>
