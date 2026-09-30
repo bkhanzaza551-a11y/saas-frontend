@@ -122,7 +122,7 @@ export default function CheckoutPage() {
       const orderNumber = results[0]?.order?.orderNumber || results[0]?.orderNumber || `BK-${Date.now()}`;
       navigate(`/site/${salon.slug}/booking-confirmation?orderNumber=${orderNumber}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to place booking. Please try again.");
+      console.error(err); setError(err.response?.data?.message || err.message || JSON.stringify(err) || "Failed to place booking. Please try again.");
       setSubmitting(false);
     }
   };
@@ -552,3 +552,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
