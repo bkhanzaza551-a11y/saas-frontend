@@ -29,10 +29,11 @@ export default function CheckoutPage() {
     setValidatingCoupon(true);
     setCouponMsg("");
     try {
-      const res = await api.post(`/public/salons/${salon.slug}/cart/validate`, {
+      const res = await api.post(`/public/salons/${salon.slug}/coupons/validate`, {
         code: couponCode.trim(),
-        subtotal
-      });
+        subtotal,
+          serviceIds: bookings.map(b => b.serviceId || b.id)
+        });
       if (res.data?.valid) {
         setCouponDiscount(Number(res.data.discountAmount || 0));
         setCouponMsg({ text: res.data.message || `Coupon applied! Saved ${currency} ${res.data.discountAmount}`, type: "success" });
@@ -552,4 +553,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
 
