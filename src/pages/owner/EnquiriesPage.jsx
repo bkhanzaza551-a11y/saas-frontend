@@ -1548,52 +1548,62 @@ export default function EnquiriesPage() {
 
       {/* ── UPDATE STATUS MODAL ── */}
       {showActionModal && selectedEnquiry && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "460px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
-              <h2 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#1e293b" }}>Update Enquiry Status</h2>
-              <button onClick={() => setShowActionModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}><X size={18} /></button>
-            </div>
-            
-            <form onSubmit={handleUpdateStatusSubmit}>
-              <div style={{ display: "grid", gap: "14px", marginBottom: "18px" }}>
-                <div>
-                  <label className="eq-label">Customer Name</label>
-                  <input type="text" className="eq-input" disabled value={selectedEnquiry.name} style={{ background: "#f8fafc" }} />
-                </div>
-                <div>
-                  <label className="eq-label">Status</label>
-                  <CustomSelect 
-                    className="eq-input" 
-                    value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value)}
-                  >
-                    {STATUS_OPTIONS.map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </CustomSelect>
-                </div>
-                <div>
-                  <label className="eq-label">Notes / Follow-up Summary</label>
-                  <textarea 
-                    className="eq-input"
-                    rows={3}
-                    placeholder="Enter details about follow-up call, client response..."
-                    value={actionNotes}
-                    onChange={(e) => setActionNotes(e.target.value)}
-                    style={{ height: 60, padding: 8 }}
-                  />
-                </div>
+          <div className="modal-overlay" onClick={() => setShowActionModal(false)}>
+            <div className="modal-content" style={{ maxWidth: "460px" }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: "1px solid #f1f5f9", flexShrink: 0, background: "#ffffff" }}>
+                <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "750", color: "#0f172a" }}>Update Enquiry Status</h2>
+                <button 
+                  type="button"
+                  onClick={() => setShowActionModal(false)} 
+                  style={{ background: "#f1f5f9", border: "none", cursor: "pointer", color: "#64748b", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                >
+                  <X size={18} />
+                </button>
               </div>
               
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid #f1f5f9", paddingTop: "12px" }}>
-                <button type="button" className="eq-btn eq-btn-secondary" onClick={() => setShowActionModal(false)}>Cancel</button>
-                <button type="submit" className="eq-btn eq-btn-primary">Update Status</button>
-              </div>
-            </form>
+              <form onSubmit={handleUpdateStatusSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
+                <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
+                  <div style={{ display: "grid", gap: "16px" }}>
+                    <div>
+                      <label className="eq-label">Customer Name</label>
+                      <input type="text" className="eq-input" disabled value={selectedEnquiry.name} style={{ background: "#f8fafc" }} />
+                    </div>
+                    <div>
+                      <label className="eq-label">Status</label>
+                      <CustomSelect 
+                        className="eq-input" 
+                        value={newStatus}
+                        onChange={(e) => setNewStatus(e.target.value)}
+                      >
+                        {STATUS_OPTIONS.map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </CustomSelect>
+                    </div>
+                    <div>
+                      <label className="eq-label">Notes / Follow-up Summary</label>
+                      <textarea 
+                        className="eq-input"
+                        rows={3}
+                        placeholder="Enter details about follow-up call, client response..."
+                        value={actionNotes}
+                        onChange={(e) => setActionNotes(e.target.value)}
+                        style={{ height: 80, padding: 12, resize: "vertical" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid #e2e8f0", padding: "14px 24px", background: "#f8fafc", flexShrink: 0 }}>
+                  <button type="button" className="eq-btn eq-btn-secondary" onClick={() => setShowActionModal(false)}>Cancel</button>
+                  <button type="submit" className="eq-btn eq-btn-primary">Update Status</button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
     </div>
   );
