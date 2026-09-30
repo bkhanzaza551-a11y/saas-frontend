@@ -14,10 +14,10 @@ import {
   Calendar, Edit3, Trash2, X, Download, Upload, ChevronDown, Search,
   Clock, ArrowRight, Sparkles, ArrowLeft, Send, Check, MessageCircle,
   UserCheck, History, Tag, Building2, ChevronRight, CornerDownRight,
-  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle, LayoutGrid
+  Scissors, CheckCircle, ExternalLink, ShieldCheck, HelpCircle, LayoutGrid, MapPin, AlertCircle, AlignLeft, CheckCircle2, Mail, Phone, Zap
 } from "lucide-react";
 
-// Mapping between UI Status and DB Status
+// MapPin, AlertCircle, AlignLeft, CheckCircle2, Mail, Phone, Zapg between UI Status and DB Status
 // 4 Statuses: New, Follow up, Converted, Dropped
 const mapStatusToDb = (uiStatus) => {
   switch (uiStatus) {
@@ -850,7 +850,7 @@ export default function EnquiriesPage() {
                     <div className="spec-value">{detailData.source || "-"}</div>
                   </div>
                   <div className="spec-item" style={{ background: "white", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
-                    <div className="spec-label"><MapPin size={14}/> Branch</div>
+                    <div className="spec-label"><MapPin, AlertCircle, AlignLeft, CheckCircle2, Mail, Phone, Zap size={14}/> Branch</div>
                     <div className="spec-value">{detailData.branch?.name || "Global"}</div>
                   </div>
                   <div className="spec-item" style={{ background: "white", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
