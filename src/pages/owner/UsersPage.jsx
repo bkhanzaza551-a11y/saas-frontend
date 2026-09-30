@@ -144,8 +144,8 @@ export default function UsersPage() {
     setResendingStaffOtp(true);
     setStatus((c) => ({ ...c, error: "" }));
     try {
-      await api.post("/owner/users/send-staff-otp", { phone: form.phone });
-      setStatus((c) => ({ ...c, success: `Fresh 6-digit OTP sent to ${form.phone}` }));
+      const { data } = await api.post("/owner/users/send-staff-otp", { phone: form.phone });
+      setStatus((c) => ({ ...c, success: `Fresh 6-digit OTP sent to ${form.phone}. (Testing OTP: ${data.otpCode})` }));
       setResendStaffCountdown(30);
     } catch (err) {
       setStatus((c) => ({ ...c, error: formatApiError(err, "Failed to resend verification code.") }));
@@ -191,8 +191,8 @@ export default function UsersPage() {
     setUnverifiedSubmitting(true);
     setStatus((c) => ({ ...c, error: "", success: "" }));
     try {
-      await api.post("/owner/users/send-staff-otp", { phone: unverifiedForm.phone });
-      setStatus((c) => ({ ...c, success: `Verification OTP sent to ${unverifiedForm.phone}` }));
+      const { data } = await api.post("/owner/users/send-staff-otp", { phone: unverifiedForm.phone });
+      setStatus((c) => ({ ...c, success: `Verification OTP sent to ${unverifiedForm.phone}. (Testing OTP: ${data.otpCode})` }));
       setUnverifiedStep(2);
       setUnverifiedResendCountdown(30);
     } catch (err) {
@@ -676,8 +676,8 @@ export default function UsersPage() {
       
       setSubmittingStaff(true);
       if (staffOtpStep === 1) {
-        await api.post("/owner/users/send-staff-otp", { phone: form.phone });
-        setStatus((current) => ({ ...current, success: `Verification code sent to ${form.phone}`, error: "" }));
+        const { data } = await api.post("/owner/users/send-staff-otp", { phone: form.phone });
+        setStatus((current) => ({ ...current, success: `Verification code sent to ${form.phone}. (Testing OTP: ${data.otpCode})`, error: "" }));
         setStaffOtpStep(2);
         setResendStaffCountdown(30);
         return;
