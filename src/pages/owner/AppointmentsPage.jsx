@@ -1076,11 +1076,6 @@ export default function AppointmentsPage() {
     event.preventDefault();
     if (!editMode || !editingAppointmentId) return;
     
-    if (form.convertedInvoiceId) {
-      navigate(`/admin/pos-dashboard/${form.convertedInvoiceId}?from=/admin/appointments`);
-      return;
-    }
-    
     const targetId = editingAppointmentId;
     setIsCreateModalOpen(false);
     navigate(`/admin/pos?appointmentId=${targetId}&mode=booking`);
@@ -2619,13 +2614,13 @@ export default function AppointmentsPage() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                     <button type="submit" className="sp-btn-primary">Update</button>
                     {form.status !== "CANCELLED" && (
-                      <button type="button" className="sp-btn-primary" style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }} onClick={handleCancelAppointment}>Cancel Appt</button>
+                      <button type="button" className="sp-btn-primary" onClick={handleCancelAppointment}>Cancel Appt</button>
                     )}
                     {form.status !== "IN_PROGRESS" && form.status !== "COMPLETED" && (
-                      <button type="button" className="sp-btn-primary" style={{ background: "#f97316", borderColor: "#f97316" }} onClick={handleCheckIn}>Start Service</button>
+                      <button type="button" className="sp-btn-primary" onClick={handleCheckIn}>Start Service</button>
                     )}
-                    <button type="button" className="sp-btn-primary" style={{ background: "#10b981", borderColor: "#10b981", gridColumn: (form.status === "IN_PROGRESS" || form.status === "COMPLETED") ? "1 / -1" : undefined }} onClick={handleGenerateBill}>
-                      {form.convertedInvoiceId ? "View Invoice" : "Complete & Bill"}
+                    <button type="button" className="sp-btn-primary" style={{ gridColumn: (form.status === "IN_PROGRESS" || form.status === "COMPLETED") ? "1 / -1" : undefined }} onClick={handleGenerateBill}>
+                      Complete & Bill
                     </button>
                   </div>
                 ) : (
