@@ -83,15 +83,31 @@ export default function CheckoutPage() {
       const results = [];
       for (const booking of bookings) {
         for (let i = 0; i < (booking.qty || 1); i++) {
+          const startAtDate = new Date(`${booking.date}T${booking.time}:00`);
+          const endAtDate = new Date(startAtDate.getTime() + 60 * 60 * 1000); // 1 hour
+          const bId = booking.branchId || salon?.branches?.[0]?.id;
+          if (!bId) throw new Error("No active branch found for booking. Please select a valid branch or contact salon.");
+
           const payload = {
-            serviceId: booking.serviceId || booking.id,
             customerName,
             customerPhone: formattedPhone,
             customerEmail: form.email ? form.email.trim() : undefined,
+            primaryStaffUserId: booking.staffId || null,
+            branchId: bId,
+            notes: form.note ? form.note.trim() : undefined,
+            startAt: startAtDate.toISOString(),
+            endAt: endAtDate.toISOString(),
+            items: [{
+              serviceId: booking.serviceId || booking.id,
+              staffUserId: booking.staffId || null,
+              startAt: startAtDate.toISOString(),
+              endAt: endAtDate.toISOString()
+            }],
+            // For backward compatibility:
+            serviceId: booking.serviceId || booking.id,
             preferredDate: booking.date,
             preferredTime: booking.time,
             staffId: booking.staffId || null,
-            branchId: booking.branchId || salon?.branches?.[0]?.id || null,
             note: form.note ? form.note.trim() : undefined,
             paymentMode: form.paymentMode,
             couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
