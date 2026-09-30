@@ -91,7 +91,7 @@ export default function CheckoutPage() {
             preferredDate: booking.date,
             preferredTime: booking.time,
             staffId: booking.staffId || null,
-            branchId: booking.branchId || null,
+            branchId: booking.branchId || salon?.branches?.[0]?.id || null,
             note: form.note ? form.note.trim() : undefined,
             paymentMode: form.paymentMode,
             couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
