@@ -99,26 +99,30 @@ export default function MyAttendanceHistoryPage() {
   return (
     <div className="page-shell">
       <ModuleTabs
-        title="My Attendance"
-        description="View your personal attendance history, check-in/check-out times, and working hours."
         items={[
-          { label: "My Dashboard", to: "/admin/my-dashboard", hint: "Overview" },
-          { label: "My Attendance", to: "/admin/my-attendance", hint: "History" },
-          { label: "My Appointments", to: "/admin/my-appointments", hint: "Bookings" },
-          { label: "My Schedule", to: "/admin/my-schedule", hint: "Hours" },
-          { label: "My Profile", to: "/admin/my-profile", hint: "Profile" }
+          { label: "My Dashboard", to: "/admin/my-dashboard" },
+          { label: "My Attendance", to: "/admin/my-attendance" },
+          { label: "My Appointments", to: "/admin/my-appointments" },
+          { label: "My Schedule", to: "/admin/my-schedule" },
+          { label: "My Profile", to: "/admin/my-profile" }
         ]}
       />
-      <div className="hero-card" style={{ padding: 24, marginBottom: 20, background: "linear-gradient(135deg, rgba(14,165,233,0.10), rgba(59,130,246,0.08), rgba(255,255,255,0.92))" }}>
-        <div className="item-head">
+      <div className="hero-card" style={{ padding: "24px 28px", marginBottom: 20, borderRadius: 16, background: "linear-gradient(135deg, rgba(14,165,233,0.10), rgba(59,130,246,0.08), rgba(255,255,255,0.92))", border: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <h1 style={{ marginTop: 0 }}>My Attendance</h1>
-            <p style={{ marginBottom: 0 }}>Your personal attendance history with check-in/check-out times and working hours.</p>
+            <h1 style={{ margin: "0 0 6px 0", fontSize: 24, fontWeight: 800, color: "#0f172a" }}>My Attendance</h1>
+            <p style={{ margin: 0, color: "#475569", fontSize: 14 }}>Your personal attendance history with check-in/check-out times and working hours.</p>
           </div>
-          <div className="badge-row">
-            <span className="badge"><CalendarDays size={13} /> Total {stats.total}</span>
-            <span className="badge"><CheckCircle2 size={13} /> Present {stats.present}</span>
-            <span className="badge"><Clock size={13} /> Hours {formatHours(stats.totalMinutes)}</span>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 20, background: "#ffffff", border: "1px solid #cbd5e1", fontSize: 13, fontWeight: 700, color: "#334155", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+              <CalendarDays size={14} color="#0284c7" /> Total {stats.total}
+            </span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 20, background: "#ffffff", border: "1px solid #bbf7d0", fontSize: 13, fontWeight: 700, color: "#166534", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+              <CheckCircle2 size={14} color="#16a34a" /> Present {stats.present}
+            </span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 20, background: "#ffffff", border: "1px solid #cbd5e1", fontSize: 13, fontWeight: 700, color: "#334155", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+              <Clock size={14} color="#0284c7" /> Hours {formatHours(stats.totalMinutes)}
+            </span>
           </div>
         </div>
       </div>

@@ -598,13 +598,12 @@ export default function MyDashboardPage() {
   return (
     <div className="page-shell">
       <ModuleTabs
-        title="My Dashboard"
-        description="Staff-scoped summary for assigned bookings, attendance actions, and quick daily awareness."
         items={[
-          { label: "My Dashboard", to: "/admin/my-dashboard", hint: "Today" },
-          { label: "My Appointments", to: "/admin/my-appointments", hint: "Bookings" },
-          { label: "My Schedule", to: "/admin/my-schedule", hint: "Hours" },
-          { label: "My Profile", to: "/admin/my-profile", hint: "Profile" }
+          { label: "My Dashboard", to: "/admin/my-dashboard" },
+          { label: "My Attendance", to: "/admin/my-attendance" },
+          { label: "My Appointments", to: "/admin/my-appointments" },
+          { label: "My Schedule", to: "/admin/my-schedule" },
+          { label: "My Profile", to: "/admin/my-profile" }
         ]}
       />
 

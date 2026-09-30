@@ -41,13 +41,12 @@ export default function MyAppointmentsPage() {
   return (
     <div className="page-shell">
       <ModuleTabs
-        title="My Appointments"
-        description="Only your assigned bookings are visible here unless broader permissions are granted."
         items={[
-          { label: "My Dashboard", to: "/admin/my-dashboard", hint: "Overview" },
-          { label: "My Appointments", to: "/admin/my-appointments", hint: "Bookings" },
-          { label: "My Schedule", to: "/admin/my-schedule", hint: "Hours" },
-          { label: "My Profile", to: "/admin/my-profile", hint: "Profile" }
+          { label: "My Dashboard", to: "/admin/my-dashboard" },
+          { label: "My Attendance", to: "/admin/my-attendance" },
+          { label: "My Appointments", to: "/admin/my-appointments" },
+          { label: "My Schedule", to: "/admin/my-schedule" },
+          { label: "My Profile", to: "/admin/my-profile" }
         ]}
       />
       

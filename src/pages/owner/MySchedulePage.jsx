@@ -19,13 +19,12 @@ export default function MySchedulePage() {
   return (
     <div className="page-shell">
       <ModuleTabs
-        title="My Schedule"
-        description="Your working hours and break windows are scoped to your own membership."
         items={[
-          { label: "My Dashboard", to: "/admin/my-dashboard", hint: "Overview" },
-          { label: "My Appointments", to: "/admin/my-appointments", hint: "Bookings" },
-          { label: "My Schedule", to: "/admin/my-schedule", hint: "Hours" },
-          { label: "My Profile", to: "/admin/my-profile", hint: "Profile" }
+          { label: "My Dashboard", to: "/admin/my-dashboard" },
+          { label: "My Attendance", to: "/admin/my-attendance" },
+          { label: "My Appointments", to: "/admin/my-appointments" },
+          { label: "My Schedule", to: "/admin/my-schedule" },
+          { label: "My Profile", to: "/admin/my-profile" }
         ]}
       />
       {/* Hero Banner */}
