@@ -80,10 +80,30 @@ const toLocalDatetimeInput = (dateVal) => {
 
 const getBookingDisplayId = (appt) => {
   if (!appt) return "#000000";
-  const match = (appt.notes || "").match(/\[Order:\s*([A-Za-z0-9_-]+)\]/);
-  if (match && match[1]) return `#${match[1]}`;
+  if (appt.orderNumber) {
+    const raw = String(appt.orderNumber).trim();
+    return raw.startsWith("#") ? raw : `#${raw}`;
+  }
+  if (appt.bookingNumber) {
+    const raw = String(appt.bookingNumber).trim();
+    return raw.startsWith("#") ? raw : `#${raw}`;
+  }
+  const notes = String(appt.notes || "");
+  const bkMatch = notes.match(/\b(BK-[0-9A-Za-z_-]+)\b/) || notes.match(/(BK-[0-9]+)/);
+  if (bkMatch && bkMatch[1]) return `#${bkMatch[1]}`;
+
+  const ordMatch = notes.match(/\b(ORD-[0-9A-Za-z_-]+)\b/);
+  if (ordMatch && ordMatch[1]) return `#${ordMatch[1]}`;
+
+  const bookingTagMatch = notes.match(/\[Booking:\s*([A-Za-z0-9_-]+)\]/i);
+  if (bookingTagMatch && bookingTagMatch[1]) return `#${bookingTagMatch[1]}`;
+
+  const orderTagMatch = notes.match(/\[Order:\s*([A-Za-z0-9_-]+)\]/i);
+  if (orderTagMatch && orderTagMatch[1]) return `#${orderTagMatch[1]}`;
+
   return `#${(appt.id || "").replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}`;
 };
+
 
 const formatTimeForSelect = (value) => {
   if (!value) return "";
