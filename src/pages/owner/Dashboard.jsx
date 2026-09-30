@@ -178,7 +178,7 @@ export default function OwnerDashboard() {
         expenseDate: new Date(inboxDate + "T12:00:00").toISOString(),
         paymentMode: "CASH",
         status: "APPROVED",
-        notes: quickForm.notes.trim() || "Recorded from Inbox Petty Cash"
+        notes: quickForm.notes?.trim() || "Recorded from Inbox Petty Cash"
       });
 
       setQuickForm({ title: "", amount: "", categoryId: "", notes: "" });
