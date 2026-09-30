@@ -26,7 +26,6 @@ const ALL_REPORTS = [
 
   // 3. Customers
   { key: "customers", label: "Customer Collection", group: "Customers" },
-  { key: "feedback", label: "Feedback", group: "Customers" },
 
   // 4. Memberships & Promotions
   { key: "memberships", label: "Memberships Sold", group: "Memberships & Promotions" },
@@ -65,7 +64,6 @@ const COLUMNS = {
   pnl_report: ["NAME", "PROFIT", "LOSS"],
   customers: ["SR. NO.", "CUSTOMER NAME", "CUSTOMER NUMBER", "COUNT", "TAXES", "GIFT CARD", "COUPON", "REFERRAL", "LOYALTY", "BALANCE PENDING", "ADVANCE UTILIZED", "PACKAGE REDEMPTION", "BALANCE CLEARED", "MEMBERSHIP REDEMPTION", "ONLINE", "OFFLINE", "TOTAL"],
   service_reminder: ["SR. NO.", "Customer", "Phone", "Last Service", "Service", "Due Date", "Status"],
-  feedback: ["SR. NO.", "Date", "Customer", "Phone", "Staff", "Service", "Rating", "Comment", "Status"],
   guest_followups: ["Customer", "Phone", "Last Visit", "Days Since", "Follow-up Status"],
   appointments: ["Date", "Customer", "Service", "Staff", "Branch", "Status", "Amount"],
   staff_attendance: ["SR. NO.", "Staff", "Designation", "Staff Number", "Total Working Hours", "Days Present"],
@@ -173,7 +171,6 @@ const REPORT_FILTERS = {
     { key: "productId", label: "Item", type: "select", endpoint: "/owner/inventory/products", optionLabel: "name" }
   ],
   service_reminder: [],
-  feedback: [],
   monthly_sale: [],
   staff_attendance: [
     { key: "stylistId", label: "Stylist", type: "select", endpoint: "/owner/staff-users", optionLabel: "name", defaultLabel: "All" }
@@ -192,7 +189,7 @@ const REPORTS_WITH_CHARTS = new Set([
   "sales_summary", "product_sales", "service_sales", "customers", "staff_performance",
   "monthly_sale", "day_wise", "memberships", "packages", "gift_card_sold",
   "membership_redemption", "package_redemption", "tip_report", "appointments",
-  "daily_stock", "feedback", "pnl_report",
+  "daily_stock", "pnl_report",
   "balance_received", "advance_received", "coupon_redemption", "complimentary",
   "cancelled_invoices", "service_reminder", "guest_followups", "gst_returns",
   "gst_outwards", "stock_transaction", "staff_attendance", "gift_card_redemption"
@@ -217,7 +214,6 @@ const REPORT_ENDPOINTS = {
   service_sales: "/reports/service-sales",
   service_reminder: "/owner/reports/service-reminder",
   customers: "/reports/customers",
-  feedback: "/owner/reports/feedback",
   staff_performance: "/reports/staff-performance",
   monthly_sale: "/reports/sales-summary-list",
   staff_attendance: "/owner/reports/staff-attendance",
