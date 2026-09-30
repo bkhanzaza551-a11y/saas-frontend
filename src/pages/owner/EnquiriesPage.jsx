@@ -850,7 +850,7 @@ export default function EnquiriesPage() {
                     <div className="spec-value">{detailData.source || "-"}</div>
                   </div>
                   <div className="spec-item" style={{ background: "white", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
-                    <div className="spec-label"><MapPin, AlertCircle, AlignLeft, CheckCircle2, Mail, Phone, Zap size={14}/> Branch</div>
+                    <div className="spec-label"><MapPin size={14}/> Branch</div>
                     <div className="spec-value">{detailData.branch?.name || "Global"}</div>
                   </div>
                   <div className="spec-item" style={{ background: "white", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
