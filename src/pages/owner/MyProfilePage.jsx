@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { MapPin, Globe, EyeOff, Scissors, Edit, User, Save, CheckCircle2, XCircle, Sparkles, Check, Smartphone, Mail, Tag, Calendar } from "lucide-react";
 import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import ModuleTabs from "../../components/ModuleTabs";
@@ -135,7 +136,7 @@ export default function MyProfilePage() {
                   />
                 ) : (
                   <div style={{ width: 88, height: 88, borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 800, color: "#fff", border: "3px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-                    {initials || "👤"}
+                    {initials || <User size={30} />}
                   </div>
                 )}
                 <div style={{ position: "absolute", bottom: 2, right: 2, width: 18, height: 18, borderRadius: "50%", background: "#10b981", border: "2px solid #0f172a" }} />
@@ -150,13 +151,12 @@ export default function MyProfilePage() {
                     {role}
                   </span>
                   <span style={{ background: "rgba(139,92,246,0.2)", color: "#c4b5fd", padding: "4px 14px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid rgba(139,92,246,0.3)" }}>
-                    📍 {branch}
+                    <MapPin size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "-2px" }} /> {branch}
                   </span>
                   <span style={{ background: profileMeta?.showInCatalog ? "rgba(16,185,129,0.2)" : "rgba(100,116,139,0.2)", color: profileMeta?.showInCatalog ? "#6ee7b7" : "#94a3b8", padding: "4px 14px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: `1px solid ${profileMeta?.showInCatalog ? "rgba(16,185,129,0.3)" : "rgba(100,116,139,0.3)"}` }}>
-                    {profileMeta?.showInCatalog ? "🌐 Visible in catalog" : "🔒 Hidden from catalog"}
+                    {profileMeta?.showInCatalog ? <><Globe size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "-2px" }} /> Visible in catalog</> : <><EyeOff size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "-2px" }} /> Hidden from catalog</>}
                   </span>
-                  <span style={{ background: "rgba(245,158,11,0.15)", color: "#fcd34d", padding: "4px 14px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid rgba(245,158,11,0.25)" }}>
-                    🎯 {services.length} services
+                  <span style={{ background: "rgba(245,158,11,0.15)", color: "#fcd34d", padding: "4px 14px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid rgba(245,158,11,0.25)" }}><Scissors size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "-2px" }} /> {services.length} services
                   </span>
                 </div>
               </div>
@@ -181,11 +181,11 @@ export default function MyProfilePage() {
           <div className="profile-split-grid">
             {/* Left Column: Edit Form + Assigned Services */}
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              {/* Edit Profile Card */}
+            {/* Edit Profile Card */}
               <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)" }}>
                 <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid #f1f5f9" }}>
                   <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 20 }}>✏️</span> Edit Profile
+                    <Edit size={20} /> Edit Profile
                   </h2>
                   <p style={{ margin: "6px 0 0", color: "#64748b", fontSize: 14 }}>Update your contact info and bio</p>
                 </div>
@@ -202,7 +202,7 @@ export default function MyProfilePage() {
                       {form.avatarUrl && !imgError ? (
                         <img src={form.avatarUrl} alt="" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", border: "2px solid #e2e8f0" }} onError={() => setImgError(true)} />
                       ) : (
-                        <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px dashed #cbd5e1" }}>👤</div>
+                        <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px dashed #cbd5e1" }}><User size={24} color="#94a3b8" /></div>
                       )}
                       <label style={{ cursor: "pointer", background: "#f8fafc", border: "1px solid #cbd5e1", padding: "8px 16px", borderRadius: 6, fontSize: 14, fontWeight: 500, color: "#334155", display: "inline-flex", alignItems: "center" }}>
                         {imageUploading ? "Uploading..." : "Choose Photo"}
@@ -229,16 +229,14 @@ export default function MyProfilePage() {
                       disabled={saving}
                       style={{ padding: "12px 32px", background: saving ? "#93c5fd" : "linear-gradient(135deg, #3b82f6, #2563eb)", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: saving ? "not-allowed" : "pointer", boxShadow: "0 4px 12px rgba(59,130,246,0.25)", transition: "all 0.2s" }}
                     >
-                      {saving ? "Saving..." : "💾 Save Changes"}
+                      {saving ? "Saving..." : <><Save size={16} /> Save Changes</>}
                     </button>
                     {status === "success" && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#059669", fontWeight: 700, fontSize: 14, background: "#ecfdf5", padding: "8px 16px", borderRadius: 8, border: "1px solid #bbf7d0" }}>
-                        ✓ Profile updated!
+                      <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#059669", fontWeight: 700, fontSize: 14, background: "#ecfdf5", padding: "8px 16px", borderRadius: 8, border: "1px solid #bbf7d0" }}><CheckCircle2 size={16} /> Profile updated!
                       </span>
                     )}
                     {status === "error" && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#dc2626", fontWeight: 700, fontSize: 14, background: "#fef2f2", padding: "8px 16px", borderRadius: 8, border: "1px solid #fecaca" }}>
-                        ✗ Could not save
+                      <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#dc2626", fontWeight: 700, fontSize: 14, background: "#fef2f2", padding: "8px 16px", borderRadius: 8, border: "1px solid #fecaca" }}><XCircle size={16} /> Could not save
                       </span>
                     )}
                   </div>
@@ -248,15 +246,14 @@ export default function MyProfilePage() {
               {/* Assigned Services Card (Moved to Left Column under form) */}
               <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)" }}>
                 <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span>🎯</span> Assigned Services
+                  <span><Sparkles size={18} /></span> Assigned Services
                   <span style={{ marginLeft: "auto", background: "#eff6ff", color: "#3b82f6", fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 12 }}>{services.length}</span>
                 </h3>
                 <p style={{ margin: "0 0 16px", color: "#94a3b8", fontSize: 12 }}>Services you are linked to perform</p>
                 {services.length > 0 ? (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {services.map((item) => (
-                      <span key={item.id} style={{ background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0", padding: "5px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                        ✓ {item.service?.name}
+                      <span key={item.id} style={{ background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0", padding: "5px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}><Check size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "-2px" }} /> {item.service?.name}
                       </span>
                     ))}
                   </div>
@@ -271,20 +268,20 @@ export default function MyProfilePage() {
               {/* Profile Info */}
               <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)" }}>
                 <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span>🪪</span> Profile Snapshot
+                  <span><User size={18} /></span> Profile Snapshot
                 </h3>
                 <p style={{ margin: "0 0 16px", color: "#94a3b8", fontSize: 12 }}>Your current account identity</p>
-                <InfoRow icon="👤" label="Full Name" value={profileMeta?.user?.name || "—"} />
-                <InfoRow icon="📧" label="Email" value={profileMeta?.user?.email || "—"} />
-                <InfoRow icon="🏷️" label="Role" value={role} />
-                <InfoRow icon="📍" label="Branch" value={branch} />
-                <InfoRow icon="🌐" label="Catalog visibility" value={profileMeta?.showInCatalog ? "Visible to customers" : "Hidden from catalog"} />
+                <InfoRow icon={<User size={16} />} label="Full Name" value={profileMeta?.user?.name || "—"} />
+                <InfoRow icon={<Mail size={16} />} label="Email" value={profileMeta?.user?.email || "—"} />
+                <InfoRow icon={<Tag size={16} />} label="Role" value={role} />
+                <InfoRow icon={<MapPin size={16} />} label="Branch" value={branch} />
+                <InfoRow icon={<Globe size={16} />} label="Catalog visibility" value={profileMeta?.showInCatalog ? "Visible to customers" : "Hidden from catalog"} />
               </div>
 
               {/* Recent Attendance */}
               <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.05)", border: "1px solid rgba(226,232,240,0.8)" }}>
                 <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span>📅</span> Recent Attendance
+                  <Calendar size={18} /> Recent Attendance
                 </h3>
                 <p style={{ margin: "0 0 16px", color: "#94a3b8", fontSize: 12 }}>Last 10 attendance records</p>
                 {attendanceHistory.length > 0 ? (
