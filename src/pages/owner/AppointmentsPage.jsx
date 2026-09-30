@@ -753,8 +753,8 @@ export default function AppointmentsPage() {
     setStaffAvailabilityLoading(true);
     api.get("/owner/appointments/staff-availability", {
       params: {
-        startAt: new Date(assignStartAt + "+05:30").toISOString(),
-        endAt: new Date(assignEndAt + "+05:30").toISOString(),
+        startAt: assignStartAt ? (assignStartAt.includes("+") || assignStartAt.includes("Z") ? new Date(assignStartAt).toISOString() : new Date(assignStartAt + "+05:30").toISOString()) : new Date().toISOString(),
+        endAt: assignEndAt ? (assignEndAt.includes("+") || assignEndAt.includes("Z") ? new Date(assignEndAt).toISOString() : new Date(assignEndAt + "+05:30").toISOString()) : new Date().toISOString(),
         branchId: assigningAppt.branchId || selectedBranchId || undefined,
         excludeAppointmentId: assigningAppt.id
       }

@@ -489,7 +489,7 @@ export default function InventoryPage() {
   ), 0);
   const poCounts = useMemo(() => {
     const dateFiltered = orders.filter(o => {
-      const oDate = new Date(o.createdAt || o.orderedAt).toISOString().slice(0, 10);
+      const rawDate = o.createdAt || o.orderedAt; const oDate = rawDate ? new Date(rawDate).toISOString().slice(0, 10) : "";
       return oDate >= poFromDate && oDate <= poToDate;
     });
     return {
@@ -505,7 +505,7 @@ export default function InventoryPage() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter(o => {
-      const oDate = new Date(o.createdAt || o.orderedAt).toISOString().slice(0, 10);
+      const rawDate = o.createdAt || o.orderedAt; const oDate = rawDate ? new Date(rawDate).toISOString().slice(0, 10) : "";
       const inDateRange = oDate >= poFromDate && oDate <= poToDate;
       if (!inDateRange) return false;
 

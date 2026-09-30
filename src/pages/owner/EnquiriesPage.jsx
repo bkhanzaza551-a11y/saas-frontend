@@ -259,7 +259,7 @@ export default function EnquiriesPage() {
         interestedServiceId: form.interestedServiceId || null,
         interestedBranchId: selectedBranchId || (branches.length > 0 ? branches[0].id : null),
         priority: form.priority.toUpperCase(),
-        followUpAt: new Date(form.followUpAt).toISOString(),
+        followUpAt: form.followUpAt && !isNaN(new Date(form.followUpAt).getTime()) ? new Date(form.followUpAt).toISOString() : new Date().toISOString(),
         notes: form.notes?.trim() || null
       };
 
@@ -560,7 +560,7 @@ export default function EnquiriesPage() {
               interestedServiceId: matchedSvc?.id || null,
               interestedBranchId: selectedBranchId || (branches.length > 0 ? branches[0].id : null),
               priority: (prioVal || "MEDIUM").toUpperCase(),
-              followUpAt: new Date(followVal).toISOString(),
+              followUpAt: followVal && !isNaN(new Date(followVal).getTime()) ? new Date(followVal).toISOString() : new Date().toISOString(),
               notes: notesVal || null
             });
             successCount++;

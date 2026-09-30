@@ -102,7 +102,7 @@ export default function OwnerDashboard() {
       // Cash Inflows: payments with mode === 'CASH' on targetDate
       const dateInflows = payments.filter((p) => {
         if (!p.createdAt) return false;
-        const pDate = new Date(p.createdAt).toISOString().slice(0, 10);
+        const pDate = p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : "";
         const mode = String(p.mode || "").toUpperCase();
         return pDate === targetDate && (mode === "CASH" || mode === "");
       }).map((p) => ({
@@ -119,7 +119,7 @@ export default function OwnerDashboard() {
       // Cash Outflows: expenses with paymentMode === 'CASH' on targetDate
       const dateOutflows = expenses.filter((e) => {
         if (!e.expenseDate) return false;
-        const eDate = new Date(e.expenseDate).toISOString().slice(0, 10);
+        const eDate = e.expenseDate ? new Date(e.expenseDate).toISOString().slice(0, 10) : (e.createdAt ? new Date(e.createdAt).toISOString().slice(0, 10) : "");
         const mode = String(e.paymentMode || "").toUpperCase();
         return eDate === targetDate && (mode === "CASH" || !mode || mode === "NULL");
       }).map((e) => ({
