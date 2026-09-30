@@ -399,10 +399,14 @@ const getCellValue = (row, col) => {
     if (row.guestName) return row.guestName;
   }
   if (col === "CUSTOMER NAME") {
+    if (row["GUEST NAME"]) return row["GUEST NAME"];
+    if (row["CUSTOMER NAME"]) return row["CUSTOMER NAME"];
     if (row.customer?.name) return row.customer.name;
     if (row.guestName) return row.guestName;
   }
   if (col === "CUSTOMER NUMBER") {
+    if (row["GUEST NUMBER"]) return row["GUEST NUMBER"];
+    if (row["CUSTOMER NUMBER"]) return row["CUSTOMER NUMBER"];
     if (row.customer?.phone) return row.customer.phone;
     if (row.guestNumber) return row.guestNumber;
   }
