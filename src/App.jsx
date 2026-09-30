@@ -434,10 +434,15 @@ const OwnerRoute = ({ moduleKey, action = "view", featureKey, element }) => {
     );
   }
 
+  const salonRole = auth.membership?.salonRole || "";
+  const customRoleName = (auth.membership?.customRole?.name || "").toUpperCase();
+  const roleTitle = (auth.membership?.roleTitle || "").toUpperCase();
+  const isManager = salonRole === "SALON_MANAGER" || salonRole === "MANAGER" || customRoleName.includes("MANAGER") || roleTitle.includes("MANAGER");
+
   const permissions = auth.membership?.permissions || {};
   const featureFlags = auth.membership?.featureFlags || {};
   const planFlags = auth.membership?.plan?.featureFlags || {};
-  const allowed = Array.isArray(permissions[moduleKey]) && permissions[moduleKey].includes(action);
+  const allowed = isOwner || isManager || (Array.isArray(permissions[moduleKey]) && permissions[moduleKey].includes(action)) || (moduleKey === "manage" && (permissions.manage || permissions.settings || permissions.staff || permissions.services || permissions.inventory));
   const enabled = featureKey ? featureFlags[featureKey] !== false : true;
   const isPlanRestricted = featureKey && auth.membership?.plan && planFlags[featureKey] === false;
 
@@ -760,7 +765,7 @@ export default function App() {
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/view-live-site" element={<ViewLiveSiteRedirect />} />
-          <Route path="/admin/manage" element={<OwnerRoute moduleKey="settings" action="edit" element={<ManagePage />} />} />
+          <Route path="/admin/manage" element={<OwnerRoute moduleKey="manage" action="view" element={<ManagePage />} />} />
           <Route path="/admin/product-requirements" element={<OwnerRoute moduleKey="inventory" element={<ProductsRequirementPage />} />} />
           <Route path="/admin/staff-requirements" element={<OwnerRoute moduleKey="staff" element={<StaffRequirementsPage />} />} />
           <Route path="/admin/salon-details" element={<OwnerRoute moduleKey="settings" action="view" element={<SalonDetailsPage />} />} />
