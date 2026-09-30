@@ -1397,7 +1397,7 @@ export default function UsersPage() {
                       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
                         <div className="hub-form-group">
                           <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, display: 'block', minHeight: 22, lineHeight: '22px' }}>Date of Joining</label>
-                          <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
+                          <input type="date" className="hub-input" value={form.joiningDate} onChange={(event) => setForm({ ...form, joiningDate: event.target.value })} style={{ width: '100%', height: 38, padding: '0 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: 13, fontWeight: 600, background: '#f8fafc', boxSizing: 'border-box' }} />
                         </div>
 
                         <div className="hub-form-group">
@@ -1668,7 +1668,7 @@ export default function UsersPage() {
                 <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div className="hub-form-group" style={{ marginBottom: 16 }}>
                     <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>Date of Joining</label>
-                    <input type="date" className="hub-input" value={form.joiningDate} max={new Date().toISOString().split('T')[0]} onChange={e => setForm({ ...form, joiningDate: e.target.value })} />
+                    <input type="date" className="hub-input" value={form.joiningDate} onChange={e => setForm({ ...form, joiningDate: e.target.value })} />
                   </div>
                   <div className="hub-form-group" style={{ marginBottom: 16 }}>
                     <label style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6, display: 'block' }}>UAN Number</label>
