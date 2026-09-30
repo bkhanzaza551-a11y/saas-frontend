@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import EmptyState from "../../components/EmptyState";
 import ModuleTabs from "../../components/ModuleTabs";
 import PageLoader from "../../components/PageLoader";
+import { Clock, Coffee, Calendar } from "lucide-react";
 
 export default function MySchedulePage() {
   const [data, setData] = useState({ schedules: [], breaks: [] });
@@ -47,10 +48,10 @@ export default function MySchedulePage() {
           </div>
           <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
             <span style={{ background: "rgba(59,130,246,0.2)", color: "#93c5fd", padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid rgba(59,130,246,0.3)" }}>
-              🕒 Hours: {data.schedules.length}
+              ?? Hours: {data.schedules.length}
             </span>
             <span style={{ background: "rgba(245,158,11,0.2)", color: "#fcd34d", padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, border: "1px solid rgba(245,158,11,0.3)" }}>
-              ☕ Breaks: {data.breaks.length}
+              <Coffee size={14} style={{ marginRight: 4 }} /> Breaks: {data.breaks.length}
             </span>
           </div>
         </div>
@@ -61,7 +62,7 @@ export default function MySchedulePage() {
         {/* Weekly Hours Card */}
         <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.04)", border: "1px solid rgba(226,232,240,0.8)" }}>
           <h3 style={{ margin: "0 0 4px 0", fontSize: 17, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
-            <span>📅</span> Weekly Hours
+            <span>??</span> Weekly Hours
           </h3>
           <p style={{ margin: "0 0 20px 0", color: "#94a3b8", fontSize: 13 }}>Your recurring roster shifts and active duty times</p>
           
@@ -83,7 +84,7 @@ export default function MySchedulePage() {
         {/* Protected Breaks Card */}
         <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.04)", border: "1px solid rgba(226,232,240,0.8)" }}>
           <h3 style={{ margin: "0 0 4px 0", fontSize: 17, fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
-            <span>☕</span> Protected Breaks
+            <span><Coffee size={14} style={{ marginRight: 4 }} /></span> Protected Breaks
           </h3>
           <p style={{ margin: "0 0 20px 0", color: "#94a3b8", fontSize: 13 }}>Scheduled rest intervals when booking is blocked</p>
           
@@ -106,3 +107,5 @@ export default function MySchedulePage() {
     </div>
   );
 }
+
+
