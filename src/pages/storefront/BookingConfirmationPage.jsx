@@ -58,27 +58,12 @@ export default function BookingConfirmationPage() {
     );
   }
 
-  const rawDate = booking?.serviceInfo?.preferredDate;
-  const rawTime = booking?.serviceInfo?.preferredTime;
   let formattedDisplayDateTime = "";
-  if (rawDate) {
-    const formattedTime = formatTime12Hour(rawTime);
-    try {
-      const d = new Date(rawDate);
-      if (!isNaN(d.getTime())) {
-        const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        formattedDisplayDateTime = `${dStr} at ${formattedTime}`;
-      } else {
-        formattedDisplayDateTime = `${rawDate} at ${formattedTime}`;
-      }
-    } catch (e) {
-      formattedDisplayDateTime = `${rawDate} at ${formattedTime}`;
+    if (booking?.startAt) {
+      formattedDisplayDateTime = `${new Date(booking.startAt).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at ${new Date(booking.startAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
     }
-  } else if (booking?.startAt) {
-    formattedDisplayDateTime = `${new Date(booking.startAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} at ${new Date(booking.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-  }
-
-  return (
+    
+    return (
     <div className="storefront-wrapper confirmation-page-wrapper">
       <style>{`
         .confirmation-page-wrapper {
