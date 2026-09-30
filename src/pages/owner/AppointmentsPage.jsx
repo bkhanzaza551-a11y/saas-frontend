@@ -2076,8 +2076,8 @@ export default function AppointmentsPage() {
                         fontWeight: 800,
                         padding: "1px 6px",
                         borderRadius: 999,
-                        background: sidebarTab === "unassigned" ? "rgba(255,255,255,0.2)" : "#e2e8f0",
-                        color: sidebarTab === "unassigned" ? "#ffffff" : "#475569"
+                        background: todayUnassignedInHouse.length > 0 ? "#ef4444" : (sidebarTab === "unassigned" ? "rgba(255,255,255,0.2)" : "#e2e8f0"),
+                        color: todayUnassignedInHouse.length > 0 ? "#ffffff" : (sidebarTab === "unassigned" ? "#ffffff" : "#475569")
                       }}
                     >
                       {todayUnassignedInHouse.length}
