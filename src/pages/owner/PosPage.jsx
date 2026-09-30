@@ -2341,7 +2341,7 @@ export default function PosPage() {
                     }}
                   >
                     <ShoppingBag size={14} color={posMode === "sales" ? "#ffffff" : "#64748b"} />
-                    Sales
+                    Walk in
                   </button>
                   <button
                     type="button"
@@ -2443,7 +2443,7 @@ export default function PosPage() {
                           cursor: "pointer",
                           fontSize: "11px"
                         }}
-                        title="Clear appointment & switch to sales"
+                        title="Clear appointment & switch to walk in"
                       >
                         <X size={14} />
                       </button>
