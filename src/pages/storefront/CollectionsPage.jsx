@@ -138,7 +138,32 @@ export default function CollectionsPage() {
                 )}
 
                 {/* Services Grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 30 }}>
+                <style>{`
+  .storefront-services-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+    width: 100%;
+  }
+  @media (min-width: 640px) {
+    .storefront-services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 960px) {
+    .storefront-services-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .storefront-services-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+  }
+`}</style>
+<div className="storefront-services-grid">
                   {filteredServices.map(service => {
                     const price = Number(service.salePrice && Number(service.salePrice) < Number(service.price) ? service.salePrice : service.price);
                     const hasSale = service.salePrice && Number(service.salePrice) < Number(service.price);
