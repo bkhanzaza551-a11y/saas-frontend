@@ -20,7 +20,7 @@ import {
   Check,
   ChevronDown,
   Upload,
-  Globe
+  Globe, MessageCircle
 } from "lucide-react";
 import "./WebsiteEditorPage.css";
 

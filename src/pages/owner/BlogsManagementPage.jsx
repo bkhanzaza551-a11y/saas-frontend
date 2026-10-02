@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Edit2, Trash2, CheckCircle, XCircle, Plus } from "lucide-react";
+import { Search, Edit2, Trash2, CheckCircle, XCircle, Plus, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
@@ -9,6 +9,7 @@ export default function BlogsManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "", slug: "", excerpt: "", content: "", imageUrl: "", author: "", published: false
@@ -56,6 +57,38 @@ export default function BlogsManagementPage() {
       }
       return next;
     });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file (PNG, JPG, WEBP, etc.).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image size should be under 10MB.");
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const form = new FormData();
+      form.append("image", file);
+      const res = await api.post("/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      const url = res.data?.url;
+      if (url) {
+        setFormData(prev => ({ ...prev, imageUrl: url }));
+      } else {
+        alert("Failed to get uploaded image URL.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to upload image. Please try again.");
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleSave = async () => {
