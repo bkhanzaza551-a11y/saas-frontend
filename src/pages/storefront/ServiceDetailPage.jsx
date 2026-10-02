@@ -131,6 +131,26 @@ export default function ServiceDetailPage() {
     });
   };
 
+  const handleAddToCart = () => {
+    if (!selectedDate) { showAlert("Please select a date."); return; }
+    if (!selectedTime) { showAlert("Please select a time."); return; }
+    if (isSlotBooked(selectedTime)) { showAlert("This time slot is no longer available. Please choose another."); return; }
+    addBooking(
+      {
+        id: service.id,
+        name: service.name,
+        price: hasSale ? service.salePrice : service.price,
+        duration: service.durationMin,
+        imageUrl: service.imageUrl,
+        staffId: selectedStaff?.id || null,
+        staffName: selectedStaff?.name || null,
+      },
+      selectedDate,
+      selectedTime
+    );
+    showAlert("Service added to your cart successfully!");
+  };
+
   const handleBookNow = () => {
     if (!selectedDate) { showAlert("Please select a date."); return; }
     if (!selectedTime) { showAlert("Please select a time."); return; }
@@ -401,9 +421,14 @@ export default function ServiceDetailPage() {
                   </div>
                 </div>
                 
-                <button onClick={handleBookNow} className="sf-btn-primary" style={{ width: "100%", padding: "20px" }}>
-                  Add to Booking
-                </button>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <button onClick={handleAddToCart} className="sf-btn-outline" style={{ flex: 1, padding: "20px", background: 'transparent' }}>
+                    Add to Cart
+                  </button>
+                  <button onClick={handleBookNow} className="sf-btn-primary" style={{ flex: 1, padding: "20px" }}>
+                    Book Now
+                  </button>
+                </div>
               </div>
             </div>
           </div>
