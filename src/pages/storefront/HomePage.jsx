@@ -307,102 +307,96 @@ export default function HomePage() {
               </div>
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 28 }}>
-                {services.map(service => (
-                  <div 
-                    key={service.id} 
-                    onClick={() => navigate(`/site/${salon.slug}/service/${service.id}`)}
-                    style={{
-                      background: "#ffffff",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 22,
-                      padding: "26px",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
-                      display: "flex",
-                      flexDirection: "column",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      position: "relative"
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.transform = "translateY(-6px)";
-                      e.currentTarget.style.boxShadow = "0 18px 40px rgba(13,148,136,0.12)";
-                      e.currentTarget.style.borderColor = "#99f6e4";
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.04)";
-                      e.currentTarget.style.borderColor = "#e2e8f0";
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 14, background: "#f0fdfa", border: "1px solid #ccfbf1", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d9488" }}>
-                        <Sparkles size={22} />
+                {services.map(service => {
+                  const price = Number(service.salePrice && Number(service.salePrice) < Number(service.price) ? service.salePrice : service.price);
+                  return (
+                    <div 
+                      key={service.id} 
+                      onClick={() => navigate(`/site/${salon.slug}/service/${service.id}`)}
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 16,
+                        padding: "16px 20px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        position: "relative",
+                        gap: "16px"
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                        e.currentTarget.style.boxShadow = "0 10px 24px rgba(13,148,136,0.12)";
+                        e.currentTarget.style.borderColor = "#99f6e4";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.04)";
+                        e.currentTarget.style.borderColor = "#e2e8f0";
+                      }}
+                    >
+                      <div style={{ flexShrink: 0 }}>
+                        {service.imageUrl ? (
+                          <img 
+                            src={service.imageUrl} 
+                            alt={service.name} 
+                            style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover" }} 
+                          />
+                        ) : (
+                          <div style={{ width: 60, height: 60, borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
+                            <Sparkles size={24} />
+                          </div>
+                        )}
                       </div>
-                      {service.durationMinutes ? (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#f8fafc", border: "1px solid #e2e8f0", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 600, color: "#64748b" }}>
-                          <Clock size={12} /> {service.durationMinutes} mins
-                        </span>
-                      ) : null}
-                    </div>
+                      
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+                        <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", margin: "0 0 6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {service.name}
+                        </h3>
+                        {service.durationMinutes && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#64748b", fontSize: 13, fontWeight: 500 }}>
+                            <Clock size={14} /> {service.durationMinutes} min
+                          </div>
+                        )}
+                      </div>
 
-                    <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", margin: "0 0 8px" }}>
-                      {service.name}
-                    </h3>
-                    
-                    <p style={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, margin: "0 0 22px", flex: 1 }}>
-                      {service.description || "A tailored luxury experience designed to elevate your personal style."}
-                    </p>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 18, marginTop: "auto" }}>
-                      <div>
-                        <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Price</div>
-                        <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0f172a" }}>
-                          {currency} {service.salePrice || service.price}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, gap: 8 }}>
+                        <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
+                          ₹{price.toFixed(2)}
                         </div>
+                        <button 
+                          type="button" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/site/${salon.slug}/service/${service.id}`);
+                          }}
+                          style={{
+                            background: "transparent",
+                            color: "#f97316",
+                            border: "1px solid #f97316",
+                            padding: "6px 16px",
+                            borderRadius: 8,
+                            fontWeight: 600,
+                            fontSize: 13,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease"
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = "#fff7ed";
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = "transparent";
+                          }}
+                        >
+                          Book
+                        </button>
                       </div>
-
-                      <button 
-                        type="button" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/site/${salon.slug}/service/${service.id}`);
-                        }}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 6,
-                          background: "#0f172a",
-                          color: "#ffffff",
-                          padding: "10px 18px",
-                          borderRadius: 10,
-                          fontWeight: 700,
-                          fontSize: 13,
-                          border: "none",
-                          cursor: "pointer",
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                          transition: "all 0.2s ease",
-                          boxShadow: "0 2px 6px rgba(15, 23, 42, 0.15)"
-                        }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.background = "#0d9488";
-                          e.currentTarget.style.transform = "translateY(-1px)";
-                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(13, 148, 136, 0.3)";
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.background = "#0f172a";
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.15)";
-                        }}
-                      >
-                        <span>Book Slot</span>
-                        <ArrowRight size={14} />
-                      </button>
                     </div>
-
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

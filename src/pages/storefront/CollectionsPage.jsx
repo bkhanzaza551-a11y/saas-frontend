@@ -166,7 +166,6 @@ export default function CollectionsPage() {
 <div className="storefront-services-grid">
                   {filteredServices.map(service => {
                     const price = Number(service.salePrice && Number(service.salePrice) < Number(service.price) ? service.salePrice : service.price);
-                    const hasSale = service.salePrice && Number(service.salePrice) < Number(service.price);
                     const hasImage = Boolean(service.imageUrl && (service.imageUrl.startsWith("http") || service.imageUrl.startsWith("data:image/")));
 
                     return (
@@ -175,149 +174,84 @@ export default function CollectionsPage() {
                         onClick={() => navigate(`/site/${salon.slug}/service/${service.id}`)}
                         style={{
                           background: "#ffffff",
-                          borderRadius: 22,
                           border: "1px solid #e2e8f0",
-                          overflow: "hidden",
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
+                          borderRadius: 16,
+                          padding: "16px 20px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
                           display: "flex",
-                          flexDirection: "column",
+                          flexDirection: "row",
+                          alignItems: "center",
                           cursor: "pointer",
-                          transition: "all 0.3s ease"
+                          transition: "all 0.3s ease",
+                          position: "relative",
+                          gap: "16px"
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.transform = "translateY(-6px)";
-                          e.currentTarget.style.boxShadow = "0 18px 40px rgba(13,148,136,0.12)";
+                          e.currentTarget.style.transform = "translateY(-4px)";
+                          e.currentTarget.style.boxShadow = "0 10px 24px rgba(13,148,136,0.12)";
                           e.currentTarget.style.borderColor = "#99f6e4";
                         }}
                         onMouseLeave={e => {
                           e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.04)";
+                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.04)";
                           e.currentTarget.style.borderColor = "#e2e8f0";
                         }}
                       >
-                        {/* Header: Uploaded Image OR Clean Luxury Branded Container */}
-                        {hasImage ? (
-                          <div style={{ height: 210, position: "relative", background: "#f8fafc", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ flexShrink: 0 }}>
+                          {hasImage ? (
                             <img 
                               src={service.imageUrl} 
                               alt={service.name} 
-                              style={{ width: "100%", height: "100%", objectFit: "contain", padding: 10, transition: "transform 0.3s ease" }}
+                              style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover" }} 
                             />
-                            
-                            {/* Badges */}
-                            <div style={{ position: "absolute", top: 14, left: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                              {service.category?.name && (
-                                <span style={{ background: "rgba(15,23,42,0.85)", backdropFilter: "blur(8px)", color: "#5eead4", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                  {service.category.name}
-                                </span>
-                              )}
-                              {service.isFeatured && (
-                                <span style={{ background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
-                                  ★ Featured
-                                </span>
-                              )}
+                          ) : (
+                            <div style={{ width: 60, height: 60, borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
+                              <Scissors size={24} />
                             </div>
-
-                            {service.durationMinutes ? (
-                              <div style={{ position: "absolute", bottom: 12, right: 12, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(6px)", color: "#0f172a", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-                                <Clock size={12} color="#0d9488" /> {service.durationMinutes} mins
-                              </div>
-                            ) : null}
-                          </div>
-                        ) : (
-                          <div style={{ padding: "24px 24px 16px", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                              <div style={{ width: 44, height: 44, borderRadius: 14, background: "#f0fdfa", color: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #ccfbf1" }}>
-                                <Scissors size={20} />
-                              </div>
-                              {service.category?.name && (
-                                <span style={{ background: "#e2e8f0", color: "#334155", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                  {service.category.name}
-                                </span>
-                              )}
-                            </div>
-
-                            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                              {service.isFeatured && (
-                                <span style={{ background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
-                                  ★ Featured
-                                </span>
-                              )}
-                              {service.durationMinutes ? (
-                                <span style={{ background: "#ffffff", color: "#0f172a", border: "1px solid #cbd5e1", padding: "4px 10px", borderRadius: 100, fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-                                  <Clock size={12} color="#0d9488" /> {service.durationMinutes}m
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Content */}
-                        <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
-                          <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px", lineHeight: 1.3 }}>
+                          )}
+                        </div>
+                        
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+                          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", margin: "0 0 6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {service.name}
                           </h3>
-
-                          <p style={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, margin: "0 0 24px", flex: 1, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                            {service.description || "Indulge in an exquisite, tailor-made treatment formulated with premium care."}
-                          </p>
-
-                          {/* Footer */}
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 18, marginTop: "auto" }}>
-                            <div>
-                              <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Price</div>
-                              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                                <span style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0f172a" }}>
-                                  {currency} {price.toFixed(2)}
-                                </span>
-                                {hasSale && (
-                                  <span style={{ fontSize: 13, color: "#94a3b8", textDecoration: "line-through" }}>
-                                    {currency} {Number(service.price).toFixed(2)}
-                                  </span>
-                                )}
-                              </div>
+                          {service.durationMinutes && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#64748b", fontSize: 13, fontWeight: 500 }}>
+                              <Clock size={14} /> {service.durationMinutes} min
                             </div>
+                          )}
+                        </div>
 
-                            <button 
-                              type="button" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/site/${salon.slug}/service/${service.id}`);
-                              }}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 6,
-                                background: "#0f172a",
-                                color: "#ffffff",
-                                padding: "10px 18px",
-                                borderRadius: 10,
-                                fontWeight: 700,
-                                fontSize: 13,
-                                border: "none",
-                                cursor: "pointer",
-                                whiteSpace: "nowrap",
-                                flexShrink: 0,
-                                transition: "all 0.2s ease",
-                                boxShadow: "0 2px 6px rgba(15, 23, 42, 0.15)"
-                              }}
-                              onMouseEnter={e => {
-                                e.currentTarget.style.background = "#0d9488";
-                                e.currentTarget.style.transform = "translateY(-1px)";
-                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(13, 148, 136, 0.3)";
-                              }}
-                              onMouseLeave={e => {
-                                e.currentTarget.style.background = "#0f172a";
-                                e.currentTarget.style.transform = "translateY(0)";
-                                e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.15)";
-                              }}
-                            >
-                              <span>Book Slot</span>
-                              <ArrowRight size={14} />
-                            </button>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, gap: 8 }}>
+                          <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
+                            ₹{price.toFixed(2)}
                           </div>
-
+                          <button 
+                            type="button" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/site/${salon.slug}/service/${service.id}`);
+                            }}
+                            style={{
+                              background: "transparent",
+                              color: "#f97316",
+                              border: "1px solid #f97316",
+                              padding: "6px 16px",
+                              borderRadius: 8,
+                              fontWeight: 600,
+                              fontSize: 13,
+                              cursor: "pointer",
+                              transition: "all 0.2s ease"
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = "#fff7ed";
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = "transparent";
+                            }}
+                          >
+                            Book
+                          </button>
                         </div>
                       </div>
                     );
