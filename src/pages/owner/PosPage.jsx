@@ -2626,7 +2626,7 @@ export default function PosPage() {
                 {customerBenefits.walletBalance <= 0 && form.customerId && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#f1f5f9", color: "#94a3b8", fontWeight: 600, border: "1px solid #e2e8f0" }}>Wallet: ₹0 (Empty)</span>}
                 {customerBenefits.advanceBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dbeafe", color: "#1e40af", fontWeight: 600, border: "1px solid #bfdbfe" }}>Advance: ₹{customerBenefits.advanceBalance}</span>}
                 {customerBenefits.giftCardTotal > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fce7f3", color: "#9d174d", fontWeight: 600, border: "1px solid #fbcfe8" }}>Gift Card: ₹{customerBenefits.giftCardTotal}</span>}
-                {customerBenefits.activeMemberships > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#ede9fe", color: "#5b21b6", fontWeight: 600, border: "1px solid #ddd6fe" }}>Membership: {customerBenefits.membershipPlans.join(", ")}</span>}
+
               </div>
             )}
 
