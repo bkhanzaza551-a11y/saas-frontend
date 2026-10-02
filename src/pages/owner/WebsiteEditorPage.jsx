@@ -90,7 +90,7 @@ export default function WebsiteEditorPage() {
   const [blogLoading, setBlogLoading] = useState(false);
   const [blogImageUploading, setBlogImageUploading] = useState(false);
   const [blogFormData, setBlogFormData] = useState({
-    title: "", slug: "", excerpt: "", content: "", imageUrl: "", author: "", published: false
+    title: "", slug: "", excerpt: "", content: "", imageUrl: "", images: [], author: "", published: false
   });
 
   const fetchBlogs = async () => {
@@ -114,10 +114,23 @@ export default function WebsiteEditorPage() {
   const handleOpenBlogModal = (blog = null) => {
     if (blog) {
       setEditingBlog(blog);
-      setBlogFormData(blog);
+      let blogImages = [];
+      if (Array.isArray(blog.images)) {
+        blogImages = blog.images;
+      } else if (typeof blog.images === "string") {
+        try { blogImages = JSON.parse(blog.images); } catch { blogImages = [blog.images]; }
+      }
+      if (!blogImages.length && blog.imageUrl) {
+        blogImages = [blog.imageUrl];
+      }
+      setBlogFormData({
+        ...blog,
+        imageUrl: blog.imageUrl || blogImages[0] || "",
+        images: blogImages
+      });
     } else {
       setEditingBlog(null);
-      setBlogFormData({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", author: "", published: false });
+      setBlogFormData({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", images: [], author: "", published: false });
     }
     setIsBlogModalOpen(true);
   };
@@ -137,34 +150,74 @@ export default function WebsiteEditorPage() {
   };
 
   const handleBlogImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setStatus({ error: "Please select a valid image file.", success: "" });
-      return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        setStatus({ error: "Please select valid image files.", success: "" });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setStatus({ error: "Each image must be under 10MB.", success: "" });
+        return;
+      }
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setStatus({ error: "Image size must be under 10MB.", success: "" });
-      return;
-    }
+
     setBlogImageUploading(true);
     try {
-      const form = new FormData();
-      form.append("image", file);
-      const res = await api.post("/upload", form, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      if (res.data?.url) {
-        setBlogFormData(prev => ({ ...prev, imageUrl: res.data.url }));
-        setStatus({ error: "", success: "Image uploaded successfully!" });
-        setTimeout(() => setStatus({ error: "", success: "" }), 2000);
+      const uploadedUrls = [];
+      for (const file of files) {
+        const form = new FormData();
+        form.append("image", file);
+        const res = await api.post("/upload", form, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (res.data?.url) {
+          uploadedUrls.push(res.data.url);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        setBlogFormData(prev => {
+          const currentImages = Array.isArray(prev.images) ? [...prev.images] : (prev.imageUrl ? [prev.imageUrl] : []);
+          const updatedImages = [...currentImages, ...uploadedUrls];
+          return {
+            ...prev,
+            imageUrl: prev.imageUrl || updatedImages[0] || "",
+            images: updatedImages
+          };
+        });
+        setStatus({ error: "", success: `${uploadedUrls.length} image(s) uploaded successfully!` });
+        setTimeout(() => setStatus({ error: "", success: "" }), 2500);
       }
     } catch (err) {
       console.error(err);
-      setStatus({ error: formatApiError(err, "Failed to upload image."), success: "" });
+      setStatus({ error: formatApiError(err, "Failed to upload image(s)."), success: "" });
     } finally {
       setBlogImageUploading(false);
+      // Reset input value so same files can be re-uploaded if needed
+      e.target.value = "";
     }
+  };
+
+  const handleRemoveBlogImage = (indexToRemove) => {
+    setBlogFormData(prev => {
+      const updatedImages = (prev.images || []).filter((_, idx) => idx !== indexToRemove);
+      const newCover = updatedImages.includes(prev.imageUrl) ? prev.imageUrl : (updatedImages[0] || "");
+      return {
+        ...prev,
+        imageUrl: newCover,
+        images: updatedImages
+      };
+    });
+  };
+
+  const handleSetCoverImage = (url) => {
+    setBlogFormData(prev => ({
+      ...prev,
+      imageUrl: url
+    }));
   };
 
   const handleSaveBlog = async () => {
@@ -1140,32 +1193,100 @@ export default function WebsiteEditorPage() {
                 <input name="author" value={blogFormData.author} onChange={handleBlogFormChange} placeholder="e.g. Master Stylist Renu" style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }} />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Featured Image</label>
-                {blogFormData.imageUrl ? (
-                  <div style={{ position: "relative", width: "100%", height: "160px", borderRadius: "8px", overflow: "hidden", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
-                    <img src={blogFormData.imageUrl} alt="Featured" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    <button
-                      type="button"
-                      onClick={() => setBlogFormData(prev => ({ ...prev, imageUrl: "" }))}
-                      style={{
-                        position: "absolute",
-                        top: "8px",
-                        right: "8px",
-                        background: "rgba(15, 23, 42, 0.8)",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "5px 10px",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px"
-                      }}
-                    >
-                      <Trash2 size={13} /> Remove
-                    </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                  <label style={{ fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>
+                    Article Images & Cover <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 400 }}>({blogFormData.images?.length || (blogFormData.imageUrl ? 1 : 0)} uploaded)</span>
+                  </label>
+                  <label style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    padding: "4px 10px",
+                    background: "#f1f5f9",
+                    border: "1px solid #cbd5e1",
+                    borderRadius: "6px",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: "#334155",
+                    cursor: blogImageUploading ? "not-allowed" : "pointer"
+                  }}>
+                    {blogImageUploading ? <Loader2 size={13} className="spin-animate" /> : <Upload size={13} />}
+                    <span>{blogImageUploading ? "Uploading..." : "+ Add Images"}</span>
+                    <input type="file" accept="image/*" multiple onChange={handleBlogImageUpload} disabled={blogImageUploading} style={{ display: "none" }} />
+                  </label>
+                </div>
+
+                {blogFormData.images && blogFormData.images.length > 0 ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px", padding: "10px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", maxHeight: "240px", overflowY: "auto" }}>
+                    {blogFormData.images.map((imgUrl, idx) => {
+                      const isCover = (blogFormData.imageUrl === imgUrl) || (!blogFormData.imageUrl && idx === 0);
+                      return (
+                        <div key={idx} style={{ position: "relative", height: "105px", borderRadius: "6px", overflow: "hidden", background: "#0f172a", border: isCover ? "2px solid #3b82f6" : "1px solid #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <img src={imgUrl} alt={`Upload ${idx + 1}`} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                          {isCover && (
+                            <span style={{ position: "absolute", top: "4px", left: "4px", background: "#2563eb", color: "#ffffff", fontSize: "0.65rem", fontWeight: 700, padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em", boxShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+                              Cover
+                            </span>
+                          )}
+                          <div style={{ position: "absolute", bottom: "4px", left: "4px", right: "4px", display: "flex", justifyContent: "space-between", gap: "4px" }}>
+                            {!isCover && (
+                              <button
+                                type="button"
+                                onClick={() => handleSetCoverImage(imgUrl)}
+                                style={{
+                                  background: "rgba(15, 23, 42, 0.85)",
+                                  color: "#fff",
+                                  border: "none",
+                                  borderRadius: "4px",
+                                  padding: "3px 6px",
+                                  fontSize: "0.65rem",
+                                  fontWeight: 600,
+                                  cursor: "pointer",
+                                  backdropFilter: "blur(4px)"
+                                }}
+                              >
+                                Set Cover
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBlogImage(idx)}
+                              style={{
+                                marginLeft: "auto",
+                                background: "rgba(220, 38, 38, 0.85)",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "4px",
+                                padding: "3px 6px",
+                                fontSize: "0.65rem",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center"
+                              }}
+                              title="Delete image"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <label style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "105px",
+                      border: "2px dashed #cbd5e1",
+                      borderRadius: "6px",
+                      background: "#ffffff",
+                      cursor: blogImageUploading ? "not-allowed" : "pointer",
+                      textAlign: "center"
+                    }}>
+                      <Upload size={18} color="#64748b" style={{ marginBottom: "2px" }} />
+                      <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#475569" }}>+ Add More</span>
+                      <input type="file" accept="image/*" multiple onChange={handleBlogImageUpload} disabled={blogImageUploading} style={{ display: "none" }} />
+                    </label>
                   </div>
                 ) : (
                   <label style={{
@@ -1173,7 +1294,7 @@ export default function WebsiteEditorPage() {
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "20px 16px",
+                    padding: "24px 16px",
                     border: "2px dashed #cbd5e1",
                     borderRadius: "8px",
                     background: "#f8fafc",
@@ -1182,15 +1303,15 @@ export default function WebsiteEditorPage() {
                   }}>
                     {blogImageUploading ? (
                       <>
-                        <Loader2 size={22} color="#4f46e5" style={{ animation: "spin 1s linear infinite", marginBottom: "6px" }} />
-                        <span style={{ fontSize: "0.8rem", color: "#4f46e5", fontWeight: 600 }}>Uploading image...</span>
+                        <Loader2 size={24} color="#4f46e5" className="spin-animate" style={{ marginBottom: "6px" }} />
+                        <span style={{ fontSize: "0.8rem", color: "#4f46e5", fontWeight: 600 }}>Uploading images...</span>
                       </>
                     ) : (
                       <>
-                        <Upload size={22} color="#64748b" style={{ marginBottom: "6px" }} />
-                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155" }}>Click to upload featured image</span>
-                        <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "2px" }}>JPG, PNG, WEBP (Max 10MB)</span>
-                        <input type="file" accept="image/*" onChange={handleBlogImageUpload} disabled={blogImageUploading} style={{ display: "none" }} />
+                        <Upload size={24} color="#64748b" style={{ marginBottom: "6px" }} />
+                        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#334155" }}>Click to select one or multiple images</span>
+                        <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "2px" }}>PNG, JPG, WEBP (Select multiple files to create a gallery)</span>
+                        <input type="file" accept="image/*" multiple onChange={handleBlogImageUpload} disabled={blogImageUploading} style={{ display: "none" }} />
                       </>
                     )}
                   </label>

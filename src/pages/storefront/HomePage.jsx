@@ -581,34 +581,119 @@ export default function HomePage() {
 
       {/* Latest Blogs Section */}
       {latestBlogs.length > 0 && (
-        <section id="sf-blogs-section" style={{ padding: "80px 24px", background: "#ffffff", borderTop: "1px solid #e2e8f0" }}>
+        <section id="sf-blogs-section" style={{ padding: "90px 24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0" }}>
           <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: 44 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", color: "#475569", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
-                <Sparkles size={12} /> LATEST ARTICLES
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 44, flexWrap: "wrap", gap: 16 }}>
+              <div>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "#ffffff", border: "1px solid #e2e8f0", color: "#0d9488", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <Sparkles size={12} /> THE JOURNAL & EDITORIAL
+                </div>
+                <h2 style={{ fontSize: "clamp(2rem, 4vw, 2.5rem)", fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
+                  Stories & Styling Secrets
+                </h2>
               </div>
-              <h2 style={{ fontSize: "2.4rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>
-                From the Blog
-              </h2>
+              <Link 
+                to={`/site/${salon?.slug}/blog`} 
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700, color: "#0d9488", textDecoration: "none", padding: "8px 16px", background: "#ffffff", borderRadius: 10, border: "1px solid #e2e8f0", transition: "all 0.2s ease" }}
+              >
+                View All Articles <ArrowRight size={15} />
+              </Link>
             </div>
             
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 28 }}>
-              {latestBlogs.map((blog) => (
-                <div key={blog._id || blog.id || blog.slug} style={{ background: "#f8fafc", borderRadius: 20, overflow: "hidden", border: "1px solid #e2e8f0", transition: "transform 0.3s ease", display: "flex", flexDirection: "column" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"} onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
-                  {blog.coverImage && (
-                    <img src={blog.coverImage} alt={blog.title} style={{ width: "100%", height: 200, objectFit: "cover" }} />
-                  )}
-                  <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
-                    <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>{blog.title}</h3>
-                    <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: "0 0 20px", flex: 1 }}>
-                      {blog.excerpt || (blog.content ? blog.content.substring(0, 100) + '...' : '')}
-                    </p>
-                    <Link to={`/site/${salon?.slug}/blog/${blog.slug}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700, color: "#0d9488", textDecoration: "none", marginTop: "auto" }}>
-                      Read Article <ArrowRight size={16} />
-                    </Link>
-                  </div>
-                </div>
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 30 }}>
+              {latestBlogs.map((blog) => {
+                let coverImg = blog.imageUrl;
+                if (!coverImg && Array.isArray(blog.images) && blog.images.length > 0) coverImg = blog.images[0];
+                if (!coverImg && typeof blog.images === "string") {
+                  try { const parsed = JSON.parse(blog.images); if (Array.isArray(parsed)) coverImg = parsed[0]; } catch {}
+                }
+                if (!coverImg && blog.coverImage) coverImg = blog.coverImage;
+
+                const readTime = Math.max(2, Math.ceil(((blog.content?.length || 600) + (blog.excerpt?.length || 0)) / 500));
+                const pubDate = blog.createdAt || blog.date ? new Date(blog.createdAt || blog.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent";
+
+                return (
+                  <Link 
+                    to={`/site/${salon?.slug}/blog/${blog.slug}`} 
+                    key={blog._id || blog.id || blog.slug} 
+                    style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column" }}
+                  >
+                    <div 
+                      style={{ 
+                        background: "#ffffff", 
+                        borderRadius: 20, 
+                        overflow: "hidden", 
+                        border: "1px solid #e2e8f0", 
+                        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05)", 
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", 
+                        display: "flex", 
+                        flexDirection: "column",
+                        height: "100%",
+                        cursor: "pointer"
+                      }} 
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = "translateY(-6px)";
+                        e.currentTarget.style.boxShadow = "0 20px 30px -10px rgba(0, 0, 0, 0.12)";
+                        const img = e.currentTarget.querySelector(".blog-card-img");
+                        if (img) img.style.transform = "scale(1.05)";
+                      }} 
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "0 4px 20px -2px rgba(0, 0, 0, 0.05)";
+                        const img = e.currentTarget.querySelector(".blog-card-img");
+                        if (img) img.style.transform = "scale(1)";
+                      }}
+                    >
+                      <div style={{ width: "100%", height: 230, position: "relative", overflow: "hidden", background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }}>
+                        {coverImg ? (
+                          <img 
+                            src={coverImg} 
+                            alt={blog.title} 
+                            className="blog-card-img"
+                            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} 
+                          />
+                        ) : (
+                          <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#cbd5e1" }}>
+                            <FileText size={40} style={{ opacity: 0.5, marginBottom: 8 }} />
+                            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>Editorial</span>
+                          </div>
+                        )}
+                        <div style={{ position: "absolute", top: 14, left: 14, background: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(8px)", color: "#ffffff", padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                          Style & Care
+                        </div>
+                      </div>
+
+                      <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#64748b", fontWeight: 600, marginBottom: 12 }}>
+                          <span>{pubDate}</span>
+                          <span>•</span>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Clock size={12} /> {readTime} min read</span>
+                        </div>
+
+                        <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px", lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {blog.title}
+                        </h3>
+
+                        <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.65, margin: "0 0 20px", flex: 1, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {blog.excerpt || (blog.content ? blog.content.replace(/<[^>]*>?/gm, '').substring(0, 130) + '...' : 'Discover expert grooming insights and professional styling trends.')}
+                        </p>
+
+                        <div style={{ paddingTop: 16, borderTop: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#e0f2fe", color: "#0369a1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800 }}>
+                              {(blog.author || "S")[0].toUpperCase()}
+                            </div>
+                            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#334155" }}>{blog.author || "Master Stylist"}</span>
+                          </div>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 700, color: "#0d9488" }}>
+                            Read Story <ArrowRight size={14} />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
