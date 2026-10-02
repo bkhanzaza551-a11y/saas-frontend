@@ -111,7 +111,7 @@ export default function BlogPostPage() {
       
       {/* Top Breadcrumb Navigation */}
       <div style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", padding: "16px 24px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#64748b", flexWrap: "wrap" }}>
+        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#64748b", flexWrap: "wrap" }}>
           <Link to={`/site/${salonSlug}`} style={{ color: "#64748b", textDecoration: "none", fontWeight: 600 }}>Home</Link>
           <ChevronRight size={14} />
           <Link to={`/site/${salonSlug}/blog`} style={{ color: "#64748b", textDecoration: "none", fontWeight: 600 }}>Journal</Link>
@@ -120,7 +120,7 @@ export default function BlogPostPage() {
         </div>
       </div>
 
-      <article style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px 80px" }}>
+      <article style={{ maxWidth: 1140, margin: "0 auto", padding: "40px 24px 80px" }}>
         
         {/* Category Badge */}
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "#f0fdfa", border: "1px solid #ccfbf1", color: "#0d9488", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 16 }}>
@@ -199,7 +199,7 @@ export default function BlogPostPage() {
             <img 
               src={coverImage} 
               alt={blog.title} 
-              style={{ width: "100%", height: "auto", maxHeight: "600px", objectFit: "contain", borderRadius: 24 }} 
+              style={{ maxWidth: "100%", maxHeight: "600px", objectFit: "contain", borderRadius: 24 }} 
             />
           </div>
         )}
