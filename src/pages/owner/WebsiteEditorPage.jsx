@@ -677,20 +677,34 @@ export default function WebsiteEditorPage() {
               </div>
 
               <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: "14px" }}>
-                <h4 style={{ margin: "0 0 12px", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>Social Media Links</h4>
+                <h4 style={{ margin: "0 0 6px", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                  <MessageCircle size={16} color="#25D366" /> WhatsApp Floating Chat Button
+                </h4>
+                <p style={{ margin: "0 0 10px", fontSize: "0.75rem", color: "#64748b" }}>
+                  A floating WhatsApp button will appear on the bottom-right corner of your live website. Default country code is <strong>+91 (India)</strong>.
+                </p>
+                <div>
+                  <input 
+                    type="text" 
+                    value={config.socialWhatsapp || ""} 
+                    onChange={e => update("socialWhatsapp", e.target.value)} 
+                    placeholder="e.g. 7747911593 or +917747911593" 
+                    style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
+                  />
+                  <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "4px", display: "block" }}>
+                    Enter 10-digit number or international number. (Leave blank to use salon phone number).
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: "14px" }}>
+                <h4 style={{ margin: "0 0 12px", fontSize: "0.85rem", fontWeight: 700, color: "#0f172a" }}>Other Social Links</h4>
                 <div style={{ display: "grid", gap: "10px" }}>
                   <input 
                     type="text" 
                     value={config.socialInstagram || ""} 
                     onChange={e => update("socialInstagram", e.target.value)} 
                     placeholder="Instagram Profile URL (https://instagram.com/...)" 
-                    style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
-                  />
-                  <input 
-                    type="text" 
-                    value={config.socialWhatsapp || ""} 
-                    onChange={e => update("socialWhatsapp", e.target.value)} 
-                    placeholder="WhatsApp Quick Link or Number" 
                     style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
                   />
                   <input 
