@@ -158,7 +158,7 @@ export default function CollectionsPage() {
   }
   @media (min-width: 1280px) {
     .storefront-services-grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 32px;
     }
   }
@@ -280,9 +280,14 @@ export default function CollectionsPage() {
 
                             <button 
                               type="button" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/site/${salon.slug}/service/${service.id}`);
+                              }}
                               style={{
                                 display: "inline-flex",
                                 alignItems: "center",
+                                justifyContent: "center",
                                 gap: 6,
                                 background: "#0f172a",
                                 color: "#ffffff",
@@ -292,7 +297,20 @@ export default function CollectionsPage() {
                                 fontSize: 13,
                                 border: "none",
                                 cursor: "pointer",
-                                transition: "all 0.2s"
+                                whiteSpace: "nowrap",
+                                flexShrink: 0,
+                                transition: "all 0.2s ease",
+                                boxShadow: "0 2px 6px rgba(15, 23, 42, 0.15)"
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.background = "#0d9488";
+                                e.currentTarget.style.transform = "translateY(-1px)";
+                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(13, 148, 136, 0.3)";
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.background = "#0f172a";
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.15)";
                               }}
                             >
                               <span>Book Slot</span>
