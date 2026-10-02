@@ -853,10 +853,6 @@ export default function EnquiriesPage() {
                     <div className="spec-label"><MapPin size={14}/> Branch</div>
                     <div className="spec-value">{detailData.branch?.name || "Global"}</div>
                   </div>
-                  <div className="spec-item" style={{ background: "white", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
-                    <div className="spec-label"><User size={14}/> Assigned To</div>
-                    <div className="spec-value">{detailData.assignedToStaff?.user?.name || "Unassigned"}</div>
-                  </div>
                 </div>
 
                 {detailData.remark && (
