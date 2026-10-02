@@ -100,6 +100,20 @@ export default function ServiceDetailPage() {
       .finally(() => setCheckingSlots(false));
   }, [selectedDate, salon?.slug, salon?.branches, selectedBranchId, selectedStaff?.id]);
 
+  const nextDays = useMemo(() => {
+    const dates = [];
+    const d = new Date();
+    for (let i = 0; i < 14; i++) {
+      const current = new Date(d);
+      current.setDate(d.getDate() + i);
+      dates.push(current);
+    }
+    return dates;
+  }, []);
+
+  const morningSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) < 12), []);
+  const afternoonSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) >= 12), []);
+
   if (loading) {
     return (
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "180px 32px", textAlign: "center", color: "var(--text-muted)" }}>
@@ -128,20 +142,6 @@ export default function ServiceDetailPage() {
   ).slice(0, 3);
 
   const today = new Date().toLocaleDateString('en-CA');
-
-  const nextDays = useMemo(() => {
-    const dates = [];
-    const d = new Date();
-    for (let i = 0; i < 14; i++) {
-      const current = new Date(d);
-      current.setDate(d.getDate() + i);
-      dates.push(current);
-    }
-    return dates;
-  }, []);
-
-  const morningSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) < 12), []);
-  const afternoonSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) >= 12), []);
 
   const isSlotBooked = (time) => {
     if (!bookedSlots.length || !time || !selectedDate) return false;
