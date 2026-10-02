@@ -367,12 +367,11 @@ export default function OwnerDashboard() {
     products: 0,
     expenses: 0
   };
-  const todayAppts = data.todayAppointmentsBreakdown || {
-    all: data.todayAppointments || 0,
-    upcoming: data.upcomingAppointments || 0,
-    ongoing: 0,
-    completed: data.servicesCompleted || 0,
-    noShow: 0
+  const todayAppts = {
+    confirmed: data.todayAppointmentsBreakdown?.confirmed ?? data.upcomingAppointments ?? 0,
+    completed: data.todayAppointmentsBreakdown?.completed ?? data.servicesCompleted ?? 0,
+    cancelled: data.todayAppointmentsBreakdown?.cancelled ?? data.cancelledAppointments ?? 0,
+    total: data.todayAppointmentsBreakdown?.total ?? data.todayAppointments ?? 0
   };
   const todayFinance = data.todayFinance || {
     card: 0,
@@ -477,27 +476,27 @@ export default function OwnerDashboard() {
         </div>
 
         {/* Card 2: Appointments For Today */}
-        <div className="dashboard-kpi-card">
+        <div className="dashboard-kpi-card" style={{ cursor: "pointer" }} onClick={() => navigate("/admin/appointments")}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ padding: 6, borderRadius: 8, background: "#f1f5f9", color: "#475569" }}><Calendar size={16} /></div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Appointments Today</div>
           </div>
           <div className="dashboard-kpi-subgrid">
-            <div className="dashboard-sub-pill" style={{ background: "#f8fafc", border: "1px solid #f1f5f9", textAlign: "center", alignItems: "center" }}>
-              <div className="dashboard-sub-pill-label" style={{ color: "#475569" }}>All</div>
-              <div className="dashboard-sub-pill-val">{todayAppts.all}</div>
-            </div>
             <div className="dashboard-sub-pill" style={{ background: "#eff6ff", border: "1px solid #dbeafe", textAlign: "center", alignItems: "center" }}>
-              <div className="dashboard-sub-pill-label" style={{ color: "#2563eb" }}>Upcoming</div>
-              <div className="dashboard-sub-pill-val">{todayAppts.upcoming}</div>
-            </div>
-            <div className="dashboard-sub-pill" style={{ background: "#fffbeb", border: "1px solid #fef3c7", textAlign: "center", alignItems: "center" }}>
-              <div className="dashboard-sub-pill-label" style={{ color: "#d97706" }}>On Going</div>
-              <div className="dashboard-sub-pill-val">{todayAppts.ongoing}</div>
+              <div className="dashboard-sub-pill-label" style={{ color: "#2563eb" }}>Confirmed</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.confirmed}</div>
             </div>
             <div className="dashboard-sub-pill" style={{ background: "#ecfdf5", border: "1px solid #d1fae5", textAlign: "center", alignItems: "center" }}>
-              <div className="dashboard-sub-pill-label" style={{ color: "#059669" }}>Done</div>
+              <div className="dashboard-sub-pill-label" style={{ color: "#059669" }}>Completed</div>
               <div className="dashboard-sub-pill-val">{todayAppts.completed}</div>
+            </div>
+            <div className="dashboard-sub-pill" style={{ background: "#fef2f2", border: "1px solid #fee2e2", textAlign: "center", alignItems: "center" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#dc2626" }}>Cancelled</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.cancelled}</div>
+            </div>
+            <div className="dashboard-sub-pill" style={{ background: "#f8fafc", border: "1px solid #f1f5f9", textAlign: "center", alignItems: "center" }}>
+              <div className="dashboard-sub-pill-label" style={{ color: "#475569" }}>Total</div>
+              <div className="dashboard-sub-pill-val">{todayAppts.total}</div>
             </div>
           </div>
         </div>
