@@ -380,16 +380,37 @@ button.pos-item-card:hover {
   height: 14px;
 }
 
-.pos-cart-table-wrapper { overflow-x: auto; }
+.pos-cart-table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 280px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+.pos-cart-table-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.pos-cart-table-wrapper::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+.pos-cart-table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.pos-cart-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 .pos-cart-table {
   width: 100%;
   border-collapse: collapse;
 }
 .pos-cart-table th {
   background: #f8fafc;
-  padding: 5px 8px;
+  padding: 8px 8px;
   text-align: left;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: #64748b;
   font-weight: 600;
   border-bottom: 1px solid #e2e8f0;
