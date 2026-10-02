@@ -163,7 +163,7 @@ export default function CollectionsPage() {
     }
   }
 `}</style>
-<div className="storefront-services-grid">
+<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 28 }}>
                   {filteredServices.map(service => {
                     const price = Number(service.salePrice && Number(service.salePrice) < Number(service.price) ? service.salePrice : service.price);
                     const hasImage = Boolean(service.imageUrl && (service.imageUrl.startsWith("http") || service.imageUrl.startsWith("data:image/")));
