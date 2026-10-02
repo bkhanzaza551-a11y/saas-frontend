@@ -106,7 +106,7 @@ export default function BlogListPage() {
             )}
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 380px))", justifyContent: "flex-start", gap: 32 }}>
             {filteredBlogs.map(blog => {
               let coverImg = blog.imageUrl;
               if (!coverImg && Array.isArray(blog.images) && blog.images.length > 0) coverImg = blog.images[0];
