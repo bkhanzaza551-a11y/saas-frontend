@@ -195,11 +195,11 @@ export default function BlogPostPage() {
 
         {/* Featured Main Image Banner */}
         {coverImage && (
-          <div style={{ width: "100%", borderRadius: 24, overflow: "hidden", boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.15)", marginBottom: 36, background: "#0f172a", maxHeight: "520px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "100%", borderRadius: 24, overflow: "hidden", marginBottom: 36, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
             <img 
               src={coverImage} 
               alt={blog.title} 
-              style={{ width: "100%", maxHeight: "520px", objectFit: "contain", background: "#0f172a" }} 
+              style={{ width: "100%", height: "auto", maxHeight: "600px", objectFit: "contain", borderRadius: 24 }} 
             />
           </div>
         )}
