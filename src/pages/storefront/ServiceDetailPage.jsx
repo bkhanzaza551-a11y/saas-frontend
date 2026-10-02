@@ -593,24 +593,84 @@ export default function ServiceDetailPage() {
         {relatedServices.length > 0 && (
           <section style={{ marginTop: 120, paddingTop: 80, borderTop: "1px solid var(--border)" }}>
             <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "2.5rem", marginBottom: 48, fontWeight: 500, textAlign: 'center' }}>Explore More</h2>
-            <div className="sf-services-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 28 }}>
               {relatedServices.map(s => {
                 const sPrice = Number(s.salePrice && Number(s.salePrice) < Number(s.price) ? s.salePrice : s.price);
-                const sHasSale = s.salePrice && Number(s.salePrice) < Number(s.price);
                 return (
-                  <div key={s.id} className="sf-service-card" onClick={() => navigate(`/site/${salon.slug}/service/${s.id}`)}>
-                    <div className="sf-service-img-wrapper">
-                      <img src={s.imageUrl || FALLBACK_IMG} alt={s.name} className="sf-service-img" />
+                  <div 
+                    key={s.id} 
+                    onClick={() => navigate(`/site/${salon.slug}/service/${s.id}`)}
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 16,
+                      padding: "16px 20px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      position: "relative",
+                      gap: "16px"
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow = "0 10px 24px rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "var(--accent)";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.04)";
+                      e.currentTarget.style.borderColor = "#e2e8f0";
+                    }}
+                  >
+                    <div style={{ flexShrink: 0 }}>
+                      <img 
+                        src={s.imageUrl || FALLBACK_IMG} 
+                        alt={s.name} 
+                        style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover" }} 
+                      />
                     </div>
-                    <div className="sf-service-content">
-                      <h3 style={{ fontSize: '1.3rem' }}>{s.name}</h3>
-                      <div className="sf-service-footer">
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                          <span className="sf-service-price">{currency} {sPrice.toFixed(2)}</span>
-                          {sHasSale && <span style={{ fontSize: "0.9rem", color: "var(--text-muted)", textDecoration: "line-through" }}>{currency} {Number(s.price).toFixed(2)}</span>}
+                    
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+                      <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", margin: "0 0 6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {s.name}
+                      </h3>
+                      {s.durationMinutes && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#64748b", fontSize: 13, fontWeight: 500 }}>
+                          <Clock size={14} /> {s.durationMinutes} min
                         </div>
-                        <span className="sf-service-btn">Details <ArrowRight size={16} /></span>
+                      )}
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, gap: 8 }}>
+                      <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0f172a" }}>
+                        {currency} {sPrice.toFixed(2)}
                       </div>
+                      <button 
+                        style={{
+                          background: "transparent",
+                          border: "1px solid var(--accent)",
+                          color: "var(--accent)",
+                          padding: "6px 16px",
+                          borderRadius: 100,
+                          fontWeight: 600,
+                          fontSize: "0.8rem",
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = "var(--accent)";
+                          e.currentTarget.style.color = "#fff";
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = "var(--accent)";
+                        }}
+                      >
+                        Book
+                      </button>
                     </div>
                   </div>
                 );
