@@ -255,9 +255,61 @@ export default function BlogsManagementPage() {
                 <input name="author" value={formData.author} onChange={handleChange} style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1", outline: "none" }} />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", color: "#334155", fontSize: "0.9rem" }}>Image URL</label>
-                <input name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://example.com/image.png" style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1", outline: "none" }} />
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#64748b" }}>Paste a direct link to an image. (We recommend hosting images on Imgur or similar services for now).</p>
+                <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", color: "#334155", fontSize: "0.9rem" }}>Featured Image</label>
+                {formData.imageUrl ? (
+                  <div style={{ position: "relative", width: "100%", height: "160px", borderRadius: "8px", overflow: "hidden", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
+                    <img src={formData.imageUrl} alt="Featured" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, imageUrl: "" }))}
+                      style={{
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        background: "rgba(15, 23, 42, 0.8)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "5px 10px",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      <Trash2 size={13} /> Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "20px 16px",
+                    border: "2px dashed #cbd5e1",
+                    borderRadius: "8px",
+                    background: "#f8fafc",
+                    cursor: imageUploading ? "not-allowed" : "pointer",
+                    textAlign: "center"
+                  }}>
+                    {imageUploading ? (
+                      <>
+                        <Loader2 size={22} color="#4f46e5" style={{ animation: "spin 1s linear infinite", marginBottom: "6px" }} />
+                        <span style={{ fontSize: "0.8rem", color: "#4f46e5", fontWeight: 600 }}>Uploading image...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={22} color="#64748b" style={{ marginBottom: "6px" }} />
+                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155" }}>Click to upload featured image</span>
+                        <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "2px" }}>JPG, PNG, WEBP (Max 10MB)</span>
+                        <input type="file" accept="image/*" onChange={handleImageUpload} disabled={imageUploading} style={{ display: "none" }} />
+                      </>
+                    )}
+                  </label>
+                )}
               </div>
               <div>
                 <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", color: "#334155", fontSize: "0.9rem" }}>Excerpt</label>

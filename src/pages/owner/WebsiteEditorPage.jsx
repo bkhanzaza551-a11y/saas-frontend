@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/apiError";
@@ -20,7 +21,7 @@ import {
   Check,
   ChevronDown,
   Upload,
-  Globe, MessageCircle
+  Globe, MessageCircle, FileText, Edit2, CheckCircle, XCircle, Loader2
 } from "lucide-react";
 import "./WebsiteEditorPage.css";
 
@@ -214,6 +215,7 @@ export default function WebsiteEditorPage() {
     { id: "branding", label: "Theme & Brand", icon: <Palette size={16} /> },
     { id: "hero", label: "Hero Banner", icon: <LayoutTemplate size={16} /> },
     { id: "about", label: "About Story", icon: <Info size={16} /> },
+    { id: "blogs", label: "Storefront Blogs", icon: <FileText size={16} /> },
     { id: "gallery", label: "Photo Gallery", icon: <ImageIcon size={16} /> },
     { id: "reviews", label: "Client Reviews", icon: <Star size={16} /> },
     { id: "contact", label: "Contact & Social", icon: <Phone size={16} /> },
@@ -552,6 +554,140 @@ export default function WebsiteEditorPage() {
             </div>
           )}
 
+                    {/* 3.5 STOREFRONT BLOGS */}
+          {activeCategory === "blogs" && (
+            <div style={{ display: "grid", gap: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: "#0f172a" }}>Storefront Articles</h3>
+                  <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "#64748b" }}>Publish blogs and insights on your mini website.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleOpenBlogModal()}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 14px",
+                    borderRadius: "8px",
+                    background: "#0f172a",
+                    color: "#ffffff",
+                    border: "none",
+                    fontWeight: 600,
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                    boxShadow: "0 2px 6px rgba(15,23,42,0.15)"
+                  }}
+                >
+                  <Plus size={15} /> Add Article
+                </button>
+              </div>
+
+              <div style={{ position: "relative", width: "100%" }}>
+                <Search size={15} color="#94a3b8" style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                <input
+                  type="text"
+                  placeholder="Search articles by title or author..."
+                  value={blogSearch}
+                  onChange={(e) => setBlogSearch(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 30px 8px 32px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    fontSize: "0.8rem",
+                    outline: "none",
+                    boxSizing: "border-box"
+                  }}
+                />
+                {blogSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setBlogSearch("")}
+                    style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 0 }}
+                  >
+                    <XCircle size={14} />
+                  </button>
+                )}
+              </div>
+
+              <div style={{ display: "grid", gap: "10px" }}>
+                {blogLoading ? (
+                  <div style={{ padding: "30px", textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>Loading articles...</div>
+                ) : blogs.filter(b => (b.title || "").toLowerCase().includes(blogSearch.toLowerCase()) || (b.author || "").toLowerCase().includes(blogSearch.toLowerCase())).length === 0 ? (
+                  <div style={{ padding: "32px 16px", textAlign: "center", background: "#f8fafc", borderRadius: "10px", border: "1px dashed #cbd5e1" }}>
+                    <FileText size={28} color="#94a3b8" style={{ marginBottom: "6px" }} />
+                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#334155" }}>No blog articles found</div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "2px" }}>Click "Add Article" above to create your first post.</div>
+                  </div>
+                ) : (
+                  blogs
+                    .filter(b => (b.title || "").toLowerCase().includes(blogSearch.toLowerCase()) || (b.author || "").toLowerCase().includes(blogSearch.toLowerCase()))
+                    .map(blog => (
+                      <div
+                        key={blog.id}
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          padding: "12px",
+                          borderRadius: "10px",
+                          border: "1px solid #e2e8f0",
+                          background: "#ffffff",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.02)"
+                        }}
+                      >
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center", minWidth: 0 }}>
+                          {blog.imageUrl ? (
+                            <img src={blog.imageUrl} alt="" style={{ width: "42px", height: "42px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} />
+                          ) : (
+                            <div style={{ width: "42px", height: "42px", borderRadius: "6px", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", flexShrink: 0 }}>
+                              <FileText size={18} />
+                            </div>
+                          )}
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {blog.title}
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
+                              <span style={{ fontSize: "0.7rem", color: "#64748b" }}>{blog.author || "Admin"}</span>
+                              <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#cbd5e1" }} />
+                              {blog.published ? (
+                                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#166534", background: "#dcfce7", padding: "1px 6px", borderRadius: "4px" }}>Published</span>
+                              ) : (
+                                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#92400e", background: "#fef3c7", padding: "1px 6px", borderRadius: "4px" }}>Draft</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenBlogModal(blog)}
+                            style={{ background: "#f1f5f9", border: "none", padding: "6px", borderRadius: "6px", cursor: "pointer", color: "#475569" }}
+                            title="Edit"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBlog(blog.id)}
+                            style={{ background: "#fee2e2", border: "none", padding: "6px", borderRadius: "6px", cursor: "pointer", color: "#b91c1c" }}
+                            title="Delete"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 4. PHOTO GALLERY */}
           {activeCategory === "gallery" && (
             <div style={{ display: "grid", gap: "16px" }}>
@@ -850,6 +986,109 @@ export default function WebsiteEditorPage() {
 
       </div>
 
+      {/* Blog Article Editor Modal */}
+      {isBlogModalOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "16px" }}>
+          <div style={{ background: "#fff", borderRadius: "14px", width: "100%", maxWidth: "580px", maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", overflow: "hidden" }}>
+            <div style={{ padding: "18px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc" }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 700, color: "#0f172a" }}>{editingBlog ? "Edit Blog Article" : "Create Blog Article"}</h2>
+                <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "#64748b" }}>Publish on your public storefront blog page.</p>
+              </div>
+              <button type="button" onClick={() => setIsBlogModalOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}><XCircle size={22} /></button>
+            </div>
+            
+            <div style={{ padding: "20px 24px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Title *</label>
+                <input name="title" value={blogFormData.title} onChange={handleBlogFormChange} placeholder="e.g. 5 Hair Care Secrets for Winter" style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Slug *</label>
+                <input name="slug" value={blogFormData.slug} onChange={handleBlogFormChange} placeholder="5-hair-care-secrets-for-winter" style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Author</label>
+                <input name="author" value={blogFormData.author} onChange={handleBlogFormChange} placeholder="e.g. Master Stylist Renu" style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Featured Image</label>
+                {blogFormData.imageUrl ? (
+                  <div style={{ position: "relative", width: "100%", height: "160px", borderRadius: "8px", overflow: "hidden", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
+                    <img src={blogFormData.imageUrl} alt="Featured" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      type="button"
+                      onClick={() => setBlogFormData(prev => ({ ...prev, imageUrl: "" }))}
+                      style={{
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        background: "rgba(15, 23, 42, 0.8)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "5px 10px",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      <Trash2 size={13} /> Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "20px 16px",
+                    border: "2px dashed #cbd5e1",
+                    borderRadius: "8px",
+                    background: "#f8fafc",
+                    cursor: blogImageUploading ? "not-allowed" : "pointer",
+                    textAlign: "center"
+                  }}>
+                    {blogImageUploading ? (
+                      <>
+                        <Loader2 size={22} color="#4f46e5" style={{ animation: "spin 1s linear infinite", marginBottom: "6px" }} />
+                        <span style={{ fontSize: "0.8rem", color: "#4f46e5", fontWeight: 600 }}>Uploading image...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={22} color="#64748b" style={{ marginBottom: "6px" }} />
+                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155" }}>Click to upload featured image</span>
+                        <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "2px" }}>JPG, PNG, WEBP (Max 10MB)</span>
+                        <input type="file" accept="image/*" onChange={handleBlogImageUpload} disabled={blogImageUploading} style={{ display: "none" }} />
+                      </>
+                    )}
+                  </label>
+                )}
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Excerpt / Summary</label>
+                <textarea name="excerpt" value={blogFormData.excerpt} onChange={handleBlogFormChange} rows={2} placeholder="Short summary displayed on cards..." style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", outline: "none", resize: "vertical", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: 600, color: "#334155", fontSize: "0.85rem" }}>Content</label>
+                <textarea name="content" value={blogFormData.content} onChange={handleBlogFormChange} rows={5} placeholder="Write your article here..." style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.85rem", outline: "none", resize: "vertical", boxSizing: "border-box" }} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 0" }}>
+                <input type="checkbox" id="we_blog_pub" name="published" checked={blogFormData.published} onChange={handleBlogFormChange} style={{ width: "17px", height: "17px", cursor: "pointer" }} />
+                <label htmlFor="we_blog_pub" style={{ fontWeight: 600, color: "#334155", fontSize: "0.85rem", cursor: "pointer" }}>Publish immediately on website</label>
+              </div>
+            </div>
+
+            <div style={{ padding: "14px 24px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "10px", background: "#f8fafc" }}>
+              <button type="button" onClick={() => setIsBlogModalOpen(false)} style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "#fff", color: "#475569", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer" }}>Cancel</button>
+              <button type="button" onClick={handleSaveBlog} disabled={!blogFormData.title} style={{ padding: "8px 18px", borderRadius: "8px", border: "none", background: "#0f172a", color: "#fff", fontWeight: 600, fontSize: "0.82rem", cursor: blogFormData.title ? "pointer" : "not-allowed", opacity: blogFormData.title ? 1 : 0.6 }}>Save Article</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
