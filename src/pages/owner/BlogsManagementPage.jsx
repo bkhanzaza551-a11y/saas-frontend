@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Edit2, Trash2, CheckCircle, XCircle, Plus } from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -46,7 +46,16 @@ export default function BlogsManagementPage() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setFormData(prev => {
+      const next = { ...prev, [name]: type === "checkbox" ? checked : value };
+      if (name === "title" && !editingBlog) {
+        const autoSlug = value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        if (!prev.slug || prev.slug === prev.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")) {
+          next.slug = autoSlug;
+        }
+      }
+      return next;
+    });
   };
 
   const handleSave = async () => {
@@ -75,7 +84,11 @@ export default function BlogsManagementPage() {
     }
   };
 
-  const filteredBlogs = blogs.filter(b => b.title.toLowerCase().includes(search.toLowerCase()));
+  const filteredBlogs = blogs.filter(b => {
+    const query = search.trim().toLowerCase();
+    if (!query) return true;
+    return (b.title || "").toLowerCase().includes(query) || (b.author || "").toLowerCase().includes(query);
+  });
 
   return (
     <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
@@ -84,15 +97,68 @@ export default function BlogsManagementPage() {
           <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#0f172a", margin: 0 }}>Blogs Management</h1>
           <p style={{ color: "#64748b", margin: "4px 0 0" }}>Manage your storefront blog articles.</p>
         </div>
-        <button onClick={() => handleOpenModal()} style={{ background: "#4f46e5", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
+        <button onClick={() => handleOpenModal()} style={{ background: "#4f46e5", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)" }}>
           <Plus size={18} /> Add Blog
         </button>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "20px" }}>
-        <div style={{ marginBottom: "16px", display: "flex", alignItems: "center", background: "#f1f5f9", padding: "8px 12px", borderRadius: "8px", width: "fit-content" }}>
-          <Search size={18} color="#64748b" style={{ marginRight: "8px" }} />
-          <input type="text" placeholder="Search blogs..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ border: "none", background: "transparent", outline: "none", fontSize: "1rem", width: "250px" }} />
+      <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "20px", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+        <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+          <div style={{ position: "relative", width: "100%", maxWidth: "340px" }}>
+            <Search size={17} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+            <input
+              type="text"
+              placeholder="Search blogs by title or author..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "9px 36px 9px 38px",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+                background: "#f8fafc",
+                fontSize: "0.875rem",
+                color: "#0f172a",
+                outline: "none",
+                transition: "all 0.15s ease",
+                boxSizing: "border-box"
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#3b82f6";
+                e.target.style.background = "#ffffff";
+                e.target.style.boxShadow = "0 0 0 3px rgba(59, 130, 246, 0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#e2e8f0";
+                e.target.style.background = "#f8fafc";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#94a3b8",
+                  padding: "2px",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <XCircle size={15} />
+              </button>
+            )}
+          </div>
+          <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: "500" }}>
+            Total: <span style={{ color: "#0f172a", fontWeight: "700" }}>{filteredBlogs.length}</span> {filteredBlogs.length === 1 ? "article" : "articles"}
+          </div>
         </div>
 
         <div style={{ overflowX: "auto" }}>
