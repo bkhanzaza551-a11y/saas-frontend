@@ -693,9 +693,11 @@ export default function OwnerDashboard() {
               <button
                 type="button"
                 onClick={() => setIsInboxModalOpen(false)}
-                style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 6, width: 28, height: 28, cursor: "pointer", color: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+                style={{ background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 8, width: 32, height: 32, cursor: "pointer", color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+                title="Close"
+                aria-label="Close"
               >
-                <X size={15} />
+                <X size={18} strokeWidth={2.5} color="#334155" />
               </button>
             </div>
 
@@ -708,24 +710,26 @@ export default function OwnerDashboard() {
                   <button
                     type="button"
                     onClick={() => shiftInboxDate(-1)}
-                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#475569" }}
+                    style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#1e293b", transition: "all 0.15s" }}
                     title="Previous Day"
+                    aria-label="Previous Day"
                   >
-                    <ChevronLeft size={15} />
+                    <ChevronLeft size={18} strokeWidth={2.5} color="#1e293b" />
                   </button>
                   <input
                     type="date"
                     value={inboxDate}
                     onChange={(e) => setInboxDate(e.target.value)}
-                    style={{ border: "1px solid #cbd5e1", borderRadius: 6, height: 30, padding: "0 8px", fontSize: "0.8rem", fontWeight: 600, color: "#0f172a", background: "#fff", outline: "none" }}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: 8, height: 32, padding: "0 10px", fontSize: "0.82rem", fontWeight: 600, color: "#0f172a", background: "#fff", outline: "none" }}
                   />
                   <button
                     type="button"
                     onClick={() => shiftInboxDate(1)}
-                    style={{ background: "#fff", border: "1px solid #cbd5e1", borderRadius: 6, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#475569" }}
+                    style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#1e293b", transition: "all 0.15s" }}
                     title="Next Day"
+                    aria-label="Next Day"
                   >
-                    <ChevronRight size={15} />
+                    <ChevronRight size={18} strokeWidth={2.5} color="#1e293b" />
                   </button>
                   <button
                     type="button"
