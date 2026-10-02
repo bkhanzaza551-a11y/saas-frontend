@@ -195,11 +195,28 @@ export default function BlogPostPage() {
 
         {/* Featured Main Image Banner */}
         {coverImage && (
-          <div style={{ width: "100%", borderRadius: 24, overflow: "hidden", marginBottom: 36, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
+          <div style={{ position: "relative", width: "100%", height: 500, borderRadius: 24, overflow: "hidden", marginBottom: 40, display: "flex", alignItems: "center", justifyContent: "center", background: "#0f172a" }}>
+            {/* Blurred Background to fill empty space */}
+            <div 
+              style={{
+                position: "absolute",
+                inset: -30,
+                backgroundImage: `url(${coverImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                filter: "blur(24px)",
+                opacity: 0.5,
+                zIndex: 0
+              }}
+            />
+            {/* Overlay to dim the blur slightly */}
+            <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.4)", zIndex: 1 }} />
+            
+            {/* Actual Crisp Image */}
             <img 
               src={coverImage} 
               alt={blog.title} 
-              style={{ maxWidth: "100%", maxHeight: "600px", objectFit: "contain", borderRadius: 24 }} 
+              style={{ position: "relative", zIndex: 2, maxWidth: "90%", maxHeight: "90%", objectFit: "contain", borderRadius: 12, boxShadow: "0 20px 40px rgba(0,0,0,0.4)" }} 
             />
           </div>
         )}
