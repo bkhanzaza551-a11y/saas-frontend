@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
@@ -128,6 +128,20 @@ export default function ServiceDetailPage() {
   ).slice(0, 3);
 
   const today = new Date().toLocaleDateString('en-CA');
+
+  const nextDays = useMemo(() => {
+    const dates = [];
+    const d = new Date();
+    for (let i = 0; i < 14; i++) {
+      const current = new Date(d);
+      current.setDate(d.getDate() + i);
+      dates.push(current);
+    }
+    return dates;
+  }, []);
+
+  const morningSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) < 12), []);
+  const afternoonSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) >= 12), []);
 
   const isSlotBooked = (time) => {
     if (!bookedSlots.length || !time || !selectedDate) return false;
@@ -361,48 +375,117 @@ export default function ServiceDetailPage() {
           {/* Right Column: Booking Widget */}
           <div className="sf-detail-sticky" style={{ position: "sticky", top: 120 }}>
             <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", padding: "36px", borderRadius: "24px", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)" }}>
-              <h3 style={{ margin: "0 0 28px", fontSize: "1.6rem", fontWeight: 700, color: "#0f172a", paddingBottom: 20, borderBottom: '1px solid #f1f5f9' }}>Reserve Appointment</h3>
+              <h3 style={{ margin: "0 0 28px", fontSize: "1.6rem", fontWeight: 700, color: "#0f172a", paddingBottom: 20, borderBottom: '1px solid #f1f5f9' }}>Choose Your Appointment</h3>
               
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 
                 <div className="sf-form-group" style={{ marginBottom: 0 }}>
-                  <label className="sf-form-label">Date</label>
-                  <input type="date" min={today} value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setSelectedTime(""); }}
-                    className="sf-form-input" />
+                  <div style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "12px", margin: "0 -4px", padding: "4px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+                    {nextDays.map(d => {
+                      const dateStr = d.toLocaleDateString('en-CA');
+                      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                      const dateNum = d.getDate();
+                      const isSelected = selectedDate === dateStr;
+                      return (
+                        <div 
+                          key={dateStr}
+                          onClick={() => { setSelectedDate(dateStr); setSelectedTime(""); }}
+                          style={{
+                            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                            minWidth: "64px", height: "80px",
+                            borderRadius: "40px",
+                            cursor: "pointer",
+                            background: isSelected ? "var(--accent)" : "#fff",
+                            border: isSelected ? "1px solid var(--accent)" : "1px solid #e2e8f0",
+                            color: isSelected ? "#fff" : "var(--text-main)",
+                            transition: "all 0.2s",
+                            flexShrink: 0
+                          }}
+                        >
+                          <span style={{ fontSize: "0.85rem", fontWeight: 500, marginBottom: "4px", color: isSelected ? "#fff" : "var(--text-muted)" }}>{dayName}</span>
+                          <span style={{ fontSize: "1.2rem", fontWeight: 700 }}>{dateNum}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="sf-form-group" style={{ marginBottom: 0 }}>
-                  <label className="sf-form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Time</span>
-                    {checkingSlots && <span style={{ color: "var(--text-muted)", fontWeight: 300, textTransform: 'none', letterSpacing: 'normal' }}>Checking...</span>}
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(98px, 1fr))', gap: 10, marginTop: 12 }}>
-                    {TIME_OPTIONS.map(t => {
-                      const booked = isSlotBooked(t);
-                      return (
-                         <button
-                           key={t}
-                           disabled={booked}
-                           onClick={() => setSelectedTime(t)}
-                           title={booked ? "Already booked" : "Available"}
-                           style={{
-                             padding: "10px 4px",
-                             textAlign: "center",
-                             border: selectedTime === t ? "1px solid var(--accent)" : "1px solid var(--border)",
-                             background: booked ? "#f3f4f6" : (selectedTime === t ? "var(--accent)" : "var(--surface)"),
-                             color: booked ? "#9ca3af" : (selectedTime === t ? "#fff" : "var(--text-main)"),
-                             cursor: booked ? "not-allowed" : "pointer",
-                             fontWeight: 600,
-                             fontSize: "0.82rem",
-                             borderRadius: "8px",
-                             transition: "var(--transition)",
-                             whiteSpace: "nowrap"
-                           }}
-                         >
-                           {formatTime12Hour(t)}
-                         </button>
-                      );
-                    })}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "#0f172a" }}>Available Time</span>
+                    {checkingSlots && <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Checking...</span>}
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {morningSlots.length > 0 && (
+                      <div>
+                        <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600 }}>Morning Time Slots</h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                          {morningSlots.map(t => {
+                            const booked = isSlotBooked(t);
+                            const isSelected = selectedTime === t;
+                            return (
+                              <button
+                                key={t}
+                                disabled={booked}
+                                onClick={() => setSelectedTime(t)}
+                                title={booked ? "Already booked" : "Available"}
+                                style={{
+                                  padding: "10px 18px",
+                                  textAlign: "center",
+                                  border: isSelected ? "1.5px solid var(--accent)" : "1px solid #e2e8f0",
+                                  background: "#fff",
+                                  color: booked ? "#d1d5db" : (isSelected ? "var(--accent)" : "#64748b"),
+                                  cursor: booked ? "not-allowed" : "pointer",
+                                  fontWeight: 600,
+                                  fontSize: "0.85rem",
+                                  borderRadius: "100px",
+                                  transition: "all 0.2s",
+                                  opacity: booked ? 0.5 : 1
+                                }}
+                              >
+                                {formatTime12Hour(t)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {afternoonSlots.length > 0 && (
+                      <div>
+                        <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600 }}>Afternoon Time Slots</h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                          {afternoonSlots.map(t => {
+                            const booked = isSlotBooked(t);
+                            const isSelected = selectedTime === t;
+                            return (
+                              <button
+                                key={t}
+                                disabled={booked}
+                                onClick={() => setSelectedTime(t)}
+                                title={booked ? "Already booked" : "Available"}
+                                style={{
+                                  padding: "10px 18px",
+                                  textAlign: "center",
+                                  border: isSelected ? "1.5px solid var(--accent)" : "1px solid #e2e8f0",
+                                  background: "#fff",
+                                  color: booked ? "#d1d5db" : (isSelected ? "var(--accent)" : "#64748b"),
+                                  cursor: booked ? "not-allowed" : "pointer",
+                                  fontWeight: 600,
+                                  fontSize: "0.85rem",
+                                  borderRadius: "100px",
+                                  transition: "all 0.2s",
+                                  opacity: booked ? 0.5 : 1
+                                }}
+                              >
+                                {formatTime12Hour(t)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
