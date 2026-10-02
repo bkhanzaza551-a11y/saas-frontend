@@ -425,7 +425,7 @@ export default function ServiceCategoriesPage() {
   const handleImportClick = () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".csv";
+    input.accept = ".csv,.xlsx,.xls";
     input.onchange = async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
