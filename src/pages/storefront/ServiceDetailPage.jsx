@@ -112,7 +112,11 @@ export default function ServiceDetailPage() {
   }, []);
 
   const morningSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) < 12), []);
-  const afternoonSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) >= 12), []);
+  const afternoonSlots = useMemo(() => TIME_OPTIONS.filter(t => {
+    const h = parseInt(t.split(':')[0], 10);
+    return h >= 12 && h < 17;
+  }), []);
+  const eveningSlots = useMemo(() => TIME_OPTIONS.filter(t => parseInt(t.split(':')[0], 10) >= 17), []);
 
   if (loading) {
     return (
@@ -457,6 +461,41 @@ export default function ServiceDetailPage() {
                         <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600 }}>Afternoon Time Slots</h4>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                           {afternoonSlots.map(t => {
+                            const booked = isSlotBooked(t);
+                            const isSelected = selectedTime === t;
+                            return (
+                              <button
+                                key={t}
+                                disabled={booked}
+                                onClick={() => setSelectedTime(t)}
+                                title={booked ? "Already booked" : "Available"}
+                                style={{
+                                  padding: "10px 18px",
+                                  textAlign: "center",
+                                  border: isSelected ? "1.5px solid var(--accent)" : "1px solid #e2e8f0",
+                                  background: "#fff",
+                                  color: booked ? "#d1d5db" : (isSelected ? "var(--accent)" : "#64748b"),
+                                  cursor: booked ? "not-allowed" : "pointer",
+                                  fontWeight: 600,
+                                  fontSize: "0.85rem",
+                                  borderRadius: "100px",
+                                  transition: "all 0.2s",
+                                  opacity: booked ? 0.5 : 1
+                                }}
+                              >
+                                {formatTime12Hour(t)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {eveningSlots.length > 0 && (
+                      <div>
+                        <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", color: "var(--text-main)", fontWeight: 600 }}>Evening Time Slots</h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                          {eveningSlots.map(t => {
                             const booked = isSlotBooked(t);
                             const isSelected = selectedTime === t;
                             return (
