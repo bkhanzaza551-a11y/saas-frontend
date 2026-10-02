@@ -2622,8 +2622,8 @@ export default function PosPage() {
             {form.customerId && customerBenefits && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 8 }}>
                 {customerBenefits.loyalty > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fef3c7", color: "#92400e", fontWeight: 600, border: "1px solid #fde68a" }}>Loyalty: {customerBenefits.loyalty} pts</span>}
-                {customerBenefits.walletBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dcfce7", color: "#166534", fontWeight: 600, border: "1px solid #bbf7d0" }}>Wallet: ₹{customerBenefits.walletBalance}</span>}
-                {customerBenefits.walletBalance <= 0 && form.customerId && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#f1f5f9", color: "#94a3b8", fontWeight: 600, border: "1px solid #e2e8f0" }}>Wallet: ₹0 (Empty)</span>}
+                {customerBenefits.walletBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dcfce7", color: "#166534", fontWeight: 600, border: "1px solid #bbf7d0" }}>Wallet balance: ₹{customerBenefits.walletBalance}</span>}
+                {customerBenefits.walletBalance <= 0 && form.customerId && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#f1f5f9", color: "#94a3b8", fontWeight: 600, border: "1px solid #e2e8f0" }}>Wallet balance: ₹0 (Empty)</span>}
                 {customerBenefits.advanceBalance > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#dbeafe", color: "#1e40af", fontWeight: 600, border: "1px solid #bfdbfe" }}>Advance: ₹{customerBenefits.advanceBalance}</span>}
                 {customerBenefits.giftCardTotal > 0 && <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: 12, background: "#fce7f3", color: "#9d174d", fontWeight: 600, border: "1px solid #fbcfe8" }}>Gift Card: ₹{customerBenefits.giftCardTotal}</span>}
 

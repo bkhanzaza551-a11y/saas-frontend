@@ -33,7 +33,7 @@ const CATEGORIES = [
     title: "Digital, Marketing & Analytics",
     items: [
       { title: "Website Editor", description: "Design homepage text, sections, themes, and banners.", to: "/admin/website-editor", icon: NotebookPen, reqPerm: "settings" },
-      { title: "Manage Blogs", description: "Create and manage blog posts for your storefront.", to: "/admin/blogs", icon: FileText, reqPerm: "settings" },
+      { title: "Website Blogs", description: "Create and manage blog posts for your storefront.", to: "/admin/blogs", icon: FileText, reqPerm: "settings" },
       { title: "Messaging & SMS Credits", description: "Purchase and manage credits for WhatsApp & SMS notifications.", to: "/admin/whatsapp-credits", icon: MessagesSquare, reqFlag: "whatsapp" },
       { title: "Campaigns", description: "Create and manage marketing campaigns to attract more customers and promote salon services.", to: "/admin/campaigns", icon: Megaphone, reqPerm: "campaigns", reqFlag: "campaigns" },
       { title: "Branch Analytics", description: "Global performance analytics across all branches.", to: "/admin/global-dashboard", icon: Activity, reqPerm: "pos", reqFlag: "pos" },

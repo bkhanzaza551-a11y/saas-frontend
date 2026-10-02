@@ -94,7 +94,7 @@ export default function BlogsManagementPage() {
     <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#0f172a", margin: 0 }}>Blogs Management</h1>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#0f172a", margin: 0 }}>Website Blogs</h1>
           <p style={{ color: "#64748b", margin: "4px 0 0" }}>Manage your storefront blog articles.</p>
         </div>
         <button onClick={() => handleOpenModal()} style={{ background: "#4f46e5", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)" }}>
