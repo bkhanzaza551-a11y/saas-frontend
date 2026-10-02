@@ -1420,3 +1420,21 @@ a {
   }
 }
 
+.sf-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 60px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .sf-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+@media (max-width: 600px) {
+  .sf-booking-widget {
+    padding: 20px !important;
+  }
+}

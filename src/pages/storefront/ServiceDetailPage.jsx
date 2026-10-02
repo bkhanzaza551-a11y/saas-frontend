@@ -246,7 +246,7 @@ export default function ServiceDetailPage() {
           <ArrowLeft size={16} /> Back to Services
         </Link>
         
-        <div className="sf-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 60, alignItems: "start" }}>
+        <div className="sf-detail-grid">
           
           {/* Left Column: Details */}
           <div>
@@ -374,7 +374,7 @@ export default function ServiceDetailPage() {
 
           {/* Right Column: Booking Widget */}
           <div className="sf-detail-sticky" style={{ position: "sticky", top: 120 }}>
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", padding: "36px", borderRadius: "24px", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)" }}>
+            <div className="sf-booking-widget" style={{ background: "#ffffff", border: "1px solid #e2e8f0", padding: "36px", borderRadius: "24px", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)" }}>
               <h3 style={{ margin: "0 0 28px", fontSize: "1.6rem", fontWeight: 700, color: "#0f172a", paddingBottom: 20, borderBottom: '1px solid #f1f5f9' }}>Choose Your Appointment</h3>
               
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
