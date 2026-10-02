@@ -110,7 +110,7 @@ export default function ServiceDetailPage() {
   const nextDays = useMemo(() => {
     const dates = [];
     const d = new Date();
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 30; i++) {
       const current = new Date(d);
       current.setDate(d.getDate() + i);
       dates.push(current);
