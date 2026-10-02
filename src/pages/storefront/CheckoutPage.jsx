@@ -82,41 +82,52 @@ export default function CheckoutPage() {
       const customerName = `${form.firstName} ${form.lastName}`.trim();
       const formattedPhone = form.phone.startsWith("+91") ? form.phone : `+91${form.phone}`;
       const results = [];
+      const bId = bookings[0]?.branchId || salon?.branches?.[0]?.id;
+      if (!bId) throw new Error("No active branch found for booking.");
+      
+      let globalStartAt = null;
+      let globalEndAt = null;
+      const allItems = [];
+      let currentStart = new Date(`${bookings[0].date}T${bookings[0].time}:00`);
+      
       for (const booking of bookings) {
         for (let i = 0; i < (booking.qty || 1); i++) {
-          const startAtDate = new Date(`${booking.date}T${booking.time}:00`);
-          const endAtDate = new Date(startAtDate.getTime() + 60 * 60 * 1000); // 1 hour
-          const bId = booking.branchId || salon?.branches?.[0]?.id;
-          if (!bId) throw new Error("No active branch found for booking. Please select a valid branch or contact salon.");
-
-          const payload = {
-            customerName,
-            customerPhone: formattedPhone,
-            customerEmail: form.email ? form.email.trim() : undefined,
-            primaryStaffUserId: booking.staffId || null,
-            branchId: bId,
-            notes: form.note ? form.note.trim() : undefined,
-            startAt: startAtDate.toISOString(),
-            endAt: endAtDate.toISOString(),
-            items: [{
-              serviceId: booking.serviceId || booking.id,
-              staffUserId: booking.staffId || null,
-              startAt: startAtDate.toISOString(),
-              endAt: endAtDate.toISOString()
-            }],
-            // For backward compatibility:
+          const itemStart = new Date(currentStart);
+          const itemEnd = new Date(currentStart.getTime() + (booking.duration || 60) * 60 * 1000);
+          
+          if (!globalStartAt || itemStart < globalStartAt) globalStartAt = itemStart;
+          if (!globalEndAt || itemEnd > globalEndAt) globalEndAt = itemEnd;
+          
+          allItems.push({
             serviceId: booking.serviceId || booking.id,
-            preferredDate: booking.date,
-            preferredTime: booking.time,
-            staffId: booking.staffId || null,
-            note: form.note ? form.note.trim() : undefined,
-            paymentMode: form.paymentMode,
-            couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
-          };
-          const res = await api.post(`/public/salons/${salon.slug}/book`, payload);
-          results.push(res.data);
+            staffUserId: booking.staffId || null,
+            startAt: itemStart.toISOString(),
+            endAt: itemEnd.toISOString()
+          });
+          currentStart = new Date(itemEnd);
         }
       }
+
+      const payload = {
+        customerName,
+        customerPhone: formattedPhone,
+        customerEmail: form.email ? form.email.trim() : undefined,
+        primaryStaffUserId: allItems[0]?.staffUserId || null,
+        branchId: bId,
+        notes: form.note ? form.note.trim() : undefined,
+        startAt: globalStartAt ? globalStartAt.toISOString() : new Date().toISOString(),
+        endAt: globalEndAt ? globalEndAt.toISOString() : new Date(Date.now() + 3600000).toISOString(),
+        items: allItems,
+        serviceId: allItems[0]?.serviceId,
+        preferredDate: bookings[0]?.date,
+        preferredTime: bookings[0]?.time,
+        staffId: allItems[0]?.staffUserId,
+        paymentMode: form.paymentMode,
+        couponCode: couponDiscount > 0 ? couponCode.trim() : undefined
+      };
+      
+      const res = await api.post(`/public/salons/${salon.slug}/book`, payload);
+      results.push(res.data);
 
       clearBookings();
       localStorage.setItem("sf_customer_phone", formattedPhone);

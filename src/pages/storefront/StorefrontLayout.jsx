@@ -416,6 +416,9 @@ export default function StorefrontLayout() {
               <Link to={`/site/${slug}/my-bookings`} className="sf-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
                 <CalendarCheck size={17} /> <span>My Bookings</span>
               </Link>
+              <Link to={`/site/${slug}/blog`} className="sf-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+                <Sparkles size={17} /> <span>Blog</span>
+              </Link>
 
               {salon.branches?.length > 1 && (
                 <div className="sf-mobile-branch-wrapper">
@@ -469,6 +472,7 @@ export default function StorefrontLayout() {
               <nav className="sf-nav-links">
                 <Link to={`/site/${slug}`}>Home</Link>
                 <Link to={`/site/${slug}/services`}>Services & Pricing</Link>
+                <Link to={`/site/${slug}/blog`}>Blog</Link>
                 <Link to={`/site/${slug}/my-bookings`}>My Bookings</Link>
               </nav>
               

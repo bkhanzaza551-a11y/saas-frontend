@@ -637,7 +637,7 @@ export default function PosPage() {
       const wallet = walletRes.status === "fulfilled" ? walletRes.value?.data : null;
       const giftCards = gcRes.status === "fulfilled" ? gcRes.value?.data : null;
       const loyalty = Number(detail?.loyaltyPoints || detail?.loyalty || 0);
-      const walletBalance = Number(wallet?.balance || 0);
+      const walletBalance = Number(wallet?.wallet?.balance ?? wallet?.balance ?? 0);
       const advanceBalance = Number(detail?.advanceAmount || 0);
       const activeGiftCards = (giftCards || []).filter(gc => gc.status === "ACTIVE" && Number(gc.balance || 0) > 0);
       const giftCardTotal = activeGiftCards.reduce((sum, gc) => sum + Number(gc.balance || 0), 0);
@@ -2665,6 +2665,7 @@ export default function PosPage() {
                     </div>
                     <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
                       <div><strong style={{color:"#0f172a"}}>Membership :</strong> {activeMembership?.membershipPlan?.name || "NA"}</div>
+                      <div><strong style={{color:"#0f172a"}}>Wallet Balance :</strong> {Number(customerBenefits?.walletBalance || 0) > 0 ? <span style={{color: "#16a34a", fontWeight: 700}}>{formatMoney(Number(customerBenefits.walletBalance.toFixed(0)))}</span> : "₹0"}</div>
                     </div>
                     <div style={{display: "flex", alignItems: "flex-start"}}>
                       <button style={{background: "none", border: "none", cursor: "pointer", color: "var(--accent, #3b82f6)"}} onClick={() => window.open(`/admin/customers/${customer.id}`, '_blank')}>
@@ -4624,12 +4625,12 @@ export default function PosPage() {
                   const isSelected = form.appliedMembershipId === membership.id;
                   return (
                     <div key={membership.id} style={{ minWidth: 280, padding: "20px", border: isSelected ? "1px solid #e2e8f0" : "1px solid #f1f5f9", borderRadius: 12, display: "flex", flexDirection: "column", gap: 8, background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Membership ID: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.id.slice(0,8).toUpperCase()}</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Active Membership: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.membershipPlan?.name}</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Membership Type: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.membershipPlan?.benefitType === "WALLET_VALUE" ? "Fixed" : "Discount"}</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Expiry Date: <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(membership.endsAt).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')}</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Expires In: <span style={{ fontWeight: 600, color: "#0f172a" }}>{daysLeft} days</span></div>
-                      <div style={{ fontSize: "0.9rem", color: "#475569" }}>Balance Amount: <span style={{ fontWeight: 600, color: "#0f172a" }}>₹ {Number(membership.remainingWalletValue || membership.membershipPlan?.price || 0)}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569", display: 'flex', alignItems: 'center', gap: 6 }}><Award size={16} color="#64748b"/> Membership ID: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.id.slice(0,8).toUpperCase()}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569", display: 'flex', alignItems: 'center', gap: 6 }}><Award size={16} color="#64748b"/> Active Membership: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.membershipPlan?.name}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569", display: 'flex', alignItems: 'center', gap: 6 }}><Layers size={16} color="#64748b"/> Membership Type: <span style={{ fontWeight: 600, color: "#0f172a" }}>{membership.membershipPlan?.benefitType === "WALLET_VALUE" ? "Fixed" : "Discount"}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569", display: 'flex', alignItems: 'center', gap: 6 }}><Calendar size={16} color="#64748b"/> Expiry Date: <span style={{ fontWeight: 600, color: "#0f172a" }}>{new Date(membership.endsAt).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')}</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569", display: 'flex', alignItems: 'center', gap: 6 }}><AlarmClock size={16} color="#64748b"/> Expires In: <span style={{ fontWeight: 600, color: "#0f172a" }}>{daysLeft} days</span></div>
+                      <div style={{ fontSize: "0.9rem", color: "#475569", display: 'flex', alignItems: 'center', gap: 6 }}><Wallet size={16} color="#64748b"/> Balance Amount: <span style={{ fontWeight: 600, color: "#0f172a" }}>₹ {Number(membership.remainingWalletValue || membership.membershipPlan?.price || 0)}</span></div>
                       
                       <button type="button" onClick={() => !isSelected && selectMembershipForApply(membership)} style={{ marginTop: 12, padding: "10px", background: isSelected ? "#fff" : "var(--button-bg-solid, #3b82f6)", color: isSelected ? "#0f172a" : "#fff", border: isSelected ? "1px solid #e2e8f0" : "none", borderRadius: 6, fontWeight: 600, cursor: isSelected ? "default" : "pointer", boxShadow: isSelected ? "none" : "0 4px 6px -1px rgba(59, 130, 246, 0.3)" }}>{isSelected ? "Selected" : "Select"}</button>
                     </div>

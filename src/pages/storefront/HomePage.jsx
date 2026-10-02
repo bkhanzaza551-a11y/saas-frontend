@@ -7,6 +7,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { salon, selectedBranchId } = useOutletContext();
   const [services, setServices] = useState([]);
+  const [latestBlogs, setLatestBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,6 +20,13 @@ export default function HomePage() {
       })
       .catch(() => setServices([]))
       .finally(() => setLoading(false));
+
+    api.get(`/public/salons/${salon.slug}/blogs`)
+      .then(res => {
+        const blogsList = Array.isArray(res.data) ? res.data : (res.data?.blogs || []);
+        setLatestBlogs(blogsList.slice(0, 3));
+      })
+      .catch(() => setLatestBlogs([]));
   }, [salon?.slug, selectedBranchId]);
 
   useEffect(() => {
@@ -564,6 +572,41 @@ export default function HomePage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Latest Blogs Section */}
+      {latestBlogs.length > 0 && (
+        <section id="sf-blogs-section" style={{ padding: "80px 24px", background: "#ffffff", borderTop: "1px solid #e2e8f0" }}>
+          <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 44 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", color: "#475569", borderRadius: 100, fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+                <Sparkles size={12} /> LATEST ARTICLES
+              </div>
+              <h2 style={{ fontSize: "2.4rem", fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>
+                From the Blog
+              </h2>
+            </div>
+            
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 28 }}>
+              {latestBlogs.map((blog) => (
+                <div key={blog._id || blog.id || blog.slug} style={{ background: "#f8fafc", borderRadius: 20, overflow: "hidden", border: "1px solid #e2e8f0", transition: "transform 0.3s ease", display: "flex", flexDirection: "column" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"} onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+                  {blog.coverImage && (
+                    <img src={blog.coverImage} alt={blog.title} style={{ width: "100%", height: 200, objectFit: "cover" }} />
+                  )}
+                  <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
+                    <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>{blog.title}</h3>
+                    <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: "0 0 20px", flex: 1 }}>
+                      {blog.excerpt || (blog.content ? blog.content.substring(0, 100) + '...' : '')}
+                    </p>
+                    <Link to={`/site/${salon?.slug}/blog/${blog.slug}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700, color: "#0d9488", textDecoration: "none", marginTop: "auto" }}>
+                      Read Article <ArrowRight size={16} />
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>

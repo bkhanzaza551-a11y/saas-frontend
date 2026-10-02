@@ -36,7 +36,18 @@ export function formatTime12Hour(time24) {
 
 export default function ServiceDetailPage() {
   const { showAlert } = useAlert();
-  const { salon, addBooking, selectedBranchId, setSelectedBranchId } = useOutletContext();
+  const { salon, addBooking, selectedBranchId, setSelectedBranchId, bookings } = useOutletContext();
+  
+  useEffect(() => {
+    if (bookings?.length > 0) {
+      if (bookings[0].date && (!selectedDate || selectedDate === new Date().toLocaleDateString('en-CA'))) {
+        setSelectedDate(bookings[0].date);
+      }
+      if (bookings[0].time && !selectedTime) {
+        setSelectedTime(bookings[0].time);
+      }
+    }
+  }, [bookings, selectedDate, selectedTime]);
   const { id } = useParams();
   const navigate = useNavigate();
   const currency = salon?.currency || "INR";

@@ -120,11 +120,14 @@ const CheckoutPage = lazyWithRetry(() => import("./pages/storefront/CheckoutPage
 const BookingConfirmationPage = lazyWithRetry(() => import("./pages/storefront/BookingConfirmationPage.jsx"));
 const MyBookingsPage = lazyWithRetry(() => import("./pages/storefront/MyBookingsPage.jsx"));
 const StorefrontAboutPage = lazyWithRetry(() => import("./pages/storefront/storefront/AboutPage.jsx"));
+const BlogListPage = lazyWithRetry(() => import("./pages/storefront/BlogListPage.jsx"));
+const BlogPostPage = lazyWithRetry(() => import("./pages/storefront/BlogPostPage.jsx"));
 const StorefrontContactPage = lazyWithRetry(() => import("./pages/storefront/storefront/ContactPage.jsx"));
 const LegalContentPage = lazyWithRetry(() => import("./pages/shared/LegalContentPage.jsx"));
 const PublicPrivacyPolicyPage = lazyWithRetry(() => import("./pages/public/PublicPrivacyPolicyPage.jsx"));
 const WebsiteEditorPage = lazyWithRetry(() => import("./pages/owner/WebsiteEditorPage.jsx"));
 const ManagePage = lazyWithRetry(() => import("./pages/owner/ManagePage.jsx"));
+const BlogsManagementPage = lazyWithRetry(() => import("./pages/owner/BlogsManagementPage.jsx"));
 const EcommerceOrdersPage = lazyWithRetry(() => import("./pages/owner/EcommerceOrdersPage.jsx"));
 const ProductsRequirementPage = lazyWithRetry(() => import("./pages/owner/ProductsRequirementPage.jsx"));
 const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffRequirementsPage.jsx"));
@@ -613,6 +616,8 @@ export default function App() {
           <Route path="privacy" element={<LegalContentPage scope="salon" title="Privacy Policy" contentKey="privacyPolicy" />} />
           <Route path="about" element={<StorefrontAboutPage />} />
           <Route path="contact" element={<StorefrontContactPage />} />
+          <Route path="blog" element={<BlogListPage />} />
+          <Route path="blog/:blogSlug" element={<BlogPostPage />} />
           <Route path="book" element={<Navigate to="collections" replace />} />
           <Route path="*" element={<StorefrontNotFound />} />
         </Route>
@@ -763,6 +768,7 @@ export default function App() {
           <Route path="/admin/settings" element={<OwnerRoute moduleKey="settings" action="edit" element={<Navigate to="/admin/settings/generic" replace />} />} />
           <Route path="/admin/settings/:section" element={<OwnerRoute moduleKey="settings" action="edit" element={<SettingsPage />} />} />
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
+          <Route path="/admin/blogs" element={<OwnerRoute moduleKey="manage" action="view" element={<BlogsManagementPage />} />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/view-live-site" element={<ViewLiveSiteRedirect />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="manage" action="view" element={<ManagePage />} />} />
