@@ -393,9 +393,9 @@ export default function ServiceDetailPage() {
                 <div className="sf-form-group" style={{ marginBottom: 0, position: "relative" }}>
                   <button 
                     onClick={(e) => { e.preventDefault(); scrollDates('left'); }}
-                    style={{ color: '#64748b', position: 'absolute', left: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                    style={{ position: 'absolute', left: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
                   >
-                    <ChevronLeft size={16} strokeWidth={2.5} />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                   </button>
 
                   <div ref={dateScrollRef} style={{ display: "flex", overflowX: "auto", gap: "10px", paddingBottom: "12px", margin: "0 8px", padding: "4px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
@@ -429,9 +429,9 @@ export default function ServiceDetailPage() {
 
                   <button 
                     onClick={(e) => { e.preventDefault(); scrollDates('right'); }}
-                    style={{ color: '#64748b', position: 'absolute', right: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                    style={{ position: 'absolute', right: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
                   >
-                    <ChevronRight size={16} strokeWidth={2.5} />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                   </button>
                 </div>
 
