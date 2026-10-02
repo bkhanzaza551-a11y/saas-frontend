@@ -16,7 +16,14 @@ export default function HomePage() {
     api.get(`/public/salon/${salon.slug}/storefront-services`, { params: { branchId: selectedBranchId } })
       .then(res => {
         const list = Array.isArray(res.data) ? res.data : (res.data?.services || []);
-        setServices(list);
+        const sorted = [...list].sort((a, b) => {
+          if (a.isFeatured && !b.isFeatured) return -1;
+          if (!a.isFeatured && b.isFeatured) return 1;
+          const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          return timeB - timeA;
+        });
+        setServices(sorted.slice(0, 6));
       })
       .catch(() => setServices([]))
       .finally(() => setLoading(false));
