@@ -393,9 +393,9 @@ export default function ServiceDetailPage() {
                 <div className="sf-form-group" style={{ marginBottom: 0, position: "relative" }}>
                   <button 
                     onClick={(e) => { e.preventDefault(); scrollDates('left'); }}
-                    style={{ position: 'absolute', left: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                    style={{ color: '#64748b', position: 'absolute', left: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
                   >
-                    <ChevronLeft size={16} color="#64748b" />
+                    <ChevronLeft size={16} strokeWidth={2.5} />
                   </button>
 
                   <div ref={dateScrollRef} style={{ display: "flex", overflowX: "auto", gap: "10px", paddingBottom: "12px", margin: "0 8px", padding: "4px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
@@ -429,9 +429,9 @@ export default function ServiceDetailPage() {
 
                   <button 
                     onClick={(e) => { e.preventDefault(); scrollDates('right'); }}
-                    style={{ position: 'absolute', right: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                    style={{ color: '#64748b', position: 'absolute', right: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
                   >
-                    <ChevronRight size={16} color="#64748b" />
+                    <ChevronRight size={16} strokeWidth={2.5} />
                   </button>
                 </div>
 
