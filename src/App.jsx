@@ -127,7 +127,6 @@ const LegalContentPage = lazyWithRetry(() => import("./pages/shared/LegalContent
 const PublicPrivacyPolicyPage = lazyWithRetry(() => import("./pages/public/PublicPrivacyPolicyPage.jsx"));
 const WebsiteEditorPage = lazyWithRetry(() => import("./pages/owner/WebsiteEditorPage.jsx"));
 const ManagePage = lazyWithRetry(() => import("./pages/owner/ManagePage.jsx"));
-const BlogsManagementPage = lazyWithRetry(() => import("./pages/owner/BlogsManagementPage.jsx"));
 const EcommerceOrdersPage = lazyWithRetry(() => import("./pages/owner/EcommerceOrdersPage.jsx"));
 const ProductsRequirementPage = lazyWithRetry(() => import("./pages/owner/ProductsRequirementPage.jsx"));
 const StaffRequirementsPage = lazyWithRetry(() => import("./pages/owner/StaffRequirementsPage.jsx"));
@@ -768,7 +767,7 @@ export default function App() {
           <Route path="/admin/settings" element={<OwnerRoute moduleKey="settings" action="edit" element={<Navigate to="/admin/settings/generic" replace />} />} />
           <Route path="/admin/settings/:section" element={<OwnerRoute moduleKey="settings" action="edit" element={<SettingsPage />} />} />
           <Route path="/admin/website-editor" element={<OwnerRoute moduleKey="settings" action="edit" element={<WebsiteEditorPage />} />} />
-          <Route path="/admin/blogs" element={<OwnerRoute moduleKey="manage" action="view" element={<BlogsManagementPage />} />} />
+          <Route path="/admin/blogs" element={<Navigate to="/admin/website-editor?tab=blogs" replace />} />
           <Route path="/admin/website-analytics" element={<OwnerRoute moduleKey="reports" action="view" element={<WebsiteAnalyticsPage />} />} />
           <Route path="/admin/view-live-site" element={<ViewLiveSiteRedirect />} />
           <Route path="/admin/manage" element={<OwnerRoute moduleKey="manage" action="view" element={<ManagePage />} />} />
