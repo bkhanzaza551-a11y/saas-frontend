@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { Outlet, Link, useParams, useLocation } from "react-router-dom";
-import { CalendarCheck, Menu, X, MapPin, ArrowRight, ChevronDown, Check, Building2, Phone, Sparkles, Home } from "lucide-react";
+import { CalendarCheck, Menu, X, MapPin, ArrowRight, ChevronDown, Check, Building2, Phone, Sparkles, Home, Mail, Clock, ShieldCheck, MessageCircle, Globe, Star, ChevronRight, Award } from "lucide-react";
 import { api } from "../../api/client";
 import StorefrontErrorBoundary from "./StorefrontErrorBoundary";
 import "../../storefront.css";
@@ -570,48 +570,293 @@ export default function StorefrontLayout() {
             </StorefrontErrorBoundary>
           </main>
 
-          <footer className="sf-footer">
-            <div className="sf-footer-grid">
-              <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "16px", fontFamily: 'var(--font-serif)' }}>{activeSalon.name}</h3>
-                <p style={{ color: "var(--text-muted)", lineHeight: "1.6", fontSize: "1rem" }}>{activeSalon.websiteConfig?.aboutDescription || "Providing professional grooming and beauty services with uncompromising standards."}</p>
-              </div>
-              <div>
-                <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Quick Links</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <Link to={`/site/${slug}/services`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>Services</Link>
-                  <Link to={`/site/${slug}/my-bookings`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.95rem" }}>My Bookings</Link>
+          {/* Premium Luxury Storefront Footer */}
+          <footer style={{ background: "linear-gradient(180deg, #090e17 0%, #030712 100%)", color: "#f8fafc", borderTop: "1px solid rgba(255, 255, 255, 0.08)", position: "relative", overflow: "hidden", marginTop: "auto" }}>
+            
+            {/* Top VIP Concierge / Booking Banner */}
+            <div style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.07)", padding: "40px 24px", background: "rgba(255, 255, 255, 0.02)" }}>
+              <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, rgba(13,148,136,0.2), rgba(20,184,166,0.1))", border: "1px solid rgba(45,212,191,0.3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#5eead4", flexShrink: 0 }}>
+                    <Sparkles size={24} />
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 700, color: "#ffffff", letterSpacing: "-0.01em" }}>Experience High-Precision Luxury</h4>
+                    <p style={{ margin: "3px 0 0", fontSize: "0.88rem", color: "#94a3b8" }}>Step into a world of tailored aesthetics, organic hair care, and bespoke wellness.</p>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h4 style={{ marginBottom: "20px", fontSize: '1.1rem' }}>Contact & Hours</h4>
-                <p style={{ color: "var(--text-muted)", marginBottom: "10px", fontSize: "0.95rem" }}><strong>Phone:</strong> {activeSalon?.websiteConfig?.contactPhone || salon.phone}</p>
-                <p style={{ color: "var(--text-muted)", marginBottom: "10px", fontSize: "0.95rem" }}><strong>Email:</strong> {activeSalon?.websiteConfig?.contactEmail || salon.email}</p>
-                <p style={{ color: "var(--text-muted)", marginBottom: "12px", fontSize: "0.95rem", lineHeight: 1.5 }}><strong>Address:</strong> {activeSalon?.websiteConfig?.contactAddress || salon.address}</p>
-                {activeSalon?.websiteConfig?.businessHours && (
-                  <p style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 500, marginBottom: "12px" }}>🕒 {activeSalon.websiteConfig.businessHours}</p>
-                )}
-                <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-                  {activeSalon?.websiteConfig?.socialInstagram && (
-                    <a href={activeSalon.websiteConfig.socialInstagram} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-main)", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>Instagram</a>
-                  )}
-                  {activeSalon?.websiteConfig?.socialWhatsapp && (
-                    <a href={activeSalon.websiteConfig.socialWhatsapp.startsWith("http") ? activeSalon.websiteConfig.socialWhatsapp : `https://wa.me/${activeSalon.websiteConfig.socialWhatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-main)", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>WhatsApp</a>
-                  )}
-                  {activeSalon?.websiteConfig?.socialFacebook && (
-                    <a href={activeSalon.websiteConfig.socialFacebook} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-main)", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>Facebook</a>
-                  )}
+
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <Link 
+                    to={`/site/${slug}/services`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "11px 22px",
+                      borderRadius: 10,
+                      background: "linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      fontSize: "0.88rem",
+                      textDecoration: "none",
+                      boxShadow: "0 4px 14px rgba(13, 148, 136, 0.35)",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    <span>Reserve Appointment</span>
+                    <ArrowRight size={15} />
+                  </Link>
+
+                  {(() => {
+                    const rawPhone = previewConfig?.socialWhatsapp || activeSalon?.websiteConfig?.socialWhatsapp || activeSalon?.websiteConfig?.contactPhone || salon?.phone || "";
+                    const waUrl = getStorefrontWhatsAppUrl(rawPhone, activeSalon?.name || salon?.name);
+                    if (!waUrl) return null;
+                    return (
+                      <a
+                        href={waUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 7,
+                          padding: "11px 20px",
+                          borderRadius: 10,
+                          background: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.15)",
+                          color: "#ffffff",
+                          fontWeight: 600,
+                          fontSize: "0.88rem",
+                          textDecoration: "none",
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        <MessageCircle size={16} color="#25D366" />
+                        <span>WhatsApp VIP</span>
+                      </a>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
-            <div className="sf-footer-bottom">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-                <p style={{ margin: 0 }}>&copy; {new Date().getFullYear()} {salon.name}. All rights reserved.</p>
-                <div style={{ display: "flex", gap: "24px" }}>
-                  <Link to={`/site/${slug}/privacy`} style={{ color: "inherit", textDecoration: "none", transition: "var(--transition)" }}>Terms & Privacy</Link>
+
+            {/* Main 4-Column Luxury Footer */}
+            <div style={{ maxWidth: 1240, margin: "0 auto", padding: "64px 24px 44px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 44 }}>
+                
+                {/* Col 1: Salon Brand & Mission */}
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                    {activeSalon.logoUrl || activeSalon.websiteConfig?.logoUrl ? (
+                      <img 
+                        src={activeSalon.websiteConfig?.logoUrl || activeSalon.logoUrl} 
+                        alt={activeSalon.name} 
+                        style={{ height: 40, width: "auto", objectFit: "contain", borderRadius: 8 }} 
+                      />
+                    ) : (
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1.1rem" }}>
+                        {(activeSalon.name || "S")[0].toUpperCase()}
+                      </div>
+                    )}
+                    <h3 style={{ margin: 0, fontSize: "1.35rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+                      {activeSalon.name}
+                    </h3>
+                  </div>
+
+                  <p style={{ color: "#94a3b8", fontSize: "0.9rem", lineHeight: 1.7, margin: "0 0 20px" }}>
+                    {activeSalon.websiteConfig?.aboutDescription || "Providing premier hair artistry, skin rejuvenation, and bespoke grooming rituals with uncompromising standards."}
+                  </p>
+
+                  {/* Verified Sanctuary Badge */}
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 12px", background: "rgba(255, 255, 255, 0.04)", borderRadius: 8, border: "1px solid rgba(255, 255, 255, 0.08)", width: "fit-content", marginBottom: 20 }}>
+                    <ShieldCheck size={16} color="#5eead4" />
+                    <span style={{ fontSize: "0.78rem", color: "#cbd5e1", fontWeight: 600 }}>Verified Luxury Sanctuary</span>
+                  </div>
+
+                  {/* Social Icon Pills */}
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: "auto" }}>
+                    {activeSalon?.websiteConfig?.socialInstagram && (
+                      <a 
+                        href={activeSalon.websiteConfig.socialInstagram} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        aria-label="Instagram"
+                        style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255, 255, 255, 0.06)", border: "1px solid rgba(255, 255, 255, 0.12)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "all 0.2s ease" }}
+                      >
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                      </a>
+                    )}
+                    {activeSalon?.websiteConfig?.socialFacebook && (
+                      <a 
+                        href={activeSalon.websiteConfig.socialFacebook} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        aria-label="Facebook"
+                        style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255, 255, 255, 0.06)", border: "1px solid rgba(255, 255, 255, 0.12)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "all 0.2s ease" }}
+                      >
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                      </a>
+                    )}
+                    {(() => {
+                      const rawPhone = previewConfig?.socialWhatsapp || activeSalon?.websiteConfig?.socialWhatsapp || activeSalon?.websiteConfig?.contactPhone || salon?.phone || "";
+                      const waUrl = getStorefrontWhatsAppUrl(rawPhone, activeSalon?.name || salon?.name);
+                      if (!waUrl) return null;
+                      return (
+                        <a 
+                          href={waUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          aria-label="WhatsApp"
+                          style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255, 255, 255, 0.06)", border: "1px solid rgba(255, 255, 255, 0.12)", color: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "all 0.2s ease" }}
+                        >
+                          <MessageCircle size={17} />
+                        </a>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Col 2: Navigation & Experiences */}
+                <div>
+                  <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+                    Experience & Treatments
+                  </h4>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+                    <li>
+                      <Link to={`/site/${slug}`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Sanctuary Home
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/services`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Treatment Menu
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/blog`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Journal & Styling Secrets
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/about`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> About Our Heritage
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/contact`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Find Sanctuary Location
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Col 3: Client Portal & Care */}
+                <div>
+                  <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+                    Client Portal & Bookings
+                  </h4>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+                    <li>
+                      <Link to={`/site/${slug}/cart`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> View Reserved Slots ({bookingCount})
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/my-bookings`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Appointment History
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/customer/login" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Customer VIP Account
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/privacy`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Privacy Policy
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/site/${slug}/terms`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.2s ease", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <ChevronRight size={13} color="#0d9488" /> Terms & Service Policies
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Col 4: Contact & Concierge */}
+                <div>
+                  <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+                    Concierge & Hours
+                  </h4>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    {/* Phone */}
+                    {(activeSalon?.websiteConfig?.contactPhone || salon.phone) && (
+                      <a 
+                        href={`tel:${(activeSalon?.websiteConfig?.contactPhone || salon.phone || "").replace(/\s+/g, '')}`} 
+                        style={{ display: "flex", alignItems: "flex-start", gap: 10, color: "#cbd5e1", textDecoration: "none", fontSize: "0.88rem" }}
+                      >
+                        <Phone size={16} color="#5eead4" style={{ flexShrink: 0, marginTop: 3 }} />
+                        <span>{activeSalon?.websiteConfig?.contactPhone || salon.phone}</span>
+                      </a>
+                    )}
+
+                    {/* Email */}
+                    {(activeSalon?.websiteConfig?.contactEmail || salon.email) && (
+                      <a 
+                        href={`mailto:${activeSalon?.websiteConfig?.contactEmail || salon.email}`} 
+                        style={{ display: "flex", alignItems: "flex-start", gap: 10, color: "#cbd5e1", textDecoration: "none", fontSize: "0.88rem" }}
+                      >
+                        <Mail size={16} color="#5eead4" style={{ flexShrink: 0, marginTop: 3 }} />
+                        <span style={{ wordBreak: "break-all" }}>{activeSalon?.websiteConfig?.contactEmail || salon.email}</span>
+                      </a>
+                    )}
+
+                    {/* Address */}
+                    {(activeSalon?.websiteConfig?.contactAddress || salon.address) && (
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                        <MapPin size={16} color="#5eead4" style={{ flexShrink: 0, marginTop: 3 }} />
+                        <span>{activeSalon?.websiteConfig?.contactAddress || salon.address}</span>
+                      </div>
+                    )}
+
+                    {/* Business Hours */}
+                    {activeSalon?.websiteConfig?.businessHours && (
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 12px", background: "rgba(255, 255, 255, 0.04)", borderRadius: 8, border: "1px solid rgba(255, 255, 255, 0.08)", marginTop: 4 }}>
+                        <Clock size={16} color="#5eead4" style={{ flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                          <div style={{ fontSize: "0.72rem", color: "#5eead4", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Visiting Hours</div>
+                          <div style={{ fontSize: "0.82rem", color: "#e2e8f0", marginTop: 2 }}>{activeSalon.websiteConfig.businessHours}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Bottom Copyright & Guarantee Bar */}
+            <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.06)", padding: "24px 24px", background: "rgba(0, 0, 0, 0.4)" }}>
+              <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
+                <p style={{ margin: 0, fontSize: "0.82rem", color: "#64748b" }}>
+                  &copy; {new Date().getFullYear()} <strong style={{ color: "#cbd5e1" }}>{activeSalon.name}</strong>. All rights reserved.
+                </p>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: "0.82rem" }}>
+                  <Link to={`/site/${slug}/privacy`} style={{ color: "#64748b", textDecoration: "none", transition: "color 0.2s ease" }}>Privacy Policy</Link>
+                  <span style={{ color: "#334155" }}>•</span>
+                  <Link to={`/site/${slug}/terms`} style={{ color: "#64748b", textDecoration: "none", transition: "color 0.2s ease" }}>Terms of Service</Link>
+                  <span style={{ color: "#334155" }}>•</span>
+                  <span style={{ color: "#64748b", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <ShieldCheck size={14} color="#0d9488" /> 256-Bit SSL Encrypted
+                  </span>
                 </div>
               </div>
             </div>
+
           </footer>
 
           {/* Floating WhatsApp Quick Chat Button (Dynamic from Website Editor, default country code +91) */}

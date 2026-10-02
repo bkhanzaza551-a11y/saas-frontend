@@ -360,8 +360,8 @@ export default function ServiceDetailPage() {
 
           {/* Right Column: Booking Widget */}
           <div className="sf-detail-sticky" style={{ position: "sticky", top: 120 }}>
-            <div style={{ background: "var(--bg-main)", border: "1px solid var(--border)", padding: 48 }}>
-              <h3 style={{ margin: "0 0 32px", fontSize: "1.8rem", fontFamily: "var(--font-serif)", fontWeight: 500, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>Reserve Appointment</h3>
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", padding: "36px", borderRadius: "24px", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)" }}>
+              <h3 style={{ margin: "0 0 28px", fontSize: "1.6rem", fontWeight: 700, color: "#0f172a", paddingBottom: 20, borderBottom: '1px solid #f1f5f9' }}>Reserve Appointment</h3>
               
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 
@@ -433,11 +433,11 @@ export default function ServiceDetailPage() {
                   </div>
                 </div>
                 
-                <div style={{ display: 'flex', gap: 16 }}>
-                  <button onClick={handleAddToCart} className="sf-btn-outline" style={{ flex: 1, padding: "20px", background: 'transparent' }}>
+                <div style={{ display: 'flex', gap: 12, flexDirection: 'row' }}>
+                  <button onClick={handleAddToCart} className="sf-btn-outline" style={{ flex: 1, padding: "16px 8px", background: 'transparent', fontSize: "0.85rem", letterSpacing: "0.5px", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                     Add to Cart
                   </button>
-                  <button onClick={handleBookNow} className="sf-btn-primary" style={{ flex: 1, padding: "20px" }}>
+                  <button onClick={handleBookNow} className="sf-btn-primary" style={{ flex: 1, padding: "16px 8px", fontSize: "0.85rem", letterSpacing: "0.5px", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                     Book Now
                   </button>
                 </div>
