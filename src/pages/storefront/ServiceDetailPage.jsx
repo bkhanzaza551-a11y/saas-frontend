@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
-import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
+import { ArrowLeft, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAlert } from "../../context/AlertContext";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&fit=crop";
@@ -41,6 +41,13 @@ export default function ServiceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const currency = salon?.currency || "INR";
+  const dateScrollRef = useRef(null);
+
+  const scrollDates = (direction) => {
+    if (dateScrollRef.current) {
+      dateScrollRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+    }
+  };
 
   const [service, setService] = useState(null);
   const [allServices, setAllServices] = useState([]);
@@ -383,8 +390,15 @@ export default function ServiceDetailPage() {
               
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 
-                <div className="sf-form-group" style={{ marginBottom: 0 }}>
-                  <div style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "12px", margin: "0 -4px", padding: "4px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+                <div className="sf-form-group" style={{ marginBottom: 0, position: "relative" }}>
+                  <button 
+                    onClick={(e) => { e.preventDefault(); scrollDates('left'); }}
+                    style={{ position: 'absolute', left: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                  >
+                    <ChevronLeft size={16} color="#64748b" />
+                  </button>
+
+                  <div ref={dateScrollRef} style={{ display: "flex", overflowX: "auto", gap: "10px", paddingBottom: "12px", margin: "0 8px", padding: "4px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
                     {nextDays.map(d => {
                       const dateStr = d.toLocaleDateString('en-CA');
                       const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
@@ -396,8 +410,8 @@ export default function ServiceDetailPage() {
                           onClick={() => { setSelectedDate(dateStr); setSelectedTime(""); }}
                           style={{
                             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                            minWidth: "64px", height: "80px",
-                            borderRadius: "40px",
+                            minWidth: "56px", height: "72px",
+                            borderRadius: "36px",
                             cursor: "pointer",
                             background: isSelected ? "var(--accent)" : "#fff",
                             border: isSelected ? "1px solid var(--accent)" : "1px solid #e2e8f0",
@@ -406,12 +420,19 @@ export default function ServiceDetailPage() {
                             flexShrink: 0
                           }}
                         >
-                          <span style={{ fontSize: "0.85rem", fontWeight: 500, marginBottom: "4px", color: isSelected ? "#fff" : "var(--text-muted)" }}>{dayName}</span>
-                          <span style={{ fontSize: "1.2rem", fontWeight: 700 }}>{dateNum}</span>
+                          <span style={{ fontSize: "0.75rem", fontWeight: 500, marginBottom: "2px", color: isSelected ? "#fff" : "var(--text-muted)" }}>{dayName}</span>
+                          <span style={{ fontSize: "1rem", fontWeight: 700 }}>{dateNum}</span>
                         </div>
                       );
                     })}
                   </div>
+
+                  <button 
+                    onClick={(e) => { e.preventDefault(); scrollDates('right'); }}
+                    style={{ position: 'absolute', right: -14, top: '44%', transform: 'translateY(-50%)', zIndex: 10, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                  >
+                    <ChevronRight size={16} color="#64748b" />
+                  </button>
                 </div>
 
                 <div className="sf-form-group" style={{ marginBottom: 0 }}>
