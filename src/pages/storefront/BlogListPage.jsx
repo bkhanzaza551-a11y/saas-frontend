@@ -156,7 +156,7 @@ export default function BlogListPage() {
                           src={coverImg} 
                           alt={blog.title} 
                           className="blog-card-img"
-                          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} 
+                          style={{ width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#000", transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} 
                         />
                       ) : (
                         <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#cbd5e1" }}>

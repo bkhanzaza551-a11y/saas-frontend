@@ -422,7 +422,7 @@ export default function HomePage() {
               <img 
                 src={wc.aboutImage || "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&auto=format&fit=crop&q=80"} 
                 alt="Salon Ambience" 
-                style={{ width: "100%", height: 420, objectFit: "cover", borderRadius: 24, boxShadow: "0 20px 40px rgba(0,0,0,0.08)" }} 
+                style={{ width: "100%", height: 420, objectFit: "contain", backgroundColor: "#000", borderRadius: 24, boxShadow: "0 20px 40px rgba(0,0,0,0.08)" }} 
               />
               <div style={{ position: "absolute", bottom: 20, left: 20, background: "rgba(15,23,42,0.88)", backdropFilter: "blur(10px)", padding: "12px 20px", borderRadius: 14, color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}>
                 <div style={{ fontSize: 12, color: "#5eead4", fontWeight: 700 }}>VERIFIED AMBIANCE</div>
@@ -502,7 +502,7 @@ export default function HomePage() {
                   <img 
                     src={imgUrl} 
                     alt={`Signature style ${idx + 1}`} 
-                    style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#000", transition: "transform 0.5s ease" }}
                     onMouseEnter={e => e.currentTarget.style.transform = "scale(1.06)"}
                     onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
                   />
@@ -657,7 +657,7 @@ export default function HomePage() {
                             src={coverImg} 
                             alt={blog.title} 
                             className="blog-card-img"
-                            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} 
+                            style={{ width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#000", transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} 
                           />
                         ) : (
                           <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#cbd5e1" }}>
