@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../api/client";
@@ -71,14 +71,132 @@ const emptyConfig = {
 
 export default function WebsiteEditorPage() {
   const { auth } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "branding";
   const [config, setConfig] = useState(emptyConfig);
   const [saving, setSaving] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("branding");
+  const [activeCategory, setActiveCategory] = useState(initialTab);
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [status, setStatus] = useState({ error: "", success: "" });
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
   const [forceMobileView, setForceMobileView] = useState(false);
   const iframeRef = useRef(null);
+
+  // Blog Management State & Handlers
+  const [blogs, setBlogs] = useState([]);
+  const [blogSearch, setBlogSearch] = useState("");
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
+  const [editingBlog, setEditingBlog] = useState(null);
+  const [blogLoading, setBlogLoading] = useState(false);
+  const [blogImageUploading, setBlogImageUploading] = useState(false);
+  const [blogFormData, setBlogFormData] = useState({
+    title: "", slug: "", excerpt: "", content: "", imageUrl: "", author: "", published: false
+  });
+
+  const fetchBlogs = async () => {
+    try {
+      setBlogLoading(true);
+      const res = await api.get("/owner/blogs");
+      setBlogs(res.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBlogLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeCategory === "blogs") {
+      fetchBlogs();
+    }
+  }, [activeCategory]);
+
+  const handleOpenBlogModal = (blog = null) => {
+    if (blog) {
+      setEditingBlog(blog);
+      setBlogFormData(blog);
+    } else {
+      setEditingBlog(null);
+      setBlogFormData({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", author: "", published: false });
+    }
+    setIsBlogModalOpen(true);
+  };
+
+  const handleBlogFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setBlogFormData(prev => {
+      const next = { ...prev, [name]: type === "checkbox" ? checked : value };
+      if (name === "title" && !editingBlog) {
+        const autoSlug = value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        if (!prev.slug || prev.slug === prev.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")) {
+          next.slug = autoSlug;
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleBlogImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setStatus({ error: "Please select a valid image file.", success: "" });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setStatus({ error: "Image size must be under 10MB.", success: "" });
+      return;
+    }
+    setBlogImageUploading(true);
+    try {
+      const form = new FormData();
+      form.append("image", file);
+      const res = await api.post("/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data?.url) {
+        setBlogFormData(prev => ({ ...prev, imageUrl: res.data.url }));
+        setStatus({ error: "", success: "Image uploaded successfully!" });
+        setTimeout(() => setStatus({ error: "", success: "" }), 2000);
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus({ error: formatApiError(err, "Failed to upload image."), success: "" });
+    } finally {
+      setBlogImageUploading(false);
+    }
+  };
+
+  const handleSaveBlog = async () => {
+    try {
+      if (editingBlog) {
+        await api.patch(`/owner/blogs/${editingBlog.id}`, blogFormData);
+        setStatus({ error: "", success: "Blog post updated successfully!" });
+      } else {
+        await api.post("/owner/blogs", blogFormData);
+        setStatus({ error: "", success: "Blog post created successfully!" });
+      }
+      setIsBlogModalOpen(false);
+      fetchBlogs();
+      setTimeout(() => setStatus({ error: "", success: "" }), 2500);
+    } catch (err) {
+      console.error(err);
+      setStatus({ error: err.response?.data?.message || "Failed to save blog.", success: "" });
+    }
+  };
+
+  const handleDeleteBlog = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this blog?")) return;
+    try {
+      await api.delete(`/owner/blogs/${id}`);
+      fetchBlogs();
+      setStatus({ error: "", success: "Blog deleted successfully." });
+      setTimeout(() => setStatus({ error: "", success: "" }), 2000);
+    } catch (err) {
+      console.error(err);
+      setStatus({ error: "Failed to delete blog.", success: "" });
+    }
+  };
 
   const slug = config.slug || auth?.membership?.salon?.slug || auth?.membership?.salonSlug || auth?.salon?.slug || auth?.user?.salon?.slug || auth?.user?.salonSlug || "";
 
