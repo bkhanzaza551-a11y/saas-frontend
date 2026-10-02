@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag, Package, User, Layers, Info, Award } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlarmClock, Gift, Droplet, X, Search, Calendar, RefreshCw, ShoppingBag, ShoppingCart, Package, User, Layers, Info, Award, Smartphone, Wallet, Banknote } from "lucide-react";
 import { downloadFromApi } from "../../utils/download";
 import PermissionButton from "../../components/PermissionButton";
 import { useAuth } from "../../context/AuthContext";
@@ -2234,8 +2234,8 @@ export default function PosPage() {
           </div>
         </div>
         <div className="pos-topbar-right">
-          <button className={`pos-top-tab ${tab === "billing" ? "active" : ""}`} onClick={() => setTab("billing")}>Add Service</button>
-          <button className={`pos-top-tab ${tab === "products" ? "active" : ""}`} onClick={() => setTab("products")}>Add Product</button>
+          <button className={`pos-top-tab ${tab === "billing" ? "active" : ""}`} onClick={() => setTab("billing")}><Layers size={16} /> Add Service</button>
+          <button className={`pos-top-tab ${tab === "products" ? "active" : ""}`} onClick={() => setTab("products")}><Package size={16} /> Add Product</button>
           <button className="pos-top-tab" onClick={() => {
             if (!form.customerId) {
               setStatus({ error: "Please select a customer first.", success: "" });
@@ -2245,7 +2245,7 @@ export default function PosPage() {
             setPkgModalPkg(null);
             setPkgDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [], customProducts: [], balance: "", online: "", offline: "", remark: "" });
             setShowPkgModal(true);
-          }}>Add Package</button>
+          }}><Package size={16} /> Add Package</button>
           <button className="pos-top-tab" onClick={() => {
             if (!form.customerId) {
               setStatus({ error: "Please select a customer first.", success: "" });
@@ -2255,7 +2255,7 @@ export default function PosPage() {
             setMemModalMem(null);
             setMemDraft({ staffId: "", price: "", validityDays: "", purchaseDate: new Date().toISOString().slice(0,10), customServices: [] });
             setShowMemModal(true);
-          }}>Add Membership</button>
+          }}><Award size={16} /> Add Membership</button>
           <button className="pos-top-tab" onClick={() => {
             if (!form.customerId) {
               setStatus({ error: "Please select a customer first.", success: "" });
@@ -2265,7 +2265,7 @@ export default function PosPage() {
             setGcModalGc(null);
             setGcDraft({ staffId: "", price: "", validityDays: "30", purchaseDate: new Date().toISOString().slice(0,10) });
             setShowGcModal(true);
-          }}>Add Gift Card</button>
+          }}><Gift size={16} /> Add Gift Card</button>
         </div>
       </div>
 
@@ -2273,7 +2273,7 @@ export default function PosPage() {
         {/* Mobile Tabs Header */}
         <div className="pos-mobile-tabs">
           <button type="button" className={`pos-mobile-tab-btn ${mobileTab === "catalog" ? "active" : ""}`} onClick={() => setMobileTab("catalog")}>
-            <div>🛍️ Catalog</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><ShoppingBag size={18} /> Catalog</div>
             <span>Services</span>
           </button>
           <button type="button" className={`pos-mobile-tab-btn ${mobileTab === "cart" ? "active" : ""}`} onClick={() => setMobileTab("cart")}>
@@ -3712,7 +3712,7 @@ export default function PosPage() {
                   
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))", gap:20 }}>
                     <div>
-                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Online (📱)</label>
+                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Online</label>
                       <input 
                         type="number" 
                         min="0" 
@@ -3738,7 +3738,7 @@ export default function PosPage() {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Offline / Cash (💵)</label>
+                      <label style={{ fontSize:"0.85rem", fontWeight:700, color:"#334155", display:"block", marginBottom:8 }}>Offline / Cash</label>
                       <input 
                         type="number" 
                         min="0" 
@@ -3978,7 +3978,7 @@ export default function PosPage() {
                         boxShadow: isSelected ? "0 4px 12px rgba(37, 99, 235, 0.1)" : "0 1px 3px rgba(0, 0, 0, 0.02)"
                       }}
                     >
-                      <div style={{ fontSize: "0.9rem", fontWeight: 800, color: isSelected ? "#1e40af" : "#0f172a", textTransform: "uppercase" }}>
+                      <div style={{ fontSize: "0.9rem", fontWeight: 800, color: isSelected ? "#1e40af" : "#0f172a", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}><Award size={16} color={isSelected ? "#2563eb" : "#94a3b8"} />
                         {mem.name}
                       </div>
                       <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, lineHeight: "1.3" }}>
@@ -4058,7 +4058,7 @@ export default function PosPage() {
                     <div style={{ flex: 1, minWidth: 120 }}>
                       <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>Online</label>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: "1.2rem" }}>📱</span>
+                        <span style={{ display: "flex" }}><Smartphone size={20} color="#3b82f6" /></span>
                         <input type="number" min="0" step="0.01" inputMode="decimal" placeholder="0.0" value={memDraft.online} onFocus={() => {
                           const total = Math.max(0, Number(memDraft.price || 0));
                           setMemDraft(d => ({ ...d, online: String(total), offline: "", balance: "0" }));
