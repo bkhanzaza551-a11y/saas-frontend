@@ -817,18 +817,28 @@ export default function WebsiteEditorPage() {
                   <MessageCircle size={16} color="#25D366" /> WhatsApp Floating Chat Button
                 </h4>
                 <p style={{ margin: "0 0 10px", fontSize: "0.75rem", color: "#64748b" }}>
-                  A floating WhatsApp button will appear on the bottom-right corner of your live website. Default country code is <strong>+91 (India)</strong>.
+                  A floating WhatsApp button will appear on the bottom-right corner of your live website.
                 </p>
                 <div>
-                  <input 
-                    type="text" 
-                    value={config.socialWhatsapp || ""} 
-                    onChange={e => update("socialWhatsapp", e.target.value)} 
-                    placeholder="e.g. 7747911593 or +917747911593" 
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.85rem" }} 
-                  />
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: "8px", overflow: "hidden", background: "#ffffff" }}>
+                    <div style={{ padding: "10px 12px", background: "#f1f5f9", borderRight: "1px solid #cbd5e1", fontSize: "0.85rem", fontWeight: 700, color: "#334155", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                      <span>🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      value={config.socialWhatsapp ? config.socialWhatsapp.replace(/^\+91\s*/, "").replace(/^91(?=\d{10})/, "") : ""} 
+                      onChange={e => {
+                        let val = e.target.value.trim();
+                        val = val.replace(/^\+91\s*/, "").replace(/^91(?=\d{10})/, "");
+                        update("socialWhatsapp", val);
+                      }} 
+                      placeholder="98765 43210" 
+                      style={{ flex: 1, padding: "10px 14px", border: "none", fontSize: "0.85rem", outline: "none", background: "transparent" }} 
+                    />
+                  </div>
                   <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "4px", display: "block" }}>
-                    Enter 10-digit number or international number. (Leave blank to use salon phone number).
+                    Enter 10-digit WhatsApp number (Fixed country code <strong>+91</strong>). Leave blank to use salon phone number.
                   </span>
                 </div>
               </div>
