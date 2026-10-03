@@ -225,8 +225,8 @@ export default function CollectionsPage() {
                             }}
                             style={{
                               background: "transparent",
-                              color: "#f97316",
-                              border: "1px solid #f97316",
+                              color: "#0f172a",
+                              border: "1px solid #0f172a",
                               padding: "6px 16px",
                               borderRadius: 8,
                               fontWeight: 600,
@@ -235,7 +235,7 @@ export default function CollectionsPage() {
                               transition: "all 0.2s ease"
                             }}
                             onMouseEnter={e => {
-                              e.currentTarget.style.background = "#fff7ed";
+                              e.currentTarget.style.background = "#f8fafc";
                             }}
                             onMouseLeave={e => {
                               e.currentTarget.style.background = "transparent";

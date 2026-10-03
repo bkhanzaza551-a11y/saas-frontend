@@ -651,8 +651,8 @@ export default function ServiceDetailPage() {
                       <button 
                         style={{
                           background: "transparent",
-                          border: "1px solid var(--accent)",
-                          color: "var(--accent)",
+                          border: "1px solid #0f172a",
+                          color: "#0f172a",
                           padding: "6px 16px",
                           borderRadius: 100,
                           fontWeight: 600,
@@ -661,12 +661,12 @@ export default function ServiceDetailPage() {
                           transition: "all 0.2s"
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.background = "var(--accent)";
+                          e.currentTarget.style.background = "#0f172a";
                           e.currentTarget.style.color = "#fff";
                         }}
                         onMouseLeave={e => {
                           e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.color = "var(--accent)";
+                          e.currentTarget.style.color = "#0f172a";
                         }}
                       >
                         Book
