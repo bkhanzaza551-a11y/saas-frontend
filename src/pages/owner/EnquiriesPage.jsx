@@ -638,26 +638,26 @@ export default function EnquiriesPage() {
         .timeline-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         .quick-chip-btn {
-          background: #ffffff;
-          border: 1px solid #e2e8f0;
-          color: #475569;
-          font-size: 13px;
-          font-weight: 500;
-          padding: 6px 14px;
-          border-radius: 20px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+          background: #ffffff !important;
+          border: 1px solid #e2e8f0 !important;
+          color: #475569 !important;
+          font-size: 0.75rem !important;
+          font-weight: 500 !important;
+          padding: 4px 12px !important;
+          border-radius: 16px !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          box-shadow: none !important;
+          min-height: 28px !important;
+          letter-spacing: normal !important;
         }
         .quick-chip-btn:hover {
-          background: #f8fafc;
-          border-color: #cbd5e1;
-          color: #0f172a;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-          transform: translateY(-1px);
+          background: #f1f5f9 !important;
+          border-color: #cbd5e1 !important;
+          color: #0f172a !important;
         }
 
         .spec-item {
