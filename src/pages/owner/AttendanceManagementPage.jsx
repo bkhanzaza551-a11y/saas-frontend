@@ -346,29 +346,33 @@ export default function AttendanceManagementPage() {
           display: none;
         }
         .attendance-tab-btn {
-          padding: 8px 16px;
-          border-radius: 20px;
+          padding: 5px 12px;
+          min-height: unset;
+          height: 32px;
+          border-radius: 8px;
           border: 1px solid #e2e8f0;
           background: #fff;
           color: #64748b;
           font-weight: 600;
-          font-size: 0.85rem;
+          font-size: 0.78rem;
           cursor: pointer;
           transition: all 0.15s ease;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
           flex-shrink: 0;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
         .attendance-tab-btn:hover {
           border-color: #cbd5e1;
           color: #334155;
+          background: #f8fafc;
         }
         .attendance-tab-btn.active {
           background: #0f766e;
           color: #fff;
           border-color: #0f766e;
-          box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
+          box-shadow: 0 1px 3px rgba(15, 118, 110, 0.25);
         }
 
         .desktop-table-view {
@@ -528,7 +532,7 @@ export default function AttendanceManagementPage() {
           const isActive = tab === t.key;
           return (
             <button key={t.key} type="button" onClick={() => setTab(t.key)} className={`attendance-tab-btn ${isActive ? "active" : ""}`}>
-              <TabIcon size={14} />
+              <TabIcon size={13} />
               <span>{t.label}</span>
             </button>
           );
