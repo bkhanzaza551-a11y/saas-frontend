@@ -77,6 +77,8 @@ function Toggle({ checked, onChange, activeLabel = "Active Vendor", inactiveLabe
         style={{
           width: 48,
           height: 26,
+          minHeight: 26,
+          minWidth: 48,
           borderRadius: 13,
           border: "none",
           padding: 0,
