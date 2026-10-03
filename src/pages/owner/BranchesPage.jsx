@@ -181,15 +181,23 @@ export default function BranchesPage() {
           align-items: center;
           gap: 6px;
           margin-left: auto;
-          background: linear-gradient(135deg, #4f46e5, #3b82f6);
-          color: white;
-          font-weight: 700;
-          border-radius: 10px;
-          padding: 10px 20px;
-          border: none;
+          background: #0f172a;
+          color: #ffffff;
+          font-weight: 600;
+          border-radius: 8px;
+          padding: 6px 14px;
+          min-height: unset;
+          height: 36px;
+          border: 1px solid #0f172a;
           cursor: pointer;
-          font-size: 0.88rem;
+          font-size: 0.82rem;
           white-space: nowrap;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+          transition: all 0.15s ease;
+        }
+        .bp-add-btn:hover:not(:disabled) {
+          background: #1e293b;
+          border-color: #1e293b;
         }
         .bp-modal-form-grid {
           display: grid;
@@ -292,12 +300,20 @@ export default function BranchesPage() {
             disabled={limitInfo && limitInfo.remaining <= 0}
             className="bp-add-btn"
             style={{
-              background: limitInfo && limitInfo.remaining <= 0 ? "#e2e8f0" : "linear-gradient(135deg, #4f46e5, #3b82f6)",
-              color: limitInfo && limitInfo.remaining <= 0 ? "#94a3b8" : "white",
-              cursor: limitInfo && limitInfo.remaining <= 0 ? "not-allowed" : "pointer"
+              background: limitInfo && limitInfo.remaining <= 0 ? "#e2e8f0" : "#0f172a",
+              borderColor: limitInfo && limitInfo.remaining <= 0 ? "#e2e8f0" : "#0f172a",
+              color: limitInfo && limitInfo.remaining <= 0 ? "#94a3b8" : "#ffffff",
+              cursor: limitInfo && limitInfo.remaining <= 0 ? "not-allowed" : "pointer",
+              padding: "6px 14px",
+              height: "36px",
+              minHeight: "unset",
+              fontSize: "0.82rem",
+              borderRadius: "8px",
+              fontWeight: 600,
+              boxShadow: limitInfo && limitInfo.remaining <= 0 ? "none" : "0 1px 2px rgba(0, 0, 0, 0.05)"
             }}
           >
-            <Plus size={16} /> Add Branch
+            <Plus size={15} /> Add Branch
           </button>
         </div>
 
