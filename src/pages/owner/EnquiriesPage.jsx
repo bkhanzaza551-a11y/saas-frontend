@@ -1110,7 +1110,7 @@ export default function EnquiriesPage() {
                 className="eq-btn eq-btn-secondary"
                 onClick={handleImportClick}
                 disabled={importing}
-                style={{ height: 38, fontSize: "0.8rem", padding: "0 12px" }}
+                style={{ height: 32, fontSize: "0.75rem", padding: "0 10px" }}
               >
                 <Upload size={14} /> {importing ? "Importing..." : "Import"}
               </button>
@@ -1119,7 +1119,7 @@ export default function EnquiriesPage() {
                 type="button"
                 className="eq-btn eq-btn-secondary"
                 onClick={downloadTestData}
-                style={{ height: 38, fontSize: "0.8rem", padding: "0 12px" }}
+                style={{ height: 32, fontSize: "0.75rem", padding: "0 10px" }}
               >
                 <Download size={14} /> Download Sample Data
               </button>
@@ -1129,7 +1129,7 @@ export default function EnquiriesPage() {
                   type="button"
                   className="eq-btn eq-btn-secondary"
                   onClick={(e) => { e.stopPropagation(); setShowExportMenu((v) => !v); }}
-                  style={{ height: 38, fontSize: "0.8rem", padding: "0 12px" }}
+                  style={{ height: 32, fontSize: "0.75rem", padding: "0 10px" }}
                 >
                   <Download size={14} /> Export <ChevronDown size={13} />
                 </button>
@@ -1141,7 +1141,7 @@ export default function EnquiriesPage() {
                     <button
                       type="button"
                       onClick={handleExport}
-                      style={{ width: "100%", textAlign: "left", padding: "8px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.8rem", color: "#334155", fontWeight: 500, display: "block" }}
+                      style={{ width: "100%", textAlign: "left", padding: "8px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "0.75rem", color: "#334155", fontWeight: 500, display: "block" }}
                     >
                       Export Enquiries (CSV)
                     </button>
@@ -1153,9 +1153,9 @@ export default function EnquiriesPage() {
                 type="button"
                 className="eq-btn eq-btn-primary" 
                 onClick={handleOpenAdd}
-                style={{ height: 38, fontSize: "0.82rem", padding: "0 16px", boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)" }}
+                style={{ height: 32, fontSize: "0.78rem", padding: "0 12px", boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)" }}
               >
-                <Plus size={15} /> Add Enquiry
+                <Plus size={14} /> Add Enquiry
               </button>
             </div>
           </div>
