@@ -2218,10 +2218,10 @@ export default function PosPage() {
       {/* TOP BAR */}
       <div className="pos-topbar">
         <div className="pos-topbar-left">
-          <div className="pos-gender-toggles" style={{ flex: 1, width: "100%" }}>
-            <button className={`pos-gender-btn ${posGender === "ALL" ? "active" : ""}`} onClick={() => setPosGender("ALL")} style={{ flex: 1 }}>All</button>
-            <button className={`pos-gender-btn ${posGender === "FEMALE" ? "active" : ""}`} onClick={() => setPosGender("FEMALE")} style={{ flex: 1 }}>Female</button>
-            <button className={`pos-gender-btn ${posGender === "MALE" ? "active" : ""}`} onClick={() => setPosGender("MALE")} style={{ flex: 1 }}>Male</button>
+          <div className="pos-gender-toggles">
+            <button className={`pos-gender-btn ${posGender === "ALL" ? "active" : ""}`} onClick={() => setPosGender("ALL")}>All</button>
+            <button className={`pos-gender-btn ${posGender === "FEMALE" ? "active" : ""}`} onClick={() => setPosGender("FEMALE")}>Female</button>
+            <button className={`pos-gender-btn ${posGender === "MALE" ? "active" : ""}`} onClick={() => setPosGender("MALE")}>Male</button>
           </div>
         </div>
         <div className="pos-topbar-right">
@@ -2275,7 +2275,7 @@ export default function PosPage() {
 
         {/* LEFT SIDEBAR (1-CLICK CATALOG) */}
         <div className={`pos-sidebar ${mobileTab === "cart" ? "mobile-hidden" : ""}`}>
-          <div className="pos-search-wrapper" style={{ marginBottom: 12 }}>
+          <div className="pos-search-wrapper" style={{ marginBottom: 12, flex: "none" }}>
             <input 
               placeholder={tab === "billing" ? "Search Service" : tab === "products" ? "Search Product" : tab === "packages" ? "Search Package" : "Search Membership"} 
               value={
