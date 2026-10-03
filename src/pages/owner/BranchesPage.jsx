@@ -230,13 +230,13 @@ export default function BranchesPage() {
       {status.error && (
         <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} /> {status.error}
-          <button onClick={() => setStatus(s => ({ ...s, error: "" }))} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#991b1b" }}><X size={14} /></button>
+          <button onClick={() => setStatus(s => ({ ...s, error: "" }))} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#991b1b" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
       )}
       {status.success && (
         <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#065f46", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
           {status.success}
-          <button onClick={() => setStatus(s => ({ ...s, success: "" }))} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#065f46" }}><X size={14} /></button>
+          <button onClick={() => setStatus(s => ({ ...s, success: "" }))} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#065f46" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
       )}
 
@@ -389,7 +389,7 @@ export default function BranchesPage() {
             <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#0f172a" }}>{heading}</h3>
               <button type="button" onClick={resetForm} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4 }}>
-                <X size={20} />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             

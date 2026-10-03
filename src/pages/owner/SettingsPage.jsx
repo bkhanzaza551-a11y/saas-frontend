@@ -1777,7 +1777,7 @@ export default function SettingsPage() {
                   {isNew ? "Create New Shift Template" : "Edit Shift Details"}
                 </h2>
                 <button type="button" className="modal-close-btn" onClick={() => { setSelectedShiftId(null); setShiftDraft(null); }}>
-                  <X size={20} />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
@@ -1916,7 +1916,7 @@ export default function SettingsPage() {
                       {(shiftDraft.breaks || []).map((brk, idx) => (
                         <div key={idx} style={{ padding: 16, background: "#fff", borderRadius: 8, border: "1px solid #e2e8f0", position: "relative" }}>
                           <button type="button" onClick={() => removeBreakFromDraft(idx)} style={{ position: "absolute", top: 12, right: 12, background: "none", color: "#94a3b8", border: "none", cursor: "pointer", padding: 4, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#ef4444"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "#94a3b8"; }}>
-                            <X size={16} />
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                           </button>
                           
                           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16, paddingRight: 32 }}>
@@ -2570,7 +2570,7 @@ export default function SettingsPage() {
                   {draftTax?._isNew ? "Create New Tax" : `Edit Tax Mapping`}
                 </h2>
                 <button type="button" className="modal-close-btn" onClick={cancelDraft}>
-                  <X size={18} />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
@@ -4282,7 +4282,7 @@ export default function SettingsPage() {
                   {draftPnlCategory._isNew ? "Create PNL Category" : `Edit Category`}
                 </h2>
                 <button onClick={cancelDraft} type="button" className="modal-close-btn">
-                  <X size={20} />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
@@ -5041,7 +5041,7 @@ export default function SettingsPage() {
                   {draftPnlIncomeTax._isNew ? "Create PNL Income Tax Slab" : `Edit Tax Slab`}
                 </h2>
                 <button onClick={cancelDraft} type="button" className="modal-close-btn">
-                  <X size={20} />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
@@ -5404,14 +5404,14 @@ export default function SettingsPage() {
             <div style={{ background: "#10b981", color: "white", padding: "16px 20px", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)", display: "flex", alignItems: "center", gap: 12, fontSize: 15, fontWeight: 600, animation: "slideInRightToast 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}>
               <CheckCircle size={20} />
               {status.success}
-              <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "white", cursor: "pointer", marginLeft: 16, padding: 4, display: "flex", opacity: 0.8, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0.8}><X size={16} /></button>
+              <button onClick={() => setStatus({ ...status, success: "" })} style={{ background: "none", border: "none", color: "white", cursor: "pointer", marginLeft: 16, padding: 4, display: "flex", opacity: 0.8, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0.8}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
           )}
           {status.error && (
             <div style={{ background: "#ef4444", color: "white", padding: "16px 20px", borderRadius: 12, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)", display: "flex", alignItems: "center", gap: 12, fontSize: 15, fontWeight: 600, animation: "slideInRightToast 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}>
               <AlertCircle size={20} />
               {status.error}
-              <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "white", cursor: "pointer", marginLeft: 16, padding: 4, display: "flex", opacity: 0.8, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0.8}><X size={16} /></button>
+              <button onClick={() => setStatus({ ...status, error: "" })} style={{ background: "none", border: "none", color: "white", cursor: "pointer", marginLeft: 16, padding: 4, display: "flex", opacity: 0.8, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0.8}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
           )}
         </div>

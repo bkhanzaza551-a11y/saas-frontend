@@ -849,11 +849,41 @@ export default function ProductsRequirementPage() {
                 <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, marginBottom: 6, color: "#334155" }}>
                   Quantity (Units) *
                 </label>
-                <div className="pr-qty-group">
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  height: 38,
+                  border: "1px solid #cbd5e1",
+                  borderRadius: 8,
+                  background: "#ffffff",
+                  overflow: "hidden",
+                  width: "124px",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+                }}>
                   <button
                     type="button"
-                    className="pr-qty-group-btn"
                     onClick={() => setRequestForm(prev => ({ ...prev, quantity: Math.max(1, (Number(prev.quantity) || 1) - 1) }))}
+                    style={{
+                      width: 36,
+                      height: "100%",
+                      minHeight: "unset",
+                      padding: 0,
+                      border: "none",
+                      borderRight: "1px solid #e2e8f0",
+                      background: "#f8fafc",
+                      color: "#334155",
+                      fontSize: "1rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 0,
+                      boxShadow: "none",
+                      transition: "background 0.15s"
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
+                    onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
                   >
                     −
                   </button>
@@ -861,14 +891,49 @@ export default function ProductsRequirementPage() {
                     type="number"
                     min="1"
                     required
-                    className="pr-qty-group-input"
                     value={requestForm.quantity}
                     onChange={e => setRequestForm({ ...requestForm, quantity: Math.max(1, parseInt(e.target.value, 10) || 1) })}
+                    style={{
+                      width: 52,
+                      height: "100%",
+                      minHeight: "unset",
+                      padding: "0 4px",
+                      border: "none",
+                      textAlign: "center",
+                      fontSize: "0.9rem",
+                      fontWeight: 700,
+                      color: "#0f172a",
+                      background: "#ffffff",
+                      outline: "none",
+                      boxShadow: "none",
+                      borderRadius: 0,
+                      boxSizing: "border-box"
+                    }}
                   />
                   <button
                     type="button"
-                    className="pr-qty-group-btn"
                     onClick={() => setRequestForm(prev => ({ ...prev, quantity: (Number(prev.quantity) || 1) + 1 }))}
+                    style={{
+                      width: 36,
+                      height: "100%",
+                      minHeight: "unset",
+                      padding: 0,
+                      border: "none",
+                      borderLeft: "1px solid #e2e8f0",
+                      background: "#f8fafc",
+                      color: "#334155",
+                      fontSize: "1rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 0,
+                      boxShadow: "none",
+                      transition: "background 0.15s"
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
+                    onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
                   >
                     +
                   </button>

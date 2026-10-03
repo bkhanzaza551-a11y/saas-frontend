@@ -833,7 +833,7 @@ export default function UsersPage() {
                 </div>
               </div>
               <button type="button" onClick={stopEnrollmentCamera} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }} title="Close Camera">
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             
@@ -1526,7 +1526,7 @@ export default function UsersPage() {
             {staffOtpStep === 1 ? (
               <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "16px 22px", borderBottom: "1px solid #e2e8f0" }}>
                 <div style={{ fontSize: 16, fontWeight: 750, color: "#0f172a", letterSpacing: "-0.01em" }}>Create New Staff Profile</div>
-                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}><X size={18} /></button>
+                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStatus({}); }} style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </div>
             ) : (
               <div className="hub-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "14px 20px", borderBottom: "1px solid #e2e8f0" }}>
@@ -1534,7 +1534,7 @@ export default function UsersPage() {
                   <ArrowLeft size={16} /> Back to details
                 </button>
                 <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>Phone Verification</span>
-                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}><X size={18} /></button>
+                <button type="button" onClick={() => { setIsCreateModalOpen(false); setStaffOtpStep(1); setStatus({}); }} style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </div>
             )}
             
@@ -1963,7 +1963,7 @@ export default function UsersPage() {
                 onClick={() => { setUnverifiedModalOpen(false); setStatus((c) => ({ ...c, error: "" })); }}
                 style={{ background: "white", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", width: 32, height: 32, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}
               >
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 

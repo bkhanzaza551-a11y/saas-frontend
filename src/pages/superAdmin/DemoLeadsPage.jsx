@@ -1260,7 +1260,7 @@ const toLocalIsoDateTime = (dt) => {
                   title="Close modal"
                   aria-label="Close"
                 >
-                  <X size={22} strokeWidth={3} />
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
@@ -2506,7 +2506,7 @@ const toLocalIsoDateTime = (dt) => {
                 title="Close modal"
                 aria-label="Close"
               >
-                <X size={18} strokeWidth={2.5} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 

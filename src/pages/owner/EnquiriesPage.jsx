@@ -1371,7 +1371,7 @@ export default function EnquiriesPage() {
                 onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
                 onMouseLeave={(e) => e.currentTarget.style.background = "#f1f5f9"}
               >
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             
@@ -1555,7 +1555,7 @@ export default function EnquiriesPage() {
                   onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
                   onMouseLeave={(e) => e.currentTarget.style.background = "#f1f5f9"}
                 >
-                  <X size={18} />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
               

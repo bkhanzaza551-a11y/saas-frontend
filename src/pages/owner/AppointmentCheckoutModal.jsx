@@ -514,7 +514,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                     <div style={{ fontSize: "14px", lineHeight: "1.4" }}>{shareError}</div>
                   </div>
                   <button onClick={() => setShareError(null)} style={{ background: "transparent", border: "none", color: "white", cursor: "pointer", position: "absolute", top: "16px", right: "16px" }}>
-                    <X size={20} />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
               )}
@@ -523,7 +523,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                   <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px", fontWeight: 700 }}>Share Invoice</h3>
                   <button onClick={() => { setShowShareModal(false); setShareError(null); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}>
-                    <X size={20} />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
 
@@ -609,7 +609,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
         {/* Header Strip */}
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "12px", background: "white", borderBottom: "1px solid #e2e8f0" }}>
           <span style={{ color: "#f43f5e", fontSize: "1rem", fontWeight: 700, letterSpacing: "0.5px" }}>Update Appointment (CHECKOUT)</span>
-          <button type="button" onClick={onClose} style={{ position: "absolute", right: "16px", background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}><X size={20} /></button>
+          <button type="button" onClick={onClose} style={{ position: "absolute", right: "16px", background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
 
         {/* Changed grid layout to make left panel narrower (1fr 2.8fr or 300px min) */}
@@ -941,7 +941,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <input type="text" placeholder="Search For Card" value={gcSearch} onChange={(e) => setGcSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
                   <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowGcModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
+                <button onClick={() => setShowGcModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </div>
             </div>
 
@@ -1042,7 +1042,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <input type="text" placeholder="Search For Membership" value={membershipSearch} onChange={(e) => setMembershipSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
                   <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowMembershipModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
+                <button onClick={() => setShowMembershipModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </div>
             </div>
 
@@ -1167,7 +1167,7 @@ export default function AppointmentCheckoutModal({ appointment, onClose, onCompl
                   <input type="text" placeholder="Search For Package" value={packageSearch} onChange={(e) => setPackageSearch(e.target.value)} style={{ border: "none", outline: "none", background: "transparent", fontSize: "0.8rem", width: "160px" }} />
                   <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}><Search size={16} /></span>
                 </div>
-                <button onClick={() => setShowPackageModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><X size={16} /></button>
+                <button onClick={() => setShowPackageModal(false)} style={{ background: "#f1f5f9", border: "none", borderRadius: "50%", width: "28px", height: "28px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </div>
             </div>
 

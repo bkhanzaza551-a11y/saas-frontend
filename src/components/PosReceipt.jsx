@@ -187,7 +187,7 @@ export default function PosReceipt({ invoice, salonName, salonAddress, salonPhon
             <ChevronDown size={13} color="#64748b" style={{ position: "absolute", right: 8, pointerEvents: "none" }} />
           </div>
           {onDownload && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569", cursor: "pointer" }} title="Download" onClick={onDownload}><Download size={14} /></div>}
-          {onClose && !inline && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#ef4444", cursor: "pointer" }} title="Close" onClick={onClose}><X size={14} /></div>}
+          {onClose && !inline && <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#ef4444", cursor: "pointer" }} title="Close" onClick={onClose}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>}
         </div>
 
         {/* Receipt Body */}

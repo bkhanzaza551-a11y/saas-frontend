@@ -753,7 +753,7 @@ export default function CreateCampaignPage() {
                                 padding: 0
                               }}
                             >
-                              <X size={14} /> Remove Image
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Remove Image
                             </button>
                           )}
                         </div>
@@ -1097,7 +1097,7 @@ export default function CreateCampaignPage() {
                     <button onClick={() => { setGenderFilter(""); setCampaignFilter(""); setSearchQuery(""); }} style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "1px solid #e2e8f0", borderRadius: 20, padding: "4px 12px", fontSize: "0.75rem", cursor: "pointer" }}>
                       <RefreshCcw size={12} /> Reset Filters
                     </button>
-                    <button onClick={() => setIsFilterModalOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer" }}><X size={20} color="#64748b" /></button>
+                    <button onClick={() => setIsFilterModalOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                   </div>
                 </div>
                 
@@ -1342,7 +1342,7 @@ export default function CreateCampaignPage() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: '#0f172a' }}>Send Test Message</h3>
-              <button onClick={() => setShowTestModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex' }}><X size={20} color="#64748b" /></button>
+              <button onClick={() => setShowTestModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 24, lineHeight: '1.5' }}>Search for a customer by name, or manually enter a {channel === 'EMAIL' ? 'email address' : 'phone number'} to receive a preview.</p>
             

@@ -627,7 +627,7 @@ export default function MembershipsPage() {
                 {membershipEditMode ? "Edit Membership Plan" : "Create Membership Plan"}
               </h2>
               <button type="button" onClick={() => { setShowMembershipModal(false); setEditableMembershipId(""); }} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px", margin: 0 }}>
-                <X size={20} />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             
@@ -923,7 +923,7 @@ export default function MembershipsPage() {
                 <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Deduct prepaid sessions consumed by a customer.</div>
               </div>
               <button onClick={() => setShowRedeemModal(false)} type="button" className="modal-close-btn">
-                <X size={20} />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 
@@ -1012,7 +1012,7 @@ export default function MembershipsPage() {
               <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
                 {packageEditMode ? <><Edit2 size={20} color="#64748b" /> Edit Package</> : <><Package size={20} color="#64748b" /> Create Package</>}
               </span>
-              <button type="button" onClick={() => { setShowPackageModal(false); setEditablePackageId(""); }} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+              <button type="button" onClick={() => { setShowPackageModal(false); setEditablePackageId(""); }} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div className="modal-body">
             <form onSubmit={async (event) => {
@@ -1261,7 +1261,7 @@ export default function MembershipsPage() {
           <div className="modal-content" style={{ maxWidth: 500, width: "100%" }}>
             <div className="modal-header">
               <h2><Plus size={20} /> Assign Membership</h2>
-              <button type="button" onClick={() => setShowAssignMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+              <button type="button" onClick={() => setShowAssignMembershipModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div className="modal-body">
           <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>{customerScopeLabel}</p>
@@ -1322,7 +1322,7 @@ export default function MembershipsPage() {
           <div className="modal-content" style={{ maxWidth: 500, width: "100%" }}>
             <div className="modal-header">
               <h2><Plus size={20} /> Assign Package</h2>
-              <button type="button" onClick={() => setShowAssignPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><X size={20} /></button>
+              <button type="button" onClick={() => setShowAssignPackageModal(false)} style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div className="modal-body">
           <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>{customerScopeLabel}</p>

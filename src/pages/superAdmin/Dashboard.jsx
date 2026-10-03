@@ -455,7 +455,7 @@ export default function SuperAdminDashboard() {
         {showAttention && hasAttentionItems ? (
           <div style={{ marginBottom: 28, background: "#ffffff", borderRadius: 16, padding: "20px 24px", border: "1px solid #fca5a5", boxShadow: "0 4px 20px rgba(239, 68, 68, 0.08)", position: "relative" }}>
             <button onClick={() => setShowAttention(false)} style={{ position: "absolute", top: 16, right: 16, background: "#fef2f2", border: "none", color: "#991b1b", cursor: "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-              <X size={16} />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
@@ -976,7 +976,7 @@ export default function SuperAdminDashboard() {
           onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
           title="Quick Actions"
         >
-          {showFabMenu ? <X size={24} /> : <Plus size={24} />}
+          {showFabMenu ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> : <Plus size={24} />}
         </button>
       </div>
     </div>

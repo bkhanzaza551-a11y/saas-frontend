@@ -1263,7 +1263,7 @@ const handleExportClick = async (format) => {
           <div className="sidebar-modal" onClick={(event) => event.stopPropagation()}>
             <div className="sidebar-modal-header">
               <h3>Filters</h3>
-              <button className="modal-close" onClick={() => setShowFilters(false)}><X size={20} /></button>
+              <button className="modal-close" onClick={() => setShowFilters(false)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div className="sidebar-modal-body">
               <div className="filter-categories">
@@ -1320,7 +1320,7 @@ const handleExportClick = async (format) => {
           <div className="modal-content" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <h3>Merge Customer</h3>
-              <button className="modal-close" onClick={() => { setMergeSourceRow(null); setMergeTargetId(""); }}><X size={20} /></button>
+              <button className="modal-close" onClick={() => { setMergeSourceRow(null); setMergeTargetId(""); }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div className="modal-body">
               <div className="form-group">
@@ -1355,7 +1355,7 @@ const handleExportClick = async (format) => {
           <div className="sidebar-modal" onClick={(event) => event.stopPropagation()}>
             <div className="sidebar-modal-header" style={{ borderBottom: "none" }}>
               <h3 style={{ fontSize: "1.2rem", fontWeight: "700" }}>Add Customer</h3>
-              <button className="modal-close" onClick={() => setShowAddGuest(false)} style={{ background: "transparent", color: "#ef4444", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", justifyContent: "center" }}><X size={20} /></button>
+              <button className="modal-close" onClick={() => setShowAddGuest(false)} style={{ background: "transparent", color: "#ef4444", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <form onSubmit={handleAddCustomer} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
               <div className="sidebar-modal-body" style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "20px 24px", overflowY: "auto" }}>
@@ -1588,7 +1588,7 @@ const handleExportClick = async (format) => {
                       <Edit3 size={16} />
                     </button>
                     <button type="button" className="cust-detail-close-mobile" onClick={closeCustomerDetail} title="Close Profile">
-                      <X size={18} />
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                   </div>
                   <div className="cust-detail-sidebar-fields">
@@ -1647,7 +1647,7 @@ const handleExportClick = async (format) => {
                     ].find(t => t.key === detailTab)?.label || "Details"}
                   </span>
                   <button className="cust-detail-close" onClick={closeCustomerDetail}>
-                    <X size={20} />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
                 <div className="cust-detail-content-body">
@@ -2139,7 +2139,7 @@ const handleExportClick = async (format) => {
                 <div style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "2px" }}>Assign a membership plan to {selectedCustomer?.name}</div>
               </div>
               <button onClick={() => setShowAssignMembershipModal(false)} style={{ background: "#f1f5f9", border: "none", width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}>
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 
@@ -2440,7 +2440,7 @@ const handleExportClick = async (format) => {
                 <h3>Add Advance</h3>
                 <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "2px" }}>Add advance to {selectedCustomer.name}</div>
               </div>
-              <button className="modal-close" onClick={() => setShowAddAdvanceModal(false)}><X size={20} /></button>
+              <button className="modal-close" onClick={() => setShowAddAdvanceModal(false)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div className="modal-body">
               <div className="form-group">
@@ -2500,7 +2500,7 @@ const handleExportClick = async (format) => {
                   <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Assign gift card to {selectedCustomer?.name}</div>
                 </div>
                 <button type="button" className="modal-close" onClick={() => setShowGiftCardModal(false)} title="Close">
-                  <X size={18} />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
               <div style={{ position: "relative", width: "100%" }}>
@@ -2680,7 +2680,7 @@ const handleExportClick = async (format) => {
                   <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 2 }}>Assign package to {selectedCustomer?.name}</div>
                 </div>
                 <button type="button" className="modal-close" onClick={() => setShowPackageModal(false)} title="Close">
-                  <X size={18} />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
               <div style={{ position: "relative", width: "100%" }}>
@@ -2851,7 +2851,7 @@ const handleExportClick = async (format) => {
                       <div key={idx} style={{ background: "#f1f5f9", padding: "5px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#334155", border: "1px solid #e2e8f0" }}>
                         <span>{s.name}</span>
                         <span style={{ fontWeight: 700, background: "#e2e8f0", padding: "2px 6px", borderRadius: 4 }}>x{s.sessions}</span>
-                        <button type="button" onClick={() => setCustomServices(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex", alignItems: "center" }}><X size={13} /></button>
+                        <button type="button" onClick={() => setCustomServices(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex", alignItems: "center" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                       </div>
                     ))}
                   </div>
@@ -2896,7 +2896,7 @@ const handleExportClick = async (format) => {
                     {customProducts.map((p, idx) => (
                       <div key={idx} style={{ background: "#f1f5f9", padding: "5px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#334155", border: "1px solid #e2e8f0" }}>
                         <span>{p.name}</span>
-                        <button type="button" onClick={() => setCustomProducts(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex", alignItems: "center" }}><X size={13} /></button>
+                        <button type="button" onClick={() => setCustomProducts(prev => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 0, display: "flex", alignItems: "center" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                       </div>
                     ))}
                   </div>
@@ -3209,7 +3209,7 @@ const handleExportClick = async (format) => {
               lineHeight: 1
             }}
           >
-            <X size={16} />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
       )}
@@ -3234,7 +3234,7 @@ const handleExportClick = async (format) => {
                 onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                 onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
               >
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             

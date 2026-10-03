@@ -2655,7 +2655,7 @@ export default function AppointmentsPage() {
       {showConfirmModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1201, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "white", borderRadius: 12, padding: 24, width: "100%", maxWidth: 450, boxShadow: "none", position: "relative" }}>
-            <button type="button" disabled={submittingAppointment} onClick={() => setShowConfirmModal(false)} style={{ position: "absolute", top: 12, right: 12, background: "#f1f5f9", border: "none", borderRadius: "50%", cursor: submittingAppointment ? "not-allowed" : "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#475569" }}><X size={16} /></button>
+            <button type="button" disabled={submittingAppointment} onClick={() => setShowConfirmModal(false)} style={{ position: "absolute", top: 12, right: 12, background: "#f1f5f9", border: "none", borderRadius: "50%", cursor: submittingAppointment ? "not-allowed" : "pointer", padding: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#475569" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             <h3 style={{ color: "var(--accent, #3b82f6)", marginTop: 0, marginBottom: 16, fontSize: "1.1rem", fontWeight: 600 }}>{editMode ? "Confirm Update" : "Create & Confirm Appointment"}</h3>
             <p style={{ color: "#475569", fontSize: "0.95rem", marginBottom: 24 }}>{editMode ? "Are you sure you want to update these services?" : "Are you sure, you want to create & confirm an appointment?"}</p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
@@ -2760,7 +2760,7 @@ export default function AppointmentsPage() {
                       <div className="cust-detail-phone">{selectedCustomer.phone}</div>
                     </div>
                     <button type="button" className="cust-detail-close-mobile" onClick={closeCustomerDetail} title="Close Profile">
-                      <X size={18} />
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                   </div>
                   <div className="cust-detail-sidebar-fields">
@@ -2816,7 +2816,7 @@ export default function AppointmentsPage() {
                     ].find(t => t.key === detailTab)?.label || "Details"}
                   </span>
                   <button className="cust-detail-close" onClick={closeCustomerDetail}>
-                    <X size={20} />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
                 <div className="cust-detail-content-body">
@@ -3257,7 +3257,7 @@ export default function AppointmentsPage() {
                 disabled={assignBusy}
                 style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b", padding: 4, display: "flex", alignItems: "center", borderRadius: 6 }}
               >
-                <X size={18} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 

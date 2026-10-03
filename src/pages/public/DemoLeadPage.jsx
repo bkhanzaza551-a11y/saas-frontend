@@ -518,7 +518,7 @@ export default function PublicDemoLeadPage() {
                             }}
                             style={{ color: "#94a3b8", cursor: "pointer", display: "flex" }}
                           >
-                            <X size={14} />
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                           </span>
                         )}
                         <ChevronDown size={16} color="#94a3b8" style={{ transform: cityOpen ? "rotate(180deg)" : "none", transition: "0.2s" }} />
@@ -555,7 +555,7 @@ export default function PublicDemoLeadPage() {
                             onClick={e => e.stopPropagation()}
                             style={{ border: "none", outline: "none", fontSize: 13, flex: 1, background: "transparent", color: "#0f172a" }}
                           />
-                          {citySearch && <span onClick={() => setCitySearch("")} style={{ cursor: "pointer", color: "#94a3b8", display: "flex" }}><X size={12} /></span>}
+                          {citySearch && <span onClick={() => setCitySearch("")} style={{ cursor: "pointer", color: "#94a3b8", display: "flex" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>}
                         </div>
                         <div style={{ maxHeight: 200, overflowY: "auto" }}>
                           {filteredCities.length === 0 ? (

@@ -495,7 +495,7 @@ export default function EcommerceOrdersPage() {
                 display: 'flex'
               }}
             >
-              <X size={18} />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
           </div>
         </div>
@@ -902,7 +902,7 @@ function BookingDetailPanel({ booking, loading, actionLoading, onClose, onAction
             onMouseOver={(e) => e.currentTarget.style.background = '#e2e8f0'}
             onMouseOut={(e) => e.currentTarget.style.background = '#f1f5f9'}
           >
-            <X size={16} />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
       </div>
@@ -1158,7 +1158,7 @@ function AssignStaffPopup({ booking, onClose, onSuccess }) {
             <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "#0f172a" }}>Assign Staff</h2>
             <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: "0.9rem" }}>Booking #{booking.orderNumber}</p>
           </div>
-          <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}><X size={24} /></button>
+          <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#64748b" }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         
         <div style={{ padding: 32, overflowY: "auto", flex: 1 }}>
