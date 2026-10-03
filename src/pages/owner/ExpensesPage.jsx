@@ -462,31 +462,32 @@ export default function ExpensesPage() {
         }
         .expenses-subnav-scroll::-webkit-scrollbar { display: none; }
         .exp-subnav-tab {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 6px 14px;
-          border-radius: 8px;
-          font-size: 13.5px;
-          font-weight: 600;
-          color: #64748b;
-          background: transparent;
-          border: 1px solid transparent;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-          min-height: 34px;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          padding: 4px 12px !important;
+          border-radius: 6px !important;
+          font-size: 0.75rem !important;
+          font-weight: 600 !important;
+          color: #64748b !important;
+          background: transparent !important;
+          border: 1px solid transparent !important;
+          cursor: pointer !important;
+          white-space: nowrap !important;
+          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          min-height: 28px !important;
+          box-shadow: none !important;
         }
         .exp-subnav-tab:hover:not(.active) {
-          background: #f8fafc;
-          color: #0f172a;
+          background: #f8fafc !important;
+          color: #0f172a !important;
         }
         .exp-subnav-tab.active {
-          background: #f0fdfa;
-          color: #0f766e;
-          border-color: #99f6e4;
-          font-weight: 750;
-          box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12);
+          background: #f0fdfa !important;
+          color: #0f766e !important;
+          border-color: #99f6e4 !important;
+          font-weight: 750 !important;
+          box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12) !important;
         }
 
         /* Local Sidebar Navigation */
