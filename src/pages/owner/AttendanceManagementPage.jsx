@@ -135,7 +135,11 @@ export default function AttendanceManagementPage() {
     setBusyId(userSalonId);
     setFeedback({ error: "", success: "" });
     try {
-      await api.post("/owner/attendance/check-in", { userSalonId, branchId, attendanceDate: date });
+      await api.post("/owner/attendance/check-in", { 
+        userSalonId, 
+        branchId: branchId || selectedBranch || undefined, 
+        attendanceDate: date 
+      });
       setFeedback({ error: "", success: "Staff checked in successfully." });
       await Promise.all([loadSummary(), loadDaySheet(), loadRecords()]);
     } catch (err) {
@@ -182,8 +186,8 @@ export default function AttendanceManagementPage() {
     try {
       await api.patch(`/owner/attendance/${editRecord.id || editRecord.attendanceId}/manual-update`, {
         status: editForm.status,
-        checkInAt: editForm.checkInAt || undefined,
-        checkOutAt: editForm.checkOutAt || undefined,
+        checkInAt: editForm.checkInAt ? new Date(editForm.checkInAt).toISOString() : undefined,
+        checkOutAt: editForm.checkOutAt ? new Date(editForm.checkOutAt).toISOString() : undefined,
         adminRemark: editForm.adminRemark || undefined,
         note: editForm.note || undefined,
         reason: editForm.reason.trim()
@@ -213,10 +217,10 @@ export default function AttendanceManagementPage() {
     try {
       const payload = {
         userSalonId: markModalStaff.userSalonId,
-        branchId: markModalStaff.branchId || null,
+        branchId: markModalStaff.branchId || selectedBranch || null,
         attendanceDate: date,
         status: markForm.status,
-        checkInAt: markForm.status === "ABSENT" || markForm.status === "LEAVE" ? undefined : (markForm.checkInAt || new Date().toISOString()),
+        checkInAt: markForm.status === "ABSENT" || markForm.status === "LEAVE" ? undefined : (markForm.checkInAt ? new Date(markForm.checkInAt).toISOString() : new Date().toISOString()),
         note: markForm.note || undefined,
         adminRemark: markForm.reason ? `Marked by manager: ${markForm.reason}` : "Marked by manager"
       };
