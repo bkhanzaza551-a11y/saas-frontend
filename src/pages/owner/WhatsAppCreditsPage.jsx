@@ -174,12 +174,12 @@ export default function WhatsAppCreditsPage() {
         .wc-balance-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 18px;
-          margin-bottom: 28px;
+          gap: 14px;
+          margin-bottom: 20px;
         }
         .wc-balance-card {
-          border-radius: 16px;
-          padding: 26px 28px;
+          border-radius: 12px;
+          padding: 16px 20px;
           color: #fff;
           position: relative;
           overflow: hidden;
@@ -314,37 +314,37 @@ export default function WhatsAppCreditsPage() {
 
       <div className="wc-balance-grid">
 
-        <div className="wc-balance-card" style={{ background: "linear-gradient(135deg, #166534 0%, #14532d 100%)", boxShadow: "0 10px 25px -5px rgba(22, 101, 52, 0.3)" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(74, 222, 128, 0.12)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(74, 222, 128, 0.08)", borderRadius: "50%" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#bbf7d0", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp Credits</span>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <MessageSquare size={20} color="#4ade80" />
+        <div className="wc-balance-card" style={{ background: "linear-gradient(135deg, #166534 0%, #14532d 100%)", boxShadow: "0 6px 16px -3px rgba(22, 101, 52, 0.25)" }}>
+          <div style={{ position: "absolute", top: -15, right: -15, width: 70, height: 70, background: "rgba(74, 222, 128, 0.12)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: -20, right: 15, width: 50, height: 50, background: "rgba(74, 222, 128, 0.08)", borderRadius: "50%" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: "#bbf7d0", textTransform: "uppercase", letterSpacing: "0.06em" }}>WhatsApp Credits</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <MessageSquare size={16} color="#4ade80" />
             </div>
           </div>
-          <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1, marginBottom: 10, letterSpacing: "-1.5px" }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1.1, marginBottom: 6, letterSpacing: "-0.5px" }}>
             {whatsappCredits.toLocaleString()}
           </div>
-          <div style={{ fontSize: 12, color: "#4ade80", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-            <Sparkles size={13} /> {costs.whatsapp || 1} credit per message
+          <div style={{ fontSize: 11, color: "#4ade80", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <Sparkles size={12} /> {costs.whatsapp || 1} credit per message
           </div>
         </div>
 
-        <div className="wc-balance-card" style={{ background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)", boxShadow: "0 10px 25px -5px rgba(30, 64, 175, 0.3)" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "rgba(96, 165, 250, 0.12)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, background: "rgba(96, 165, 250, 0.08)", borderRadius: "50%" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#bfdbfe", textTransform: "uppercase", letterSpacing: "0.08em" }}>SMS Credits</span>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Smartphone size={20} color="#60a5fa" />
+        <div className="wc-balance-card" style={{ background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)", boxShadow: "0 6px 16px -3px rgba(30, 64, 175, 0.25)" }}>
+          <div style={{ position: "absolute", top: -15, right: -15, width: 70, height: 70, background: "rgba(96, 165, 250, 0.12)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: -20, right: 15, width: 50, height: 50, background: "rgba(96, 165, 250, 0.08)", borderRadius: "50%" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: "#bfdbfe", textTransform: "uppercase", letterSpacing: "0.06em" }}>SMS Credits</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Smartphone size={16} color="#60a5fa" />
             </div>
           </div>
-          <div style={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1, marginBottom: 10, letterSpacing: "-1.5px" }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1.1, marginBottom: 6, letterSpacing: "-0.5px" }}>
             {smsCredits.toLocaleString()}
           </div>
-          <div style={{ fontSize: 12, color: "#60a5fa", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-            <Sparkles size={13} /> {costs.sms || 1} credit per SMS
+          <div style={{ fontSize: 11, color: "#60a5fa", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <Sparkles size={12} /> {costs.sms || 1} credit per SMS
           </div>
         </div>
 
