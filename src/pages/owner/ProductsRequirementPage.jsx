@@ -4,6 +4,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
+import ConfirmModal from "../../components/ConfirmModal";
 import { 
   Package, Plus, Eye, Trash2, ShoppingCart, Search, 
   Layers, ListFilter, FileText, CheckCircle2, ArrowRight,
@@ -91,8 +92,17 @@ export default function ProductsRequirementPage() {
     priority: "MEDIUM",
     unitPrice: "",
     note: ""
-  });
   const [saving, setSaving] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    variant: "danger",
+    loading: false,
+    onConfirm: () => {}
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -719,7 +729,7 @@ export default function ProductsRequirementPage() {
                   <option value="">-- Choose a Product from Catalog --</option>
                   {catalog.filter(c => c.isActive !== false).map(c => (
                     <option key={c.id} value={c.id}>
-                      {c.productName} ({c.brand || "Standard"})
+                      {c.productName}
                     </option>
                   ))}
                   <option value="CUSTOM">+ Other / Custom Product (Not listed above)</option>
