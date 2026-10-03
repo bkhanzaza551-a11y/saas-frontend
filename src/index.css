@@ -1437,8 +1437,7 @@ pre {
   display: grid;
   gap: 10px;
   margin-top: 18px;
-  max-height: calc(100vh - 180px);
-  overflow: auto;
+  overflow: visible;
   padding-right: 4px;
 }
 
