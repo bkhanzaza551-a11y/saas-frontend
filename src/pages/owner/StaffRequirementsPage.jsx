@@ -4,6 +4,7 @@ import { formatApiError } from "../../utils/apiError";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
 import CustomSelect from "../../components/CustomSelect";
+import ConfirmModal from "../../components/ConfirmModal";
 import { 
   Briefcase, Plus, Trash2, Eye, Edit2, Clock, CheckCircle, 
   AlertCircle, Building2, DollarSign, Award, 
@@ -47,6 +48,16 @@ export default function StaffRequirementsPage() {
   const [editReq, setEditReq] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState({ error: "", success: "" });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    variant: "danger",
+    loading: false,
+    onConfirm: () => {}
+  });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -100,30 +111,60 @@ export default function StaffRequirementsPage() {
   };
 
   // Point 6: Basic Actions (Close Request & Delete)
-  const handleCloseRequest = async (id) => {
-    if (!window.confirm("Are you sure you want to mark this staff request as Closed?")) return;
-    try {
-      await api.patch(`/owner/staff-requirements/${id}`, { status: "CLOSED" });
-      setStatus({ error: "", success: "Staff request marked as Closed." });
-      await fetchData();
-      if (selectedReq && selectedReq.id === id) {
-        setSelectedReq({ ...selectedReq, status: "CLOSED" });
+  const handleCloseRequest = (id, reqName = "") => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Close Staff Request",
+      message: reqName 
+        ? `Are you sure you want to mark the staff request "${reqName}" as Closed?` 
+        : "Are you sure you want to mark this staff request as Closed?",
+      confirmText: "Mark as Closed",
+      cancelText: "Cancel",
+      variant: "warning",
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        try {
+          await api.patch(`/owner/staff-requirements/${id}`, { status: "CLOSED" });
+          setStatus({ error: "", success: "Staff request marked as Closed." });
+          await fetchData();
+          if (selectedReq && selectedReq.id === id) {
+            setSelectedReq(prev => prev ? { ...prev, status: "CLOSED" } : null);
+          }
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        } catch (err) {
+          setStatus({ error: formatApiError(err, "Failed to close request"), success: "" });
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        }
       }
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Failed to close request"), success: "" });
-    }
+    });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this staff request?")) return;
-    try {
-      await api.delete(`/owner/staff-requirements/${id}`);
-      setStatus({ error: "", success: "Staff request deleted." });
-      if (selectedReq && selectedReq.id === id) setSelectedReq(null);
-      await fetchData();
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Failed to delete request"), success: "" });
-    }
+  const handleDelete = (id, reqName = "") => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Staff Request",
+      message: reqName 
+        ? `Are you sure you want to permanently delete "${reqName}"? This action cannot be undone.` 
+        : "Are you sure you want to permanently delete this staff request? This action cannot be undone.",
+      confirmText: "Yes, Delete Request",
+      cancelText: "Cancel",
+      variant: "danger",
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        try {
+          await api.delete(`/owner/staff-requirements/${id}`);
+          setStatus({ error: "", success: "Staff request deleted." });
+          if (selectedReq && selectedReq.id === id) setSelectedReq(null);
+          await fetchData();
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        } catch (err) {
+          setStatus({ error: formatApiError(err, "Failed to delete request"), success: "" });
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        }
+      }
+    });
   };
 
   const openEdit = (req) => {
@@ -348,7 +389,7 @@ export default function StaffRequirementsPage() {
                         </button>
                         {req.status !== "CLOSED" && (
                           <button
-                            onClick={() => handleCloseRequest(req.id)}
+                            onClick={() => handleCloseRequest(req.id, req.position || req.title)}
                             title="Close Request"
                             style={{ padding: "6px 10px", border: "1px solid #10b981", borderRadius: 6, background: "#ecfdf5", color: "#059669", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}
                           >
@@ -356,7 +397,7 @@ export default function StaffRequirementsPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => handleDelete(req.id)}
+                          onClick={() => handleDelete(req.id, req.position || req.title)}
                           title="Delete"
                           style={{ padding: 6, border: "1px solid #cbd5e1", borderRadius: 6, background: "white", color: "#ef4444", cursor: "pointer" }}
                         >
@@ -432,7 +473,7 @@ export default function StaffRequirementsPage() {
               <div>
                 {selectedReq.status !== "CLOSED" && (
                   <button
-                    onClick={() => handleCloseRequest(selectedReq.id)}
+                    onClick={() => handleCloseRequest(selectedReq.id, selectedReq.position || selectedReq.title)}
                     style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#10b981", color: "white", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
                   >
                     ✓ Close Request
@@ -582,6 +623,19 @@ export default function StaffRequirementsPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Modern Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
+      />
     </div>
   );
 }

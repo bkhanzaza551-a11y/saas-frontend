@@ -6,6 +6,7 @@ import MapPicker from "../../components/MapPicker";
 import CustomSelect from "../../components/CustomSelect";
 import EmptyState from "../../components/EmptyState";
 import PageLoader from "../../components/PageLoader";
+import ConfirmModal from "../../components/ConfirmModal";
 import { formatApiError } from "../../utils/apiError";
 import { useBranch } from "../../context/BranchContext";
 import { Search, Edit3, MapPin, X, Building2, Trash2, Plus, AlertTriangle } from "lucide-react";
@@ -24,6 +25,16 @@ export default function BranchesPage() {
   const [formKey, setFormKey] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [query, setQuery] = useState("");
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    variant: "danger",
+    loading: false,
+    onConfirm: () => {}
+  });
 
   const heading = useMemo(() => (editingId ? "Update Branch" : "Add New Branch"), [editingId]);
 
@@ -119,17 +130,32 @@ export default function BranchesPage() {
     }
   };
 
-  const deleteBranch = async (branchId) => {
-    if (!window.confirm("Delete this branch? This cannot be undone.")) return;
-    try {
-      await api.delete(`/owner/branches/${branchId}`);
-      setStatus(s => ({ ...s, error: "", success: "Branch deleted." }));
-      if (editingId === branchId) resetForm();
-      await load();
-      await refetchBranches();
-    } catch (error) {
-      setStatus(s => ({ ...s, error: formatApiError(error, "Failed to delete branch"), success: "" }));
-    }
+  const deleteBranch = (branchId, branchName = "") => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Branch Location",
+      message: branchName
+        ? `Are you sure you want to permanently delete "${branchName}"? All staff and service assignments for this branch will be unlinked.`
+        : "Are you sure you want to delete this branch? This action cannot be undone.",
+      confirmText: "Yes, Delete Branch",
+      cancelText: "Cancel",
+      variant: "danger",
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        try {
+          await api.delete(`/owner/branches/${branchId}`);
+          setStatus(s => ({ ...s, error: "", success: "Branch deleted." }));
+          if (editingId === branchId) resetForm();
+          await load();
+          await refetchBranches();
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        } catch (error) {
+          setStatus(s => ({ ...s, error: formatApiError(error, "Failed to delete branch"), success: "" }));
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        }
+      }
+    });
   };
 
   const startEdit = (branch) => {
@@ -386,7 +412,7 @@ export default function BranchesPage() {
                         <button type="button" onClick={() => startEdit(branch)} className="icon-btn" style={{ padding: 6, color: "#64748b", background: "none", border: "none", cursor: "pointer" }} title="Edit Branch">
                           <Edit3 size={16} />
                         </button>
-                        <button type="button" onClick={() => deleteBranch(branch.id)} className="icon-btn" style={{ padding: 6, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }} title="Delete Branch">
+                        <button type="button" onClick={() => deleteBranch(branch.id, branch.name)} className="icon-btn" style={{ padding: 6, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }} title="Delete Branch">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -518,6 +544,19 @@ export default function BranchesPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Modern Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
+      />
     </div>
   );
 }

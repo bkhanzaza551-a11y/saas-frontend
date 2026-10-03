@@ -92,6 +92,7 @@ export default function ProductsRequirementPage() {
     priority: "MEDIUM",
     unitPrice: "",
     note: ""
+  });
   const [saving, setSaving] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -255,19 +256,34 @@ export default function ProductsRequirementPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to cancel this product request?")) return;
-    try {
-      await api.delete(`/owner/product-requirements/${id}`);
-      setStatus({ error: "", success: "Product request cancelled successfully." });
-      if (selectedDetail && selectedDetail.id === id) {
-        setSelectedDetail(null);
-        setActiveSection("my_requests");
+  const handleDelete = (id, prodName = "") => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Cancel Product Request",
+      message: prodName
+        ? `Are you sure you want to cancel the request for "${prodName}"?`
+        : "Are you sure you want to cancel this product request?",
+      confirmText: "Yes, Cancel Request",
+      cancelText: "Keep Request",
+      variant: "danger",
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        try {
+          await api.delete(`/owner/product-requirements/${id}`);
+          setStatus({ error: "", success: "Product request cancelled successfully." });
+          if (selectedDetail && selectedDetail.id === id) {
+            setSelectedDetail(null);
+            setActiveSection("my_requests");
+          }
+          await load();
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        } catch (err) {
+          setStatus({ error: formatApiError(err, "Failed to cancel request"), success: "" });
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        }
       }
-      await load();
-    } catch (err) {
-      setStatus({ error: formatApiError(err, "Failed to cancel request"), success: "" });
-    }
+    });
   };
 
   if (loading) return <div className="page-shell"><PageLoader title="Loading Product Requests" /></div>;
@@ -1131,7 +1147,7 @@ export default function ProductsRequirementPage() {
                             </button>
                             {r.status === "NEW" && (
                               <button
-                                onClick={() => handleDelete(r.id)}
+                                onClick={() => handleDelete(r.id, r.productName)}
                                 title="Cancel Request"
                                 style={{ padding: "6px 8px", border: "1px solid #fee2e2", borderRadius: 6, background: "#fef2f2", color: "#ef4444", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, fontSize: "0.75rem", fontWeight: 600 }}
                               >
@@ -1211,6 +1227,19 @@ export default function ProductsRequirementPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Modern Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
+      />
     </div>
   );
 }
