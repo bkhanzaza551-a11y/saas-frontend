@@ -54,10 +54,11 @@ export default function SalonDetailsPage() {
   const activeBranches = Array.isArray(branches) ? branches.filter(b => b.isActive).length : 0;
 
   return (
-    <div className="page-shell" style={{ padding: "24px 16px", maxWidth: 900, margin: "0 auto" }}>
+    <div className="page-shell" style={{ width: "100%", boxSizing: "border-box" }}>
       <style>{`
         .sd-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
         .sd-card h2 { margin: 0 0 16px; font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+        .sd-layout-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; align-items: start; }
         .sd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .sd-field { display: flex; flex-direction: column; gap: 4px; }
         .sd-label { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -68,6 +69,9 @@ export default function SalonDetailsPage() {
         .sd-stat-label { font-size: 0.72rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-top: 2px; }
         .sd-progress { height: 7px; background: #e2e8f0; border-radius: 100px; overflow: hidden; margin-top: 6px; }
         .sd-progress-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+        @media (max-width: 1024px) {
+          .sd-layout-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+        }
         @media (max-width: 640px) {
           .sd-card { padding: 18px 16px !important; margin-bottom: 14px !important; }
           .sd-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
@@ -99,114 +103,122 @@ export default function SalonDetailsPage() {
         </div>
       </div>
 
-      {/* Plan & Subscription */}
-      <div className="sd-card">
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}><CreditCard size={18} color="#6366f1" /> Subscription & Plan</h2>
-        {plan ? (
-          <>
-            <div className="sd-plan-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12, paddingBottom: 14, borderBottom: "1px solid #f1f5f9" }}>
-              <div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#6366f1" }}>{plan.name}</div>
-                <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
-                  {fmtMoney(plan.yearlyPrice || plan.monthlyPrice)}/year
-                </div>
-              </div>
-              <div className="sd-plan-dates" style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "0.78rem", color: "#64748b" }}>Started: <strong>{fmtDate(subscription.startsAt)}</strong></div>
-                <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: 2 }}>Expires: <strong>{fmtDate(expiry)}</strong></div>
-                {subscription.paymentStatus && (
-                  <span className="sd-badge" style={{ background: subscription.paymentStatus === "PAID" || subscription.paymentStatus === "COMPLETED" ? "#ecfdf5" : "#fffbeb", color: subscription.paymentStatus === "PAID" || subscription.paymentStatus === "COMPLETED" ? "#16a34a" : "#d97706", marginTop: 6, display: "inline-flex" }}>
-                    Payment: {subscription.paymentStatus}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Limits */}
-            <div className="sd-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-              {[
-                { label: "Branches", used: counts.branches || 0, limit: plan.branchLimit, icon: <Building2 size={14} /> },
-                { label: "Staff", used: counts.users || 0, limit: plan.userLimit, icon: <Users size={14} /> },
-                { label: "Customers", used: counts.customers || 0, limit: plan.customerLimit, icon: <Package size={14} /> },
-                { label: "Invoices", used: counts.invoices || 0, limit: plan.invoiceLimit, icon: <Receipt size={14} /> }
-              ].map((item) => {
-                const isUnlimited = item.limit >= 9999;
-                const pct = item.limit > 0 && !isUnlimited ? Math.min(100, (item.used / item.limit) * 100) : 0;
-                const isNearLimit = !isUnlimited && pct > 80;
-                return (
-                  <div key={item.label} className="sd-stat">
-                    <div className="sd-stat-label" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{item.icon} {item.label}</div>
-                    <div className="sd-stat-num" style={{ color: isNearLimit ? "#dc2626" : "#0f172a" }}>
-                      {item.used} <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: 2 }}>/ {isUnlimited ? <InfinityIcon size={14} /> : item.limit}</span>
-                    </div>
-                    <div className="sd-progress">
-                      {!isUnlimited && <div className="sd-progress-fill" style={{ width: `${pct}%`, background: pct > 80 ? "#ef4444" : pct > 50 ? "#f59b0b" : "#22c55e" }} />}
+      {/* Two Column Layout Grid */}
+      <div className="sd-layout-grid">
+        {/* Left Column: Subscription & Plan */}
+        <div className="sd-layout-col">
+          <div className="sd-card" style={{ marginBottom: 0 }}>
+            <h2 style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}><CreditCard size={18} color="#6366f1" /> Subscription & Plan</h2>
+            {plan ? (
+              <>
+                <div className="sd-plan-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12, paddingBottom: 14, borderBottom: "1px solid #f1f5f9" }}>
+                  <div>
+                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#6366f1" }}>{plan.name}</div>
+                    <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: 2 }}>
+                      {fmtMoney(plan.yearlyPrice || plan.monthlyPrice)}/year
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <div style={{ padding: "24px 0", textAlign: "center", color: "#94a3b8" }}>
-            <AlertTriangle size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
-            <div style={{ fontWeight: 600 }}>No active subscription</div>
-            <div style={{ fontSize: "0.85rem", marginTop: 4 }}>Contact support to get a plan.</div>
-          </div>
-        )}
-      </div>
+                  <div className="sd-plan-dates" style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: "0.78rem", color: "#64748b" }}>Started: <strong>{fmtDate(subscription.startsAt)}</strong></div>
+                    <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: 2 }}>Expires: <strong>{fmtDate(expiry)}</strong></div>
+                    {subscription.paymentStatus && (
+                      <span className="sd-badge" style={{ background: subscription.paymentStatus === "PAID" || subscription.paymentStatus === "COMPLETED" ? "#ecfdf5" : "#fffbeb", color: subscription.paymentStatus === "PAID" || subscription.paymentStatus === "COMPLETED" ? "#16a34a" : "#d97706", marginTop: 6, display: "inline-flex" }}>
+                        Payment: {subscription.paymentStatus}
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-      {/* Salon Details */}
-      <div className="sd-card">
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}><Zap size={18} color="#f59e0b" /> Salon Information</h2>
-        <div className="sd-grid">
-          <div className="sd-field">
-            <span className="sd-label">Email</span>
-            <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><Mail size={14} color="#94a3b8" /> {salon.email || "—"}</span>
-          </div>
-          <div className="sd-field">
-            <span className="sd-label">Phone</span>
-            <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><Phone size={14} color="#94a3b8" /> {salon.phone || "—"}</span>
-          </div>
-          <div className="sd-field" style={{ gridColumn: "1 / -1" }}>
-            <span className="sd-label">Address</span>
-            <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><MapPin size={14} color="#94a3b8" /> {salon.address || "—"}</span>
-          </div>
-
-          <div className="sd-field">
-            <span className="sd-label">City</span>
-            <span className="sd-value">{salon.city || "—"}</span>
-          </div>
-          <div className="sd-field">
-            <span className="sd-label">State / Country</span>
-            <span className="sd-value">{salon.state ? `${salon.state}, ` : ""}{salon.country || "—"}</span>
-          </div>
-          <div className="sd-field">
-            <span className="sd-label">Tax Rate</span>
-            <span className="sd-value">{salon.taxRate != null ? `${salon.taxRate}%` : "0%"}</span>
-          </div>
-          <div className="sd-field">
-            <span className="sd-label">Registered On</span>
-            <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} color="#94a3b8" /> {fmtDate(salon.createdAt)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Branches */}
-      {Array.isArray(branches) && branches.length > 0 && (
-        <div className="sd-card">
-          <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}><Building2 size={18} color="#10b981" /> Branches ({activeBranches} active of {branches.length})</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {branches.map(b => (
-              <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: b.isActive ? "#22c55e" : "#cbd5e1" }} />
-                <span style={{ fontWeight: 600, color: "#1e293b" }}>{b.name}</span>
-                <span style={{ fontSize: "0.75rem", color: b.isActive ? "#16a34a" : "#94a3b8", marginLeft: "auto" }}>{b.isActive ? "Active" : "Inactive"}</span>
+                {/* Limits */}
+                <div className="sd-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12 }}>
+                  {[
+                    { label: "Branches", used: counts.branches || 0, limit: plan.branchLimit, icon: <Building2 size={14} /> },
+                    { label: "Staff", used: counts.users || 0, limit: plan.userLimit, icon: <Users size={14} /> },
+                    { label: "Customers", used: counts.customers || 0, limit: plan.customerLimit, icon: <Package size={14} /> },
+                    { label: "Invoices", used: counts.invoices || 0, limit: plan.invoiceLimit, icon: <Receipt size={14} /> }
+                  ].map((item) => {
+                    const isUnlimited = item.limit >= 9999;
+                    const pct = item.limit > 0 && !isUnlimited ? Math.min(100, (item.used / item.limit) * 100) : 0;
+                    const isNearLimit = !isUnlimited && pct > 80;
+                    return (
+                      <div key={item.label} className="sd-stat">
+                        <div className="sd-stat-label" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>{item.icon} {item.label}</div>
+                        <div className="sd-stat-num" style={{ color: isNearLimit ? "#dc2626" : "#0f172a" }}>
+                          {item.used} <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: 2 }}>/ {isUnlimited ? <InfinityIcon size={14} /> : item.limit}</span>
+                        </div>
+                        <div className="sd-progress">
+                          {!isUnlimited && <div className="sd-progress-fill" style={{ width: `${pct}%`, background: pct > 80 ? "#ef4444" : pct > 50 ? "#f59b0b" : "#22c55e" }} />}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div style={{ padding: "24px 0", textAlign: "center", color: "#94a3b8" }}>
+                <AlertTriangle size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+                <div style={{ fontWeight: 600 }}>No active subscription</div>
+                <div style={{ fontSize: "0.85rem", marginTop: 4 }}>Contact support to get a plan.</div>
               </div>
-            ))}
+            )}
           </div>
         </div>
-      )}
+
+        {/* Right Column: Salon Information & Branches */}
+        <div className="sd-layout-col" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Salon Details */}
+          <div className="sd-card" style={{ marginBottom: 0 }}>
+            <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}><Zap size={18} color="#f59e0b" /> Salon Information</h2>
+            <div className="sd-grid">
+              <div className="sd-field">
+                <span className="sd-label">Email</span>
+                <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><Mail size={14} color="#94a3b8" /> {salon.email || "—"}</span>
+              </div>
+              <div className="sd-field">
+                <span className="sd-label">Phone</span>
+                <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><Phone size={14} color="#94a3b8" /> {salon.phone || "—"}</span>
+              </div>
+              <div className="sd-field" style={{ gridColumn: "1 / -1" }}>
+                <span className="sd-label">Address</span>
+                <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><MapPin size={14} color="#94a3b8" /> {salon.address || "—"}</span>
+              </div>
+
+              <div className="sd-field">
+                <span className="sd-label">City</span>
+                <span className="sd-value">{salon.city || "—"}</span>
+              </div>
+              <div className="sd-field">
+                <span className="sd-label">State / Country</span>
+                <span className="sd-value">{salon.state ? `${salon.state}, ` : ""}{salon.country || "—"}</span>
+              </div>
+              <div className="sd-field">
+                <span className="sd-label">Tax Rate</span>
+                <span className="sd-value">{salon.taxRate != null ? `${salon.taxRate}%` : "0%"}</span>
+              </div>
+              <div className="sd-field">
+                <span className="sd-label">Registered On</span>
+                <span className="sd-value" style={{ display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} color="#94a3b8" /> {fmtDate(salon.createdAt)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Branches */}
+          {Array.isArray(branches) && branches.length > 0 && (
+            <div className="sd-card" style={{ marginBottom: 0 }}>
+              <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}><Building2 size={18} color="#10b981" /> Branches ({activeBranches} active of {branches.length})</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {branches.map(b => (
+                  <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: b.isActive ? "#22c55e" : "#cbd5e1" }} />
+                    <span style={{ fontWeight: 600, color: "#1e293b" }}>{b.name}</span>
+                    <span style={{ fontSize: "0.75rem", color: b.isActive ? "#16a34a" : "#94a3b8", marginLeft: "auto" }}>{b.isActive ? "Active" : "Inactive"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
