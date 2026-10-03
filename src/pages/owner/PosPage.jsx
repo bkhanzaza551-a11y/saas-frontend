@@ -1231,7 +1231,12 @@ export default function PosPage() {
       list = list.filter(s => genderMatches(s, posGender));
     }
     if (serviceSearch) {
-      list = list.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()));
+      const q = serviceSearch.toLowerCase();
+      list = list.filter(s => 
+        s.name.toLowerCase().includes(q) || 
+        String(s.price || "").includes(q) || 
+        String(s.salePrice || "").includes(q)
+      );
     }
     if (serviceCategoryFilter) {
       const matchIds = categoryDescendantMap[serviceCategoryFilter]?.ids || new Set();
@@ -1278,7 +1283,12 @@ export default function PosPage() {
       list = list.filter(p => genderMatches(p, posGender));
     }
     if (productSearch) {
-      list = list.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()));
+      const q = productSearch.toLowerCase();
+      list = list.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        String(p.sellingPrice || "").includes(q) || 
+        String(p.mrp || "").includes(q)
+      );
     }
     if (productCategoryFilter) {
       list = list.filter(p => normalizeProductCategoryId(p) === productCategoryFilter);
@@ -2208,29 +2218,10 @@ export default function PosPage() {
       {/* TOP BAR */}
       <div className="pos-topbar">
         <div className="pos-topbar-left">
-          <div className="pos-gender-toggles">
-            <button className={`pos-gender-btn ${posGender === "ALL" ? "active" : ""}`} onClick={() => setPosGender("ALL")}>All</button>
-            <button className={`pos-gender-btn ${posGender === "FEMALE" ? "active" : ""}`} onClick={() => setPosGender("FEMALE")}>Female</button>
-            <button className={`pos-gender-btn ${posGender === "MALE" ? "active" : ""}`} onClick={() => setPosGender("MALE")}>Male</button>
-          </div>
-          <div className="pos-search-wrapper">
-            <input 
-              placeholder={tab === "billing" ? "Search Service" : tab === "products" ? "Search Product" : tab === "packages" ? "Search Package" : "Search Membership"} 
-              value={
-                  tab === 'billing' ? serviceSearch : 
-                  tab === 'products' ? productSearch : 
-                  tab === 'packages' ? packageSearch : 
-                  membershipSearch
-                } 
-              onChange={(e) => {
-                  const val = e.target.value;
-                  if (tab === 'billing') setServiceSearch(val);
-                  else if (tab === 'products') setProductSearch(val);
-                  else if (tab === 'packages') setPackageSearch(val);
-                  else setMembershipSearch(val);
-                }} 
-            />
-            <svg className="pos-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <div className="pos-gender-toggles" style={{ flex: 1, width: "100%" }}>
+            <button className={`pos-gender-btn ${posGender === "ALL" ? "active" : ""}`} onClick={() => setPosGender("ALL")} style={{ flex: 1 }}>All</button>
+            <button className={`pos-gender-btn ${posGender === "FEMALE" ? "active" : ""}`} onClick={() => setPosGender("FEMALE")} style={{ flex: 1 }}>Female</button>
+            <button className={`pos-gender-btn ${posGender === "MALE" ? "active" : ""}`} onClick={() => setPosGender("MALE")} style={{ flex: 1 }}>Male</button>
           </div>
         </div>
         <div className="pos-topbar-right">
@@ -2284,6 +2275,25 @@ export default function PosPage() {
 
         {/* LEFT SIDEBAR (1-CLICK CATALOG) */}
         <div className={`pos-sidebar ${mobileTab === "cart" ? "mobile-hidden" : ""}`}>
+          <div className="pos-search-wrapper" style={{ marginBottom: 12 }}>
+            <input 
+              placeholder={tab === "billing" ? "Search Service" : tab === "products" ? "Search Product" : tab === "packages" ? "Search Package" : "Search Membership"} 
+              value={
+                  tab === 'billing' ? serviceSearch : 
+                  tab === 'products' ? productSearch : 
+                  tab === 'packages' ? packageSearch : 
+                  membershipSearch
+                } 
+              onChange={(e) => {
+                  const val = e.target.value;
+                  if (tab === 'billing') setServiceSearch(val);
+                  else if (tab === 'products') setProductSearch(val);
+                  else if (tab === 'packages') setPackageSearch(val);
+                  else setMembershipSearch(val);
+                }} 
+            />
+            <svg className="pos-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </div>
           <div className="pos-cat-grid">
             {tab === "products" ? (
                <>
