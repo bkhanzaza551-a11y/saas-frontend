@@ -550,7 +550,7 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
             </div>
             <button
               onClick={handleCreate}
-              className="cpn-btn cpn-btn-primary"
+              className="btn-primary"
               style={{ width: "100%", fontSize: 13, padding: "9px 12px", justifyContent: "center" }}
             >
               <Plus size={16} /> Create Vendor
@@ -665,14 +665,14 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
 
                 <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 10, borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
                   {mode === "edit" && (
-                    <button type="button" onClick={() => handleOpenItems(selectedVendor)} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 16px" }}>
+                    <button type="button" onClick={() => handleOpenItems(selectedVendor)} className="btn-secondary" style={{ fontSize: 13, padding: "8px 16px" }}>
                       Manage Vendor Items
                     </button>
                   )}
-                  <button type="button" onClick={() => setMode("list")} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 16px" }}>
+                  <button type="button" onClick={() => setMode("list")} className="btn-secondary" style={{ fontSize: 13, padding: "8px 16px" }}>
                     Cancel
                   </button>
-                  <button type="submit" disabled={loading} className="cpn-btn cpn-btn-primary" style={{ fontSize: 13, padding: "8px 22px", opacity: loading ? 0.7 : 1 }}>
+                  <button type="submit" disabled={loading} className="btn-primary" style={{ fontSize: 13, padding: "8px 22px", opacity: loading ? 0.7 : 1 }}>
                     {loading ? "Saving..." : mode === "create" ? "Create Vendor" : "Update Vendor"}
                   </button>
                 </div>
@@ -723,7 +723,7 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
                 <button
                   onClick={handleAddItem}
                   disabled={!selectedProduct}
-                  className="cpn-btn cpn-btn-primary"
+                  className="btn-primary"
                   style={{ fontSize: 13, padding: "9px 18px", opacity: selectedProduct ? 1 : 0.6 }}
                 >
                   Add Item
@@ -790,7 +790,7 @@ export default function VendorManagement({ branches = [], selectedBranchId = nul
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 20 }}>
-                <button onClick={() => setMode("edit")} className="cpn-btn cpn-btn-secondary" style={{ fontSize: 13, padding: "8px 18px" }}>
+                <button onClick={() => setMode("edit")} className="btn-secondary" style={{ fontSize: 13, padding: "8px 18px" }}>
                   Back to Profile
                 </button>
               </div>
